@@ -151,23 +151,60 @@ class AppointmentCreator:
 
     def _create(self) -> Appointment:
         """Returns a newly created appointment model instance."""
+        errmsg = (
+            f"An 'IntegrityError' was raised while trying to "
+            f"create an appointment for subject '{self.subject_identifier}'. "
+            f"Appointment create options were {self.options}"
+        )
+        extra_opts = dict(
+            facility_name=self.facility.name,
+            timepoint_datetime=self.timepoint_datetime,
+            appt_datetime=self.appt_datetime,
+            appt_type=self.default_appt_type,
+            appt_reason=self.appt_reason or self.default_appt_reason,
+            ignore_window_period=self.ignore_window_period or False,
+        )
         try:
             with transaction.atomic():
                 appointment = self.appointment_model_cls.objects.create(
-                    facility_name=self.facility.name,
-                    timepoint_datetime=self.timepoint_datetime,
-                    appt_datetime=self.appt_datetime,
-                    appt_type=self.default_appt_type,
-                    appt_reason=self.appt_reason or self.default_appt_reason,
-                    ignore_window_period=self.ignore_window_period or False,
-                    **self.options,
+                    **self.options, **extra_opts
                 )
         except IntegrityError as e:
-            raise IntegrityError(
-                f"An 'IntegrityError' was raised while trying to "
-                f"create an appointment for subject '{self.subject_identifier}'. "
-                f"Got {e}. Appointment create options were {self.options}"
-            )
+            # TODO: if adding unschedule with duplicate sequence ...
+            if self.visit_code_sequence > 0:
+                # confirm makes sense relative to appt_datetime or raise
+                # if not raise!
+
+                # else: increment visit code seq for appts after the proposed appt
+                options = dict(
+                    subject_identifier=self.subject_identifier,
+                    visit_schedule_name=self.visit_schedule_name,
+                    schedule_name=self.schedule_name,
+                    visit_code=self.visit.code,
+                )
+                if self.site:
+                    options.update(site_id=self.site.id)
+                for appt in self.appointment_model_cls.objects.filter(
+                    visit_code_sequence__gte=self.visit_code_sequence, **options
+                ).order_by("visit_code_sequence"):
+                    appt.visit_code_sequence = appt.visit_code_sequence + 1
+                    appt.save_base(update_fields=["visit_code_sequence"])
+
+                # try again
+                with transaction.atomic():
+                    try:
+                        appointment = self.appointment_model_cls.objects.create(
+                            **self.options, **extra_opts
+                        )
+                    except IntegrityError as e:
+                        raise IntegrityError(f"{errmsg} Got {e}.")
+
+                # do something
+                # get appt with same sequence
+                # inspect date
+                # use save_base to chenge
+            else:
+                raise IntegrityError(f"{errmsg} Got {e}.")
         return appointment
 
     def _update(self, appointment=None) -> Appointment:

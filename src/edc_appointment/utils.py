@@ -13,7 +13,7 @@ from django.contrib.messages import ERROR, SUCCESS
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import Max, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from edc_constants.constants import CLINIC
@@ -280,12 +280,19 @@ def update_unscheduled_appointment_sequence(subject_identifier: str) -> None:
             .objects.filter(appt_reason=UNSCHEDULED_APPT, **opts)
             .order_by("appt_datetime")
         )
-        for index, appointment in enumerate(appointments):
-            if appointment.visit_code_sequence != index + 1:
-                appointment.visit_code_sequence = index + 1
-                update_fields = ["visit_code_sequence"]
-                appointment.save_base(update_fields=update_fields)
-                appointment.refresh_from_db()
+        values = appointments.aggregate(Max("visit_code_sequence", default=0))
+        max_sequence = values.get("visit_code_sequence__max")
+        for index, appointment in enumerate(appointments, start=1):
+            appointment.visit_code_sequence = max_sequence + index
+            update_fields = ["visit_code_sequence"]
+            appointment.save_base(update_fields=update_fields)
+            appointment.refresh_from_db()
+
+        for index, appointment in enumerate(appointments, start=1):
+            appointment.visit_code_sequence = index
+            update_fields = ["visit_code_sequence"]
+            appointment.save_base(update_fields=update_fields)
+            appointment.refresh_from_db()
 
         # update visit_code_sequence for appointment having a related_visit
         # saving the related_visit also updates the metadata

@@ -145,8 +145,8 @@ class UnscheduledAppointmentCreator:
                 )
             except CreateAppointmentError:
                 raise
-            except IntegrityError as e:
-                raise CreateAppointmentError(e)
+            # except IntegrityError as e:
+            #     raise CreateAppointmentError(e)
             except AppointmentWindowError as e:
                 msg = str(e).replace("Perhaps catch this in the form", "")
                 raise UnscheduledAppointmentError(
