@@ -72,3 +72,7 @@ class AppointmentInProgressError(Exception):
 
 class AppointmentCreatorError(Exception):
     pass
+
+
+class CreateAppointmentError(Exception):
+    pass

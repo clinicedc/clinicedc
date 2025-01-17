@@ -22,13 +22,14 @@ from ..exceptions import (
     AppointmentInProgressError,
     AppointmentPermissionsRequired,
     AppointmentWindowError,
+    CreateAppointmentError,
     InvalidParentAppointmentMissingVisitError,
     InvalidParentAppointmentStatusError,
     InvalidVisitCodeSequencesError,
     UnscheduledAppointmentError,
     UnscheduledAppointmentNotAllowed,
 )
-from .appointment_creator import AppointmentCreator, CreateAppointmentError
+from .appointment_creator import AppointmentCreator
 
 if TYPE_CHECKING:
     from edc_facility import Facility

@@ -30,7 +30,11 @@ def appointment_post_save(sender, instance, raw, update_fields, **kwargs):
         # other appointments to be NOT in progress
         try:
             if instance.appt_status == IN_PROGRESS_APPT:
-                AppointmentStatusUpdater(instance, clear_others_in_progress=True)
+                AppointmentStatusUpdater(
+                    instance,
+                    change_to_in_progress=True,
+                    clear_others_in_progress=True,
+                )
         except AttributeError as e:
             if "appt_status" not in str(e):
                 raise
@@ -59,11 +63,11 @@ def create_appointments_on_post_save(sender, instance, raw, created, using, **kw
                 raise
 
 
-@receiver(post_save, weak=False, dispatch_uid="update_appt_status_on_subject_visit_post_save")
+@receiver(post_save, weak=False, dispatch_uid="update_appt_status_on_related_visit_post_save")
 def update_appt_status_on_related_visit_post_save(
-    sender, instance, raw, update_fields, **kwargs
+    sender, instance, created, raw, update_fields, **kwargs
 ):
-    if not raw and not update_fields:
+    if not raw and not update_fields and created:
         if isinstance(instance, (get_related_visit_model_cls(),)):
             try:
                 AppointmentStatusUpdater(

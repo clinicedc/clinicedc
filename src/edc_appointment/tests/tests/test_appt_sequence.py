@@ -124,6 +124,7 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         )
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=1)
         delete_appointment_in_sequence(appointment)
+        # update_unscheduled_appointment_sequence
         self.assertEqual(
             [0, 1, 2],
             [

@@ -7,11 +7,11 @@ from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
 from ..creators import UnscheduledAppointmentCreator
-from ..creators.appointment_creator import CreateAppointmentError
 from ..exceptions import (
     AppointmentInProgressError,
     AppointmentPermissionsRequired,
     AppointmentWindowError,
+    CreateAppointmentError,
     InvalidParentAppointmentMissingVisitError,
     InvalidParentAppointmentStatusError,
     UnscheduledAppointmentError,
