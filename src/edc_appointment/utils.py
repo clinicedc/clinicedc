@@ -13,7 +13,7 @@ from django.contrib.messages import ERROR, SUCCESS
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
-from django.db.models import Max, ProtectedError
+from django.db.models import ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from edc_constants.constants import CLINIC
@@ -259,53 +259,46 @@ def update_unscheduled_appointment_sequence(subject_identifier: str) -> None:
     ]
     visit_codes = list(set(visit_codes))
     for visit_schedule_name, schedule_name, visit_code in visit_codes:
-        appointments = get_appointment_model_cls().objects.filter(
+        opts = dict(
             subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule_name,
             schedule_name=schedule_name,
             visit_code=visit_code,
-            appt_reason=UNSCHEDULED_APPT,
         )
-        if appointments:
-            values = appointments.aggregate(Max("visit_code_sequence", default=0))
-            max_sequence = values.get("visit_code_sequence__max")
-            if max_sequence > 1:
-                for appt in appointments.filter(visit_code_sequence__gt=0):
-                    move_to_new_visit_code_sequence(
-                        appt, appt.visit_code_sequence + max_sequence
-                    )
-        for index, appointment in enumerate(appointments.order_by("appt_datetime")):
-            move_to_new_visit_code_sequence(appointment, index + 1)
 
+        # delete crf and requisition metadata for unscheduled visits
+        # having this visit code
+        get_crf_metadata_model_cls().objects.filter(visit_code_sequence__gt=0, **opts).delete()
+        get_requisition_metadata_model_cls().objects.filter(
+            visit_code_sequence__gt=0, **opts
+        ).delete()
 
-def move_to_new_visit_code_sequence(
-    appointment: Appointment, new_sequence: int
-) -> Appointment:
-    if appointment.visit_code_sequence != new_sequence:
-        old_sequence = appointment.visit_code_sequence
-        appointment.visit_code_sequence = new_sequence
-        update_fields = ["visit_code_sequence"]
-        appointment.save_base(update_fields=update_fields)
-        appointment.refresh_from_db()
-        opts = dict(
-            subject_identifier=appointment.subject_identifier,
-            visit_schedule_name=appointment.visit_schedule_name,
-            schedule_name=appointment.schedule_name,
-            visit_code=appointment.visit_code,
-            visit_code_sequence=old_sequence,
+        # update visit_code_sequence for all unscheduled appointments
+        # having this visit code
+        appointments = (
+            get_appointment_model_cls()
+            .objects.filter(appt_reason=UNSCHEDULED_APPT, **opts)
+            .order_by("appt_datetime")
         )
-        for crf in get_crf_metadata_model_cls().objects.filter(**opts):
-            crf.visit_code_sequence = appointment.visit_code_sequence
-            crf.save_base(update_fields=["visit_code_sequence"])
-        for requisition in get_requisition_metadata_model_cls().objects.filter(**opts):
-            requisition.visit_code_sequence = appointment.visit_code_sequence
-            requisition.save_base(update_fields=["visit_code_sequence"])
-        if appointment.related_visit:
-            appointment.related_visit.visit_code_sequence = appointment.visit_code_sequence
-            appointment.related_visit.save_base(update_fields=["visit_code_sequence"])
-            appointment.related_visit.refresh_from_db()
-        # recalc appt_status
-    return appointment
+        for index, appointment in enumerate(appointments):
+            if appointment.visit_code_sequence != index + 1:
+                appointment.visit_code_sequence = index + 1
+                update_fields = ["visit_code_sequence"]
+                appointment.save_base(update_fields=update_fields)
+                appointment.refresh_from_db()
+
+        # update visit_code_sequence for appointment having a related_visit
+        # saving the related_visit also updates the metadata
+        appointments = (
+            get_appointment_model_cls()
+            .objects.filter(appt_reason=UNSCHEDULED_APPT, **opts)
+            .order_by("appt_datetime")
+        )
+        for index, appointment in enumerate(appointments):
+            if appointment.related_visit:
+                appointment.related_visit.visit_code_sequence = appointment.visit_code_sequence
+                appointment.related_visit.save()
+                appointment.related_visit.refresh_from_db()
 
 
 def delete_appointment_in_sequence(appointment: Any, from_post_delete=None) -> None:

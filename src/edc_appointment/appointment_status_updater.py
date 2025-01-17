@@ -34,16 +34,9 @@ class AppointmentStatusUpdater:
                 self.appointment.appt_status = IN_PROGRESS_APPT
                 self.appointment.save_base(update_fields=["appt_status"])
             if clear_others_in_progress:
-                self.update_others_from_in_progress()
-
-    def update_others_from_in_progress(self) -> None:
-        opts = dict(
-            visit_schedule_name=self.appointment.visit_schedule_name,
-            schedule_name=self.appointment.schedule_name,
-            appt_status=IN_PROGRESS_APPT,
-        )
-        appointments = self.appointment.__class__.objects.filter(**opts).exclude(
-            id=self.appointment.id
-        )
-        for appointment in appointments:
-            update_appt_status(appointment, save=True)
+                for appointment in self.appointment.__class__.objects.filter(
+                    visit_schedule_name=self.appointment.visit_schedule_name,
+                    schedule_name=self.appointment.schedule_name,
+                    appt_status=IN_PROGRESS_APPT,
+                ).exclude(id=self.appointment.id):
+                    update_appt_status(appointment, save=True)

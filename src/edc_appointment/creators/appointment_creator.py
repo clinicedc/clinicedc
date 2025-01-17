@@ -25,10 +25,6 @@ if TYPE_CHECKING:
     from ..models import Appointment, AppointmentType
 
 
-class CreateAppointmentError(Exception):
-    pass
-
-
 class CreateAppointmentDateError(Exception):
     pass
 
@@ -167,7 +163,7 @@ class AppointmentCreator:
                     **self.options,
                 )
         except IntegrityError as e:
-            raise CreateAppointmentError(
+            raise IntegrityError(
                 f"An 'IntegrityError' was raised while trying to "
                 f"create an appointment for subject '{self.subject_identifier}'. "
                 f"Got {e}. Appointment create options were {self.options}"

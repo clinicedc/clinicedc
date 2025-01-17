@@ -9,7 +9,8 @@ from django.db.models.deletion import ProtectedError
 from edc_facility.exceptions import FacilityError
 from edc_facility.utils import get_facility
 
-from .appointment_creator import AppointmentCreator, CreateAppointmentError
+from ..exceptions import CreateAppointmentError
+from .appointment_creator import AppointmentCreator
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
