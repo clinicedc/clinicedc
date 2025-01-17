@@ -95,7 +95,7 @@ class VisitModelMixin(
             dct.update({item: item})
         return dct
 
-    def check_appointment_in_progress(self) -> None:
+    def update_appointment_status(self) -> None:
         AppointmentStatusUpdater(self.appointment)
 
     class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
