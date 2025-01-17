@@ -22,9 +22,9 @@ def visit_tracking_check_in_progress_on_post_save(
             pass
         else:
             try:
-                instance.check_appointment_in_progress()
+                instance.update_appointment_status()
             except AttributeError as e:
-                if "check_appointment_in_progress" not in str(e):
+                if "update_appointment_status" not in str(e):
                     raise
 
 

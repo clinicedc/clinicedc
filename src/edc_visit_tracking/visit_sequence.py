@@ -66,6 +66,7 @@ class VisitSequence:
                 visit_code=appointments.first().visit_code,
                 visit_code_sequence=appointments.first().visit_code_sequence,
                 document_type=document_type,
+                appt=self.appointment,
             )
             raise VisitSequenceError(msg)
 
