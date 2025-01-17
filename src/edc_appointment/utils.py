@@ -13,7 +13,7 @@ from django.contrib.messages import ERROR, SUCCESS
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import Count, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from edc_constants.constants import CLINIC
@@ -256,10 +256,13 @@ def reset_visit_code_sequence_or_pass(
     visit_code: str = None,
     appointment: Appointment | None = None,
 ) -> Appointment | None:
-    """Check visit code sequence order relative to appt_datetime
-    and reset if needed.
+    """Validate the order of the appointment visit code sequences
+    relative to the appt_datetime and reset the visit code sequences
+    if needed.
 
-    Also update related_visit if it exists.
+    Delete and recreate metadata
+
+    Also do the same for the `related_visit`, if it exists.
     """
     opts = dict(
         subject_identifier=subject_identifier,
@@ -306,26 +309,30 @@ def reset_visit_code_sequence_or_pass(
     return appointment
 
 
-# def reset_visit_code_sequence_for_subject(
-#     subject_identifier: str = None,
-#     visit_schedule_name: str = None,
-#     schedule_name: str = None,
-# ) -> None:
-#     for obj in (
-#         get_appointment_model_cls()
-#         .objects.filter(
-#             subject_identifier=subject_identifier,
-#             visit_schedule_name=visit_schedule_name,
-#             schedule_name=schedule_name,
-#         )
-#         .order_by("appt_datetime")
-#     ):
-#         reset_visit_code_sequence_or_pass(
-#             subject_identifier=subject_identifier,
-#             visit_schedule_name=visit_schedule_name,
-#             schedule_name=schedule_name,
-#             visit_code=obj.visit_code,
-#         )
+def reset_visit_code_sequence_for_subject(
+    subject_identifier: str = None,
+    visit_schedule_name: str = None,
+    schedule_name: str = None,
+) -> None:
+    """Resets / validates appointment `visit code sequences` for any
+    `visit code` with unscheduled appointments for the given subject
+     and schedule.
+
+     Wrapper for function `reset_visit_code_sequence_or_pass`.
+    """
+    ann = (
+        get_appointment_model_cls()
+        .objects.values("visit_code")
+        .filter(subject_identifier=subject_identifier, visit_code_sequence__gt=0)
+        .annotate(Count("visit_code"))
+    )
+    for visit_code in [obj.get("visit_code") for obj in ann]:
+        reset_visit_code_sequence_or_pass(
+            subject_identifier=subject_identifier,
+            visit_schedule_name=visit_schedule_name,
+            schedule_name=schedule_name,
+            visit_code=visit_code,
+        )
 
 
 def delete_appointment_in_sequence(appointment: Any, from_post_delete=None) -> None:
