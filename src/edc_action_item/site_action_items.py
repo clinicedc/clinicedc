@@ -166,11 +166,11 @@ class SiteActionItemCollection:
                         raise SiteActionError(str(e))
             except ImportError:
                 pass
-            except Exception as e:
-                raise SiteActionError(
-                    f"{e.__class__.__name__} was raised when loading {module_name}. "
-                    f'Got "{e}" See {app}.{module_name}'
-                )
+            # except Exception as e:
+            #     raise SiteActionError(
+            #         f"{e.__class__.__name__} was raised when loading {module_name}. "
+            #         f'Got "{e}" See {app}.{module_name}'
+            #     )
 
 
 site_action_items = SiteActionItemCollection()
