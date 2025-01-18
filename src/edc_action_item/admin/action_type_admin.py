@@ -63,8 +63,6 @@ class ActionTypeAdmin(
         "related_reference_model",
     )
 
-    date_hierarchy = None
-
     def get_readonly_fields(self, request, obj=None) -> tuple:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
         return readonly_fields + (

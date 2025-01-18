@@ -28,7 +28,7 @@ register = template.Library()
 
 
 @register.inclusion_tag(
-    "edc_action_item/bootstrap3/action_item_button.html",
+    "edc_action_item/action_item_button.html",
     takes_context=True,
 )
 def render_action_item_button(
@@ -59,7 +59,7 @@ def render_action_item_button(
 
 
 @register.inclusion_tag(
-    "edc_action_item/bootstrap3/add_action_item_popover.html",
+    "edc_action_item/add_action_item_popover.html",
     takes_context=True,
 )
 def add_action_item_popover(
@@ -90,7 +90,7 @@ def add_action_item_popover(
 
 
 @register.inclusion_tag(
-    "edc_action_item/bootstrap3/action_item_with_popover.html",
+    "edc_action_item/action_item_with_popover.html",
     takes_context=True,
 )
 def action_item_with_popover(context, action_item: ActionItem, tabindex):
@@ -128,7 +128,7 @@ def action_item_with_popover(context, action_item: ActionItem, tabindex):
 
 
 @register.inclusion_tag(
-    "edc_subject_dashboard/bootstrap3/buttons/popover_list_item.html",
+    "edc_subject_dashboard/buttons/popover_list_item.html",
     takes_context=True,
 )
 def render_popover_list_item(
@@ -153,7 +153,7 @@ def render_popover_list_item(
 
 
 @register.inclusion_tag(
-    "edc_action_item/bootstrap3/action_item_reason.html",
+    "edc_action_item/action_item_reason.html",
 )
 def render_action_item_reason(action_item):
     action_item_reasons = []

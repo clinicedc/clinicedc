@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.template.loader import render_to_string
 from django.urls.base import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -95,8 +96,10 @@ class ActionItemAdmin(
     date_hierarchy = "created"
 
     additional_instructions = format_html(
-        "<B><U>Important:</U> This form is usually auto-filled based on a clinical event. "
-        "DO NOT DELETE unless you know what you are doing.</B>"
+        "{}",
+        mark_safe(  # nosec #B703 # B308
+            render_to_string("edc_action_item/action_item_admin_additional_instructions.html")
+        ),
     )
 
     def get_readonly_fields(self, request, obj=None) -> tuple:
@@ -129,11 +132,17 @@ class ActionItemAdmin(
             namespace = edc_action_item_admin.name
             url = reverse(f"{namespace}:{url_name}_changelist")
             return format_html(
-                '<a data-toggle="tooltip" title="go to parent action item" '
-                'href="{}?q={}">{}</a>',
-                mark_safe(url),  # nosec B308, B703
-                mark_safe(obj.parent_action_item.action_identifier),  # nosec B308, B703
-                mark_safe(obj.parent_action_item.identifier),  # nosec B308, B703
+                "{}",
+                mark_safe(  # nosec #B703 # B308
+                    render_to_string(
+                        "edc_action_item/parent_action_changelist_link.html",
+                        {
+                            "url": url,
+                            "action_identifier": obj.parent_action_item.action_identifier,
+                            "label": obj.parent_action_item.identifier,
+                        },
+                    )
+                ),
             )
         return None
 
