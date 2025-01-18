@@ -10,7 +10,7 @@ def get_missed_medications_fieldset_tuple():
     return (
         _("Missed Medications"),
         {
-            "description": format_html(description),
+            "description": format_html("{}", description),
             "fields": (
                 "last_missed_pill",
                 "missed_pill_reason",
@@ -43,7 +43,7 @@ def get_visual_score_fieldset_tuple(
     return (
         section_title,
         {
-            "description": format_html(description),
+            "description": format_html("{}", description),
             "fields": ("visual_score_slider", "visual_score_confirmed"),
         },
     )
