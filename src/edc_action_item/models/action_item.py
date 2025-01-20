@@ -153,7 +153,13 @@ class ActionItem(
             # a new persisted action item always has
             # a unique action identifier
             self.action_identifier = (
-                self.action_identifier or ActionIdentifier(site_id=self.site_id).identifier
+                self.action_identifier
+                or ActionIdentifier(
+                    subject_identifier=self.subject_identifier,
+                    site_id=self.site_id,
+                    source_model=self._meta.label_lower,
+                    name=self.action_type.name,
+                ).identifier
             )
             # subject_identifier
             subject_identifier_model_cls = django_apps.get_model(self.subject_identifier_model)
