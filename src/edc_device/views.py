@@ -9,7 +9,7 @@ from .view_mixins import EdcDeviceViewMixin
 
 
 class HomeView(EdcViewMixin, NavbarViewMixin, EdcDeviceViewMixin, TemplateView):
-    template_name = "edc_device/bootstrap3/home.html"
+    template_name = "edc_device/home.html"
     navbar_name = "edc_device"
     navbar_selected_item = "device"
 
