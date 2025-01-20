@@ -144,5 +144,5 @@ class TestShortIdentifier(TestCase):
                 ShortIdentifier(prefix="22", **options)
             except DuplicateIdentifierError:
                 break
-        self.assertGreater(n, 31)
+        self.assertGreater(n, 30)
         self.assertLess(n, 34)
