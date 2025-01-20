@@ -9,7 +9,6 @@ from django.urls.base import reverse
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.constants import CLOSED, RESOLVED
 from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
-from edc_dashboard.utils import get_bootstrap_version
 from edc_model.models import BaseUuidModel
 from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
@@ -163,9 +162,7 @@ class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidM
                     ),
                 )
 
-        template_name = (
-            f"edc_data_manager/bootstrap{get_bootstrap_version()}/" f"columns/query_text.html"
-        )
+        template_name = "edc_data_manager/columns/query_text.html"
         context = dict(
             form_and_numbers=self.form_and_numbers_to_string(),
             query_priority=self.query_priority,
