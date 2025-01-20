@@ -1,4 +1,3 @@
-from django.utils.html import format_html
 from edc_action_item.action_with_notification import ActionWithNotification
 from edc_constants.constants import CLOSED, HIGH_PRIORITY, NO, YES
 
@@ -22,7 +21,7 @@ class DeathReportTmgAction(ActionWithNotification):
     color_style = "info"
     show_link_to_changelist = True
     singleton = True
-    instructions = format_html("This report is to be completed by the TMG only.")
+    instructions = "This report is to be completed by the TMG only."
 
     reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreporttmg"
     related_reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"

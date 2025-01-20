@@ -1,4 +1,4 @@
-{% extends 'edc_dashboard/bootstrap3/base.html' %}
+{% extends 'edc_dashboard/base.html' %}
 {% load static %}
 {% load edc_adverse_event_extras %}
 
@@ -43,7 +43,7 @@
         <li class="list-group-item list-group-item-info">Notice</li>
         <li class="list-group-item">
         {% for item in notices %}
-          {{ item.0|title }} has {{ item.2 }} {{ item.1|lower }} AE TMG report{{ item.2|pluralize }}</BR>
+          {{ item.0|title }} has {{ item.2 }} {{ item.1|lower }} AE TMG report{{ item.2|pluralize }}<BR>
       {% endfor %}
     </li>
     </ul>

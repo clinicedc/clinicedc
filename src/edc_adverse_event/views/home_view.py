@@ -1,6 +1,5 @@
 from typing import Any
 
-from django.conf import settings
 from django.urls import reverse
 from django.views.generic import TemplateView
 from edc_dashboard.url_names import url_names
@@ -14,7 +13,7 @@ class AeHomeView(UrlRequestContextMixin, EdcViewMixin, NavbarViewMixin, Template
     ae_listboard_url = "ae_listboard_url"
     death_report_listboard_url = "death_report_listboard_url"
     navbar_selected_item = "ae_home"
-    template_name = f"edc_adverse_event/bootstrap{settings.EDC_BOOTSTRAP}/ae/ae_home.html"
+    template_name = "edc_adverse_event/ae/ae_home.html"
     url_name = "ae_home_url"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:

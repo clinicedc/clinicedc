@@ -13,7 +13,6 @@ from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from edc_action_item.utils import get_reference_obj
 from edc_constants.constants import CLOSED, OPEN, OTHER, YES
-from edc_dashboard.utils import get_bootstrap_version
 from edc_model_admin.utils import add_to_messages_once
 from edc_utils import escape_braces, get_utcnow
 
@@ -55,8 +54,8 @@ def wrapx(text: str, length: int) -> str:
 
 def select_ae_template(relative_path):
     """Returns a template object."""
-    local_path = f"{get_adverse_event_app_label()}/bootstrap{get_bootstrap_version()}/"
-    default_path = f"edc_adverse_event/bootstrap{get_bootstrap_version()}/"
+    local_path = get_adverse_event_app_label()
+    default_path = "edc_adverse_event"
     return select_template(
         [
             os.path.join(local_path, relative_path),
@@ -79,12 +78,12 @@ def format_ae_description(context, ae_initial, wrap_length):
     context["ae_initial"] = ae_initial
     try:
         context["sae_reason"] = format_html(
-            wrapx(escape_braces(ae_initial.sae_reason.name), wrap_length)
+            "{}", wrapx(escape_braces(ae_initial.sae_reason.name), wrap_length)
         )
     except AttributeError:
         context["sae_reason"] = ""
     context["ae_description"] = format_html(
-        wrapx(escape_braces(ae_initial.ae_description), wrap_length)
+        "{}", wrapx(escape_braces(ae_initial.ae_description), wrap_length)
     )
     return context
 
@@ -100,15 +99,15 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
     context["ae_initial"] = ae_followup.ae_initial
     try:
         context["sae_reason"] = format_html(
-            wrapx(escape_braces(ae_followup.ae_initial.sae_reason.name), wrap_length)
+            "{}", wrapx(escape_braces(ae_followup.ae_initial.sae_reason.name), wrap_length)
         )
     except AttributeError:
         context["sae_reason"] = ""
     context["relevant_history"] = format_html(
-        wrapx(escape_braces(ae_followup.relevant_history), wrap_length)
+        "{}", wrapx(escape_braces(ae_followup.relevant_history), wrap_length)
     )
     context["ae_description"] = format_html(
-        wrapx(escape_braces(ae_followup.ae_initial.ae_description), wrap_length)
+        "{}", wrapx(escape_braces(ae_followup.ae_initial.ae_description), wrap_length)
     )
     return context
 
@@ -122,19 +121,19 @@ def format_ae_susar_description(context, ae_susar, wrap_length):
     context["ae_susar"] = ae_susar
     context["ae_initial"] = ae_susar.ae_initial
     context["sae_reason"] = format_html(
+        "{}",
         "<BR>".join(
             wrap(escape_braces(ae_susar.ae_initial.sae_reason.name), wrap_length or 35)
-        )
+        ),
     )
     context["ae_description"] = format_html(
-        wrapx(escape_braces(ae_susar.ae_initial.ae_description), wrap_length)
+        "{}", wrapx(escape_braces(ae_susar.ae_initial.ae_description), wrap_length)
     )
     return context
 
 
 @register.inclusion_tag(
-    f"edc_adverse_event/bootstrap{get_bootstrap_version()}/"
-    f"tmg/tmg_ae_listboard_result.html",
+    "edc_adverse_event/tmg/tmg_ae_listboard_result.html",
     takes_context=True,
 )
 def tmg_listboard_results(
@@ -146,7 +145,7 @@ def tmg_listboard_results(
 
 
 @register.inclusion_tag(
-    f"edc_adverse_event/bootstrap{get_bootstrap_version()}/tmg/death_report_tmg_panel.html",
+    "edc_adverse_event/tmg/death_report_tmg_panel.html",
     takes_context=True,
 )
 def render_death_report_tmg_panel(context, action_item: ActionItem = None):
@@ -186,7 +185,7 @@ def ae_followup_queryset(
 
 
 @register.inclusion_tag(
-    f"edc_adverse_event/bootstrap{get_bootstrap_version()}/tmg/ae_tmg_panel.html",
+    "edc_adverse_event/tmg/ae_tmg_panel.html",
     takes_context=True,
 )
 def render_tmg_panel(
@@ -269,7 +268,7 @@ def get_empty_qs_message(status: str, search_term: str):
 
 
 @register.inclusion_tag(
-    f"edc_adverse_event/bootstrap{get_bootstrap_version()}/tmg/tmg_button_group.html",
+    "edc_adverse_event/tmg/tmg_button_group.html",
     takes_context=True,
 )
 def render_tmg_button_group(context, subject_identifier: str):

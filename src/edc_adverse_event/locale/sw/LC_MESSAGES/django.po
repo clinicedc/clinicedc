@@ -17,7 +17,5 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: edc_adverse_event/templates/edc_adverse_event/bootstrap3/ae/ae_death_report_listboard.html:38
-#: edc_adverse_event/templates/edc_adverse_event/bootstrap3/tmg/tmg_death_listboard.html:29
 msgid "Go to subject dashboard"
 msgstr "Nenda kwenye dashibodi ya mada"

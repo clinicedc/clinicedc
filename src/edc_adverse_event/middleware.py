@@ -1,5 +1,3 @@
-from edc_dashboard.utils import insert_bootstrap_version
-
 from .dashboard_templates import dashboard_templates
 from .dashboard_urls import dashboard_urls
 
@@ -15,7 +13,6 @@ class DashboardMiddleware:
     def process_view(self, request, *args):
         request.url_name_data.update(**dashboard_urls)
         template_data = dashboard_templates
-        template_data = insert_bootstrap_version(**template_data)
         request.template_data.update(**template_data)
 
     def process_template_response(self, request, response):
