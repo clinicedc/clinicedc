@@ -5,7 +5,6 @@ from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.response import TemplateResponse
 from django.urls import NoReverseMatch, reverse
-from edc_dashboard.utils import get_bootstrap_version
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 admin.site.enable_nav_sidebar = False
@@ -41,8 +40,8 @@ class EdcAdminSite(DjangoAdminSite):
 
     index_template = "edc_model_admin/admin/index.html"
     app_index_template = "edc_model_admin/admin/app_index.html"
-    login_template = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
-    logout_template = f"edc_auth/bootstrap{get_bootstrap_version()}/login.html"
+    login_template = "edc_auth/login.html"
+    logout_template = "edc_auth/login.html"
     enable_nav_sidebar = False
     final_catch_all_view = True
     site_url = "/administration/"
