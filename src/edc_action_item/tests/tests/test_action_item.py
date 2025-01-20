@@ -56,7 +56,9 @@ class TestActionItem(TestCaseMixin, TestCase):
         self.assertEqual(obj.action_type.reference_model, "edc_action_item.formzero")
 
     def test_create_requires_existing_subject(self):
-        self.assertRaises(SubjectDoesNotExist, ActionItem.objects.create)
+        self.assertRaises(
+            SubjectDoesNotExist, ActionItem.objects.create, action_type=self.action_type
+        )
 
     def test_attrs(self):
         site_action_items.register(FormOneAction)
