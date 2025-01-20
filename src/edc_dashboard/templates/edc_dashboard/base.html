@@ -1,4 +1,4 @@
-{% extends "edc_dashboard/bootstrap3/base_dj4.html" %}
+{% extends "edc_dashboard/base_dj4.html" %}
 {% load edc_navbar_extras %}
 {% load static %}
 {% load tz %}
@@ -81,7 +81,7 @@
                 </button>
 
                 {% block topbar_title %}
-                  {% include "edc_dashboard/bootstrap3/navbar_topbar_title.html" %}
+                  {% include "edc_dashboard/navbar_topbar_title.html" %}
                 {% endblock topbar_title %}
 
             </div>
@@ -96,14 +96,14 @@
     <!-- end topbar -->
 {% endblock topbar %}
 
-{% block alert %}{% include "edc_dashboard/bootstrap3/alert_messages.html" %}{% endblock alert %}
+{% block alert %}{% include "edc_dashboard/alert_messages.html" %}{% endblock alert %}
 
 {% block modals %}
         {{ block.super }}
-    {% include 'edc_dashboard/bootstrap3/help_modal.html' %}
+    {% include 'edc_dashboard/help_modal.html' %}
 {% endblock modals %}
 
 
 {% block footer %}
-    {% include 'edc_dashboard/bootstrap3/footer.html' %}
+    {% include 'edc_dashboard/footer.html' %}
 {% endblock footer %}
