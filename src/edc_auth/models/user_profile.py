@@ -46,21 +46,27 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         max_length=100,
         null=True,
         blank=True,
-        help_text=format_html('Change in <a href="/edc_label/">Edc Label Administration</a>'),
+        help_text=format_html(
+            'Change in <a href="{}">{}</a>', "/edc_label/", "Edc Label Administration"
+        ),
     )
 
     lab_label_printer = models.CharField(
         max_length=100,
         null=True,
         blank=True,
-        help_text=format_html('Change in <a href="/edc_label/">Edc Label Administration</a>'),
+        help_text=format_html(
+            'Change in <a href="{}">{}</a>', "/edc_label/", "Edc Label Administration"
+        ),
     )
 
     print_server = models.CharField(
         max_length=100,
         null=True,
         blank=True,
-        help_text=format_html('Change in <a href="/edc_label/">Edc Label Administration</a>'),
+        help_text=format_html(
+            'Change in <a href="{}">{}</a>', "/edc_label/", "Edc Label Administration"
+        ),
     )
 
     export_format = models.CharField(

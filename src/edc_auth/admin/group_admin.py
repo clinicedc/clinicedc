@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from edc_auth.admin_site import edc_auth_admin
@@ -32,4 +33,4 @@ class GroupAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
         for permission in obj.permissions.all():
             codenames.append(permission.codename)
         codenames.sort()
-        return format_html("<BR>".join(codenames))
+        return format_html("{}", mark_safe("<BR>".join(codenames)))  # nosec B703 B308
