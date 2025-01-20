@@ -88,7 +88,7 @@ def get_cancel_url(context, cancel_attr=None):
     return cancel_url
 
 
-@register.inclusion_tag("edc_submit_line.html", takes_context=True)
+@register.inclusion_tag("edc_model_admin/edc_submit_line.html", takes_context=True)
 def edc_submit_row(
     context,
     cancel_url: str | None = None,
@@ -123,7 +123,7 @@ def edc_submit_row(
     return django_submit_row(context)
 
 
-@register.inclusion_tag("logout_row.html", takes_context=True)
+@register.inclusion_tag("edc_model_admin/logout_row.html", takes_context=True)
 def logout_row(context):
     return dict(
         perms=context.get("perms"),
@@ -133,7 +133,7 @@ def logout_row(context):
     )
 
 
-@register.inclusion_tag("edc_revision_line.html", takes_context=True)
+@register.inclusion_tag("edc_model_admin/edc_revision_line.html", takes_context=True)
 def revision_row(context):
     return dict(
         copyright=context.get("copyright") or ResearchProtocolConfig().copyright,
@@ -143,12 +143,12 @@ def revision_row(context):
     )
 
 
-@register.inclusion_tag("edc_instructions.html", takes_context=True)
+@register.inclusion_tag("edc_model_admin/edc_instructions.html", takes_context=True)
 def instructions(context):
     return {"instructions": context.get("instructions")}
 
 
-@register.inclusion_tag("edc_additional_instructions.html", takes_context=True)
+@register.inclusion_tag("edc_model_admin/edc_additional_instructions.html", takes_context=True)
 def additional_instructions(context):
     return {
         "additional_instructions": context.get("additional_instructions"),
@@ -166,7 +166,7 @@ def get_label_lower(model) -> str:
     return ""
 
 
-@register.inclusion_tag("yes_no_coloring.html", takes_context=False)
+@register.inclusion_tag("edc_model_admin/yes_no_coloring.html", takes_context=False)
 def yes_no_coloring(value) -> dict:
     context = dict(value=value)
     if value == YES:
@@ -176,12 +176,13 @@ def yes_no_coloring(value) -> dict:
     return context
 
 
-@register.inclusion_tag("navbar_for_admin_templates.html", takes_context=True)
+@register.inclusion_tag("edc_model_admin/navbar_for_admin_templates.html", takes_context=True)
 def show_navbar_for_admin_templates(context):
-    """bootstrap 5"""
     return context
 
 
-@register.inclusion_tag("navbar_for_admin_templates_b3.html", takes_context=True)
+@register.inclusion_tag(
+    "edc_model_admin/navbar_for_admin_templates_b3.html", takes_context=True
+)
 def show_navbar_for_admin_templates_b3(context):
     return context
