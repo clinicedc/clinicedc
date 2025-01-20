@@ -7,7 +7,6 @@ from django.core.management.color import color_style
 from django.urls import NoReverseMatch
 from django.urls.base import reverse
 from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
-from edc_dashboard.utils import get_bootstrap_version
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
@@ -31,7 +30,7 @@ class NavbarItem:
     active: bool = field(default=None)
 
     template_name: str = field(
-        default=f"edc_navbar/bootstrap{get_bootstrap_version()}/navbar_item.html",
+        default="edc_navbar/navbar_item.html",
         repr=False,
     )
 
