@@ -1,4 +1,4 @@
-{% extends 'edc_subject_dashboard/bootstrap3/dashboard/sidebar/sidebar.html' %}
+{% extends 'edc_subject_dashboard/dashboard/sidebar/sidebar.html' %}
 
 {% load tz %}
 {% load edc_dashboard_extras %}
@@ -6,7 +6,7 @@
 {% load action_item_extras %}
 
 {% block demographics %}
-    	{% include 'edc_subject_dashboard/bootstrap3/dashboard/sidebar/demographics.html' %}
+    	{% include 'edc_subject_dashboard/dashboard/sidebar/demographics.html' %}
 {% endblock demographics %}
 
 {% block prn_forms %}
@@ -21,11 +21,11 @@
 {% endblock prn_lists %}
 
 {% block consents %}
-    {% include 'edc_subject_dashboard/bootstrap3/dashboard/sidebar/consents.html' %}
+    {% include 'edc_subject_dashboard/dashboard/sidebar/consents.html' %}
 {% endblock consents %}
 
 {% block metadata %}
-    {% include 'edc_subject_dashboard/bootstrap3/dashboard/sidebar/metadata.html' %}
+    {% include 'edc_subject_dashboard/dashboard/sidebar/metadata.html' %}
 {% endblock metadata %}
 
 {% block action_items %}

@@ -23,7 +23,6 @@ from edc_appointment.utils import (
 )
 from edc_appointment.view_utils import AppointmentButton
 from edc_auth.constants import AUDITOR_ROLE
-from edc_dashboard.utils import get_bootstrap_version
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_helper import MetadataHelper
 from edc_utils import get_utcnow
@@ -75,9 +74,7 @@ class SubjectDashboardExtrasError(Exception):
     pass
 
 
-@register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/appointment_in_progress.html"
-)
+@register.inclusion_tag("edc_subject_dashboard/appointment_in_progress.html")
 def appointment_in_progress(
     subject_identifier: str = None,
     visit_schedule: VisitSchedule = None,
@@ -109,8 +106,7 @@ def appointment_in_progress(
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    f"requisition_panel_actions.html",
+    "edc_subject_dashboard/requisition_panel_actions.html",
     takes_context=True,
 )
 def requisition_panel_actions(context, requisitions=None):
@@ -134,8 +130,7 @@ def requisition_panel_actions(context, requisitions=None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    f"print_requisition_popover.html",
+    "edc_subject_dashboard/print_requisition_popover.html",
     takes_context=True,
 )
 def print_requisition_popover(context):
@@ -147,9 +142,7 @@ def print_requisition_popover(context):
     return context
 
 
-@register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/appointment_status.html"
-)
+@register.inclusion_tag("edc_subject_dashboard/appointment_status.html")
 def render_appointment_status_icon(appt_status: str = None) -> dict[str, str]:
     return dict(
         appt_status=appt_status,
@@ -163,7 +156,7 @@ def render_appointment_status_icon(appt_status: str = None) -> dict[str, str]:
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/dashboard/crf_totals.html",
+    "edc_subject_dashboard/dashboard/crf_totals.html",
 )
 def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
     helper = MetadataHelper(appointment)
@@ -203,8 +196,7 @@ def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/crf_button_group.html",
+    "edc_subject_dashboard/buttons/crf_button_group.html",
     takes_context=True,
 )
 def render_crf_button_group(
@@ -240,8 +232,7 @@ def render_crf_button_group(
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/crf_button_group.html",
+    "edc_subject_dashboard/buttons/crf_button_group.html",
     takes_context=True,
 )
 def render_requisition_button_group(
@@ -267,7 +258,7 @@ def render_requisition_button_group(
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/buttons/prn_button.html",
+    "edc_subject_dashboard/buttons/prn_button.html",
     takes_context=True,
 )
 def render_prn_button(context, model_obj, model_name: str) -> dict:
@@ -286,8 +277,7 @@ def render_prn_button(context, model_obj, model_name: str) -> dict:
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/appointment_button.html",
+    "edc_subject_dashboard/buttons/appointment_button.html",
     takes_context=True,
 )
 def render_appointment_button(context, appointment: Appointment = None):
@@ -303,8 +293,7 @@ def render_appointment_button(context, appointment: Appointment = None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/appointment_button.html",
+    "edc_subject_dashboard/buttons/appointment_button.html",
     takes_context=True,
 )
 def render_related_visit_button(context, appointment: Appointment = None):
@@ -324,7 +313,7 @@ def render_related_visit_button(context, appointment: Appointment = None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/buttons/forms_button.html",
+    "edc_subject_dashboard/buttons/forms_button.html",
     takes_context=True,
 )
 def render_gotoforms_button(context, appointment: Appointment = None):
@@ -344,8 +333,7 @@ def render_gotoforms_button(context, appointment: Appointment = None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/appointment_button.html",
+    "edc_subject_dashboard/buttons/appointment_button.html",
     takes_context=True,
 )
 def render_timepoint_status_button(context, appointment: Appointment = None):
@@ -358,8 +346,7 @@ def render_timepoint_status_button(context, appointment: Appointment = None):
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/subject_consent_button.html",
+    "edc_subject_dashboard/buttons/subject_consent_button.html",
     takes_context=True,
 )
 def render_subject_listboard_consent_button(
@@ -381,8 +368,7 @@ def render_subject_listboard_consent_button(
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/subject_consent_button.html",
+    "edc_subject_dashboard/buttons/subject_consent_button.html",
     takes_context=True,
 )
 def render_subject_consent_dashboard_button(
@@ -407,8 +393,7 @@ def render_subject_consent_dashboard_button(
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/unscheduled_appointment_button.html",
+    "edc_subject_dashboard/buttons/unscheduled_appointment_button.html",
     takes_context=True,
 )
 def render_unscheduled_appointment_button(
@@ -462,7 +447,7 @@ def render_unscheduled_appointment_button(
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/buttons/forms_button.html",
+    "edc_subject_dashboard/buttons/forms_button.html",
     takes_context=True,
 )
 def render_screening_button(context, subject_screening) -> dict:
@@ -477,8 +462,7 @@ def render_screening_button(context, subject_screening) -> dict:
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/subject_schedule_button.html",
+    "edc_subject_dashboard/buttons/subject_schedule_button.html",
 )
 def render_subject_schedule_button(
     subject_dashboard_url: str, subject_identifier: str
@@ -488,8 +472,7 @@ def render_subject_schedule_button(
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/refresh_appointments_button.html",
+    "edc_subject_dashboard/buttons/refresh_appointments_button.html",
     takes_context=True,
 )
 def render_refresh_appointments_button(
@@ -515,8 +498,7 @@ def render_refresh_appointments_button(
 
 
 @register.inclusion_tag(
-    f"edc_subject_dashboard/bootstrap{get_bootstrap_version()}/"
-    "buttons/refresh_data_collection_schedule_button.html",
+    "edc_subject_dashboard/buttons/refresh_data_collection_schedule_button.html",
     takes_context=True,
 )
 def render_refresh_data_collection_schedule_button(

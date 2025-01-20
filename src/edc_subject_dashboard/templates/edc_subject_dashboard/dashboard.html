@@ -51,15 +51,15 @@
                 </div>
                 <div class="panel-collapse collapse in" id="subject_dashboard_forms_for_{{ appointment.visit_schedule.name|slugify }}-{{ appointment.schedule.name|slugify }}" >
                   {% block crfs %}
-                    {% include "edc_subject_dashboard/bootstrap3/dashboard/crfs.html" %}
+                    {% include "edc_subject_dashboard/dashboard/crfs.html" %}
                   {% endblock crfs %}
                   {% block requisitions %}
-                    {% include "edc_subject_dashboard/bootstrap3/dashboard/requisitions.html" %}
+                    {% include "edc_subject_dashboard/dashboard/requisitions.html" %}
                   {% endblock requisitions %}
                 </div>
                 {% subject_schedule_footer_row subject_identifier appointment.visit_schedule appointment.schedule subject_dashboard_url %}
                 <div id="subject_dashboard_data_queries_for_{{ subject_identifier }}" class="panel-collapse collapse in">
-                  {% block data_queries %}{% if open_data_queries %}{% include "edc_subject_dashboard/bootstrap3/dashboard/data_queries.html" %}{% endif %}{% endblock data_queries %}
+                  {% block data_queries %}{% if open_data_queries %}{% include "edc_subject_dashboard/dashboard/data_queries.html" %}{% endif %}{% endblock data_queries %}
                 </div>
               </div>
             </div>
@@ -77,13 +77,13 @@
                   </div>
                   <div id="subject_dashboard_appointments_for_{{ schedule_obj.visit_schedule.name|slugify }}-{{ schedule_obj.schedule.name|slugify }}" class="panel-collapse collapse {% if current_visit_schedule.name == schedule_obj.visit_schedule.name and current_schedule.name == schedule_obj.schedule.name %}in{% endif %}">
                     {% block appointments %}
-                      {% include "edc_subject_dashboard/bootstrap3/dashboard/appointments.html" %}
+                      {% include "edc_subject_dashboard/dashboard/appointments.html" %}
                     {% endblock appointments %}
                   </div>
                   {% subject_schedule_footer_row subject_identifier schedule_obj.visit_schedule schedule_obj.schedule subject_dashboard_url %}
                   <div id="subject_dashboard_data_queries_for_{{ subject_identifier }}" class="panel-collapse collapse in">
                     {% if open_data_queries %}
-                      {% include "edc_data_manager/bootstrap3/dashboard_data_queries.html" %}
+                      {% include "edc_data_manager/dashboard_data_queries.html" %}
                     {% endif %}
                   </div>
                 </div>
@@ -93,8 +93,8 @@
         </div> <!-- panel-group col-md-9 -->
         <div class="row">
           <div class="panel col-md-3">
-            {% block top_bar %}{% include "edc_subject_dashboard/bootstrap3/dashboard/topbar.html" %}{% endblock top_bar %}
-            {% block side_bar %}{% include 'edc_subject_dashboard/bootstrap3/dashboard/sidebar.html' %}{% endblock side_bar %}
+            {% block top_bar %}{% include "edc_subject_dashboard/dashboard/topbar.html" %}{% endblock top_bar %}
+            {% block side_bar %}{% include 'edc_subject_dashboard/dashboard/sidebar.html' %}{% endblock side_bar %}
           </div>
         </div>
       </div><!-- panel group col-md-12-->
