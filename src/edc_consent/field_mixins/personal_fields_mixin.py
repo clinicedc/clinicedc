@@ -31,9 +31,9 @@ class BaseFieldsMixin(models.Model):
         blank=True,
         null=True,
         help_text=format_html(
-            "Required only if participant is a minor.<BR>"
-            "Format is 'LASTNAME, FIRSTNAME'. "
-            "All uppercase separated by a comma."
+            "{}.<BR>{}",
+            "Required only if participant is a minor",
+            "Format is 'LASTNAME, FIRSTNAME'. All uppercase separated by a comma.",
         ),
     )
 

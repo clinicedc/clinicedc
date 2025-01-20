@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_identifier import SubjectIdentifierError, is_subject_identifier_or_raise
 
 from ..actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
@@ -179,13 +180,16 @@ class ConsentModelAdminMixin:
                 )
             if links:
                 formatted_html = format_html(
-                    "<BR>".join(links) + f'<BR><A title="New query" '
-                    f'href="{new_url}">Add query</A>'
+                    '<BR>{links}<BR><A title="New query" href="{new_url}">Add query</A>',
+                    links=mark_safe("<BR>".join(links)),  # nosec B703 B308
+                    new_url=new_url,
                 )
             else:
                 formatted_html = format_html(
-                    f'<A title="New query" href="{new_url}?"'
-                    f'subject_identifier={obj.subject_identifier}">Add query</A>'
+                    '<A title="New query" href="{new_url}?"'
+                    'subject_identifier={subject_identifier}">Add query</A>',
+                    new_url=new_url,
+                    subject_identifier=obj.subject_identifier,
                 )
         return formatted_html
 
