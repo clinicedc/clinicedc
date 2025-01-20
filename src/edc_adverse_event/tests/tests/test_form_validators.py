@@ -98,7 +98,7 @@ class TestFormValidators(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             death_date=death_report.death_datetime,
         )
-        death_report.death_datetime = death_report.death_datetime.date()
+        death_report.death_datetime = death_report.death_datetime
         death_report.save()
         form_validator = TestFormValidator(cleaned_data=data, model=DeathReportTmg)
         try:

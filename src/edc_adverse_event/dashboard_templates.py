@@ -1,5 +1,3 @@
-from edc_dashboard.utils import insert_bootstrap_version
-
 dashboard_templates = dict(
     ae_home_template="edc_adverse_event/ae/ae_home.html",
     ae_listboard_template="edc_adverse_event/ae/ae_listboard.html",
@@ -10,4 +8,3 @@ dashboard_templates = dict(
     tmg_home_template="edc_adverse_event/tmg/tmg_home.html",
     tmg_summary_listboard_template="edc_adverse_event/tmg/tmg_summary_listboard.html",
 )
-dashboard_templates = insert_bootstrap_version(**dashboard_templates)

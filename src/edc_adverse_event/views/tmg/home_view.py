@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 from edc_action_item.models.action_item import ActionItem
 from edc_constants.constants import CLOSED, NEW, OPEN
-from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
@@ -15,7 +14,7 @@ from ...utils import get_adverse_event_admin_site, get_adverse_event_app_label
 
 
 class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
-    template_name = f"edc_adverse_event/bootstrap{get_bootstrap_version()}/tmg/tmg_home.html"
+    template_name = "edc_adverse_event/tmg/tmg_home.html"
     navbar_selected_item = "tmg_home"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:

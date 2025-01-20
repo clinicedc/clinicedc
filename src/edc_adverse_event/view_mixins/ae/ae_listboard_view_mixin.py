@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -39,14 +41,10 @@ class AeListboardViewMixin(
     listboard_view_permission_codename = "edc_adverse_event.view_ae_listboard"
 
     listboard_instructions = format_html(
-        (
-            "To find an initial adverse event report, search on the subject's "
-            "study identifier or AE reference number."
-        )
-        + " <BR>"
-        + "To download the printable report, click on the PDF button"
-        + " <i class='fas fa-file-pdf fa-fw'></i> "
-        + "left of the subject's identifier."
+        "{}",
+        mark_safe(
+            render_to_string("edc_adverse_event/ae/ae_listboard_instructions.html")
+        ),  # nosec B703 B308,
     )
     navbar_selected_item = "ae_home"
     ordering = "-report_datetime"

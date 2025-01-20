@@ -53,12 +53,17 @@ class AdverseEventModelAdminMixin:
 
     @display(description="subject identifier", ordering="subject_identifier")
     def subject_identifier_column(self, obj=None):
-        return format_html(f"{obj.subject_identifier}<BR>{obj.action_identifier.upper()[-9:]}")
+        return format_html(
+            "{subject_identifier}<BR>{action_identifier}",
+            subject_identifier=obj.subject_identifier,
+            action_identifier=obj.action_identifier.upper()[-9:],
+        )
 
     @display(description="User", ordering="user_created")
     def user(self, obj=None):
         """Returns formatted usernames and creation/modification dates."""
         return format_html(
+            "{}",
             "<BR>".join(
                 [
                     obj.user_created,
@@ -66,12 +71,12 @@ class AdverseEventModelAdminMixin:
                     obj.user_modified,
                     obj.modified.strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT)),
                 ]
-            )
+            ),
         )
 
     @display(description="Documents")
     def documents_column(self, model_obj):
-        """Returns a formatted list of links to AE Follow up reports."""
+        """Returns a formatted list of links to AE Followup reports."""
         column_items: list[ColumnItem] = []
         ae_followup_model_cls = get_ae_model("aefollowup")
         ae_susar_model_cls = get_ae_model("aesusar")
@@ -120,4 +125,4 @@ class AdverseEventModelAdminMixin:
         html = "<table><tr><td>"
         html += "</td><tr><td>".join([c.anchor for c in column_items])
         html += "</td></td></table>"
-        return format_html(html)
+        return format_html("{}", html)

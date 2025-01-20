@@ -1,4 +1,3 @@
-from django.utils.html import format_html
 from edc_action_item import ActionWithNotification
 from edc_constants.constants import CLOSED, HIGH_PRIORITY
 
@@ -23,7 +22,7 @@ class AeTmgAction(ActionWithNotification):
     color_style = "info"
     show_link_to_changelist = True
     admin_site_name = ADVERSE_EVENT_ADMIN_SITE
-    instructions = format_html("This report is to be completed by the TMG only.")
+    instructions = "This report is to be completed by the TMG only."
     priority = HIGH_PRIORITY
 
     def close_action_item_on_save(self):
