@@ -77,11 +77,16 @@ class AppointmentAdmin(
     )
 
     additional_instructions = format_html(
-        "To start or continue to edit FORMS for this subject, change the "
-        'appointment status below to "In Progress" and click SAVE. <BR>'
-        "<i>Note: You may only edit one appointment at a time. "
-        "Before you move to another appointment, change the appointment "
-        'status below to "Incomplete or "Done".</i>'
+        "{}.<BR><i>{}.</i>",
+        (
+            "To start or continue to edit FORMS for this subject, change the "
+            "appointment status below to 'In Progress' and click SAVE"
+        ),
+        (
+            "Note: You may only edit one appointment at a time. "
+            "Before you move to another appointment, change the appointment "
+            "status below to 'Incomplete' or 'Done'"
+        ),
     )
 
     fieldsets = (

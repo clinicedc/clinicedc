@@ -19,6 +19,7 @@ from ..utils import (
     get_appointment_type_model_cls,
     get_appt_reason_default,
     get_appt_type_default,
+    reset_visit_code_sequence_or_pass,
 )
 
 if TYPE_CHECKING:
@@ -151,23 +152,35 @@ class AppointmentCreator:
 
     def _create(self) -> Appointment:
         """Returns a newly created appointment model instance."""
+        errmsg = (
+            f"An 'IntegrityError' was raised while trying to "
+            f"create an appointment for subject '{self.subject_identifier}'. "
+            f"Appointment create options were {self.options}"
+        )
+        extra_opts = dict(
+            facility_name=self.facility.name,
+            timepoint_datetime=self.timepoint_datetime,
+            appt_datetime=self.appt_datetime,
+            appt_type=self.default_appt_type,
+            appt_reason=self.appt_reason or self.default_appt_reason,
+            ignore_window_period=self.ignore_window_period or False,
+        )
         try:
             with transaction.atomic():
                 appointment = self.appointment_model_cls.objects.create(
-                    facility_name=self.facility.name,
-                    timepoint_datetime=self.timepoint_datetime,
-                    appt_datetime=self.appt_datetime,
-                    appt_type=self.default_appt_type,
-                    appt_reason=self.appt_reason or self.default_appt_reason,
-                    ignore_window_period=self.ignore_window_period or False,
-                    **self.options,
+                    **self.options, **extra_opts
                 )
         except IntegrityError as e:
-            raise IntegrityError(
-                f"An 'IntegrityError' was raised while trying to "
-                f"create an appointment for subject '{self.subject_identifier}'. "
-                f"Got {e}. Appointment create options were {self.options}"
-            )
+            raise IntegrityError(f"{errmsg} Got {e}.")
+        else:
+            if appointment.visit_code_sequence > 0:
+                appointment = reset_visit_code_sequence_or_pass(
+                    subject_identifier=self.subject_identifier,
+                    visit_schedule_name=self.visit_schedule_name,
+                    schedule_name=self.schedule_name,
+                    visit_code=self.visit.code,
+                    appointment=appointment,
+                )
         return appointment
 
     def _update(self, appointment=None) -> Appointment:

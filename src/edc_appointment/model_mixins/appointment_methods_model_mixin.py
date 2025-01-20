@@ -90,7 +90,8 @@ class AppointmentMethodsModelMixin(models.Model):
 
     @property
     def next_visit_code_sequence(self: Appointment) -> int:
-        """Returns an integer that is the next visit_code_sequence.
+        """Returns an integer that is the next visit_code_sequence
+        or the last visit_code_sequence + 1 for this visit.
 
         A sequence would be 1000.0, 1000.1, 1000.2, ...
         """

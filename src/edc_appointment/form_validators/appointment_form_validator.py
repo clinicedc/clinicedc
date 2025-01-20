@@ -378,7 +378,7 @@ class AppointmentFormValidator(
         appt_status = self.cleaned_data.get("appt_status")
         if appt_status in [CANCELLED_APPT, SKIPPED_APPT] and self.crf_metadata_keyed_exists:
             self.raise_validation_error(
-                {"appt_status": format_html("Invalid. Some CRFs have already been keyed")},
+                {"appt_status": "Invalid. Some CRFs have already been keyed"},
                 INVALID_APPT_STATUS,
             )
         elif (
@@ -386,11 +386,7 @@ class AppointmentFormValidator(
             and self.requisition_metadata_keyed_exists
         ):
             self.raise_validation_error(
-                {
-                    "appt_status": format_html(
-                        "Invalid. Some requisitions have already been keyed"
-                    )
-                },
+                {"appt_status": "Invalid. Some requisitions have already been keyed"},
                 INVALID_APPT_STATUS,
             )
 
@@ -403,7 +399,8 @@ class AppointmentFormValidator(
             self.raise_validation_error(
                 {
                     "appt_status": format_html(
-                        f'Invalid. Not all <a href="{url}">required CRFs</a> have been keyed'
+                        'Invalid. Not all <a href="{url}">required CRFs</a> have been keyed',
+                        url=url,
                     )
                 },
                 INVALID_APPT_STATUS,
@@ -417,8 +414,11 @@ class AppointmentFormValidator(
             self.raise_validation_error(
                 {
                     "appt_status": format_html(
-                        f'Invalid. Not all <a href="{url}">'
-                        "required requisitions</a> have been keyed"
+                        (
+                            'Invalid. Not all <a href="{url}">required requisitions</a> '
+                            "have been keyed"
+                        ),
+                        url=url,
                     )
                 },
                 INVALID_APPT_STATUS,

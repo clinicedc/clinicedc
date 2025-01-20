@@ -55,10 +55,13 @@ def validate_appt_datetime_unique(
                 )
                 if other_appts[0].visit_code_sequence == 0:
                     msg = format_html(
-                        "This appointment conflicts with the scheduled appointment "
-                        f"{other_appts[0].visit_code}.0. "
-                        f'Consider editing <A href="{appointment_url}">'
-                        "this appointment</A> first."
+                        (
+                            "This appointment conflicts with the scheduled appointment "
+                            '{visit_code}.0. Consider editing <A href="{appointment_url}"> '
+                            "this appointment</A> first."
+                        ),
+                        visit_code=other_appts[0].visit_code,
+                        appointment_url=appointment_url,
                     )
                 else:
                     phrase = (
@@ -67,10 +70,13 @@ def validate_appt_datetime_unique(
                         else "An unscheduled"
                     )
                     msg = format_html(
-                        f"{phrase} appointment already exists for this date. "
-                        f'See <A title="Edit appointment" href="{appointment_url}">'
-                        f"appointment {other_appts[0].visit_code}."
-                        f"{other_appts[0].visit_code_sequence}</A>"
+                        "{phrase} appointment already exists for this date. "
+                        'See <A title="Edit appointment" href="{appointment_url}">'
+                        "appointment {visit_code}. {visit_code_sequence}</A>",
+                        phrase=phrase,
+                        appointment_url=appointment_url,
+                        visit_code=other_appts[0].visit_code,
+                        visit_code_sequence=other_appts[0].visit_code_sequence,
                     )
                 raise form_validator.raise_validation_error(
                     {form_field: msg},
