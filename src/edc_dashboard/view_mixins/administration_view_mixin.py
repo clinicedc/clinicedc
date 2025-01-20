@@ -6,15 +6,13 @@ from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.views.generic.base import ContextMixin
 
-from edc_dashboard.utils import get_bootstrap_version
-
 
 class AdministrationDashboardError(Exception):
     pass
 
 
 class AdministrationViewMixin(ContextMixin):
-    template_name = f"edc_dashboard/bootstrap{get_bootstrap_version()}/administration.html"
+    template_name = "edc_dashboard/administration.html"
 
     edc_module_prefix = "Edc"
 

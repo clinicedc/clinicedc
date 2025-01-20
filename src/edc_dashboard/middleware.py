@@ -2,7 +2,6 @@ from django.conf import settings
 
 from .dashboard_templates import dashboard_templates
 from .url_names import url_names
-from .utils import insert_bootstrap_version
 
 
 class DashboardMiddleware:
@@ -18,7 +17,6 @@ class DashboardMiddleware:
             request.template_data
         except AttributeError:
             request.template_data = {}
-        request.template_data = insert_bootstrap_version(**request.template_data)
         response = self.get_response(request)
         return response
 
@@ -29,7 +27,6 @@ class DashboardMiddleware:
             template_data.update(settings.DASHBOARD_BASE_TEMPLATES)
         except AttributeError:
             pass
-        template_data = insert_bootstrap_version(**template_data)
         request.template_data.update(**template_data)
 
     def process_template_response(self, request, response):
