@@ -16,7 +16,6 @@ from ..constants import (
     NEW_APPT,
     SKIPPED_APPT,
 )
-from ..utils import reset_visit_code_sequence_for_subject
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -50,13 +49,6 @@ class AppointmentViewMixin:
             if self.appointment.related_visit:
                 report_datetime = self.appointment.related_visit.report_datetime
                 kwargs.update(report_datetime=report_datetime)
-        else:
-            reset_visit_code_sequence_for_subject(
-                subject_identifier=self.subject_identifier,
-                visit_schedule_name=self.current_visit_schedule.name,
-                schedule_name=self.current_schedule.name,
-            )
-
         has_call_manager = True if django_apps.app_configs.get("edc_call_manager") else False
         kwargs.update(
             appointment=self.appointment,
