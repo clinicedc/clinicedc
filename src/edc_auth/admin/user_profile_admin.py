@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from ..admin_site import edc_auth_admin
@@ -43,18 +44,18 @@ class UserProfileAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
     @staticmethod
     def user_sites(obj=None):
         site_names = [o.name for o in obj.sites.all().order_by("name")]
-        return format_html("<BR>".join(site_names))
+        return format_html("{}", mark_safe("<BR>".join(site_names)))  # nosec B703 B308
 
     @staticmethod
     def user_email_notifications(obj=None):
         display_names = [
             o.display_name for o in obj.email_notifications.all().order_by("display_name")
         ]
-        return format_html("<BR>".join(display_names))
+        return format_html("{}", mark_safe("<BR>".join(display_names)))  # nosec B703 B308
 
     @staticmethod
     def user_sms_notifications(obj=None):
         display_names = [
             o.display_name for o in obj.sms_notifications.all().order_by("display_name")
         ]
-        return format_html("<BR>".join(display_names))
+        return format_html("{}", "<BR>".join(display_names))

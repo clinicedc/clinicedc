@@ -2,6 +2,7 @@ from typing import Tuple
 
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from ..admin_site import edc_auth_admin
@@ -30,4 +31,4 @@ class RoleAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
         for group in obj.groups.all():
             group_names.append(group.name)
         group_names.sort()
-        return format_html("<BR>".join(group_names))
+        return format_html("{}", mark_safe("<BR>".join(group_names)))  # nosec B703 B308
