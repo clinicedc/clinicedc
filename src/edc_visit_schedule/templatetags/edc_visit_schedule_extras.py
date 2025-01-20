@@ -3,17 +3,13 @@ from urllib.parse import unquote, urlencode
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
-from edc_dashboard.utils import get_bootstrap_version
 
 from ..models import SubjectScheduleHistory
 
 register = template.Library()
 
 
-@register.inclusion_tag(
-    f"edc_visit_schedule/bootstrap{get_bootstrap_version()}/"
-    f"subject_schedule_footer_row.html"
-)
+@register.inclusion_tag("edc_visit_schedule/subject_schedule_footer_row.html")
 def subject_schedule_footer_row(
     subject_identifier, visit_schedule, schedule, subject_dashboard_url
 ):
