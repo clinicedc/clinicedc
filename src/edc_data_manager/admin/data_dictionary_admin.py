@@ -123,7 +123,7 @@ class DataDictionaryAdmin(
                     except NoReverseMatch:
                         pass
                     else:
-                        return format_html(f'<a href="{url}">Changelist</a>')
+                        return format_html('<a href="{url}">Changelist</a>', url=url)
         return None
 
     @staticmethod

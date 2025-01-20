@@ -20,7 +20,6 @@ from edc_constants.constants import (
     RESOLVED,
     YES,
 )
-from edc_dashboard.utils import get_bootstrap_version
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin
@@ -36,26 +35,14 @@ from .actions import toggle_dm_status
 
 @register(DataQuery, site=edc_data_manager_admin)
 class DataQueryAdmin(SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
-    status_column_template_name = (
-        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/status.html"
-    )
-    query_date_column_template_name = (
-        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/query_date.html"
-    )
-    query_text_column_template_name = (
-        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/query_text.html"
-    )
-    query_recipients_column_template_name = (
-        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/query_recipients.html"
-    )
+    status_column_template_name = "edc_data_manager/columns/status.html"
+    query_date_column_template_name = "edc_data_manager/columns/query_date.html"
+    query_text_column_template_name = "edc_data_manager/columns/query_text.html"
+    query_recipients_column_template_name = "edc_data_manager/columns/query_recipients.html"
 
-    rule_generated_column_template_name = (
-        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/rule_generated.html"
-    )
+    rule_generated_column_template_name = "edc_data_manager/columns/rule_generated.html"
 
-    locked_column_template_name = (
-        f"edc_data_manager/bootstrap{get_bootstrap_version()}/columns/locked.html"
-    )
+    locked_column_template_name = "edc_data_manager/columns/locked.html"
 
     status_column_context = {
         "NEW": NEW,
