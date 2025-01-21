@@ -7,7 +7,6 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_appointment.models import Appointment
-from edc_dashboard.utils import get_bootstrap_version
 from edc_utils import convert_php_dateformat, formatted_age, get_utcnow
 
 from ...admin_site import edc_pharmacy_admin
@@ -119,9 +118,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
             refill_end_date=format_html("&nbsp;".join(refill_end_date)),
             number_of_days=obj.number_of_days,
         )
-        return render_to_string(
-            f"edc_pharmacy/bootstrap{get_bootstrap_version()}/duration.html", context=context
-        )
+        return render_to_string("edc_pharmacy/duration.html", context=context)
 
     @admin.display(description="Rx")
     def prescription(self, obj=None):
@@ -146,7 +143,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
             "rx_refill": obj,
         }
         return render_to_string(
-            f"edc_pharmacy/bootstrap{get_bootstrap_version()}/rx_refill_description.html",
+            "edc_pharmacy/rx_refill_description.html",
             context,
         )
 
