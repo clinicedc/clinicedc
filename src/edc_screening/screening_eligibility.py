@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_constants.constants import NO, PENDING, TBD, YES
 
 from .exceptions import (
@@ -229,7 +230,10 @@ class ScreeningEligibility:
         str_values = "<BR>".join(
             [x for x in self.reasons_ineligible.values() if x is not None]
         )
-        return format_html(str_values)
+        return format_html(
+            "{}",
+            mark_safe(str_values),  # nosec B703 B308
+        )
 
     @property
     def display_label(self) -> str:
