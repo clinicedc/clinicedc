@@ -1,7 +1,0 @@
-{% for label, status in options.items %}
-  {% if status %}
-      <span class="text text-success"><i class="fas fa-check-circle fa-lg" title="{{ label|title }}"></i></span>
-  {% else %}
-      <span class="text text-danger"><i class="fas fa-times-circle fa-lg" title="Not {{ label }}"></i></span>
-  {% endif %}
-{% endfor %}

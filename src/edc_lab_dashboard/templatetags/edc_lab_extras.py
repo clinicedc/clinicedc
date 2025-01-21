@@ -1,16 +1,14 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.html import format_html
-from edc_dashboard.utils import get_bootstrap_version
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from edc_lab.constants import SHIPPED
 from edc_lab.models import BoxItem
 
 register = template.Library()
 
 
-@register.inclusion_tag(
-    f"edc_lab_dashboard/bootstrap{get_bootstrap_version()}/" f"listboard/box/box_cell.html"
-)
+@register.inclusion_tag("edc_lab_dashboard/listboard/box/box_cell.html")
 def show_box_rows(box, listboard_url, position=None):
     """Returns rendered HTML of a box as a dictionary of keys headers, rows.
 
@@ -48,19 +46,18 @@ def show_box_rows(box, listboard_url, position=None):
 @register.filter(is_safe=True)
 def verified(box_item):
     """Returns a safe HTML check mark string if a Box item has been verified."""
-    verified = False
+    is_verified = False
     if box_item.verified:
         if int(box_item.verified) == 1:
-            verified = True
+            is_verified = True
         elif int(box_item.verified) == -1:
-            verified = False
+            is_verified = False
     return (
         ""
-        if not verified
-        else format_html(
-            '&nbsp;<span title="verified" alt="verified" class="text text-success">'
-            '<i class="fas fa-check fa-fw"></i></span>'
-        )
+        if not is_verified
+        else mark_safe(
+            render_to_string("edc_lab_dashboard/controls/verified_check.html")
+        )  # nosec B703 B308
     )
 
 
@@ -70,17 +67,13 @@ def shipped(box_item):
     return (
         ""
         if not box_item.status == SHIPPED
-        else format_html(
-            '&nbsp;<span title="shipped" class="text text-success">'
-            '<i class="fas fa-ship fa-fw"></i></span>'
-        )
+        else mark_safe(
+            render_to_string("edc_lab_dashboard/controls/verified_shipped.html")
+        )  # nosec B703 B308
     )
 
 
-@register.inclusion_tag(
-    f"edc_lab_dashboard/bootstrap{get_bootstrap_version()}/"
-    "listboard/tags/status_column.html"
-)
+@register.inclusion_tag("edc_lab_dashboard/listboard/tags/status_column.html")
 def status_column(model_wrapper, *attrs):
     options = {}
     for attr in attrs:
