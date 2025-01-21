@@ -9,6 +9,7 @@ app_name = "review_dashboard_app"
 urlpatterns = []
 
 for app_name in [
+    "edc_auth",
     "edc_action_item",
     "edc_appointment",
     "edc_consent",
