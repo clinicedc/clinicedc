@@ -25,7 +25,7 @@
       {% render_subject_schedule_button subject_dashboard_url=subject_dashboard_url subject_identifier=subject_identifier %}
     {% endif %}
     <a id="home_list_group_subject_schedule_history" href="{% url 'edc_visit_schedule_admin:edc_visit_schedule_subjectschedulehistory_changelist' %}?q={% if search_term %}{{ search_term }}{% else %}{{ subject_identifier }}{% endif %}" role="button" class="btn btn-default btn-sm">Subject on/off schedule history</a>
-    {% include 'edc_dashboard/bootstrap3/search_form.html' %}
+    {% include 'edc_dashboard/search_form.html' %}
 </span>
 
 </div> <!--end panel heading -->
