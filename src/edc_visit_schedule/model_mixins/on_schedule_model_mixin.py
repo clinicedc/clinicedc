@@ -23,7 +23,10 @@ if TYPE_CHECKING:
 
 class OnScheduleManager(SubjectIdentifierManager):
     def put_on_schedule(
-        self, subject_identifier: str = None, onschedule_datetime: datetime = None
+        self,
+        subject_identifier: str = None,
+        onschedule_datetime: datetime = None,
+        skip_get_current_site: bool | None = None,
     ) -> None:
         """Puts a subject on the schedule associated with this
         OnSchedule model.
@@ -35,7 +38,11 @@ class OnScheduleManager(SubjectIdentifierManager):
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             self.model._meta.label_lower
         )
-        schedule.put_on_schedule(subject_identifier, onschedule_datetime)
+        schedule.put_on_schedule(
+            subject_identifier=subject_identifier,
+            onschedule_datetime=onschedule_datetime,
+            skip_get_current_site=skip_get_current_site,
+        )
 
 
 class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
