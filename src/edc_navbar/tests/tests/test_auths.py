@@ -17,4 +17,4 @@ class TestAuths(TestCase):
         import_module("edc_adverse_event.auths")
         AuthUpdater.add_empty_groups_for_tests(EXPORT)
         AuthUpdater.add_empty_roles_for_tests(DATA_MANAGER_ROLE, SITE_DATA_MANAGER_ROLE)
-        AuthUpdater(verbose=True)
+        AuthUpdater(verbose=True, warn_only=True)

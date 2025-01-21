@@ -8,7 +8,7 @@
     {% for navbar_item in default_navbar.navbar_items %}{% render_navbar_item navbar_item %}{% endfor %}
     <li id="li-topbar-logout"><a title="" onclick="document.getElementById('logout_form').submit();"><i class="fas fa-sign-out-alt fa-fw"></i></a></li>
     <li id="li-topbar-user-profile"><a title="user profile" href="{{ auth_user_change_url }}">{{ user.get_username }}</a></li>
-    <!--begin select lang -->{% include "select_language_item.html" %}<!-- end select lang -->
+    <!--begin select lang -->{% include "edc_navbar/select_language_item.html" %}<!-- end select lang -->
   </ul>
 </div>
 <!-- end class navbar -->

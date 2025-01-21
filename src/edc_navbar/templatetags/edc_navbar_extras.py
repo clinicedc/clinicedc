@@ -9,7 +9,7 @@ from ..navbar_item import NavbarItem
 register = template.Library()
 
 
-@register.inclusion_tag("edc_navbar/bootstrap3/edc_navbar.html", takes_context=True)
+@register.inclusion_tag("edc_navbar/edc_navbar.html", takes_context=True)
 def render_navbar(context) -> dict:
     auth_user_change_url = None
     user = getattr(context["request"], "user", None)
@@ -27,7 +27,7 @@ def render_navbar(context) -> dict:
     )
 
 
-@register.inclusion_tag("edc_navbar/bootstrap3/navbar_item.html", takes_context=True)
+@register.inclusion_tag("edc_navbar/navbar_item.html", takes_context=True)
 def render_navbar_item(context, navbar_item: NavbarItem) -> dict:
     data = {}
     url = navbar_item.get_url()
