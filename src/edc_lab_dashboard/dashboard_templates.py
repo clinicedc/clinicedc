@@ -3,7 +3,6 @@ use settings.LAB_DASHBOARD_BASE_TEMPLATES.
 """
 
 from django.conf import settings
-from edc_dashboard.utils import insert_bootstrap_version
 
 dashboard_templates = dict(
     aliquot_listboard_template="edc_lab_dashboard/aliquot_listboard.html",
@@ -27,5 +26,3 @@ try:
     dashboard_templates.update(**settings.LAB_DASHBOARD_BASE_TEMPLATES)
 except AttributeError:
     pass
-
-dashboard_templates = insert_bootstrap_version(**dashboard_templates)

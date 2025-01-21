@@ -1,5 +1,4 @@
 from django.conf import settings
-from edc_dashboard.utils import insert_bootstrap_version
 from edc_lab.constants import SHIPPED
 
 from .dashboard_templates import dashboard_templates
@@ -28,7 +27,6 @@ class DashboardMiddleware:
             template_data.update(settings.LAB_DASHBOARD_BASE_TEMPLATES)
         except AttributeError:
             pass
-        template_data = insert_bootstrap_version(**template_data)
         request.template_data.update(**template_data)
 
     def process_template_response(self, request, response):
