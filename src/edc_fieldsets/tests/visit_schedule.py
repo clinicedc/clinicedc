@@ -3,8 +3,6 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
-from edc_fieldsets.tests.consents import consent_v1
-
 crfs = CrfCollection(
     Crf(show_order=1, model="edc_fieldsets.mymodel", required=True),
     Crf(show_order=2, model="edc_fieldsets.mymodel2", required=True),
@@ -20,7 +18,7 @@ visit0 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     crfs=crfs,
-    facility_name="default",
+    facility_name="7-day-clinic",
 )
 
 visit1 = Visit(
@@ -31,24 +29,28 @@ visit1 = Visit(
     rlower=relativedelta(days=0),
     rupper=relativedelta(days=6),
     crfs=crfs,
-    facility_name="default",
+    facility_name="7-day-clinic",
 )
 
-schedule = Schedule(
-    name="schedule",
-    onschedule_model="edc_visit_schedule.onschedule",
-    offschedule_model="edc_visit_schedule.offschedule",
-    appointment_model="edc_appointment.appointment",
-    consent_definitions=[consent_v1],
-)
 
-schedule.add_visit(visit0)
-schedule.add_visit(visit1)
+def get_visit_schedule(consent_v1):
 
-visit_schedule = VisitSchedule(
-    name="visit_schedule",
-    offstudy_model="edc_offstudy.subjectoffstudy",
-    death_report_model="edc_adverse_event.deathreport",
-)
+    schedule = Schedule(
+        name="schedule",
+        onschedule_model="edc_visit_schedule.onschedule",
+        offschedule_model="edc_visit_schedule.offschedule",
+        appointment_model="edc_appointment.appointment",
+        consent_definitions=[consent_v1],
+    )
 
-visit_schedule.add_schedule(schedule)
+    schedule.add_visit(visit0)
+    schedule.add_visit(visit1)
+
+    visit_schedule = VisitSchedule(
+        name="visit_schedule",
+        offstudy_model="edc_offstudy.subjectoffstudy",
+        death_report_model="edc_adverse_event.deathreport",
+    )
+
+    visit_schedule.add_schedule(schedule)
+    return visit_schedule
