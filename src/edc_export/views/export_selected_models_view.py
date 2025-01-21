@@ -12,7 +12,6 @@ from django.urls.base import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic.base import TemplateView
-from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
 
 from ..archive_exporter import (
@@ -39,7 +38,7 @@ class ExportModelsViewError(Exception):
 
 class ExportSelectedModelsView(EdcViewMixin, TemplateView):
     post_action_url = "edc_export:export_models_url"
-    template_name = f"edc_export/bootstrap{get_bootstrap_version()}/export_models.html"
+    template_name = "edc_export/export_models.html"
 
     def get_context_data(self, **kwargs) -> dict:
         if self.request.session.get("selected_models"):

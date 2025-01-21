@@ -64,7 +64,8 @@ def raise_if_prohibited_from_export_pii_group(username: str, groups: Iterable) -
             {
                 "groups": format_html(
                     "This user is not allowed to export PII data. You may not add "
-                    f"this user to the <U>{EXPORT_PII}</U> group."
+                    "this user to the <U>{}</U> group.",
+                    "EXPORT_PII",
                 )
             }
         )

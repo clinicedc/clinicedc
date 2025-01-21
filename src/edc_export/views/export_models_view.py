@@ -3,7 +3,6 @@ from typing import Any
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.generic.base import TemplateView
-from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
@@ -11,7 +10,7 @@ from ..exportables import Exportables
 
 
 class ExportModelsView(EdcViewMixin, NavbarViewMixin, TemplateView):
-    template_name = f"edc_export/bootstrap{get_bootstrap_version()}/export_models.html"
+    template_name = "edc_export/export_models.html"
     navbar_name = "edc_export"
     navbar_selected_item = "export"
 
