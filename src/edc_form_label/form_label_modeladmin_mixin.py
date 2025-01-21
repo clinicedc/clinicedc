@@ -1,4 +1,5 @@
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 
 class FormLabelModelAdminMixin:
@@ -24,5 +25,7 @@ class FormLabelModelAdminMixin:
                     request=request, obj=obj, model=self.model, form=form
                 )
                 if label:
-                    form.base_fields[form_label.field].label = format_html(label)
+                    form.base_fields[form_label.field].label = format_html(
+                        "{}", mark_safe(label)  # nosec B308, B703
+                    )
         return form
