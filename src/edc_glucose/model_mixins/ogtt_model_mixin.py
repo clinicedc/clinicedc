@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_constants.constants import NOT_APPLICABLE
 from edc_lab.choices import GLUCOSE_UNITS_NA, RESULT_QUANTIFIER
 from edc_lab.constants import EQ
@@ -23,7 +24,10 @@ def ogtt_model_mixin_factory(utest_id: str, **kwargs):
         ),
         f"{utest_id}_value": models.DecimalField(
             verbose_name=format_html(
-                "Blood glucose measure 2hrs <u>after</u> oral glucose solution given"
+                "{}",
+                mark_safe(
+                    "Blood glucose measure 2hrs <u>after</u> oral glucose solution given"
+                ),  # nosec B703, B308
             ),
             max_digits=8,
             decimal_places=2,
@@ -45,8 +49,11 @@ def ogtt_model_mixin_factory(utest_id: str, **kwargs):
         ),
         f"{utest_id}_datetime": models.DateTimeField(
             verbose_name=format_html(
-                "Date/time blood glucose measured 2hrs <u>after</u> "
-                "oral glucose solution given"
+                "{}",
+                mark_safe(
+                    "Date/time blood glucose measured 2hrs <u>after</u> "
+                    "oral glucose solution given"
+                ),  # nosec B703, B308
             ),
             validators=[datetime_not_future],
             blank=True,
