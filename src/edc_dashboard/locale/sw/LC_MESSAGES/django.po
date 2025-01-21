@@ -47,18 +47,18 @@ msgstr "Tafadhali wasilisha tikiti kwenye"
 msgid "If you wish to contact support, contact information is on"
 msgstr "Ikiwa ungependa kuwasiliana na usaidizi, maelezo ya mawasiliano yapo kwenye"
 
-#: edc_dashboard/templates/edc_dashboard/bootstrap3/administration.html:15
+#: edc_dashboard/templates/edc_dashboard/administration.html:15
 msgid "Administration"
 msgstr "Utawala"
 
-#: edc_dashboard/templates/edc_dashboard/bootstrap3/controls/change_button.html:4
+#: edc_dashboard/templates/edc_dashboard/controls/change_button.html:4
 msgid "Change"
 msgstr "Badilika"
 
-#: edc_dashboard/templates/edc_dashboard/bootstrap3/controls/change_button.html:4
+#: edc_dashboard/templates/edc_dashboard/controls/change_button.html:4
 msgid "Add"
 msgstr "Ongeza"
 
-#: edc_dashboard/templates/edc_dashboard/bootstrap3/paginator/paginator_row.html:28
+#: edc_dashboard/templates/edc_dashboard/paginator/paginator_row.html:28
 msgid "Clear search filter"
 msgstr "Futa kichujio cha utafutaji"
