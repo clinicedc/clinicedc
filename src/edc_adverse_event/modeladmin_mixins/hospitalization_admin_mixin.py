@@ -12,7 +12,6 @@ class HospitalizationModelAdminMixin(
     ModelAdminSubjectDashboardMixin,
     ActionItemModelAdminMixin,
 ):
-    form = None
 
     add_form_template: str = "edc_adverse_event/admin/change_form.html"
     change_list_template = "edc_adverse_event/admin/change_list.html"
