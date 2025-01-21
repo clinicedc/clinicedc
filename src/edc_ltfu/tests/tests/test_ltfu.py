@@ -1,3 +1,7 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
@@ -5,14 +9,15 @@ from edc_action_item import site_action_items
 from edc_action_item.models import ActionItem
 from edc_adverse_event.constants import DEATH_REPORT_ACTION
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
+from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import CLOSED, HOSPITALIZED, OTHER, YES
+from edc_constants.constants import CLOSED, FEMALE, HOSPITALIZED, MALE, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data import load_list_data
-from edc_metadata.tests.consents import consent_v1
 from edc_metadata.tests.models import SubjectConsent
-from edc_metadata.tests.visit_schedule import visit_schedule
+from edc_metadata.tests.visit_schedule import get_visit_schedule
 from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
 from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -37,26 +42,42 @@ list_data = {
 }
 
 
+@override_settings(
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2018, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2027, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")),
+)
 class TestLtfu(AppointmentTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
-        site_consents.register(consent_v1)
-        import_holidays()
 
-    def setUp(self):
-        load_list_data(
-            list_data=list_data, model_name="edc_metadata.subjectvisitmissedreasons"
+        consent_v1 = ConsentDefinition(
+            "edc_metadata.subjectconsentv1",
+            version="1",
+            start=ResearchProtocolConfig().study_open_datetime,
+            end=ResearchProtocolConfig().study_close_datetime,
+            age_min=18,
+            age_is_adult=18,
+            age_max=64,
+            gender=[MALE, FEMALE],
         )
 
-        self.visit_schedule_name = "visit_schedule1"
-        self.schedule_name = "schedule1"
+        site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
+        load_list_data(
+            list_data=list_data, model_name="edc_metadata.subjectvisitmissedreasons"
+        )
+        import_holidays()
 
-        self.schedule = visit_schedule.schedules.get("schedule")
-
+    def setUp(self):
+        test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
+        traveller = time_machine.travel(test_datetime)
+        traveller.start()
+        self.schedule = site_visit_schedules.get_visit_schedule(
+            "visit_schedule"
+        ).schedules.get("schedule")
         self.subject_identifier = "111111111"
         self.subject_identifiers = [
             self.subject_identifier,
@@ -81,6 +102,7 @@ class TestLtfu(AppointmentTestCaseMixin, TestCase):
         self.subject_consent = SubjectConsent.objects.get(
             subject_identifier=self.subject_identifier, dob=dob
         )
+        traveller.stop()
 
     @staticmethod
     def register_actions():
