@@ -18,7 +18,7 @@ from ...custom_label_condition import CustomLabelCondition
 from ...form_label import FormLabel
 from ..admin import VISIT_ONE, VISIT_TWO, MyModelAdmin
 from ..forms import MyForm
-from ..models import MyModel, OnSchedule, SubjectVisit
+from ..models import MyModel, OnSchedule, SubjectConsentV1, SubjectVisit
 from ..visit_schedule import visit_schedule
 
 
@@ -41,9 +41,13 @@ class TestFormLabel(TestCase):
             self.user.user_permissions.add(permission)
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
 
-        OnSchedule.objects.create(
+        SubjectConsentV1.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow() - timedelta(days=15),
+            consent_datetime=get_utcnow() - timedelta(days=15),
+        )
+
+        OnSchedule.objects.put_on_schedule(
+            subject_identifier=self.subject_identifier,
             onschedule_datetime=get_utcnow() - timedelta(days=15),
         )
         self.appointment_one = Appointment.objects.get(visit_code=VISIT_ONE)
