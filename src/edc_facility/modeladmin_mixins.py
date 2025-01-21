@@ -61,17 +61,20 @@ class HealthFacilityModelAdminMixin:
 
     @admin.display(description="Name", ordering="name")
     def facility_name(self, obj=None):
-        return format_html(f'<span style="white-space:nowrap;">{obj.name}</span>')
+        return format_html('<span style="white-space:nowrap;">{}</span>', obj.name)
 
     @admin.display(description="Map")
     def map(self, obj=None):
         if obj.latitude and obj.longitude:
             return format_html(
-                f'<A href="https://www.google.com/maps/@{obj.latitude},{obj.longitude},15z">'
-                '<i class="fas fa-location-dot"></i>'
+                '<A href="{url}@{latitude},{longitude},15z">'
+                '<i class="fas fa-location-dot"></i>',
+                url="https://www.google.com/maps/",
+                latitude=obj.latitude,
+                longitude=obj.longitude,
             )
         return None
 
     @admin.display(description="Days")
     def clinic_days(self, obj=None) -> str:
-        return format_html(f'<span style="white-space:nowrap;">{obj.clinic_days_str}</span>')
+        return format_html('<span style="white-space:nowrap;">{}</span>', obj.clinic_days_str)
