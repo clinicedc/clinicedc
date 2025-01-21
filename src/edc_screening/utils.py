@@ -37,7 +37,10 @@ def format_reasons_ineligible(*str_values: str, delimiter=None) -> str:
     delimiter = delimiter or "|"
     str_values = tuple(x for x in str_values if x is not None)
     if str_values:
-        reasons = format_html(delimiter.join(str_values))
+        reasons = format_html(
+            "{}",
+            mark_safe(delimiter.join(str_values)),  # nosec B703 B308
+        )
     return reasons
 
 
@@ -119,8 +122,9 @@ def is_eligible_or_raise(
                 url = f"{url}?q={subject_screening.screening_identifier}"
         if not url:
             msg = format_html(
+                "{}",
                 "Not allowed. Subject is not eligible. "
-                f"Got {subject_screening.screening_identifier}"
+                f"Got {subject_screening.screening_identifier}",
             )
         else:
             msg = format_html(
