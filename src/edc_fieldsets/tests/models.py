@@ -41,7 +41,7 @@ class SubjectConsentV1(SubjectConsent):
         proxy = True
 
 
-class SubjectVisit(VisitModelMixin, BaseUuidModel):
+class SubjectVisit(VisitModelMixin, SiteModelMixin, BaseUuidModel):
     subject_identifier = models.CharField(max_length=25)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
