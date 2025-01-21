@@ -76,7 +76,7 @@ class SubjectLocatorModelAdminMixin(ModelAdminProtectPiiMixin):
             age_in_years=age(born=consent.dob, reference_dt=get_utcnow()).years,
             initials=consent.initials,
         )
-        return render_to_string("changelist_locator_subject.html", context=context)
+        return render_to_string("edc_locator/changelist_locator_subject.html", context=context)
 
     @admin.display(description="Contact Rules", ordering="may_call")
     def contact_rules(self, obj):
@@ -89,7 +89,9 @@ class SubjectLocatorModelAdminMixin(ModelAdminProtectPiiMixin):
             YES=YES,
             NO=NO,
         )
-        return render_to_string("changelist_locator_contact_rules.html", context=context)
+        return render_to_string(
+            "edc_locator/changelist_locator_contact_rules.html", context=context
+        )
 
     @admin.display(description="Contacts")
     def contacts(self, obj):
@@ -99,4 +101,6 @@ class SubjectLocatorModelAdminMixin(ModelAdminProtectPiiMixin):
             subject_phone=obj.subject_phone,
             subject_phone_alt=obj.subject_phone_alt,
         )
-        return render_to_string("changelist_locator_contacts.html", context=context)
+        return render_to_string(
+            "edc_locator/changelist_locator_contacts.html", context=context
+        )

@@ -10,8 +10,9 @@ class SubjectContactFieldsMixin(models.Model):
         max_length=25,
         choices=YES_NO,
         verbose_name=format_html(
-            "Has the participant given permission <b>to contacted by telephone "
-            "or cell</b> by study staff for follow-up purposes during the study?"
+            "Has the participant given permission <b>{}</b> "
+            "by study staff for follow-up purposes during the study?",
+            "to contacted by telephone or cell",
         ),
     )
 
@@ -20,7 +21,8 @@ class SubjectContactFieldsMixin(models.Model):
         choices=YES_NO,
         verbose_name=format_html(
             "Has the participant given permission for study "
-            "staff <b>to make home visits</b> for follow-up purposes?"
+            "staff <b>{}</b> for follow-up purposes?",
+            "to make home visits",
         ),
     )
 
@@ -30,8 +32,9 @@ class SubjectContactFieldsMixin(models.Model):
         null=True,
         blank=False,
         verbose_name=format_html(
-            "Has the participant given permission <b>to be contacted by SMS</b> "
-            "by study staff for follow-up purposes during the study?"
+            "Has the participant given permission <b>{}</b> "
+            "by study staff for follow-up purposes during the study?",
+            "to be contacted by SMS",
         ),
     )
 
