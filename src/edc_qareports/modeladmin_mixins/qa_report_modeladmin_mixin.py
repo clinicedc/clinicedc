@@ -5,9 +5,9 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from edc_constants.constants import NEW
+from edc_utils import truncate_string
 
 from ..models import QaReportLog
-from ..utils import truncate_string
 from .list_filters import NoteStatusListFilter
 
 
