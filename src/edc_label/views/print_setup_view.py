@@ -2,7 +2,6 @@ from typing import Any
 
 from django.apps import apps as django_apps
 from django.views.generic.base import TemplateView
-from edc_dashboard.utils import get_bootstrap_version
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
@@ -11,7 +10,7 @@ from ..view_mixins import EdcLabelViewMixin
 
 
 class PrinterSetupView(EdcViewMixin, NavbarViewMixin, EdcLabelViewMixin, TemplateView):
-    template_name = f"edc_label/bootstrap{get_bootstrap_version()}/printer_setup.html"
+    template_name = "edc_label/printer_setup.html"
     navbar_name = "edc_label"
     navbar_selected_item = "label"
 
