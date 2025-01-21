@@ -13,7 +13,6 @@ project_settings = DefaultTestSettings(
     BASE_DIR=base_dir,
     ETC_DIR=str(base_dir / app_name / "tests" / "etc"),
     SILENCED_SYSTEM_CHECKS=["sites.E101", "edc_navbar.E002", "edc_navbar.E003"],
-    EDC_BOOTSTRAP=3,
     EDC_SITES_REGISTER_DEFAULT=True,
     SUBJECT_SCREENING_MODEL="export_app.subjectscreening",
     SUBJECT_CONSENT_MODEL="export_app.subjectconsent",
