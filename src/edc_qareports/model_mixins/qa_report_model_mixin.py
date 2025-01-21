@@ -35,6 +35,10 @@ class QaReportModelMixin(models.Model):
             from intecomm_reports.models import Vl
 
             Vl.recreate_db_view()
+
+        Also, could do something like this (replace details as required):
+            CREATE USER 'edc-effect-live'@'10.131.23.168' IDENTIFIED BY 'xxxxxx';
+            GRANT SELECT ON effect_prod.* to 'edc-effect-live'@'10.131.23.168';
         """
         drop = True if drop is None else drop
         try:
