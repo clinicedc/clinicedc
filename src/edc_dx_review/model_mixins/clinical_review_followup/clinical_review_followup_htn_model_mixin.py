@@ -15,8 +15,8 @@ class ClinicalReviewHtnModelMixin(models.Model):
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,
         help_text=format_html(
-            "{}",
-            mark_safe(
+            "{html}",
+            html=mark_safe(
                 "Note: Select `not applicable` if diagnosis previously reported. <BR>"
                 "`Since last seen` includes today.<BR>"
                 "If `yes', complete the initial review CRF<BR>"
@@ -42,8 +42,8 @@ class ClinicalReviewHtnModelMixin(models.Model):
 
     htn_dx = models.CharField(
         verbose_name=format_html(
-            "{}",
-            mark_safe(
+            "{html}",
+            html=mark_safe(
                 "As of today, was the patient <u>newly</u> diagnosed with hypertension?"
             ),  # nosec B308, B703
         ),

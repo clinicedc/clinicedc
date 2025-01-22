@@ -15,8 +15,8 @@ class ClinicalReviewDmModelMixin(models.Model):
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,
         help_text=format_html(
-            "{}",
-            mark_safe(
+            "{html}",
+            html=mark_safe(
                 "Note: Select `not applicable` if diagnosis previously reported. <BR>"
                 "`Since last seen` includes today.<BR>"
                 "If `yes', complete the initial review CRF<BR>"
@@ -42,7 +42,8 @@ class ClinicalReviewDmModelMixin(models.Model):
 
     dm_dx = models.CharField(
         verbose_name=format_html(
-            "As of today, was the patient <u>{}</u> diagnosed with diabetes?", "newly"
+            "As of today, was the patient <u>{text}</u> diagnosed with diabetes?",
+            text="newly",
         ),
         max_length=15,
         choices=YES_NO_NA,

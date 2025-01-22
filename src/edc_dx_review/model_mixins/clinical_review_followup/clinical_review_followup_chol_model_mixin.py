@@ -42,7 +42,8 @@ class ClinicalReviewCholModelMixin(models.Model):
 
     chol_dx = models.CharField(
         verbose_name=format_html(
-            "As of today, was the patient <u>{}</u> diagnosed with high cholesterol?", "newly"
+            "As of today, was the patient <u>{text}</u> diagnosed with high cholesterol?",
+            text="newly",
         ),
         max_length=15,
         choices=YES_NO_NA,
