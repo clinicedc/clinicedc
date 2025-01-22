@@ -10,6 +10,7 @@ from django.contrib.messages import ERROR
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import select_template
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from edc_action_item.utils import get_reference_obj
 from edc_constants.constants import CLOSED, OPEN, OTHER, YES
@@ -78,12 +79,18 @@ def format_ae_description(context, ae_initial, wrap_length):
     context["ae_initial"] = ae_initial
     try:
         context["sae_reason"] = format_html(
-            "{}", wrapx(escape_braces(ae_initial.sae_reason.name), wrap_length)
+            "{}",
+            mark_safe(
+                wrapx(escape_braces(ae_initial.sae_reason.name), wrap_length)
+            ),  # nosec B703, B308
         )
     except AttributeError:
         context["sae_reason"] = ""
     context["ae_description"] = format_html(
-        "{}", wrapx(escape_braces(ae_initial.ae_description), wrap_length)
+        "{}",
+        mark_safe(
+            wrapx(escape_braces(ae_initial.ae_description), wrap_length)
+        ),  # nosec B703, B308
     )
     return context
 
@@ -99,15 +106,24 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
     context["ae_initial"] = ae_followup.ae_initial
     try:
         context["sae_reason"] = format_html(
-            "{}", wrapx(escape_braces(ae_followup.ae_initial.sae_reason.name), wrap_length)
+            "{}",
+            mark_safe(
+                wrapx(escape_braces(ae_followup.ae_initial.sae_reason.name), wrap_length)
+            ),  # nosec B703, B308
         )
     except AttributeError:
         context["sae_reason"] = ""
     context["relevant_history"] = format_html(
-        "{}", wrapx(escape_braces(ae_followup.relevant_history), wrap_length)
+        "{}",
+        mark_safe(
+            wrapx(escape_braces(ae_followup.relevant_history), wrap_length)
+        ),  # nosec B703, B308
     )
     context["ae_description"] = format_html(
-        "{}", wrapx(escape_braces(ae_followup.ae_initial.ae_description), wrap_length)
+        "{}",
+        mark_safe(
+            wrapx(escape_braces(ae_followup.ae_initial.ae_description), wrap_length)
+        ),  # nosec B703, B308
     )
     return context
 
@@ -122,12 +138,17 @@ def format_ae_susar_description(context, ae_susar, wrap_length):
     context["ae_initial"] = ae_susar.ae_initial
     context["sae_reason"] = format_html(
         "{}",
-        "<BR>".join(
-            wrap(escape_braces(ae_susar.ae_initial.sae_reason.name), wrap_length or 35)
-        ),
+        mark_safe(
+            "<BR>".join(
+                wrap(escape_braces(ae_susar.ae_initial.sae_reason.name), wrap_length or 35)
+            )
+        ),  # nosec B703, B308
     )
     context["ae_description"] = format_html(
-        "{}", wrapx(escape_braces(ae_susar.ae_initial.ae_description), wrap_length)
+        "{}",
+        mark_safe(
+            wrapx(escape_braces(ae_susar.ae_initial.ae_description), wrap_length)
+        ),  # nosec B703, B308
     )
     return context
 

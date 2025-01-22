@@ -53,7 +53,7 @@ class AeInitialModelFormMixin(AeModelFormMixin):
                     '{} instead. See <A href="{}">AE Follow-ups for {}</A>.',
                     ae_followup_cls._meta.verbose_name,
                     mark_safe(url),  # nosec B703, B308
-                    mark_safe(self.instance),  # nosec B703, B308
+                    mark_safe(str(self.instance)),  # nosec B703, B308
                 )
             )
 
