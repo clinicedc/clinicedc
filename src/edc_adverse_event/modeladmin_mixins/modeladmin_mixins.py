@@ -64,14 +64,20 @@ class AdverseEventModelAdminMixin:
         """Returns formatted usernames and creation/modification dates."""
         return format_html(
             "{}",
-            "<BR>".join(
-                [
-                    obj.user_created,
-                    obj.created.strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT)),
-                    obj.user_modified,
-                    obj.modified.strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT)),
-                ]
-            ),
+            mark_safe(
+                "<BR>".join(
+                    [
+                        obj.user_created,
+                        obj.created.strftime(
+                            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+                        ),
+                        obj.user_modified,
+                        obj.modified.strftime(
+                            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+                        ),
+                    ]
+                ),
+            ),  # nosec B703, B308
         )
 
     @display(description="Documents")
@@ -125,4 +131,7 @@ class AdverseEventModelAdminMixin:
         html = "<table><tr><td>"
         html += "</td><tr><td>".join([c.anchor for c in column_items])
         html += "</td></td></table>"
-        return format_html("{}", html)
+        return format_html(
+            "{}",
+            mark_safe(html),  # nosec B703, B308
+        )

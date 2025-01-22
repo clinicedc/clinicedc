@@ -40,7 +40,7 @@ class DeathReportListboardViewMixin(
     listboard_instructions = format_html(
         "{}",
         mark_safe(
-            "edc_adverse_enet/ae/death_report_listboard_instructions.html"
+            "edc_adverse_event/ae/death_report_listboard_instructions.html"
         ),  # nosec B703 B308
     )
 
