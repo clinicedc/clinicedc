@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 
 class HealthFacilityModelAdminMixin:
@@ -61,7 +62,10 @@ class HealthFacilityModelAdminMixin:
 
     @admin.display(description="Name", ordering="name")
     def facility_name(self, obj=None):
-        return format_html('<span style="white-space:nowrap;">{}</span>', obj.name)
+        return format_html(
+            '<span style="white-space:nowrap;">{name}</span>',
+            name=obj.name,
+        )
 
     @admin.display(description="Map")
     def map(self, obj=None):
@@ -69,7 +73,7 @@ class HealthFacilityModelAdminMixin:
             return format_html(
                 '<A href="{url}@{latitude},{longitude},15z">'
                 '<i class="fas fa-location-dot"></i>',
-                url="https://www.google.com/maps/",
+                url=mark_safe("https://www.google.com/maps/"),  # nosec B703, B308
                 latitude=obj.latitude,
                 longitude=obj.longitude,
             )
@@ -77,4 +81,7 @@ class HealthFacilityModelAdminMixin:
 
     @admin.display(description="Days")
     def clinic_days(self, obj=None) -> str:
-        return format_html('<span style="white-space:nowrap;">{}</span>', obj.clinic_days_str)
+        return format_html(
+            '<span style="white-space:nowrap;">{clinic_days_str}</span>',
+            clinic_days_str=obj.clinic_days_str,
+        )
