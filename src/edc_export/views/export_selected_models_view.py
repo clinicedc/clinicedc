@@ -58,9 +58,9 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                 request,
                 format_html(
                     "Your account does not include an email address. "
-                    'Please update your <a href="{}">user account</a> '
+                    'Please update your <a href="{user_url}">user account</a> '
                     "and try again.",
-                    mark_safe(user_url),  # nosec B308 B703
+                    user_url=mark_safe(user_url),  # nosec B308 B703
                 ),
             )
         else:
