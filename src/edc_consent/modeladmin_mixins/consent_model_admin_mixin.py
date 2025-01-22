@@ -182,13 +182,13 @@ class ConsentModelAdminMixin:
                 formatted_html = format_html(
                     '<BR>{links}<BR><A title="New query" href="{new_url}">Add query</A>',
                     links=mark_safe("<BR>".join(links)),  # nosec B703 B308
-                    new_url=new_url,
+                    new_url=mark_safe(new_url),  # nosec B703 B308
                 )
             else:
                 formatted_html = format_html(
                     '<A title="New query" href="{new_url}?"'
                     'subject_identifier={subject_identifier}">Add query</A>',
-                    new_url=new_url,
+                    new_url=mark_safe(new_url),  # nosec B703 B308
                     subject_identifier=obj.subject_identifier,
                 )
         return formatted_html
