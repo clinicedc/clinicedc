@@ -95,7 +95,7 @@ class SubjectScheduleHistoryAdmin(
             )
         else:
             context = dict(title=_("Go to subject dashboard"), url=url, label=label)
-        return render_to_string("dashboard_button.html", context=context)
+        return render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)
 
     @staticmethod
     def review(obj=None) -> str:
