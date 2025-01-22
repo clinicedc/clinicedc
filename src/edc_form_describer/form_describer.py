@@ -122,11 +122,11 @@ class FormDescriber:
         """Appends all form features to a list `lines`."""
         number = 0.0
         self.markdown.append(f"{self.level} {self.verbose_name}")
-        docstring = self.model_cls.__doc__
+        docstring = self.model_cls.__doc__.strip()
         if docstring.lower().startswith(self.model_cls._meta.label_lower.split(".")[1]):
-            self.markdown.append("*[missing model class docstring]*\n\n")
+            self.markdown.append("*[missing model class docstring]*\n")
         else:
-            self.markdown.append(self.model_cls.__doc__)
+            self.markdown.append(f"{docstring}\n")
         self.markdown.append(f"*Instructions*: {self.admin_cls.instructions}\n")
         if self.admin_cls.additional_instructions:
             self.markdown.append(
