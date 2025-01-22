@@ -1,6 +1,7 @@
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.html import format_html
+from django.utils.translation import gettext as _
 from django_crypto_fields.fields import EncryptedCharField
 from django_crypto_fields.models import CryptoMixin
 from edc_constants.choices import GENDER_UNDETERMINED
@@ -31,9 +32,9 @@ class BaseFieldsMixin(models.Model):
         blank=True,
         null=True,
         help_text=format_html(
-            "{}.<BR>{}",
-            "Required only if participant is a minor",
-            "Format is 'LASTNAME, FIRSTNAME'. All uppercase separated by a comma.",
+            "{text1}.<BR>{text2}",
+            text1=_("Required only if participant is a minor"),
+            text2=_("Format is 'LASTNAME, FIRSTNAME'. All uppercase separated by a comma."),
         ),
     )
 

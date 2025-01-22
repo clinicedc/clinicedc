@@ -12,7 +12,7 @@ class CitizenFieldsMixin(models.Model):
 
     legal_marriage = models.CharField(
         verbose_name=(
-            "If not a citizen, is the participant " "legally married to a Botswana citizen?"
+            "If not a citizen, is the participant legally married to a Botswana citizen?"
         ),
         max_length=3,
         choices=YES_NO_NA,
@@ -24,7 +24,7 @@ class CitizenFieldsMixin(models.Model):
 
     marriage_certificate = models.CharField(
         verbose_name=(
-            "[Interviewer] Has the participant produced the marriage " "certificate as proof? "
+            "[Interviewer] Has the participant produced the marriage certificate as proof? "
         ),
         max_length=3,
         choices=YES_NO_NA,
