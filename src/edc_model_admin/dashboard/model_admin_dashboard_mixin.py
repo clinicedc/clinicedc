@@ -28,7 +28,7 @@ class ModelAdminDashboardMixin:
                 kwargs=self.get_subject_dashboard_url_kwargs(obj),
             )
         context = dict(title=_("Go to subject's dashboard"), url=url, label=label)
-        return render_to_string("dashboard_button.html", context=context)
+        return render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)
 
     def get_screening_listboard_url_name(self) -> str:
         return url_names.get(self.screening_listboard_url_name)

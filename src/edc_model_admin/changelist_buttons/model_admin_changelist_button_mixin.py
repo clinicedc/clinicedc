@@ -1,6 +1,7 @@
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 
@@ -65,5 +66,8 @@ class ModelAdminChangelistButtonMixin:
             url = "#"
         context = dict(label=label, url=url, disabled=disabled, title=title)
         return format_html(
-            render_to_string(self.changelist_model_button_template_name, context)
+            "{html}",
+            html=mark_safe(
+                render_to_string(self.changelist_model_button_template_name, context)
+            ),  # nosec B703, B308
         )
