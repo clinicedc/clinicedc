@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_dashboard.url_names import url_names
 from edc_form_validators import INVALID_ERROR
 
@@ -61,7 +62,7 @@ def validate_appt_datetime_unique(
                             "this appointment</A> first."
                         ),
                         visit_code=other_appts[0].visit_code,
-                        appointment_url=appointment_url,
+                        appointment_url=mark_safe(appointment_url),  # nosec B703, B308
                     )
                 else:
                     phrase = (
@@ -74,7 +75,7 @@ def validate_appt_datetime_unique(
                         'See <A title="Edit appointment" href="{appointment_url}">'
                         "appointment {visit_code}. {visit_code_sequence}</A>",
                         phrase=phrase,
-                        appointment_url=appointment_url,
+                        appointment_url=mark_safe(appointment_url),  # nosec B703, B308
                         visit_code=other_appts[0].visit_code,
                         visit_code_sequence=other_appts[0].visit_code_sequence,
                     )
