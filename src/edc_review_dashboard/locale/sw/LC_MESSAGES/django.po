@@ -17,10 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: edc_review_dashboard/templates/edc_review_dashboard/bootstrap3/subject_review_listboard.html:38
+#: edc_review_dashboard/templates/edc_review_dashboard/subject_review_listboard.html:38
 msgid "click to go to subject dashboard for visit"
 msgstr ""
 
-#: edc_review_dashboard/templates/edc_review_dashboard/bootstrap3/subject_review_listboard.html:48
+#: edc_review_dashboard/templates/edc_review_dashboard/subject_review_listboard.html:48
 msgid "click to list reported visits for this subject"
 msgstr ""
