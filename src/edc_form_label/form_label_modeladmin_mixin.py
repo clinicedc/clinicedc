@@ -26,6 +26,7 @@ class FormLabelModelAdminMixin:
                 )
                 if label:
                     form.base_fields[form_label.field].label = format_html(
-                        "{}", mark_safe(label)  # nosec B308, B703
+                        "{label}",
+                        label=mark_safe(label),  # nosec B308, B703
                     )
         return form
