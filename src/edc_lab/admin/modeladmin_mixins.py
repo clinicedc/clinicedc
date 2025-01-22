@@ -4,6 +4,7 @@ from uuid import UUID
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_constants.constants import UUID_PATTERN, YES
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
@@ -46,7 +47,10 @@ class RequisitionAdminMixin:
             return format_html(
                 '<span style="color:red;">{}</span>', obj.requisition_identifier
             )
-        return format_html('<span style="color:red;">not drawn</span>')
+        return format_html(
+            "{html}",
+            html=mark_safe('<span style="color:red;">not drawn</span>'),  # nosec B703, B308
+        )
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "panel":

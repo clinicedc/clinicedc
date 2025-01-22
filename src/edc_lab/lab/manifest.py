@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 from ..constants import VERIFIED
 
@@ -71,7 +72,7 @@ class Manifest:
                         "Item is already in a manifest. See "
                         '<a href="{}" class="alert-link">'
                         "{}</a>",
-                        href,
+                        mark_safe(href),  # nosec B703, B308
                         manifest_identifier,
                     )
                     messages.error(self.request, message)
