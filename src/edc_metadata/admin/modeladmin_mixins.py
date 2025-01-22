@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django_audit_fields import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from edc_appointment.utils import get_appointment_model_cls
@@ -171,7 +172,7 @@ class MetadataModelAdminMixin(
     def dashboard(self, obj=None, label=None) -> str:
         url = self.get_subject_dashboard_url(obj=obj)
         context = dict(title="Go to subject's dashboard", url=url, label=label)
-        return render_to_string("dashboard_button.html", context=context)
+        return render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)
 
     @staticmethod
     def seq(obj=None):
@@ -180,9 +181,15 @@ class MetadataModelAdminMixin(
     @staticmethod
     def status(obj=None):
         if obj.entry_status == REQUIRED:
-            return format_html('<font color="orange">New</font>')
+            return format_html(
+                "{html}",
+                html=mark_safe('<font color="orange">New</font>'),  # nosec B703, B308
+            )
         if obj.entry_status == KEYED:
-            return format_html('<font color="green">Keyed</font>')
+            return format_html(
+                "{html}",
+                html=mark_safe('<font color="green">Keyed</font>'),  # nosec B703, B308
+            )
         return obj.get_entry_status_display()
 
     def get_view_on_site_url(self, obj=None):
