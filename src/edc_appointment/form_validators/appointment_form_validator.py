@@ -7,6 +7,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from edc_consent.form_validators import ConsentDefinitionFormValidatorMixin
 from edc_facility.utils import get_facilities
@@ -400,7 +401,7 @@ class AppointmentFormValidator(
                 {
                     "appt_status": format_html(
                         'Invalid. Not all <a href="{url}">required CRFs</a> have been keyed',
-                        url=url,
+                        url=mark_safe(url),  # nosec B703, B308
                     )
                 },
                 INVALID_APPT_STATUS,
@@ -418,7 +419,7 @@ class AppointmentFormValidator(
                             'Invalid. Not all <a href="{url}">required requisitions</a> '
                             "have been keyed"
                         ),
-                        url=url,
+                        url=mark_safe(url),  # nosec B703, B308
                     )
                 },
                 INVALID_APPT_STATUS,
