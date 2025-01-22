@@ -50,4 +50,4 @@ class ModelAdminMixin(
             kwargs=opts,
         )
         context = dict(title="Go to subject's dashboard", url=url, label=label)
-        return render_to_string("dashboard_button.html", context=context)
+        return render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)

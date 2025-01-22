@@ -125,7 +125,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_rx_changelist")
         url = f"{url}?q={obj.rx.id}"
         context = dict(title="Back to RX", url=url, label="Rx")
-        return render_to_string("dashboard_button.html", context=context)
+        return render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)
 
     @admin.display(description="Description of Refill")
     def description(self, obj=None):
