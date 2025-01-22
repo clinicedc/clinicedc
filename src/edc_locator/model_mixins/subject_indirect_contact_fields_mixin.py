@@ -10,10 +10,10 @@ class SubjectIndirectContactFieldsMixin(models.Model):
         max_length=25,
         choices=YES_NO,
         verbose_name=format_html(
-            "{} <b>{}</b> {}?",
-            "Has the participant given permission for study staff",
-            "to contact anyone else",
-            "for follow-up purposes during the study",
+            "{text1} <b>{text2}</b> {text3}?",
+            text1="Has the participant given permission for study staff",
+            text2="to contact anyone else",
+            text3="for follow-up purposes during the study",
         ),
         help_text="For example a partner, spouse, family member, neighbour ...",
     )
