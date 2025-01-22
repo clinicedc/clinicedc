@@ -115,7 +115,7 @@ class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
         try:
             position = self.box.next_position
         except BoxIsFullError as e:
-            message = format_html("{}", str(e))
+            message = str(e)
             messages.error(self.request, message)
         else:
             box_item = BoxItem(

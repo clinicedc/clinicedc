@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_constants.constants import YES
 from edc_dashboard.url_names import url_names
 
@@ -38,5 +39,5 @@ class ReceiveListboardView(RequisitionListboardView):
         return format_html(
             "All specimens have been received. Continue to "
             '<a href="{}" class="alert-link">processing</a>',
-            href,
+            mark_safe(href),  # nosec B703, B308
         )
