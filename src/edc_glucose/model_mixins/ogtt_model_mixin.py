@@ -24,8 +24,8 @@ def ogtt_model_mixin_factory(utest_id: str, **kwargs):
         ),
         f"{utest_id}_value": models.DecimalField(
             verbose_name=format_html(
-                "{}",
-                mark_safe(
+                "{html}",
+                html=mark_safe(
                     "Blood glucose measure 2hrs <u>after</u> oral glucose solution given"
                 ),  # nosec B703, B308
             ),
@@ -49,8 +49,8 @@ def ogtt_model_mixin_factory(utest_id: str, **kwargs):
         ),
         f"{utest_id}_datetime": models.DateTimeField(
             verbose_name=format_html(
-                "{}",
-                mark_safe(
+                "{html}",
+                html=mark_safe(
                     "Date/time blood glucose measured 2hrs <u>after</u> "
                     "oral glucose solution given"
                 ),  # nosec B703, B308
