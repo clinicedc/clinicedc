@@ -79,7 +79,7 @@ def update_query_rules_action(modeladmin, request, queryset):
                 "An updated digest will be email upon completion. "
                 'You may also check in <a href="{}?"'
                 'task_name=update_query_rules">task results</A>. ',
-                mark_safe(formatted_datetime(dte)),  # nosec B703, B308
+                formatted_datetime(dte),
                 mark_safe(taskresult_url),  # nosec B703, B308
             )
         else:

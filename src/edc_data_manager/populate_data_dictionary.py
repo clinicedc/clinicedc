@@ -30,7 +30,10 @@ class DbField:
             self.field_name = getattr(db_field, "name", None)
             self.field_type = None if db_field is None else db_field.get_internal_type()
             self.help_text = format_html(
-                "{}", mark_safe(getattr(db_field, "help_text", ""))  # nosec B703, B308
+                "{}",
+                mark_safe(
+                    getattr(db_field, "help_text", ""),
+                ),  # nosec B703, B308
             )
             self.max_digits = getattr(db_field, "max_digits", None)
             self.max_length = getattr(db_field, "max_length", None)
