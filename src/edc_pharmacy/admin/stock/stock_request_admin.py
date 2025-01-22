@@ -6,6 +6,7 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django_audit_fields import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
@@ -139,7 +140,10 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Container", ordering="container_name")
     def container_str(self, obj):
-        return format_html("<BR>".join(str(obj.container).split(" ")))
+        return format_html(
+            "{}",
+            mark_safe("<BR>".join(str(obj.container).split(" "))),  # nosec B703, B308
+        )
 
     @admin.display(description="Task")
     def task_status(self, obj):
