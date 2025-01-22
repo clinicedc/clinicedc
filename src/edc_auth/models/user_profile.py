@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from edc_export.choices import EXPORT_FORMATS
 from edc_export.constants import CSV
@@ -47,7 +48,9 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         null=True,
         blank=True,
         help_text=format_html(
-            'Change in <a href="{}">{}</a>', "/edc_label/", "Edc Label Administration"
+            'Change in <a href="{href}">{label}</a>',
+            href=mark_safe("/edc_label/"),  # nosec B703, B308
+            label="Edc Label Administration",
         ),
     )
 
@@ -56,7 +59,9 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         null=True,
         blank=True,
         help_text=format_html(
-            'Change in <a href="{}">{}</a>', "/edc_label/", "Edc Label Administration"
+            'Change in <a href="{href}">{label}</a>',
+            href=mark_safe("/edc_label/"),  # nosec B703, B308
+            label="Edc Label Administration",
         ),
     )
 
@@ -65,7 +70,9 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         null=True,
         blank=True,
         help_text=format_html(
-            'Change in <a href="{}">{}</a>', "/edc_label/", "Edc Label Administration"
+            'Change in <a href="{href}">{label}</a>',
+            href=mark_safe("/edc_label/"),  # nosec B703, B308
+            label="Edc Label Administration",
         ),
     )
 
