@@ -9,6 +9,7 @@ from django.contrib.messages import MessageFailure
 from django.core.exceptions import FieldError
 from django.forms.models import modelform_defines_fields, modelform_factory
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_sites.modelform_mixins import SiteModelFormMixin
 
 
@@ -66,12 +67,15 @@ class ModelAdminBypassDefaultFormClsMixin:
                     request,
                     messages.WARNING,
                     format_html(
-                        "<B>WARNING: All validation checks for this form have been disabled."
-                        "</B><BR>Your user account includes the special permission "
-                        f"`{self.custom_form_codename}`. <BR>Saving changes to this "
-                        "form without validation may lead to serious data integrity errors. "
-                        "<BR><B>If you did not expect this, contact your data manager "
-                        "immediately and do not continue.</B>"
+                        "{html}",
+                        html=mark_safe(
+                            "<B>WARNING: All validation checks for this form have been "
+                            "disabled. </B><BR>Your user account includes the special "
+                            f"permission `{self.custom_form_codename}`. <BR>Saving changes "
+                            "to this form without validation may lead to serious data "
+                            "integrity errors. <BR><B>If you did not expect this, contact "
+                            "your data manager immediately and do not continue.</B>"
+                        ),  # nosec B703, B308
                     ),
                 )
             except MessageFailure:

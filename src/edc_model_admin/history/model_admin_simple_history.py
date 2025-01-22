@@ -4,6 +4,7 @@ from django.apps import apps as django_apps
 from django.contrib import admin
 from django.utils.functional import lazy
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from simple_history.admin import SimpleHistoryAdmin as BaseSimpleHistoryAdmin
 
@@ -29,13 +30,17 @@ class SimpleHistoryAdmin(BaseSimpleHistoryAdmin):
             .first()
         )
         if log_entry:
-            return format_html(log_entry.get_change_message())
+            return format_html(
+                "{html}",
+                html=mark_safe(log_entry.get_change_message()),  # nosec B703, B308
+            )
         return None
 
     def dashboard(self, obj) -> Optional[str]:
         if callable(self.view_on_site):
             return format_html_lazy(
-                _('<A href="%(url)s">Dashboard</A>') % {"url": self.view_on_site(obj)}
+                '<A href="{url}">Dashboard</A>',
+                url=mark_safe(self.view_on_site()),  # nosec B703, B308
             )
         return None
 

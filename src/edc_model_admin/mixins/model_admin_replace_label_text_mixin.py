@@ -1,4 +1,5 @@
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 NAME = 0
 WIDGET = 1
@@ -13,5 +14,8 @@ class ModelAdminReplaceLabelTextMixin:
                 label = str(fld[WIDGET].label)
                 if old in label:
                     label = label.replace(old, new)
-                    fld[WIDGET].label = format_html(label)
+                    fld[WIDGET].label = format_html(
+                        "{}",
+                        mark_safe(label),  # nosec B703, B308
+                    )
         return form
