@@ -58,4 +58,7 @@ class UserProfileAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
         display_names = [
             o.display_name for o in obj.sms_notifications.all().order_by("display_name")
         ]
-        return format_html("{}", "<BR>".join(display_names))
+        return format_html(
+            "{}",
+            mark_safe("<BR>".join(display_names)),  # nosec B703, B308
+        )
