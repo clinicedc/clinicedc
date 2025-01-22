@@ -192,7 +192,10 @@ class DataQueryAdmin(SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, Simpl
     def wrapped_title(self, obj=None):
         wrapped_title = wrap(obj.title, width=20)
         html = "<BR>".join(wrapped_title)
-        return format_html("{}", mark_safe(html))  # nosec B703, B308
+        return format_html(
+            "{}",
+            mark_safe(html),  # nosec B703, B308
+        )
 
     wrapped_title.short_description = "Title"
 

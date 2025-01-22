@@ -123,7 +123,10 @@ class DataDictionaryAdmin(
                     except NoReverseMatch:
                         pass
                     else:
-                        return format_html('<a href="{url}">Changelist</a>', url=url)
+                        return format_html(
+                            '<a href="{url}">Changelist</a>',
+                            url=mark_safe(url),  # nosec B703 B308
+                        )
         return None
 
     @staticmethod
@@ -132,7 +135,10 @@ class DataDictionaryAdmin(
 
     @staticmethod
     def question_text(obj):
-        return format_html("{}", mark_safe(obj.prompt))  # nosec B703, B308
+        return format_html(
+            "{}",
+            mark_safe(obj.prompt),  # nosec B703, B308
+        )
 
     def populate_data_dictionary_action(self, request, queryset):
         DataDictionary.objects.update(active=False)
