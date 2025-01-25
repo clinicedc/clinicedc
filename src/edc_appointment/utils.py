@@ -321,7 +321,6 @@ def reset_visit_code_sequence_for_subject(
     subject_identifier: str = None,
     visit_schedule_name: str = None,
     schedule_name: str = None,
-    request: WSGIRequest | None = None,
 ) -> None:
     """Resets / validates appointment `visit code sequences` for any
     `visit code` with unscheduled appointments for the given subject
@@ -341,7 +340,6 @@ def reset_visit_code_sequence_for_subject(
             visit_schedule_name=visit_schedule_name,
             schedule_name=schedule_name,
             visit_code=visit_code,
-            request=request,
         )
 
 
