@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
-from edc_appointment.utils import reset_visit_code_sequence_for_subject
 from edc_utils import get_utcnow
 
 from .site_visit_schedules import site_visit_schedules
@@ -43,11 +42,6 @@ class VisitScheduleViewMixin:
                             self.current_schedule = schedule
                             self.current_visit_schedule = visit_schedule
                             self.current_onschedule_model = onschedule_model_obj
-                            reset_visit_code_sequence_for_subject(
-                                subject_identifier=self.subject_identifier,
-                                visit_schedule_name=self.current_visit_schedule.name,
-                                schedule_name=self.current_schedule.name,
-                            )
 
         kwargs.update(
             visit_schedules=self.visit_schedules,
