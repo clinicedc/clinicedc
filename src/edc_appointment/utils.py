@@ -12,7 +12,7 @@ from django.contrib.admin.utils import NotRelationField, get_model_from_relation
 from django.contrib.messages import ERROR, SUCCESS
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import Count, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -280,31 +280,39 @@ def reset_visit_code_sequence_or_pass(
             visit_code_sequence__gt=0, **opts
         ).delete()
 
-        for obj in (
-            get_appointment_model_cls()
-            .objects.filter(visit_code_sequence__gt=0, **opts)
-            .order_by("appt_datetime")
-        ):
-            obj.visit_code_sequence = obj.visit_code_sequence * -1
-            obj.save_base(update_fields=["visit_code_sequence"])
-            if getattr(obj, "related_visit", None):
-                obj.related_visit.visit_code_sequence = obj.visit_code_sequence * -1
-                obj.related_visit.save_base(update_fields=["visit_code_sequence"])
+        try:
+            with transaction.atomic():
+                # set appt and related visit visit_code_sequences to the
+                # negative of the current value
+                for obj in get_appointment_model_cls().objects.filter(
+                    visit_code_sequence__gt=0, **opts
+                ):
+                    obj.visit_code_sequence = obj.visit_code_sequence * -1
+                    obj.save_base(update_fields=["visit_code_sequence"])
+                    if getattr(obj, "related_visit", None):
+                        obj.related_visit.visit_code_sequence = obj.visit_code_sequence
+                        obj.related_visit.save_base(update_fields=["visit_code_sequence"])
+                        obj.related_visit.metadata_create()
 
-        for index, obj in enumerate(
-            get_appointment_model_cls()
-            .objects.filter(visit_code_sequence__lt=0, **opts)
-            .order_by("appt_datetime"),
-            start=1,
-        ):
-            obj.visit_code_sequence = index
-            obj.save_base(update_fields=["visit_code_sequence"])
-            if getattr(obj, "related_visit", None):
-                obj.related_visit.visit_code_sequence = index
-                obj.related_visit.save_base(update_fields=["visit_code_sequence"])
-                obj.related_visit.metadata_create()
+                # reset sequence order by appt_datetime
+                for index, obj in enumerate(
+                    get_appointment_model_cls()
+                    .objects.filter(visit_code_sequence__lt=0, **opts)
+                    .order_by("appt_datetime"),
+                    start=1,
+                ):
+                    obj.visit_code_sequence = index
+                    obj.save_base(update_fields=["visit_code_sequence"])
+                    if getattr(obj, "related_visit", None):
+                        obj.related_visit.visit_code_sequence = index
+                        obj.related_visit.save_base(update_fields=["visit_code_sequence"])
+                        obj.related_visit.metadata_create()
+
+        except IntegrityError:
+            raise
         if appointment:
-            # maybe appointment visit_code_sequence changed
+            # refresh the given appt if not None since
+            # appointment visit_code_sequence may have changed
             appointment = get_appointment_model_cls().objects.get(id=appointment.id)
     return appointment
 
@@ -313,6 +321,7 @@ def reset_visit_code_sequence_for_subject(
     subject_identifier: str = None,
     visit_schedule_name: str = None,
     schedule_name: str = None,
+    request: WSGIRequest | None = None,
 ) -> None:
     """Resets / validates appointment `visit code sequences` for any
     `visit code` with unscheduled appointments for the given subject
@@ -332,6 +341,7 @@ def reset_visit_code_sequence_for_subject(
             visit_schedule_name=visit_schedule_name,
             schedule_name=schedule_name,
             visit_code=visit_code,
+            request=request,
         )
 
 

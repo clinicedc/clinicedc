@@ -10,6 +10,7 @@ from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.models import CrfMetadata
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_appointment.constants import INCOMPLETE_APPT
@@ -26,25 +27,33 @@ from ..helper import Helper
 
 utc_tz = ZoneInfo("UTC")
 
+test_datetime = dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz)
+
 
 @override_settings(SITE_ID=10)
-@time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
+@time_machine.travel(test_datetime)
 class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
     helper_cls = Helper
 
     def setUp(self):
         self.subject_identifier = "12345"
+
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+
         site_visit_schedules._registry = {}
         self.visit_schedule = get_visit_schedule1()
         site_visit_schedules.register(self.visit_schedule)
-        site_consents.registry = {}
-        site_consents.register(consent_v1)
+
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
             now=ResearchProtocolConfig().study_open_datetime,
         )
+
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=self.visit_schedule.name, schedule_name="schedule1"
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name="schedule1",
+            report_datetime=get_utcnow(),
         )
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 4)
@@ -78,15 +87,15 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         return appointment
 
     @staticmethod
-    def get_visit_codes(by: str = None, **kwargs):
+    def get_visit_codes(by: str = None, visit_schedule_name: str | None = None, **kwargs):
+        opts = dict(visit_schedule_name=visit_schedule_name)
         return [
             f"{o.visit_code}.{o.visit_code_sequence}"
-            for o in Appointment.objects.all().order_by(by)
+            for o in Appointment.objects.filter(**opts).order_by(by)
         ]
 
     @tag("4")
     def test_resequence_appointment_on_insert_between_two_unscheduled(self):
-
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         self.assertEqual(self.create_unscheduled(appointment, days=2).visit_code_sequence, 1)
         self.assertEqual(self.create_unscheduled(appointment, days=4).visit_code_sequence, 2)
@@ -94,7 +103,9 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
 
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(by="appt_datetime"),
+            self.get_visit_codes(
+                by="appt_datetime", visit_schedule_name=appointment.visit_schedule_name
+            ),
         )
 
         # insert an appt between 1000.1 and 1000.2
@@ -112,13 +123,16 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
 
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "1000.4", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(by="appt_datetime"),
+            self.get_visit_codes(
+                by="appt_datetime", visit_schedule_name=appointment.visit_schedule_name
+            ),
         )
 
     @tag("4")
     def test_repair_visit_code_sequences(self):
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         self.create_unscheduled(appointment, days=2)
+
         appt2 = self.create_unscheduled(appointment, days=4)
         appt3 = self.create_unscheduled(appointment, days=5)
 
@@ -130,7 +144,9 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
 
         self.assertEqual(
             ["1000.0", "1000.1", "1000.3333", "1000.33", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(by="appt_datetime"),
+            self.get_visit_codes(
+                by="appt_datetime", visit_schedule_name=appointment.visit_schedule_name
+            ),
         )
 
         reset_visit_code_sequence_or_pass(
@@ -142,7 +158,9 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
 
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(by="appt_datetime"),
+            self.get_visit_codes(
+                by="appt_datetime", visit_schedule_name=appointment.visit_schedule_name
+            ),
         )
 
     @tag("4")
@@ -167,7 +185,9 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
 
         self.assertEqual(
             ["1000.0", "1000.1", "1000.3333", "1000.33", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(by="appt_datetime"),
+            self.get_visit_codes(
+                by="appt_datetime", visit_schedule_name=appointment.visit_schedule_name
+            ),
         )
 
         reset_visit_code_sequence_or_pass(
@@ -179,7 +199,9 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
 
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(by="appt_datetime"),
+            self.get_visit_codes(
+                by="appt_datetime", visit_schedule_name=appointment.visit_schedule_name
+            ),
         )
 
         self.assertEqual(
