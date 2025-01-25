@@ -128,6 +128,9 @@ class UnscheduledAppointmentCreator:
                     f"{obj.visit_code_sequence} is in progress."
                 )
             try:
+                # `timepoint` and `timepoint_datetime` are not incremented
+                # for unscheduled appointments. These values are carried
+                # over from the parent appointment values.
                 appointment_creator = self.appointment_creator_cls(
                     subject_identifier=self.subject_identifier,
                     visit_schedule_name=self.visit_schedule_name,

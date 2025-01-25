@@ -65,6 +65,7 @@ class Helper:
             consent_datetime=report_datetime or self.now,
             dob=self.now - relativedelta(years=age_in_years or 25),
         )
+
         visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
         schedule = visit_schedule.schedules.get(schedule_name)
         schedule.put_on_schedule(
