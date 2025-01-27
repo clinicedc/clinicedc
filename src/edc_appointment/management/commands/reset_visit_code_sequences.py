@@ -1,3 +1,5 @@
+import sys
+
 from django.core.management.base import BaseCommand
 from edc_registration.models import RegisteredSubject
 from tqdm import tqdm
@@ -13,6 +15,9 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
+        sys.stdout.write(
+            "Validating (and resetting, if needed) appointment visit code sequences ...\n"
+        )
         qs_rs = RegisteredSubject.objects.all().order_by("subject_identifier")
         for obj in tqdm(qs_rs, total=qs_rs.count()):
             qs = Appointment.objects.filter(
@@ -25,4 +30,5 @@ class Command(BaseCommand):
                     visit_schedule_name=appointment.visit_schedule_name,
                     schedule_name=appointment.schedule_name,
                     visit_code=appointment.visit_code,
+                    write_stdout=True,
                 )
