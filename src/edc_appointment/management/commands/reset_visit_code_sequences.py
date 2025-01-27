@@ -7,14 +7,10 @@ from edc_appointment.utils import reset_visit_code_sequence_or_pass
 
 
 class Command(BaseCommand):
-    help = "List email recipients for each registered notification"
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--delete",
-            action="store_true",
-            help="Delete invalid OnSchedule model instances",
-        )
+    help = (
+        "Validate appointment visit code sequences relative to appt_datetime "
+        "and reset if needed."
+    )
 
     def handle(self, *args, **options):
         qs_rs = RegisteredSubject.objects.all().order_by("subject_identifier")
