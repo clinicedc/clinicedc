@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import warnings
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Type
@@ -255,6 +256,7 @@ def reset_visit_code_sequence_or_pass(
     schedule_name: str = None,
     visit_code: str = None,
     appointment: Appointment | None = None,
+    write_stdout: bool | None = None,
 ) -> Appointment | None:
     """Validate the order of the appointment visit code sequences
     relative to the appt_datetime and reset the visit code sequences
@@ -274,6 +276,11 @@ def reset_visit_code_sequence_or_pass(
     expected = list(range(0, qs.count()))
     actual = [o.visit_code_sequence for o in qs]
     if actual != expected:
+        if write_stdout:
+            sys.stdout.write(
+                "     - Resetting for "
+                f"{subject_identifier} {visit_code}: {actual=} {expected=} ...\n"
+            )
         # reset visit code sequence for this visit code
         get_crf_metadata_model_cls().objects.filter(visit_code_sequence__gt=0, **opts).delete()
         get_requisition_metadata_model_cls().objects.filter(
