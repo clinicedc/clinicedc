@@ -1,19 +1,17 @@
 from __future__ import annotations
 
-import sys
 from copy import copy
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 from django.apps import apps as django_apps
 from django.core.exceptions import FieldError
-from django.db import models
-from django.db.models.constants import LOOKUP_SEP
+from django.db import OperationalError
 from django_crypto_fields.utils import has_encrypted_fields
+from django_pandas.io import read_frame
 
 from ..constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
-from .value_getter import ValueGetter, ValueGetterInvalidLookup
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -25,19 +23,34 @@ if TYPE_CHECKING:
             pass
 
 
+__all__ = ["ModelToDataframeError", "ModelToDataframe"]
+
+
 class ModelToDataframeError(Exception):
     pass
 
 
 class ModelToDataframe:
-    """
+    """A class to return a model or queryset as a pandas dataframe
+    with custom handling for EDC models.
+
+    For a CRF, subject_identifier and a few other columns are added.
+    Custom handles edc Site and Panel FK columns, list model FK, M2M,
+    etc.  If model has an FK to subject_visit adds important columns
+    from the SubjetVisit model (see `add_columns_for_subject_visit`).
+    Protections are in place for models or related models with
+    encrypted fields.
+
+    We are not using django_pandas read_frame since a model class
+    may have M2M fields and read_frame does not handle M2M fields
+    well. read_frame does not know about edc encrypted fields.
+
     m = ModelToDataframe(model='edc_pdutils.crf')
     my_df = m.dataframe
 
     See also: get_crf()
     """
 
-    value_getter_cls = ValueGetter
     sys_field_names: list[str] = [
         "_state",
         "_user_container_instance",
@@ -63,10 +76,10 @@ class ModelToDataframe:
         decrypt: bool | None = None,
         drop_sys_columns: bool | None = None,
         drop_action_item_columns: bool | None = None,
+        read_frame_verbose: bool | None = None,
         verbose: bool | None = None,
         remove_timezone: bool | None = None,
         sites: list[int] | None = None,
-        include_historical: bool | None = None,
     ):
         self._columns = None
         self._has_encrypted_fields = None
@@ -74,6 +87,7 @@ class ModelToDataframe:
         self._encrypted_columns = None
         self._site_columns = None
         self._dataframe = pd.DataFrame()
+        self.read_frame_verbose = False if read_frame_verbose is None else read_frame_verbose
         self.sites = sites
         self.drop_sys_columns = True if drop_sys_columns is None else drop_sys_columns
         self.drop_action_item_columns = (
@@ -88,6 +102,7 @@ class ModelToDataframe:
             self.model = queryset.model._meta.label_lower
         else:
             self.model = model
+        self.model_cls = django_apps.get_model(self.model)
         if self.sites:
             try:
                 if queryset:
@@ -100,6 +115,21 @@ class ModelToDataframe:
                 self.queryset = queryset or self.model_cls.objects.all()
         else:
             self.queryset = queryset or self.model_cls.objects.all()
+        # trigger query
+        self.row_count = self.get_row_count()
+
+    def get_row_count(self):
+        try:
+            row_count = self.queryset.count()
+        except OperationalError as e:
+            if "The user specified as a definer" in str(e) and getattr(
+                self.model_cls, "recreate_db_view"
+            ):
+                self.model_cls.recreate_db_view()
+                row_count = self.queryset.count()
+            else:
+                raise
+        return row_count
 
     @property
     def dataframe(self) -> pd.DataFrame:
@@ -113,21 +143,45 @@ class ModelToDataframe:
             column "visit_reason" would become a Dataframe instead
             of a Series like all other columns.
         """
-        if self._dataframe.empty:
-            row_count = self.queryset.count()
-            if row_count > 0:
-                if self.decrypt and self.has_encrypted_fields:
-                    self._dataframe = self.get_dataframe_with_encrypted_fields(row_count)
-                else:
-                    self._dataframe = self.get_dataframe_without_encrypted_fields()
-                self.merge_dataframe_with_pivoted_m2ms()
-                self._dataframe.rename(columns=self.columns, inplace=True)
-                self.convert_datetimetz_to_datetime()
-                self.convert_bool_types_to_int()
-                self.convert_unknown_types_to_str()
-                self.convert_timedelta_to_secs()
-                self._dataframe.fillna(value=np.nan, axis=0, inplace=True)
-                self.remove_illegal_characters()
+        if self._dataframe.empty and self.row_count > 0:
+            if self.decrypt and self.has_encrypted_fields:
+                dataframe = self.get_dataframe_with_encrypted_fields(self.row_count)
+            else:
+                dataframe = self.get_dataframe_without_encrypted_fields()
+
+            dataframe = self.merge_m2ms(dataframe)
+
+            dataframe.rename(columns=self.columns, inplace=True)
+
+            # remove timezone if asked
+            if self.remove_timezone:
+                for column in list(dataframe.select_dtypes(include=["datetimetz"]).columns):
+                    dataframe[column] = pd.to_datetime(dataframe[column]).dt.tz_localize(None)
+
+            # convert bool to int64
+            for column in list(dataframe.select_dtypes(include=["bool"]).columns):
+                dataframe[column] = (
+                    dataframe[column].astype("int64").replace({True: 1, False: 0})
+                )
+
+            # convert object to str
+            for column in list(dataframe.select_dtypes(include=["object"]).columns):
+                dataframe[column] = dataframe[column].fillna("")
+                dataframe[column] = dataframe[column].astype(str)
+
+            # convert timedeltas to secs
+            for column in list(dataframe.select_dtypes(include=["timedelta64"]).columns):
+                dataframe[column] = dataframe[column].dt.total_seconds()
+
+            # fillna
+            dataframe.fillna(value=np.nan, axis=0, inplace=True)
+
+            # remove illegal chars
+            for column in list(dataframe.select_dtypes(include=["object"]).columns):
+                dataframe[column] = dataframe.apply(
+                    lambda x: self._clean_chars(x[column]), axis=1
+                )
+            self._dataframe = dataframe
         return self._dataframe
 
     def get_dataframe_without_encrypted_fields(self) -> pd.DataFrame:
@@ -135,161 +189,103 @@ class ModelToDataframe:
         return pd.DataFrame(list(queryset), columns=[v for v in self.columns])
 
     def get_dataframe_with_encrypted_fields(self, row_count: int) -> pd.DataFrame:
-        if self.verbose:
-            sys.stdout.write("   PII will be decrypted! ... \n")
-        queryset = self.queryset.filter(**self.query_filter)
-        data = []
-        for index, model_obj in enumerate(queryset.order_by("id")):
-            if self.verbose:
-                sys.stdout.write(f"   {self.model} {index + 1}/{row_count} ... \r")
-            row = []
-            for lookup, column_name in self.columns.items():
-                value = None
-                try:
-                    value = self.get_column_value(
-                        model_obj=model_obj,
-                        column_name=column_name,
-                        lookup=lookup,
-                    )
-                except ValueGetterInvalidLookup as e:
-                    print(f"{e.message}. Model: {model_obj._meta.label_lower}.")
-                finally:
-                    row.append(value)
-            data.append(row)
-        return pd.DataFrame(data, columns=[col for col in self.columns])
+        df = read_frame(
+            self.queryset.filter(**self.query_filter), verbose=self.read_frame_verbose
+        )
+        return df[[col for col in self.columns]]
 
-    def remove_illegal_characters(self):
-        def clean_chars(s):
-            try:
-                s = s if s else s
-            except ValueError:
-                pass
+    def merge_m2ms(self, dataframe):
+        """Merge m2m data into main dataframe.
+
+        If m2m field name is not "name", add a class attr to
+        the m2m model that returns a field_name.
+
+        For example:
+
+            m2m_related_field = "patient_log_identifier"
+
+        """
+        for m2m_field in self.model_cls._meta.many_to_many:
+            if getattr(m2m_field.related_model, "m2m_related_field", None):
+                related_field = m2m_field.related_model.m2m_related_field
             else:
-                if s:
-                    for k, v in self.illegal_chars.items():
-                        try:
-                            s = s.replace(k, v)
-                        except (AttributeError, TypeError):
-                            break
-            return s
+                related_field = "name"
 
-        for column in list(self._dataframe.select_dtypes(include=["object"]).columns):
-            self._dataframe[column] = self._dataframe.apply(
-                lambda x: clean_chars(x[column]), axis=1
+            if related_field not in [
+                f.name for f in m2m_field.related_model._meta.get_fields()
+            ]:
+                raise ModelToDataframeError(
+                    f"m2m model missing `{related_field}` field. "
+                    f"Parent model is {self.model_cls}. "
+                    f"Got {m2m_field.related_model}. Try adding attribute "
+                    "m2m_related_field={model_name: field_name} to model class "
+                    f"{m2m_field.related_model}"
+                )
+            m2m_field_name = f"{m2m_field.name}__{related_field}"
+            df_m2m = read_frame(
+                self.model_cls.objects.filter(**{f"{m2m_field_name}__isnull": False}).values(
+                    "id", m2m_field_name
+                )
             )
+            df_m2m = df_m2m.groupby("id")[m2m_field_name].apply(",".join).reset_index()
+            dataframe.merge(df_m2m, on="id", how="left")
+        return dataframe
 
-    def convert_datetimetz_to_datetime(self) -> None:
-        if self.remove_timezone:
-            for column in list(self._dataframe.select_dtypes(include=["datetimetz"]).columns):
-                self._dataframe[column] = pd.to_datetime(
-                    self._dataframe[column]
-                ).dt.tz_localize(None)
-
-    def convert_bool_types_to_int(self) -> None:
-        for column in list(self._dataframe.select_dtypes(include=["bool"]).columns):
-            self._dataframe[column] = (
-                self._dataframe[column].astype("int64").replace({True: 1, False: 0})
-            )
-
-    def convert_unknown_types_to_str(self) -> None:
-        for column in list(self._dataframe.select_dtypes(include=["object"]).columns):
-            self._dataframe[column] = self._dataframe[column].fillna("")
-            self._dataframe[column] = self._dataframe[column].astype(str)
-
-    def convert_timedelta_to_secs(self) -> None:
-        for column in list(self._dataframe.select_dtypes(include=["timedelta64"]).columns):
-            self._dataframe[column] = self._dataframe[column].dt.total_seconds()
+    def _clean_chars(self, s):
+        try:
+            s = s if s else s
+        except ValueError:
+            pass
+        else:
+            if s:
+                for k, v in self.illegal_chars.items():
+                    try:
+                        s = s.replace(k, v)
+                    except (AttributeError, TypeError):
+                        break
+        return s
 
     def move_sys_columns_to_end(self, columns: dict[str, str]) -> dict[str, str]:
-        new_columns = {k: v for k, v in columns.items() if k not in SYSTEM_COLUMNS}
-        if len(new_columns.keys()) != len(columns.keys()) and not self.drop_sys_columns:
-            new_columns.update({k: k for k in SYSTEM_COLUMNS})
+        system_columns = [
+            f.name for f in self.model_cls._meta.get_fields() if f.name in SYSTEM_COLUMNS
+        ]
+        new_columns = {k: v for k, v in columns.items() if k not in system_columns}
+        if system_columns:
+            if len(new_columns.keys()) != len(columns.keys()) and not self.drop_sys_columns:
+                new_columns.update({k: k for k in system_columns})
         return new_columns
 
     def move_action_item_columns(self, columns: dict[str, str]) -> dict[str, str]:
+        action_item_columns = [
+            f.name for f in self.model_cls._meta.get_fields() if f.name in ACTION_ITEM_COLUMNS
+        ]
         new_columns = {k: v for k, v in columns.items() if k not in ACTION_ITEM_COLUMNS}
-        if (
-            len(new_columns.keys()) != len(columns.keys())
-            and not self.drop_action_item_columns
-        ):
-            new_columns.update({k: k for k in ACTION_ITEM_COLUMNS})
+        if action_item_columns:
+            if (
+                len(new_columns.keys()) != len(columns.keys())
+                and not self.drop_action_item_columns
+            ):
+                new_columns.update({k: k for k in ACTION_ITEM_COLUMNS})
         return new_columns
-
-    def merge_dataframe_with_pivoted_m2ms(self) -> list[str]:
-        """For each m2m field, merge in a single pivoted field."""
-        m2m_fields = []
-        for m2m_field in self.queryset.model._meta.many_to_many:
-            m2m_fields.append(m2m_field.name)
-            m2m_values_list = self.get_m2m_values_list(m2m_field)
-            df_m2m = pd.DataFrame.from_records(m2m_values_list, columns=["id", m2m_field.name])
-            df_m2m = df_m2m[df_m2m[m2m_field.name].notnull()]
-            df_pivot = pd.pivot_table(
-                df_m2m,
-                values=m2m_field.name,
-                index=["id"],
-                aggfunc=lambda x: ";".join(str(v) for v in x),
-            )
-            self._dataframe = pd.merge(self._dataframe, df_pivot, how="left", on="id")
-        return m2m_fields
-
-    def get_m2m_values_list(self, m2m_field: models.Field) -> tuple:
-        m2m_values_list = {}
-        for obj in self.queryset.model.objects.filter(**{f"{m2m_field.name}__isnull": False}):
-            values = []
-            for m2m_obj in getattr(obj, m2m_field.name).all():
-                try:
-                    # assumes is related to a list model
-                    values.append(m2m_obj.name)
-                except AttributeError:
-                    if self.decrypt and self.has_encrypted_fields:
-                        values.append(str(m2m_obj))
-                    elif not self.decrypt and has_encrypted_fields(m2m_obj.__class__):
-                        try:
-                            values.append(m2m_obj.__str_safe__())
-                        except AttributeError as e:
-                            if "__str_safe__" in str(e):
-                                raise ModelToDataframeError(
-                                    "Not allowed. M2M model has encrypted fields. "
-                                    f"See model class `{m2m_obj.__class__}`. "
-                                    "Declare special method `__str_safe__` on the model "
-                                    "to ensure the value returned is not from an encrypted "
-                                    f"field. Got {e}"
-                                )
-                            raise
-                    else:
-                        values.append(str(m2m_obj))
-            m2m_values_list.update(**{str(obj.id): (obj.id, ";".join(values))})
-        return tuple(v for v in m2m_values_list.values())
-
-    def get_column_value(
-        self, model_obj: MyModel = None, column_name: str = None, lookup: str = None
-    ) -> Any:
-        """Returns the column value."""
-        lookups = {column_name: lookup} if LOOKUP_SEP in lookup else None
-        value_getter = self.value_getter_cls(
-            field_name=column_name,
-            model_obj=model_obj,
-            lookups=lookups,
-            encrypt=not self.decrypt,
-        )
-        return value_getter.value
-
-    @property
-    def model_cls(self) -> Type[MyModel]:
-        return django_apps.get_model(self.model)
 
     @property
     def has_encrypted_fields(self) -> bool:
         """Returns True if at least one field uses encryption."""
         if self._has_encrypted_fields is None:
-            self._has_encrypted_fields = has_encrypted_fields(self.queryset.model)
+            self._has_encrypted_fields = has_encrypted_fields(self.model_cls)
         return self._has_encrypted_fields
 
     @property
     def columns(self) -> dict[str, str]:
         """Return a dictionary of column names."""
         if not self._columns:
-            columns_list = list(self.queryset[0].__dict__.keys())
+            try:
+                columns_list = list(self.queryset[0].__dict__.keys())
+            except AttributeError as e:
+                if "__dict__" in str(e):
+                    columns_list = list(self.queryset._fields)
+                else:
+                    raise
             for name in self.sys_field_names:
                 try:
                     columns_list.remove(name)
@@ -326,7 +322,7 @@ class ModelToDataframe:
         """Return a list of column names that use encryption."""
         if not self._encrypted_columns:
             self._encrypted_columns = ["identity"]
-            for field in self.queryset.model._meta.get_fields():
+            for field in self.model_cls._meta.get_fields():
                 if hasattr(field, "field_cryptor"):
                     self._encrypted_columns.append(field.name)
             self._encrypted_columns = list(set(self._encrypted_columns))
@@ -340,7 +336,7 @@ class ModelToDataframe:
 
         if not self._list_columns:
             list_columns = []
-            for fld_cls in self.queryset.model._meta.get_fields():
+            for fld_cls in self.model_cls._meta.get_fields():
                 if (
                     hasattr(fld_cls, "related_model")
                     and fld_cls.related_model
@@ -357,7 +353,7 @@ class ModelToDataframe:
 
         if not self._site_columns:
             site_columns = []
-            for fld_cls in self.queryset.model._meta.get_fields():
+            for fld_cls in self.model_cls._meta.get_fields():
                 if (
                     hasattr(fld_cls, "related_model")
                     and fld_cls.related_model
@@ -376,7 +372,7 @@ class ModelToDataframe:
         related_model = [Site, Panel]
         if not self._list_columns:
             list_columns = []
-            for fld_cls in self.queryset.model._meta.get_fields():
+            for fld_cls in self.model_cls._meta.get_fields():
                 if (
                     hasattr(fld_cls, "related_model")
                     and fld_cls.related_model

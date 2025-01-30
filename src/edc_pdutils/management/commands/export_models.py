@@ -33,7 +33,7 @@ class Command(BaseCommand):
             "--app",
             dest="app_labels",
             default="",
-            help="app label, , if more than one separate by comma",
+            help="app label. Separate by comma if more than one.",
         )
 
         parser.add_argument(
@@ -41,14 +41,14 @@ class Command(BaseCommand):
             "--model",
             dest="model_names",
             default="",
-            help="model name in label_lower format, if more than one separate by comma",
+            help="model name in label_lower format. Separate by comma if more than one.",
         )
 
         parser.add_argument(
             "--skip_model",
             dest="skip_model_names",
             default="",
-            help="models to skip. in label_lower format, if more than one separate by comma",
+            help="models to skip in label_lower format. Separate by comma if more than one.",
         )
 
         parser.add_argument(
@@ -105,8 +105,8 @@ class Command(BaseCommand):
             dest="countries",
             default="",
             help=(
-                "only export data for country, if more than one separate by "
-                f"comma. Use `{ALL_COUNTRIES}` to export all countries."
+                "only export data for country. Separate by comma if more than one. "
+                f"Use `{ALL_COUNTRIES}` to export all countries."
             ),
         )
 
@@ -114,7 +114,7 @@ class Command(BaseCommand):
             "--site",
             dest="site_ids",
             default="",
-            help="only export data for site id, if more than one separate by comma",
+            help="only export data for site id. Separate by comma if more than one.",
         )
 
     def handle(self, *args, **options):
@@ -218,7 +218,8 @@ class Command(BaseCommand):
         if self.decrypt and not user.groups.filter(name="EXPORT_PII").exists():
             raise CommandError("You are not authorized to export sensitive data.")
 
-    def get_countries(self, options):
+    @staticmethod
+    def get_countries(options):
         countries = options["countries"] or []
         if not countries:
             raise CommandError("Expected country.")
