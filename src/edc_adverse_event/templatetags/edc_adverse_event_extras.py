@@ -5,6 +5,7 @@ from textwrap import wrap
 from typing import TYPE_CHECKING
 
 from django import template
+from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.messages import ERROR
 from django.core.exceptions import ObjectDoesNotExist
@@ -17,7 +18,12 @@ from edc_constants.constants import CLOSED, OPEN, OTHER, YES
 from edc_model_admin.utils import add_to_messages_once
 from edc_utils import escape_braces, get_utcnow
 
-from ..constants import AE_WITHDRAWN, TMG_ROLE
+from ..constants import (
+    AE_WITHDRAWN,
+    DEATH_REPORT_TMG_ACTION,
+    DEATH_REPORT_TMG_SECOND_ACTION,
+    TMG_ROLE,
+)
 from ..utils import get_adverse_event_app_label, get_ae_model, has_valid_tmg_perms
 from ..view_utils import TmgButton
 
@@ -203,6 +209,29 @@ def ae_followup_queryset(
     if ae_initial:
         return get_ae_model("aefollowup").objects.filter(ae_initial_id=ae_initial.id)
     return None
+
+
+@register.simple_tag
+def death_report_tmg_action_item(subject_identifier: str = None) -> ActionItem:
+    try:
+        obj = django_apps.get_model("edc_action_item.actionitem").objects.get(
+            subject_identifier=subject_identifier, action_type__name=DEATH_REPORT_TMG_ACTION
+        )
+    except ObjectDoesNotExist:
+        obj = None
+    return obj
+
+
+@register.simple_tag
+def death_report_tmg_second_action_item(subject_identifier: str = None) -> ActionItem:
+    try:
+        obj = django_apps.get_model("edc_action_item.actionitem").objects.get(
+            subject_identifier=subject_identifier,
+            action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
+        )
+    except ObjectDoesNotExist:
+        obj = None
+    return obj
 
 
 @register.inclusion_tag(

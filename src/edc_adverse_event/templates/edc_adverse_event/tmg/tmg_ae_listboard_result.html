@@ -29,18 +29,33 @@
 
                 <div class="list-group">
                   {# AE TMG #}
-                  <div class="list-group-item list-group-item-default"><i class="fa-solid fa-folder-tree fa-fw"></i> TMG documents in workflow</div>
+                  <div class="list-group-item list-group-item-default"><i class="fa-solid fa-folder-tree fa-fw"></i> TMG documents in workflow </div>
                   {% render_tmg_panel action_item=result by_user_created_only=True counter=forloop.counter report_status=result.reference_obj.report_status next_url_name=listboard_filter_url %}
 
                 {% death_report_tmg_queryset action_item=result as qs %}
-                {% for death_report_tmg in qs %}
-                  {% render_tmg_panel reference_obj=death_report_tmg by_user_created_only=True counter=forloop.counter next_url_name=listboard_filter_url %}
-                {% endfor %}
+                {% if qs.count == 0 %}
+                  {% death_report_tmg_action_item subject_identifier=result.subject_identifier as tmg_action_item %}
+                  {% if tmg_action_item %}
+                    {% render_tmg_panel action_item=tmg_action_item by_user_created_only=True counter=forloop.counter report_status=result.reference_obj.report_status next_url_name=listboard_filter_url %}
+                  {% endif %}
+                {% else %}
+                  {% for death_report_tmg in qs %}
+                    {% render_tmg_panel reference_obj=death_report_tmg by_user_created_only=True counter=forloop.counter next_url_name=listboard_filter_url %}
+                  {% endfor %}
+                {% endif %}
 
                 {% death_report_tmg2_queryset action_item=result as qs %}
-                {% for death_report_tmg2 in qs %}
-                  {% render_tmg_panel reference_obj=death_report_tmg2 by_user_created_only=True counter=forloop.counter next_url_name=listboard_filter_url %}
-                {% endfor %}
+                {% if qs.count == 0 %}
+                  {% death_report_tmg_second_action_item subject_identifier=result.subject_identifier as tmg_action_item %}
+                  {% if tmg_action_item %}
+                    {% render_tmg_panel action_item=tmg_action_item by_user_created_only=True counter=forloop.counter report_status=result.reference_obj.report_status next_url_name=listboard_filter_url %}
+                  {% endif %}
+                {% else %}
+                  {% for death_report_tmg in qs %}
+                    {% render_tmg_panel reference_obj=death_report_tmg by_user_created_only=True counter=forloop.counter next_url_name=listboard_filter_url %}
+                  {% endfor %}
+                {% endif %}
+
               </div>
               </div>
 
