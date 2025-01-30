@@ -39,6 +39,7 @@ project_settings = DefaultTestSettings(
         "edc_appointment.apps.AppConfig",
         "edc_auth.apps.AppConfig",
         "edc_data_manager.apps.AppConfig",
+        "data_manager_app.apps.AppConfig",
         "edc_device.apps.AppConfig",
         "edc_facility.apps.AppConfig",
         "edc_form_runners.apps.AppConfig",
