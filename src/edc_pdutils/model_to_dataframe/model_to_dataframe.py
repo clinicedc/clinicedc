@@ -102,7 +102,10 @@ class ModelToDataframe:
             self.model = queryset.model._meta.label_lower
         else:
             self.model = model
-        self.model_cls = django_apps.get_model(self.model)
+        try:
+            self.model_cls = django_apps.get_model(self.model)
+        except LookupError as e:
+            raise LookupError(f"Model is {self.model}. Got `{e}`")
         if self.sites:
             try:
                 if queryset:
@@ -202,6 +205,7 @@ class ModelToDataframe:
 
         For example:
 
+            # see edc_pdutils.model_to_dataframe
             m2m_related_field = "patient_log_identifier"
 
         """
@@ -228,7 +232,8 @@ class ModelToDataframe:
                 )
             )
             df_m2m = df_m2m.groupby("id")[m2m_field_name].apply(",".join).reset_index()
-            dataframe.merge(df_m2m, on="id", how="left")
+            df_m2m = df_m2m.rename(columns={m2m_field_name: m2m_field_name.split("__")[0]})
+            dataframe = dataframe.merge(df_m2m, on="id", how="left")
         return dataframe
 
     def _clean_chars(self, s):
