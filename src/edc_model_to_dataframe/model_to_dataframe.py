@@ -284,22 +284,7 @@ class ModelToDataframe:
     def columns(self) -> dict[str, str]:
         """Return a dictionary of column names."""
         if not self._columns:
-            try:
-                columns_list = list(self.queryset[0].__dict__.keys())
-            except AttributeError as e:
-                if "__dict__" in str(e):
-                    columns_list = list(self.queryset._fields)
-                else:
-                    raise
-            for name in self.sys_field_names:
-                try:
-                    columns_list.remove(name)
-                except ValueError:
-                    pass
-            if not self.decrypt and self.has_encrypted_fields:
-                columns_list = [
-                    col for col in columns_list if col not in self.encrypted_columns
-                ]
+            columns_list = self.get_columns_list()
             columns = dict(zip(columns_list, columns_list))
             for column_name in columns_list:
                 if column_name.endswith("_visit_id"):
@@ -321,6 +306,23 @@ class ModelToDataframe:
             columns = self.move_sys_columns_to_end(columns)
             self._columns = columns
         return self._columns
+
+    def get_columns_list(self) -> list[str]:
+        try:
+            columns_list = list(self.queryset[0].__dict__.keys())
+        except AttributeError as e:
+            if "__dict__" in str(e):
+                columns_list = list(self.queryset._fields)
+            else:
+                raise
+        for name in self.sys_field_names:
+            try:
+                columns_list.remove(name)
+            except ValueError:
+                pass
+        if not self.decrypt and self.has_encrypted_fields:
+            columns_list = [col for col in columns_list if col not in self.encrypted_columns]
+        return columns_list
 
     @property
     def encrypted_columns(self) -> list[str]:

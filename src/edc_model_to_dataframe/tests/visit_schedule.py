@@ -19,9 +19,7 @@ class Panel(DummyPanel):
     """
 
     def __init__(self, name):
-        super().__init__(
-            requisition_model="edc_appointment.subjectrequisition", name=name
-        )
+        super().__init__(requisition_model="edc_appointment.subjectrequisition", name=name)
 
 
 def get_visit_schedule(i=None):
@@ -38,15 +36,9 @@ def get_visit_schedule(i=None):
     requisitions = RequisitionCollection(
         Requisition(show_order=10, panel=Panel("one"), required=True, additional=False),
         Requisition(show_order=20, panel=Panel("two"), required=True, additional=False),
-        Requisition(
-            show_order=30, panel=Panel("three"), required=True, additional=False
-        ),
-        Requisition(
-            show_order=40, panel=Panel("four"), required=True, additional=False
-        ),
-        Requisition(
-            show_order=50, panel=Panel("five"), required=True, additional=False
-        ),
+        Requisition(show_order=30, panel=Panel("three"), required=True, additional=False),
+        Requisition(show_order=40, panel=Panel("four"), required=True, additional=False),
+        Requisition(show_order=50, panel=Panel("five"), required=True, additional=False),
         Requisition(show_order=60, panel=Panel("six"), required=True, additional=False),
     )
 
