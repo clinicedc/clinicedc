@@ -7,7 +7,7 @@ from typing import Any, Optional
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from edc_pdutils.model_to_dataframe import ModelToDataframe
+from edc_model_to_dataframe import ModelToDataframe
 from edc_sites.site import sites
 from edc_utils import get_utcnow
 
