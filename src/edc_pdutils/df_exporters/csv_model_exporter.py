@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.core.management.color import color_style
+from edc_model_to_dataframe import ModelToDataframe
 
-from ..model_to_dataframe import ModelToDataframe
 from .csv_exporter import CsvExporter
 
 if TYPE_CHECKING:

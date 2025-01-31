@@ -9,10 +9,10 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import CommandError, color_style
 from django.core.management.base import BaseCommand
+from edc_model_to_dataframe import ModelToDataframe
 from edc_sites.site import sites
 
 from edc_pdutils.df_exporters import Exporter
-from edc_pdutils.model_to_dataframe import ModelToDataframe
 from edc_pdutils.utils import get_model_names
 
 ALL_COUNTRIES = "all"
