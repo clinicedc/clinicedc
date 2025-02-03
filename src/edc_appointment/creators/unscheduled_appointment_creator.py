@@ -85,9 +85,8 @@ class UnscheduledAppointmentCreator:
         if not visit:
             raise UnscheduledAppointmentError(
                 "Invalid visit. Got None using {"
-                f"visit_schedule_name='{self.visit_schedule_name}',"
-                f"schedule_name='{self.schedule_name}',"
-                f"visit_code='{self.visit_code}'" + "}"
+                f"{self.visit_schedule_name=}, {self.schedule_name=}, "
+                f"{self.visit_code=}" + "}"
             )
         elif not visit.allow_unscheduled:
             raise UnscheduledAppointmentNotAllowed(
