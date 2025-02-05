@@ -22,6 +22,9 @@ if TYPE_CHECKING:
         pass
 
 
+__all__ = ["get_related_visit"]
+
+
 def get_related_visit(
     modelform: (
         VisitTrackingCrfModelFormMixin
@@ -31,7 +34,7 @@ def get_related_visit(
     ),
     related_visit_model_attr: str = None,
 ) -> RelatedVisitModel | None:
-    """Returns the related visit mode instance or None.
+    """Returns the related visit model instance or None.
 
     Tries instance and cleaned data.
     """
