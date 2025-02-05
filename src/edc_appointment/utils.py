@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import calendar
 import sys
 import warnings
 from datetime import datetime
@@ -11,7 +12,11 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.utils import NotRelationField, get_model_from_relation
 from django.contrib.messages import ERROR, SUCCESS
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.core.exceptions import (
+    ImproperlyConfigured,
+    ObjectDoesNotExist,
+    ValidationError,
+)
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import IntegrityError, transaction
 from django.db.models import Count, ProtectedError
@@ -21,6 +26,7 @@ from edc_constants.constants import CLINIC
 from edc_constants.constants import ERROR as ERROR_CODE
 from edc_constants.constants import NOT_APPLICABLE, OK
 from edc_dashboard.url_names import url_names
+from edc_form_validators import INVALID_ERROR
 from edc_metadata.constants import CRF, REQUIRED, REQUISITION
 from edc_metadata.utils import (
     get_crf_metadata_model_cls,
@@ -28,6 +34,7 @@ from edc_metadata.utils import (
     has_keyed_metadata,
 )
 from edc_utils import convert_php_dateformat
+from edc_utils.date import to_local
 from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
@@ -493,8 +500,7 @@ def raise_on_appt_datetime_not_in_window(
 ) -> None:
     if appointment.appt_status != CANCELLED_APPT and not is_baseline(instance=appointment):
         baseline_timepoint_datetime = baseline_timepoint_datetime or (
-            baseline_timepoint_datetime
-            or appointment.__class__.objects.first_appointment(
+            appointment.__class__.objects.first_appointment(
                 subject_identifier=appointment.subject_identifier,
                 visit_schedule_name=appointment.visit_schedule_name,
                 schedule_name=appointment.schedule_name,
@@ -792,3 +798,51 @@ def refresh_appointments(
             % dict(subject_identifier=subject_identifier),
         )
     return subject_identifier, status
+
+
+def validate_date_is_on_clinic_day(
+    cleaned_data: dict = None, clinic_days=None, raise_validation_error: callable = None
+):
+    raise_validation_error = raise_validation_error or ValidationError
+    if appt_date := cleaned_data.get("appt_date"):
+        day_abbr = calendar.weekheader(3).split(" ")
+        if appt_date <= to_local(cleaned_data.get("report_datetime")).date():
+            raise raise_validation_error(
+                {"appt_date": "Cannot be on or before the report datetime"}, INVALID_ERROR
+            )
+        if not allow_clinic_on_weekend() and calendar.weekday(
+            appt_date.year, appt_date.month, appt_date.day
+        ) in [calendar.SATURDAY, calendar.SUNDAY]:
+            raise raise_validation_error(
+                {
+                    "appt_date": _("Expected %(mon)s-%(fri)s. Got %(day)s")
+                    % {
+                        "mon": day_abbr[calendar.MONDAY],
+                        "fri": day_abbr[calendar.FRIDAY],
+                        "day": day_abbr[
+                            calendar.weekday(appt_date.year, appt_date.month, appt_date.day)
+                        ],
+                    }
+                },
+                INVALID_ERROR,
+            )
+        if (
+            clinic_days
+            and calendar.weekday(appt_date.year, appt_date.month, appt_date.day)
+            not in clinic_days
+        ):
+            days_str = []
+            for d in clinic_days:
+                days_str.append(day_abbr[d])
+            raise raise_validation_error(
+                {
+                    "appt_date": _(
+                        "Invalid clinic day. Expected %(expected)s. Got %(day_abbr)s"
+                    )
+                    % {
+                        "expected": ", ".join(days_str),
+                        "day_abbr": appt_date.strftime("%A"),
+                    }
+                },
+                INVALID_ERROR,
+            )

@@ -76,3 +76,7 @@ class AppointmentCreatorError(Exception):
 
 class CreateAppointmentError(Exception):
     pass
+
+
+class NextAppointmentModelError(Exception):
+    pass

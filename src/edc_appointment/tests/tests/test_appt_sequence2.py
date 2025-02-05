@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.models import CrfMetadata
@@ -94,7 +94,6 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
             for o in Appointment.objects.filter(**opts).order_by(by)
         ]
 
-    @tag("4")
     def test_resequence_appointment_on_insert_between_two_unscheduled(self):
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         self.assertEqual(self.create_unscheduled(appointment, days=2).visit_code_sequence, 1)
@@ -128,7 +127,6 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
             ),
         )
 
-    @tag("4")
     def test_repair_visit_code_sequences(self):
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         self.create_unscheduled(appointment, days=2)
@@ -163,7 +161,6 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
             ),
         )
 
-    @tag("4")
     def test_repair_visit_code_sequences_with_related_visit(self):
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         appt1 = self.create_unscheduled(appointment, days=2)
@@ -213,7 +210,6 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
             ],
         )
 
-    @tag("4")
     def test_repair_visit_code_sequences_with_metadata(self):
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         appt1 = self.create_unscheduled(appointment, days=2)

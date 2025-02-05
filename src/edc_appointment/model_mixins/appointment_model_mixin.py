@@ -95,6 +95,7 @@ class AppointmentModelMixin(
                         skip_baseline=True,
                     )
             else:
+                # self.validate_appt_datetime_not_before_previous()
                 self.validate_appt_datetime_not_after_next()
             raise_on_appt_may_not_be_missed(appointment=self)
             self.update_subject_visit_reason_or_raise()
@@ -118,6 +119,23 @@ class AppointmentModelMixin(
         if isinstance(self.id, UUID):
             return str(self.pk)
         return self.pk
+
+    def validate_appt_datetime_not_before_previous(self) -> None:
+        if self.appt_status != CANCELLED_APPT and self.appt_datetime:
+            if (
+                self.relative_previous
+                and self.appt_datetime <= self.relative_previous.appt_datetime
+            ):
+                appt_datetime = formatted_datetime(self.appt_datetime)
+                previous_appt_datetime = formatted_datetime(
+                    self.relative_previous.appt_datetime
+                )
+                raise AppointmentDatetimeError(
+                    "Datetime cannot be on or before previous appointment datetime. "
+                    f"Got {appt_datetime} <= {previous_appt_datetime}. "
+                    f"See appointment `{self}` and "
+                    f"`{self.relative_previous}`."
+                )
 
     def validate_appt_datetime_not_after_next(self) -> None:
         if self.appt_status != CANCELLED_APPT and self.appt_datetime and self.relative_next:

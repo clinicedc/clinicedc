@@ -1,4 +1,5 @@
 from datetime import datetime
+from unittest import skip
 from zoneinfo import ZoneInfo
 
 import time_machine
@@ -572,6 +573,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         self.assertEqual(appointments[5].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[6].appt_status, NEW_APPT)
 
+    @skip("not allowing intermin")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
             "edc_appointment_app.crfthree": ("appt_date", "f1"),

@@ -6,6 +6,7 @@ from .signals import (
     appointments_on_post_delete,
     appointments_on_pre_delete,
     create_appointments_on_post_save,
+    update_appointment_from_nextappointment_post_save,
     update_appointments_to_next_on_post_save,
     update_appt_status_on_related_visit_post_save,
 )
