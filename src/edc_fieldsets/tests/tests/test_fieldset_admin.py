@@ -5,7 +5,7 @@ import time_machine
 from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.models import Appointment
@@ -152,7 +152,6 @@ class TestFieldsetAdmin(TestCase):
         self.assertIn("form-row field-f4", rendered_change_form.rendered_content)
         self.assertIn("form-row field-f5", rendered_change_form.rendered_content)
 
-    @tag("1")
     @override_settings(SITE_ID=10)
     def test_fieldset_moved_to_end(self):
         """Asserts the conditional fieldset IS inserted
