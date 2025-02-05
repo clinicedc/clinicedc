@@ -58,9 +58,10 @@ class QaReportModelMixin(models.Model):
                     except OperationalError:
                         pass
                 c.execute(f"create view {cls._meta.db_table} as {sql};")
-            sys.stdout.write(
-                f"Done. Refreshed DB VIEW `{cls._meta.db_table}` for model {cls}."
-            )
+            if verbose:
+                sys.stdout.write(
+                    f"Done. Refreshed DB VIEW `{cls._meta.db_table}` for model {cls}."
+                )
 
     class Meta:
         abstract = True
