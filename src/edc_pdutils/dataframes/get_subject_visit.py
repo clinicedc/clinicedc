@@ -5,6 +5,17 @@ from django_pandas.io import read_frame
 from ..utils import convert_dates_from_model
 
 
+def convert_visit_code_to_float(df):
+    # convert visit_code to float using visit_code_sequence
+    df["visit_code"] = df["visit_code"].astype(float)
+    df["visit_code_sequence"] = df["visit_code_sequence"].astype(float)
+    df["visit_datetime"] = df["visit_datetime"].apply(pd.to_datetime)
+    df["visit_code_sequence"] = df["visit_code_sequence"].apply(
+        lambda x: x / 10.0 if x > 0.0 else 0.0
+    )
+    df["visit_code"] = df["visit_code"] + df["visit_code_sequence"]
+
+
 def get_subject_visit(
     model: str,
     subject_identifiers: list[str] | None = None,
@@ -18,15 +29,34 @@ def get_subject_visit(
         1000.0, 1000.1, ...
     The original string visit_code is renamed as visit_code_str.
 
-    Adds baseline and last visit datetimes and last_visit_code
+    Adds baseline and endline visit datetime and endline_visit_code
     """
     normalize = True if normalize is None else normalize
     localize = True if localize is None else localize
     model_cls = django_apps.get_model(model)
+
+    values = [
+        "id",
+        "subject_identifier",
+        "visit_code",
+        "visit_code_sequence",
+        "report_datetime",
+        "site",
+        "reason",
+        "reason_unscheduled",
+        "reason_unscheduled_other",
+        "reason_missed",
+        "reason_missed_other",
+        "appointment",
+        "appointment__appt_status",
+        "appointment__appt_timing",
+    ]
     if subject_identifiers:
-        qs_subject_visit = model_cls.objects.filter(subject_identifier__in=subject_identifiers)
+        qs_subject_visit = model_cls.objects.values(*values).filter(
+            subject_identifier__in=subject_identifiers
+        )
     else:
-        qs_subject_visit = model_cls.objects.all()
+        qs_subject_visit = model_cls.objects.values(*values).all()
     df = read_frame(qs_subject_visit, verbose=False)
     df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
     df = df.rename(
@@ -35,6 +65,8 @@ def get_subject_visit(
             "report_datetime": "visit_datetime",
             "site": "site_id",
             "appointment": "appointment_id",
+            "appointment__appt_status": "appt_status",
+            "appointment__appt_timing": "appt_timing",
         }
     )
     df["visit_code_str"] = df["visit_code"]
@@ -53,8 +85,11 @@ def get_subject_visit(
             "reason_missed",
             "reason_missed_other",
             "appointment_id",
+            "appt_status",
+            "appt_timing",
         ]
     ]
+
     # convert visit_code to float using visit_code_sequence
     df["visit_code"] = df["visit_code"].astype(float)
     df["visit_code_sequence"] = df["visit_code_sequence"].astype(float)
@@ -80,10 +115,13 @@ def get_subject_visit(
         .agg({"visit_code": "max", "visit_datetime": "max"})
     ).copy()
     df_last = df_last.rename(
-        columns={"visit_code": "last_visit_code", "visit_datetime": "last_visit_datetime"}
+        columns={
+            "visit_code": "endline_visit_code",
+            "visit_datetime": "endline_visit_datetime",
+        }
     )
-    df_last["last_visit_code_str"] = (
-        df_last["last_visit_code"].astype("int64").apply(lambda x: str(x))
+    df_last["endline_visit_code_str"] = (
+        df_last["endline_visit_code"].astype("int64").apply(lambda x: str(x))
     )
     df_last = df_last.reset_index()
     df = df.merge(df_last, on="subject_identifier", how="left")
