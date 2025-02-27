@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import NotConsentedError
@@ -282,7 +282,6 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
         traveller.stop()
 
-    @tag("1")
     def test_onschedule_creates_history(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()

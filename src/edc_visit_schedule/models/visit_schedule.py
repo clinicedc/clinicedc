@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from edc_model import models as edc_models
 
@@ -41,6 +43,11 @@ class VisitSchedule(VisitScheduleMethodsModelMixin, edc_models.BaseUuidModel):
             self.schedule_name,
             self.visit_code,
         )
+
+    def next_by_timepoint(self, timepoint: Decimal):
+        for obj in self.objects.filter(timepoint__gt=timepoint):
+            return obj
+        return None
 
     class Meta(edc_models.BaseUuidModel.Meta):
         # ordering = ("visit_schedule_name", "schedule_name", "visit_code")
