@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from django.db.models import Min
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -10,11 +11,21 @@ from edc_navbar import NavbarViewMixin
 from edc_navbar.get_default_navbar import get_default_navbar
 from edc_utils import get_utcnow
 
-from ...constants import AE_TMG_ACTION
+from ...constants import (
+    AE_TMG_ACTION,
+    DEATH_REPORT_TMG_ACTION,
+    DEATH_REPORT_TMG_SECOND_ACTION,
+)
 from ...utils import get_adverse_event_app_label, has_valid_tmg_perms
 
 if TYPE_CHECKING:
     from django.db.models import Q
+
+
+class Qs:
+    def __init__(self, subject_identifier, report_datetime):
+        self.subject_identifier = subject_identifier
+        self.report_datetime = report_datetime
 
 
 class TmgAeListboardViewMixin(
@@ -39,7 +50,11 @@ class TmgAeListboardViewMixin(
     ordering = "-report_datetime"
     paginate_by = 10
     search_form_url = "tmg_ae_listboard_url"
-    action_type_names = [AE_TMG_ACTION]
+    action_type_names = [
+        AE_TMG_ACTION,
+        DEATH_REPORT_TMG_ACTION,
+        DEATH_REPORT_TMG_SECOND_ACTION,
+    ]
 
     search_fields = [
         "subject_identifier",
@@ -57,6 +72,18 @@ class TmgAeListboardViewMixin(
             subject_identifier=self.kwargs.get("subject_identifier"),
         )
         return super().get_context_data(**kwargs)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return [
+            Qs(
+                obj.get("subject_identifier"),
+                obj.get("report_datetime"),
+            )
+            for obj in queryset.values("subject_identifier").annotate(
+                report_datetime=Min("report_datetime"),
+            )
+        ]
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
         q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)

@@ -19,6 +19,7 @@ from edc_model_admin.utils import add_to_messages_once
 from edc_utils import escape_braces, get_utcnow
 
 from ..constants import (
+    AE_TMG_ACTION,
     AE_WITHDRAWN,
     DEATH_REPORT_TMG_ACTION,
     DEATH_REPORT_TMG_SECOND_ACTION,
@@ -180,18 +181,21 @@ def render_death_report_tmg_panel(context, action_item: ActionItem = None):
 
 
 @register.simple_tag
-def death_report_tmg_queryset(action_item: ActionItem = None) -> QuerySet[DeathReportTmgModel]:
-    return get_ae_model("deathreporttmg").objects.filter(
-        subject_identifier=action_item.subject_identifier
-    )
+def ae_tmg_queryset(subject_identifier: str = None) -> QuerySet[DeathReportTmgModel]:
+    return get_ae_model("aetmg").objects.filter(subject_identifier=subject_identifier)
+
+
+@register.simple_tag
+def death_report_tmg_queryset(subject_identifier: str = None) -> QuerySet[DeathReportTmgModel]:
+    return get_ae_model("deathreporttmg").objects.filter(subject_identifier=subject_identifier)
 
 
 @register.simple_tag
 def death_report_tmg2_queryset(
-    action_item: ActionItem = None,
+    subject_identifier: str = None,
 ) -> QuerySet[DeathReportTmgSecondModel]:
     return get_ae_model("deathreporttmgsecond").objects.filter(
-        subject_identifier=action_item.subject_identifier
+        subject_identifier=subject_identifier
     )
 
 
@@ -209,6 +213,17 @@ def ae_followup_queryset(
     if ae_initial:
         return get_ae_model("aefollowup").objects.filter(ae_initial_id=ae_initial.id)
     return None
+
+
+@register.simple_tag
+def ae_tmg_action_item(subject_identifier: str = None) -> ActionItem:
+    try:
+        obj = django_apps.get_model("edc_action_item.actionitem").objects.get(
+            subject_identifier=subject_identifier, action_type__name=AE_TMG_ACTION
+        )
+    except ObjectDoesNotExist:
+        obj = None
+    return obj
 
 
 @register.simple_tag
