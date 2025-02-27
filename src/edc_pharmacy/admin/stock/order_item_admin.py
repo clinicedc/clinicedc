@@ -4,6 +4,7 @@ from django.contrib import admin, messages
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_constants.constants import NEW, PARTIAL, RECEIVED
@@ -183,7 +184,10 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             received_items_link,
         ]
         renders = [r for r in renders if r]
-        return format_html("<BR>".join(renders))
+        return format_html(
+            "{}",
+            mark_safe("<BR>".join(renders)),  # nosec B703, B308
+        )
 
     @staticmethod
     def get_receive_obj(obj: OrderItem) -> Receive | None:

@@ -11,11 +11,12 @@ def get_last_weight():
 class RxForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["randomizer_name"] = forms.ChoiceField(
-            label="Randomizer name",
-            choices=site_randomizers.get_as_choices(),
-            required=False,
-        )
+        if self.fields.get("randomizer_name"):
+            self.fields["randomizer_name"] = forms.ChoiceField(
+                label="Randomizer name",
+                choices=site_randomizers.get_as_choices(),
+                required=False,
+            )
 
     subject_identifier = forms.CharField(
         label="Subject Identifier",

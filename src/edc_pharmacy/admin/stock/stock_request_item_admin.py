@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django_audit_fields import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_model_admin.list_filters import FutureDateListFilter
@@ -107,7 +108,12 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Product")
     def formulation(self, obj):
-        return format_html(f"{obj.stock_request.formulation}<BR>{obj.stock_request.container}")
+        return format_html(
+            "{}",
+            mark_safe(
+                f"{obj.stock_request.formulation}<BR>{obj.stock_request.container}"
+            ),  # nosec B703, B308
+        )
 
     @admin.display(description="Date", ordering="request_item_datetime")
     def item_date(self, obj):
