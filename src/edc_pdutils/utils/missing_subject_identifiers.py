@@ -1,8 +1,8 @@
 from warnings import warn
 
 import pandas as pd
-
-from ..model_to_dataframe import SubjectModelToDataframe
+from django.apps import apps as django_apps
+from edc_model_to_dataframe import ModelToDataframe
 
 
 def missing_subject_identifiers(
@@ -23,7 +23,10 @@ def missing_subject_identifiers(
         df_subject_identifiers.head()
 
     # load model into dataframe
-    df_subject = SubjectModelToDataframe(model=model).dataframe
+    model_cls = django_apps.get_model(model)
+    df_subject = ModelToDataframe(
+        model_cls.objects.values("subject_identifier", "gender", "dob").all()
+    ).dataframe
     # drop duplicates
     df_subject = df_subject.drop_duplicates()
     # remove subject identifier as UUID

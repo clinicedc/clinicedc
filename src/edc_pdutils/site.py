@@ -79,7 +79,7 @@ class Site:
                     sys.stdout.write(
                         f" * registered dataframe handler from application '{app}'\n"
                     )
-                except Exception as e:
+                except (ImportError, ModuleNotFoundError) as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         site_dataframe_handlers.registry = before_import_registry
                         if module_has_submodule(mod, module_name):
