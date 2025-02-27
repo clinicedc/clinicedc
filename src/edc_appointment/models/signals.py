@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
+from edc_constants.constants import NO
 from edc_utils import formatted_datetime, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.utils import get_related_visit_model_cls
@@ -12,6 +13,7 @@ from ..appointment_status_updater import (
 from ..constants import IN_PROGRESS_APPT, NEW_APPT
 from ..creators import create_next_appointment_as_interim
 from ..managers import AppointmentDeleteError
+from ..model_mixins import NextAppointmentCrfModelMixin
 from ..skip_appointments import SkipAppointments
 from ..utils import (
     cancelled_appointment,
@@ -182,3 +184,21 @@ def update_appointments_to_next_on_post_save(sender, instance, raw, created, usi
 def update_appointments_to_next_on_post_delete(sender, instance, using, **kwargs):
     if get_allow_skipped_appt_using().get(instance._meta.label_lower):
         SkipAppointments(instance).reset_appointments()
+
+
+@receiver(
+    post_save,
+    weak=False,
+    dispatch_uid="update_appointment_from_nextappointment_post_save",
+)
+def update_appointment_from_nextappointment_post_save(
+    sender, instance, raw, created, using, **kwargs
+):
+    if not raw and not kwargs.get("update_fields"):
+        if isinstance(instance, (NextAppointmentCrfModelMixin,)):
+            if instance.offschedule_today == NO:
+                appointment = Appointment.objects.get(
+                    pk=instance.related_visit.appointment.next.id
+                )
+                appointment.appt_datetime = instance.appt_datetime
+                appointment.save()

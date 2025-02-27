@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.models import CrfMetadata
 
@@ -178,7 +178,6 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
             ],
         )
 
-    @tag("4")
     def test_appointments_and_related_visits_resequence_after_appointment_is_deleted(self):
         for appointment in Appointment.objects.all().order_by("timepoint_datetime"):
             self.create_related_visit(appointment)

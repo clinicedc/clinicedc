@@ -21,6 +21,7 @@ from edc_appointment.constants import (
 )
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.exceptions import (
+    CreateAppointmentError,
     InvalidParentAppointmentMissingVisitError,
     InvalidParentAppointmentStatusError,
     UnscheduledAppointmentNotAllowed,
@@ -533,3 +534,47 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         next_appointment.appt_status = INCOMPLETE_APPT
         next_appointment.visit_code = "1111"
         self.assertRaises(ScheduleError, next_appointment.save)
+
+    def test_appt_datetime_is_after_calling_appointment(self):
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name=self.visit_schedule1.name,
+            schedule_name=self.schedule1.name,
+        )
+        appointment = Appointment.objects.first_appointment(
+            subject_identifier=self.subject_identifier,
+            visit_schedule_name=self.visit_schedule1.name,
+            schedule_name=self.schedule1.name,
+        )
+        self.assertEqual(appointment.title, "Day 1")
+
+        SubjectVisit.objects.create(
+            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+        )
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+
+        # same date raises CreateAppointmentError
+        self.assertRaises(
+            CreateAppointmentError,
+            UnscheduledAppointmentCreator,
+            suggested_appt_datetime=appointment.appt_datetime,
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            facility=appointment.facility,
+            suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
+        )
+
+        # earlier date raises CreateAppointmentError error
+        self.assertRaises(
+            CreateAppointmentError,
+            UnscheduledAppointmentCreator,
+            suggested_appt_datetime=appointment.appt_datetime - relativedelta(days=1),
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            facility=appointment.facility,
+            suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
+        )

@@ -16,6 +16,7 @@ for app_name in [
     "edc_visit_schedule",
     "edc_pharmacy",
     "edc_data_manager",
+    "edc_metadata",
     "edc_adverse_event",
 ]:
     for p in paths_for_urlpatterns(app_name):

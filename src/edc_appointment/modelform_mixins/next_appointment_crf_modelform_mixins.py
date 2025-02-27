@@ -18,11 +18,15 @@ class NextAppointmentCrfModelFormMixin:
     appt_date_fld = "appt_date"
     visit_code_fld = "visitschedule"
 
-    def clean(self):
-        cleaned_data = super().clean()
-        self.validate_suggested_date_with_future_appointments()
-        self.validate_suggested_visit_code()
-        return cleaned_data
+    # refer to the form validator for clean()
+
+    # this was used when the next appt date was allowed to be a date
+    # past the next visit (see SKIPPED_APPT)
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     self.validate_suggested_date_with_future_appointments()
+    #     self.validate_suggested_visit_code()
+    #     return cleaned_data
 
     @property
     def allow_create_interim(self) -> str:
