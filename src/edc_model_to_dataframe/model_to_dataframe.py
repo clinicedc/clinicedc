@@ -8,7 +8,7 @@ import pandas as pd
 from django.apps import apps as django_apps
 from django.core.exceptions import FieldError
 from django.db import OperationalError
-from django_crypto_fields.utils import has_encrypted_fields
+from django_crypto_fields.utils import get_encrypted_fields, has_encrypted_fields
 from django_pandas.io import read_frame
 
 from .constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
@@ -227,9 +227,9 @@ class ModelToDataframe:
                 )
             m2m_field_name = f"{m2m_field.name}__{related_field}"
             df_m2m = read_frame(
-                self.model_cls.objects.filter(**{f"{m2m_field_name}__isnull": False}).values(
-                    "id", m2m_field_name
-                )
+                self.model_cls.objects.prefetch_related(m2m_field_name)
+                .filter(**{f"{m2m_field_name}__isnull": False})
+                .values("id", m2m_field_name)
             )
             df_m2m = df_m2m.groupby("id")[m2m_field_name].apply(",".join).reset_index()
             df_m2m = df_m2m.rename(columns={m2m_field_name: m2m_field_name.split("__")[0]})
@@ -285,7 +285,7 @@ class ModelToDataframe:
         """Return a dictionary of column names."""
         if not self._columns:
             columns_list = self.get_columns_list()
-            columns = dict(zip(columns_list, columns_list))
+            columns = {col: col for col in columns_list}
             for column_name in columns_list:
                 if column_name.endswith("_visit_id"):
                     try:
@@ -304,12 +304,15 @@ class ModelToDataframe:
             columns = self.add_subject_identifier_column(columns)
             columns = self.move_action_item_columns(columns)
             columns = self.move_sys_columns_to_end(columns)
+            # ensure no encrypted fields were added
+            if not self.decrypt:
+                columns = {k: v for k, v in columns.items() if k not in self.encrypted_columns}
             self._columns = columns
         return self._columns
 
     def get_columns_list(self) -> list[str]:
         try:
-            columns_list = list(self.queryset[0].__dict__.keys())
+            columns_list = list(self.queryset.first().__dict__.keys())
         except AttributeError as e:
             if "__dict__" in str(e):
                 columns_list = list(self.queryset._fields)
@@ -320,18 +323,17 @@ class ModelToDataframe:
                 columns_list.remove(name)
             except ValueError:
                 pass
-        if not self.decrypt and self.has_encrypted_fields:
+        if not self.decrypt:
             columns_list = [col for col in columns_list if col not in self.encrypted_columns]
         return columns_list
 
     @property
     def encrypted_columns(self) -> list[str]:
-        """Return a list of column names that use encryption."""
+        """Return a sorted list of column names that use encryption."""
         if not self._encrypted_columns:
-            self._encrypted_columns = ["identity"]
-            for field in self.model_cls._meta.get_fields():
-                if hasattr(field, "field_cryptor"):
-                    self._encrypted_columns.append(field.name)
+            self._encrypted_columns = [
+                field.name for field in get_encrypted_fields(self.model_cls)
+            ]
             self._encrypted_columns = list(set(self._encrypted_columns))
             self._encrypted_columns.sort()
         return self._encrypted_columns
