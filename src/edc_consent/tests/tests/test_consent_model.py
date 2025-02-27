@@ -5,7 +5,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from edc_constants.constants import YES
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
@@ -708,7 +708,6 @@ class TestConsentModel(TestCase):
 
         self.assertEqual(obj.consent_version, "1.0")
 
-    @tag("1")
     def test_version_with_extension(self):
         subject_identifier = "123456789"
         identity = "987654321"
