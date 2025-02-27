@@ -10,6 +10,10 @@ class DataDictionaryManager(models.Manager):
 
 
 class DataDictionary(BaseUuidModel):
+
+    # see edc_model_to_dataframe
+    m2m_related_field = "model"
+
     model = models.CharField(max_length=250, help_text="label_lower")
 
     model_verbose_name = models.CharField(max_length=250, null=True)
@@ -48,7 +52,7 @@ class DataDictionary(BaseUuidModel):
         return f"{self.number}. {self.prompt} ({self.model_verbose_name})"
 
     def natural_key(self):
-        return (self.model, self.field_name)
+        return self.model, self.field_name
 
     def get_model_verbose_name(self):
         verbose_name = self.model

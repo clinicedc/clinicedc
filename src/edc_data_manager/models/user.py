@@ -13,6 +13,10 @@ class DataManagerUser(BaseUser):
 
 
 class QueryUser(BaseUser):
+
+    # see edc_model_to_dataframe
+    m2m_related_field = "username"
+
     def __str__(self):
         return f"{self.first_name} {self.last_name} ({self.username})"
 
