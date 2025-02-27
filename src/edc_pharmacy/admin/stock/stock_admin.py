@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_constants.constants import YES
 from edc_model_admin.history import SimpleHistoryAdmin
@@ -205,9 +206,17 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         try:
             obj.verify_assignment_or_raise()
         except AssignmentError:
-            return format_html('<div style="color:red;">ERROR!</div>')
+            return format_html(
+                "{}",
+                mark_safe('<div style="color:red;">ERROR!</div>'),  # nosec B703, B308
+            )
         except AllocationError:
-            return format_html('<div style="color:red;">Allocation<BR>ERROR!</div>')
+            return format_html(
+                "{}",
+                mark_safe(
+                    '<div style="color:red;">Allocation<BR>ERROR!</div>'
+                ),  # nosec B703, B308
+            )
         return obj.lot.assignment
 
     @admin.display(description="Lot #", ordering="lot__lot_no")
@@ -256,7 +265,10 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Container", ordering="container_name")
     def container_str(self, obj):
-        return format_html("<BR>".join(str(obj.container).split(" ")))
+        return format_html(
+            "{}",
+            mark_safe("<BR>".join(str(obj.container).split(" "))),  # nosec B703, B308
+        )
 
     @admin.display(description="formulation", ordering="product__formulation__name")
     def formulation(self, obj):

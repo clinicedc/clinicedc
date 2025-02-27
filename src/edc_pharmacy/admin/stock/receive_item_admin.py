@@ -37,6 +37,10 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             "Quantity",
             {"fields": ("qty", "unit_qty")},
         ),
+        (
+            "Reference",
+            {"fields": ("reference", "comment")},
+        ),
         audit_fieldset_tuple,
     )
 
@@ -52,6 +56,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "order_items_changelist",
         "receive_changelist",
         "stock_changelist",
+        "reference",
         "modified",
         "user_created",
         "user_modified",
@@ -60,6 +65,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "receive_item_datetime",
         # "stock__confirmed",
         "lot",
+        "reference",
         "created",
         "modified",
     )
@@ -70,6 +76,8 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "receive__id",
         "container__name",
         "lot__lot_no",
+        "reference",
+        "comment",
     )
 
     readonly_fields = ("unit_qty",)

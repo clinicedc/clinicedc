@@ -29,9 +29,37 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             {
                 "fields": [
                     "lot_no",
-                    "expiration_date",
                     "product",
+                    "manufactured_date",
+                    "processed_until_date",
+                    "expiration_date",
+                ]
+            },
+        ),
+        (
+            "Assignment",
+            {
+                "fields": [
                     "assignment",
+                ]
+            },
+        ),
+        (
+            "Details",
+            {
+                "fields": [
+                    "country_of_origin",
+                    "manufactured_by",
+                    "storage_conditions",
+                ]
+            },
+        ),
+        (
+            "Reference",
+            {
+                "fields": [
+                    "reference",
+                    "comment",
                 ]
             },
         ),
@@ -43,6 +71,7 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "expiration_date",
         "product",
         "assignment",
+        "reference",
         "created",
         "modified",
     )
@@ -52,6 +81,7 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "expiration_date",
         "product",
         "assignment",
+        "reference",
         "created",
         "modified",
     )
@@ -62,8 +92,8 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     ordering: Tuple[str, ...] = ("-expiration_date",)
 
     def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return self.readonly_fields + ("lot_no", "product", "assignment")
+        # if obj:
+        #     return self.readonly_fields + ("lot_no", "product", "assignment")
         return self.readonly_fields
 
     def get_fieldsets(self, request, obj=None):

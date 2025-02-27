@@ -28,9 +28,21 @@ class Lot(BaseUuidModel):
 
     assignment = models.ForeignKey(Assignment, on_delete=models.PROTECT, null=True, blank=True)
 
+    manufactured_date = models.DateField(null=True, blank=True)
+
+    processed_until_date = models.DateField(null=True, blank=True)
+
     expiration_date = models.DateField()
 
-    manufacture_date = models.DateField(null=True, blank=True)
+    manufactured_by = models.CharField(max_length=50, null=True, blank=True)
+
+    country_of_origin = models.CharField(max_length=50, null=True, blank=True)
+
+    storage_conditions = models.CharField(max_length=50, null=True, blank=True)
+
+    reference = models.CharField(max_length=50, null=True, blank=True)
+
+    comment = models.CharField(max_length=250, null=True, blank=True)
 
     objects = Manager()
 

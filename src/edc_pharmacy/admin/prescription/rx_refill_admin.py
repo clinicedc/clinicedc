@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_appointment.models import Appointment
 from edc_utils import convert_php_dateformat, formatted_age, get_utcnow
@@ -114,8 +115,14 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
             else "???"
         )
         context = dict(
-            refill_start_date=format_html("&nbsp;".join(refill_start_date)),
-            refill_end_date=format_html("&nbsp;".join(refill_end_date)),
+            refill_start_date=format_html(
+                "{}",
+                mark_safe("&nbsp;".join(refill_start_date)),  # nosec B703, B308
+            ),
+            refill_end_date=format_html(
+                "{}",
+                mark_safe("&nbsp;".join(refill_end_date)),  # nosec B703, B308
+            ),
             number_of_days=obj.number_of_days,
         )
         return render_to_string("edc_pharmacy/duration.html", context=context)

@@ -4,6 +4,7 @@ from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from edc_utils.celery import run_task_sync_or_async
 
 from ...utils import process_repack_request_queryset
@@ -33,11 +34,15 @@ def process_repack_request_action(modeladmin, request, queryset):
         request,
         messages.SUCCESS,
         format_html(
-            "Repack request submitted. <BR>Next, go to the ACTION menu below and "
-            "(1)`Print labels`. Then (2) Label your stock containers with the printed labels. "
-            "Once all stock is labelled, go to the ACTION menu below and "
-            "(3) Select `Confirm repacked and labelled stock`. "
-            f"Scan in the labels to CONFIRM the stock. ({task_id})"
+            "{}",
+            mark_safe(
+                "Repack request submitted. <BR>Next, go to the ACTION menu below and "
+                "(1)`Print labels`. Then (2) Label your stock "
+                "containers with the printed labels. "
+                "Once all stock is labelled, go to the ACTION menu below and "
+                "(3) Select `Confirm repacked and labelled stock`. "
+                f"Scan in the labels to CONFIRM the stock. ({task_id})"
+            ),  # nosec B703, B308
         ),
     )
     if task_id:

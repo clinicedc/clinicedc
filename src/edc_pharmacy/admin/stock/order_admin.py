@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
@@ -60,7 +61,11 @@ class OrderAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Title", ordering="title")
     def short_title(self, obj):
-        return format_html(f'<span title="{obj.title}">{obj.title[:20]}</span>')
+        return format_html(
+            '<span title="{title}">{short_title}</span>',
+            title=obj.title,
+            short_title=obj.title[:20],
+        )
 
     @admin.display(description="QTY", ordering="-item_count")
     def qty(self, obj):
@@ -87,7 +92,10 @@ class OrderAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             "edc_pharmacy/stock/items_as_link.html", context=context
         )
         rendered = [add_order_items_button, order_items_link]
-        return format_html("<BR>".join([r for r in rendered if r]))
+        return format_html(
+            "{}",
+            mark_safe("<BR>".join([r for r in rendered if r])),  # nosec B703, B308
+        )
 
     @admin.display(description="Order date", ordering="order_datetime")
     def order_date(self, obj):
