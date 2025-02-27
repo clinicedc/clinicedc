@@ -804,11 +804,23 @@ def validate_date_is_on_clinic_day(
     cleaned_data: dict = None, clinic_days=None, raise_validation_error: callable = None
 ):
     raise_validation_error = raise_validation_error or ValidationError
-    if appt_date := cleaned_data.get("appt_date"):
+    if cleaned_data.get("appt_date"):
+        try:
+            appt_date = to_local(cleaned_data.get("appt_date")).date()
+        except AttributeError:
+            appt_date = cleaned_data.get("appt_date")
+        try:
+            report_date = to_local(cleaned_data.get("report_datetime")).date()
+        except AttributeError:
+            report_date = cleaned_data.get("report_datetime")
         day_abbr = calendar.weekheader(3).split(" ")
-        if appt_date <= to_local(cleaned_data.get("report_datetime")).date():
+        if appt_date == report_date:
             raise raise_validation_error(
-                {"appt_date": "Cannot be on or before the report datetime"}, INVALID_ERROR
+                {"appt_date": "Cannot be equal to the report datetime"}, INVALID_ERROR
+            )
+        elif appt_date <= report_date:
+            raise raise_validation_error(
+                {"appt_date": "Cannot be before the report datetime"}, INVALID_ERROR
             )
         if not allow_clinic_on_weekend() and calendar.weekday(
             appt_date.year, appt_date.month, appt_date.day
