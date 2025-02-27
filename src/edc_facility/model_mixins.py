@@ -31,6 +31,8 @@ class HealthFacilityModelMixin(models.Model):
 
     name = models.CharField(max_length=25, unique=True)
 
+    title = models.CharField(max_length=150, null=True, blank=True)
+
     health_facility_type = models.ForeignKey(
         "edc_facility.HealthFacilityTypes",
         verbose_name="Health facility type",
@@ -74,7 +76,7 @@ class HealthFacilityModelMixin(models.Model):
     objects = Manager()
 
     def __str__(self):
-        return f"{self.name} {self.health_facility_type.display_name} {self.clinic_days_str}"
+        return f"{self.name.upper()} {self.health_facility_type.display_name}"
 
     def save(self, *args, **kwargs):
         self.name = self.name.upper()
@@ -92,19 +94,19 @@ class HealthFacilityModelMixin(models.Model):
             )
         days = []
         if self.mon:
-            days.append(0)
+            days.append(calendar.MONDAY)
         if self.tue:
-            days.append(1)
+            days.append(calendar.TUESDAY)
         if self.wed:
-            days.append(2)
+            days.append(calendar.WEDNESDAY)
         if self.thu:
-            days.append(3)
+            days.append(calendar.THURSDAY)
         if self.fri:
-            days.append(4)
+            days.append(calendar.FRIDAY)
         if self.sat:
-            days.append(5)
+            days.append(calendar.SATURDAY)
         if self.sun:
-            days.append(6)
+            days.append(calendar.SUNDAY)
         return days
 
     @property
