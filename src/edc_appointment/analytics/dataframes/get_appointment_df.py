@@ -58,10 +58,10 @@ def get_appointment_df(
         .agg({"visit_code": "max", "appt_datetime": "max"})
     ).copy()
     df_last = df_last.rename(
-        columns={"visit_code": "last_visit_code", "appt_datetime": "last_appt_datetime"}
+        columns={"visit_code": "endline_visit_code", "appt_datetime": "last_appt_datetime"}
     )
-    df_last["last_visit_code_str"] = (
-        df_last["last_visit_code"].astype("int64").apply(lambda x: str(x))
+    df_last["endline_visit_code_str"] = (
+        df_last["endline_visit_code"].astype("int64").apply(lambda x: str(x))
     )
     df_last = df_last.reset_index()
     df_appt = df_appt.merge(df_last, on="subject_identifier", how="left")
