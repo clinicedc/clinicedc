@@ -4,10 +4,10 @@ from .container_units_form import ContainerUnitsForm
 from .dispense_form import DispenseForm
 from .location_form import LocationForm
 from .lot_form import LotForm
-from .order_form import OrderForm
+from .order_form import OrderForm, OrderFormSuper
 from .order_item_form import OrderItemForm
 from .product_form import ProductForm
-from .receive_form import ReceiveForm
+from .receive_form import ReceiveForm, ReceiveFormSuper
 from .receive_item_form import ReceiveItemForm
 from .repack_request_form import RepackRequestForm
 from .stock_form import StockForm
