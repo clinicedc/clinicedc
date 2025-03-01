@@ -95,6 +95,7 @@ class PrepareAndReviewStockRequestView(
                 rows=len(df_nostock),
                 subjects=df_nostock.subject_identifier.nunique(),
                 nostock_table=format_html(
+                    "{}",
                     df_nostock.to_html(
                         columns=[
                             "subject_identifier",
@@ -105,9 +106,10 @@ class PrepareAndReviewStockRequestView(
                         border=0,
                         classes="table table-striped",
                         table_id="my_table",
-                    )
+                    ),
                 ),
                 instock_table=format_html(
+                    "{}",
                     df_instock.to_html(
                         columns=[
                             "subject_identifier",
@@ -119,7 +121,7 @@ class PrepareAndReviewStockRequestView(
                         border=0,
                         classes="table table-striped",
                         table_id="in_stock_table",
-                    )
+                    ),
                 ),
                 session_uuid=session_uuid,
             )
