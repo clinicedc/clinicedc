@@ -75,6 +75,7 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     list_display = (
         "stock_request_id",
         "stock_request_date",
+        "stock_cutoff_date",
         "requested_from",
         "product_column",
         "stock_request_status",
@@ -89,6 +90,8 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "formulation",
         "container",
         "location",
+        "request_datetime",
+        "cutoff_datetime",
     )
 
     search_fields = ("id", "request_identifier")
@@ -202,6 +205,10 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             context=context,
         )
 
-    @admin.display(description="Request date")
+    @admin.display(description="Request date", ordering="request_datetime")
     def stock_request_date(self, obj):
         return to_local(obj.request_datetime).date()
+
+    @admin.display(description="Cutoff", ordering="cutoff_datetime")
+    def stock_cutoff_date(self, obj):
+        return to_local(obj.cutoff_datetime).date()

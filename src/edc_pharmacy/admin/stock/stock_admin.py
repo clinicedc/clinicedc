@@ -124,6 +124,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "modified",
     )
     list_filter = (
+        "container__container_type",
         "container",
         "confirmed",
         AllocationListFilter,

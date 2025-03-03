@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
@@ -96,32 +97,36 @@ class PrepareAndReviewStockRequestView(
                 subjects=df_nostock.subject_identifier.nunique(),
                 nostock_table=format_html(
                     "{}",
-                    df_nostock.to_html(
-                        columns=[
-                            "subject_identifier",
-                            "next_visit_code",
-                            "next_appt_datetime",
-                        ],
-                        index=True,
-                        border=0,
-                        classes="table table-striped",
-                        table_id="my_table",
-                    ),
+                    mark_safe(
+                        df_nostock.to_html(
+                            columns=[
+                                "subject_identifier",
+                                "next_visit_code",
+                                "next_appt_datetime",
+                            ],
+                            index=True,
+                            border=0,
+                            classes="table table-striped",
+                            table_id="my_table",
+                        )
+                    ),  # nosec B703 B308
                 ),
                 instock_table=format_html(
                     "{}",
-                    df_instock.to_html(
-                        columns=[
-                            "subject_identifier",
-                            "next_visit_code",
-                            "next_appt_datetime",
-                            "code",
-                        ],
-                        index=True,
-                        border=0,
-                        classes="table table-striped",
-                        table_id="in_stock_table",
-                    ),
+                    mark_safe(
+                        df_instock.to_html(
+                            columns=[
+                                "subject_identifier",
+                                "next_visit_code",
+                                "next_appt_datetime",
+                                "code",
+                            ],
+                            index=True,
+                            border=0,
+                            classes="table table-striped",
+                            table_id="in_stock_table",
+                        )
+                    ),  # nosec B703 B308
                 ),
                 session_uuid=session_uuid,
             )

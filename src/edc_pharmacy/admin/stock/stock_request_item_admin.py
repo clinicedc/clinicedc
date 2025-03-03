@@ -143,7 +143,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def transferred(self, obj):
         return obj.allocation.stock.location == obj.stock_request.location
 
-    @admin.display(description="Subject", ordering="registered_subject__subject_identifier")
+    @admin.display(description="Subject", ordering="appt_datetime")
     def subject(self, obj):
         appt_date = to_local(obj.appt_datetime).date() if obj.appt_datetime else None
         context = dict(
