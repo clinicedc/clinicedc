@@ -1,6 +1,5 @@
 from uuid import uuid4
 
-from celery import current_app
 from celery.states import PENDING
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -15,7 +14,7 @@ from django.views.generic import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
-from edc_utils.celery import get_task_result
+from edc_utils.celery import celery_is_active, get_task_result
 from edc_utils.date import to_local
 
 from ..analytics import get_next_scheduled_visit_for_subjects_df
@@ -149,8 +148,7 @@ class PrepareAndReviewStockRequestView(
                 del request.session[session_uuid]
 
             task_id = None
-            i = current_app.control.inspect()
-            if not i.active():
+            if not celery_is_active():
                 bulk_create_stock_request_items(
                     stock_request.pk, nostock_dict, user_created=request.user.username
                 )
