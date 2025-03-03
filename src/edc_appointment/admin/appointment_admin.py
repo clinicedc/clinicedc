@@ -132,7 +132,7 @@ class AppointmentAdmin(
         "appt_timing": admin.VERTICAL,
     }
 
-    search_fields = ("subject_identifier",)
+    # search_fields = ("subject_identifier",)
 
     def get_readonly_fields(self, request, obj=None) -> tuple:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
@@ -147,6 +147,12 @@ class AppointmentAdmin(
                 "facility_name",
             )
         )
+
+    def get_search_fields(self, request) -> tuple[str, ...]:
+        search_fields = super().get_search_fields(request)
+        if "subject_identifier" not in search_fields:
+            search_fields = ("subject_identifier",) + search_fields
+        return search_fields
 
     def has_delete_permission(self, request, obj=None):
         """Override to remove delete permissions if OnSchedule
@@ -279,17 +285,14 @@ class AppointmentAdmin(
         return True if get_allow_skipped_appt_using() else False
 
     def get_queryset(self, request):
+        qs = super().get_queryset(request)
         now = get_utcnow().replace(second=59, hour=23, minute=59)
-        return (
-            super()
-            .get_queryset(request)
-            .annotate(
-                appt_timepoint_delta=ExpressionWrapper(
-                    (F("appt_datetime") - F("timepoint_datetime")),
-                    output_field=DurationField(),
-                ),
-                appt_datetime_delta=ExpressionWrapper(
-                    (F("appt_datetime") - now), output_field=DurationField()
-                ),
-            )
+        return qs.annotate(
+            appt_timepoint_delta=ExpressionWrapper(
+                (F("appt_datetime") - F("timepoint_datetime")),
+                output_field=DurationField(),
+            ),
+            appt_datetime_delta=ExpressionWrapper(
+                (F("appt_datetime") - now), output_field=DurationField()
+            ),
         )
