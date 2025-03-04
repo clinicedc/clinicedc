@@ -29,6 +29,7 @@ from .stock import (
     StockProxyAdmin,
     StockRequestAdmin,
     StockRequestItemAdmin,
+    StockRequestProxyAdmin,
     StockTransferAdmin,
     SupplierAdmin,
 )

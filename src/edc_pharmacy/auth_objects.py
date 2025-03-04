@@ -44,14 +44,17 @@ pharmacy_codenames.sort()
 
 
 # site pharmacist
-exclude_models = ["edc_pharmacy.lot", "edc_pharmacy.assignment"]
-view_only_models = [
+exclude_models = [
+    "edc_pharmacy.lot",
+    "edc_pharmacy.assignment",
     "edc_pharmacy.order",
     "edc_pharmacy.orderitem",
     "edc_pharmacy.receive",
     "edc_pharmacy.receiveitem",
     "edc_pharmacy.repackrequest",
-    "edc_pharmacy.stocktransfer",
+]
+view_only_models = [
+    "edc_pharmacy.stocktransferproxy",
     "edc_pharmacy.stocktransferitem",
     "edc_pharmacy.allocation",
     "edc_pharmacy.container",
@@ -63,6 +66,7 @@ view_only_models = [
     "edc_pharmacy.medication",
     "edc_pharmacy.product",
     "edc_pharmacy.stock",
+    "edc_pharmacy.stockproxy",
     "edc_pharmacy.subject",
     "edc_pharmacy.visitschedule",
 ]

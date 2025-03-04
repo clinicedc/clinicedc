@@ -60,14 +60,6 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     search_fields = ("id", "transfer_identifier")
 
-    # readonly_fields = (
-    #     "transfer_identifier",
-    #     "transfer_datetime",
-    #     "from_location",
-    #     "to_location",
-    #     "item_count",
-    # )
-
     @admin.display(description="TRANSFER #", ordering="transfer_identifier")
     def identifier(self, obj):
         return obj.transfer_identifier

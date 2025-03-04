@@ -89,3 +89,19 @@ def print_labels_from_receive_item(modeladmin, request, queryset):
             )
             return HttpResponseRedirect(url)
     return None
+
+
+@admin.action(description="Print labels")
+def print_labels_from_stock_request_item(modeladmin, request, queryset):
+    session_uuid = str(uuid4())
+    stock_qs = Stock.objects.values_list("pk", flat=True).filter(
+        code__in=[obj.allocation.stock.code for obj in queryset.all()]
+    )
+    if stock_qs.exists():
+        request.session[session_uuid] = [o for o in stock_qs]
+        url = reverse(
+            "edc_pharmacy:print_labels_url",
+            kwargs={"session_uuid": session_uuid, "model": "stock"},
+        )
+        return HttpResponseRedirect(url)
+    return None

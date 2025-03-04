@@ -9,6 +9,7 @@ from edc_constants.constants import YES
 from edc_model_admin.history import SimpleHistoryAdmin
 
 from ...admin_site import edc_pharmacy_admin
+from ...auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE
 from ...exceptions import AllocationError, AssignmentError
 from ...forms import StockForm
 from ...models import RepackRequest, Stock
@@ -130,6 +131,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         AllocationListFilter,
         TransferredListFilter,
         "confirmed_at_site",
+        "dispensed",
         ProductAssignmentListFilter,
         "product",
         "location",
@@ -181,6 +183,17 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         fields = super().get_list_display(request)
         fields = remove_fields_for_blinded_users(request, fields)
         return fields
+
+    def get_list_display_links(self, request, list_display):
+        display_links = super().get_list_display_links(request, list_display)
+        if not request.user.userprofile.roles.filter(
+            name__in=[PHARMACIST_ROLE, PHARMACY_SUPER_ROLE]
+        ).exists():
+            try:
+                display_links.remove("formatted_code")
+            except ValueError:
+                pass
+        return display_links
 
     def get_list_filter(self, request):
         fields = super().get_list_filter(request)
