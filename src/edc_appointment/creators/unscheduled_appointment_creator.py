@@ -9,7 +9,6 @@ from edc_utils import formatted_datetime, to_utc
 from edc_utils.date import to_local
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import get_lower_datetime
-from edc_visit_schedule.visit import Visit
 
 from ..constants import (
     COMPLETE_APPT,
@@ -33,6 +32,7 @@ from .appointment_creator import AppointmentCreator
 
 if TYPE_CHECKING:
     from edc_facility import Facility
+    from edc_visit_schedule.visit import Visit
 
     from ..models import Appointment
 

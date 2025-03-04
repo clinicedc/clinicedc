@@ -10,7 +10,6 @@ from edc_constants.constants import NO
 from edc_form_validators import INVALID_ERROR, FormValidator
 
 from ..constants import NEW_APPT
-from ..models import Appointment
 from ..utils import get_allow_skipped_appt_using, validate_date_is_on_clinic_day
 
 if TYPE_CHECKING:
@@ -69,6 +68,7 @@ class NextAppointmentCrfFormValidatorMixin(FormValidator):
     def validate_with_appointment_form_validator(self):
         # use AppointmentFormValidator to validate the next appt data
         from ..form_validators import AppointmentFormValidator as Base
+        from ..models import Appointment
 
         class AppointmentFormValidator(Base):
             def validate_not_future_appt_datetime(self):
