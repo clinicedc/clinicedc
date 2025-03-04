@@ -16,7 +16,6 @@ from .stock import Stock
 from .stock_proxy import StockProxy
 from .stock_request import StockRequest
 from .stock_request_item import StockRequestItem
-from .stock_request_proxy import StockRequestProxy
 from .stock_transfer import StockTransfer
 from .stock_transfer_confirmation import StockTransferConfirmation
 from .stock_transfer_confirmation_item import StockTransferConfirmationItem

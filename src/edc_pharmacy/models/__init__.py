@@ -46,7 +46,6 @@ from .stock import (
     StockProxy,
     StockRequest,
     StockRequestItem,
-    StockRequestProxy,
     StockTransfer,
     StockTransferConfirmation,
     StockTransferConfirmationItem,
