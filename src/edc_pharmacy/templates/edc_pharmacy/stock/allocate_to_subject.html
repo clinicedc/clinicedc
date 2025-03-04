@@ -26,7 +26,7 @@
               {% if  subject_identifiers and assignment %}
                 <div style="text-align: center"><p class="bg-primary">{{ assignment.name|upper }}</p></div>
                 {% for subject_identifier in subject_identifiers %}
-                <label class="control-label col-sm-5" for="codes">{{ forloop.counter }}. {{ subject_identifier }} </label>
+                <label class="control-label col-sm-5" for="codes">{{ forloop.counter }}. {{ subject_identifier.registered_subject__subject_identifier }} <small>{{ subject_identifier.appt_datetime|date:SHORT_DATE_FORMAT }}</small></label>
                 <div class="col-sm-5">
                   <input type="text" class="form-control" id="codes" name="codes" placeholder="stock # {{ i }} " value=""  pattern="[A-Z0-9]{6}" required autofocus>
                 </div>

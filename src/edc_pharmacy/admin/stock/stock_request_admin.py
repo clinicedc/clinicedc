@@ -211,4 +211,6 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Cutoff", ordering="cutoff_datetime")
     def stock_cutoff_date(self, obj):
-        return to_local(obj.cutoff_datetime).date()
+        if obj and obj.cutoff_datetime:
+            return to_local(obj.cutoff_datetime).date()
+        return None

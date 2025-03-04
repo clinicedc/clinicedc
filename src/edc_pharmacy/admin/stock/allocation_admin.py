@@ -62,7 +62,12 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "allocated_by",
     )
 
-    search_fields = ("id", "stock_request_item__id", "stock_request_item__stock_request__id")
+    search_fields = (
+        "id",
+        "stock_request_item__id",
+        "stock_request_item__stock_request__id",
+        "registered_subject__subject_identifier",
+    )
 
     readonly_fields = (
         "assignment",

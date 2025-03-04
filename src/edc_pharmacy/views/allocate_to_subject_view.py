@@ -6,13 +6,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count
+from django.db.models import Count, QuerySet
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
+from edc_data_manager.models import QuerySubject
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 from edc_utils import get_utcnow
@@ -41,24 +42,25 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             assignments=Assignment.objects.all().order_by("name"),
             remaining_count=remaining_count,
             total_count=total_count,
+            SHORT_DATE_FORMAT=settings.SHORT_DATE_FORMAT,
         )
         return super().get_context_data(**kwargs)
 
     @property
-    def subject_identifiers(self):
+    def subject_identifiers(self) -> QuerySubject:
         """Returns a queryset of unallocated stock request
         items for the given assignment.
         """
         return (
-            StockRequestItem.objects.values_list(
-                "registered_subject__subject_identifier", flat=True
+            StockRequestItem.objects.values(
+                "registered_subject__subject_identifier", "appt_datetime"
             )
             .filter(
                 stock_request=self.stock_request,
                 allocation__isnull=True,
                 assignment=self.selected_assignment,
             )
-            .order_by("registered_subject__subject_identifier")
+            .order_by("appt_datetime", "registered_subject__subject_identifier")
         )
 
     @property
@@ -80,12 +82,14 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             assignment = None
         return assignment
 
-    def get_next_subject_identifiers(self, count: int | None = None) -> list[str]:
+    def get_next_subject_identifiers(self, count: int | None = None) -> QuerySet | list[str]:
         if self.selected_assignment:
-            subject_identifiers = self.subject_identifiers
+            subject_qs = self.subject_identifiers
             if count:
-                return [s for s in subject_identifiers[:count]]
-            return [s for s in subject_identifiers]
+                return subject_qs[:count]
+                # return [s for s in subject_identifiers[:count]]
+            return subject_qs
+            # return [s for s in subject_identifiers]
         return []
 
     @property
