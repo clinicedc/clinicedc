@@ -50,6 +50,8 @@ from .stock import (
     StockTransferConfirmation,
     StockTransferConfirmationItem,
     StockTransferItem,
+    StorageBin,
+    StorageBinItem,
     Supplier,
 )
 from .storage import (

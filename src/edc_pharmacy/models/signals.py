@@ -27,6 +27,7 @@ from .stock import (
     StockRequest,
     StockRequestItem,
     StockTransferConfirmationItem,
+    StorageBinItem,
 )
 
 
@@ -178,6 +179,8 @@ def dispense_item_on_post_save(
         instance.stock.qty_out = 1
         instance.stock.unit_qty_out = instance.stock.container.qty * 1
         instance.stock.save(update_fields=["qty_out", "unit_qty_out", "dispensed"])
+
+        StorageBinItem.objects.filter(stock=instance.stock).delete()
 
 
 @receiver(post_delete, sender=ReceiveItem, dispatch_uid="receive_item_on_post_delete")

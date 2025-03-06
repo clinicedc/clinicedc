@@ -2,6 +2,7 @@ from django.urls import path
 
 from .admin_site import edc_pharmacy_admin
 from .views import (
+    AddToStorageBinView,
     AllocateToSubjectView,
     CeleryTaskStatusView,
     ConfirmStockFromQuerySetView,
@@ -96,6 +97,16 @@ urlpatterns = [
         "manifest/<uuid:stock_transfer>/",
         print_stock_transfer_manifest_view,
         name="generate_manifest",
+    ),
+    path(
+        "add-to-storage-bin/<uuid:storage_bin>/<int:items_to_scan>/",
+        AddToStorageBinView.as_view(),
+        name="add_to_storage_bin_url",
+    ),
+    path(
+        "add-to-storage-bin/<uuid:storage_bin>/",
+        AddToStorageBinView.as_view(),
+        name="add_to_storage_bin_url",
     ),
     path(
         "task-status/<uuid:task_id>/",

@@ -6,6 +6,7 @@
         <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
         <a id="home_list_group_stockrequest" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}" class="list-group-item"><b>Request stock</b></a>
         <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy:stock_transfer_confirmation_url' %}" class="list-group-item"><B>Confirm transferred stock</B></a>
+        <a id="home_list_group_dispense" href="{% url 'edc_pharmacy_admin:edc_pharmacy_storagebin_changelist' %}" class="list-group-item"><b>Storage bins</b></a>
         <a id="home_list_group_dispense" href="{% url 'edc_pharmacy:dispense_url' %}" class="list-group-item"><b>Dispense</b></a>
         <a id="home_list_group_dispense" href="{% url 'edc_pharmacy:return_url' %}" class="list-group-item"><b>Return</b></a>
       {% endif %}

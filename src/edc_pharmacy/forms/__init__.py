@@ -17,5 +17,7 @@ from .stock import (
     StockRequestForm,
     StockRequestItemForm,
     StockTransferForm,
+    StorageBinForm,
+    StorageBinItemForm,
     SupplierForm,
 )

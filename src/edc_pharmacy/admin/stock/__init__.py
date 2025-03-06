@@ -19,4 +19,6 @@ from .stock_transfer_admin import StockTransferAdmin
 from .stock_transfer_confirmation_admin import StockTransferConfirmationAdmin
 from .stock_transfer_confirmation_item_admin import StockTransferConfirmationItemAdmin
 from .stock_transfer_item_admin import StockTransferItemAdmin
+from .storage_bin_admin import StorageBinAdmin
+from .storage_bin_item_admin import StorageBinItemAdmin
 from .supplier_admin import SupplierAdmin

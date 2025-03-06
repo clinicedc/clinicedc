@@ -14,4 +14,6 @@ from .stock_form import StockForm
 from .stock_request_form import StockRequestForm
 from .stock_request_item_form import StockRequestItemForm
 from .stock_transfer_form import StockTransferForm
+from .storage_bin_form import StorageBinForm
+from .storage_bin_item_form import StorageBinItemForm
 from .supplier_form import SupplierForm

@@ -1,3 +1,4 @@
+from .add_to_storage_bin_view import AddToStorageBinView
 from .allocate_to_subject_view import AllocateToSubjectView
 from .celery_task_status_view import CeleryTaskStatusView
 from .confirm_stock_from_queryset_view import ConfirmStockFromQuerySetView
