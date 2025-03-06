@@ -24,7 +24,15 @@ class Container(BaseUuidModel):
     qty_decimal_places = models.IntegerField(default=0)
 
     max_per_subject = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text=(
+            "Maximum number of this container that may be "
+            "allocated to a subject per stock request. "
+            "(For example, no more than 3 bottles per subject)"
+        ),
     )
 
     may_order_as = models.BooleanField(

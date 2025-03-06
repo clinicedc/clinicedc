@@ -83,6 +83,11 @@ urlpatterns = [
         name="review_stock_request_url",
     ),
     path(
+        "print-labels/<str:model>/<uuid:session_uuid>/<str:label_configuration>",
+        PrintLabelsView.as_view(),
+        name="print_labels_url",
+    ),
+    path(
         "print-labels/<str:model>/<uuid:session_uuid>/",
         PrintLabelsView.as_view(),
         name="print_labels_url",

@@ -61,7 +61,7 @@ class StockRequest(BaseUuidModel):
     )
 
     containers_per_subject = models.PositiveSmallIntegerField(
-        verbose_name="Number of containers per subject", default=1
+        verbose_name="Number of containers per subject", default=3
     )
 
     item_count = models.IntegerField(

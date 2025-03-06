@@ -26,7 +26,7 @@
                 <select class="form-control" id="label_configuration" name="label_configuration" required autofocus>
                     <option value="" selected> ----- </option>
                     {% for label_configuration in label_configurations %}
-                      <option value="{{ label_configuration.id }}">{{ label_configuration.name }}</option>
+                      <option value="{{ label_configuration.id }}" {% if label_configuration.name == selected_label_configuration %}selected{% endif %}>{{ label_configuration.name }}</option>
                     {% endfor %}
                 </select>
                 <label class="control-label" for="max_to_print">Maximum number of labels to print</label>

@@ -15,10 +15,10 @@ class ContainerForm(forms.ModelForm):
             raise forms.ValidationError({"max_per_subject": "This field is required"})
         if (
             cleaned_data.get("max_per_subject")
-            and cleaned_data.get("max_per_subject") > 3
+            and cleaned_data.get("max_per_subject") > 6
             and cleaned_data.get("may_request_as")
         ):
-            raise forms.ValidationError({"max_per_subject": "May not exceed 3"})
+            raise forms.ValidationError({"max_per_subject": "May not exceed 6"})
         return cleaned_data
 
     class Meta:

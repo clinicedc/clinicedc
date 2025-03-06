@@ -64,7 +64,8 @@ class StockRequestForm(forms.ModelForm):
             raise forms.ValidationError(
                 {
                     "containers_per_subject": (
-                        f"May not exceed {cleaned_data.get('container').max_per_subject}"
+                        f"May not exceed {cleaned_data.get('container').max_per_subject}. "
+                        "See 'max per subject' for this container"
                     )
                 }
             )

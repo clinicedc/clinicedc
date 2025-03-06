@@ -15,6 +15,7 @@ from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestForm
 from ...models import StockRequest
 from ..actions import allocate_stock_to_subject, prepare_stock_request_items_action
+from ..actions.print_labels import print_labels_from_stock_request_by_code
 from ..model_admin_mixin import ModelAdminMixin
 from ..utils import stock_request_status_counts
 
@@ -33,6 +34,7 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     actions = [
         prepare_stock_request_items_action,
         allocate_stock_to_subject,
+        print_labels_from_stock_request_by_code,
     ]
 
     fieldsets = (

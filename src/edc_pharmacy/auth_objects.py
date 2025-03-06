@@ -31,8 +31,8 @@ view_only_models = [
     "edc_pharmacy.frequencyunits",
     "edc_pharmacy.location",
     "edc_pharmacy.medication",
-    "edc_pharmacy.stockrequest",
-    "edc_pharmacy.stockrequestitem",
+    # "edc_pharmacy.stockrequest",
+    # "edc_pharmacy.stockrequestitem",
     "edc_pharmacy.stock",
     "edc_pharmacy.assignment",
     "edc_pharmacy.subject",
@@ -51,7 +51,6 @@ exclude_models = [
     "edc_pharmacy.orderitem",
     "edc_pharmacy.receive",
     "edc_pharmacy.receiveitem",
-    "edc_pharmacy.repackrequest",
 ]
 view_only_models = [
     "edc_pharmacy.stocktransferproxy",
