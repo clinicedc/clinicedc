@@ -126,7 +126,7 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
             messages.add_message(
                 self.request,
                 messages.ERROR,
-                f"Stock already in another bin. See {[obj.code for obj in qs]}.",
+                f"Stock already in another bin. See {[obj.stock.code for obj in qs]}.",
             )
             url = reverse(
                 "edc_pharmacy:add_to_storage_bin_url",
