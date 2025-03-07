@@ -122,11 +122,11 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
             .exclude(storage_bin_id=storage_bin.id)
             .exists()
         ):
-            obj = StorageBinItem.objects.get(stock__code__in=stock_codes)
+            qs = StorageBinItem.objects.filter(stock__code__in=stock_codes)
             messages.add_message(
                 self.request,
                 messages.ERROR,
-                f"Stock already in another bin. See {obj}.",
+                f"Stock already in another bin. See {[obj.code for obj in qs]}.",
             )
             url = reverse(
                 "edc_pharmacy:add_to_storage_bin_url",
@@ -146,6 +146,7 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
 
         self.redirect_on_has_duplicates(stock_codes, storage_bin)
         self.redirect_on_stock_already_in_bin(stock_codes, storage_bin)
+        # self.request.session[str(self.kwargs.get("session_uuid"))] = dict()
         if items_to_scan and not stock_codes:
             url = reverse(
                 "edc_pharmacy:add_to_storage_bin_url",

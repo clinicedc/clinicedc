@@ -101,6 +101,7 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     readonly_fields = ("item_count",)
 
     def redirect_url(self, request, obj, post_url_continue=None) -> Optional[str]:
+        """Redirect to the review page immediately after saving model."""
         redirect_url = super().redirect_url(request, obj, post_url_continue)
         if obj.cancel == "CANCEL":
             pass
