@@ -41,7 +41,6 @@ class StorageBinItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     list_display = (
         "item_identifier",
-        "bin_name",
         "storage_bin_changelist",
         "stock_changelist",
         "dispensed",
@@ -54,6 +53,7 @@ class StorageBinItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "item_identifier",
         "stock__allocation__registered_subject__subject_identifier",
         "stock__code",
+        "storage_bin__bin_identifier",
         "storage_bin__name",
         "storage_bin__id",
     )
@@ -76,15 +76,12 @@ class StorageBinItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def item_date(self, obj):
         return to_local(obj.item_datetime).date()
 
-    @admin.display(description="Bin name", ordering="storage_bin__name")
-    def bin_name(self, obj):
-        return obj.storage_bin.name
-
-    @admin.display(description="Bin", ordering="storage_bin__bin_identifier")
+    @admin.display(description="Bin", ordering="storage_bin__name")
     def storage_bin_changelist(self, obj):
+        bin_ref = obj.storage_bin.name or obj.storage_bin.bin_identifier
         url = reverse("edc_pharmacy_admin:edc_pharmacy_storagebin_changelist")
-        url = f"{url}?q={obj.storage_bin.id}"
-        context = dict(url=url, label=obj.storage_bin.bin_identifier, title="Go to bin")
+        url = f"{url}?q={bin_ref}"
+        context = dict(url=url, label=bin_ref, title="Go to bin")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Stock")
