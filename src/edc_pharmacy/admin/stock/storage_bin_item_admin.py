@@ -21,6 +21,7 @@ class StorageBinItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     list_per_page = 20
 
     autocomplete_fields = ["stock"]
+    actions = ["delete_selected"]
 
     form = StorageBinItemForm
 
