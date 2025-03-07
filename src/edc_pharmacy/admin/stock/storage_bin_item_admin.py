@@ -41,6 +41,7 @@ class StorageBinItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     list_display = (
         "item_identifier",
+        "bin_name",
         "storage_bin_changelist",
         "stock_changelist",
         "dispensed",
@@ -53,6 +54,7 @@ class StorageBinItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "item_identifier",
         "stock__allocation__registered_subject__subject_identifier",
         "stock__code",
+        "storage_bin__name",
         "storage_bin__id",
     )
 
@@ -73,6 +75,10 @@ class StorageBinItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="Item date", ordering="item_datetime")
     def item_date(self, obj):
         return to_local(obj.item_datetime).date()
+
+    @admin.display(description="Bin name", ordering="storage_bin__name")
+    def bin_name(self, obj):
+        return obj.storage_bin.name
 
     @admin.display(description="Bin", ordering="storage_bin__bin_identifier")
     def storage_bin_changelist(self, obj):
