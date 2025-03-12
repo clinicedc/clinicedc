@@ -79,6 +79,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
 
     list_filter = (
+        "stock_request__location",
         StockItemAllocationListFilter,
         AssignmentListFilter,
         StockRequestItemPendingListFilter,
@@ -145,7 +146,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="T", boolean=True)
     def transferred(self, obj):
-        return obj.allocation.stock.location == obj.stock_request.location
+        return obj.allocation.stock.transferred
 
     @admin.display(description="Subject", ordering="appt_datetime")
     def subject(self, obj):

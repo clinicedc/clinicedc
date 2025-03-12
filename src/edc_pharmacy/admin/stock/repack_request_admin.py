@@ -33,6 +33,8 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     show_cancel = True
     list_per_page = 20
 
+    ordering = ("-repack_identifier",)
+
     autocomplete_fields = ["from_stock", "container"]
     form = RepackRequestForm
     actions = [
@@ -123,7 +125,7 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="From stock", ordering="from_stock__code")
     def from_stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
-        url = f"{url}?q={obj.from_stock.code}"
+        url = f"{url}?q={obj.from_stock.code}&decanted=No"
         context = dict(url=url, label=obj.from_stock.code, title="Go to stock")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 

@@ -13,6 +13,7 @@ from .views import (
     ReturnView,
     StockTransferConfirmationView,
     TransferStockView,
+    get_stock_transfers_view,
     print_stock_transfer_manifest_view,
 )
 
@@ -26,6 +27,7 @@ urlpatterns = [
         DispenseView.as_view(),
         name="dispense_url",
     ),
+    path("get-stock-transfers/", get_stock_transfers_view, name="get_stock_transfers_url"),
     path(
         "stock-transfer-confirmation/<uuid:session_uuid>/<str:stock_transfer_identifier>/"
         "<int:location_id>/<int:items_to_scan>/",
@@ -44,6 +46,11 @@ urlpatterns = [
         name="stock_transfer_confirmation_url",
     ),
     path(
+        "stock-transfer-confirmation/<int:site_id>/",
+        StockTransferConfirmationView.as_view(),
+        name="stock_transfer_confirmation_url",
+    ),
+    path(
         "review-stock-request/<uuid:stock_request>/<uuid:session_uuid>/",
         PrepareAndReviewStockRequestView.as_view(),
         name="review_stock_request_url",
@@ -58,11 +65,6 @@ urlpatterns = [
         AllocateToSubjectView.as_view(),
         name="allocate_url",
     ),
-    # path(
-    #     "confirm-stock/<str:model>/<uuid:source_pk>/",
-    #     ConfirmStockFromInstanceView.as_view(),
-    #     name="confirm_stock_from_instance_url",
-    # ),
     path(
         "confirm-stock-qs/<uuid:session_uuid>/",
         ConfirmStockFromQuerySetView.as_view(),

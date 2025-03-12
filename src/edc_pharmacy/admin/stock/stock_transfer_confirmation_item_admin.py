@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
+from edc_sites.admin import SiteModelAdminMixin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
@@ -11,13 +12,17 @@ from ..model_admin_mixin import ModelAdminMixin
 
 
 @admin.register(StockTransferConfirmationItem, site=edc_pharmacy_admin)
-class StockTransferConfirmationItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
+class StockTransferConfirmationItemAdmin(
+    SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin
+):
     change_list_title = "Pharmacy: Site stock transfer confirmation items"
     change_form_title = "Pharmacy: Site stock transfer confirmation item"
     history_list_display = ()
     show_object_tools = True
     show_cancel = True
     list_per_page = 20
+
+    actions = ["delete_selected"]
 
     ordering = ("-transfer_confirmation_item_identifier",)
 
@@ -111,3 +116,6 @@ class StockTransferConfirmationItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = f"{url}?q={obj.stock.code}"
         context = dict(url=url, label=obj.stock.code, title="Go to stock")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    def get_view_only_site_ids_for_user(self, request) -> list[int]:
+        return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]

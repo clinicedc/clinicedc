@@ -38,15 +38,19 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     list_display = (
         "identifier",
-        "transfer_item_date",
         "stock_transfer_changelist",
+        "transfer_item_date",
         "stock_changelist",
-        "stock__location",
-        "stock_transfer_confirmation_item_changelist",
         "allocation_changelist",
+        "stock_transfer_confirmation_item_changelist",
+        "location",
     )
 
-    list_filter = ("transfer_item_datetime",)
+    list_filter = (
+        "stock_transfer__to_location",
+        "transfer_item_datetime",
+        "stock__confirmed_at_site",
+    )
 
     search_fields = (
         "id",
@@ -65,6 +69,12 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="TRANSFER ITEM #", ordering="transfer_item_identifier")
     def identifier(self, obj):
         return obj.transfer_item_identifier
+
+    @admin.display(description="Location", ordering="stock__location")
+    def location(self, obj):
+        return (
+            obj.stock.location if obj.stock.confirmed_at_site else f">>> {obj.stock.location}"
+        )
 
     @admin.display(description="Transfer date", ordering="transfer_item_datetime")
     def transfer_item_date(self, obj):
@@ -105,7 +115,12 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         try:
             transfer_confirmation_item = obj.stock.stocktransferconfirmationitem
         except ObjectDoesNotExist:
-            pass
+            url = reverse("edc_pharmacy:stock_transfer_confirmation_url")
+            context = dict(
+                url=url,
+                label="Pending",
+                title="Go to stock transfer site confirmation",
+            )
         else:
             url = reverse(
                 "edc_pharmacy_admin:edc_pharmacy_stocktransferconfirmationitem_changelist"
@@ -116,5 +131,4 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 label=transfer_confirmation_item.transfer_confirmation_item_identifier,
                 title="Go to stock transfer confirmation item",
             )
-            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
-        return None
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)

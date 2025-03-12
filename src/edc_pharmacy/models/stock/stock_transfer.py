@@ -60,6 +60,14 @@ class StockTransfer(BaseUuidModel):
         super().save(*args, **kwargs)
 
     @property
+    def comfirmed_items(self) -> int:
+        return self.stocktransferitem_set.filter(stock__confirmed_at_site=True).count()
+
+    @property
+    def uncomfirmed_items(self) -> int:
+        return self.stocktransferitem_set.filter(stock__confirmed_at_site=False).count()
+
+    @property
     def export_references(self):
         return "Export ref"
 

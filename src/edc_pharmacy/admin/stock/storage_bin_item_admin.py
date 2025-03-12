@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
+from edc_sites.admin import SiteModelAdminMixin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
@@ -12,7 +13,7 @@ from ..model_admin_mixin import ModelAdminMixin
 
 
 @admin.register(StorageBinItem, site=edc_pharmacy_admin)
-class StorageBinItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
+class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Storage bin item"
     change_form_title = "Pharmacy: Storage bin item"
     history_list_display = ()
@@ -105,3 +106,6 @@ class StorageBinItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.filter(stock__dispensed=False)
+
+    def get_view_only_site_ids_for_user(self, request) -> list[int]:
+        return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]

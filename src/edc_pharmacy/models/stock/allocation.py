@@ -2,6 +2,7 @@ from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_randomization.site_randomizers import site_randomizers
 from edc_registration.models import RegisteredSubject
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
@@ -14,7 +15,7 @@ class Manager(models.Manager):
     use_in_migrations = True
 
 
-class Allocation(BaseUuidModel):
+class Allocation(SiteModelMixin, BaseUuidModel):
     """A model to track stock allocation to a subject referring to a
     stock request.
     """
@@ -57,6 +58,7 @@ class Allocation(BaseUuidModel):
         return self.allocation_identifier
 
     def save(self, *args, **kwargs):
+        self.site = self.stock.location.site
         if not self.allocation_identifier:
             self.allocation_identifier = f"{get_next_value(self._meta.label_lower):06d}"
         if not self.stock_request_item:

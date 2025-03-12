@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_constants.constants import YES
 from edc_model_admin.history import SimpleHistoryAdmin
 
 from ...admin_site import edc_pharmacy_admin
@@ -20,12 +19,11 @@ from ..actions import (
     print_labels,
 )
 from ..list_filters import (
-    AllocationListFilter,
+    DecantedListFilter,
     HasOrderNumFilter,
     HasReceiveNumFilter,
     HasRepackNumFilter,
     ProductAssignmentListFilter,
-    TransferredListFilter,
 )
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
@@ -105,8 +103,8 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "formatted_code",
         "from_stock_changelist",
         "formatted_confirmed",
-        "allocated",
-        "transferred",
+        "formatted_allocated",
+        "formatted_transferred",
         "formatted_confirmed_at_site",
         "formatted_dispensed",
         "formulation",
@@ -120,26 +118,28 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock_request_changelist",
         "allocation_changelist",
         "stock_transfer_item_changelist",
+        "location",
         "dispense_changelist",
         "created",
         "modified",
     )
     list_filter = (
+        "location",
         "container__container_type",
         "container",
         "confirmed",
-        AllocationListFilter,
-        TransferredListFilter,
+        "allocated",
+        "transferred",
         "confirmed_at_site",
         "dispensed",
         ProductAssignmentListFilter,
         "product",
-        "location",
         "confirmed_by",
         "confirmed_datetime",
         HasOrderNumFilter,
         HasReceiveNumFilter,
         HasRepackNumFilter,
+        DecantedListFilter,
         "created",
         "modified",
     )
@@ -245,9 +245,13 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def qty(self, obj):
         return format_qty(obj.qty_in - obj.qty_out, obj.container)
 
+    @admin.display(description="A", boolean=True)
+    def formatted_allocated(self, obj):
+        return obj.allocated
+
     @admin.display(description="T", boolean=True)
-    def transferred(self, obj):
-        return True if obj.transferred == YES else False
+    def formatted_transferred(self, obj):
+        return obj.transferred
 
     @admin.display(description="Units", ordering="unit_qty_out")
     def unit_qty(self, obj):
@@ -277,7 +281,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def formatted_dispensed(self, obj):
         return obj.dispensed
 
-    @admin.display(description="Container", ordering="container_name")
+    @admin.display(description="Container", ordering="container__name")
     def container_str(self, obj):
         return format_html(
             "{}",
@@ -367,7 +371,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def allocation_changelist(self, obj):
         if obj.allocation:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
-            url = f"{url}?q={obj.allocation.id}"
+            url = f"{url}?q={obj.code}"
             context = dict(
                 url=url,
                 label=obj.allocation.registered_subject.subject_identifier,
@@ -386,7 +390,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             url = f"{url}?q={obj.code}"
             context = dict(
                 url=url,
-                label=obj.location,
+                label=obj.stocktransferitem.stock_transfer.transfer_identifier,
                 title="Go to stock transfer item",
             )
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)

@@ -13,8 +13,8 @@ from ..model_admin_mixin import ModelAdminMixin
 
 @admin.register(StockTransferConfirmation, site=edc_pharmacy_admin)
 class StockTransferConfirmationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
-    change_list_title = "Pharmacy: Site stock transfer confirmations"
-    change_form_title = "Pharmacy: Site stock transfer confirmation"
+    change_list_title = "Pharmacy: Stock transfer site confirmations"
+    change_form_title = "Pharmacy: Stock transfer site confirmation"
     history_list_display = ()
     show_object_tools = True
     show_cancel = True
@@ -47,8 +47,8 @@ class StockTransferConfirmationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
 
     list_filter = (
-        "transfer_confirmation_datetime",
         "location",
+        "transfer_confirmation_datetime",
     )
 
     readonly_fields = (

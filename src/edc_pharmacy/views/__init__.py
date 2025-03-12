@@ -3,6 +3,7 @@ from .allocate_to_subject_view import AllocateToSubjectView
 from .celery_task_status_view import CeleryTaskStatusView
 from .confirm_stock_from_queryset_view import ConfirmStockFromQuerySetView
 from .dispense_view import DispenseView
+from .get_stock_transfers_view import get_stock_transfers_view
 from .home_view import HomeView
 from .prepare_and_review_stock_request_view import PrepareAndReviewStockRequestView
 from .print_labels_view import PrintLabelsView

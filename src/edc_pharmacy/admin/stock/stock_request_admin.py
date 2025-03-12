@@ -88,15 +88,20 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
 
     list_filter = (
+        "location",
         "request_datetime",
         "formulation",
         "container",
-        "location",
         "request_datetime",
         "cutoff_datetime",
     )
 
-    search_fields = ("id", "request_identifier")
+    search_fields = (
+        "id",
+        "request_identifier",
+        "stockrequestitem__allocation__id",
+        "stockrequestitem__allocation__stock__id",
+    )
 
     readonly_fields = ("item_count",)
 
