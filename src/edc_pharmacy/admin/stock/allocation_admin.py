@@ -159,10 +159,6 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def dispensed(self, obj):
         return True if obj.stock.dispensed == YES else False
 
-    @admin.display(description="Site")
-    def site(self, obj):
-        return obj.stock.location.site_id
-
     @admin.display(description="Product", ordering="stock__product")
     def stock_product(self, obj):
         return obj.stock.product.name
