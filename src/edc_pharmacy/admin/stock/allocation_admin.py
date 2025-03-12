@@ -82,7 +82,6 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     list_display = (
         "identifier",
-        "site",
         "allocation_date",
         "transferred",
         "dispensed",
@@ -96,12 +95,12 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
 
     list_filter = (
+        "stock__location",
         AssignmentListFilter,
         "allocation_datetime",
         TransferredFilter,
         DispensedFilter,
         "allocated_by",
-        "stock__location__site",
     )
 
     search_fields = (

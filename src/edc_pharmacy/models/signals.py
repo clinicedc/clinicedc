@@ -63,6 +63,10 @@ def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
             instance.qty = 0
         instance.save(update_fields=["unit_qty_in", "unit_qty_out", "qty"])
 
+        if Allocation.objects.filter(stock=instance).exists():
+            instance.allocated = True
+            instance.save(update_fields=["allocated"])
+
 
 @receiver(post_save, sender=OrderItem, dispatch_uid="update_order_item_on_post_save")
 def order_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
@@ -152,17 +156,6 @@ def repack_request_on_post_save(
             )
             instance.task_id = getattr(task, "id", None)
             instance.save(update_fields=["task_id"])
-
-
-@receiver(
-    post_save,
-    sender=Allocation,
-    dispatch_uid="allocation_on_post_save",
-)
-def allocation_on_post_save(sender, instance, raw, created, update_fields, **kwargs) -> None:
-    if not raw and not update_fields:
-        instance.stock.allocated = True
-        instance.stock.save(update_fields=["allocated"])
 
 
 @receiver(
