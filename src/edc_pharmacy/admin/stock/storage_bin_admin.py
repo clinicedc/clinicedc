@@ -91,7 +91,7 @@ class StorageBinAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
         context = dict(url=url, label="Stock", title="Go to stock")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
-    @admin.display(description="Items", ordering="storage_bin__bin_identifier")
+    @admin.display(description="Items")
     def storage_bin_item_changelist(self, obj):
         items = obj.storagebinitem_set.all().count()
         url = reverse("edc_pharmacy_admin:edc_pharmacy_storagebinitem_changelist")
