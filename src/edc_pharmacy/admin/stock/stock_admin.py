@@ -108,6 +108,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "formatted_allocated",
         "formatted_transferred",
         "formatted_confirmed_at_site",
+        "formatted_stored_at_site",
         "formatted_dispensed",
         "formulation",
         "verified_assignment",
@@ -133,6 +134,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "allocated",
         "transferred",
         "confirmed_at_site",
+        "stored_at_site",
         "dispensed",
         ProductAssignmentListFilter,
         "product",
@@ -278,6 +280,10 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="S", ordering="confirmed_at_site", boolean=True)
     def formatted_confirmed_at_site(self, obj):
         return obj.confirmed_at_site
+
+    @admin.display(description="B", ordering="stored_at_site", boolean=True)
+    def formatted_stored_at_site(self, obj):
+        return obj.stored_at_site
 
     @admin.display(description="D", ordering="dispensed", boolean=True)
     def formatted_dispensed(self, obj):

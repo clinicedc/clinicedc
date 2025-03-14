@@ -188,6 +188,19 @@ def stock_transfer_confirmation_item_on_post_save(
 
 @receiver(
     post_save,
+    sender=StorageBinItem,
+    dispatch_uid="storage_bin_item_on_post_save",
+)
+def storage_bin_item_on_post_save(
+    sender, instance, raw, created, update_fields, **kwargs
+) -> None:
+    if not raw and not update_fields:
+        instance.stock.stored_at_site = True
+        instance.stock.save(update_fields=["stored_at_site"])
+
+
+@receiver(
+    post_save,
     sender=DispenseItem,
     dispatch_uid="dispense_item_on_post_save",
 )
@@ -244,6 +257,16 @@ def stock_transfer_item_post_delete(sender, instance, using, **kwargs) -> None:
 def stock_transfer_confirmation_item_post_delete(sender, instance, using, **kwargs) -> None:
     instance.stock.confirmed_at_site = False
     instance.stock.save(update_fields=["confirmed_at_site"])
+
+
+@receiver(
+    post_delete,
+    sender=StorageBinItem,
+    dispatch_uid="storage_bin_item_post_delete",
+)
+def storage_bin_item_post_delete(sender, instance, using, **kwargs) -> None:
+    instance.stock.stored_at_site = False
+    instance.stock.save(update_fields=["stored_at_site"])
 
 
 @receiver(

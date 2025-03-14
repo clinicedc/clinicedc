@@ -102,7 +102,7 @@ class StockReport(Report):
             )
             formulation = stock_obj.product.formulation
             description = f"{formulation.imp_description} "
-            catsd = self.get_catsd(stock_obj)
+            catsd = self.get_catsbd(stock_obj)
             style = ParagraphStyle(
                 name="line_data", alignment=TA_CENTER, fontSize=8, leading=10
             )
@@ -185,11 +185,12 @@ class StockReport(Report):
         return table
 
     @staticmethod
-    def get_catsd(stock_obj: Stock) -> str:
+    def get_catsbd(stock_obj: Stock) -> str:
         catsd = ""
         catsd += "C" if stock_obj.confirmed else "-"
         catsd += "A" if stock_obj.allocated else "-"
         catsd += "T" if stock_obj.transferred else "-"
         catsd += "S" if stock_obj.confirmed_at_site else "-"
+        catsd += "B" if stock_obj.stored_at_site else "-"
         catsd += "D" if stock_obj.dispensed else "-"
         return catsd
