@@ -12,6 +12,7 @@ class NumberedCanvas(canvas.Canvas):
     watermark_font: tuple[str, int] = getattr(
         settings, "EDC_PHARMACY_WATERMARK_FONT", ("Helvetica", 100)
     )
+    pagsize = A4
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -35,7 +36,7 @@ class NumberedCanvas(canvas.Canvas):
     def draw_page_number(self, page_count):
         styles = getSampleStyleSheet()
         styles.add(ParagraphStyle(name="header", fontSize=6, alignment=TA_CENTER))
-        width, _ = A4
+        width, _ = self.pagsize
         self.setFont("Helvetica", 6)
         self.drawCentredString(
             width / 2,
@@ -45,7 +46,7 @@ class NumberedCanvas(canvas.Canvas):
 
     def draw_watermark(self):
         self.saveState()
-        width, height = A4
+        width, height = self.pagsize
         self.setFont(*self.watermark_font)
         self.setFillGray(0.5, 0.5)  # Light gray color
         self.translate(width / 2, height / 2)

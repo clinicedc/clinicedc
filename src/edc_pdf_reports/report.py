@@ -12,12 +12,7 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils.date import to_local
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import (
-    ParagraphStyle,
-    StyleSheet1,
-    _baseFontNameB,
-    getSampleStyleSheet,
-)
+from reportlab.lib.styles import ParagraphStyle, StyleSheet1, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.platypus import SimpleDocTemplate
 
@@ -170,7 +165,7 @@ class Report(ABC):
                     alignment=TA_LEFT,
                     fontSize=10,
                     leading=11,
-                    fontName=_baseFontNameB,
+                    fontName="Helvetica-Bold",
                 )
             )
             styles.add(
