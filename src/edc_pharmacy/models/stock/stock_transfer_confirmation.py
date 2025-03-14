@@ -1,5 +1,6 @@
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
@@ -12,7 +13,7 @@ class Manager(models.Manager):
     use_in_migrations = True
 
 
-class StockTransferConfirmation(BaseUuidModel):
+class StockTransferConfirmation(SiteModelMixin, BaseUuidModel):
 
     transfer_confirmation_identifier = models.CharField(
         max_length=36,
@@ -44,11 +45,12 @@ class StockTransferConfirmation(BaseUuidModel):
             raise StockTransferConfirmationError(
                 "Location mismatch. Perhaps catch this in the form."
             )
+        self.site = self.location.site
         if not self.transfer_confirmation_identifier:
             next_id = get_next_value(self._meta.label_lower)
             self.transfer_confirmation_identifier = f"{next_id:06d}"
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Stock Transfer Confirmation"
-        verbose_name_plural = "Stock Transfer Confirmations"
+        verbose_name = "Stock Transfer Site Confirmation"
+        verbose_name_plural = "Stock Transfer Site Confirmations"

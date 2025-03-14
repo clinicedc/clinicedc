@@ -38,20 +38,26 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     list_display = (
         "identifier",
-        "transfer_item_date",
         "stock_transfer_changelist",
+        "transfer_item_date",
         "stock_changelist",
-        "stock__location",
+        "allocation_changelist",
         "stock_transfer_confirmation_item_changelist",
+        "location",
     )
 
-    list_filter = ("transfer_item_datetime",)
+    list_filter = (
+        "stock_transfer__to_location",
+        "transfer_item_datetime",
+        "stock__confirmed_at_site",
+    )
 
     search_fields = (
         "id",
         "transfer_item_identifier",
         "stock_transfer__id",
         "stock__code",
+        "stock__allocation__registered_subject__subject_identifier",
     )
 
     readonly_fields = (
@@ -64,6 +70,12 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def identifier(self, obj):
         return obj.transfer_item_identifier
 
+    @admin.display(description="Location", ordering="stock__location")
+    def location(self, obj):
+        return (
+            obj.stock.location if obj.stock.confirmed_at_site else f">>> {obj.stock.location}"
+        )
+
     @admin.display(description="Transfer date", ordering="transfer_item_datetime")
     def transfer_item_date(self, obj):
         return to_local(obj.transfer_item_datetime).date()
@@ -73,6 +85,17 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.stock.code}"
         context = dict(url=url, label=obj.stock.code, title="Go to stock")
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    @admin.display(
+        description="Allocation",
+        ordering="stock__allocation__registered_subject__subject_identifier",
+    )
+    def allocation_changelist(self, obj):
+        subject_identifier = obj.stock.allocation.registered_subject.subject_identifier
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
+        url = f"{url}?q={subject_identifier}"
+        context = dict(url=url, label=subject_identifier, title="Go to allocation")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Transfer #", ordering="stock_transfer__transfer_identifier")
@@ -92,7 +115,12 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         try:
             transfer_confirmation_item = obj.stock.stocktransferconfirmationitem
         except ObjectDoesNotExist:
-            pass
+            url = reverse("edc_pharmacy:stock_transfer_confirmation_url")
+            context = dict(
+                url=url,
+                label="Pending",
+                title="Go to stock transfer site confirmation",
+            )
         else:
             url = reverse(
                 "edc_pharmacy_admin:edc_pharmacy_stocktransferconfirmationitem_changelist"
@@ -103,5 +131,4 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 label=transfer_confirmation_item.transfer_confirmation_item_identifier,
                 title="Go to stock transfer confirmation item",
             )
-            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
-        return None
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)

@@ -7,6 +7,7 @@ PHARMACY = "PHARMACY"
 PHARMACY_SITE = "PHARMACY_SITE"
 PHARMACY_PRESCRIBER = "PHARMACY_PRESCRIBER"
 PHARMACY_VIEW = "PHARMACY_VIEW"
+PHARMACY_SUPER = "PHARMACY_SUPER"
 
 # roles
 CENTRAL_PHARMACIST_ROLE = "CENTRAL_PHARMACIST_ROLE"
@@ -14,7 +15,7 @@ PHARMACIST_ROLE = "PHARMACIST_ROLE"
 PHARMACY_AUDITOR_ROLE = "PHARMACY_AUDITOR_ROLE"
 PHARMACY_PRESCRIBER_ROLE = "PHARMACY_PRESCRIBER_ROLE"
 SITE_PHARMACIST_ROLE = "SITE_PHARMACIST_ROLE"
-
+PHARMACY_SUPER_ROLE = "PHARMACY_SUPER_ROLE"
 
 navbar_codenames = ["edc_pharmacy.nav_pharmacy_section"]
 navbar_tuples = []
@@ -30,8 +31,6 @@ view_only_models = [
     "edc_pharmacy.frequencyunits",
     "edc_pharmacy.location",
     "edc_pharmacy.medication",
-    "edc_pharmacy.stockrequest",
-    "edc_pharmacy.stockrequestitem",
     "edc_pharmacy.stock",
     "edc_pharmacy.assignment",
     "edc_pharmacy.subject",
@@ -43,16 +42,19 @@ pharmacy_codenames.sort()
 
 
 # site pharmacist
-exclude_models = ["edc_pharmacy.lot", "edc_pharmacy.assignment"]
-view_only_models = [
+exclude_models = [
+    "edc_pharmacy.lot",
+    "edc_pharmacy.assignment",
     "edc_pharmacy.order",
     "edc_pharmacy.orderitem",
     "edc_pharmacy.receive",
     "edc_pharmacy.receiveitem",
-    "edc_pharmacy.repackrequest",
-    "edc_pharmacy.stocktransfer",
+]
+view_only_models = [
+    "edc_pharmacy.stocktransferproxy",
     "edc_pharmacy.stocktransferitem",
     "edc_pharmacy.allocation",
+    "edc_pharmacy.allocationproxy",
     "edc_pharmacy.container",
     "edc_pharmacy.containertype",
     "edc_pharmacy.formulation",
@@ -62,6 +64,7 @@ view_only_models = [
     "edc_pharmacy.medication",
     "edc_pharmacy.product",
     "edc_pharmacy.stock",
+    "edc_pharmacy.stockproxy",
     "edc_pharmacy.subject",
     "edc_pharmacy.visitschedule",
 ]

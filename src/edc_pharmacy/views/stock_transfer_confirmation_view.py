@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import uuid
 from uuid import uuid4
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -65,9 +68,13 @@ class StockTransferConfirmationView(
                 last_codes=last_codes,
             )
         kwargs.update(
-            locations=Location.objects.filter(site__isnull=False),
+            locations=Location.objects.filter(
+                site__in=self.request.user.userprofile.sites.all()
+            ),
             location=self.location,
+            location_id=self.location_id,
             stock_transfer=stock_transfer,
+            stock_transfers=self.stock_transfers,
             session_uuid=str(self.session_uuid),
             CONFIRMED=CONFIRMED,
             ALREADY_CONFIRMED=ALREADY_CONFIRMED,
@@ -75,6 +82,13 @@ class StockTransferConfirmationView(
             **extra_opts,
         )
         return super().get_context_data(**kwargs)
+
+    @property
+    def stock_transfers(self):
+        qs = StockTransfer.objects.filter(
+            to_location__site=self.site, stocktransferitem__stock__confirmed_at_site=False
+        )
+        return qs.annotate(count=Count("transfer_identifier")).order_by("-transfer_datetime")
 
     def get_adjusted_unconfirmed_count(self, stock_transfer):
         unconfirmed_count = self.get_unconfirmed_count(stock_transfer)
@@ -94,17 +108,40 @@ class StockTransferConfirmationView(
             Stock.objects.values("code")
             .filter(
                 code__in=self.get_stock_codes(stock_transfer),
-                location=self.location,
+                location_id=self.location_id,
                 confirmed_at_site=False,
             )
             .count()
         )
 
     @property
+    def site(self) -> Site | None:
+        obj = None
+        if self.kwargs.get("site_id"):
+            try:
+                obj = Site.objects.get(id=self.kwargs.get("site_id"))
+            except ObjectDoesNotExist:
+                pass
+        return obj
+
+    @property
+    def location_id(self) -> uuid.UUID | None:
+        location_id = self.kwargs.get("location_id") or self.request.POST.get("location_id")
+        if not location_id and self.site:
+            try:
+                location = Location.objects.get(site=self.site)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                location_id = location.id
+        return location_id
+
+    @property
     def location(self) -> Location:
-        location = None
-        if location_id := self.kwargs.get("location_id"):
-            location = Location.objects.get(pk=location_id)
+        try:
+            location = Location.objects.get(pk=self.location_id)
+        except ObjectDoesNotExist:
+            location = None
         return location
 
     @property
@@ -141,73 +178,75 @@ class StockTransferConfirmationView(
         return "/"
 
     def get_stock_transfer(
-        self, stock_transfer_identifier: str, suppress_msg: bool = None
+        self,
+        stock_transfer_identifier: str,
+        suppress_msg: bool = None,
     ) -> StockTransfer | None:
         stock_transfer = None
         try:
             stock_transfer = StockTransfer.objects.get(
-                transfer_identifier=stock_transfer_identifier,
-                to_location=self.location,
+                transfer_identifier=stock_transfer_identifier or None,
+                to_location_id=self.location_id or None,
             )
         except ObjectDoesNotExist:
             if stock_transfer_identifier and not suppress_msg:
+                location = Location.objects.get(pk=self.location_id or None)
                 messages.add_message(
                     self.request,
                     messages.ERROR,
                     (
                         "Invalid Reference. Please check the manifest "
                         "reference and delivery site. "
-                        f"Got {stock_transfer_identifier} at {self.location}."
+                        f"Got {stock_transfer_identifier} at {location}."
                     ),
                 )
         return stock_transfer
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> HttpResponseRedirect:
 
-        stock_transfer_identifier = request.POST.get("stock_transfer_identifier")
-        session_uuid = request.POST.get("session_uuid")
-        location_id = request.POST.get("location_id")
-        items_to_scan = int(request.POST.get("items_to_scan") or 0)
-        stock_transfer = self.get_stock_transfer(stock_transfer_identifier, suppress_msg=True)
-        if not stock_transfer:
-            url = reverse(
-                "edc_pharmacy:stock_transfer_confirmation_url",
-                kwargs={
-                    "stock_transfer_identifier": stock_transfer_identifier,
-                    "location_id": location_id,
-                    "items_to_scan": items_to_scan,
-                },
-            )
+        # cancel
+        if request.POST.get("cancel") and request.POST.get("cancel") == "cancel":
+            url = reverse("edc_pharmacy:home_url")
             return HttpResponseRedirect(url)
 
+        stock_transfer_identifier = request.POST.get("stock_transfer_identifier")
+        stock_transfer = self.get_stock_transfer(stock_transfer_identifier, suppress_msg=True)
+        location_id = request.POST.get("location_id")
+        if not stock_transfer or not location_id:
+            # nothing selected
+            url = reverse("edc_pharmacy:stock_transfer_confirmation_url", kwargs={})
+            return HttpResponseRedirect(url)
+
+        session_uuid = request.POST.get("session_uuid")
         stock_codes = (
             request.POST.getlist("stock_codes") if request.POST.get("stock_codes") else []
         )
-        items_to_scan = int(request.POST.get("items_to_scan") or 0) - len(
-            list(set(stock_codes))
-        )
 
-        if not stock_codes and location_id and items_to_scan > 0:
+        # you have unconfirmed items, so go to the scan page
+        if not stock_codes and stock_transfer.uncomfirmed_items > 0:
             url = reverse(
                 "edc_pharmacy:stock_transfer_confirmation_url",
                 kwargs={
                     "stock_transfer_identifier": stock_transfer_identifier,
                     "location_id": location_id,
-                    "items_to_scan": 0 if items_to_scan < 0 else items_to_scan,
+                    "items_to_scan": stock_transfer.uncomfirmed_items,
                 },
             )
             return HttpResponseRedirect(url)
 
-        elif stock_codes and location_id:
+        elif stock_codes:
+            # you have scanned codes, process them
             confirmed, already_confirmed, invalid = confirm_stock_at_site(
                 stock_transfer, stock_codes, location_id, request.user.username
             )
+            # message for confirmed
             if confirmed:
                 messages.add_message(
                     request,
                     messages.SUCCESS,
                     f"Successfully confirmed {len(confirmed)} stock items. ",
                 )
+            # message for already confirmed
             if already_confirmed:
                 messages.add_message(
                     request,
@@ -217,26 +256,31 @@ class StockTransferConfirmationView(
                         "already confirmed."
                     ),
                 )
+            # message for invalid codes
             if invalid:
                 messages.add_message(
                     request,
                     messages.ERROR,
                     f"Invalid codes submitted! Got {', '.join(invalid)} .",
                 )
+
             self.request.session[session_uuid] = dict(
                 confirmed=confirmed,
                 already_confirmed=already_confirmed,
                 invalid=invalid,
                 stock_transfer_pk=str(stock_transfer.pk),
             )
+            # return to page with any unconfirmed codes for this stock_transfer document
+            # might be 0 items
             url = reverse(
                 "edc_pharmacy:stock_transfer_confirmation_url",
                 kwargs={
                     "session_uuid": str(request.POST.get("session_uuid")),
                     "stock_transfer_identifier": stock_transfer_identifier,
                     "location_id": location_id,
-                    "items_to_scan": 0 if items_to_scan < 0 else items_to_scan,
+                    "items_to_scan": stock_transfer.uncomfirmed_items,
                 },
             )
             return HttpResponseRedirect(url)
+        # can you get here??
         return HttpResponseRedirect(self.stock_transfer_confirmation_changelist_url)

@@ -31,6 +31,7 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
 
     def get_context_data(self, **kwargs):
         session_uuid = str(kwargs.get("session_uuid"))
+        selected_label_configuration = kwargs.get("label_configuration")
         stock_pks = self.request.session.get(session_uuid, [])
         try:
             _, querystring = self.request.META.get("HTTP_REFERER").split("?")
@@ -40,6 +41,7 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
             source_changelist_url=self.source_changelist_url,
             source_model_name=Stock._meta.verbose_name,
             label_configurations=LabelConfiguration.objects.all(),
+            selected_label_configuration=selected_label_configuration,
             q=querystring,
             max_to_print=len(stock_pks),
         )

@@ -23,7 +23,7 @@ def allocate_stock(
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
     allocation_model_cls = django_apps.get_model("edc_pharmacy.allocation")
     registered_subject_model_cls = django_apps.get_model("edc_registration.registeredsubject")
-    allocated, unallocated = 0, 0
+    allocated, skipped = 0, 0
     stock_objs = []
     for code, subject_identifier in allocation_data.items():
         rs_obj = registered_subject_model_cls.objects.get(
@@ -34,12 +34,17 @@ def allocate_stock(
             allocation__isnull=True,
         ).first()
         if not stock_request_item:
-            unallocated += 1
+            skipped += 1
             continue
         try:
-            stock_obj = stock_model_cls.objects.get(code=code, allocation__isnull=True)
+            stock_obj = stock_model_cls.objects.get(
+                code=code,
+                container__may_request_as=True,
+                confirmed=True,
+                allocation__isnull=True,
+            )
         except ObjectDoesNotExist:
-            unallocated += 1
+            skipped += 1
         else:
             allocation = allocation_model_cls.objects.create(
                 stock_request_item=stock_request_item,
@@ -67,7 +72,7 @@ def allocate_stock(
         for obj in stock_objs:
             obj.save()
             allocated += 1
-    return allocated, unallocated
+    return allocated, skipped
 
 
 __all__ = ["allocate_stock"]

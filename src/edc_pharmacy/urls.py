@@ -2,6 +2,7 @@ from django.urls import path
 
 from .admin_site import edc_pharmacy_admin
 from .views import (
+    AddToStorageBinView,
     AllocateToSubjectView,
     CeleryTaskStatusView,
     ConfirmStockFromQuerySetView,
@@ -12,7 +13,9 @@ from .views import (
     ReturnView,
     StockTransferConfirmationView,
     TransferStockView,
+    get_stock_transfers_view,
     print_stock_transfer_manifest_view,
+    print_stock_view,
 )
 
 app_name = "edc_pharmacy"
@@ -25,6 +28,7 @@ urlpatterns = [
         DispenseView.as_view(),
         name="dispense_url",
     ),
+    path("get-stock-transfers/", get_stock_transfers_view, name="get_stock_transfers_url"),
     path(
         "stock-transfer-confirmation/<uuid:session_uuid>/<str:stock_transfer_identifier>/"
         "<int:location_id>/<int:items_to_scan>/",
@@ -43,6 +47,11 @@ urlpatterns = [
         name="stock_transfer_confirmation_url",
     ),
     path(
+        "stock-transfer-confirmation/<int:site_id>/",
+        StockTransferConfirmationView.as_view(),
+        name="stock_transfer_confirmation_url",
+    ),
+    path(
         "review-stock-request/<uuid:stock_request>/<uuid:session_uuid>/",
         PrepareAndReviewStockRequestView.as_view(),
         name="review_stock_request_url",
@@ -57,11 +66,6 @@ urlpatterns = [
         AllocateToSubjectView.as_view(),
         name="allocate_url",
     ),
-    # path(
-    #     "confirm-stock/<str:model>/<uuid:source_pk>/",
-    #     ConfirmStockFromInstanceView.as_view(),
-    #     name="confirm_stock_from_instance_url",
-    # ),
     path(
         "confirm-stock-qs/<uuid:session_uuid>/",
         ConfirmStockFromQuerySetView.as_view(),
@@ -83,6 +87,11 @@ urlpatterns = [
         name="review_stock_request_url",
     ),
     path(
+        "print-labels/<str:model>/<uuid:session_uuid>/<str:label_configuration>",
+        PrintLabelsView.as_view(),
+        name="print_labels_url",
+    ),
+    path(
         "print-labels/<str:model>/<uuid:session_uuid>/",
         PrintLabelsView.as_view(),
         name="print_labels_url",
@@ -91,6 +100,17 @@ urlpatterns = [
         "manifest/<uuid:stock_transfer>/",
         print_stock_transfer_manifest_view,
         name="generate_manifest",
+    ),
+    path("stock_report/<uuid:session_uuid>/", print_stock_view, name="stock_report"),
+    path(
+        "add-to-storage-bin/<uuid:storage_bin>/<int:items_to_scan>/",
+        AddToStorageBinView.as_view(),
+        name="add_to_storage_bin_url",
+    ),
+    path(
+        "add-to-storage-bin/<uuid:storage_bin>/",
+        AddToStorageBinView.as_view(),
+        name="add_to_storage_bin_url",
     ),
     path(
         "task-status/<uuid:task_id>/",

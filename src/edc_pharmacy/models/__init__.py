@@ -11,6 +11,7 @@ from .medication import (
 )
 from .prescription import Rx, RxRefill
 from .proxy_models import SiteProxy, VisitSchedule
+from .scan_duplicates import ScanDuplicates
 from .signals import (
     create_or_update_refills_on_post_save,
     dispense_item_on_post_delete,
@@ -28,6 +29,7 @@ from .signals import (
 )
 from .stock import (
     Allocation,
+    AllocationProxy,
     Container,
     ContainerType,
     ContainerUnits,
@@ -49,6 +51,8 @@ from .stock import (
     StockTransferConfirmation,
     StockTransferConfirmationItem,
     StockTransferItem,
+    StorageBin,
+    StorageBinItem,
     Supplier,
 )
 from .storage import (

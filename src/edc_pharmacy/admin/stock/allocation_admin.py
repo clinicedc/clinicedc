@@ -1,20 +1,57 @@
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext
 from django_audit_fields import audit_fieldset_tuple
+from edc_constants.constants import NO, YES
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import Allocation
-from ..list_filters import AssignmentListFilter, TransferredFilter
+from ..list_filters import AssignmentListFilter
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
 
+class TransferredFilter(SimpleListFilter):
+    title = "Transferred"
+    parameter_name = "transferred"
+
+    def lookups(self, request, model_admin):
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(stock__transferred=True)
+            elif self.value() == NO:
+                qs = queryset.filter(stock__transferred=False)
+        return qs
+
+
+class DispensedFilter(SimpleListFilter):
+    title = "Dispensed"
+    parameter_name = "dispensed"
+
+    def lookups(self, request, model_admin):
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(stock__dispensed=True)
+            elif self.value() == NO:
+                qs = queryset.filter(stock__dispensed=False)
+        return qs
+
+
 @admin.register(Allocation, site=edc_pharmacy_admin)
 class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
+
     change_list_title = "Pharmacy: Allocations"
     change_form_title = "Pharmacy: Allocation"
     history_list_display = ()
@@ -47,22 +84,32 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "identifier",
         "allocation_date",
         "transferred",
+        "dispensed",
         "dashboard",
         "stock_changelist",
         "stock_request_changelist",
         "stock_product",
         "stock_container",
+        "assignment",
         "allocated_by",
     )
 
     list_filter = (
+        "stock__location",
         AssignmentListFilter,
         "allocation_datetime",
         TransferredFilter,
+        DispensedFilter,
         "allocated_by",
     )
 
-    search_fields = ("id", "stock_request_item__id", "stock_request_item__stock_request__id")
+    search_fields = (
+        "id",
+        "stock__code",
+        "stock_request_item__id",
+        "stock_request_item__stock_request__id",
+        "registered_subject__subject_identifier",
+    )
 
     readonly_fields = (
         "assignment",
@@ -98,11 +145,20 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="T", boolean=True)
     def transferred(self, obj):
-        return obj.stock.location == obj.stock_request_item.stock_request.location
+        # return obj.stock.location == obj.stock_request_item.stock_request.location
+        return True if obj.stock.transferred == YES else False
+
+    @admin.display(description="D", boolean=True)
+    def dispensed(self, obj):
+        return True if obj.stock.dispensed == YES else False
 
     @admin.display(description="Product", ordering="stock__product")
     def stock_product(self, obj):
-        return obj.stock.product
+        return obj.stock.product.name
+
+    @admin.display(description="Assignment", ordering="stock__product__assignment")
+    def assignment(self, obj):
+        return obj.stock.product.assignment
 
     @admin.display(description="Product", ordering="stock__product")
     def stock_container(self, obj):

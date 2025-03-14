@@ -15,23 +15,9 @@ class StockRequestForm(forms.ModelForm):
             raise forms.ValidationError(
                 "Cannot include and exclude subject identifiers in the same request."
             )
-        if (
-            cleaned_data.get("request_datetime")
-            and cleaned_data.get("cutoff_datetime")
-            and cleaned_data.get("cutoff_datetime") < cleaned_data.get("request_datetime")
-        ):
-            raise forms.ValidationError(
-                {"cutoff_datetime": "Invalid. Must after the request date"}
-            )
-        if (
-            cleaned_data.get("request_datetime")
-            and cleaned_data.get("cutoff_datetime")
-            and cleaned_data.get("cutoff_datetime").date()
-            == cleaned_data.get("request_datetime").date()
-        ):
-            raise forms.ValidationError(
-                {"cutoff_datetime": "Invalid. Must be at least 1 day after the request date"}
-            )
+
+        self.clean_dates(cleaned_data)
+
         if cleaned_data.get("subject_identifiers") and cleaned_data.get("location"):
             subject_identifiers = cleaned_data.get("subject_identifiers").split("\n")
             subject_identifiers = [s.strip() for s in subject_identifiers]
@@ -64,7 +50,8 @@ class StockRequestForm(forms.ModelForm):
             raise forms.ValidationError(
                 {
                     "containers_per_subject": (
-                        f"May not exceed {cleaned_data.get('container').max_per_subject}"
+                        f"May not exceed {cleaned_data.get('container').max_per_subject}. "
+                        "See 'max per subject' for this container"
                     )
                 }
             )
@@ -79,6 +66,44 @@ class StockRequestForm(forms.ModelForm):
                     "May not be cancelled. Stock has been allocated for this request"
                 )
         return cleaned_data
+
+    @staticmethod
+    def clean_dates(cleaned_data):
+        if (
+            cleaned_data.get("request_datetime")
+            and cleaned_data.get("cutoff_datetime")
+            and cleaned_data.get("cutoff_datetime") < cleaned_data.get("request_datetime")
+        ):
+            raise forms.ValidationError(
+                {"cutoff_datetime": "Invalid. Must after the request date"}
+            )
+        if (
+            cleaned_data.get("request_datetime")
+            and cleaned_data.get("cutoff_datetime")
+            and cleaned_data.get("cutoff_datetime").date()
+            == cleaned_data.get("request_datetime").date()
+        ):
+            raise forms.ValidationError(
+                {"cutoff_datetime": "Invalid. Must be at least 1 day after the request date"}
+            )
+        if (
+            cleaned_data.get("start_datetime")
+            and cleaned_data.get("request_datetime")
+            and cleaned_data.get("start_datetime").date()
+            > cleaned_data.get("request_datetime").date()
+        ):
+            raise forms.ValidationError(
+                {"start_datetime": "Invalid.  Must on or before the request date"}
+            )
+        if (
+            cleaned_data.get("start_datetime")
+            and cleaned_data.get("cutoff_datetime")
+            and cleaned_data.get("start_datetime").date()
+            >= cleaned_data.get("cutoff_datetime").date()
+        ):
+            raise forms.ValidationError(
+                {"cutoff_datetime": "Invalid.  Must be at least 1 day after start date"}
+            )
 
     class Meta:
         model = StockRequest

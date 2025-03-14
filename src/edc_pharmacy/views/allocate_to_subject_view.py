@@ -28,19 +28,24 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     template_name: str = "edc_pharmacy/stock/allocate_to_subject.html"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"
+    items_per_page = 12
 
     def get_context_data(self, **kwargs):
-
-        total_count, remaining_count = self.get_counts(self.stock_request)
+        remaining_count, total_count = self.get_counts(self.stock_request)
+        show_count = (
+            self.items_per_page if remaining_count >= self.items_per_page else remaining_count
+        )
         kwargs.update(
             stock_request=self.stock_request,
             assignment=self.selected_assignment,
             stock_request_changelist_url=self.stock_request_changelist_url,
-            subject_identifiers=self.get_next_subject_identifiers(12),
+            subject_identifiers=self.get_next_subject_identifiers(self.items_per_page),
             subject_identifiers_count=self.subject_identifiers.count(),
             assignments=Assignment.objects.all().order_by("name"),
             remaining_count=remaining_count,
             total_count=total_count,
+            show_count=show_count,
+            SHORT_DATE_FORMAT=settings.SHORT_DATE_FORMAT,
         )
         return super().get_context_data(**kwargs)
 
@@ -58,7 +63,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                 allocation__isnull=True,
                 assignment=self.selected_assignment,
             )
-            .order_by("registered_subject__subject_identifier")
+            .order_by("appt_datetime", "registered_subject__subject_identifier")
         )
 
     @property
@@ -106,7 +111,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
 
     def redirect_on_has_duplicates(
         self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
-    ) -> HttpResponseRedirect | None:
+    ) -> str | None:
         if len(stock_codes or []) != len(list(set(stock_codes or []))):
             messages.add_message(
                 self.request,
@@ -120,12 +125,68 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     "assignment": assignment.id,
                 },
             )
-            return HttpResponseRedirect(url)
+            return url
+        return None
+
+    def redirect_on_uncomfirmed_stock_codes(
+        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+    ) -> str | None:
+        if stock_codes:
+            confirmed_codes = Stock.objects.filter(
+                code__in=stock_codes, confirmed=True
+            ).values_list("code", flat=True)
+            if len(confirmed_codes) != len(stock_codes):
+                uncomfirmed_codes = ", ".join(
+                    [code for code in stock_codes if code not in confirmed_codes]
+                )
+                messages.add_message(
+                    self.request,
+                    messages.ERROR,
+                    (
+                        f"Nothing saved. Unconfirmed stock codes detected. "
+                        f"Got {uncomfirmed_codes}. "
+                    ),
+                )
+                url = reverse(
+                    "edc_pharmacy:allocate_url",
+                    kwargs={
+                        "stock_request": stock_request.id,
+                        "assignment": assignment.id,
+                    },
+                )
+                return url
+        return None
+
+    def redirect_on_invalid_stock_codes(
+        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+    ) -> str | None:
+        if stock_codes and Stock.objects.filter(code__in=stock_codes).count() != len(
+            stock_codes
+        ):
+            valid_codes = Stock.objects.filter(code__in=stock_codes).values_list(
+                "code", flat=True
+            )
+            invalid_codes = " ,".join(
+                [code for code in stock_codes if code not in valid_codes]
+            )
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                f"Nothing saved. Invalid codes detected. Got {invalid_codes}. ",
+            )
+            url = reverse(
+                "edc_pharmacy:allocate_url",
+                kwargs={
+                    "stock_request": stock_request.id,
+                    "assignment": assignment.id,
+                },
+            )
+            return url
         return None
 
     def redirect_on_has_multiple_container_types(
         self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
-    ) -> HttpResponseRedirect | None:
+    ) -> str | None:
         if stock_codes and Stock.objects.filter(
             code__in=stock_codes, container=stock_request.container
         ).count() != len(stock_codes):
@@ -133,7 +194,8 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                 self.request,
                 messages.ERROR,
                 (
-                    f"Container mismatch for request. Expected `{stock_request.container}` "
+                    f"Nothing saved. Container mismatch for request. "
+                    f"Expected `{stock_request.container}` "
                     f"only. See Stock request {stock_request.request_identifier} "
                 ),
             )
@@ -144,12 +206,12 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     "assignment": assignment.id,
                 },
             )
-            return HttpResponseRedirect(url)
+            return url
         return None
 
     def redirect_on_stock_already_allocated(
         self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
-    ) -> HttpResponseRedirect | None:
+    ) -> str | None:
         if (
             stock_codes
             and Stock.objects.filter(code__in=stock_codes, allocation__isnull=False).exists()
@@ -170,12 +232,12 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     "assignment": getattr(assignment, "id", None),
                 },
             )
-            return HttpResponseRedirect(url)
+            return url
         return None
 
     def redirect_on_all_allocated_for_assignment(
         self, stock_request: StockRequest, assignment: Assignment
-    ) -> HttpResponseRedirect | None:
+    ) -> str | None:
 
         if not stock_request.stockrequestitem_set.filter(
             allocation__isnull=True, assignment=assignment
@@ -196,7 +258,32 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     "assignment": getattr(assignment, "id", None),
                 },
             )
-            return HttpResponseRedirect(url)
+            return url
+        return None
+
+    def redirect_on_incorrect_stock_for_assignment(
+        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+    ) -> str | None:
+
+        if stock_codes and Stock.objects.filter(
+            code__in=stock_codes, lot__assignment=assignment
+        ).count() != len(stock_codes):
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                (
+                    "One or more stock codes are not for this assignment. "
+                    f"Expected `{assignment.display_name}` only. Check your work."
+                ),
+            )
+            url = reverse(
+                "edc_pharmacy:allocate_url",
+                kwargs={
+                    "stock_request": stock_request.id,
+                    "assignment": getattr(assignment, "id", None),
+                },
+            )
+            return url
         return None
 
     def get_counts(self, stock_request: StockRequest) -> tuple[int, int]:
@@ -209,7 +296,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             )
             groupby = {dct["assignment__name"]: dct["count"] for dct in groupby}
             remaining_count = groupby.get(self.selected_assignment.name)
-            return remaining_count, total_count
+            return remaining_count or 0, total_count
         return 0, 0
 
     def post(self, request, *args, **kwargs):
@@ -220,15 +307,26 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         stock_request = StockRequest.objects.get(id=kwargs.get("stock_request"))
         assignment = self.get_assignment(assignment_id)
 
-        self.redirect_on_all_allocated_for_assignment(stock_request, assignment)
+        if url := self.redirect_on_all_allocated_for_assignment(stock_request, assignment):
+            return HttpResponseRedirect(url)
+        if url := self.redirect_on_has_duplicates(stock_codes, stock_request, assignment):
+            return HttpResponseRedirect(url)
+        if url := self.redirect_on_invalid_stock_codes(stock_codes, stock_request, assignment):
+            return HttpResponseRedirect(url)
+        if url := self.redirect_on_uncomfirmed_stock_codes(
+            stock_codes, stock_request, assignment
+        ):
+            return HttpResponseRedirect(url)
+        if url := self.redirect_on_has_multiple_container_types(
+            stock_codes, stock_request, assignment
+        ):
+            return HttpResponseRedirect(url)
+        if url := self.redirect_on_incorrect_stock_for_assignment(
+            stock_codes, stock_request, assignment
+        ):
+            return HttpResponseRedirect(url)
 
-        self.redirect_on_has_duplicates(stock_codes, stock_request, assignment)
-
-        self.redirect_on_has_multiple_container_types(stock_codes, stock_request, assignment)
-
-        self.redirect_on_stock_already_allocated(stock_codes, stock_request, assignment)
-
-        if subject_identifiers and assignment:
+        if stock_codes and subject_identifiers and assignment:
             allocation_data = dict(zip(stock_codes, subject_identifiers))
             try:
                 allocated, not_allocated = allocate_stock(

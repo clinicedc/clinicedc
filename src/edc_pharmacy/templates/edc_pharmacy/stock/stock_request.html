@@ -18,11 +18,13 @@
     <div class="col-sm-12">
 
       {% if nostock_table %}
-      <h5>Stock Request {{ stock_request.request_identifier }}: {{ rows }} Items for {{ subjects }} subjects.</h5>
-      <p>Review the proposed items. When you are ready click "Create Items" below or cancel.</p>
+        <h4>Stock Request {{ stock_request.request_identifier }}: {{ rows }} Items for {{ subjects }} subjects</h4>
+        <p>Review the proposed items. When you are ready click "Create Items" below or cancel.</p>
+        {% if subjects_excluded_by_stock > 0 %}<BR>* {{ subjects_excluded_by_stock }} subject{{ subjects_excluded_by_stock|pluralize}} {{ subjects_excluded_by_stock|pluralize:"has,have"}} stock on-site and {{ subjects_excluded_by_stock|pluralize:"has,have"}} been excluded. See below.{% endif %}
+        {% if subjects_excluded_by_request > 0  %}<BR>* {{ subjects_excluded_by_request }} subject{{ subjects_excluded_by_request|pluralize}} {{ subjects_excluded_by_request|pluralize:"was,were"}} found in pending requests and {{ subjects_excluded_by_request|pluralize:"has,have"}} been excluded. See below.{% endif %}
       {% else %}
-      <h5>Stock Request {{ stock_request.request_identifier }}: 0 Items for 0 subjects.</h5>
-      <p>No items found. Check the cutoff date in the stock request <A href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}?q={{ stock_request.id }}">{{ stock_request.request_identifier }}</A>.</p>
+        <h5>Stock Request {{ stock_request.request_identifier }}: 0 Items for 0 subjects.</h5>
+        <p>No items found. Check the cutoff date in the stock request <A href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}?q={{ stock_request.id }}">{{ stock_request.request_identifier }}</A>.</p>
       {% endif %}
       <hr>
       {{ nostock_table|safe }}
@@ -37,12 +39,23 @@
         </form>
       </div>
     </div>
-    <div class="col-sm-12">
-      <h5>In-stock items.</h5>
-      <p>These items are in stock at the site.</p>
-      <hr>
-      {{ instock_table|safe }}
-    </div>
+    {% if subjects_excluded_by_stock > 0 %}
+      <div class="col-sm-12">
+        <h4>Stock on-site</h4>
+        <p>These items are in stock at the site for subjects in your request.</p>
+        <hr>
+        {{ instock_table|safe }}
+      </div>
+    {% endif %}
+
+    {% if subjects_excluded_by_request > 0 %}
+      <div class="col-sm-12">
+        <h4>Pending request items</h4>
+        <p>These subjects from your request are already listed in another pending request. To allocated stock for these subjects, go to the pending request listed here.</p>
+        <hr>
+        {{ unallocated_table|safe }}
+      </div>
+    {% endif %}
 
   </div>
 {% endblock main %}
@@ -52,6 +65,8 @@
     <script>
         $(document).ready(function() {
             $('#my_table').DataTable();
+            $('#in_stock_table').DataTable();
+            $('#unallocated_table').DataTable();
         });
     </script>
 {% endblock %}

@@ -5,7 +5,6 @@ from decimal import Decimal
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import PROTECT
-from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
 from sequences import get_next_value
@@ -72,8 +71,6 @@ class Stock(BaseUuidModel):
         help_text="Subject allocation",
     )
 
-    # transferred = models.BooleanField(default=False)
-
     dispense = models.OneToOneField(
         Dispense,
         verbose_name="Dispense",
@@ -135,6 +132,10 @@ class Stock(BaseUuidModel):
 
     description = models.CharField(max_length=100, null=True, blank=True)
 
+    allocated = models.BooleanField(default=False)
+
+    transferred = models.BooleanField(default=False)
+
     confirmed = models.BooleanField(
         default=False,
         help_text=(
@@ -173,22 +174,14 @@ class Stock(BaseUuidModel):
         self.unit_qty_in = Decimal(self.qty_in) * Decimal(self.container.qty)
         super().save(*args, **kwargs)
 
-    @property
-    def transferred(self) -> str:
-        transferred = NOT_APPLICABLE
+    def update_transferred(self) -> bool:
         if (
             self.allocation
             and self.allocation.stock_request_item.stock_request.location == self.location
             and self.container.may_request_as
         ):
-            transferred = YES
-        elif (
-            self.allocation
-            and self.allocation.stock_request_item.stock_request.location != self.location
-            and self.container.may_request_as
-        ):
-            transferred = NO
-        return transferred
+            return True
+        return False
 
     def verify_assignment_or_raise(
         self, stock: models.ForeignKey[Stock] | None = None
@@ -219,6 +212,11 @@ class Stock(BaseUuidModel):
             obj = obj.from_stock  # noqa
             receive_item = obj.receive_item
         return receive_item
+
+    @property
+    def unit_qty(self):
+        """Unit qty of hand"""
+        return self.unit_qty_in - self.unit_qty_out
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Stock"

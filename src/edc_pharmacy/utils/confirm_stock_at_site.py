@@ -51,6 +51,8 @@ def confirm_stock_at_site(
     for stock_code in stock_codes:
         if not stock_model_cls.objects.filter(code=stock_code).exists():
             invalid.append(stock_code)
+        elif not stock_transfer.stocktransferitem_set.filter(stock__code=stock_code).exists():
+            invalid.append(stock_code)
         else:
             try:
                 stock = stock_model_cls.objects.get(

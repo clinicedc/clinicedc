@@ -1,5 +1,6 @@
 from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import VisitCodeFieldsModelMixin
 from sequences import get_next_value
@@ -12,7 +13,7 @@ class Manager(models.Manager):
     use_in_migrations = True
 
 
-class DispenseItem(VisitCodeFieldsModelMixin, BaseUuidModel):
+class DispenseItem(SiteModelMixin, VisitCodeFieldsModelMixin, BaseUuidModel):
     """A model that represents a stock request item."""
 
     dispense_item_identifier = models.CharField(
@@ -43,6 +44,7 @@ class DispenseItem(VisitCodeFieldsModelMixin, BaseUuidModel):
         return self.dispense_item_identifier
 
     def save(self, *args, **kwargs):
+        self.site = self.dispense.site
         if not self.dispense_item_identifier:
             self.dispense_item_identifier = f"{get_next_value(self._meta.label_lower):010d}"
         super().save(*args, **kwargs)

@@ -32,8 +32,22 @@ class StockRequest(BaseUuidModel):
 
     request_datetime = models.DateTimeField(default=get_utcnow)
 
+    start_datetime = models.DateTimeField(
+        default=None,
+        null=True,
+        blank=True,
+        help_text=(
+            "If provided, will not include appointments before this date. May be left blank"
+        ),
+    )
+
     cutoff_datetime = models.DateTimeField(
-        default=None, null=True, blank=True, help_text="May be left blank"
+        default=None,
+        null=True,
+        blank=True,
+        help_text=(
+            "If provided, will not include appointments after this date. May be left blank"
+        ),
     )
 
     location = models.ForeignKey(
@@ -61,7 +75,7 @@ class StockRequest(BaseUuidModel):
     )
 
     containers_per_subject = models.PositiveSmallIntegerField(
-        verbose_name="Number of containers per subject", default=1
+        verbose_name="Number of containers per subject", default=3
     )
 
     item_count = models.IntegerField(

@@ -2,6 +2,7 @@ import pandas as pd
 from django.db.models import Q
 from django_pandas.io import read_frame
 from edc_appointment.analytics import get_appointment_df
+from edc_appointment.constants import NEW_APPT
 from edc_registration import get_registered_subject_model_cls
 from edc_sites.site import sites as site_sites
 
@@ -29,22 +30,24 @@ def get_next_scheduled_visit_for_subjects_df(stock_request: StockRequest) -> pd.
     if df_appt.empty:
         df = pd.DataFrame()
     else:
+        if stock_request.start_datetime:
+            df_appt = df_appt[
+                df_appt.next_appt_datetime
+                >= pd.Timestamp(stock_request.start_datetime).to_datetime64()
+            ]
+            df_appt = df_appt.reset_index(drop=True)
         if stock_request.cutoff_datetime:
             df_appt = df_appt[
                 df_appt.next_appt_datetime
-                < pd.Timestamp(stock_request.cutoff_datetime).to_datetime64()
+                <= pd.Timestamp(stock_request.cutoff_datetime).to_datetime64()
             ]
             df_appt = df_appt.reset_index(drop=True)
+
         df = (
-            df_appt[
-                (
-                    df_appt.next_appt_datetime
-                    > pd.Timestamp(stock_request.request_datetime).to_datetime64()
-                )
-                & (df_appt.site_id == stock_request.location.site_id)
-            ]
-            .groupby(by=["subject_identifier", "site_id"])
-            .agg({"next_visit_code": "min", "next_appt_datetime": "min"})
+            df_appt[(df_appt.appt_status == NEW_APPT) & (df_appt.visit_code_sequence == 0)]
+            .sort_values(by=["appt_datetime"])
+            .groupby(by=["subject_identifier"])
+            .first()
         )
         df = df.reset_index()
         df = df.sort_values(by=["next_appt_datetime"])

@@ -259,3 +259,20 @@ class OrderItemStatusListFilter(SimpleListFilter):
             elif self.value() == NEW:
                 qs = queryset.filter(unit_qty=F("unit_qty_ordered"))
         return qs
+
+
+class DecantedListFilter(SimpleListFilter):
+    title = "Decanted"
+    parameter_name = "decanted"
+
+    def lookups(self, request, model_admin):
+        return YES_NO
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(from_stock__isnull=False)
+            elif self.value() == NO:
+                qs = queryset.filter(from_stock__isnull=True)
+        return qs

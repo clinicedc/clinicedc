@@ -34,6 +34,21 @@ class RepackRequestForm(forms.ModelForm):
                 raise forms.ValidationError(
                     {"requested_qty": "Cannot be less than the number of containers processed"}
                 )
+        if (
+            cleaned_data.get("requested_qty") * cleaned_data.get("container").qty
+            > cleaned_data.get("from_stock").unit_qty
+        ):
+            needed_qty = cleaned_data.get("requested_qty") * cleaned_data.get("container").qty
+            on_hand_qty = cleaned_data.get("from_stock").unit_qty
+            raise forms.ValidationError(
+                {
+                    "requested_qty": (
+                        "Insufficient unit quantity to repack from this stock item. "
+                        f"Need {needed_qty} units but have only {on_hand_qty} units on hand"
+                    )
+                }
+            )
+
         return cleaned_data
 
     class Meta:

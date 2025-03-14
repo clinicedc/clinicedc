@@ -10,8 +10,10 @@ from .medication import (
     UnitsAdmin,
 )
 from .prescription import RxAdmin, RxRefillAdmin
+from .scan_duplicates_admin import ScanDuplicatesAdmin
 from .stock import (
     AllocationAdmin,
+    AllocationProxyAdmin,
     ContainerAdmin,
     ContainerTypeAdmin,
     DispenseAdmin,
@@ -29,5 +31,7 @@ from .stock import (
     StockRequestAdmin,
     StockRequestItemAdmin,
     StockTransferAdmin,
+    StorageBinAdmin,
+    StorageBinItemAdmin,
     SupplierAdmin,
 )

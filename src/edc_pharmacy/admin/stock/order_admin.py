@@ -9,7 +9,9 @@ from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
+from ...auth_objects import PHARMACY_SUPER_ROLE
 from ...forms import OrderForm
+from ...forms.stock import OrderFormSuper
 from ...models import Order, OrderItem, Receive
 from ..model_admin_mixin import ModelAdminMixin
 
@@ -113,3 +115,12 @@ class OrderAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             context = dict(url=url, label=rcv_obj.receive_identifier, title="Receive #")
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
+
+    def get_form(self, request, obj=None, **kwargs):
+        try:
+            request.user.userprofile.roles.get(name=PHARMACY_SUPER_ROLE)
+        except ObjectDoesNotExist:
+            pass
+        else:
+            self.form = OrderFormSuper
+        return super().get_form(request, obj, **kwargs)
