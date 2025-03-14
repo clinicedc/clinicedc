@@ -1,5 +1,7 @@
 from .stock import Stock
 
+__all__ = ["StockProxy"]
+
 
 class StockProxy(Stock):
     class Meta:

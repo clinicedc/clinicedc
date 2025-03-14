@@ -123,13 +123,6 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def get_list_display(self, request):
         fields = super().get_list_display(request)
         fields = remove_fields_for_blinded_users(request, fields)
-        # if not request.user.userprofile.roles.filter(
-        #     name__in=[PHARMACIST_ROLE, PHARMACY_SUPER_ROLE]
-        # ).exists():
-        #     fields = list(fields)
-        #     index = fields.index("stock_changelist")
-        #     fields[index] = "stock_code"
-        #     fields = tuple(fields)
         return fields
 
     def get_list_filter(self, request):

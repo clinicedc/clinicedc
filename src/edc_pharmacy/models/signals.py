@@ -127,6 +127,8 @@ def stock_request_on_post_save(
             else:
                 instance.cancel = ""
                 instance.save(update_fields=["cancel"])
+        instance.item_count = instance.stockrequestitem_set.count()
+        instance.save(update_fields=["item_count"])
 
 
 @receiver(post_save, sender=StockRequestItem, dispatch_uid="stock_request_item_on_post_save")

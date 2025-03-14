@@ -15,6 +15,7 @@ from .views import (
     TransferStockView,
     get_stock_transfers_view,
     print_stock_transfer_manifest_view,
+    print_stock_view,
 )
 
 app_name = "edc_pharmacy"
@@ -100,6 +101,7 @@ urlpatterns = [
         print_stock_transfer_manifest_view,
         name="generate_manifest",
     ),
+    path("stock_report/<uuid:session_uuid>/", print_stock_view, name="stock_report"),
     path(
         "add-to-storage-bin/<uuid:storage_bin>/<int:items_to_scan>/",
         AddToStorageBinView.as_view(),

@@ -29,6 +29,7 @@ from .signals import (
 )
 from .stock import (
     Allocation,
+    AllocationProxy,
     Container,
     ContainerType,
     ContainerUnits,

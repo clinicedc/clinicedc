@@ -17,7 +17,7 @@
 
       <div class="panel panel-default">
         <div class="panel-heading">Allocate stock to subjects from stock request <a href="{{ stock_request_changelist_url }}">{{ stock_request.request_identifier }}</a>
-          {% if  subject_identifiers and assignment %}<span class="pull-right">{{ remaining_count }}/{{ total_count }}</span>{% endif %}</div>
+          {% if  subject_identifiers and assignment %}<span class="pull-right">{{ show_count }}/{{ remaining_count }} [{{ total_count }}]</span>{% endif %}</div>
         <div class="panel-body">
           <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;">
             {% csrf_token %}

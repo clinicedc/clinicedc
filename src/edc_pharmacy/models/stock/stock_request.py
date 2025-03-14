@@ -32,8 +32,22 @@ class StockRequest(BaseUuidModel):
 
     request_datetime = models.DateTimeField(default=get_utcnow)
 
+    start_datetime = models.DateTimeField(
+        default=None,
+        null=True,
+        blank=True,
+        help_text=(
+            "If provided, will not include appointments before this date. May be left blank"
+        ),
+    )
+
     cutoff_datetime = models.DateTimeField(
-        default=None, null=True, blank=True, help_text="May be left blank"
+        default=None,
+        null=True,
+        blank=True,
+        help_text=(
+            "If provided, will not include appointments after this date. May be left blank"
+        ),
     )
 
     location = models.ForeignKey(

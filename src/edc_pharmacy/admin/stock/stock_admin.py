@@ -17,6 +17,7 @@ from ..actions import (
     confirm_stock_from_queryset,
     go_to_add_repack_request_action,
     print_labels,
+    print_stock_report_action,
 )
 from ..list_filters import (
     DecantedListFilter,
@@ -46,6 +47,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         print_labels,
         confirm_stock_from_queryset,
         go_to_add_repack_request_action,
+        print_stock_report_action,
     ]
 
     form = StockForm

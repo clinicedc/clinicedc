@@ -93,7 +93,11 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     list_filter = ("transfer_datetime", "from_location", "to_location", ConfirmedListFilter)
 
-    search_fields = ("id", "transfer_identifier")
+    search_fields = (
+        "id",
+        "transfer_identifier",
+        "stocktransferitem__stock__allocation__registered_subject__subject_identifier",
+    )
 
     @admin.display(description="TRANSFER #", ordering="transfer_identifier")
     def identifier(self, obj):

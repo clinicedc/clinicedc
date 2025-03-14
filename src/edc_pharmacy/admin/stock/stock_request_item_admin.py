@@ -37,7 +37,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     list_per_page = 20
     form = StockRequestItemForm
     autocomplete_fields = ["rx"]
-    actions = [print_labels_from_stock_request_item]
+    actions = [print_labels_from_stock_request_item, "delete_selected"]
 
     fieldsets = (
         (

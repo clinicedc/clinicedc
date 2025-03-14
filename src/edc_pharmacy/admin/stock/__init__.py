@@ -1,4 +1,5 @@
 from .allocation_admin import AllocationAdmin
+from .allocation_proxy_admin import AllocationProxyAdmin
 from .container_admin import ContainerAdmin
 from .container_type_admin import ContainerTypeAdmin
 from .dispense_admin import DispenseAdmin

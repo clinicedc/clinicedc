@@ -58,7 +58,14 @@ class StockTransferConfirmationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "location",
     )
 
-    search_fields = ("pk", "stock_transfer__pk")
+    search_fields = (
+        "pk",
+        "stock_transfer__pk",
+        (
+            "stocktransferconfirmationitem__stock__allocation__"
+            "registered_subject__subject_identifier"
+        ),
+    )
 
     @admin.display(description="CONFIRMATION #", ordering="-transfer_confirmation_identifier")
     def identifier(self, obj):

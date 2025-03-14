@@ -55,6 +55,8 @@ def bulk_create_stock_request_items(
         data.append(obj)
     if data:
         stock_request_item_model_cls.objects.bulk_create(data)
+        stock_request.item_count = len(data)
+        stock_request.save(update_fields=["item_count"])
     return None
 
 

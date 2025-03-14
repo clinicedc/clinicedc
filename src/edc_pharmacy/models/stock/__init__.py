@@ -1,4 +1,5 @@
 from .allocation import Allocation
+from .allocation_proxy import AllocationProxy
 from .container import Container
 from .container_type import ContainerType
 from .container_units import ContainerUnits

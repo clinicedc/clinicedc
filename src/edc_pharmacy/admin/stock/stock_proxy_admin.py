@@ -31,7 +31,7 @@ class StockProxyAdmin(StockAdmin):
 
     list_display = (
         "formatted_code",
-        "transferred",
+        "formatted_transferred",
         "formatted_confirmed_at_site",
         "formatted_dispensed",
         "stock_request_changelist",

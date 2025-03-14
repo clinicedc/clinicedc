@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+import pandas as pd
 from celery.states import PENDING
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -11,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
+from django_pandas.io import read_frame
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
@@ -18,7 +20,7 @@ from edc_utils.celery import celery_is_active, get_task_result
 from edc_utils.date import to_local
 
 from ..analytics import get_next_scheduled_visit_for_subjects_df
-from ..models import StockRequest
+from ..models import StockRequest, StockRequestItem
 from ..utils import bulk_create_stock_request_items, remove_subjects_where_stock_on_site
 
 
@@ -33,6 +35,38 @@ class PrepareAndReviewStockRequestView(
     def get_context_data(self, **kwargs):
         stock_request = StockRequest.objects.get(pk=self.kwargs.get("stock_request"))
         df = get_next_scheduled_visit_for_subjects_df(stock_request)
+
+        # get unallocated subjects that appear in a stock request for this location
+        df_unallocated_request_items = read_frame(
+            StockRequestItem.objects.values(
+                "stock_request__request_identifier", "registered_subject__subject_identifier"
+            ).filter(stock_request__location=stock_request.location, allocation__isnull=True)
+        )
+        df_unallocated_request_items.rename(
+            columns={
+                "registered_subject__subject_identifier": "subject_identifier",
+                "stock_request__request_identifier": "request_identifier",
+            },
+            inplace=True,
+        )
+        df_unallocated_request_items.reset_index(drop=True, inplace=True)
+        df_unallocated_request_items = pd.merge(
+            df_unallocated_request_items,
+            df[["subject_identifier", "next_visit_code", "next_appt_datetime"]],
+            on="subject_identifier",
+            how="left",
+        )
+        df_unallocated_request_items = df_unallocated_request_items[
+            df_unallocated_request_items.next_visit_code.notna()
+        ]
+        df_unallocated_request_items.sort_values(by=["subject_identifier"]).reset_index(
+            drop=True, inplace=True
+        )
+
+        # exclude unallocated subjects from appts
+        df = df[~df.subject_identifier.isin(df_unallocated_request_items.subject_identifier)]
+        df.reset_index(drop=True, inplace=True)
+
         kwargs.update(
             stock_request=stock_request,
             stock_request_items_exist=stock_request.stockrequestitem_set.all().exists(),
@@ -94,6 +128,10 @@ class PrepareAndReviewStockRequestView(
             kwargs.update(
                 rows=len(df_nostock),
                 subjects=df_nostock.subject_identifier.nunique(),
+                subjects_excluded_by_stock=len(df_instock.subject_identifier.unique()),
+                subjects_excluded_by_request=len(
+                    df_unallocated_request_items.subject_identifier.unique()
+                ),
                 nostock_table=format_html(
                     "{}",
                     mark_safe(
@@ -124,6 +162,23 @@ class PrepareAndReviewStockRequestView(
                             border=0,
                             classes="table table-striped",
                             table_id="in_stock_table",
+                        )
+                    ),  # nosec B703 B308
+                ),
+                unallocated_table=format_html(
+                    "{}",
+                    mark_safe(
+                        df_unallocated_request_items.to_html(
+                            columns=[
+                                "subject_identifier",
+                                "next_visit_code",
+                                "next_appt_datetime",
+                                "request_identifier",
+                            ],
+                            index=True,
+                            border=0,
+                            classes="table table-striped",
+                            table_id="unallocated_table",
                         )
                     ),  # nosec B703 B308
                 ),

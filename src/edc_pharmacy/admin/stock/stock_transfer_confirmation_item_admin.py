@@ -112,7 +112,7 @@ class StockTransferConfirmationItemAdmin(
 
     @admin.display(description="Stock", ordering="stock__code")
     def stock_changelist(self, obj):
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_stockproxy_changelist")
         url = f"{url}?q={obj.stock.code}"
         context = dict(url=url, label=obj.stock.code, title="Go to stock")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
