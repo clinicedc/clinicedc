@@ -13,7 +13,5 @@ class OffSchedule(
 ):
     action_name = END_OF_STUDY_ACTION
 
-    tracking_identifier_prefix = "ST"
-
     class Meta(OffScheduleModelMixin.Meta, BaseUuidModel.Meta):
         pass
