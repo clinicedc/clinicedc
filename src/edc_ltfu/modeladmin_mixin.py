@@ -50,7 +50,7 @@ class LtfuModelAdminMixin:
         "ltfu_category": admin.VERTICAL,
     }
 
-    search_fields = ("subject_identifier", "action_identifier", "tracking_identifier")
+    search_fields = ("subject_identifier", "action_identifier")
 
     def get_readonly_fields(self, request, obj=None) -> tuple:
         fields = super().get_readonly_fields(request, obj)
