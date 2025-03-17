@@ -33,6 +33,7 @@ class StockProxyAdmin(StockAdmin):
         "formatted_code",
         "formatted_transferred",
         "formatted_confirmed_at_site",
+        "formatted_stored_at_site",
         "formatted_dispensed",
         "stock_request_changelist",
         "stock_transfer_item_changelist",
@@ -48,6 +49,7 @@ class StockProxyAdmin(StockAdmin):
     list_filter = (
         TransferredListFilter,
         "confirmed_at_site",
+        "stored_at_site",
         "dispensed",
         "product__formulation__description",
         "location__display_name",

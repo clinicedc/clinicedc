@@ -148,9 +148,12 @@ class Stock(BaseUuidModel):
 
     confirmed_at_site = models.BooleanField(default=False)
 
+    stored_at_site = models.BooleanField(default=False)
+
     dispensed = models.BooleanField(default=False)
 
     allocated_datetime = models.DateTimeField(null=True, blank=True)
+
     subject_identifier = models.CharField(max_length=50, null=True, blank=True)
 
     objects = StockManager()

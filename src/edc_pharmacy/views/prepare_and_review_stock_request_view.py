@@ -17,7 +17,6 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 from edc_utils.celery import celery_is_active, get_task_result
-from edc_utils.date import to_local
 
 from ..analytics import get_next_scheduled_visit_for_subjects_df
 from ..models import StockRequest, StockRequestItem
@@ -77,13 +76,12 @@ class PrepareAndReviewStockRequestView(
         )
 
         if df.empty:
-            cutoff_date = to_local(stock_request.cutoff_datetime).strftime("%Y-%m-%d")
             messages.add_message(
                 self.request,
                 messages.ERROR,
                 (
                     f"No future subject appointments found for {stock_request.location} "
-                    f"with cutoff date {cutoff_date}. (Site {stock_request.location.site.id})."
+                    f"with this cutoff date. (Site {stock_request.location.site.id})."
                 ),
             )
         elif getattr(get_task_result(stock_request), "status", "") == PENDING:
