@@ -153,6 +153,7 @@ class Stock(BaseUuidModel):
     dispensed = models.BooleanField(default=False)
 
     allocated_datetime = models.DateTimeField(null=True, blank=True)
+
     subject_identifier = models.CharField(max_length=50, null=True, blank=True)
 
     objects = StockManager()

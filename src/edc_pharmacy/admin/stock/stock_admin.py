@@ -265,11 +265,11 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def identifier(self, obj):
         return obj.stock_identifier.split("-")[0]
 
-    @admin.display(description="C", ordering="confirmed", boolean=True)
+    @admin.display(description="C", boolean=True)
     def formatted_confirmed(self, obj):
         return obj.confirmed
 
-    @admin.display(description="A", ordering="allocation", boolean=True)
+    @admin.display(description="A", boolean=True)
     def allocated(self, obj):
         if obj.allocation:
             return True
@@ -277,15 +277,15 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             return False
         return None
 
-    @admin.display(description="S", ordering="confirmed_at_site", boolean=True)
+    @admin.display(description="S", boolean=True)
     def formatted_confirmed_at_site(self, obj):
         return obj.confirmed_at_site
 
-    @admin.display(description="B", ordering="stored_at_site", boolean=True)
+    @admin.display(description="B", boolean=True)
     def formatted_stored_at_site(self, obj):
         return obj.stored_at_site
 
-    @admin.display(description="D", ordering="dispensed", boolean=True)
+    @admin.display(description="D", boolean=True)
     def formatted_dispensed(self, obj):
         return obj.dispensed
 
