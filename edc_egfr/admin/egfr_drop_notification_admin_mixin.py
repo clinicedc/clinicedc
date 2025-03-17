@@ -44,7 +44,6 @@ class EgfrDropNotificationAdminMixin:
         custom_fields = (
             "subject_visit__subject_identifier",
             "action_identifier",
-            "tracking_identifier",
         )
         return tuple(f for f in fields if f not in custom_fields) + custom_fields
 
