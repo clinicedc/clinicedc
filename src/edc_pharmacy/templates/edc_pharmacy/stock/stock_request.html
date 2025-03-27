@@ -16,12 +16,11 @@
   <div class="container">
 
     <div class="col-sm-12">
-
       {% if nostock_table %}
         <h4>Stock Request {{ stock_request.request_identifier }}: {{ rows }} Items for {{ subjects }} subjects</h4>
         <p>Review the proposed items. When you are ready click "Create Items" below or cancel.</p>
-        {% if subjects_excluded_by_stock > 0 %}<BR>* {{ subjects_excluded_by_stock }} subject{{ subjects_excluded_by_stock|pluralize}} {{ subjects_excluded_by_stock|pluralize:"has,have"}} stock on-site and {{ subjects_excluded_by_stock|pluralize:"has,have"}} been excluded. See below.{% endif %}
-        {% if subjects_excluded_by_request > 0  %}<BR>* {{ subjects_excluded_by_request }} subject{{ subjects_excluded_by_request|pluralize}} {{ subjects_excluded_by_request|pluralize:"was,were"}} found in pending requests and {{ subjects_excluded_by_request|pluralize:"has,have"}} been excluded. See below.{% endif %}
+        {% if subjects_excluded_by_stock > 0 %}<BR>* {{ subjects_excluded_by_stock }} subject{{ subjects_excluded_by_stock|pluralize}} {{ subjects_excluded_by_stock|pluralize:"has,have"}} stock <A href="#on-site">on-site</A>. See below.{% endif %}
+        {% if subjects_excluded_by_request > 0  %}<BR>* {{ subjects_excluded_by_request }} subject{{ subjects_excluded_by_request|pluralize}} {{ subjects_excluded_by_request|pluralize:"was,were"}} found in <A href="#pending">pending requests</A>. See below.{% endif %}
       {% else %}
         <h5>Stock Request {{ stock_request.request_identifier }}: 0 Items for 0 subjects.</h5>
         <p>No items found. Check the cutoff date in the stock request <A href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}?q={{ stock_request.id }}">{{ stock_request.request_identifier }}</A>.</p>
@@ -41,7 +40,7 @@
     </div>
     {% if subjects_excluded_by_stock > 0 %}
       <div class="col-sm-12">
-        <h4>Stock on-site</h4>
+        <h4 id="on-site">Stock on-site <span class="text text-muted small"><a href="#top" title="back to top">back to top</a></span></h4>
         <p>These items are in stock at the site for subjects in your request.</p>
         <hr>
         {{ instock_table|safe }}
@@ -50,7 +49,7 @@
 
     {% if subjects_excluded_by_request > 0 %}
       <div class="col-sm-12">
-        <h4>Pending request items</h4>
+        <h4 id="pending">Pending request items <span class="text text-muted small"><a href="#top" title="back to top">back to top</a></span></h4>
         <p>These subjects from your request are already listed in another pending request. To allocated stock for these subjects, go to the pending request listed here.</p>
         <hr>
         {{ unallocated_table|safe }}

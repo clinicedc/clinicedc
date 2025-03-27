@@ -96,28 +96,36 @@ def print_labels_from_receive_item(modeladmin, request, queryset):
 @admin.action(description="Print labels ordered by stock code")
 def print_labels_from_stock_request_item(modeladmin, request, queryset):
     session_uuid = str(uuid4())
-    stock_qs = Stock.objects.values_list("pk", flat=True).filter(
-        code__in=[obj.allocation.stock.code for obj in queryset.all()]
-    )
-    if stock_qs.exists():
-        request.session[session_uuid] = [o for o in stock_qs]
-        try:
-            label_configuration = LabelConfiguration.objects.get(
-                requires_allocation=True, name="patient_barcode"
-            )
-        except ObjectDoesNotExist:
-            label_configuration = ""
-        else:
-            label_configuration = label_configuration.name
-        url = reverse(
-            "edc_pharmacy:print_labels_url",
-            kwargs={
-                "session_uuid": session_uuid,
-                "model": "stock",
-                "label_configuration": label_configuration,
-            },
+    try:
+        stock_qs = Stock.objects.values_list("pk", flat=True).filter(
+            code__in=[obj.allocation.stock.code for obj in queryset.all()]
         )
-        return HttpResponseRedirect(url)
+    except ObjectDoesNotExist:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            "Allocate stock to subject before printing labels.",
+        )
+    else:
+        if stock_qs.exists():
+            request.session[session_uuid] = [o for o in stock_qs]
+            try:
+                label_configuration = LabelConfiguration.objects.get(
+                    requires_allocation=True, name="patient_barcode"
+                )
+            except ObjectDoesNotExist:
+                label_configuration = ""
+            else:
+                label_configuration = label_configuration.name
+            url = reverse(
+                "edc_pharmacy:print_labels_url",
+                kwargs={
+                    "session_uuid": session_uuid,
+                    "model": "stock",
+                    "label_configuration": label_configuration,
+                },
+            )
+            return HttpResponseRedirect(url)
     return None
 
 

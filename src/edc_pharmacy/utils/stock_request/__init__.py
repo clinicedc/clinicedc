@@ -1,4 +1,4 @@
 from .bulk_create_stock_request_items import bulk_create_stock_request_items
-from .remove_subjects_where_stock_on_site import remove_subjects_where_stock_on_site
+from .get_instock_and_nostock_data import get_instock_and_nostock_data
 
-__all__ = ["bulk_create_stock_request_items", "remove_subjects_where_stock_on_site"]
+__all__ = ["bulk_create_stock_request_items", "get_instock_and_nostock_data"]
