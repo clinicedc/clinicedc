@@ -20,7 +20,7 @@ from edc_utils.celery import celery_is_active, get_task_result
 
 from ..analytics import get_next_scheduled_visit_for_subjects_df
 from ..models import StockRequest, StockRequestItem
-from ..utils import bulk_create_stock_request_items, remove_subjects_where_stock_on_site
+from ..utils import bulk_create_stock_request_items, get_instock_and_nostock_data
 
 
 @method_decorator(login_required, name="dispatch")
@@ -35,7 +35,7 @@ class PrepareAndReviewStockRequestView(
         stock_request = StockRequest.objects.get(pk=self.kwargs.get("stock_request"))
         df = get_next_scheduled_visit_for_subjects_df(stock_request)
 
-        # get unallocated subjects that appear in a stock request for this location
+        # get unallocated stock that appears in a stock request for this location
         df_unallocated_request_items = read_frame(
             StockRequestItem.objects.values(
                 "stock_request__request_identifier", "registered_subject__subject_identifier"
@@ -94,19 +94,7 @@ class PrepareAndReviewStockRequestView(
                 ),
             )
         else:
-            df = remove_subjects_where_stock_on_site(stock_request, df)
-            df_instock = df[~df.code.isna()]
-            df_instock = df_instock.reset_index(drop=True)
-            df_instock = df_instock.sort_values(by=["subject_identifier"])
-
-            df_nostock = df[df.code.isna()]
-            df_nostock = df_nostock.reset_index(drop=True)
-            df_nostock = df_nostock.loc[
-                df_nostock.index.repeat(stock_request.containers_per_subject)
-            ].reset_index(drop=True)
-            df_nostock = df_nostock.sort_values(by=["subject_identifier"])
-            df_nostock["code"] = df_nostock["code"].fillna("---")
-
+            df_instock, df_nostock = get_instock_and_nostock_data(stock_request, df)
             session_uuid = str(uuid4())
             nostock_dict = df_nostock.to_dict("list")
             self.request.session[session_uuid] = nostock_dict

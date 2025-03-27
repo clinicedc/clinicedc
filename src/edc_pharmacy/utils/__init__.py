@@ -10,10 +10,7 @@ from .get_random_code import get_random_code
 from .miscellaneous import get_rx_model_cls, get_rxrefill_model_cls
 from .process_repack_request import process_repack_request
 from .process_repack_request_queryset import process_repack_request_queryset
-from .stock_request import (
-    bulk_create_stock_request_items,
-    remove_subjects_where_stock_on_site,
-)
+from .stock_request import bulk_create_stock_request_items, get_instock_and_nostock_data
 from .transfer_stock import transfer_stock
 from .update_previous_refill_end_datetime import update_previous_refill_end_datetime
 
@@ -32,7 +29,7 @@ __all__ = [
     "get_rxrefill_model_cls",
     "process_repack_request",
     "process_repack_request_queryset",
-    "remove_subjects_where_stock_on_site",
+    "get_instock_and_nostock_data",
     "transfer_stock",
     "update_previous_refill_end_datetime",
 ]

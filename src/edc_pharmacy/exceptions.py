@@ -132,3 +132,7 @@ class AssignmentError(Exception):
 
 class StockTransferConfirmationError(Exception):
     pass
+
+
+class StorageBinError(Exception):
+    pass
