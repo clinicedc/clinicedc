@@ -50,12 +50,12 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
     @property
     def source_changelist_url(self):
         return reverse(
-            f"edc_pharmacy_admin:edc_pharmacy_{self.kwargs.get("model")}_changelist"
+            f"edc_pharmacy_admin:edc_pharmacy_{self.kwargs.get('model')}_changelist"
         )
 
     @property
     def model_cls(self):
-        return django_apps.get_model(f"edc_pharmacy.{self.kwargs.get("model")}")
+        return django_apps.get_model(f"edc_pharmacy.{self.kwargs.get('model')}")
 
     def post(self, request, *args, **kwargs):
         session_uuid = str(kwargs.get("session_uuid"))
@@ -123,7 +123,7 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
                         buffer,
                         as_attachment=True,
                         filename=(
-                            f"{label_configuration.name}_{now.strftime("%Y-%m-%d %H:%M")}.pdf"
+                            f"{label_configuration.name}_{now.strftime('%Y-%m-%d %H:%M')}.pdf"
                         ),
                     )
         return HttpResponseRedirect(url)

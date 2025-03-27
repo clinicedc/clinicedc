@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
+import inflect
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -15,7 +16,10 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 from edc_utils import get_utcnow
 
+from ..exceptions import StorageBinError
 from ..models import Stock, StorageBin, StorageBinItem
+
+p = inflect.engine()
 
 
 def update_bin(
@@ -54,16 +58,13 @@ def update_bin(
     return codes_created, codes_not_created
 
 
-class StorageBinError(Exception):
-    pass
-
-
 @method_decorator(login_required, name="dispatch")
 class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
     model_pks: list[str] | None = None
     template_name: str = "edc_pharmacy/stock/add_to_storage_bin.html"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"
+    action_word = "Add"
 
     def get_context_data(self, **kwargs):
         kwargs.update(
@@ -71,6 +72,7 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
             storage_bin_changelist_url=self.storage_bin_changelist_url,
             items_to_scan_as_range=[],
             SHORT_DATE_FORMAT=settings.SHORT_DATE_FORMAT,
+            action_word=self.action_word,
         )
         if self.kwargs.get("items_to_scan"):
             items_to_scan = int(self.kwargs.get("items_to_scan"))
@@ -146,7 +148,6 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
 
         self.redirect_on_has_duplicates(stock_codes, storage_bin)
         self.redirect_on_stock_already_in_bin(stock_codes, storage_bin)
-        # self.request.session[str(self.kwargs.get("session_uuid"))] = dict()
         if items_to_scan and not stock_codes:
             url = reverse(
                 "edc_pharmacy:add_to_storage_bin_url",
@@ -171,7 +172,7 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
                     request,
                     messages.SUCCESS,
                     (
-                        f"Updated {len(codes_created)} stock items to bin. "
+                        f"Updated {p.no('stock item', len(codes_created))} to bin. "
                         f"Skipped {len(codes_not_created)}."
                     ),
                 )

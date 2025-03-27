@@ -10,6 +10,7 @@ from ...admin_site import edc_pharmacy_admin
 from ...forms import StorageBinForm
 from ...models import StorageBin
 from ..actions import add_to_storage_bin_action
+from ..actions.storage_bin import move_to_storage_bin_action
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -24,9 +25,7 @@ class StorageBinAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
 
     form = StorageBinForm
 
-    actions = [
-        add_to_storage_bin_action,
-    ]
+    actions = [add_to_storage_bin_action, move_to_storage_bin_action]
 
     fieldsets = (
         (

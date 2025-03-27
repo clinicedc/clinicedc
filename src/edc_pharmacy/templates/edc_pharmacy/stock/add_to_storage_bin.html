@@ -11,11 +11,11 @@
       <div style="padding:10px">
         <a href="{% url "edc_pharmacy:home_url" %}">Pharmacy</a> >
         <a href="{% url "edc_pharmacy_admin:edc_pharmacy_storagebin_changelist" %}?q={{ storage_bin.bin_identifier }}">Storage bin</a> >
-        Add stock to bin
+        {{ action_word }} stock to bin
       </div>
 
       <div class="panel panel-default">
-        <div class="panel-heading">Add stock to bin <a href="{{ storage_bin_changelist_url }}">{{ storage_bin.bin_identifier }}</a>
+        <div class="panel-heading">{{ action_word }} stock to bin <a href="{{ storage_bin_changelist_url }}">{{ storage_bin.bin_identifier }}</a>
           <span class="pull-right">{{ storage_bin.item_count }}</span></div>
         <div class="panel-body">
           <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;">

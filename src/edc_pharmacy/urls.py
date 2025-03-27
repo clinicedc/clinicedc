@@ -8,6 +8,7 @@ from .views import (
     ConfirmStockFromQuerySetView,
     DispenseView,
     HomeView,
+    MoveToStorageBinView,
     PrepareAndReviewStockRequestView,
     PrintLabelsView,
     ReturnView,
@@ -111,6 +112,16 @@ urlpatterns = [
         "add-to-storage-bin/<uuid:storage_bin>/",
         AddToStorageBinView.as_view(),
         name="add_to_storage_bin_url",
+    ),
+    path(
+        "move-to-storage-bin/<uuid:storage_bin>/<int:items_to_scan>/",
+        MoveToStorageBinView.as_view(),
+        name="move_to_storage_bin_url",
+    ),
+    path(
+        "move-to-storage-bin/<uuid:storage_bin>/",
+        MoveToStorageBinView.as_view(),
+        name="move_to_storage_bin_url",
     ),
     path(
         "task-status/<uuid:task_id>/",

@@ -24,3 +24,12 @@ def add_to_storage_bin_action(modeladmin, request, queryset: QuerySet[StorageBin
         )
         return HttpResponseRedirect(url)
     return None
+
+
+@admin.display(description="Move stock to selected storage bin")
+def move_to_storage_bin_action(modeladmin, request, queryset: QuerySet[StorageBin]):
+    url = reverse(
+        "edc_pharmacy:move_to_storage_bin_url",
+        kwargs={"storage_bin": queryset.first().id},
+    )
+    return HttpResponseRedirect(url)
