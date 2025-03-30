@@ -18,11 +18,9 @@ project_settings = DefaultTestSettings(
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=True,
     EXTRA_INSTALLED_APPS=[
-        "django_pylabels.apps.AppConfig",
         "edc_dx.apps.AppConfig",
         "edc_dx_review.apps.AppConfig",
         "edc_glucose.apps.AppConfig",
-        "edc_pylabels.apps.AppConfig",
         "edc_qareports.apps.AppConfig",
         "visit_schedule_app.apps.AppConfig",
     ],
