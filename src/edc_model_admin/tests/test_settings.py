@@ -63,6 +63,7 @@ project_settings = DefaultTestSettings(
         "edc_notification.apps.AppConfig",
         "edc_offstudy.apps.AppConfig",
         "edc_pharmacy.apps.AppConfig",
+        "edc_qareports.apps.AppConfig",
         "edc_registration.apps.AppConfig",
         "edc_review_dashboard.apps.AppConfig",
         "edc_subject_dashboard.apps.AppConfig",
