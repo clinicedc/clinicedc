@@ -11,6 +11,7 @@ from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_constants.constants import NOT_APPLICABLE
+from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_document_status.fieldsets import document_status_fieldset_tuple
 from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -24,6 +25,7 @@ from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
 )
 from edc_visit_schedule.utils import off_schedule_or_raise
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ..admin_site import edc_appointment_admin
 from ..choices import APPT_STATUS, APPT_TIMING, DEFAULT_APPT_REASON_CHOICES
@@ -66,6 +68,7 @@ class AppointmentAdmin(
         "schedule_name",
     )
     list_filter = (
+        ("appt_datetime", DateRangeFilterBuilder()),
         AppointmentListFilter,
         AppointmentStatusListFilter,
         "visit_code",
@@ -296,3 +299,10 @@ class AppointmentAdmin(
                 (F("appt_datetime") - now), output_field=DurationField()
             ),
         )
+
+    def get_view_only_site_ids_for_user(self, request) -> list[int]:
+        if request.user.userprofile.roles.get(name=DATA_MANAGER_ROLE):
+            return [
+                s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id
+            ]
+        return super().get_view_only_site_ids_for_user(request)
