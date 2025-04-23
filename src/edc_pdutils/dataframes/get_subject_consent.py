@@ -43,7 +43,7 @@ def get_subject_consent(
         qs_consent = model_cls.objects.values(*value_cols).all()
     df = read_frame(qs_consent, verbose=False)
     df = df.rename(columns={"site": "site_id"})
-    df["gender"] = pd.Categorical(df["gender"], categories=[FEMALE, MALE], ordered=False)
+    df["gender"] = pd.Categorical(df["gender"], categories=[FEMALE, MALE], ordered=True)
     for col in ["dob", "consent_datetime", "report_datetime", "created"]:
         df[col] = df[col].apply(pd.to_datetime, errors="coerce")
 

@@ -1,15 +1,15 @@
 import pandas as pd
 from django.apps import apps as django_apps
 from django_pandas.io import read_frame
+from edc_appointment.models import AppointmentType
 
 from ..utils import convert_dates_from_model
 
 
 def convert_visit_code_to_float(df):
-    # convert visit_code to float using visit_code_sequence
+    """Convert visit_code to float using visit_code_sequence"""
     df["visit_code"] = df["visit_code"].astype(float)
     df["visit_code_sequence"] = df["visit_code_sequence"].astype(float)
-    df["visit_datetime"] = df["visit_datetime"].apply(pd.to_datetime)
     df["visit_code_sequence"] = df["visit_code_sequence"].apply(
         lambda x: x / 10.0 if x > 0.0 else 0.0
     )
@@ -48,8 +48,10 @@ def get_subject_visit(
         "reason_missed",
         "reason_missed_other",
         "appointment",
+        "appointment__appt_datetime",
         "appointment__appt_status",
         "appointment__appt_timing",
+        "appointment__appt_type",
     ]
     if subject_identifiers:
         qs_subject_visit = model_cls.objects.values(*values).filter(
@@ -65,8 +67,10 @@ def get_subject_visit(
             "report_datetime": "visit_datetime",
             "site": "site_id",
             "appointment": "appointment_id",
+            "appointment__appt_datetime": "appt_datetime",
             "appointment__appt_status": "appt_status",
             "appointment__appt_timing": "appt_timing",
+            "appointment__appt_type": "appt_type",
         }
     )
     df["visit_code_str"] = df["visit_code"]
@@ -85,19 +89,20 @@ def get_subject_visit(
             "reason_missed",
             "reason_missed_other",
             "appointment_id",
+            "appt_datetime",
             "appt_status",
             "appt_timing",
+            "appt_type",
         ]
     ]
 
-    # convert visit_code to float using visit_code_sequence
-    df["visit_code"] = df["visit_code"].astype(float)
-    df["visit_code_sequence"] = df["visit_code_sequence"].astype(float)
+    # map appt_type
+    mapping = {obj.id: obj.name for obj in AppointmentType.objects.all().order_by("id")}
+    df["appt_type"] = df["appt_type"].map(mapping)
+
     df["visit_datetime"] = df["visit_datetime"].apply(pd.to_datetime)
-    df["visit_code_sequence"] = df["visit_code_sequence"].apply(
-        lambda x: x / 10.0 if x > 0.0 else 0.0
-    )
-    df["visit_code"] = df["visit_code"] + df["visit_code_sequence"]
+
+    convert_visit_code_to_float(df)
 
     df_baseline_visit = df.copy()
     df_baseline_visit = df_baseline_visit[(df_baseline_visit["visit_code"] == 1000.0)]
@@ -125,6 +130,8 @@ def get_subject_visit(
     )
     df_last = df_last.reset_index()
     df = df.merge(df_last, on="subject_identifier", how="left")
+
+    df["followup_days"] = (df.visit_datetime - df.baseline_datetime).dt.days
 
     # get next visitcode and next visit datetime, if there is one
     # df_next = get_appointment_df()
