@@ -50,19 +50,18 @@ class StudyMedicationRefillModelMixin(models.Model):
         help_text="Leave blank to auto-calculate relative to the next scheduled appointment",
     )
 
-    stock_codes = models.CharField(
+    stock_codes = models.TextField(
         max_length=30,
         null=True,
         blank=True,
         validators=[
             RegexValidator(
-                regex="^([A-Z0-9]{6})(,[A-Z0-9]{6})*$",
-                message="Enter one or more valid codes separated by comma",
+                # regex="^([A-Z0-9]{6})(,[A-Z0-9]{6})*$",
+                regex="^([A-Z0-9]{6})(\r\n[A-Z0-9]{6})*$",
+                message="Enter one or more valid codes, one code per line",
             )
         ],
-        help_text=(
-            "Enter the medication bottle barcode or barcodes seperated by comma, no spaces"
-        ),
+        help_text="Enter the medication bottle barcode or barcodes. Type one code per line",
     )
 
     special_instructions = models.TextField(null=True, blank=True)
