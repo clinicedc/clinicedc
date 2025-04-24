@@ -503,9 +503,10 @@ chemistries = dict(
         ),
     ],
     # TODO: tbil in mmol/L
+    #   see upper limit normal, is it set??
     tbil=[
         p(
-            "1.00*ULN<=x<1.60*ULN",
+            "1.10*ULN<=x<1.60*ULN",
             grade=GRADE1,
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
@@ -529,6 +530,34 @@ chemistries = dict(
             "5.00*ULN<=x",
             grade=GRADE4,
             units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "1.10*ULN<=x<1.60*ULN",
+            grade=GRADE1,
+            units=MICROMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "1.60*ULN<=x<2.60*ULN",
+            grade=GRADE2,
+            units=MICROMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "2.60*ULN<=x<5.00*ULN",
+            grade=GRADE3,
+            units=MICROMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "5.00*ULN<=x",
+            grade=GRADE4,
+            units=MICROMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
