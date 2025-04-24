@@ -4,8 +4,12 @@ from unittest.mock import patch
 from django.test import override_settings
 from django.urls import reverse
 from django_webtest import WebTest
+from edc_auth.auth_updater import AuthUpdater
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
+from edc_auth.models import Role
 from edc_consent.site_consents import site_consents
+from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
+from edc_export.constants import EXPORT
 from edc_facility import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_test_utils.get_user_for_tests import get_user_for_tests
@@ -39,7 +43,10 @@ class TestAdmin(WebTest):
     def setUp(self) -> None:
         super().setUp()
         self.user = get_user_for_tests(view_only=True)
-
+        AuthUpdater.add_empty_groups_for_tests(EXPORT)
+        AuthUpdater.add_empty_roles_for_tests(DATA_MANAGER_ROLE)
+        role = Role.objects.get(name=DATA_MANAGER_ROLE)
+        self.user.userprofile.roles.add(role)
         self.subject_identifier = "12345"
         self.visit_schedule1 = get_visit_schedule1()
         site_visit_schedules._registry = {}
