@@ -7,7 +7,8 @@ from typing import Any, Optional
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from edc_model_to_dataframe import ModelToDataframe
+from django_pandas.io import read_frame
+from edc_pdutils.constants import SYSTEM_COLUMNS
 from edc_sites.site import sites
 from edc_utils import get_utcnow
 
@@ -152,15 +153,19 @@ def export_randomization_list(
     )
     filename = os.path.join(path, filename)
 
-    df = ModelToDataframe(
-        model=randomizer_cls.model_cls()._meta.label_lower, decrypt=True, drop_sys_columns=True
+    df = (
+        read_frame(randomizer_cls.model_cls().objects.all(), verbose=False)
+        .drop(columns=SYSTEM_COLUMNS)
+        .sort_values(["sid"])
+        .reset_index(drop=True)
     )
+
     opts = dict(
         path_or_buf=filename,
         encoding="utf-8",
         index=0,
         sep="|",
     )
-    df.dataframe.to_csv(**opts)
+    df.to_csv(**opts)
     print(filename)
     return filename
