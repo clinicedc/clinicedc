@@ -35,7 +35,11 @@ normal_data = {
         ),
     ],
     "alp": [p("40<=x<=150", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
-    "alt": [p("0<=x<=55", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
+    # "alt": [p("0<=x<=55", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
+    "alt": [
+        p("0<=x<=40", units=IU_LITER, gender=[MALE], **adult_age_options),
+        p("0<=x<=35", units=IU_LITER, gender=[FEMALE], **adult_age_options),
+    ],
     "amylase": [p("25<=x<=125", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
     "ast": [p("5<=x<=34", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
     "egfr": [
@@ -254,10 +258,15 @@ normal_data = {
             **adult_age_options,
         ),
     ],
-    # TODO: tbil normal range is not set. range needed
     "tbil": [
         p(
-            "0.0<=x<9999.0",
+            "5.0<=x<21.0",
+            units=MICROMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        p(
+            "0.09<=x<0.38.0",
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
