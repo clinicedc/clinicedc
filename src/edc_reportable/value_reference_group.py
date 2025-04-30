@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from edc_utils import get_utcnow
+from .utils import get_references_by_criteria
 
 if TYPE_CHECKING:
     from .grade_reference import GradeReference
@@ -11,34 +10,6 @@ if TYPE_CHECKING:
 
 GRADING = "grading"
 NORMAL = "normal"
-
-
-def get_references(
-    value_references: dict[str, list[NormalReference | GradeReference]] = None,
-    gender: str = None,
-    dob: date = None,
-    report_datetime: datetime = None,
-    units: str = None,
-    **extra_options,
-):
-    """Returns a list of references for this
-    gender, age and units.
-
-    Either ValueReferences or GradeReferences.
-    """
-    references = []
-    report_datetime = report_datetime or get_utcnow()
-    for refs in value_references.values():
-        for ref in refs:
-            non_matching_opts = [k for k, v in extra_options.items() if getattr(ref, k) != v]
-            if (
-                gender in ref.gender
-                and ref.units == units
-                and ref.age_match(dob, report_datetime)
-                and not non_matching_opts
-            ):
-                references.append(ref)
-    return references
 
 
 class InvalidValueReference(Exception):
@@ -81,6 +52,8 @@ class Grade(Result):
 
 
 class ValueReferenceGroup:
+    """Groups normal or grading references as a dictionary."""
+
     def __init__(self, name: str = None):
         self.name = name
         self.normal: dict[str, list] = {}
@@ -90,20 +63,20 @@ class ValueReferenceGroup:
         return f"{self.__class__.__name__}(name={self.name})"
 
     def add_normal(self, normal_reference: NormalReference):
-        """Adds a ValueReference to the dictionary of
-        normal references.
+        """Adds a ValueReference to the dictionary of normal
+        references.
         """
         self._add(normal_reference, self.normal)
 
     def add_grading(self, grade_reference: GradeReference):
-        """Adds a GradeReference to the dictionary of
-        grading references.
+        """Adds a GradeReference to the dictionary of grading
+        references.
         """
         self._add(grade_reference, self.grading)
 
-    def get_normal_description(self, **kwargs):
-        """Returns a list of descriptions of the normal references
-        for these criteria.
+    def get_normal_description(self, **kwargs) -> list[str]:
+        """Returns the descriptions of the normal references for
+        these criteria as a list.
         """
         descriptions = []
         for value_ref in self._get_normal_references(**kwargs):
@@ -142,21 +115,23 @@ class ValueReferenceGroup:
 
     def _get_normal_references(self, **kwargs):
         """Returns a list of ValueReference instances or raises."""
-        references = get_references(value_references=self.normal, **kwargs)
+        references = get_references_by_criteria(value_references=self.normal, **kwargs)
         if not references:
             raise NotEvaluated(
                 f"{self.name} value not evaluated. "
-                f"No reference range found for {kwargs}. See {repr(self)}."
+                f"Normal reference range not found. Using criteria {kwargs}. "
+                f"See {repr(self)}."
             )
         return references
 
     def _get_grading_references(self, **kwargs):
         """Returns a list of GradeReference instances or raises."""
-        references = get_references(value_references=self.grading, **kwargs)
+        references = get_references_by_criteria(value_references=self.grading, **kwargs)
         if not references:
             raise NotEvaluated(
                 f"{self.name} value not graded. "
-                f"No reference range found for {kwargs}. See {repr(self)}."
+                f"Grading reference range not found. Using criteria {kwargs}. "
+                f"See {repr(self)}."
             )
         references.sort(key=lambda x: x.grade, reverse=True)
         return references
@@ -165,7 +140,8 @@ class ValueReferenceGroup:
         self,
         value_reference: GradeReference | NormalReference,
         value_references: dict[str, list[NormalReference | GradeReference]],
-    ):
+    ) -> None:
+        """Add value reference to the group by gender."""
         if value_reference.name != self.name:
             raise InvalidValueReference(
                 "Cannot add to group; name does not match. "

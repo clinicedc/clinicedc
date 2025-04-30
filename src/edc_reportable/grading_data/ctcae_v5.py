@@ -25,33 +25,33 @@ from edc_constants.constants import FEMALE, MALE
 
 from ..adult_age_options import adult_age_options
 from ..constants import GRADE1, GRADE2, GRADE3, GRADE4
-from ..parsers import parse as p
+from ..formula import Formula
 from ..units import IU_LITER
 
 ggt_baseline_normal = (
     [
-        p(
+        Formula(
             "2.50*ULN<x<=2.50*ULN",
             grade=GRADE1,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "2.50*ULN<=x<5.00*ULN",
             grade=GRADE2,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "5.00*ULN<=x<10.00*ULN",
             grade=GRADE3,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "10.00*ULN<=x",
             grade=GRADE4,
             units=IU_LITER,

@@ -7,9 +7,9 @@ from edc_reportable import (
     MILLIGRAMS_PER_DECILITER,
     MILLIMOLES_PER_LITER,
     TEN_X_9_PER_LITER,
+    Formula,
     adult_age_options,
 )
-from edc_reportable import parse as p
 from edc_reportable.units import (
     CELLS_PER_MILLIMETER_CUBED,
     EGFR_UNITS,
@@ -21,29 +21,30 @@ from edc_reportable.units import (
 
 normal_data = {
     "albumin": [
-        p(
+        Formula(
             "3.5<=x<=5.0",
             units=GRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "35<=x<=50",
             units=GRAMS_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
     ],
-    "alp": [p("40<=x<=150", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
-    # "alt": [p("0<=x<=55", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
+    "alp": [Formula("40<=x<=150", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
     "alt": [
-        p("0<=x<=40", units=IU_LITER, gender=[MALE], **adult_age_options),
-        p("0<=x<=35", units=IU_LITER, gender=[FEMALE], **adult_age_options),
+        Formula("0<=x<=40", units=IU_LITER, gender=[MALE], **adult_age_options),
+        Formula("0<=x<=35", units=IU_LITER, gender=[FEMALE], **adult_age_options),
     ],
-    "amylase": [p("25<=x<=125", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
-    "ast": [p("5<=x<=34", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
+    "amylase": [
+        Formula("25<=x<=125", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)
+    ],
+    "ast": [Formula("5<=x<=34", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
     "egfr": [
-        p(
+        Formula(
             "0.0<=x<45.0",
             units=EGFR_UNITS,
             gender=[MALE, FEMALE],
@@ -51,7 +52,7 @@ normal_data = {
         )
     ],
     "egfr_drop": [
-        p(
+        Formula(
             "x<40.0",
             units=PERCENT,
             gender=[MALE, FEMALE],
@@ -59,7 +60,7 @@ normal_data = {
         )
     ],
     "chol": [
-        p(
+        Formula(
             "0.5<=x<=6.2",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
@@ -67,19 +68,19 @@ normal_data = {
         )
     ],
     "creatinine": [
-        p(
+        Formula(
             "63.6<=x<=110.5",
             units=MICROMOLES_PER_LITER,
             gender=[MALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "50.4<=x<=98.1",
             units=MICROMOLES_PER_LITER,
             gender=[FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "0.6<=x<=1.3",
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
@@ -87,13 +88,13 @@ normal_data = {
         ),
     ],
     "crp": [
-        p(
+        Formula(
             "0.0<=x<=0.5",
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "0.0<=x<=5.0",
             units=MILLIGRAMS_PER_LITER,
             gender=[MALE, FEMALE],
@@ -101,14 +102,14 @@ normal_data = {
         ),
     ],
     "glucose": [
-        p(
+        Formula(
             "4.0<=x<=6.11",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             fasting=True,
             **adult_age_options,
         ),
-        p(
+        Formula(
             "4.0<=x<=6.44",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
@@ -116,9 +117,11 @@ normal_data = {
             **adult_age_options,
         ),
     ],
-    "hba1c": [p("4.4<=x<=6.6", units=PERCENT, gender=[MALE, FEMALE], **adult_age_options)],
+    "hba1c": [
+        Formula("4.4<=x<=6.6", units=PERCENT, gender=[MALE, FEMALE], **adult_age_options)
+    ],
     "hdl": [
-        p(
+        Formula(
             "1.04<=x<=1.55",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
@@ -126,17 +129,17 @@ normal_data = {
         ),
     ],
     "ggt": [
-        p("12<=x<=64", units=IU_LITER, gender=[MALE], **adult_age_options),
-        p("9<=x<=36", units=IU_LITER, gender=[FEMALE], **adult_age_options),
+        Formula("12<=x<=64", units=IU_LITER, gender=[MALE], **adult_age_options),
+        Formula("9<=x<=36", units=IU_LITER, gender=[FEMALE], **adult_age_options),
     ],
     "haemoglobin": [
-        p(
+        Formula(
             "13.0<=x<=17.0",
             units=GRAMS_PER_DECILITER,
             gender=[MALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "12.0<=x<=15.0",
             units=GRAMS_PER_DECILITER,
             gender=[FEMALE],
@@ -144,9 +147,11 @@ normal_data = {
         ),
     ],
     # hematocrit
-    "hct": [p("37.0<=x<=54.0", units=PERCENT, gender=[MALE, FEMALE], **adult_age_options)],
+    "hct": [
+        Formula("37.0<=x<=54.0", units=PERCENT, gender=[MALE, FEMALE], **adult_age_options)
+    ],
     "ldl": [
-        p(
+        Formula(
             "0.00<=x<=3.34",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
@@ -154,13 +159,13 @@ normal_data = {
         ),
     ],
     "magnesium": [
-        p(
+        Formula(
             "0.75<=x<=1.2",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "1.8<=x<=2.9",
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
@@ -168,7 +173,7 @@ normal_data = {
         ),
     ],
     "neutrophil": [
-        p(
+        Formula(
             "2.5<=x<=7.5",
             units=TEN_X_9_PER_LITER,
             gender=[MALE, FEMALE],
@@ -176,13 +181,13 @@ normal_data = {
         )
     ],
     "platelets": [
-        p(
+        Formula(
             "150<=x<=450",
             units=TEN_X_9_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "150000<=x<=450000",
             units=CELLS_PER_MILLIMETER_CUBED,
             gender=[MALE, FEMALE],
@@ -190,7 +195,7 @@ normal_data = {
         ),
     ],
     "potassium": [
-        p(
+        Formula(
             "3.6<=x<=5.2",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
@@ -198,7 +203,7 @@ normal_data = {
         )
     ],
     "proteinuria": [
-        p(
+        Formula(
             "0.0<=x<1.0",
             units=PLUS,
             gender=[MALE, FEMALE],
@@ -206,7 +211,7 @@ normal_data = {
         ),
     ],
     "sodium": [
-        p(
+        Formula(
             "136<=x<=145",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
@@ -214,7 +219,7 @@ normal_data = {
         )
     ],
     "trig": [
-        p(
+        Formula(
             "0.00<=x<=1.69",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
@@ -223,7 +228,7 @@ normal_data = {
     ],
     # BUN
     "urea": [
-        p(
+        Formula(
             "2.5<=x<=6.5",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
@@ -231,13 +236,13 @@ normal_data = {
         )
     ],
     "uric_acid": [
-        p(
+        Formula(
             "0.15<=x<=0.35",
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "7.2<=x",
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
@@ -245,13 +250,13 @@ normal_data = {
         ),
     ],
     "rbc": [
-        p(
+        Formula(
             "3.5<=x<=5.5",
             units=TEN_X_9_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "3500<=x<=5500",
             units=CELLS_PER_MILLIMETER_CUBED,
             gender=[MALE, FEMALE],
@@ -259,20 +264,20 @@ normal_data = {
         ),
     ],
     "tbil": [
-        p(
+        # Formula(
+        #     "0.09<=x<0.38",
+        #     units=MILLIGRAMS_PER_DECILITER,
+        #     gender=[MALE, FEMALE],
+        #     **adult_age_options,
+        # ),
+        Formula(
             "5.0<=x<21.0",
             units=MICROMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
-            "0.09<=x<0.38.0",
-            units=MILLIGRAMS_PER_DECILITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
     ],
     "wbc": [
-        p("2.49<x", units=TEN_X_9_PER_LITER, gender=[MALE, FEMALE], **adult_age_options),
+        Formula("2.49<x", units=TEN_X_9_PER_LITER, gender=[MALE, FEMALE], **adult_age_options),
     ],
 }

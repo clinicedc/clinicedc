@@ -2,7 +2,7 @@ import os
 from tempfile import mkdtemp
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_constants.constants import MALE
 from edc_utils import get_utcnow
 
@@ -30,9 +30,10 @@ class TestSiteReportables(TestCase):
             self.assertEqual(
                 header,
                 (
-                    "name,description,units,gender,lower,upper,lower_inclusive,"
-                    "upper_inclusive,fasting,age_lower,age_upper,"
-                    "age_units,age_lower_inclusive"
+                    "name,description,units,gender,lower,upper,"
+                    "phrase,fasting,age_lower,age_upper,age_units,"
+                    "lower_inclusive,upper_inclusive,age_lower_inclusive,"
+                    "age_upper_inclusive,grade"
                 ),
             )
 
@@ -64,6 +65,28 @@ class TestSiteReportables(TestCase):
         )
         self.assertIsNone(grade)
 
+    @tag("4")
+    def test_tbil(self):
+        reportables = site_reportables.get("my_reference_list")
+        tbil = reportables.get("tbil")
+
+        normal = tbil.get_normal(
+            value=15.0,
+            units="g/dL",
+            gender=MALE,
+            dob=get_utcnow() - relativedelta(years=25),
+        )
+        self.assertIsNotNone(normal)
+        self.assertIn("13.5<=15.0<=17.5", normal.description)
+
+        grade = tbil.get_grade(
+            value=8,
+            units="umol/L",
+            gender=MALE,
+            dob=get_utcnow() - relativedelta(years=25),
+        )
+        self.assertIn("7.0<=8.0<9.0", grade.description)
+
 
 class TestSiteReportablesDiads2017(TestCase):
     def setUp(self):
@@ -73,6 +96,7 @@ class TestSiteReportablesDiads2017(TestCase):
             name="my_reference_list", normal_data=africa_normal_data, grading_data=grading_data
         )
 
+    @tag("1")
     def test_daids_2017(self):
         reportables = site_reportables.get("my_reference_list")
         amylase = reportables.get("amylase")

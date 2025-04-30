@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES
 from edc_utils import get_utcnow
 
@@ -237,6 +237,7 @@ class TestSpecimenResultForm(TestCase):
         self.assertRaises(ValidationError, form_validator.validate)
         self.assertIn("alt", form_validator._errors)
 
+    @tag("2")
     def test_alt(self):
         self.cleaned_data.update(alt=10, results_abnormal=NO)
         form_validator = SpecimenResultFormValidator(

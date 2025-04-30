@@ -14,7 +14,7 @@ from edc_constants.constants import FEMALE, MALE
 
 from ..adult_age_options import adult_age_options
 from ..constants import GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, HIGH_VALUE
-from ..parsers import parse as p
+from ..formula import Formula
 from ..units import (
     CELLS_PER_MILLIMETER_CUBED,
     EGFR_UNITS,
@@ -32,7 +32,7 @@ from ..units import (
 
 dummies = {
     "hba1c": [
-        p(
+        Formula(
             "x<0",
             grade=GRADE0,
             units=PERCENT,
@@ -41,7 +41,7 @@ dummies = {
         )
     ],
     "hct": [
-        p(
+        Formula(
             "x<0",
             grade=GRADE0,
             units=PERCENT,
@@ -50,7 +50,7 @@ dummies = {
         )
     ],
     "hdl": [
-        p(
+        Formula(
             "x<0",
             grade=GRADE0,
             units=MILLIMOLES_PER_LITER,
@@ -59,7 +59,7 @@ dummies = {
         )
     ],
     "ggt": [
-        p(
+        Formula(
             "x<0",
             grade=GRADE0,
             units=IU_LITER,
@@ -68,14 +68,14 @@ dummies = {
         )
     ],
     "rbc": [
-        p(
+        Formula(
             "x<0",
             grade=GRADE0,
             units=TEN_X_9_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<0",
             grade=GRADE0,
             units=CELLS_PER_MILLIMETER_CUBED,
@@ -84,7 +84,7 @@ dummies = {
         ),
     ],
     "urea": [
-        p(
+        Formula(
             "x<0",
             grade=GRADE0,
             units=MILLIMOLES_PER_LITER,
@@ -93,14 +93,14 @@ dummies = {
         )
     ],
     "crp": [
-        p(
+        Formula(
             "x<0",
             grade=GRADE0,
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<0",
             grade=GRADE0,
             units=MILLIGRAMS_PER_LITER,
@@ -113,14 +113,14 @@ dummies = {
 
 chemistries = dict(
     albumin=[
-        p(
+        Formula(
             "x<2.0",
             grade=GRADE3,
             units=GRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<20",
             grade=GRADE3,
             units=GRAMS_PER_LITER,
@@ -129,28 +129,28 @@ chemistries = dict(
         ),
     ],
     alp=[
-        p(
+        Formula(
             "1.25*ULN<=x<2.50*ULN",
             grade=GRADE1,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "2.50*ULN<=x<5.00*ULN",
             grade=GRADE2,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "5.00*ULN<=x<10.00*ULN",
             grade=GRADE3,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "10.00*ULN<=x",
             grade=GRADE4,
             units=IU_LITER,
@@ -159,28 +159,28 @@ chemistries = dict(
         ),
     ],
     alt=[
-        p(
+        Formula(
             "1.25*ULN<=x<2.50*ULN",
             grade=GRADE1,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "2.50*ULN<=x<5.00*ULN",
             grade=GRADE2,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "5.00*ULN<=x<10.00*ULN",
             grade=GRADE3,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "10.00*ULN<=x",
             grade=GRADE4,
             units=IU_LITER,
@@ -189,28 +189,28 @@ chemistries = dict(
         ),
     ],
     amylase=[
-        p(
+        Formula(
             "1.1*ULN<=x<1.5*ULN",
             grade=GRADE1,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "1.5*ULN<=x<3.0*ULN",
             grade=GRADE2,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "3.0*ULN<=x<5.0*ULN",
             grade=GRADE3,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             f"5.0*ULN<=x<{HIGH_VALUE}*ULN",
             grade=GRADE4,
             units=IU_LITER,
@@ -219,28 +219,28 @@ chemistries = dict(
         ),
     ],
     ast=[
-        p(
+        Formula(
             "1.25*ULN<=x<2.50*ULN",
             grade=GRADE1,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "2.50*ULN<=x<5.00*ULN",
             grade=GRADE2,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "5.00*ULN<=x<10.00*ULN",
             grade=GRADE3,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "10.00*ULN<=x",
             grade=GRADE4,
             units=IU_LITER,
@@ -249,14 +249,14 @@ chemistries = dict(
         ),
     ],
     chol=[
-        p(
+        Formula(
             "300<=x",
             grade=GRADE3,
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "7.77<=x",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
@@ -265,56 +265,56 @@ chemistries = dict(
         ),
     ],
     creatinine=[
-        p(
+        Formula(
             "1.1*ULN<=x<=1.3*ULN",
             grade=GRADE1,
             units=MICROMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "1.3*ULN<x<=1.8*ULN",
             grade=GRADE2,
             units=MICROMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "1.8*ULN<x<3.5*ULN",
             grade=GRADE3,
             units=MICROMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "3.5*ULN<=x",
             grade=GRADE4,
             units=MICROMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "1.1*ULN<=x<=1.3*ULN",
             grade=GRADE1,
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "1.3*ULN<x<=1.8*ULN",
             grade=GRADE2,
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "1.8*ULN<x<3.5*ULN",
             grade=GRADE3,
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "3.5*ULN<=x",
             grade=GRADE4,
             units=MILLIGRAMS_PER_DECILITER,
@@ -323,21 +323,21 @@ chemistries = dict(
         ),
     ],
     egfr=[  # not considering % drop
-        p(
+        Formula(
             "60<=x<90",
             grade=GRADE2,
             units=EGFR_UNITS,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "30<=x<60",
             grade=GRADE3,
             units=EGFR_UNITS,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<30",
             grade=GRADE4,
             units=EGFR_UNITS,
@@ -346,21 +346,21 @@ chemistries = dict(
         ),
     ],
     egfr_drop=[  # % drop from baseline
-        p(
+        Formula(
             "10<=x<30",
             grade=GRADE2,
             units=PERCENT,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "30<=x<50",
             grade=GRADE3,
             units=PERCENT,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "50<=x",
             grade=GRADE4,
             units=PERCENT,
@@ -369,7 +369,7 @@ chemistries = dict(
         ),
     ],
     glucose=[  # G3/G4 same for fasting / non-fasting
-        p(
+        Formula(
             "13.89<=x<27.75",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
@@ -377,7 +377,7 @@ chemistries = dict(
             **adult_age_options,
             fasting=True,
         ),
-        p(
+        Formula(
             "27.75<=x",
             grade=GRADE4,
             units=MILLIMOLES_PER_LITER,
@@ -385,7 +385,7 @@ chemistries = dict(
             **adult_age_options,
             fasting=True,
         ),
-        p(
+        Formula(
             "13.89<=x<27.75",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
@@ -393,7 +393,7 @@ chemistries = dict(
             **adult_age_options,
             fasting=False,
         ),
-        p(
+        Formula(
             "27.75<=x",
             grade=GRADE4,
             units=MILLIMOLES_PER_LITER,
@@ -403,7 +403,7 @@ chemistries = dict(
         ),
     ],
     ldl=[
-        p(
+        Formula(
             "4.90<=x",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
@@ -413,28 +413,28 @@ chemistries = dict(
         ),
     ],
     magnesium=[
-        p(
+        Formula(
             "0.30<=x<=0.44",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<0.30",
             grade=GRADE4,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "0.7<=x<=1.1",
             grade=GRADE3,
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<0.7",
             grade=GRADE4,
             units=MILLIGRAMS_PER_DECILITER,
@@ -443,28 +443,28 @@ chemistries = dict(
         ),
     ],
     potassium=[
-        p(
-            "2.0<=x<=2.4",
+        Formula(
+            "2.0<=x<2.5",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
-            "6.5<=x<7.0",
-            grade=GRADE3,
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
+        Formula(
             "x<2.0",
             grade=GRADE4,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
+            "6.5<=x<7.0",
+            grade=GRADE3,
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        Formula(
             "7.0<=x",
             grade=GRADE4,
             units=MILLIMOLES_PER_LITER,
@@ -473,28 +473,28 @@ chemistries = dict(
         ),
     ],
     sodium=[
-        p(
-            "121<=x<=124",
+        Formula(
+            "121<=x<125",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
-            "154<=x<=159",
+        Formula(
+            "154<=x<160",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "160<=x",
             grade=GRADE4,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<=120",
             grade=GRADE4,
             units=MILLIMOLES_PER_LITER,
@@ -502,68 +502,66 @@ chemistries = dict(
             **adult_age_options,
         ),
     ],
-    # TODO: tbil in mmol/L
-    #   see upper limit normal, is it set??
     tbil=[
-        p(
-            "1.10*ULN<=x<1.60*ULN",
-            grade=GRADE1,
-            units=MILLIGRAMS_PER_DECILITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "1.60*ULN<=x<2.60*ULN",
-            grade=GRADE2,
-            units=MILLIGRAMS_PER_DECILITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "2.60*ULN<=x<5.00*ULN",
-            grade=GRADE3,
-            units=MILLIGRAMS_PER_DECILITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
-            "5.00*ULN<=x",
-            grade=GRADE4,
-            units=MILLIGRAMS_PER_DECILITER,
-            gender=[MALE, FEMALE],
-            **adult_age_options,
-        ),
-        p(
+        Formula(
             "1.10*ULN<=x<1.60*ULN",
             grade=GRADE1,
             units=MICROMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "1.60*ULN<=x<2.60*ULN",
             grade=GRADE2,
             units=MICROMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "2.60*ULN<=x<5.00*ULN",
             grade=GRADE3,
             units=MICROMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "5.00*ULN<=x",
             grade=GRADE4,
             units=MICROMOLES_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        Formula(
+            "1.10*ULN<=x<1.60*ULN",
+            grade=GRADE1,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        Formula(
+            "1.60*ULN<=x<2.60*ULN",
+            grade=GRADE2,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        Formula(
+            "2.60*ULN<=x<5.00*ULN",
+            grade=GRADE3,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        Formula(
+            "5.00*ULN<=x",
+            grade=GRADE4,
+            units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
     ],
     trig=[
-        p(
+        Formula(
             "5.7<=x<=11.4",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
@@ -571,7 +569,7 @@ chemistries = dict(
             **adult_age_options,
             fasting=True,
         ),
-        p(
+        Formula(
             "11.4<x",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
@@ -581,28 +579,28 @@ chemistries = dict(
         ),
     ],
     uric_acid=[
-        p(
+        Formula(
             "12.0<=x<15.0",
             grade=GRADE3,
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "15.0<=x",
             grade=GRADE4,
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "0.71<=x<0.89",
             grade=GRADE3,
             units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "0.89<=x",
             grade=GRADE4,
             units=MILLIMOLES_PER_LITER,
@@ -614,28 +612,28 @@ chemistries = dict(
 
 hematology = {
     "haemoglobin": [
-        p(
+        Formula(
             "7.0<=x<9.0",
             grade=GRADE3,
             units=GRAMS_PER_DECILITER,
             gender=[MALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "6.5<=x<8.5",
             grade=GRADE3,
             units=GRAMS_PER_DECILITER,
             gender=[FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<7.0",
             grade=GRADE4,
             units=GRAMS_PER_DECILITER,
             gender=[MALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<6.5",
             grade=GRADE4,
             units=GRAMS_PER_DECILITER,
@@ -644,28 +642,28 @@ hematology = {
         ),
     ],
     "platelets": [
-        p(
+        Formula(
             "25<=x<=50",
             grade=GRADE3,
             units=TEN_X_9_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<25",
             grade=GRADE4,
             units=TEN_X_9_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "25000<=x<=50000",
             grade=GRADE3,
             units=CELLS_PER_MILLIMETER_CUBED,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<25000",
             grade=GRADE4,
             units=CELLS_PER_MILLIMETER_CUBED,
@@ -674,14 +672,14 @@ hematology = {
         ),
     ],
     "neutrophil": [
-        p(
+        Formula(
             "0.40<=x<=0.59",
             grade=GRADE3,
             units=TEN_X_9_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<0.40",
             grade=GRADE4,
             units=TEN_X_9_PER_LITER,
@@ -690,14 +688,14 @@ hematology = {
         ),
     ],
     "wbc": [
-        p(
+        Formula(
             "1.00<=x<=1.49",
             grade=GRADE3,
             units=TEN_X_9_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "x<1.00",
             grade=GRADE4,
             units=TEN_X_9_PER_LITER,
@@ -709,21 +707,21 @@ hematology = {
 
 urinalysis = {
     "proteinuria": [
-        p(
+        Formula(
             "1<=x<2",
             grade=GRADE1,
             units=PLUS,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "2<=x<3",
             grade=GRADE2,
             units=PLUS,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
-        p(
+        Formula(
             "3<=x",
             grade=GRADE3,
             units=PLUS,
@@ -735,7 +733,7 @@ urinalysis = {
 
 hba1c = {
     "hba1c": [
-        p(
+        Formula(
             "9999999<=x<=99999999",
             grade=GRADE3,
             units=PERCENT,

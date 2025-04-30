@@ -1,18 +1,16 @@
 from __future__ import annotations
 
+import re
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
 from .age_evaluator import AgeEvaluator
+from .constants import LLN, ULN
 from .evaluator import Evaluator, ValueBoundryError
-from .parsers import parse_boundary
+from .exceptions import ValueReferenceError
 
 if TYPE_CHECKING:
     from .normal_reference import NormalReference
-
-
-class ValueReferenceError(Exception):
-    pass
 
 
 class ValueReference:
@@ -22,36 +20,42 @@ class ValueReference:
     def __init__(
         self,
         name: str = None,
-        gender: str | list[str] | tuple[str] = None,
+        gender: str | list[str] = None,
         units: str = None,
-        normal_references: NormalReference = None,
+        normal_references: dict[str, NormalReference] = None,
+        lower: float | str | None = None,
+        upper: float | str | None = None,
         **kwargs,
     ):
-        self._normal_reference = None
+        self._normal_reference: NormalReference | None = None
         self.normal_references = normal_references
         self.name = name
         self.units = units
-        if isinstance(gender, (list, tuple)):
-            self.gender: str = "".join(gender)
-        else:
-            self.gender: str = gender
-        kwargs["lower"] = self.get_boundary_value(kwargs["lower"])
-        kwargs["upper"] = self.get_boundary_value(kwargs["upper"])
-        self.evaluator = self.evaluator_cls(name=self.name, units=units, **kwargs)
-        self.age_evaluator = self.age_evaluator_cls(**kwargs)
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+        self.gender = "".join(gender) if isinstance(gender, (list,)) else gender
+        self.lower = self.get_boundary_or_boundary_relative_to_limit_normal(lower)
+        self.upper = self.get_boundary_or_boundary_relative_to_limit_normal(upper)
+        self.evaluator = self.evaluator_cls(
+            name=self.name, units=units, lower=self.lower, upper=self.upper, **kwargs
+        )
+        self.age_evaluator = self.age_evaluator_cls(
+            lower=self.lower, upper=self.upper, **kwargs
+        )
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.name}, {self.description()})"
 
-    def description(self, **kwargs):
+    def description(self, **kwargs) -> str:
         return (
             f"{self.evaluator.description(**kwargs)} {self.gender} "
             f"{self.age_evaluator.description()}"
         )
 
-    def in_bounds(self, value=None, **kwargs):
+    def key(self, **kwargs) -> str:
+        return self.description(**kwargs)
+
+    def in_bounds(self, value: int | float = None, **kwargs) -> bool:
         try:
             in_bounds = self.evaluator.in_bounds_or_raise(value, **kwargs)
         except ValueBoundryError:
@@ -60,7 +64,7 @@ class ValueReference:
 
     def age_match(
         self, dob: date = None, report_datetime: datetime = None, age_units: str | None = None
-    ):
+    ) -> bool:
         try:
             age_match = self.age_evaluator.in_bounds_or_raise(
                 dob=dob, report_datetime=report_datetime, age_units=age_units
@@ -70,7 +74,7 @@ class ValueReference:
         return age_match
 
     @property
-    def normal_reference(self):
+    def normal_reference(self) -> NormalReference:
         if not self._normal_reference:
             if self.normal_references:
                 self._normal_reference = [
@@ -88,17 +92,30 @@ class ValueReference:
                 )
         return self._normal_reference[0]
 
-    def get_boundary_value(self, value: str) -> int | float:
-        """Return value as a literal value or as a value relative
-        to the normal lower or upper normal.
+    def get_boundary_or_boundary_relative_to_limit_normal(self, value: str) -> int | float:
+        """Return either upper or lower boundary value as a literal
+        value or as a value relative to the lower limit normal or
+        upper limit normal.
+
+        Parameter `value` may be a float, None or a string
+
+        If LLN or ULN, uses normal reference value.
         """
+        pattern = rf"(\d+\.\d+)\*({LLN}|{ULN})"
         try:
             value = value.upper()
         except AttributeError:
             pass
         else:
-            lln, uln = parse_boundary(value)
-            value = (
-                lln * self.normal_reference.lower if lln else uln * self.normal_reference.upper
-            )
+            if not re.match(pattern, value):
+                raise ValueReferenceError(
+                    f"Invalid value. Unable to parse value string for {LLN} or {ULN}. "
+                    f"Got {value}."
+                )
+            else:
+                factor, limit_normal_label = value.split("*")
+                if limit_normal_label == LLN:
+                    value = float(factor) * self.normal_reference.lower
+                elif limit_normal_label == ULN:
+                    value = float(factor) * self.normal_reference.upper
         return value

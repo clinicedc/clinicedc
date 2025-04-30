@@ -3,15 +3,15 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_constants.constants import FEMALE, MALE
 from edc_utils import get_utcnow
 
 from edc_reportable import (
     IU_LITER,
     BoundariesOverlap,
-    GradeError,
     GradeReference,
+    GradeReferenceError,
     NormalReference,
     NotEvaluated,
     ValueReferenceGroup,
@@ -43,15 +43,15 @@ class TestGrading(TestCase):
 
         new_opts = copy(opts)
         new_opts.update(grade="-1")
-        self.assertRaises(GradeError, GradeReference, **new_opts)
+        self.assertRaises(GradeReferenceError, GradeReference, **new_opts)
 
         for grade in range(0, 6):
             new_opts = copy(opts)
             new_opts.update(grade=str(grade))
             try:
                 GradeReference(**new_opts)
-            except GradeError:
-                self.fail("GradeError unexpectedly raised")
+            except GradeReferenceError:
+                self.fail("GradeReferenceError unexpectedly raised")
 
         new_opts = copy(opts)
         new_opts.update(grade=3, lower=20, lower_inclusive=True, upper=30)
@@ -172,9 +172,10 @@ class TestGrading(TestCase):
             units="mg/dL",
         )
 
+    @tag("3")
     def test_grading_with_limits_normal(self):
         dob = get_utcnow() - relativedelta(years=25)
-        report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
+        report_datetime = get_utcnow()
         grp = ValueReferenceGroup(name="amylase")
         normal_reference = NormalReference(
             name="amylase",

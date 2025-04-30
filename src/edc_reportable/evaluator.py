@@ -102,18 +102,23 @@ class Evaluator:
         )
 
     def in_bounds_or_raise(self, value: int | float, units: str = None, **kwargs) -> bool:
-        """Raises a ValueBoundryError exception if condition
-        not met.
+        """Raises a ValueBoundryError exception if condition not met.
 
-        Condition is evaluated as a string constructed from
-        given parameters."""
+        Condition is evaluated to True or False as a string
+        constructed from given parameters.
+
+        For example,
+            "lower lower_operator value upper_operator upper"
+            "1.7<3.6<=3.5"
+            "7.3<3.6"
+        """
         value = float(value)
         if units != self.units:
             raise InvalidUnits(f"Expected {self.units}. See {repr(self)}")
-        condition = (
+        condition_str = (
             f'{"" if self.lower is None else self.lower}{self.lower_operator or ""}{value}'
             f'{self.upper_operator or ""}{"" if self.upper is None else self.upper}'
         )
-        if not eval(condition):  # nosec B307
-            raise ValueBoundryError(condition)
+        if not eval(condition_str):  # nosec B307
+            raise ValueBoundryError(condition_str)
         return True

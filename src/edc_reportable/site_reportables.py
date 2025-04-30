@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import copy
 import csv
 import os
 import sys
 from importlib import import_module
 from inspect import isfunction
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
@@ -12,9 +14,11 @@ from django.utils.module_loading import module_has_submodule
 
 from .grade_reference import GradeReference
 from .normal_reference import NormalReference
-from .parsers import unparse
 from .reference_range_collection import ReferenceRangeCollection
 from .value_reference_group import GRADING, NORMAL, ValueReferenceGroup
+
+if TYPE_CHECKING:
+    from .formula import Formula
 
 
 class SiteReportablesError(Exception):
@@ -34,11 +38,11 @@ class SiteReportables:
 
     def register(
         self,
-        name: str = Optional[None],
-        normal_data: Optional[dict] = None,
-        grading_data: Optional[dict] = None,
-        reportable_grades: Optional[list] = None,
-        reportable_grades_exceptions: Optional[dict] = None,
+        name: str | None = None,
+        normal_data: dict[str, list[Formula]] | None = None,
+        grading_data: dict[str, list] | None = None,
+        reportable_grades: dict | None = None,
+        reportable_grades_exceptions: dict | None = None,
     ):
         if name in self._registry:
             reference_range_collection = self._registry.get(name)
@@ -48,28 +52,34 @@ class SiteReportables:
                 reportable_grades=reportable_grades,
                 reportable_grades_exceptions=reportable_grades_exceptions,
             )
-        for name, datas in normal_data.items():
+        for name, formulas in normal_data.items():
             grp = ValueReferenceGroup(name=name)
-            for data in datas:
-                val_ref = NormalReference(name=name, **data)
-                grp.add_normal(val_ref)
+            for formula in formulas:
+                normal_ref = NormalReference(name=name, **formula.__dict__)
+                grp.add_normal(normal_ref)
             reference_range_collection.register(grp)
-        for name, datas in grading_data.items():
-            grp = reference_range_collection.get(name)
-            if not grp:
+        for name, formulas in grading_data.items():
+            value_ref_grp = reference_range_collection.get(name)
+            if not value_ref_grp:
                 raise MissingNormalReference(
                     f"Attempting to add grading for item without a "
                     f"normal reference. Got {name}."
                 )
-            for data in datas:
-                if isfunction(data):
+            for formula in formulas:
+                if isfunction(formula):
                     grade_ref = GradeReference(
-                        name=name, normal_references=grp.normal, func=data
+                        name=name,
+                        normal_references=value_ref_grp.normal,
+                        func=formula,
                     )
                 else:
-                    grade_ref = GradeReference(name=name, normal_references=grp.normal, **data)
-                grp.add_grading(grade_ref)
-            reference_range_collection.update_grp(grp)
+                    grade_ref = GradeReference(
+                        name=name,
+                        normal_references=value_ref_grp.normal,
+                        **formula.__dict__,
+                    )
+                value_ref_grp.add_grading(grade_ref)
+            reference_range_collection.update_grp(value_ref_grp)
         site_reportables._registry.update(
             {reference_range_collection.name: reference_range_collection}
         )
@@ -105,9 +115,8 @@ class SiteReportables:
             with open(filename1, "w") as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
-                for dct in data.get(NORMAL):
-                    dct.update(description=unparse(**dct))
-                    writer.writerow(dct)
+                for formula in data.get(NORMAL):
+                    writer.writerow(formula)
         try:
             fieldnames = list(data.get(GRADING)[0].keys())
         except IndexError:
@@ -117,9 +126,8 @@ class SiteReportables:
             with open(filename2, "w") as f:
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
-                for dct in data.get(GRADING):
-                    dct.update(description=unparse(**dct))
-                    writer.writerow(dct)
+                for formula in data.get(GRADING):
+                    writer.writerow(formula)
         return filename1, filename2
 
     def autodiscover(self, module_name=None, verbose=True):
