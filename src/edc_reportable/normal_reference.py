@@ -7,7 +7,9 @@ class NormalReferenceError(Exception):
 
 
 class NormalReference(ValueReference):
-    def __init__(self, name=None, lower=None, upper=None, **kwargs):
+    def __init__(
+        self, name=None, lower: float | None = None, upper: float | None = None, **kwargs
+    ):
         string = f"{(lower or '')}{(upper or '')}"
         if ULN in string or LLN in string:
             raise NormalReferenceError(

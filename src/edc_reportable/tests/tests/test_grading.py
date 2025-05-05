@@ -21,6 +21,7 @@ from edc_reportable.constants import HIGH_VALUE
 
 
 class TestGrading(TestCase):
+    @tag("2")
     def test_grading(self):
         report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
         dob = report_datetime - relativedelta(years=25)
@@ -172,7 +173,7 @@ class TestGrading(TestCase):
             units="mg/dL",
         )
 
-    @tag("3")
+    @tag("2")
     def test_grading_with_limits_normal(self):
         dob = get_utcnow() - relativedelta(years=25)
         report_datetime = get_utcnow()
@@ -198,19 +199,19 @@ class TestGrading(TestCase):
             gender=MALE,
             **adult_age_options,
         )
-        g1 = GradeReference(normal_references={MALE: [normal_reference]}, **opts)
+        g1 = GradeReference(normal_references=[normal_reference], **opts)
 
         new_opts = copy(opts)
         new_opts.update(grade=2, lower="1.5*ULN", upper="3.0*ULN")
-        g2 = GradeReference(normal_references={MALE: [normal_reference]}, **new_opts)
+        g2 = GradeReference(normal_references=[normal_reference], **new_opts)
 
         new_opts = copy(opts)
         new_opts.update(grade=3, lower="3.0*ULN", upper="5.0*ULN")
-        g3 = GradeReference(normal_references={MALE: [normal_reference]}, **new_opts)
+        g3 = GradeReference(normal_references=[normal_reference], **new_opts)
 
         new_opts = copy(opts)
         new_opts.update(grade=4, lower="5.0*ULN", upper=f"{HIGH_VALUE}*ULN")
-        g4 = GradeReference(normal_references={MALE: [normal_reference]}, **new_opts)
+        g4 = GradeReference(normal_references=[normal_reference], **new_opts)
 
         grp.add_grading(g1)
         grp.add_grading(g2)

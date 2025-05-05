@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_constants.constants import FEMALE, MALE
 
 from edc_reportable import (
@@ -15,6 +15,8 @@ from edc_reportable import (
 
 
 class TestCollection(TestCase):
+
+    @tag("2")
     def test_collection(self):
         report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
         dob = report_datetime - relativedelta(years=25)

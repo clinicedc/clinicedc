@@ -5,6 +5,8 @@ from edc_registration import get_registered_subject_model_cls
 
 from ..reportables_evaluator import ReportablesEvaluator
 
+__all__ = ["ReportablesFormValidatorMixin"]
+
 
 class ReportablesFormValidatorMixin:
     reportables_cls = ReportablesEvaluator

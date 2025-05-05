@@ -1,7 +1,12 @@
 from django.test import TestCase, tag
 from edc_constants.constants import MALE
 
-from edc_reportable import Formula, FormulaError, formula
+from edc_reportable.formula import (
+    Formula,
+    FormulaError,
+    clean_and_validate_phrase,
+    formula,
+)
 
 
 class TestParser(TestCase):
@@ -65,7 +70,7 @@ class TestParser(TestCase):
     def test8(self):
         formula = Formula("x <= 0.88")
         self.assertIsNone(formula.lower)
-        self.assertIsNone(formula.lower_inclusive)
+        self.assertFalse(formula.lower_inclusive)
         self.assertEqual(formula.upper, 0.88)
         self.assertTrue(formula.upper_inclusive)
 
@@ -75,7 +80,7 @@ class TestParser(TestCase):
         self.assertEqual(formula.lower, 0.77)
         self.assertTrue(formula.lower_inclusive)
         self.assertIsNone(formula.upper)
-        self.assertIsNone(formula.upper_inclusive)
+        self.assertFalse(formula.upper_inclusive)
 
     @tag("1")
     def test10(self):
@@ -84,19 +89,21 @@ class TestParser(TestCase):
 
     @tag("1")
     def test11(self):
-        self.assertRaises(FormulaError, Formula, "0.77 <= x = 0.88")
-        self.assertRaises(FormulaError, Formula, "0.77 <= x =")
+        self.assertRaises(FormulaError, clean_and_validate_phrase, "0.77 <= x = 0.88")
+        self.assertRaises(FormulaError, clean_and_validate_phrase, "0.77 <= x =")
 
-        self.assertRaises(FormulaError, Formula, "<0.77")
+        self.assertRaises(FormulaError, clean_and_validate_phrase, "<0.77")
 
-        self.assertRaises(FormulaError, Formula, "<77")
+        self.assertRaises(FormulaError, clean_and_validate_phrase, "<77")
 
-        self.assertRaises(FormulaError, Formula, "=77")
+        self.assertRaises(FormulaError, clean_and_validate_phrase, "=77")
 
-        self.assertRaises(FormulaError, Formula, ">77")
+        self.assertRaises(FormulaError, clean_and_validate_phrase, ">77")
 
-        self.assertRaises(FormulaError, Formula, "0.77 >= x > 0.88")
+        self.assertRaises(FormulaError, clean_and_validate_phrase, "0.77 >= x > 0.88")
 
-        self.assertRaises(FormulaError, Formula, "0.77 =< x < 0.88")
+        self.assertRaises(FormulaError, clean_and_validate_phrase, "0.77 =< x < 0.88")
 
-        self.assertRaises(FormulaError, Formula, "0.77 < x < 0.88 < x < 0.88")
+        self.assertRaises(
+            FormulaError, clean_and_validate_phrase, "0.77 < x < 0.88 < x < 0.88"
+        )

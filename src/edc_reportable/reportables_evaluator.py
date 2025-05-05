@@ -230,3 +230,84 @@ class ReportablesEvaluator:
         elif self.cleaned_data.get(field) == YES:
             if not any(answers_as_bool):
                 raise forms.ValidationError({field: f"None of the above results are {word}"})
+
+
+# class ReportablesEvaluator2(ReportablesEvaluator):
+#     def __init__(
+#         self,
+#         reference_range_collection_name=None,
+#         cleaned_data=None,
+#         gender=None,
+#         dob=None,
+#         report_datetime=None,
+#         value_field_suffix=None,
+#         **extra_options,
+#     ):
+#
+#         try:
+#             self.reference_range_collection = ReferenceRangeCollection.objects.get(
+#                 name=reference_range_collection_name
+#             )
+#         except ObjectDoesNotExist:
+#             raise forms.ValidationError(
+#                 {
+#                     "Invalid reference range collection. "
+#                     f"Got '{reference_range_collection_name}'"
+#                 },
+#                 code=INVALID_REFERENCE,
+#             )
+#
+#         self.cleaned_data = cleaned_data
+#         self.dob = dob
+#         self.gender = gender
+#         self.report_datetime = report_datetime
+#         self.value_field_suffix = value_field_suffix
+#         self.extra_options = extra_options
+#
+#     def grading_references(self, utest_id: str) -> QuerySet[GradingData]:
+#         qs = GradingData.objects.filter(
+#             reference_range_collection=self.reference_range_collection,
+#             utest_id=utest_id,
+#         )
+#         if qs.count() == 0:
+#             raise forms.ValidationError(
+#                 {
+#                     "Grading references not found for UTESTID. Using reference range "
+#                     f"collection '{self.reference_range_collection.name}'"
+#                     f"Got UTESTID='{utest_id}'"
+#                 },
+#                 code=INVALID_REFERENCE,
+#             )
+#
+#         return qs
+#
+#     def get_grade(self, utest_id=None, value=None, field=None, **opts):
+#
+#         try:
+#             grade = grading_reference.get_grade(value, **opts)
+#         except NotEvaluated as e:
+#             raise forms.ValidationError({field: str(e)})
+#
+#         return grade
+#
+#     def get_grade(self, value=None, **kwargs):
+#         """Returns a Grade instance or None."""
+#         grade = None
+#         for grade_ref in self._get_grading_references(**kwargs):
+#             if grade_ref.in_bounds(value=value, **kwargs):
+#                 if not grade:
+#                     grade = Grade(value, grade_ref.grade, grade_ref.description)
+#                 else:
+#                     raise BoundariesOverlap(
+#                         f"Previously got {grade}. "
+#                         f"Got {grade_ref.description(value=value)} ",
+#                         "Check your definitions.",
+#                     )
+#         return grade
+#
+#     def get_normal(self, utest_id=None, value=None, field=None, **opts):
+#         try:
+#             normal = self.reference_range_collection.get(utest_id).get_normal(value, **opts)
+#         except NotEvaluated as e:
+#             raise forms.ValidationError({field: str(e)})
+#         return normal

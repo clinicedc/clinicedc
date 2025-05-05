@@ -12,3 +12,7 @@ class LimitsNormalParseError(Exception):
 
 class ValueReferenceError(Exception):
     pass
+
+
+class SiteReportablesError(Exception):
+    pass

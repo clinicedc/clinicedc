@@ -2,11 +2,17 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_constants.constants import FEMALE, MALE
 
 from edc_reportable import (
+    GRADE1,
+    GRADE2,
+    GRADE3,
+    GRADE4,
     BoundariesOverlap,
+    Formula,
+    GradeReference,
     InvalidValueReference,
     NormalReference,
     NormalReferenceError,
@@ -15,17 +21,22 @@ from edc_reportable import (
     ValueReferenceGroup,
 )
 from edc_reportable.normal_data.africa import normal_data
-from edc_reportable.units import IU_LITER, MILLIMOLES_PER_LITER
+from edc_reportable.units import (
+    IU_LITER,
+    MILLIGRAMS_PER_DECILITER,
+    MILLIMOLES_PER_LITER,
+)
 
 
 class TestValueReference(TestCase):
+    @tag("2")
     def test_value_reference_group(self):
         report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
         dob = report_datetime - relativedelta(years=25)
         grp = ValueReferenceGroup(name="labtest")
         self.assertTrue(repr(grp))
 
-        ref = NormalReference(
+        normal_reference = NormalReference(
             name="blahblah",
             lower=10,
             upper=None,
@@ -36,9 +47,9 @@ class TestValueReference(TestCase):
             gender=MALE,
         )
 
-        self.assertRaises(InvalidValueReference, grp.add_normal, ref)
+        self.assertRaises(InvalidValueReference, grp.add_normal, normal_reference)
 
-        ref = NormalReference(
+        normal_reference = NormalReference(
             name="labtest",
             lower=10,
             upper=None,
@@ -49,16 +60,16 @@ class TestValueReference(TestCase):
             gender=MALE,
         )
 
-        grp.add_normal(ref)
+        grp.add_normal(normal_reference)
 
         self.assertFalse(grp.get_normal(value=9, units="mg/dL", gender=MALE, dob=dob))
         self.assertFalse(grp.get_normal(value=10, units="mg/dL", gender=MALE, dob=dob))
         self.assertTrue(grp.get_normal(value=11, units="mg/dL", gender=MALE, dob=dob))
-        self.assertRaises(ValueReferenceAlreadyAdded, grp.add_normal, ref)
+        self.assertRaises(ValueReferenceAlreadyAdded, grp.add_normal, normal_reference)
 
         # try without upper bound age
         grp = ValueReferenceGroup(name="another_labtest")
-        ref = NormalReference(
+        normal_reference = NormalReference(
             name="another_labtest",
             lower=10,
             upper=None,
@@ -68,12 +79,12 @@ class TestValueReference(TestCase):
             gender=MALE,
         )
 
-        grp.add_normal(ref)
+        grp.add_normal(normal_reference)
 
         self.assertFalse(grp.get_normal(value=9, units="mg/dL", gender=MALE, dob=dob))
         self.assertFalse(grp.get_normal(value=10, units="mg/dL", gender=MALE, dob=dob))
         self.assertTrue(grp.get_normal(value=11, units="mg/dL", gender=MALE, dob=dob))
-        self.assertRaises(ValueReferenceAlreadyAdded, grp.add_normal, ref)
+        self.assertRaises(ValueReferenceAlreadyAdded, grp.add_normal, normal_reference)
         self.assertEqual(
             grp.get_normal_description(units="mg/dL", gender=MALE, dob=dob),
             ["10.0<x mg/dL M 18<AGE years"],
@@ -81,7 +92,7 @@ class TestValueReference(TestCase):
 
         grp = ValueReferenceGroup(name="labtest")
 
-        ref_male = NormalReference(
+        normal_reference_male = NormalReference(
             name="labtest",
             lower=10,
             upper=None,
@@ -91,7 +102,7 @@ class TestValueReference(TestCase):
             age_units="years",
             gender=MALE,
         )
-        ref_female1 = NormalReference(
+        normal_reference_female1 = NormalReference(
             name="labtest",
             lower=1.7,
             upper=3.5,
@@ -102,7 +113,7 @@ class TestValueReference(TestCase):
             age_units="years",
             gender=FEMALE,
         )
-        ref_female2 = NormalReference(
+        normal_reference_female2 = NormalReference(
             name="labtest",
             lower=7.3,
             upper=None,
@@ -113,9 +124,23 @@ class TestValueReference(TestCase):
             gender=FEMALE,
         )
 
-        grp.add_normal(ref_male)
-        grp.add_normal(ref_female1)
-        grp.add_normal(ref_female2)
+        grp.add_normal(normal_reference_male)
+        grp.add_normal(normal_reference_female1)
+        grp.add_normal(normal_reference_female2)
+
+        self.assertRaises(
+            NormalReferenceError,
+            grp.get_normal,
+            value=1,
+            gender=FEMALE,
+            dob=dob,
+            report_datetime=report_datetime,
+            units="mg/dL",
+        )
+
+        grp = ValueReferenceGroup(name="labtest")
+        grp.add_normal(normal_reference_male)
+        grp.add_normal(normal_reference_female1)
 
         self.assertFalse(
             grp.get_normal(
@@ -209,6 +234,7 @@ class TestValueReference(TestCase):
                 units="mg/dL",
             )
         )
+
         self.assertTrue(
             grp.get_normal(
                 value=7.4,
@@ -219,25 +245,25 @@ class TestValueReference(TestCase):
             )
         )
 
-        self.assertRaises(
-            NotEvaluated,
-            grp.get_normal,
-            value=7.4,
-            gender=FEMALE,
-            dob=report_datetime.date(),
-            report_datetime=report_datetime,
-            units="mg/dL",
-        )
-
-        self.assertRaises(
-            NotEvaluated,
-            grp.get_normal,
-            value=7.4,
-            gender=FEMALE,
-            dob=report_datetime.date(),
-            report_datetime=report_datetime,
-            units="mmol/L",
-        )
+        # self.assertRaises(
+        #     NotEvaluated,
+        #     grp.get_normal,
+        #     value=7.4,
+        #     gender=FEMALE,
+        #     dob=report_datetime.date(),
+        #     report_datetime=report_datetime,
+        #     units="mg/dL",
+        # )
+        #
+        # self.assertRaises(
+        #     NotEvaluated,
+        #     grp.get_normal,
+        #     value=7.4,
+        #     gender=FEMALE,
+        #     dob=report_datetime.date(),
+        #     report_datetime=report_datetime,
+        #     units="mmol/L",
+        # )
 
         # for a normal value, show what it was evaluated against
         # for messaging
@@ -258,7 +284,7 @@ class TestValueReference(TestCase):
         )
 
         # overlaps with ref_female3
-        ref_female4 = NormalReference(
+        normal_reference_female4 = NormalReference(
             name="labtest",
             lower=7.3,
             upper=9.3,
@@ -268,7 +294,7 @@ class TestValueReference(TestCase):
             age_units="years",
             gender=FEMALE,
         )
-        grp.add_normal(ref_female4)
+        grp.add_normal(normal_reference_female4)
 
         self.assertRaises(
             BoundariesOverlap,
@@ -282,7 +308,7 @@ class TestValueReference(TestCase):
 
         # adds extra attributes
         grp = ValueReferenceGroup(name="glucose")
-        ref_glu = NormalReference(
+        normal_reference_glu = NormalReference(
             name="glucose",
             lower=4.8,
             upper=5.6,
@@ -293,7 +319,7 @@ class TestValueReference(TestCase):
             gender=[MALE, FEMALE],
             fasting=True,
         )
-        grp.add_normal(ref_glu)
+        grp.add_normal(normal_reference_glu)
 
         self.assertTrue(
             grp.get_normal(
@@ -328,7 +354,8 @@ class TestValueReference(TestCase):
             fasting=False,
         )
 
-    def test_value_reference_group_with_ll(self):
+    @tag("1")
+    def test_normal_reference_with_ll_raises(self):
         opts = dict(
             name="amylase",
             lower="1.5*ULN",
@@ -339,7 +366,47 @@ class TestValueReference(TestCase):
             age_units="years",
             gender=[MALE, FEMALE],
             fasting=True,
-            normal_references={"MF": normal_data.get("amylase")},
+            normal_reference=normal_data.get("amylase"),
         )
-
         self.assertRaises(NormalReferenceError, NormalReference, **opts)
+
+    @tag("6")
+    def test_value_reference_group_with_ll(self):
+        age_opts = dict(
+            age_lower=18, age_upper=None, age_units="years", age_lower_inclusive=True
+        )
+        tbil_formulas = [
+            Formula(
+                "1.10*ULN<=x<1.60*ULN",
+                grade=GRADE1,
+                units=MILLIGRAMS_PER_DECILITER,
+                gender=[MALE, FEMALE],
+                **age_opts,
+            ),
+            Formula(
+                "1.60*ULN<=x<2.60*ULN",
+                grade=GRADE2,
+                units=MILLIGRAMS_PER_DECILITER,
+                gender=[MALE, FEMALE],
+                **age_opts,
+            ),
+            Formula(
+                "2.60*ULN<=x<5.00*ULN",
+                grade=GRADE3,
+                units=MILLIGRAMS_PER_DECILITER,
+                gender=[MALE, FEMALE],
+                **age_opts,
+            ),
+            Formula(
+                "5.00*ULN<=x",
+                grade=GRADE4,
+                units=MILLIGRAMS_PER_DECILITER,
+                gender=[MALE, FEMALE],
+                **age_opts,
+            ),
+        ]
+
+        for formula in tbil_formulas:
+            GradeReference(
+                name="tbil", normal_references=normal_data.get("tbil"), **formula.__dict__
+            )

@@ -6,11 +6,24 @@ from dataclasses import KW_ONLY, dataclass, field
 from edc_constants.constants import FEMALE, MALE
 
 from .adult_age_options import adult_age_options
-from .constants import LLN, ULN
 
-__all__ = ["Formula", "formula", "dummy_formula"]
+__all__ = ["Formula", "formula", "dummy_formula", "FormulaError"]
 
 from .exceptions import FormulaError
+
+
+def clean_and_validate_phrase(phrase) -> str:
+    phrase_pattern = (
+        r"^(([\d+\.]*\d+)?\*?(LLN|ULN)?(<|<=)?(?!\s*=\s*))+x(?!\s*=\s*)"
+        r"((<|<=)?([\d+\.]*\d+)?\*?(LLN|ULN)?)?$"
+    )
+    phrase = phrase.replace(" ", "")
+    if not re.match(phrase_pattern, phrase):
+        raise FormulaError(
+            f"Invalid. Got {phrase}. Expected, e.g, 11<x<22, "
+            "11<=x<22, 11<x<=22, 11<x, 11<=x, x<22, x<=22, etc."
+        )
+    return phrase
 
 
 @dataclass()
@@ -23,37 +36,38 @@ class Formula:
     age_lower: str = field(default="")
     age_upper: str = field(default="")
     age_units: str = field(default="")
-    lower_inclusive: bool | None = None
-    upper_inclusive: bool | None = None
+    lower_inclusive: bool = field(default=False)
+    upper_inclusive: bool = field(default=False)
     age_lower_inclusive: bool | None = None
     age_upper_inclusive: bool | None = None
     grade: str | None = None
-    phrase_pattern: str = field(
-        default=r"(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?",
-        init=False,
-        repr=False,
-    )
-    lln: str = field(default=f"*{LLN}", init=False, repr=False)
-    uln: str = field(default=f"*{ULN}", init=False, repr=False)
+    lln: str | None = field(default=None, init=False, repr=False)
+    uln: str | None = field(default=None, init=False, repr=False)
+    lower_operator: str = field(default="", init=False, repr=False)
+    upper_operator: str = field(default="", init=False, repr=False)
+    age_lower_operator: str = field(default="", init=False, repr=False)
+    age_upper_operator: str = field(default="", init=False, repr=False)
 
     def __post_init__(self):
-        self.clean_and_validate_phrase()
+        self.phrase = clean_and_validate_phrase(self.phrase)
         lower_str, upper_str = self.phrase.split("x")
-        self.lower, self.lower_inclusive = self.parse_fragment(lower_str)
-        self.upper, self.upper_inclusive = self.parse_fragment(upper_str)
-        for name, value in {"lower": self.lower, "upper": self.upper}.items():
-            if value:
-                try:
-                    _, label = self.lower.split("*")
-                except AttributeError:
-                    pass
-                else:
-                    if label not in ["LLN", "ULN"]:
-                        raise FormulaError(
-                            "Invalid limit label. Expected one of LLN or ULN. "
-                            f"See {name} attr. Got `{label}`"
-                        )
+        for label, _str in {"lower": lower_str, "upper": upper_str}.items():
+            if "*" in _str and "LLN" not in _str and "ULN" not in _str:
+                raise FormulaError(
+                    f"Invalid {label} limit normal in formula. Expected one of LLN or ULN. "
+                    f"Got `{self.phrase}`"
+                )
+        self.lower, self.lower_inclusive, self.lln = self.parse_fragment(lower_str)
+        self.upper, self.upper_inclusive, self.uln = self.parse_fragment(upper_str)
         self.gender = [self.gender] if isinstance(self.gender, str) else self.gender
+        self.lower_operator = "" if not self.lower else "<=" if self.lower_inclusive else "<"
+        self.upper_operator = "" if not self.upper else "<=" if self.upper_inclusive else "<"
+        self.age_lower_operator = (
+            "" if not self.age_lower else "<=" if self.age_lower_inclusive else "<"
+        )
+        self.age_upper_operator = (
+            "" if not self.age_upper else "<=" if self.age_upper_inclusive else "<"
+        )
 
     def __str__(self) -> str:
         return self.description
@@ -67,63 +81,39 @@ class Formula:
         else:
             fasting_str: str = "Fasting " if fasting else ""
         return (
-            f"{self.lower}{self.lower_op}x{self.upper_op}{self.upper} "
+            f"{self.lower}{self.lower_operator}x{self.upper_operator}{self.upper} "
             f"{fasting_str}{','.join(self.gender)} {self.age}".rstrip()
         )
-
-    def clean_and_validate_phrase(self) -> None:
-        self.phrase = self.phrase.replace(" ", "")
-        match = re.match(
-            self.phrase_pattern, self.phrase.replace(self.lln, "").replace(self.uln, "")
-        )
-        if not match or match.group() != self.phrase.replace(self.lln, "").replace(
-            self.uln, ""
-        ):
-            raise FormulaError(
-                f"Invalid. Got {self.phrase}. Expected, e.g, 11<x<22, "
-                "11<=x<22, 11<x<=22, 11<x, 11<=x, x<22, x<=22, etc."
-            )
-
-    @property
-    def lower_op(self) -> str:
-        return "" if not self.lower else "<=" if self.lower_inclusive else "<"
-
-    @property
-    def upper_op(self) -> str:
-        return "" if not self.upper else "<=" if self.upper_inclusive else "<"
-
-    @property
-    def age_lower_op(self) -> str:
-        return "" if not self.age_lower else "<=" if self.age_lower_inclusive else "<"
-
-    @property
-    def age_upper_op(self) -> str:
-        return "" if not self.age_upper else "<=" if self.age_upper_inclusive else "<"
 
     @property
     def age(self) -> str:
         return (
             ""
             if not self.age_lower and not self.age_upper
-            else f"{self.age_lower}{self.age_lower_op}AGE{self.age_upper_op}{self.age_upper}"
+            else (
+                f"{self.age_lower}{self.age_lower_operator}"
+                f"AGE{self.age_upper_operator}{self.age_upper}"
+            )
         )
 
-    def parse_fragment(self, fragment: str) -> tuple[str, bool | None]:
-        inclusive = True if "=" in fragment else None
+    @staticmethod
+    def parse_fragment(fragment: str) -> tuple[float, bool, str | None]:
+        limit_normal: str | None = None
+        inclusive = True if "=" in fragment else False
         try:
             value = float(
                 fragment.replace("<", "")
                 .replace("=", "")
-                .replace(self.lln, "")
-                .replace(self.uln, "")
+                .replace("*LLN", "")
+                .replace("*ULN", "")
             )
         except ValueError:
             value = None
-        if self.lln in fragment:
-            value = f"{value}{self.lln}"
-        elif self.uln in fragment:
-            value = f"{value}{self.uln}"
-        return value, inclusive
+        if "*LLN" in fragment:
+            limit_normal = "*LLN"
+        elif "*ULN" in fragment:
+            limit_normal = "*ULN"
+        return value, inclusive, limit_normal
 
     # def parse(
     #     uln: str | None = None,

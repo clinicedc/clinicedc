@@ -101,7 +101,7 @@ class Evaluator:
             f'{self.upper_operator or ""}{upper} {self.units}'
         )
 
-    def in_bounds_or_raise(self, value: int | float, units: str = None, **kwargs) -> bool:
+    def in_bounds_or_raise(self, value: int | float, units: str = None) -> bool:
         """Raises a ValueBoundryError exception if condition not met.
 
         Condition is evaluated to True or False as a string

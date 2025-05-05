@@ -264,15 +264,15 @@ normal_data = {
         ),
     ],
     "tbil": [
-        # Formula(
-        #     "0.09<=x<0.38",
-        #     units=MILLIGRAMS_PER_DECILITER,
-        #     gender=[MALE, FEMALE],
-        #     **adult_age_options,
-        # ),
+        Formula(
+            "0.09<=x<0.38",
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
         Formula(
             "5.0<=x<21.0",
-            units=MICROMOLES_PER_LITER,
+            units=MILLIMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),

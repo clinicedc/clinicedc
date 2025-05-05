@@ -19,8 +19,8 @@ class ReferenceRangeCollectionError(Exception):
 class ReferenceRangeCollection:
     """Holds all normal and grading data available by name.
 
-    Usually there is just one reference collection per project so
-    name can be the project name.
+    Usually there is just one reference collection per project, so
+    `name` is typically the project name.
     """
 
     def __init__(
@@ -67,17 +67,19 @@ class ReferenceRangeCollection:
         ]
         data = {"normal": [], "grading": []}
         for name, grp in self.registry.items():
-            for normal_refs in grp.normal.values():
-                for ref in normal_refs:
-                    dct = ref.__dict__
-                    dct.update(name=name)
-                    dct = {k: v for k, v in dct.items() if k not in exclude_attrs}
-                    data["normal"].append(dct)
+            for normal_ref in grp.normal:
+                dct = normal_ref.__dict__
+                dct.update(name=name)
+                dct["lower"] = dct.pop("_lower")
+                dct["upper"] = dct.pop("_upper")
+                dct = {k: v for k, v in dct.items() if k not in exclude_attrs}
+                data["normal"].append(dct)
         for name, grp in self.registry.items():
-            for grade_refs in grp.grading.values():
-                for ref in grade_refs:
-                    dct = ref.__dict__
-                    dct.update(name=name)
-                    dct = {k: v for k, v in dct.items() if k not in exclude_attrs}
-                    data["grading"].append(dct)
+            for grade_ref in grp.grading:
+                dct = grade_ref.__dict__
+                dct.update(name=name)
+                dct["lower"] = dct.pop("_lower")
+                dct["upper"] = dct.pop("_upper")
+                dct = {k: v for k, v in dct.items() if k not in exclude_attrs}
+                data["grading"].append(dct)
         return data

@@ -30,10 +30,10 @@ class TestSiteReportables(TestCase):
             self.assertEqual(
                 header,
                 (
-                    "name,description,units,gender,lower,upper,"
+                    "name,description,units,gender,"
                     "phrase,fasting,age_lower,age_upper,age_units,"
                     "lower_inclusive,upper_inclusive,age_lower_inclusive,"
-                    "age_upper_inclusive,grade"
+                    "age_upper_inclusive,grade,lower,upper"
                 ),
             )
 
@@ -65,27 +65,27 @@ class TestSiteReportables(TestCase):
         )
         self.assertIsNone(grade)
 
-    @tag("4")
+    @tag("10")
     def test_tbil(self):
         reportables = site_reportables.get("my_reference_list")
         tbil = reportables.get("tbil")
 
         normal = tbil.get_normal(
-            value=15.0,
-            units="g/dL",
+            value=95.0,
+            units="mg/dL",
             gender=MALE,
             dob=get_utcnow() - relativedelta(years=25),
         )
         self.assertIsNotNone(normal)
-        self.assertIn("13.5<=15.0<=17.5", normal.description)
+        self.assertIn("90.1<=95.0<378.3", normal.description)
 
         grade = tbil.get_grade(
-            value=8,
-            units="umol/L",
+            value=25,
+            units="mmol/L",
             gender=MALE,
             dob=get_utcnow() - relativedelta(years=25),
         )
-        self.assertIn("7.0<=8.0<9.0", grade.description)
+        self.assertIn("23.1<=25.0<33.6", grade.description)
 
 
 class TestSiteReportablesDiads2017(TestCase):
@@ -96,7 +96,6 @@ class TestSiteReportablesDiads2017(TestCase):
             name="my_reference_list", normal_data=africa_normal_data, grading_data=grading_data
         )
 
-    @tag("1")
     def test_daids_2017(self):
         reportables = site_reportables.get("my_reference_list")
         amylase = reportables.get("amylase")

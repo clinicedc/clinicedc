@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_constants.constants import MALE
 from edc_utils import age
 
@@ -19,6 +19,7 @@ from edc_reportable import (
 
 
 class TestEvaluators(TestCase):
+    @tag("1")
     def test_evaluator_zero(self):
         """Test the basic evaluator."""
         ref = Evaluator(
@@ -34,6 +35,7 @@ class TestEvaluators(TestCase):
         self.assertTrue(ref.in_bounds_or_raise(99.9, units="mg/dL"))
         self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 100, units="mg/dL")
 
+    @tag("1")
     def test_evaluator_lower_none(self):
         """Test the basic evaluator."""
         ref = Evaluator(upper=100, units="mg/dL", upper_inclusive=False)
@@ -45,6 +47,7 @@ class TestEvaluators(TestCase):
         self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 100, units="mg/dL")
         self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 10000, units="mg/dL")
 
+    @tag("1")
     def test_evaluator_upper_none(self):
         """Test the basic evaluator."""
         ref = Evaluator(lower=100, units="mg/dL", lower_inclusive=True)
@@ -54,6 +57,7 @@ class TestEvaluators(TestCase):
         self.assertTrue(ref.in_bounds_or_raise(100, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(10000, units="mg/dL"))
 
+    @tag("1")
     def test_evaluator(self):
         """Test the basic evaluator."""
 
@@ -142,6 +146,7 @@ class TestEvaluators(TestCase):
         self.assertRaises(InvalidCombination, Evaluator, lower=10, upper=10, units="mg/dL")
         self.assertRaises(InvalidCombination, Evaluator, lower=11, upper=10, units="mg/dL")
 
+    @tag("1")
     def test_age_evaluator(self):
         """Test the age evaluator which is a child class
         of the basic evaluator.
@@ -173,6 +178,7 @@ class TestEvaluators(TestCase):
         self.assertRaises(ValueBoundryError, age_eval.in_bounds_or_raise, dob, report_datetime)
         self.assertEqual(age_eval.description(), "24<AGE<25 years")
 
+    @tag("1")
     def test_age_match(self):
         """Test age within the NormalReference."""
         report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
