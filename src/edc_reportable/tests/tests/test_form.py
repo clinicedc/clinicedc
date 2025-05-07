@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, tag
 from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES
 from edc_utils import get_utcnow
 
@@ -10,22 +10,19 @@ from edc_reportable import (
     MICROMOLES_PER_LITER,
     MILLIMOLES_PER_LITER,
     TEN_X_9_PER_LITER,
-    site_reportables,
 )
 from edc_reportable.units import MILLIGRAMS_PER_DECILITER
 from reportable_app.form_validators import SpecimenResultFormValidator
 from reportable_app.models import SpecimenResult
-from reportable_app.reportables import grading_data, normal_data
 
 
 class TestSpecimenResultForm(TestCase):
     def setUp(self):
-        site_reportables._registry = {}
-
-        site_reportables.register(
-            name="my_reference_list", normal_data=normal_data, grading_data=grading_data
-        )
-
+        # site_reportables._registry = {}
+        #
+        # site_reportables.register(
+        #     name="my_reference_list", normal_data=normal_data, grading_data=grading_data
+        # )
         self.cleaned_data = {
             "subject_visit": "",
             "dob": get_utcnow() - relativedelta(years=25),
@@ -66,6 +63,7 @@ class TestSpecimenResultForm(TestCase):
             "results_reportable": NOT_APPLICABLE,
         }
 
+    @tag("4")
     def test_haemoglobin_units_invalid(self):
         self.cleaned_data.update(haemoglobin=6.4, results_abnormal=YES)
         form_validator = SpecimenResultFormValidator(

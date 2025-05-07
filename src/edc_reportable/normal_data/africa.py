@@ -1,22 +1,20 @@
 from edc_constants.constants import FEMALE, MALE
 
 from edc_reportable import (
+    CELLS_PER_MILLIMETER_CUBED,
+    EGFR_UNITS,
     GRAMS_PER_DECILITER,
+    GRAMS_PER_LITER,
     IU_LITER,
     MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
+    MILLIGRAMS_PER_LITER,
     MILLIMOLES_PER_LITER,
+    PERCENT,
+    PLUS,
     TEN_X_9_PER_LITER,
     Formula,
     adult_age_options,
-)
-from edc_reportable.units import (
-    CELLS_PER_MILLIMETER_CUBED,
-    EGFR_UNITS,
-    GRAMS_PER_LITER,
-    MILLIGRAMS_PER_LITER,
-    PERCENT,
-    PLUS,
 )
 
 normal_data = {

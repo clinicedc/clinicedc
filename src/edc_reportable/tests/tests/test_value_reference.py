@@ -5,26 +5,21 @@ from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_constants.constants import FEMALE, MALE
 
-from edc_reportable import (
-    GRADE1,
-    GRADE2,
-    GRADE3,
-    GRADE4,
-    BoundariesOverlap,
-    Formula,
-    GradeReference,
-    InvalidValueReference,
-    NormalReference,
-    NormalReferenceError,
-    NotEvaluated,
-    ValueReferenceAlreadyAdded,
-    ValueReferenceGroup,
-)
+from edc_reportable import GRADE1, GRADE2, GRADE3, GRADE4, Formula
+from edc_reportable.grade_reference import GradeReference
 from edc_reportable.normal_data.africa import normal_data
+from edc_reportable.normal_reference import NormalReference, NormalReferenceError
 from edc_reportable.units import (
     IU_LITER,
     MILLIGRAMS_PER_DECILITER,
     MILLIMOLES_PER_LITER,
+)
+from edc_reportable.value_reference_group import (
+    BoundariesOverlap,
+    InvalidValueReference,
+    NotEvaluated,
+    ValueReferenceAlreadyAdded,
+    ValueReferenceGroup,
 )
 
 

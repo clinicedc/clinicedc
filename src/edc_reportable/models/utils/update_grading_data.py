@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..formula import Formula
-from ..utils import get_default_reportable_grades
-from .grading_data import GradingData
+from ...formula import Formula
+from ...utils import get_default_reportable_grades
+from ..grading_data import GradingData
 
 if TYPE_CHECKING:
-    from .reference_range_collection import ReferenceRangeCollection
+    from ..reference_range_collection import ReferenceRangeCollection
 
 
 def update_grading_data(
@@ -25,9 +25,12 @@ def update_grading_data(
                 formula.grade in (reportable_grades_exceptions.get(label) or [])
                 or reportable_grades
             ):
-                GradingData.objects.create(
-                    reference_range_collection=reference_range_collection,
-                    label=label,
-                    description=formula.description,
-                    **formula.__dict__,
-                )
+                opts = {k: v for k, v in formula.__dict__.items() if k != "gender"}
+                for gender in formula.__dict__.get("gender"):
+                    GradingData.objects.create(
+                        reference_range_collection=reference_range_collection,
+                        label=label,
+                        description=formula.description,
+                        gender=gender,
+                        **opts,
+                    )

@@ -6,16 +6,16 @@ from django.test import TestCase, tag
 from edc_constants.constants import MALE
 from edc_utils import age
 
-from edc_reportable import (
-    AgeEvaluator,
+from edc_reportable.age_evaluator import AgeEvaluator
+from edc_reportable.evaluator import (
     Evaluator,
     InvalidCombination,
     InvalidLowerBound,
     InvalidUnits,
     InvalidUpperBound,
-    NormalReference,
     ValueBoundryError,
 )
+from edc_reportable.normal_reference import NormalReference
 
 
 class TestEvaluators(TestCase):

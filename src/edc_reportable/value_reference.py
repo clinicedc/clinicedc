@@ -2,8 +2,12 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from .age_evaluator import AgeEvaluator
 from .evaluator import Evaluator, ValueBoundryError
+from .exceptions import ValueReferenceError
+from .models import NormalData
 
 
 class ValueReference:
@@ -19,24 +23,37 @@ class ValueReference:
         units: str = None,
         **kwargs,
     ):
+        self._data = None
         self._lower = None
         self._upper = None
         self.name = name
-        self.units = units
-        self.gender = "".join(gender) if isinstance(gender, (list,)) else gender
         self.lower = lower
         self.upper = upper
-        self.evaluator = self.evaluator_cls(
-            name=self.name, units=units, lower=self.lower, upper=self.upper, **kwargs
-        )
+        self.units = units
+        self.gender = gender
+        self.evaluator = self.evaluator_cls(name=self.name, **self.data.__dict__)
         self.age_evaluator = self.age_evaluator_cls(
-            lower=self.lower, upper=self.upper, **kwargs
+            lower=self.lower, upper=self.upper, **self.data.__dict__
         )
         for k, v in kwargs.items():
             setattr(self, k, v)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.name}, {self.description()})"
+
+    @property
+    def data(self):
+        if not self._data:
+            try:
+                self._data = NormalData.objects.get(
+                    name=self.name, gender=self.gender, units=self.units
+                )
+            except ObjectDoesNotExist:
+                raise ValueReferenceError(
+                    f"Normal reference not found. Using {self.name} "
+                    f"for gender={self.gender} units={self.units}"
+                )
+        return self._data
 
     @property
     def lower(self):

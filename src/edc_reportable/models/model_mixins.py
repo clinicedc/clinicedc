@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 
 from .reference_range_collection import ReferenceRangeCollection
@@ -25,7 +26,7 @@ class ReferenceModelMixin(models.Model):
     upper_inclusive = models.BooleanField(default=False)
     uln = models.CharField(default=None, max_length=15, null=True)
 
-    gender = models.CharField(max_length=15)
+    gender = models.CharField(max_length=1, validators=[RegexValidator(r"[MF]{1}")])
     units = models.CharField(max_length=15)
 
     age_units = models.CharField(max_length=15)
@@ -34,9 +35,9 @@ class ReferenceModelMixin(models.Model):
     age_lower_operator = models.CharField(max_length=15)
     age_lower_inclusive = models.BooleanField(default=False)
 
-    age_upper = models.IntegerField()
-    age_upper_operator = models.CharField(max_length=15)
-    age_upper_inclusive = models.BooleanField(default=False)
+    age_upper = models.IntegerField(null=True)
+    age_upper_operator = models.CharField(max_length=15, null=True)
+    age_upper_inclusive = models.BooleanField(null=True)
 
     fasting = models.BooleanField(default=False)
 
@@ -44,7 +45,9 @@ class ReferenceModelMixin(models.Model):
 
     age_phrase = models.CharField(max_length=25, null=True)
 
-    grade = models.IntegerField(null=True)
+    grade = models.IntegerField(
+        null=True, validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
 
     class Meta:
         abstract = True

@@ -1,4 +1,4 @@
-from .constants import LLN, ULN
+from .models import NormalData
 from .value_reference import ValueReference
 
 
@@ -7,12 +7,6 @@ class NormalReferenceError(Exception):
 
 
 class NormalReference(ValueReference):
-    def __init__(
-        self, name=None, lower: float | None = None, upper: float | None = None, **kwargs
-    ):
-        string = f"{(lower or '')}{(upper or '')}"
-        if ULN in string or LLN in string:
-            raise NormalReferenceError(
-                f"{LLN} and {ULN} are not relevant to a normal range. See {name}."
-            )
-        super().__init__(name=name, lower=lower, upper=upper, **kwargs)
+    def __init__(self, name=None):
+        normal_data = NormalData.objects.filter(label=name)
+        super().__init__(name=name, normal_data=normal_data)

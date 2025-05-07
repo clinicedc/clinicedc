@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .exceptions import NotEvaluated
 from .normal_reference import NormalReferenceError
 from .utils import get_normal_reference, get_references_by_criteria
 
@@ -26,10 +27,6 @@ class ValueReferenceAlreadyAdded(Exception):
 
 
 class BoundariesOverlap(Exception):
-    pass
-
-
-class NotEvaluated(Exception):
     pass
 
 

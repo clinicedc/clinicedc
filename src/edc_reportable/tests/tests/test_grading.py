@@ -7,21 +7,44 @@ from django.test import TestCase, tag
 from edc_constants.constants import FEMALE, MALE
 from edc_utils import get_utcnow
 
-from edc_reportable import (
-    IU_LITER,
+from edc_reportable.adult_age_options import adult_age_options
+from edc_reportable.constants import HIGH_VALUE
+from edc_reportable.exceptions import GradeReferenceError
+from edc_reportable.grade_reference import GradeReference
+from edc_reportable.normal_reference import NormalReference
+from edc_reportable.units import IU_LITER
+from edc_reportable.value_reference_group import (
     BoundariesOverlap,
-    GradeReference,
-    GradeReferenceError,
-    NormalReference,
     NotEvaluated,
     ValueReferenceGroup,
-    adult_age_options,
 )
-from edc_reportable.constants import HIGH_VALUE
 
 
 class TestGrading(TestCase):
-    @tag("2")
+    @tag("9")
+    def test_grading_reference_invalid_grade(self):
+        opts = dict(
+            name="labtest",
+            grade=2,
+            lower=10,
+            upper=20,
+            units="mg/dL",
+            age_lower=18,
+            age_upper=99,
+            age_units="years",
+            gender=MALE,
+        )
+
+        g2 = GradeReference(**opts)
+        self.assertTrue(repr(g2))
+
+        new_opts = copy(opts)
+        new_opts.update(grade="-1")
+        self.assertRaises(GradeReferenceError, GradeReference, **new_opts)
+        new_opts.update(grade="6")
+        self.assertRaises(GradeReferenceError, GradeReference, **new_opts)
+
+    @tag("9")
     def test_grading(self):
         report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
         dob = report_datetime - relativedelta(years=25)

@@ -16,3 +16,19 @@ class ValueReferenceError(Exception):
 
 class SiteReportablesError(Exception):
     pass
+
+
+class AlreadyRegistered(Exception):
+    pass
+
+
+class ReferenceRangeCollectionError(Exception):
+    pass
+
+
+class ValueBoundryError(Exception):
+    pass
+
+
+class NotEvaluated(Exception):
+    pass

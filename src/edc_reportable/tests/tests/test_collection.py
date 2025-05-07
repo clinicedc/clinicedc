@@ -5,13 +5,11 @@ from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 from edc_constants.constants import FEMALE, MALE
 
-from edc_reportable import (
-    AlreadyRegistered,
-    GradeReference,
-    NormalReference,
-    ReferenceRangeCollection,
-    ValueReferenceGroup,
-)
+from edc_reportable import AlreadyRegistered
+from edc_reportable.grade_reference import GradeReference
+from edc_reportable.normal_reference import NormalReference
+from edc_reportable.reference_range_collection import ReferenceRangeCollection
+from edc_reportable.value_reference_group import ValueReferenceGroup
 
 
 class TestCollection(TestCase):

@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from .constants import HIGH_VALUE
+from .exceptions import ValueBoundryError
 
 
 class InvalidUnits(Exception):
@@ -26,10 +27,6 @@ class InvalidUpperBound(Exception):
 
 
 class InvalidCombination(Exception):
-    pass
-
-
-class ValueBoundryError(Exception):
     pass
 
 

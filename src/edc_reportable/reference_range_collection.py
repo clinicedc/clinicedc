@@ -3,17 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .constants import GRADE3, GRADE4
+from .exceptions import AlreadyRegistered, ReferenceRangeCollectionError
 
 if TYPE_CHECKING:
     from .value_reference_group import ValueReferenceGroup
-
-
-class AlreadyRegistered(Exception):
-    pass
-
-
-class ReferenceRangeCollectionError(Exception):
-    pass
 
 
 class ReferenceRangeCollection:

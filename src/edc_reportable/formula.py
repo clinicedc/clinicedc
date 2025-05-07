@@ -81,18 +81,18 @@ class Formula:
         else:
             fasting_str: str = "Fasting " if fasting else ""
         return (
-            f"{self.lower}{self.lower_operator}x{self.upper_operator}{self.upper} "
-            f"{fasting_str}{','.join(self.gender)} {self.age}".rstrip()
+            f"{self.lower or ''}{self.lower_operator}x{self.upper_operator}{self.upper or ''} "
+            f"{fasting_str}{','.join(self.gender)} {self.age_description}".rstrip()
         )
 
     @property
-    def age(self) -> str:
+    def age_description(self) -> str:
         return (
             ""
             if not self.age_lower and not self.age_upper
             else (
-                f"{self.age_lower}{self.age_lower_operator}"
-                f"AGE{self.age_upper_operator}{self.age_upper}"
+                f"{self.age_lower or ''}{self.age_lower_operator}"
+                f"AGE{self.age_upper_operator}{self.age_upper or ''}"
             )
         )
 
