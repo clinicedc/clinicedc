@@ -101,7 +101,7 @@ class ReportablesEvaluator:
                     reference_range_collection=self.reference_range_collection, label=utest_id
                 ).exists()
             ):
-                self._evaluate_reportable(utest_id, value, field)
+                self._grade_or_check_normal_range(utest_id, value, field)
 
     def validate_results_abnormal_field(
         self, field=None, responses=None, suffix=None, word=None
@@ -125,7 +125,7 @@ class ReportablesEvaluator:
             word=word or "reportable",
         )
 
-    def _evaluate_reportable(self, utest_id, value, field):
+    def _grade_or_check_normal_range(self, utest_id, value, field):
         """Evaluate a single result value.
 
         Grading is done first. If the value is not gradeable,
@@ -186,9 +186,9 @@ class ReportablesEvaluator:
             raise forms.ValidationError(
                 {f"{utest_id}_reportable": "Invalid. Expected 'No' or 'Not applicable'."}
             )
-        self._evaluate_against_normal_data(utest_id, value, field, grade, response, opts)
+        self._check_normal_range(utest_id, value, field, grade, response, opts)
 
-    def _evaluate_against_normal_data(self, utest_id, value, field, grade, response, opts):
+    def _check_normal_range(self, utest_id, value, field, grade, response, opts):
         try:
             normal_data = get_normal_data_or_raise(
                 reference_range_collection=self.reference_range_collection,
