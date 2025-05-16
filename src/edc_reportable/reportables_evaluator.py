@@ -1,4 +1,10 @@
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import TYPE_CHECKING, Type
+
 from django import forms
+from django.apps import apps as django_apps
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_metadata.constants import REQUIRED
 
@@ -12,8 +18,11 @@ from .constants import (
     INVALID_REFERENCE,
     PRESENT_AT_BASELINE,
 )
-from .site_reportables import site_reportables
-from .value_reference_group import NotEvaluated
+from .exceptions import NotEvaluated, ValueBoundryError
+from .models import get_grade_for_value, get_normal_data_or_raise
+
+if TYPE_CHECKING:
+    from .models import NormalData, ReferenceRangeCollection
 
 
 class UserResponse:
@@ -35,14 +44,16 @@ class ReportablesEvaluator:
         self,
         reference_range_collection_name=None,
         cleaned_data=None,
-        gender=None,
-        dob=None,
-        report_datetime=None,
+        gender: str = None,
+        dob: date = None,
+        report_datetime: datetime = None,
+        age_units: str | None = None,
         value_field_suffix=None,
         **extra_options,
     ):
-        self.reference_range_collection = site_reportables.get(reference_range_collection_name)
-        if not self.reference_range_collection:
+        if not self.reference_range_collection_model_cls.objects.filter(
+            name=reference_range_collection_name
+        ).exists():
             raise forms.ValidationError(
                 {
                     "Invalid reference range collection. "
@@ -50,13 +61,30 @@ class ReportablesEvaluator:
                 },
                 code=INVALID_REFERENCE,
             )
-
+        self.reference_range_collection = (
+            self.reference_range_collection_model_cls.objects.get(
+                name=reference_range_collection_name
+            )
+        )
         self.cleaned_data = cleaned_data
         self.dob = dob
         self.gender = gender
         self.report_datetime = report_datetime
+        self.age_units = age_units
         self.value_field_suffix = value_field_suffix
         self.extra_options = extra_options
+
+    @property
+    def grades(self) -> list[str]:
+        return [GRADE0, GRADE1, GRADE2, GRADE3, GRADE4]
+
+    @property
+    def reference_range_collection_model_cls(self) -> Type[ReferenceRangeCollection]:
+        return django_apps.get_model("edc_reportable.referencerangecollection")
+
+    @property
+    def normal_data_model_cls(self) -> Type[NormalData]:
+        return django_apps.get_model("edc_reportable.normaldata")
 
     def validate_reportable_fields(self):
         """Check normal ranges and grade result values
@@ -67,7 +95,12 @@ class ReportablesEvaluator:
                 utest_id, _ = field.split(self.value_field_suffix)
             except ValueError:
                 utest_id = field
-            if value is not None and self.reference_range_collection.get(utest_id):
+            if (
+                value is not None
+                and self.normal_data_model_cls.objects.filter(
+                    reference_range_collection=self.reference_range_collection, label=utest_id
+                ).exists()
+            ):
                 self._evaluate_reportable(utest_id, value, field)
 
     def validate_results_abnormal_field(
@@ -92,16 +125,6 @@ class ReportablesEvaluator:
             word=word or "reportable",
         )
 
-    @property
-    def grades(self) -> list[str]:
-        return [GRADE0, GRADE1, GRADE2, GRADE3, GRADE4]
-
-    def reportable_grades_for_utest_id(self, utest_id):
-        reportable_grades = self.reference_range_collection.reportable_grades_exceptions.get(
-            utest_id
-        )
-        return reportable_grades or self.reference_range_collection.reportable_grades
-
     def _evaluate_reportable(self, utest_id, value, field):
         """Evaluate a single result value.
 
@@ -114,26 +137,28 @@ class ReportablesEvaluator:
             * {utest_id}_abnormal [YES, (NO)]
             * {utest_id}_reportable [(NOT_APPLICABLE), NO, GRADE3, GRADE4]
         """
-
         # get relevant user form reponses
         response = UserResponse(utest_id, self.cleaned_data)
-
         opts = dict(
             dob=self.dob,
             gender=self.gender,
             report_datetime=self.report_datetime,
+            age_units=self.age_units,
             units=response.units,
             **self.extra_options,
         )
-
-        grade = self.get_grade(utest_id, value, field, **opts)
-
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label=utest_id,
+            value=value,
+            **opts,
+        )
         # is gradeable, user reponse matches grade or has valid opt out
         # response
         if (
             grade
             and grade.grade
-            and str(grade.grade) in self.reportable_grades_for_utest_id(utest_id)
+            and str(grade.grade) in self.reference_range_collection.reportable_grades(utest_id)
             and response.reportable
             not in [str(grade.grade), ALREADY_REPORTED, PRESENT_AT_BASELINE]
         ):
@@ -161,54 +186,59 @@ class ReportablesEvaluator:
             raise forms.ValidationError(
                 {f"{utest_id}_reportable": "Invalid. Expected 'No' or 'Not applicable'."}
             )
+        self._evaluate_against_normal_data(utest_id, value, field, grade, response, opts)
 
-        normal = self.get_normal(utest_id, value, field, **opts)
-
-        # is not normal, user response does not match
-        if not normal and response.abnormal == NO:
-            descriptions = self.reference_range_collection.get(
-                utest_id
-            ).get_normal_description(**opts)
-            raise forms.ValidationError(
-                {
-                    field: (
-                        f"{utest_id.upper()} is abnormal. "
-                        f"Normal ranges: {', '.join(descriptions)}"
-                    )
-                }
-            )
-
-        # is not normal and not gradeable, user response does not match
-        if normal and not grade and response.abnormal == YES:
-            raise forms.ValidationError(
-                {f"{utest_id}_abnormal": "Invalid. Result is not abnormal"}
-            )
-
-        # illogical user response combination
-        if response.abnormal == YES and response.reportable == NOT_APPLICABLE:
-            raise forms.ValidationError(
-                {f"{utest_id}_reportable": "This field is applicable if result is abnormal"}
-            )
-
-        # illogical user response combination
-        if response.abnormal == NO and response.reportable != NOT_APPLICABLE:
-            raise forms.ValidationError(
-                {f"{utest_id}_reportable": "This field is not applicable"}
-            )
-
-    def get_grade(self, utest_id=None, value=None, field=None, **opts):
+    def _evaluate_against_normal_data(self, utest_id, value, field, grade, response, opts):
         try:
-            grade = self.reference_range_collection.get(utest_id).get_grade(value, **opts)
+            normal_data = get_normal_data_or_raise(
+                reference_range_collection=self.reference_range_collection,
+                label=utest_id,
+                **opts,
+            )
         except NotEvaluated as e:
             raise forms.ValidationError({field: str(e)})
-        return grade
+        else:
+            try:
+                normal = normal_data.value_in_normal_range_or_raise(
+                    value=value,
+                    dob=self.dob,
+                    report_datetime=self.report_datetime,
+                    age_units=self.age_units,
+                )
+            except ValueBoundryError:
+                normal = False
+            # is not normal, user response does not match
+            if not normal and response.abnormal == NO:
+                raise forms.ValidationError(
+                    {
+                        field: (
+                            f"{utest_id.upper()} is abnormal. "
+                            f"Normal range: {normal_data.description}"
+                        )
+                    }
+                )
 
-    def get_normal(self, utest_id=None, value=None, field=None, **opts):
-        try:
-            normal = self.reference_range_collection.get(utest_id).get_normal(value, **opts)
-        except NotEvaluated as e:
-            raise forms.ValidationError({field: str(e)})
-        return normal
+            # is not normal and not gradeable, user response does not match
+            if normal and not grade and response.abnormal == YES:
+                raise forms.ValidationError(
+                    {f"{utest_id}_abnormal": "Invalid. Result is not abnormal"}
+                )
+
+            # illogical user response combination
+            if response.abnormal == YES and response.reportable == NOT_APPLICABLE:
+                raise forms.ValidationError(
+                    {
+                        f"{utest_id}_reportable": (
+                            "This field is applicable if result is abnormal"
+                        )
+                    }
+                )
+
+            # illogical user response combination
+            if response.abnormal == NO and response.reportable != NOT_APPLICABLE:
+                raise forms.ValidationError(
+                    {f"{utest_id}_reportable": "This field is not applicable"}
+                )
 
     def _validate_final_assessment(self, field=None, responses=None, suffix=None, word=None):
         """Common code to validate fields `results_abnormal`
@@ -230,84 +260,3 @@ class ReportablesEvaluator:
         elif self.cleaned_data.get(field) == YES:
             if not any(answers_as_bool):
                 raise forms.ValidationError({field: f"None of the above results are {word}"})
-
-
-# class ReportablesEvaluator2(ReportablesEvaluator):
-#     def __init__(
-#         self,
-#         reference_range_collection_name=None,
-#         cleaned_data=None,
-#         gender=None,
-#         dob=None,
-#         report_datetime=None,
-#         value_field_suffix=None,
-#         **extra_options,
-#     ):
-#
-#         try:
-#             self.reference_range_collection = ReferenceRangeCollection.objects.get(
-#                 name=reference_range_collection_name
-#             )
-#         except ObjectDoesNotExist:
-#             raise forms.ValidationError(
-#                 {
-#                     "Invalid reference range collection. "
-#                     f"Got '{reference_range_collection_name}'"
-#                 },
-#                 code=INVALID_REFERENCE,
-#             )
-#
-#         self.cleaned_data = cleaned_data
-#         self.dob = dob
-#         self.gender = gender
-#         self.report_datetime = report_datetime
-#         self.value_field_suffix = value_field_suffix
-#         self.extra_options = extra_options
-#
-#     def grading_references(self, utest_id: str) -> QuerySet[GradingData]:
-#         qs = GradingData.objects.filter(
-#             reference_range_collection=self.reference_range_collection,
-#             utest_id=utest_id,
-#         )
-#         if qs.count() == 0:
-#             raise forms.ValidationError(
-#                 {
-#                     "Grading references not found for UTESTID. Using reference range "
-#                     f"collection '{self.reference_range_collection.name}'"
-#                     f"Got UTESTID='{utest_id}'"
-#                 },
-#                 code=INVALID_REFERENCE,
-#             )
-#
-#         return qs
-#
-#     def get_grade(self, utest_id=None, value=None, field=None, **opts):
-#
-#         try:
-#             grade = grading_reference.get_grade(value, **opts)
-#         except NotEvaluated as e:
-#             raise forms.ValidationError({field: str(e)})
-#
-#         return grade
-#
-#     def get_grade(self, value=None, **kwargs):
-#         """Returns a Grade instance or None."""
-#         grade = None
-#         for grade_ref in self._get_grading_references(**kwargs):
-#             if grade_ref.in_bounds(value=value, **kwargs):
-#                 if not grade:
-#                     grade = Grade(value, grade_ref.grade, grade_ref.description)
-#                 else:
-#                     raise BoundariesOverlap(
-#                         f"Previously got {grade}. "
-#                         f"Got {grade_ref.description(value=value)} ",
-#                         "Check your definitions.",
-#                     )
-#         return grade
-#
-#     def get_normal(self, utest_id=None, value=None, field=None, **opts):
-#         try:
-#             normal = self.reference_range_collection.get(utest_id).get_normal(value, **opts)
-#         except NotEvaluated as e:
-#             raise forms.ValidationError({field: str(e)})
-#         return normal

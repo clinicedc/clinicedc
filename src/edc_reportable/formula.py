@@ -5,6 +5,7 @@ from dataclasses import KW_ONLY, dataclass, field
 
 from edc_constants.constants import FEMALE, MALE
 
+from . import GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, GRADE5
 from .adult_age_options import adult_age_options
 
 __all__ = ["Formula", "formula", "dummy_formula", "FormulaError"]
@@ -30,7 +31,7 @@ def clean_and_validate_phrase(phrase) -> str:
 class Formula:
     phrase: str
     _ = KW_ONLY
-    units: str | None = None
+    units: str = None
     fasting: bool | None = field(default=False)
     gender: str | list[str] = field(default="")
     age_lower: str = field(default="")
@@ -68,6 +69,11 @@ class Formula:
         self.age_upper_operator = (
             "" if not self.age_upper else "<=" if self.age_upper_inclusive else "<"
         )
+        valid_grades = [GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, GRADE5]
+        if self.grade and self.grade not in valid_grades:
+            raise FormulaError(
+                f"Invalid grade. Expected one of {valid_grades}. Got `{self.grade}`"
+            )
 
     def __str__(self) -> str:
         return self.description
@@ -79,10 +85,12 @@ class Formula:
         except KeyError:
             fasting_str = ""
         else:
-            fasting_str: str = "Fasting " if fasting else ""
+            fasting_str = "Fasting " if fasting else ""
         return (
-            f"{self.lower or ''}{self.lower_operator}x{self.upper_operator}{self.upper or ''} "
-            f"{fasting_str}{','.join(self.gender)} {self.age_description}".rstrip()
+            f"{self.lower or ''}{self.lower_operator or ''}x{self.upper_operator or ''}"
+            f"{self.upper or ''} "
+            f"{self.units or 'units'} {fasting_str}{','.join(self.gender)} "
+            f"{self.age_description}".rstrip()
         )
 
     @property
@@ -115,53 +123,9 @@ class Formula:
             limit_normal = "*ULN"
         return value, inclusive, limit_normal
 
-    # def parse(
-    #     uln: str | None = None,
-    #     lln: str | None = None,
-    #     **kwargs,
-    # ) -> Formula:
-    #     pattern: str = r"(([\d+\.\d+]|[\.\d+])?(<|<=)?)+x((<|<=)?([\d+\.\d+]|[\.\d+])+)?"
-    #     lln: str = f"*{LLN}"
-    #     uln: str = f"*{ULN}"
-    #
-    #     def _parse(string: str) -> tuple[str, bool | None]:
-    #         inclusive = True if "=" in string else None
-    #         try:
-    #             value = float(
-    #               string.replace("<", "").replace("=", "").replace(lln, "").replace(uln, "")
-    #             )
-    #         except ValueError:
-    #             value = None
-    #         if lln in string:
-    #             value = f"{value}{lln}"
-    #         elif uln in string:
-    #             value = f"{value}{uln}"
-    #         return value, inclusive
-    #
-    #     phrase = phrase.replace(" ", "")
-    #     match = re.match(pattern, phrase.replace(lln, "").replace(uln, ""))
-    #     if not match or match.group() != phrase.replace(lln, "").replace(uln, ""):
-    #         raise ParserError(
-    #             f"Invalid. Got {phrase}. Expected, e.g, 11<x<22, "
-    #             "11<=x<22, 11<x<=22, 11<x, 11<=x, x<22, x<=22, etc."
-    #         )
-    #     left, right = phrase.replace(" ", "").split("x")
-    #     lower, lower_inclusive = _parse(left)
-    #     upper, upper_inclusive = _parse(right)
-    #     fasting = True if fasting else False
-    #     formula = Formula(
-    #         lower=lower,
-    #         lower_inclusive=lower_inclusive,
-    #         upper=upper,
-    #         upper_inclusive=upper_inclusive,
-    #         fasting=fasting,
-    #         **kwargs,
-    #     )
-    #     return formula
 
-
-def formula(*args, **kwargs):
-    return Formula(*args, **kwargs).description
+def formula(phrase, **kwargs):
+    return Formula(phrase, **kwargs).description
 
 
 def dummy_formula(phrase: str = None, units: str = None) -> Formula:

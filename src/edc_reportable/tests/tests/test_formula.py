@@ -1,6 +1,7 @@
 from django.test import TestCase, tag
 from edc_constants.constants import MALE
 
+from edc_reportable import MILLIMOLES_PER_LITER
 from edc_reportable.formula import (
     Formula,
     FormulaError,
@@ -12,80 +13,86 @@ from edc_reportable.formula import (
 class TestParser(TestCase):
     @tag("1")
     def test1(self):
-        formula = Formula("7<x<8")
-        self.assertEqual(formula.lower, 7)
-        self.assertFalse(formula.lower_inclusive)
-        self.assertEqual(formula.upper, 8)
-        self.assertFalse(formula.upper_inclusive)
+        f = Formula("7<x<8")
+        self.assertEqual(f.lower, 7)
+        self.assertFalse(f.lower_inclusive)
+        self.assertEqual(f.upper, 8)
+        self.assertFalse(f.upper_inclusive)
 
     @tag("1")
     def test2(self):
-        formula = Formula("7<=x<8")
-        self.assertEqual(formula.lower, 7)
-        self.assertTrue(formula.lower_inclusive)
-        self.assertEqual(formula.upper, 8)
-        self.assertFalse(formula.upper_inclusive)
+        f = Formula("7<=x<8")
+        self.assertEqual(f.lower, 7)
+        self.assertTrue(f.lower_inclusive)
+        self.assertEqual(f.upper, 8)
+        self.assertFalse(f.upper_inclusive)
 
     @tag("1")
     def test3(self):
-        formula = Formula("7<x<=8")
-        self.assertEqual(formula.lower, 7)
-        self.assertFalse(formula.lower_inclusive)
-        self.assertEqual(formula.upper, 8)
-        self.assertTrue(formula.upper_inclusive)
+        f = Formula("7<x<=8")
+        self.assertEqual(f.lower, 7)
+        self.assertFalse(f.lower_inclusive)
+        self.assertEqual(f.upper, 8)
+        self.assertTrue(f.upper_inclusive)
 
     @tag("1")
     def test4(self):
-        formula = Formula("7<=x<=8")
-        self.assertEqual(formula.lower, 7)
-        self.assertTrue(formula.lower_inclusive)
-        self.assertEqual(formula.upper, 8)
-        self.assertTrue(formula.upper_inclusive)
+        f = Formula("7<=x<=8")
+        self.assertEqual(f.lower, 7)
+        self.assertTrue(f.lower_inclusive)
+        self.assertEqual(f.upper, 8)
+        self.assertTrue(f.upper_inclusive)
 
     @tag("1")
     def test5(self):
-        formula = Formula(".7<=x<=.8")
-        self.assertEqual(formula.lower, 0.7)
-        self.assertTrue(formula.lower_inclusive)
-        self.assertEqual(formula.upper, 0.8)
-        self.assertTrue(formula.upper_inclusive)
+        f = Formula(".7<=x<=.8")
+        self.assertEqual(f.lower, 0.7)
+        self.assertTrue(f.lower_inclusive)
+        self.assertEqual(f.upper, 0.8)
+        self.assertTrue(f.upper_inclusive)
 
     @tag("1")
     def test6(self):
-        formula = Formula("0.77<=x<=0.88")
-        self.assertEqual(formula.lower, 0.77)
-        self.assertTrue(formula.lower_inclusive)
-        self.assertEqual(formula.upper, 0.88)
-        self.assertTrue(formula.upper_inclusive)
+        f = Formula("0.77<=x<=0.88")
+        self.assertEqual(f.lower, 0.77)
+        self.assertTrue(f.lower_inclusive)
+        self.assertEqual(f.upper, 0.88)
+        self.assertTrue(f.upper_inclusive)
 
     @tag("1")
     def test7(self):
-        formula = Formula("0.77 <= x <= 0.88")
-        self.assertEqual(formula.lower, 0.77)
-        self.assertTrue(formula.lower_inclusive)
-        self.assertEqual(formula.upper, 0.88)
-        self.assertTrue(formula.upper_inclusive)
+        f = Formula("0.77 <= x <= 0.88")
+        self.assertEqual(f.lower, 0.77)
+        self.assertTrue(f.lower_inclusive)
+        self.assertEqual(f.upper, 0.88)
+        self.assertTrue(f.upper_inclusive)
 
     @tag("1")
     def test8(self):
-        formula = Formula("x <= 0.88")
-        self.assertIsNone(formula.lower)
-        self.assertFalse(formula.lower_inclusive)
-        self.assertEqual(formula.upper, 0.88)
-        self.assertTrue(formula.upper_inclusive)
+        f = Formula("x <= 0.88")
+        self.assertIsNone(f.lower)
+        self.assertFalse(f.lower_inclusive)
+        self.assertEqual(f.upper, 0.88)
+        self.assertTrue(f.upper_inclusive)
 
     @tag("1")
     def test9(self):
-        formula = Formula("0.77 <= x")
-        self.assertEqual(formula.lower, 0.77)
-        self.assertTrue(formula.lower_inclusive)
-        self.assertIsNone(formula.upper)
-        self.assertFalse(formula.upper_inclusive)
+        f = Formula("0.77 <= x")
+        self.assertEqual(f.lower, 0.77)
+        self.assertTrue(f.lower_inclusive)
+        self.assertIsNone(f.upper)
+        self.assertFalse(f.upper_inclusive)
 
     @tag("1")
     def test10(self):
-        self.assertEqual(formula("0.77 <= x <= 0.88"), "0.77<=x<=0.88")
-        self.assertEqual(formula("0.77 <= x <= 0.88", gender=MALE), "0.77<=x<=0.88 M")
+        self.assertEqual(
+            formula("0.77 <= x <= 0.88", units=MILLIMOLES_PER_LITER),
+            f"0.77<=x<=0.88 {MILLIMOLES_PER_LITER}",
+        )
+        self.assertEqual(
+            formula("0.77 <= x <= 0.88", units=MILLIMOLES_PER_LITER, gender=MALE),
+            f"0.77<=x<=0.88 {MILLIMOLES_PER_LITER} {MALE}",
+        )
 
     @tag("1")
     def test11(self):

@@ -32,3 +32,7 @@ class ValueBoundryError(Exception):
 
 class NotEvaluated(Exception):
     pass
+
+
+class BoundariesOverlap(Exception):
+    pass

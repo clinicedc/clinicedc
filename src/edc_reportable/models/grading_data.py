@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.db import models
 from edc_model.models import BaseUuidModel
 
@@ -9,7 +11,10 @@ class GradingData(ReferenceModelMixin, BaseUuidModel):
     grade = models.IntegerField()
 
     def __str__(self):
-        return f"{self.label}: {self.description} GRADE {self.grade}"
+        return f"{self.description} GRADE {self.grade}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Grading Reference"

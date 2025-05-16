@@ -3,7 +3,6 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
-from edc_constants.constants import MALE
 from edc_utils import age
 
 from edc_reportable.age_evaluator import AgeEvaluator
@@ -15,7 +14,6 @@ from edc_reportable.evaluator import (
     InvalidUpperBound,
     ValueBoundryError,
 )
-from edc_reportable.normal_reference import NormalReference
 
 
 class TestEvaluators(TestCase):
@@ -177,24 +175,3 @@ class TestEvaluators(TestCase):
         age_eval = AgeEvaluator(age_lower=24, age_upper=25)
         self.assertRaises(ValueBoundryError, age_eval.in_bounds_or_raise, dob, report_datetime)
         self.assertEqual(age_eval.description(), "24<AGE<25 years")
-
-    @tag("1")
-    def test_age_match(self):
-        """Test age within the NormalReference."""
-        report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
-        dob = report_datetime - relativedelta(years=25)
-
-        ref = NormalReference(
-            lower=10, upper=None, units="mg/dL", age_lower=24, age_upper=26, gender=MALE
-        )
-        self.assertTrue(ref.age_match(dob, report_datetime))
-
-        ref = NormalReference(
-            lower=10, upper=None, units="mg/dL", age_lower=25, age_upper=26, gender=MALE
-        )
-        self.assertFalse(ref.age_match(dob, report_datetime))
-
-        ref = NormalReference(
-            lower=10, upper=None, units="mg/dL", age_lower=24, age_upper=25, gender=MALE
-        )
-        self.assertFalse(ref.age_match(dob, report_datetime))

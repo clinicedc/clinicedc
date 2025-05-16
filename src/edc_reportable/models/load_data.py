@@ -58,18 +58,19 @@ def load_reference_ranges(
     grading_data: dict[str, list[Formula]] = None,
     reportable_grades: list[int] = None,
     reportable_grades_exceptions: dict[str, list[int]] = None,
-):
+) -> ReferenceRangeCollection:
     """Load the reference ranges for a single collection.
 
     See also: load_all_reference_ranges
     """
-    reference_collection_name, _ = ReferenceRangeCollection.objects.get_or_create(
+    reference_range_collection, _ = ReferenceRangeCollection.objects.get_or_create(
         name=collection_name
     )
-    update_normal_data(reference_collection_name, normal_data=normal_data)
+    update_normal_data(reference_range_collection, normal_data=normal_data)
     update_grading_data(
-        reference_collection_name,
+        reference_range_collection,
         grading_data=grading_data,
         reportable_grades=reportable_grades,
         reportable_grades_exceptions=reportable_grades_exceptions,
     )
+    return reference_range_collection

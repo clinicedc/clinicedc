@@ -1,4 +1,3 @@
-from copy import copy
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -7,300 +6,392 @@ from django.test import TestCase, tag
 from edc_constants.constants import FEMALE, MALE
 from edc_utils import get_utcnow
 
+from edc_reportable import GRADE4, Formula
 from edc_reportable.adult_age_options import adult_age_options
-from edc_reportable.constants import HIGH_VALUE
-from edc_reportable.exceptions import GradeReferenceError
-from edc_reportable.grade_reference import GradeReference
-from edc_reportable.normal_reference import NormalReference
-from edc_reportable.units import IU_LITER
-from edc_reportable.value_reference_group import (
-    BoundariesOverlap,
-    NotEvaluated,
-    ValueReferenceGroup,
+from edc_reportable.constants import GRADE1, GRADE2, GRADE3, HIGH_VALUE
+from edc_reportable.exceptions import BoundariesOverlap, NotEvaluated
+from edc_reportable.models import (
+    ReferenceRangeCollection,
+    get_grade_for_value,
+    update_grading_data,
+    update_normal_data,
+)
+from edc_reportable.units import (
+    IU_LITER,
+    MILLIGRAMS_PER_DECILITER,
+    MILLIMOLES_PER_LITER,
 )
 
 
 class TestGrading(TestCase):
-    @tag("9")
-    def test_grading_reference_invalid_grade(self):
-        opts = dict(
-            name="labtest",
-            grade=2,
-            lower=10,
-            upper=20,
-            units="mg/dL",
-            age_lower=18,
-            age_upper=99,
-            age_units="years",
-            gender=MALE,
+
+    def setUp(self):
+        self.reference_range_collection = ReferenceRangeCollection.objects.create(
+            name="my_references"
+        )
+        self.age_opts = dict(
+            age_lower=18, age_upper=None, age_units="years", age_lower_inclusive=True
         )
 
-        g2 = GradeReference(**opts)
-        self.assertTrue(repr(g2))
-
-        new_opts = copy(opts)
-        new_opts.update(grade="-1")
-        self.assertRaises(GradeReferenceError, GradeReference, **new_opts)
-        new_opts.update(grade="6")
-        self.assertRaises(GradeReferenceError, GradeReference, **new_opts)
-
-    @tag("9")
+    @tag("1")
     def test_grading(self):
+        update_normal_data(
+            self.reference_range_collection,
+            normal_data={
+                "labtest": [
+                    Formula(
+                        "3.0<=x<7.0",
+                        units=MILLIGRAMS_PER_DECILITER,
+                        gender=[MALE, FEMALE],
+                        **self.age_opts,
+                    ),
+                ],
+            },
+        )
         report_datetime = datetime(2017, 12, 7).astimezone(ZoneInfo("UTC"))
         dob = report_datetime - relativedelta(years=25)
-        grp = ValueReferenceGroup(name="labtest")
 
-        opts = dict(
-            name="labtest",
-            grade=2,
-            lower=10,
-            upper=20,
-            units="mg/dL",
-            age_lower=18,
-            age_upper=99,
-            age_units="years",
-            gender=MALE,
-        )
+        data = {
+            "labtest": [
+                Formula(
+                    "10.0<=x<20.0",
+                    grade=GRADE2,
+                    units=MILLIGRAMS_PER_DECILITER,
+                    gender=[MALE],
+                    **self.age_opts,
+                ),
+                Formula(
+                    "20.0<=x<30.0",
+                    grade=GRADE3,
+                    units=MILLIGRAMS_PER_DECILITER,
+                    gender=[MALE],
+                    **self.age_opts,
+                ),
+                Formula(
+                    "30.0<=x<40.0",
+                    grade=GRADE4,
+                    units=MILLIGRAMS_PER_DECILITER,
+                    gender=[MALE],
+                    **self.age_opts,
+                ),
+            ]
+        }
+        update_grading_data(self.reference_range_collection, grading_data=data)
 
-        g2 = GradeReference(**opts)
-        self.assertTrue(repr(g2))
-
-        new_opts = copy(opts)
-        new_opts.update(grade="-1")
-        self.assertRaises(GradeReferenceError, GradeReference, **new_opts)
-
-        for grade in range(0, 6):
-            new_opts = copy(opts)
-            new_opts.update(grade=str(grade))
-            try:
-                GradeReference(**new_opts)
-            except GradeReferenceError:
-                self.fail("GradeReferenceError unexpectedly raised")
-
-        new_opts = copy(opts)
-        new_opts.update(grade=3, lower=20, lower_inclusive=True, upper=30)
-        g3 = GradeReference(**new_opts)
-
-        new_opts = copy(opts)
-        new_opts.update(grade=4, lower=30, lower_inclusive=True, upper=40)
-        g4 = GradeReference(**new_opts)
-
-        grp.add_grading(g2)
-        grp.add_grading(g3)
-        grp.add_grading(g4)
-
-        grade = grp.get_grade(
-            value=10,
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="labtest",
+            value=9.9,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
-            units="mg/dL",
+            units=MILLIGRAMS_PER_DECILITER,
+            age_units="years",
         )
         self.assertIsNone(grade)
-        grade = grp.get_grade(
+
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="labtest",
             value=11,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
-            units="mg/dL",
+            units=MILLIGRAMS_PER_DECILITER,
+            age_units="years",
         )
         self.assertEqual(grade.grade, 2)
 
-        grade = grp.get_grade(
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="labtest",
             value=20,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
-            units="mg/dL",
+            units=MILLIGRAMS_PER_DECILITER,
+            age_units="years",
         )
         self.assertEqual(grade.grade, 3)
-        grade = grp.get_grade(
+
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="labtest",
             value=21,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
-            units="mg/dL",
+            units=MILLIGRAMS_PER_DECILITER,
+            age_units="years",
         )
         self.assertEqual(grade.grade, 3)
 
-        grade = grp.get_grade(
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="labtest",
             value=30,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
-            units="mg/dL",
+            units=MILLIGRAMS_PER_DECILITER,
+            age_units="years",
         )
         self.assertEqual(grade.grade, 4)
-        grade = grp.get_grade(
+
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="labtest",
             value=31,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
-            units="mg/dL",
+            units=MILLIGRAMS_PER_DECILITER,
+            age_units="years",
         )
         self.assertEqual(grade.grade, 4)
 
         self.assertRaises(
             NotEvaluated,
-            grp.get_grade,
+            get_grade_for_value,
+            reference_range_collection=self.reference_range_collection,
+            label="labtest",
             value=31,
             gender=MALE,
             dob=report_datetime.date(),
             report_datetime=report_datetime,
-            units="mg/dL",
+            units=MILLIGRAMS_PER_DECILITER,
+            age_units="years",
         )
 
         self.assertRaises(
             NotEvaluated,
-            grp.get_grade,
+            get_grade_for_value,
+            reference_range_collection=self.reference_range_collection,
+            label="labtest",
             value=31,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
-            units="mmol/L",
+            units=MILLIMOLES_PER_LITER,
+            age_units="years",
         )
 
         self.assertRaises(
             NotEvaluated,
-            grp.get_grade,
+            get_grade_for_value,
+            reference_range_collection=self.reference_range_collection,
+            label="labtest",
             value=31,
             gender=FEMALE,
             dob=dob,
             report_datetime=report_datetime,
-            units="mmol/L",
+            units=MILLIMOLES_PER_LITER,
+            age_units="years",
         )
 
-        grade = grp.get_grade(
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="labtest",
             value=1,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
-            units="mg/dL",
+            units=MILLIGRAMS_PER_DECILITER,
+            age_units="years",
         )
         self.assertIsNone(grade)
 
-        new_opts = copy(opts)
-        new_opts.update(grade=1, lower=15, upper=20)
-
-        # overlaps with G2
-        g1 = GradeReference(**new_opts)
-        grp.add_grading(g1)
-
-        self.assertRaises(
-            BoundariesOverlap,
-            grp.get_grade,
-            value=16,
-            gender=MALE,
-            dob=dob,
-            report_datetime=report_datetime,
-            units="mg/dL",
+    @tag("1")
+    def test_grading_boundaries_overlap(self):
+        update_normal_data(
+            self.reference_range_collection,
+            normal_data={
+                "labtest": [
+                    Formula(
+                        "3.0<=x<7.0",
+                        units=MILLIGRAMS_PER_DECILITER,
+                        gender=[MALE, FEMALE],
+                        **self.age_opts,
+                    ),
+                ],
+            },
         )
 
-    @tag("2")
+        data = {
+            "labtest": [
+                Formula(
+                    "10.0<=x<20.0",
+                    grade=GRADE2,
+                    units=MILLIGRAMS_PER_DECILITER,
+                    gender=[MALE],
+                    **self.age_opts,
+                ),
+                Formula(
+                    "20.0<=x<30.0",
+                    grade=GRADE3,
+                    units=MILLIGRAMS_PER_DECILITER,
+                    gender=[MALE],
+                    **self.age_opts,
+                ),
+                Formula(
+                    "30.0<=x<40.0",
+                    grade=GRADE4,
+                    units=MILLIGRAMS_PER_DECILITER,
+                    gender=[MALE],
+                    **self.age_opts,
+                ),
+            ]
+        }
+        update_grading_data(self.reference_range_collection, grading_data=data)
+
+        overlapping_formula = Formula(
+            "15.0<=x<20.0",
+            grade=GRADE1,
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE],
+            **self.age_opts,
+        )
+
+        data["labtest"] = [overlapping_formula]
+        self.assertRaises(
+            BoundariesOverlap,
+            update_grading_data,
+            self.reference_range_collection,
+            grading_data=data,
+            keep_existing=True,
+        )
+
+    @tag("1")
     def test_grading_with_limits_normal(self):
         dob = get_utcnow() - relativedelta(years=25)
         report_datetime = get_utcnow()
-        grp = ValueReferenceGroup(name="amylase")
-        normal_reference = NormalReference(
-            name="amylase",
-            gender=[MALE, FEMALE],
-            units=IU_LITER,
-            lower=25.0,
-            upper=125.0,
-            lower_inclusive=True,
-            upper_inclusive=True,
-            **adult_age_options,
+
+        update_normal_data(
+            self.reference_range_collection,
+            normal_data={
+                "amylase": [
+                    Formula(
+                        "25<=x<=125", units=IU_LITER, gender=[MALE, FEMALE], **self.age_opts
+                    )
+                ]
+            },
         )
-        opts = dict(
-            name="amylase",
-            grade=1,
-            lower="1.1*ULN",
-            upper="1.5*ULN",
-            lower_inclusive=True,
-            upper_inclusive=False,
-            units=IU_LITER,
-            gender=MALE,
-            **adult_age_options,
+        update_grading_data(
+            self.reference_range_collection,
+            grading_data={
+                "amylase": [
+                    Formula(
+                        "1.1*ULN<=x<1.5*ULN",
+                        grade=GRADE1,
+                        units=IU_LITER,
+                        gender=[MALE, FEMALE],
+                        **adult_age_options,
+                    ),
+                    Formula(
+                        "1.5*ULN<=x<3.0*ULN",
+                        grade=GRADE2,
+                        units=IU_LITER,
+                        gender=[MALE, FEMALE],
+                        **adult_age_options,
+                    ),
+                    Formula(
+                        "3.0*ULN<=x<5.0*ULN",
+                        grade=GRADE3,
+                        units=IU_LITER,
+                        gender=[MALE, FEMALE],
+                        **adult_age_options,
+                    ),
+                    Formula(
+                        f"5.0*ULN<=x<{HIGH_VALUE}*ULN",
+                        grade=GRADE4,
+                        units=IU_LITER,
+                        gender=[MALE, FEMALE],
+                        **adult_age_options,
+                    ),
+                ],
+            },
         )
-        g1 = GradeReference(normal_references=[normal_reference], **opts)
-
-        new_opts = copy(opts)
-        new_opts.update(grade=2, lower="1.5*ULN", upper="3.0*ULN")
-        g2 = GradeReference(normal_references=[normal_reference], **new_opts)
-
-        new_opts = copy(opts)
-        new_opts.update(grade=3, lower="3.0*ULN", upper="5.0*ULN")
-        g3 = GradeReference(normal_references=[normal_reference], **new_opts)
-
-        new_opts = copy(opts)
-        new_opts.update(grade=4, lower="5.0*ULN", upper=f"{HIGH_VALUE}*ULN")
-        g4 = GradeReference(normal_references=[normal_reference], **new_opts)
-
-        grp.add_grading(g1)
-        grp.add_grading(g2)
-        grp.add_grading(g3)
-        grp.add_grading(g4)
-
-        grade = grp.get_grade(
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="amylase",
             value=130,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
             units=IU_LITER,
+            age_units=self.age_opts["age_units"],
         )
         self.assertIsNone(grade)
 
-        grade = grp.get_grade(
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="amylase",
             value=137.5,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
             units=IU_LITER,
+            age_units=self.age_opts["age_units"],
         )
         self.assertEqual(grade.grade, 1)
 
-        grade = grp.get_grade(
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="amylase",
             value=187.4,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
             units=IU_LITER,
+            age_units=self.age_opts["age_units"],
         )
         self.assertEqual(grade.grade, 1)
 
-        grade = grp.get_grade(
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="amylase",
             value=187.5,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
             units=IU_LITER,
+            age_units=self.age_opts["age_units"],
         )
         self.assertEqual(grade.grade, 2)
 
-        grade = grp.get_grade(
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="amylase",
             value=212,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
             units=IU_LITER,
+            age_units=self.age_opts["age_units"],
         )
         self.assertEqual(grade.grade, 2)
 
-        grade = grp.get_grade(
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="amylase",
             value=600,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
             units=IU_LITER,
+            age_units=self.age_opts["age_units"],
         )
         self.assertEqual(grade.grade, 3)
 
-        grade = grp.get_grade(
+        grade = get_grade_for_value(
+            reference_range_collection=self.reference_range_collection,
+            label="amylase",
             value=780,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
             units=IU_LITER,
+            age_units=self.age_opts["age_units"],
         )
         self.assertEqual(grade.grade, 4)
 

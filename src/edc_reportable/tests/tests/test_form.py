@@ -11,18 +11,23 @@ from edc_reportable import (
     MILLIMOLES_PER_LITER,
     TEN_X_9_PER_LITER,
 )
+from edc_reportable.models import load_reference_ranges
 from edc_reportable.units import MILLIGRAMS_PER_DECILITER
 from reportable_app.form_validators import SpecimenResultFormValidator
 from reportable_app.models import SpecimenResult
+from reportable_app.reportables import grading_data, normal_data
 
 
 class TestSpecimenResultForm(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        load_reference_ranges(
+            "my_reference_list", normal_data=normal_data, grading_data=grading_data
+        )
+
     def setUp(self):
-        # site_reportables._registry = {}
-        #
-        # site_reportables.register(
-        #     name="my_reference_list", normal_data=normal_data, grading_data=grading_data
-        # )
+
         self.cleaned_data = {
             "subject_visit": "",
             "dob": get_utcnow() - relativedelta(years=25),
@@ -70,6 +75,7 @@ class TestSpecimenResultForm(TestCase):
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
         self.assertRaises(ValidationError, form_validator.validate)
+        print(form_validator._errors)
         self.assertIn("haemoglobin", form_validator._errors)
 
     def test_haemoglobin_units_male_valid(self):
