@@ -8,7 +8,7 @@ from django_pandas.io import read_frame
 from ..constants import SYSTEM_COLUMNS
 from ..utils import (
     convert_dates_from_model,
-    convert_numerics_from_model,
+    convert_numbers_to_nullable_dtype,
     convert_timedelta_from_model,
 )
 from .get_subject_visit import get_subject_visit
@@ -47,11 +47,6 @@ def get_crf(
         df["site"] = df["site"].map(sites)
     df = df.rename(columns={"site": "site_id"})
 
-    # convert values to ...
-    df = convert_numerics_from_model(df, model_cls)
-    df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
-    df = convert_timedelta_from_model(df, model_cls)
-
     df = df.rename(columns={"subject_visit": "subject_visit_id"})
     if subject_visit_model:
         df = df.reset_index(drop=True)
@@ -71,5 +66,10 @@ def get_crf(
     df = df[[col for col in df.columns if col not in SYSTEM_COLUMNS] + SYSTEM_COLUMNS]
     if drop_columns:
         df = df.drop(columns=drop_columns)
-    df = df.reset_index(drop=True)
+    # convert values to ...
+    # df = convert_numerics_from_model(df, model_cls)
+    df = convert_numbers_to_nullable_dtype(df)
+    df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
+    df = convert_timedelta_from_model(df, model_cls)
+    df = df.fillna(pd.NA).reset_index(drop=True)
     return df
