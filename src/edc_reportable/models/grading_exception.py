@@ -15,15 +15,12 @@ class GradingException(BaseUuidModel):
     grade3 = models.BooleanField(default=False)
     grade4 = models.BooleanField(default=False)
 
-    grades = models.CharField(max_length=10, blank=True, null=True, editable=False)
-
-    def save(self, *args, **kwargs):
+    def grades(self) -> list[str]:
         grades = []
         for i in range(1, 5):
             if getattr(self, f"grade{i}"):
                 grades.append(str(i))
-        self.grades = ",".join(grades)
-        super().save(*args, **kwargs)
+        return grades
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Grading Exception"

@@ -4,6 +4,7 @@ from importlib import import_module
 from django.apps import apps as django_apps
 from django.conf import settings
 
+from .. import GRADE3, GRADE4
 from ..formula import Formula
 from .reference_range_collection import ReferenceRangeCollection
 from .utils import update_grading_data, update_normal_data
@@ -70,7 +71,7 @@ def load_reference_ranges(
     update_grading_data(
         reference_range_collection,
         grading_data=grading_data,
-        reportable_grades=reportable_grades,
+        reportable_grades=reportable_grades or [GRADE3, GRADE4],
         reportable_grades_exceptions=reportable_grades_exceptions,
     )
     return reference_range_collection

@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import MALE
 
 from edc_reportable import MILLIMOLES_PER_LITER
@@ -11,7 +11,7 @@ from edc_reportable.formula import (
 
 
 class TestParser(TestCase):
-    @tag("1")
+
     def test1(self):
         f = Formula("7<x<8")
         self.assertEqual(f.lower, 7)
@@ -19,7 +19,6 @@ class TestParser(TestCase):
         self.assertEqual(f.upper, 8)
         self.assertFalse(f.upper_inclusive)
 
-    @tag("1")
     def test2(self):
         f = Formula("7<=x<8")
         self.assertEqual(f.lower, 7)
@@ -27,7 +26,6 @@ class TestParser(TestCase):
         self.assertEqual(f.upper, 8)
         self.assertFalse(f.upper_inclusive)
 
-    @tag("1")
     def test3(self):
         f = Formula("7<x<=8")
         self.assertEqual(f.lower, 7)
@@ -35,7 +33,6 @@ class TestParser(TestCase):
         self.assertEqual(f.upper, 8)
         self.assertTrue(f.upper_inclusive)
 
-    @tag("1")
     def test4(self):
         f = Formula("7<=x<=8")
         self.assertEqual(f.lower, 7)
@@ -43,7 +40,6 @@ class TestParser(TestCase):
         self.assertEqual(f.upper, 8)
         self.assertTrue(f.upper_inclusive)
 
-    @tag("1")
     def test5(self):
         f = Formula(".7<=x<=.8")
         self.assertEqual(f.lower, 0.7)
@@ -51,7 +47,6 @@ class TestParser(TestCase):
         self.assertEqual(f.upper, 0.8)
         self.assertTrue(f.upper_inclusive)
 
-    @tag("1")
     def test6(self):
         f = Formula("0.77<=x<=0.88")
         self.assertEqual(f.lower, 0.77)
@@ -59,7 +54,6 @@ class TestParser(TestCase):
         self.assertEqual(f.upper, 0.88)
         self.assertTrue(f.upper_inclusive)
 
-    @tag("1")
     def test7(self):
         f = Formula("0.77 <= x <= 0.88")
         self.assertEqual(f.lower, 0.77)
@@ -67,7 +61,6 @@ class TestParser(TestCase):
         self.assertEqual(f.upper, 0.88)
         self.assertTrue(f.upper_inclusive)
 
-    @tag("1")
     def test8(self):
         f = Formula("x <= 0.88")
         self.assertIsNone(f.lower)
@@ -75,7 +68,6 @@ class TestParser(TestCase):
         self.assertEqual(f.upper, 0.88)
         self.assertTrue(f.upper_inclusive)
 
-    @tag("1")
     def test9(self):
         f = Formula("0.77 <= x")
         self.assertEqual(f.lower, 0.77)
@@ -83,7 +75,6 @@ class TestParser(TestCase):
         self.assertIsNone(f.upper)
         self.assertFalse(f.upper_inclusive)
 
-    @tag("1")
     def test10(self):
         self.assertEqual(
             formula("0.77 <= x <= 0.88", units=MILLIMOLES_PER_LITER),
@@ -94,7 +85,6 @@ class TestParser(TestCase):
             f"0.77<=x<=0.88 {MILLIMOLES_PER_LITER} {MALE}",
         )
 
-    @tag("1")
     def test11(self):
         self.assertRaises(FormulaError, clean_and_validate_phrase, "0.77 <= x = 0.88")
         self.assertRaises(FormulaError, clean_and_validate_phrase, "0.77 <= x =")

@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import FEMALE, MALE
 from edc_utils import get_utcnow
 
@@ -17,7 +17,7 @@ from reportable_app.reportables import grading_data, normal_data
 
 
 class TestLoadData(TestCase):
-    @tag("1")
+
     def test_load_data(self):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
@@ -25,7 +25,6 @@ class TestLoadData(TestCase):
         self.assertEqual(NormalData.objects.all().count(), 24)
         self.assertEqual(GradingData.objects.all().count(), 60)
 
-    @tag("1")
     def test_loaded_grades(self):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
@@ -36,7 +35,6 @@ class TestLoadData(TestCase):
         self.assertEqual(qs.filter(grade=3)[0].get("count"), 26)
         self.assertEqual(qs.filter(grade=4)[0].get("count"), 26)
 
-    @tag("1")
     def test_loaded_grades_tbil(self):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
@@ -51,7 +49,6 @@ class TestLoadData(TestCase):
         self.assertEqual(qs.filter(grade=3)[0].get("count"), 4)
         self.assertEqual(qs.filter(grade=4)[0].get("count"), 4)
 
-    @tag("1")
     def test_loaded_twice_ok(self):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
@@ -64,7 +61,6 @@ class TestLoadData(TestCase):
         self.assertEqual(NormalData.objects.all().count(), 24)
         self.assertEqual(GradingData.objects.all().count(), 60)
 
-    @tag("1")
     def test_description(self):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
@@ -73,7 +69,6 @@ class TestLoadData(TestCase):
         self.assertEqual(qs.first().description, "tbil: 1.1*ULN<=x<1.6*ULN mg/dL M 18<=AGE")
         self.assertEqual(qs.last().description, "tbil: 5.0*ULN<=x mmol/L M 18<=AGE")
 
-    @tag("1")
     def test_bounds_for_existing_units(self):
 
         reference_range_collection = load_reference_ranges(
@@ -133,7 +128,6 @@ class TestLoadData(TestCase):
                 age_units="years",
             )
 
-    @tag("1")
     def test_normal_data_bounds_for_non_existing_units(self):
 
         reference_range_collection = load_reference_ranges(
@@ -204,7 +198,6 @@ class TestLoadData(TestCase):
                 age_units="years",
             )
 
-    @tag("1")
     def test_normal_data_creates_for_missing_units(self):
         report_datetime = get_utcnow()
         dob = report_datetime - relativedelta(years=25)
@@ -240,7 +233,6 @@ class TestLoadData(TestCase):
             NormalData.objects.filter(label="magnesium").count(), starting_count + 1
         )
 
-    @tag("1")
     def test_normal_data_creates_for_missing_units_and_evaluates(self):
         report_datetime = get_utcnow()
         dob = report_datetime - relativedelta(years=25)

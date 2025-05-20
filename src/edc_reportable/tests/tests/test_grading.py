@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import FEMALE, MALE
 from edc_utils import get_utcnow
 
@@ -33,7 +33,6 @@ class TestGrading(TestCase):
             age_lower=18, age_upper=None, age_units="years", age_lower_inclusive=True
         )
 
-    @tag("1")
     def test_grading(self):
         update_normal_data(
             self.reference_range_collection,
@@ -201,7 +200,6 @@ class TestGrading(TestCase):
         )
         self.assertIsNone(grade)
 
-    @tag("1")
     def test_grading_boundaries_overlap(self):
         update_normal_data(
             self.reference_range_collection,
@@ -261,7 +259,6 @@ class TestGrading(TestCase):
             keep_existing=True,
         )
 
-    @tag("1")
     def test_grading_with_limits_normal(self):
         dob = get_utcnow() - relativedelta(years=25)
         report_datetime = get_utcnow()

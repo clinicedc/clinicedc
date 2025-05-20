@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 
 from edc_reportable import (
     MICROMOLES_PER_LITER,
@@ -9,7 +9,7 @@ from edc_reportable import (
 
 
 class TestParser(TestCase):
-    @tag("1")
+
     def test_convert_glucose(self):
         """mg/dL to mmol/L"""
 
@@ -39,7 +39,6 @@ class TestParser(TestCase):
         )
         self.assertEqual(6.9375, converted_value)
 
-    @tag("1")
     def test_convert_creatinine(self):
         """mg/dL to umol/L"""
 

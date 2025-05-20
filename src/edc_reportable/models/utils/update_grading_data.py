@@ -46,6 +46,11 @@ def update_grading_data(
     reportable_grades_exceptions: dict[str, list[str]] | None = None,
     keep_existing: bool | None = None,
 ):
+    reportable_grades = reportable_grades or get_default_reportable_grades()
+    for grade in reportable_grades:
+        setattr(reference_range_collection, f"GRADE{grade}", True)
+    reference_range_collection.save()
+
     update_grading_exceptions(
         reference_range_collection=reference_range_collection,
         reportable_grades_exceptions=reportable_grades_exceptions,

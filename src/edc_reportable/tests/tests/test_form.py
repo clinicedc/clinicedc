@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase, tag
+from django.test import TestCase
 from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES
 from edc_utils import get_utcnow
 
@@ -68,14 +68,12 @@ class TestSpecimenResultForm(TestCase):
             "results_reportable": NOT_APPLICABLE,
         }
 
-    @tag("4")
     def test_haemoglobin_units_invalid(self):
         self.cleaned_data.update(haemoglobin=6.4, results_abnormal=YES)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
         self.assertRaises(ValidationError, form_validator.validate)
-        print(form_validator._errors)
         self.assertIn("haemoglobin", form_validator._errors)
 
     def test_haemoglobin_units_male_valid(self):

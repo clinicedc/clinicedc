@@ -15,19 +15,6 @@ if TYPE_CHECKING:
     from ..reference_range_collection import ReferenceRangeCollection
 
 
-class Grade:
-    def __init__(self, value: int | float, grade: int, description: str):
-        self._value = value
-        self.description = description
-        self.grade = grade
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(<({self.description} GRADE {self.grade})>)"
-
-    def __str__(self):
-        return self.description
-
-
 def get_grade_for_value(
     reference_range_collection: ReferenceRangeCollection,
     value: float | int,
@@ -38,8 +25,8 @@ def get_grade_for_value(
     report_datetime: datetime,
     age_units: str | None = None,
     site: Site | None = None,
-) -> Grade | None:
-    grade = None
+) -> GradingData | None:
+    found_grading_data = None
 
     grading_data_objs = get_grading_data_instances(
         reference_range_collection, label, units, gender, dob, report_datetime, age_units
@@ -64,16 +51,16 @@ def get_grade_for_value(
             f'{grading_data.upper_operator or ""}{"" if upper_limit is None else upper_limit}'
         )
         if eval(condition_str):  # nosec B307
-            if not grade:
-                grade = Grade(value, grading_data.grade, str(grading_data))
+            if not found_grading_data:
+                found_grading_data = grading_data
             else:
                 raise BoundariesOverlap(
-                    f"Overlapping grading definitions. Got {grade} "
+                    f"Overlapping grading definitions. Got {found_grading_data} "
                     f"which overlaps with {grading_data}. "
                     f"Using value={value} ({condition_str}). "
                     f"Check your grading definitions for `{label}` .",
                 )
-    return grade
+    return found_grading_data
 
 
 def get_lower_limit(
