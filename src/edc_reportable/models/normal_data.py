@@ -1,17 +1,20 @@
 import re
 from datetime import date, datetime
 
-# from django.contrib.sites.models import Site
-# from django.db import models
-from edc_model.models import BaseUuidModel
+from django.db import models
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ..exceptions import ValueBoundryError
-from .model_mixins import ReferenceModelMixin
+from .reference_model_mixins import ReferenceModelMixin
 
 
 class NormalData(ReferenceModelMixin, BaseUuidModel):
 
     # sites = models.ManyToManyField(Site, blank=True)
+
+    auto_created = models.BooleanField(default=False)
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.description
@@ -40,8 +43,8 @@ class NormalData(ReferenceModelMixin, BaseUuidModel):
 
         value = float(value)
         value_condition_str = (
-            f'{"" if self.lower is None else self.lower}{self.lower_operator or ""}{value}'
-            f'{self.upper_operator or ""}{"" if self.upper is None else self.upper}'
+            f'{"" if not self.lower else self.lower}{self.lower_operator or ""}{value}'
+            f'{self.upper_operator or ""}{"" if not self.upper else self.upper}'
         )
         if not re.match(pattern, value_condition_str):
             raise ValueError(f"Invalid condition string. Got {value_condition_str}.")

@@ -15,11 +15,11 @@ class GradingException(BaseUuidModel):
     grade3 = models.BooleanField(default=False)
     grade4 = models.BooleanField(default=False)
 
-    def grades(self) -> list[str]:
+    def grades(self) -> list[int]:
         grades = []
         for i in range(1, 5):
             if getattr(self, f"grade{i}"):
-                grades.append(str(i))
+                grades.append(i)
         return grades
 
     class Meta(BaseUuidModel.Meta):

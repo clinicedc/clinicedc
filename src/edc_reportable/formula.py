@@ -5,7 +5,6 @@ from dataclasses import KW_ONLY, dataclass, field
 
 from edc_constants.constants import FEMALE, MALE
 
-from . import GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, GRADE5
 from .adult_age_options import adult_age_options
 
 __all__ = ["Formula", "formula", "dummy_formula", "FormulaError"]
@@ -41,7 +40,7 @@ class Formula:
     upper_inclusive: bool = field(default=False)
     age_lower_inclusive: bool | None = None
     age_upper_inclusive: bool | None = None
-    grade: str | None = None
+    grade: int | None = None
     lln: str | None = field(default=None, init=False, repr=False)
     uln: str | None = field(default=None, init=False, repr=False)
     lower_operator: str = field(default="", init=False, repr=False)
@@ -69,7 +68,7 @@ class Formula:
         self.age_upper_operator = (
             "" if not self.age_upper else "<=" if self.age_upper_inclusive else "<"
         )
-        valid_grades = [GRADE0, GRADE1, GRADE2, GRADE3, GRADE4, GRADE5]
+        valid_grades = [0, 1, 2, 3, 4, 5]
         if self.grade and self.grade not in valid_grades:
             raise FormulaError(
                 f"Invalid grade. Expected one of {valid_grades}. Got `{self.grade}`"
@@ -86,10 +85,13 @@ class Formula:
             fasting_str = ""
         else:
             fasting_str = "Fasting " if fasting else ""
+        grade = ""
+        if self.grade is not None:
+            grade = f"GRADE{self.grade} "
         return (
             f"{self.lower or ''}{self.lower_operator or ''}x{self.upper_operator or ''}"
             f"{self.upper or ''} "
-            f"{self.units or 'units'} {fasting_str}{','.join(self.gender)} "
+            f"{self.units or 'units'} {fasting_str}{grade}{','.join(self.gender)} "
             f"{self.age_description}".rstrip()
         )
 

@@ -10,7 +10,7 @@ from edc_metadata.constants import REQUIRED
 
 from .constants import ALREADY_REPORTED, INVALID_REFERENCE, PRESENT_AT_BASELINE
 from .exceptions import NotEvaluated, ValueBoundryError
-from .models import get_grade_for_value, get_normal_data_or_raise
+from .utils import get_grade_for_value, get_normal_data_or_raise
 
 if TYPE_CHECKING:
     from .models import GradingData, NormalData, ReferenceRangeCollection
@@ -37,16 +37,16 @@ class UserFormResponse:
         return f"{self.utest_id} ({self.units})"
 
 
-class ReportablesEvaluator:
+class ReferenceRangeEvaluator:
     def __init__(
         self,
         reference_range_collection_name=None,
-        cleaned_data=None,
+        cleaned_data: dict = None,
         gender: str = None,
         dob: date = None,
         report_datetime: datetime = None,
-        age_units: str | None = None,
-        value_field_suffix=None,
+        age_units: str = None,
+        value_field_suffix: str | None = None,
         **extra_options,
     ):
         if not self.reference_range_collection_model_cls.objects.filter(
@@ -69,10 +69,10 @@ class ReportablesEvaluator:
         self.gender = gender
         self.report_datetime = report_datetime
         self.age_units = age_units
-        self.value_field_suffix = value_field_suffix
+        self.value_field_suffix = value_field_suffix or "_value"
         self.extra_options = extra_options
 
-    def grades(self, utest_id: str) -> list[str]:
+    def grades(self, utest_id: str) -> list[int]:
         return self.reference_range_collection.grades(utest_id)
 
     @property
@@ -101,26 +101,16 @@ class ReportablesEvaluator:
                 # raise ValidationError if
                 self._grade_or_check_normal_range(utest_id, value, field)
 
-    def validate_results_abnormal_field(
-        self, field=None, responses=None, suffix=None, word=None
-    ):
+    def validate_results_abnormal_field(self):
         """Validate the "results_abnormal" field."""
         self._validate_final_assessment(
-            field=field or "results_abnormal",
-            responses=responses or [YES],
-            suffix=suffix or "_abnormal",
-            word=word or "abnormal",
+            field="results_abnormal", responses=[YES], suffix="_abnormal", word="abnormal"
         )
 
-    def validate_results_reportable_field(
-        self, field=None, responses=None, suffix=None, word=None
-    ):
+    def validate_results_reportable_field(self):
         """Validate the "results_reportable" field."""
         self._validate_final_assessment(
-            field=field or "results_reportable",
-            responses=responses,
-            suffix=suffix or "_reportable",
-            word=word or "reportable",
+            field="results_reportable", responses=None, suffix="_reportable", word="reportable"
         )
 
     def _grade_or_check_normal_range(self, utest_id, value, field):
@@ -147,7 +137,7 @@ class ReportablesEvaluator:
             units=user_form_response.units,
             **self.extra_options,
         )
-        grading_data = get_grade_for_value(
+        grading_data, condition_str = get_grade_for_value(
             reference_range_collection=self.reference_range_collection,
             label=utest_id,
             value=value,
@@ -158,26 +148,31 @@ class ReportablesEvaluator:
         if (
             grading_data
             and grading_data.grade
-            and str(grading_data.grade)
-            in self.reference_range_collection.reportable_grades(utest_id)
+            in self.reference_range_collection.reportable_grades(label=utest_id)
             and user_form_response.reportable
             not in [str(grading_data.grade), ALREADY_REPORTED, PRESENT_AT_BASELINE]
         ):
             raise forms.ValidationError(
-                {field: f"{utest_id.upper()} is reportable. Got {grading_data.description}."}
+                {
+                    field: (
+                        f"{utest_id.upper()} is reportable. Got {grading_data.description}. "
+                        f"({condition_str})."
+                    )
+                }
             )
         # user selects grade that does not match grade from evaluator
         if (
             grading_data
             and grading_data.grade
-            and user_form_response.reportable in self.grades(utest_id)
+            and user_form_response.reportable in [str(g) for g in self.grades(utest_id)]
             and str(grading_data.grade) != str(user_form_response.reportable)
         ):
             raise forms.ValidationError(
                 {
                     field: (
-                        f"{utest_id.upper()} grade mismatch. Evaluated as grade "
-                        f"{grading_data.grade}. Got {user_form_response.reportable}."
+                        f"{utest_id.upper()} grade mismatch. Value given evaluates to grade "
+                        f"{grading_data.grade} ({condition_str}). "
+                        f"Got grade {user_form_response.reportable}. "
                     )
                 }
             )
@@ -263,12 +258,14 @@ class ReportablesEvaluator:
         responses: list[str] = None,
         suffix: str = None,
         word: str = None,
+        utest_id: str = None,
     ):
         """Common code to validate fields `results_abnormal`
         and `results_reportable`.
         """
-        # responses = responses or self.reference_range_collection.reportable_grades()
-        responses = responses or []
+        responses = responses or [
+            str(g) for g in self.reference_range_collection.default_grades()
+        ]
         answers = list(
             {k: v for k, v in self.cleaned_data.items() if k.endswith(suffix)}.values()
         )

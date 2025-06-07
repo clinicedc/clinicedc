@@ -36,3 +36,7 @@ class NotEvaluated(Exception):
 
 class BoundariesOverlap(Exception):
     pass
+
+
+class ConversionNotHandled(Exception):
+    pass

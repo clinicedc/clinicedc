@@ -4,15 +4,21 @@ from django.test import TestCase
 from edc_constants.constants import FEMALE, MALE
 from edc_utils import get_utcnow
 
-from edc_reportable import MICROMOLES_PER_LITER, MILLIGRAMS_PER_DECILITER
-from edc_reportable.evaluator import ValueBoundryError
-from edc_reportable.models import (
-    GradingData,
-    NormalData,
-    get_normal_data_or_raise,
-    in_bounds_or_raise,
+from edc_reportable import (
+    MICROMOLES_PER_LITER,
+    MILLIGRAMS_PER_DECILITER,
+    ConversionNotHandled,
 )
-from edc_reportable.models.load_data import load_reference_ranges
+from edc_reportable.evaluator import ValueBoundryError
+from edc_reportable.models import GradingData, NormalData
+from edc_reportable.utils import (
+    get_normal_data_or_raise,
+    in_normal_bounds_or_raise,
+    load_reference_ranges,
+)
+from edc_reportable.utils.get_normal_data_or_raise import (
+    create_obj_for_new_units_or_raise,
+)
 from reportable_app.reportables import grading_data, normal_data
 
 
@@ -66,8 +72,10 @@ class TestLoadData(TestCase):
             "my_reportables", grading_data=grading_data, normal_data=normal_data
         )
         qs = GradingData.objects.filter(label="tbil").order_by("units", "grade")
-        self.assertEqual(qs.first().description, "tbil: 1.1*ULN<=x<1.6*ULN mg/dL M 18<=AGE")
-        self.assertEqual(qs.last().description, "tbil: 5.0*ULN<=x mmol/L M 18<=AGE")
+        self.assertEqual(
+            qs.first().description, "tbil: 1.1*ULN<=x<1.6*ULN mg/dL GRADE1 M 18<=AGE"
+        )
+        self.assertEqual(qs.last().description, "tbil: 5.0*ULN<=x mmol/L GRADE4 M 18<=AGE")
 
     def test_bounds_for_existing_units(self):
 
@@ -81,7 +89,7 @@ class TestLoadData(TestCase):
         for gender in [MALE, FEMALE]:
             self.assertRaises(
                 ValueBoundryError,
-                in_bounds_or_raise,
+                in_normal_bounds_or_raise,
                 reference_range_collection,
                 "tbil",
                 4.9,
@@ -92,7 +100,7 @@ class TestLoadData(TestCase):
                 age_units="years",
             )
             self.assertTrue(
-                in_bounds_or_raise(
+                in_normal_bounds_or_raise(
                     reference_range_collection,
                     "tbil",
                     7.1,
@@ -104,7 +112,7 @@ class TestLoadData(TestCase):
                 )
             )
             self.assertTrue(
-                in_bounds_or_raise(
+                in_normal_bounds_or_raise(
                     reference_range_collection,
                     "tbil",
                     20.9,
@@ -117,7 +125,7 @@ class TestLoadData(TestCase):
             )
             self.assertRaises(
                 ValueBoundryError,
-                in_bounds_or_raise,
+                in_normal_bounds_or_raise,
                 reference_range_collection,
                 "tbil",
                 21.0,
@@ -140,7 +148,7 @@ class TestLoadData(TestCase):
         for gender in [MALE, FEMALE]:
             self.assertRaises(
                 ValueBoundryError,
-                in_bounds_or_raise,
+                in_normal_bounds_or_raise,
                 reference_range_collection,
                 "tbil",
                 0.05,
@@ -150,10 +158,10 @@ class TestLoadData(TestCase):
                 report_datetime=report_datetime,
                 age_units="years",
             )
-            in_bounds_or_raise(
+            in_normal_bounds_or_raise(
                 reference_range_collection,
                 "tbil",
-                0.06,
+                3.0,
                 MILLIGRAMS_PER_DECILITER,
                 gender,
                 dob=dob,
@@ -162,10 +170,10 @@ class TestLoadData(TestCase):
             )
 
             self.assertTrue(
-                in_bounds_or_raise(
+                in_normal_bounds_or_raise(
                     reference_range_collection,
                     "tbil",
-                    0.06,
+                    10.0,
                     MILLIGRAMS_PER_DECILITER,
                     gender,
                     dob=dob,
@@ -174,10 +182,10 @@ class TestLoadData(TestCase):
                 )
             )
             self.assertTrue(
-                in_bounds_or_raise(
+                in_normal_bounds_or_raise(
                     reference_range_collection,
                     "tbil",
-                    0.23,
+                    12.26,
                     MILLIGRAMS_PER_DECILITER,
                     gender,
                     dob=dob,
@@ -187,10 +195,10 @@ class TestLoadData(TestCase):
             )
             self.assertRaises(
                 ValueBoundryError,
-                in_bounds_or_raise,
+                in_normal_bounds_or_raise,
                 reference_range_collection,
                 "tbil",
-                0.24,
+                12.28,
                 MILLIGRAMS_PER_DECILITER,
                 gender=gender,
                 dob=dob,
@@ -198,40 +206,128 @@ class TestLoadData(TestCase):
                 age_units="years",
             )
 
+    def test_auto_create_new_normal_data(self):
+        report_datetime = get_utcnow()
+        dob = report_datetime - relativedelta(years=25)
+        reference_range_collection = load_reference_ranges(
+            "test_ranges", normal_data=normal_data, grading_data=grading_data
+        )
+
+        self.assertTrue(
+            NormalData.objects.filter(label="tbil", units=MILLIGRAMS_PER_DECILITER).exists()
+        )
+
+        NormalData.objects.filter(label="tbil", units=MILLIGRAMS_PER_DECILITER).delete()
+
+        opts = dict(
+            reference_range_collection=reference_range_collection,
+            label="tbil",
+            gender=FEMALE,
+            units=MILLIGRAMS_PER_DECILITER,
+            dob=dob,
+            report_datetime=report_datetime,
+            age_units="years",
+        )
+
+        create_obj_for_new_units_or_raise(**opts)
+
+        self.assertTrue(
+            NormalData.objects.filter(label="tbil", units=MILLIGRAMS_PER_DECILITER).exists()
+        )
+
+    def test_auto_create_new_normal_data2(self):
+        report_datetime = get_utcnow()
+        dob = report_datetime - relativedelta(years=25)
+        reference_range_collection = load_reference_ranges(
+            "test_ranges", normal_data=normal_data, grading_data=grading_data
+        )
+
+        self.assertTrue(
+            NormalData.objects.filter(label="tbil", units=MICROMOLES_PER_LITER).exists()
+        )
+
+        NormalData.objects.filter(label="tbil", units=MICROMOLES_PER_LITER).delete()
+
+        opts = dict(
+            reference_range_collection=reference_range_collection,
+            label="tbil",
+            gender=FEMALE,
+            units=MICROMOLES_PER_LITER,
+            dob=dob,
+            report_datetime=report_datetime,
+            age_units="years",
+        )
+        create_obj_for_new_units_or_raise(**opts)
+
+        self.assertTrue(
+            NormalData.objects.filter(label="tbil", units=MICROMOLES_PER_LITER).exists()
+        )
+
+        get_normal_data_or_raise(
+            reference_range_collection=reference_range_collection,
+            label="tbil",
+            gender=FEMALE,
+            units=MICROMOLES_PER_LITER,
+            dob=dob,
+            report_datetime=report_datetime,
+            age_units="years",
+            create_missing_normal=False,
+        )
+
+    def test_normal_data_raises_if_no_mw(self):
+        report_datetime = get_utcnow()
+        dob = report_datetime - relativedelta(years=25)
+        reference_range_collection = load_reference_ranges(
+            "test_ranges", normal_data=normal_data, grading_data=grading_data
+        )
+        self.assertRaises(
+            ConversionNotHandled,
+            get_normal_data_or_raise,
+            reference_range_collection=reference_range_collection,
+            label="magnesium",
+            units=MILLIGRAMS_PER_DECILITER,
+            gender=MALE,
+            dob=dob,
+            report_datetime=report_datetime,
+            age_units="years",
+            create_missing_normal=True,
+        )
+
     def test_normal_data_creates_for_missing_units(self):
         report_datetime = get_utcnow()
         dob = report_datetime - relativedelta(years=25)
         reference_range_collection = load_reference_ranges(
             "test_ranges", normal_data=normal_data, grading_data=grading_data
         )
-        starting_count = NormalData.objects.filter(label="magnesium").count()
+        NormalData.objects.filter(label="tbil", units=MILLIGRAMS_PER_DECILITER).delete()
+
+        starting_count = NormalData.objects.filter(label="tbil").count()
+
         obj = get_normal_data_or_raise(
             reference_range_collection=reference_range_collection,
-            label="magnesium",
+            label="tbil",
             units=MILLIGRAMS_PER_DECILITER,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
             age_units="years",
+            create_missing_normal=True,
         )
-        self.assertEqual(
-            NormalData.objects.filter(label="magnesium").count(), starting_count + 1
-        )
-        self.assertEqual(obj.description, "magnesium: 13.51<=x<=21.62 mg/dL M 18<=AGE")
+        self.assertEqual(NormalData.objects.filter(label="tbil").count(), starting_count + 1)
+        self.assertEqual(obj.description, "tbil: 2.923<=x<12.2766 mg/dL M 18<=AGE")
 
         # do again to ensure does not create duplicates
         get_normal_data_or_raise(
             reference_range_collection=reference_range_collection,
-            label="magnesium",
+            label="tbil",
             units=MILLIGRAMS_PER_DECILITER,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
             age_units="years",
+            create_missing_normal=True,
         )
-        self.assertEqual(
-            NormalData.objects.filter(label="magnesium").count(), starting_count + 1
-        )
+        self.assertEqual(NormalData.objects.filter(label="tbil").count(), starting_count + 1)
 
     def test_normal_data_creates_for_missing_units_and_evaluates(self):
         report_datetime = get_utcnow()
@@ -241,20 +337,34 @@ class TestLoadData(TestCase):
         )
         # these units are missing
         self.assertTrue(
-            in_bounds_or_raise(
+            in_normal_bounds_or_raise(
                 reference_range_collection,
                 "tbil",
-                0.06,
+                5.0,
                 MILLIGRAMS_PER_DECILITER,
                 MALE,
                 dob=dob,
                 report_datetime=report_datetime,
                 age_units="years",
+                create_missing_normal=True,
+            )
+        )
+        self.assertTrue(
+            in_normal_bounds_or_raise(
+                reference_range_collection,
+                "tbil",
+                10.2622,
+                MICROMOLES_PER_LITER,
+                MALE,
+                dob=dob,
+                report_datetime=report_datetime,
+                age_units="years",
+                create_missing_normal=True,
             )
         )
         # these units are not missing
         self.assertTrue(
-            in_bounds_or_raise(
+            in_normal_bounds_or_raise(
                 reference_range_collection,
                 "tbil",
                 7.1,
@@ -267,10 +377,10 @@ class TestLoadData(TestCase):
         )
         # these units were missing
         self.assertTrue(
-            in_bounds_or_raise(
+            in_normal_bounds_or_raise(
                 reference_range_collection,
                 "tbil",
-                0.06,
+                11.0,
                 MILLIGRAMS_PER_DECILITER,
                 MALE,
                 dob=dob,

@@ -6,37 +6,18 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from edc_utils import get_utcnow
 
-from ...exceptions import NotEvaluated
-from ...formula import Formula
-from ...utils import get_default_reportable_grades
-from ..grading_data import GradingData
-from ..grading_exception import GradingException
+from ..exceptions import NotEvaluated
+from ..formula import Formula
+from .get_default_reportable_grades import get_default_reportable_grades
 from .get_grade_for_value import get_grade_for_value
+from .grading_data_model_cls import grading_data_model_cls
+from .grading_exception_model_cls import grading_exception_model_cls
 
 if TYPE_CHECKING:
-    from ..reference_range_collection import ReferenceRangeCollection
+    from ..models import ReferenceRangeCollection
 
 
-def update_grading_exceptions(
-    reference_range_collection: ReferenceRangeCollection,
-    reportable_grades_exceptions: dict[str, list[str]] | None = None,
-    keep_existing: bool | None = None,
-):
-    reportable_grades_exceptions = reportable_grades_exceptions or {}
-    if not keep_existing:
-        GradingException.objects.filter(
-            reference_range_collection=reference_range_collection
-        ).delete()
-    for label, grades in reportable_grades_exceptions.items():
-        grades = [int(g) for g in grades]
-        GradingException.objects.get_or_create(
-            reference_range_collection=reference_range_collection,
-            label=label,
-            grade1=True if 1 in grades else False,
-            grade2=True if 2 in grades else False,
-            grade3=True if 3 in grades else False,
-            grade4=True if 4 in grades else False,
-        )
+__all__ = ["update_grading_data"]
 
 
 def update_grading_data(
@@ -45,19 +26,10 @@ def update_grading_data(
     reportable_grades: list[str] | None = None,
     reportable_grades_exceptions: dict[str, list[str]] | None = None,
     keep_existing: bool | None = None,
+    create_missing_normal: bool | None = None,
 ):
-    reportable_grades = reportable_grades or get_default_reportable_grades()
-    for grade in reportable_grades:
-        setattr(reference_range_collection, f"GRADE{grade}", True)
-    reference_range_collection.save()
-
-    update_grading_exceptions(
-        reference_range_collection=reference_range_collection,
-        reportable_grades_exceptions=reportable_grades_exceptions,
-        keep_existing=keep_existing,
-    )
     if not keep_existing:
-        GradingData.objects.filter(
+        grading_data_model_cls().objects.filter(
             reference_range_collection=reference_range_collection
         ).delete()
     for label, formulas in grading_data.items():
@@ -66,7 +38,7 @@ def update_grading_data(
                 formula_opts = {k: v for k, v in formula.__dict__.items() if k != "gender"}
                 age_opts = {k: v for k, v in formula_opts.items() if "age" in k}
                 for gender in formula.__dict__.get("gender"):
-                    GradingData.objects.create(
+                    grading_data_model_cls().objects.create(
                         reference_range_collection=reference_range_collection,
                         label=label,
                         description=formula.description,
@@ -92,6 +64,7 @@ def update_grading_data(
                                     ),
                                     report_datetime=get_utcnow(),
                                     age_units=age_opts.get("age_units"),
+                                    create_missing_normal=create_missing_normal,
                                 )
                             except NotEvaluated as e:
                                 print(e)
@@ -101,7 +74,7 @@ def get_reportable_grades(
     reference_range_collection: ReferenceRangeCollection, label, reportable_grades
 ) -> list[int]:
     try:
-        grading_exception = GradingException.objects.get(
+        grading_exception = grading_exception_model_cls().objects.get(
             reference_range_collection=reference_range_collection, label=label
         )
     except ObjectDoesNotExist:

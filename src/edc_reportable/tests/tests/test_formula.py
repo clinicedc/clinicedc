@@ -2,12 +2,7 @@ from django.test import TestCase
 from edc_constants.constants import MALE
 
 from edc_reportable import MILLIMOLES_PER_LITER
-from edc_reportable.formula import (
-    Formula,
-    FormulaError,
-    clean_and_validate_phrase,
-    formula,
-)
+from edc_reportable.formula import Formula, FormulaError, clean_and_validate_phrase
 
 
 class TestParser(TestCase):
@@ -77,11 +72,11 @@ class TestParser(TestCase):
 
     def test10(self):
         self.assertEqual(
-            formula("0.77 <= x <= 0.88", units=MILLIMOLES_PER_LITER),
+            Formula("0.77 <= x <= 0.88", units=MILLIMOLES_PER_LITER).description,
             f"0.77<=x<=0.88 {MILLIMOLES_PER_LITER}",
         )
         self.assertEqual(
-            formula("0.77 <= x <= 0.88", units=MILLIMOLES_PER_LITER, gender=MALE),
+            Formula("0.77 <= x <= 0.88", units=MILLIMOLES_PER_LITER, gender=MALE).description,
             f"0.77<=x<=0.88 {MILLIMOLES_PER_LITER} {MALE}",
         )
 

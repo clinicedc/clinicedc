@@ -23,37 +23,36 @@ Female: 9 - 36
 
 from edc_constants.constants import FEMALE, MALE
 
-from ..adult_age_options import adult_age_options
-from ..constants import GRADE1, GRADE2, GRADE3, GRADE4
-from ..formula import Formula
-from ..units import IU_LITER
+from ...adult_age_options import adult_age_options
+from ...formula import Formula
+from ...units import IU_LITER
 
 ggt_baseline_normal = (
     [
         Formula(
             "2.50*ULN<x<=2.50*ULN",
-            grade=GRADE1,
+            grade=1,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
         Formula(
             "2.50*ULN<=x<5.00*ULN",
-            grade=GRADE2,
+            grade=2,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
         Formula(
             "5.00*ULN<=x<10.00*ULN",
-            grade=GRADE3,
+            grade=3,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
         Formula(
             "10.00*ULN<=x",
-            grade=GRADE4,
+            grade=4,
             units=IU_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,

@@ -3,33 +3,42 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from django.contrib.sites.models import Site
 from django.db.models import QuerySet
 
-from ...exceptions import BoundariesOverlap, NotEvaluated, ValueBoundryError
-from ..grading_data import GradingData
+from ..exceptions import BoundariesOverlap, NotEvaluated, ValueBoundryError
 from .get_normal_data_or_raise import get_normal_data_or_raise
+from .grading_data_model_cls import grading_data_model_cls
 
 if TYPE_CHECKING:
-    from ..normal_data import NormalData
-    from ..reference_range_collection import ReferenceRangeCollection
+    from django.contrib.sites.models import Site
+
+    from ..models import GradingData, NormalData, ReferenceRangeCollection
+
+__all__ = ["get_grade_for_value"]
 
 
 def get_grade_for_value(
     reference_range_collection: ReferenceRangeCollection,
-    value: float | int,
-    label: str,
-    units: str,
-    gender: str,
-    dob: date,
-    report_datetime: datetime,
+    value: float | int = None,
+    label: str = None,
+    units: str = None,
+    gender: str = None,
+    dob: date = None,
+    report_datetime: datetime = None,
     age_units: str | None = None,
     site: Site | None = None,
-) -> GradingData | None:
+    create_missing_normal: bool | None = None,
+) -> tuple[GradingData, str] | None:
     found_grading_data = None
-
+    found_condition_str = None
     grading_data_objs = get_grading_data_instances(
-        reference_range_collection, label, units, gender, dob, report_datetime, age_units
+        reference_range_collection=reference_range_collection,
+        label=label,
+        units=units,
+        gender=gender,
+        dob=dob,
+        report_datetime=report_datetime,
+        age_units=age_units,
     )
     for grading_data in grading_data_objs:
         normal_data = get_normal_data_or_raise(
@@ -41,6 +50,7 @@ def get_grade_for_value(
             report_datetime=report_datetime,
             age_units=age_units,
             site=site,
+            create_missing_normal=create_missing_normal,
         )
         lower_limit = get_lower_limit(normal_data, grading_data)
         upper_limit = get_upper_limit(normal_data, grading_data)
@@ -53,6 +63,7 @@ def get_grade_for_value(
         if eval(condition_str):  # nosec B307
             if not found_grading_data:
                 found_grading_data = grading_data
+                found_condition_str = condition_str
             else:
                 raise BoundariesOverlap(
                     f"Overlapping grading definitions. Got {found_grading_data} "
@@ -60,7 +71,7 @@ def get_grade_for_value(
                     f"Using value={value} ({condition_str}). "
                     f"Check your grading definitions for `{label}` .",
                 )
-    return found_grading_data
+    return found_grading_data, found_condition_str
 
 
 def get_lower_limit(
@@ -91,20 +102,28 @@ def get_upper_limit(
 
 def get_grading_data_instances(
     reference_range_collection: ReferenceRangeCollection,
-    label: str,
-    units: str,
-    gender: str,
-    dob: date,
-    report_datetime: datetime,
+    label: str = None,
+    units: str = None,
+    gender: str = None,
+    dob: date = None,
+    report_datetime: datetime = None,
     age_units: str | None = None,
+    site: Site | None = None,
 ) -> list[GradingData]:
+    if not gender:
+        raise ValueError("Gender may not be None")
     grading_data_objs = []
-    qs = GradingData.objects.filter(
-        reference_range_collection=reference_range_collection,
-        label=label,
-        units=units,
-        gender=gender,
-    ).order_by("grade")
+    qs = (
+        grading_data_model_cls()
+        .objects.filter(
+            reference_range_collection=reference_range_collection,
+            label=label,
+            units=units,
+            gender=gender,
+            # site=site,
+        )
+        .order_by("grade")
+    )
     for obj in qs.all():
         try:
             age_in_bounds = obj.age_in_bounds_or_raise(

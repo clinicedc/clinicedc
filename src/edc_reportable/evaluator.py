@@ -101,7 +101,7 @@ class Evaluator:
     def in_bounds_or_raise(self, value: int | float, units: str = None) -> bool:
         """Raises a ValueBoundryError exception if condition not met.
 
-        Condition is evaluated to True or False as a string
+        The condition is evaluated to True or False as a string
         constructed from given parameters.
 
         For example,

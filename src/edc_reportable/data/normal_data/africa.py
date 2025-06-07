@@ -1,6 +1,8 @@
 from edc_constants.constants import FEMALE, MALE
 
-from edc_reportable import (
+from ...adult_age_options import adult_age_options
+from ...formula import Formula
+from ...units import (
     CELLS_PER_MILLIMETER_CUBED,
     EGFR_UNITS,
     GRAMS_PER_DECILITER,
@@ -13,9 +15,9 @@ from edc_reportable import (
     PERCENT,
     PLUS,
     TEN_X_9_PER_LITER,
-    Formula,
-    adult_age_options,
 )
+
+__all__ = ["normal_data"]
 
 normal_data = {
     "albumin": [
@@ -99,25 +101,6 @@ normal_data = {
             **adult_age_options,
         ),
     ],
-    "glucose": [
-        Formula(
-            "4.0<=x<=6.11",
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            fasting=True,
-            **adult_age_options,
-        ),
-        Formula(
-            "4.0<=x<=6.44",
-            units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
-            fasting=False,
-            **adult_age_options,
-        ),
-    ],
-    "hba1c": [
-        Formula("4.4<=x<=6.6", units=PERCENT, gender=[MALE, FEMALE], **adult_age_options)
-    ],
     "hdl": [
         Formula(
             "1.04<=x<=1.55",
@@ -143,6 +126,9 @@ normal_data = {
             gender=[FEMALE],
             **adult_age_options,
         ),
+    ],
+    "hba1c": [
+        Formula("4.4<=x<6.5", units=PERCENT, gender=[MALE, FEMALE], **adult_age_options)
     ],
     # hematocrit
     "hct": [
@@ -263,14 +249,20 @@ normal_data = {
     ],
     "tbil": [
         Formula(
-            "0.09<=x<0.38",
+            "0.2923<=x<1.2278",
             units=MILLIGRAMS_PER_DECILITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),
         Formula(
+            "0.00292<=x<0.0123",
+            units=GRAMS_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+        Formula(
             "5.0<=x<21.0",
-            units=MILLIMOLES_PER_LITER,
+            units=MICROMOLES_PER_LITER,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),

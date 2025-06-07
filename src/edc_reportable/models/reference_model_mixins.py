@@ -70,9 +70,11 @@ class ReferenceModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def get_phrase(self) -> str:
+        lower = self.lower or ""
+        upper = self.upper or ""
         phrase = (
-            f"{self.lower or ''}{self.lln or ''}{self.lower_operator or ''}x"
-            f"{self.upper_operator or ''}{self.upper or ''}{self.uln or ''}"
+            f"{lower}{self.lln or ''}{self.lower_operator or ''}x"
+            f"{self.upper_operator or ''}{upper}{self.uln or ''}"
         )
         clean_and_validate_phrase(phrase)
         return phrase
@@ -93,10 +95,13 @@ class ReferenceModelMixin(models.Model):
         else:
             fasting_str: str = "Fasting " if fasting else ""
         label = "" if exclude_label else f"{self.label}: "
+        grade = ""
+        if self.grade is not None:
+            grade = f"GRADE{self.grade} "
         return (
             f"{label}"
             f"{self.phrase} "
-            f"{self.units} {fasting_str}{self.gender} "
+            f"{self.units} {fasting_str}{grade}{self.gender} "
             f"{age_description}".rstrip()
         )
 
@@ -105,6 +110,11 @@ class ReferenceModelMixin(models.Model):
     ) -> bool:
         pattern = r"([<>]=?|==|!=)?\s*-?\d+(\.\d+)?"
         age_units = age_units or "years"
+        if age_units not in ["days", "months", "years"]:
+            raise ValueError(
+                f'Invalid age units. Expected one of {["days", "months", "years"]}. '
+                f"Got {age_units}"
+            )
         rdelta = age(dob, report_datetime)
         age_value = getattr(rdelta, age_units)
         if not isinstance(age_value, (int, float)) or not (0.0 <= age_value <= 130.0):

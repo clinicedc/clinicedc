@@ -11,8 +11,8 @@ from edc_reportable import (
     MILLIMOLES_PER_LITER,
     TEN_X_9_PER_LITER,
 )
-from edc_reportable.models import load_reference_ranges
 from edc_reportable.units import MILLIGRAMS_PER_DECILITER
+from edc_reportable.utils import load_reference_ranges
 from reportable_app.form_validators import SpecimenResultFormValidator
 from reportable_app.models import SpecimenResult
 from reportable_app.reportables import grading_data, normal_data

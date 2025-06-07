@@ -1,6 +1,5 @@
 from django.test import TestCase
 
-from edc_reportable import GRADE3, GRADE4
 from edc_reportable.models import ReferenceRangeCollection
 
 
@@ -13,4 +12,4 @@ class TestReferenceRangeCollection(TestCase):
             grade3=True,
             grade4=True,
         )
-        self.assertEqual(obj.grades("sodium"), [GRADE3, GRADE4])
+        self.assertEqual(obj.grades("sodium"), [3, 4])

@@ -1,44 +1,92 @@
-from django.test import TestCase
+from django.test import TestCase, tag
+from edc_utils import round_half_away_from_zero as rnd
 
-from edc_reportable import (
+from edc_reportable.units import (
+    GRAMS_PER_LITER,
     MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
     MILLIMOLES_PER_LITER,
-    convert_units,
 )
+from edc_reportable.utils import convert_units
 
 
 class TestParser(TestCase):
 
+    @tag("68")
+    def test_convert_tbil1(self):
+        converted_value = convert_units(
+            "tbil",
+            0.00292,
+            units_from=GRAMS_PER_LITER,
+            units_to=MILLIMOLES_PER_LITER,
+        )
+        self.assertEqual(converted_value, 0.005)
+
+    @tag("68")
+    def test_convert_tbil4(self):
+        converted_value = convert_units(
+            "tbil",
+            0.00292,
+            units_from=GRAMS_PER_LITER,
+            units_to=MICROMOLES_PER_LITER,
+        )
+        self.assertEqual(rnd(converted_value, 1), 5.0)
+
+    @tag("68")
+    def test_convert_tbil2(self):
+        converted_value = convert_units(
+            "tbil",
+            5.0,
+            units_from=MICROMOLES_PER_LITER,
+            units_to=MILLIMOLES_PER_LITER,
+        )
+        self.assertEqual(rnd(converted_value, 3), 0.005)
+
+    @tag("68")
+    def test_convert_tbil3(self):
+        converted_value = convert_units(
+            "tbil",
+            5.0,
+            units_from=GRAMS_PER_LITER,
+            units_to=MILLIGRAMS_PER_DECILITER,
+        )
+        self.assertEqual(rnd(converted_value, 1), 500.0)
+
+    @tag("68")
     def test_convert_glucose(self):
         """mg/dL to mmol/L"""
 
         values = [
-            (1.0, 18.0180),
-            (19.0, 342.3423),
-            (33.0, 594.5946),
-            (37.0, 666.6667),
-            (125.0, 6.9375),
+            (1.0, 0.056),
+            (19.0, 1.055),
+            (33.0, 1.832),
+            (37.0, 2.054),
+            (125.0, 6.938),
         ]
 
-        for value, converted_value in values:
+        for value, expected_value in values:
             converted_value = convert_units(
+                "glucose",
                 value,
                 units_from=MILLIGRAMS_PER_DECILITER,
                 units_to=MILLIMOLES_PER_LITER,
             )
-            self.assertEqual(converted_value, converted_value)
+            self.assertEqual(rnd(converted_value, 3), expected_value)
 
         converted_value = convert_units(
-            558.558559, units_from=MILLIMOLES_PER_LITER, units_to=MILLIMOLES_PER_LITER
+            "glucose",
+            558.559,
+            units_from=MILLIMOLES_PER_LITER,
+            units_to=MILLIMOLES_PER_LITER,
         )
-        self.assertEqual(558.5586, converted_value)
+        self.assertEqual(558.559, converted_value)
 
         converted_value = convert_units(
-            6.9375, units_from=MILLIMOLES_PER_LITER, units_to=MILLIMOLES_PER_LITER
+            "glucose", 6.9375, units_from=MILLIMOLES_PER_LITER, units_to=MILLIMOLES_PER_LITER
         )
         self.assertEqual(6.9375, converted_value)
 
+    @tag("68")
     def test_convert_creatinine(self):
         """mg/dL to umol/L"""
 
@@ -52,6 +100,7 @@ class TestParser(TestCase):
 
         for value, converted_value in values:
             converted_value = convert_units(
+                "creatinine",
                 value,
                 units_from=MILLIGRAMS_PER_DECILITER,
                 units_to=MICROMOLES_PER_LITER,
@@ -59,6 +108,9 @@ class TestParser(TestCase):
             self.assertEqual(converted_value, converted_value)
 
         converted_value = convert_units(
-            0.2149, units_from=MICROMOLES_PER_LITER, units_to=MICROMOLES_PER_LITER
+            "creatinine",
+            0.2149,
+            units_from=MICROMOLES_PER_LITER,
+            units_to=MICROMOLES_PER_LITER,
         )
         self.assertEqual(0.2149, converted_value)
