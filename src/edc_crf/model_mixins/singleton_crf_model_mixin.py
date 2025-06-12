@@ -18,8 +18,11 @@ class SingletonCrfModelMixin(models.Model):
 
     def save(self, *args, **kwargs):
         # enforce singleton constraint on instance, 1 per subject
-        self.singleton_field = self.related_visit.subject_identifier
+        self.update_singleton_field()
         super().save(*args, **kwargs)
+
+    def update_singleton_field(self) -> None:
+        self.singleton_field = self.related_visit.subject_identifier
 
     class Meta:
         abstract = True
