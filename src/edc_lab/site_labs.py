@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Type
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.module_loading import import_module, module_has_submodule
-from edc_reportable.site_reportables import site_reportables
+from edc_reportable.utils import reference_range_colllection_model_cls
 
 if TYPE_CHECKING:
     from edc_lab.models import Panel
@@ -153,15 +153,20 @@ class SiteLabs:
         for panel in lab_profile.panels.values():
             if (
                 panel.reference_range_collection_name
-                and panel.reference_range_collection_name not in site_reportables._registry
+                and reference_range_colllection_model_cls()
+                .objects.filter(name=panel.reference_range_collection_name)
+                .exists()
             ):
+                names = [
+                    obj.name for obj in reference_range_colllection_model_cls().objects.all()
+                ]
                 raise SiteLabsLabProfileError(
-                    "Unknown site reportables collection. "
+                    "Unknown reference rannge collection. "
                     f"Collection referenced by panel `{panel}`. "
-                    f"Expected one of {list(site_reportables._registry.keys())}. "
+                    f"Expected one of {names}. "
                     "Got panel.reference_range_collection_name="
                     f"`{panel.reference_range_collection_name}` "
-                    "Hint: load `site_reportables` before `site_labs`."
+                    "Hint: Check post-migrate signal in edc_reportable."
                 )
 
     def autodiscover(self, module_name=None, verbose=False):
