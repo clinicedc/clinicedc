@@ -36,19 +36,23 @@ def update_ae_notifications_for_tmg_group(
 @receiver(post_save, weak=False, dispatch_uid="update_ae_initial_for_susar")
 def update_ae_initial_for_susar(sender, instance, raw, update_fields, **kwargs):
     if not raw and not update_fields:
-        ae_susar_model_cls = get_ae_model("AeSusar")
-        if isinstance(instance, (ae_susar_model_cls,)) and getattr(
-            instance.ae_initial, "susar", None
-        ):
-            if instance.submitted_datetime:
-                if instance.ae_initial.susar_reported != YES:
+        try:
+            ae_susar_model_cls = get_ae_model("AeSusar")
+        except LookupError:
+            pass
+        else:
+            if isinstance(instance, (ae_susar_model_cls,)) and getattr(
+                instance.ae_initial, "susar", None
+            ):
+                if instance.submitted_datetime:
+                    if instance.ae_initial.susar_reported != YES:
+                        instance.ae_initial.susar = YES
+                        instance.ae_initial.susar_reported = YES
+                        instance.ae_initial.save(update_fields=["susar", "susar_reported"])
+                elif instance.ae_initial.susar_reported != NO:
                     instance.ae_initial.susar = YES
-                    instance.ae_initial.susar_reported = YES
+                    instance.ae_initial.susar_reported = NO
                     instance.ae_initial.save(update_fields=["susar", "susar_reported"])
-            elif instance.ae_initial.susar_reported != NO:
-                instance.ae_initial.susar = YES
-                instance.ae_initial.susar_reported = NO
-                instance.ae_initial.save(update_fields=["susar", "susar_reported"])
 
 
 @receiver(
@@ -58,29 +62,39 @@ def update_ae_initial_for_susar(sender, instance, raw, update_fields, **kwargs):
 )
 def update_ae_initial_susar_reported(sender, instance, raw, update_fields, **kwargs):
     if not raw and not update_fields:
-        ae_initial_model_cls = get_ae_model("AeInitial")
-        if isinstance(instance, (ae_initial_model_cls,)) and getattr(instance, "susar", None):
-            ae_susar_model_cls = get_ae_model("AeSusar")
-            if instance.susar == YES and instance.susar_reported == YES:
-                try:
-                    with transaction.atomic():
-                        ae_susar_model_cls.objects.get(ae_initial=instance)
-                except ObjectDoesNotExist:
-                    ae_susar_model_cls.objects.create(
-                        ae_initial=instance, submitted_datetime=get_utcnow()
-                    )
+        try:
+            ae_initial_model_cls = get_ae_model("AeInitial")
+        except LookupError:
+            pass
+        else:
+            if isinstance(instance, (ae_initial_model_cls,)) and getattr(
+                instance, "susar", None
+            ):
+                ae_susar_model_cls = get_ae_model("AeSusar")
+                if instance.susar == YES and instance.susar_reported == YES:
+                    try:
+                        with transaction.atomic():
+                            ae_susar_model_cls.objects.get(ae_initial=instance)
+                    except ObjectDoesNotExist:
+                        ae_susar_model_cls.objects.create(
+                            ae_initial=instance, submitted_datetime=get_utcnow()
+                        )
 
 
 @receiver(post_delete, weak=False, dispatch_uid="post_delete_ae_susar")
 def post_delete_ae_susar(instance, **kwargs):
-    ae_susar_model_cls = get_ae_model("AeSusar")
-    if (
-        isinstance(instance, (ae_susar_model_cls,))
-        and instance.ae_initial.susar == YES
-        and instance.ae_initial.susar_reported != NO
-    ):
-        instance.ae_initial.susar_reported = NO
-        instance.ae_initial.save()
+    try:
+        ae_susar_model_cls = get_ae_model("AeSusar")
+    except LookupError:
+        pass
+    else:
+        if (
+            isinstance(instance, (ae_susar_model_cls,))
+            and instance.ae_initial.susar == YES
+            and instance.ae_initial.susar_reported != NO
+        ):
+            instance.ae_initial.susar_reported = NO
+            instance.ae_initial.save()
 
 
 @receiver(m2m_changed, weak=False, dispatch_uid="update_death_notifications_for_tmg_group")

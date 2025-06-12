@@ -34,7 +34,7 @@ class TmgButton(ModelButton):
     forloop_counter: int | None = None
     colors: tuple[str, str, str] = field(default=("warning", "success", "success"))
     titles: tuple[str, str, str] = field(default=(_("Add"), _("Change"), _("View")))
-    action_item: ActionItem = (None,)
+    action_item: ActionItem = None
 
     disable_all: bool = False
 

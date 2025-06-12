@@ -1,6 +1,5 @@
 from edc_action_item import ActionWithNotification
-from edc_constants.constants import DEAD, HIGH_PRIORITY, NO, YES
-from edc_reportable import GRADE3, GRADE4, GRADE5
+from edc_constants.constants import DEAD, GRADE3, GRADE4, GRADE5, HIGH_PRIORITY, NO, YES
 
 from edc_adverse_event.constants import (
     AE_FOLLOWUP_ACTION,
