@@ -7,6 +7,7 @@ from .dispense import dispense
 from .format_qty import format_qty
 from .get_codenames import get_codenames
 from .get_random_code import get_random_code
+from .get_stock_for_location_df import get_stock_for_location_df
 from .miscellaneous import get_rx_model_cls, get_rxrefill_model_cls
 from .process_repack_request import process_repack_request
 from .process_repack_request_queryset import process_repack_request_queryset
@@ -32,4 +33,5 @@ __all__ = [
     "get_instock_and_nostock_data",
     "transfer_stock",
     "update_previous_refill_end_datetime",
+    "get_stock_for_location_df",
 ]

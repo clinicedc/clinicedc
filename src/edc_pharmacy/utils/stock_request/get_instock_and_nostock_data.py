@@ -3,9 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pandas as pd
-from django.apps import apps as django_apps
-from django.db.models import Count
-from django_pandas.io import read_frame
+
+from ..get_stock_for_location_df import get_stock_for_location_df
 
 if TYPE_CHECKING:
 
@@ -13,49 +12,53 @@ if TYPE_CHECKING:
 
 
 def get_instock_and_nostock_data(
-    stock_request: StockRequest, df: pd.DataFrame
+    stock_request: StockRequest, df_next_scheduled_visits: pd.DataFrame
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    stock_model_cls = django_apps.get_model("edc_pharmacy.Stock")
-    qs_stock = (
-        stock_model_cls.objects.values(
-            "allocation__registered_subject__subject_identifier", "code"
+
+    df_stock = get_stock_for_location_df(stock_request.location)
+
+    if not df_next_scheduled_visits.empty and not df_stock.empty:
+        df_stock = df_next_scheduled_visits.merge(
+            df_stock, on="subject_identifier", how="left"
         )
-        .filter(location=stock_request.location, qty=1)
-        .annotate(count=Count("allocation__registered_subject__subject_identifier"))
-    )
-    df_stock = read_frame(qs_stock)
-    df_stock = df_stock.rename(
-        columns={
-            "allocation__registered_subject__subject_identifier": "subject_identifier",
-            "count": "stock_qty",
-        }
-    )
-    if not df.empty and not df_stock.empty:
-        df_subject = df.copy()
-        df_subject["code"] = None
-        df = df.merge(df_stock, on="subject_identifier", how="left")
-        for subject_identifier in df.subject_identifier.unique():
-            qty_needed = stock_request.containers_per_subject - len(
-                df[df.subject_identifier == subject_identifier]
+        df_stock["dispensed"] = df_stock["dispensed"].astype("boolean").fillna(False)
+        df_stock["stock_qty"] = df_stock["stock_qty"].fillna(0.0)
+        for subject_identifier in df_stock.subject_identifier.unique():
+            qty_needed = (
+                stock_request.containers_per_subject
+                - df_stock.loc[
+                    (df_stock.subject_identifier == subject_identifier) & ~df_stock.dispensed
+                ].shape[0]
             )
             if qty_needed > 0:
-                df1 = df_subject[df_subject.subject_identifier == subject_identifier].copy()
-                df1["code"] = None
-                df1 = df1.loc[df1.index.repeat(qty_needed)]
-                df = pd.concat([df, df1])
-                df.reset_index(drop=True, inplace=True)
+                df_stock_needed = df_next_scheduled_visits[
+                    df_next_scheduled_visits.subject_identifier == subject_identifier
+                ].copy()
+                df_stock_needed["code"] = pd.NA
+                df_stock_needed = df_stock_needed.loc[df_stock_needed.index.repeat(qty_needed)]
+                df_stock = pd.concat([df_stock, df_stock_needed]).reset_index(drop=True)
+                df_stock["dispensed"] = df_stock["dispensed"].astype("boolean").fillna(False)
+                df_stock["stock_qty"] = 0.0
     else:
-        df["code"] = None
-    df["stock_qty"] = 0.0
-    df = df.reset_index(drop=True)
+        df_stock = df_next_scheduled_visits.copy()
+        df_stock["code"] = pd.NA
+        df_stock["dispensed"] = pd.NA
+        df_stock["dispensed"].astype("boolean").fillna(False)
+        df_stock["stock_qty"] = 0.0
+    df_stock = df_stock.reset_index(drop=True)
 
-    df_instock = df[~df.code.isna()]
-    df_instock = df_instock.reset_index(drop=True)
-    df_instock = df_instock.sort_values(by=["subject_identifier"])
-
-    df_nostock = df[df.code.isna()]
-    df_nostock = df_nostock.reset_index(drop=True)
-    df_nostock = df_nostock.sort_values(by=["subject_identifier"])
+    df_instock = (
+        df_stock.loc[~(df_stock.code.isna()) & ~df_stock.dispensed]
+        .copy()
+        .sort_values(by=["subject_identifier"])
+        .reset_index(drop=True)
+    )
+    df_nostock = (
+        df_stock.loc[(df_stock.code.isna())]
+        .copy()
+        .sort_values(by=["subject_identifier"])
+        .reset_index(drop=True)
+    )
     df_nostock["code"] = df_nostock["code"].fillna("---")
     return df_instock, df_nostock
 

@@ -189,8 +189,8 @@ class HasRepackNumFilter(SimpleListFilter):
 
 
 class TransferredFilter(SimpleListFilter):
-    title = "Transferred"
-    parameter_name = "transferred"
+    title = "Transferred to site"
+    parameter_name = "transferred_now"
 
     def lookups(self, request, model_admin):
         return (YES, YES), (NO, NO)
@@ -200,11 +200,106 @@ class TransferredFilter(SimpleListFilter):
         if self.value():
             if self.value() == YES:
                 qs = queryset.filter(
-                    stock__location=F("stock_request_item__stock_request__location")
+                    from_stock__isnull=False,
+                    confirmed=True,
+                    allocated=True,
+                    transferred=True,
                 )
             elif self.value() == NO:
-                qs = queryset.exclude(
-                    stock__location=F("stock_request_item__stock_request__location")
+                qs = queryset.filter(
+                    from_stock__isnull=False,
+                    confirmed=True,
+                    allocated=True,
+                    transferred=False,
+                )
+        return qs
+
+
+class ConfirmedAtSiteFilter(SimpleListFilter):
+    title = "Confirmed at site"
+    parameter_name = "confirmed_at_site_now"
+
+    def lookups(self, request, model_admin):
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(
+                    from_stock__isnull=False,
+                    confirmed=True,
+                    allocated=True,
+                    transferred=True,
+                    confirmed_at_site=True,
+                )
+            elif self.value() == NO:
+                qs = queryset.filter(
+                    from_stock__isnull=False,
+                    confirmed=True,
+                    allocated=True,
+                    transferred=True,
+                    confirmed_at_site=False,
+                )
+        return qs
+
+
+class StoredAtSiteFilter(SimpleListFilter):
+    title = "Stored at site"
+    parameter_name = "stored_at_site_now"
+
+    def lookups(self, request, model_admin):
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(
+                    from_stock__isnull=False,
+                    confirmed=True,
+                    allocated=True,
+                    transferred=True,
+                    stored_at_site=True,
+                    dispensed=False,
+                )
+            elif self.value() == NO:
+                qs = queryset.filter(
+                    from_stock__isnull=False,
+                    confirmed=True,
+                    allocated=True,
+                    transferred=True,
+                    stored_at_site=False,
+                    dispensed=False,
+                )
+        return qs
+
+
+class DispensedFilter(SimpleListFilter):
+    title = "Dispensed"
+    parameter_name = "dispensed_now"
+
+    def lookups(self, request, model_admin):
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(
+                    from_stock__isnull=False,
+                    confirmed=True,
+                    allocated=True,
+                    transferred=True,
+                    dispensed=True,
+                )
+            elif self.value() == NO:
+                qs = queryset.filter(
+                    from_stock__isnull=False,
+                    confirmed=True,
+                    allocated=True,
+                    transferred=True,
+                    dispensed=False,
                 )
         return qs
 

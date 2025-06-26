@@ -21,10 +21,13 @@ from ..actions import (
 )
 from ..list_filters import (
     DecantedListFilter,
+    DispensedFilter,
     HasOrderNumFilter,
     HasReceiveNumFilter,
     HasRepackNumFilter,
     ProductAssignmentListFilter,
+    StoredAtSiteFilter,
+    TransferredFilter,
 )
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
@@ -132,10 +135,10 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "container",
         "confirmed",
         "allocated",
-        "transferred",
+        TransferredFilter,
         "confirmed_at_site",
-        "stored_at_site",
-        "dispensed",
+        StoredAtSiteFilter,
+        DispensedFilter,
         ProductAssignmentListFilter,
         "product",
         "confirmed_by",
