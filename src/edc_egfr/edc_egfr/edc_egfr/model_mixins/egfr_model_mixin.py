@@ -7,7 +7,7 @@ from django.db import models, transaction
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_registration.models import RegisteredSubject
 from edc_reportable.units import EGFR_UNITS, PERCENT
-from edc_reportable.utils import get_reference_range_collection_name
+from edc_reportable.utils import get_reference_range_collection
 
 from ..calculators import EgfrCalculatorError
 from ..egfr import Egfr
@@ -86,7 +86,7 @@ class EgfrModelMixin(
             report_datetime=self.report_datetime,
             baseline_egfr_value=self.get_baseline_egfr_value(),
             formula_name=self.egfr_formula_name,
-            reference_range_collection_name=get_reference_range_collection_name(self),
+            reference_range_collection=get_reference_range_collection(self),
         )
 
     def get_baseline_egfr_value(self) -> float | None:

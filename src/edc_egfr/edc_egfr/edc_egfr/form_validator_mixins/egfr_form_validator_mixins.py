@@ -1,54 +1,54 @@
-from typing import Any
-
 from django import forms
-from edc_reportable import CalculatorError, ConversionNotHandled
+from edc_form_validators import INVALID_ERROR
+from edc_reportable import ConversionNotHandled
+from edc_vitals.calculators import CalculatorError
 
-from ..calculators import EgfrCkdEpi, EgfrCockcroftGault
+from ..calculators import EgfrCalculatorError, EgfrCkdEpi, EgfrCockcroftGault
 
 
 class EgfrCkdEpiFormValidatorMixin:
-    def validate_egfr(self: Any):
-        if (
-            self.cleaned_data.get("gender")
-            and self.cleaned_data.get("age_in_years")
-            and self.cleaned_data.get("ethnicity")
-            and self.cleaned_data.get("creatinine_value")
-            and self.cleaned_data.get("creatinine_units")
-        ):
-            opts = dict(
-                gender=self.cleaned_data.get("gender"),
-                age_in_years=self.cleaned_data.get("age_in_years"),
-                ethnicity=self.cleaned_data.get("ethnicity"),
-                creatinine_value=self.cleaned_data.get("creatinine_value"),
-                creatinine_units=self.cleaned_data.get("creatinine_units"),
-            )
-            try:
-                egfr = EgfrCkdEpi(**opts).value
-            except (CalculatorError, ConversionNotHandled) as e:
-                raise forms.ValidationError(e)
-            return egfr
-        return None
+    def validate_egfr(
+        self,
+        gender: str = None,
+        age_in_years: int = None,
+        weight_in_kgs: float = None,
+        ethnicity: str = None,
+        baseline_egfr_value: float | None = None,
+    ):
+        opts = dict(
+            gender=gender,
+            age_in_years=age_in_years,
+            weight=weight_in_kgs,
+            ethnicity=ethnicity,
+            creatinine_value=self.cleaned_data.get("creatinine_value"),
+            creatinine_units=self.cleaned_data.get("creatinine_units"),
+            baseline_egfr_value=baseline_egfr_value,
+        )
+        try:
+            value = EgfrCkdEpi(**opts).value
+        except (EgfrCalculatorError, CalculatorError, ConversionNotHandled) as e:
+            raise forms.ValidationError(e)
+        return value
 
 
 class EgfrCockcroftGaultFormValidatorMixin:
-    def validate_egfr(self: Any):
-        if (
-            self.cleaned_data.get("gender")
-            and self.cleaned_data.get("age_in_years")
-            and self.cleaned_data.get("weight")
-            and self.cleaned_data.get("creatinine_value")
-            and self.cleaned_data.get("creatinine_units")
-        ):
-            opts = dict(
-                gender=self.cleaned_data.get("gender"),
-                age_in_years=self.cleaned_data.get("age_in_years"),
-                weight=self.cleaned_data.get("weight"),
-                creatinine_value=self.cleaned_data.get("creatinine_value"),
-                creatinine_units=self.cleaned_data.get("creatinine_units"),
-            )
-            try:
-                egfr = EgfrCockcroftGault(**opts).value
-            except (CalculatorError, ConversionNotHandled) as e:
-                raise forms.ValidationError(e)
-            return egfr
-        return None
+    def validate_egfr(
+        self,
+        gender: str = None,
+        age_in_years: int = None,
+        weight_in_kgs: float = None,
+        ethnicity: str = None,
+    ):
+        opts = dict(
+            gender=gender,
+            age_in_years=age_in_years,
+            weight=weight_in_kgs,
+            ethnicity=ethnicity,
+            creatinine_value=self.cleaned_data.get("creatinine_value"),
+            creatinine_units=self.cleaned_data.get("creatinine_units"),
+        )
+        try:
+            value = EgfrCockcroftGault(**opts).value
+        except (EgfrCalculatorError, CalculatorError, ConversionNotHandled) as e:
+            self.raise_validation_error({"__all__": str(e)}, INVALID_ERROR)
+        return value
