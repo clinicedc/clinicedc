@@ -1,7 +1,8 @@
-from typing import Any, Optional, Union
+from __future__ import annotations
 
 from edc_constants.constants import FEMALE, MALE
-from edc_reportable import MICROMOLES_PER_LITER, MILLIGRAMS_PER_DECILITER, convert_units
+from edc_reportable import MICROMOLES_PER_LITER, MILLIGRAMS_PER_DECILITER
+from edc_reportable.utils import convert_units
 
 
 class EgfrCalculatorError(Exception):
@@ -10,11 +11,11 @@ class EgfrCalculatorError(Exception):
 
 class BaseEgfr:
     def __init__(
-        self: Any,
-        gender: Optional[str] = None,
-        age_in_years: Optional[Union[int, float]] = None,
-        creatinine_value: Optional[Union[float, int]] = None,
-        creatinine_units: Optional[str] = None,
+        self,
+        gender: str | None = None,
+        age_in_years: int | float | None = None,
+        creatinine_value: float | int | None = None,
+        creatinine_units: str | None = None,
         **kwargs,  # noqa
     ):
         """Expects creatinine (scr) in umols/L.
@@ -36,7 +37,8 @@ class BaseEgfr:
             self.scr.update(
                 {
                     MILLIGRAMS_PER_DECILITER: convert_units(
-                        float(creatinine_value),
+                        label="creatinine",
+                        value=float(creatinine_value),
                         units_from=creatinine_units,
                         units_to=MILLIGRAMS_PER_DECILITER,
                     )
@@ -45,7 +47,8 @@ class BaseEgfr:
             self.scr.update(
                 {
                     MICROMOLES_PER_LITER: convert_units(
-                        float(creatinine_value),
+                        label="creatinine",
+                        value=float(creatinine_value),
                         units_from=creatinine_units,
                         units_to=MICROMOLES_PER_LITER,
                     )

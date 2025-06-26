@@ -1,12 +1,12 @@
-from typing import Optional
+from __future__ import annotations
 
 from edc_constants.constants import BLACK, FEMALE
-
-# TODO: https://www.rcpa.edu.au/Manuals/RCPA-Manual/
-#  Pathology-Tests/C/Creatinine-clearance-Cockcroft-and-Gault
 from edc_reportable import MILLIGRAMS_PER_DECILITER
 
 from .base_egrfr import BaseEgfr, EgfrCalculatorError
+
+# TODO: https://www.rcpa.edu.au/Manuals/RCPA-Manual/
+#  Pathology-Tests/C/Creatinine-clearance-Cockcroft-and-Gault
 
 
 class EgfrCkdEpi(BaseEgfr):
@@ -23,7 +23,7 @@ class EgfrCkdEpi(BaseEgfr):
         super().__init__(**kwargs)
 
     @property
-    def value(self) -> Optional[float]:
+    def value(self) -> float | None:
         if (
             self.gender
             and self.age_in_years
