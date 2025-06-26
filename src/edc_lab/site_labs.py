@@ -80,7 +80,7 @@ class SiteLabs:
                 if self.migrated:
                     panel_model_cls = django_apps.get_model(self.panel_model)
                     self.update_panel_model(panel_model_cls=panel_model_cls)
-                self.verify_reference_range_collections(lab_profile)
+                    self.verify_reference_range_collections(lab_profile)
             else:
                 raise AlreadyRegistered(f"Lab profile {lab_profile} is already registered.")
 
@@ -153,7 +153,7 @@ class SiteLabs:
         for panel in lab_profile.panels.values():
             if (
                 panel.reference_range_collection_name
-                and reference_range_colllection_model_cls()
+                and not reference_range_colllection_model_cls()
                 .objects.filter(name=panel.reference_range_collection_name)
                 .exists()
             ):
@@ -161,7 +161,7 @@ class SiteLabs:
                     obj.name for obj in reference_range_colllection_model_cls().objects.all()
                 ]
                 raise SiteLabsLabProfileError(
-                    "Unknown reference rannge collection. "
+                    "Unknown reference range collection. "
                     f"Collection referenced by panel `{panel}`. "
                     f"Expected one of {names}. "
                     "Got panel.reference_range_collection_name="
