@@ -3,10 +3,9 @@ from decimal import Decimal
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase
+from edc_reportable.forms import WeightHeightBmiFormValidatorMixin
 from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
-
-from edc_vitals.form_validators import WeightHeightBmiFormValidatorMixin
 
 from ..models import WeightHeightBmi
 

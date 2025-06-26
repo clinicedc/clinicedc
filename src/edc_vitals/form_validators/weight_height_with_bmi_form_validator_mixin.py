@@ -1,5 +1,6 @@
 from django import forms
-from edc_reportable import CalculatorError, calculate_bmi
+
+from ..calculators import CalculatorError, calculate_bmi
 
 
 class WeightHeightBmiFormValidatorMixin:
