@@ -1,14 +1,15 @@
 from decimal import Decimal
 
 from django import forms
-from edc_reportable import MILLIMOLES_PER_LITER, ConversionNotHandled, convert_units
+from edc_reportable import MILLIMOLES_PER_LITER, ConversionNotHandled
+from edc_reportable.utils import convert_units
 from edc_utils.round_up import round_half_away_from_zero
 
 from .constants import GLUCOSE_HIGH_READING
 
 
 def validate_glucose_as_millimoles_per_liter(
-    prefix: str, cleaned_data: dict = None
+    prefix: str = None, cleaned_data: dict = None
 ) -> None | Decimal:
     converted_value = None
     min_val = Decimal("0.00")
@@ -19,7 +20,7 @@ def validate_glucose_as_millimoles_per_liter(
     if value and units:
         try:
             converted_value = convert_units(
-                value, units_from=units, units_to=MILLIMOLES_PER_LITER
+                label=prefix, value=value, units_from=units, units_to=MILLIMOLES_PER_LITER
             )
         except ConversionNotHandled as e:
             raise forms.ValidationError({f"{prefix}_units": str(e)})
