@@ -3,7 +3,7 @@ from typing import Any
 
 from edc_constants.constants import NO, YES
 from edc_lab.form_validators import CrfRequisitionFormValidatorMixin
-from edc_reportable import ReportablesFormValidatorMixin
+from edc_reportable.forms import ReportablesFormValidatorMixin
 
 
 class BloodResultsFormValidatorError(Exception):
@@ -17,9 +17,13 @@ class BloodResultsFormValidatorMixin(
     value_field_suffix = "_value"
     panel = None
     panels = None
-    is_poc_field = "is_poc"
+    is_poc_field: str = "is_poc"
+    # egfr_percent_drop_threshold: float = 20.0000
+    # egfr_value_threshold: float = 45.0000
+    # egfr_formula: str = "ckd-epi"
+    # reference_range_collection_name: str = None
 
-    def evaluate_value(self, field_name):
+    def evaluate_value(self, **kwargs):
         """A hook to evaluate a field value"""
         pass
 
@@ -55,11 +59,12 @@ class BloodResultsFormValidatorMixin(
                         field_required=f"{utest_id}_reportable",
                         field_required_evaluate_as_int=True,
                     )
-                self.evaluate_value(f"{utest_id}_value")
+                self.evaluate_value(prefix=utest_id)
             self.validate_reportable_fields(
                 self.requisition.panel_object.reference_range_collection_name,
                 **self.reportables_evaluator_options,
             )
+        super().clean()
 
     @property
     def requisition(self: Any):

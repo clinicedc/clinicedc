@@ -11,7 +11,10 @@ panel_conclusion_fieldset: Tuple[str, dict] = (
     "Conclusion",
     {"fields": ("results_abnormal", "results_reportable")},
 )
-panel_summary_fieldset: Tuple[str, dict] = ("Summary", {"fields": ("summary",)})
+panel_summary_fieldset: Tuple[str, dict] = (
+    "Summary",
+    {"fields": ("reportable_summary", "abnormal_summary", "errors")},
+)
 
 
 calculate_egfr_fieldset: Tuple[str, dict] = (

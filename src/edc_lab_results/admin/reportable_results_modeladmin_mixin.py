@@ -36,7 +36,7 @@ class ReportableResultsModelAdminMixin(ActionItemModelAdminMixin, ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None) -> tuple:
         fields = super().get_readonly_fields(request, obj=obj)
-        custom_fields = ("summary",)
+        custom_fields = ("summary", "reportable_summary", "abnormal_summary", "errors")
         return tuple(set(fields + custom_fields))
 
     def get_search_fields(self, request):

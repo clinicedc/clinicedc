@@ -6,9 +6,9 @@ from django.contrib.sites.models import Site
 from django.test import TestCase
 from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
-from edc_constants.constants import NO, NOT_APPLICABLE, YES
+from edc_constants.constants import GRADE3, GRADE4, NO, NOT_APPLICABLE, YES
 from edc_lab.models import Panel
-from edc_reportable import GRADE3, GRAMS_PER_DECILITER, PERCENT
+from edc_reportable import GRAMS_PER_DECILITER, PERCENT
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -108,13 +108,27 @@ class TestBloodResultForm(TestCaseMixin, TestCase):
         form.is_valid()
         self.assertEqual({}, form._errors)
 
-    def test_haemoglobin_g4(self):
+    def test_haemoglobin_g3_male(self):
         data = deepcopy(self.data)
         data.update(
-            haemoglobin_value=7.5,
+            haemoglobin_value=7.1,
             haemoglobin_units=GRAMS_PER_DECILITER,
             haemoglobin_abnormal=YES,
             haemoglobin_reportable=GRADE3,
+            results_abnormal=YES,
+            results_reportable=YES,
+        )
+        form = BloodResultsFbcForm(data=data)
+        form.is_valid()
+        self.assertEqual({}, form._errors)
+
+    def test_haemoglobin_g4_male(self):
+        data = deepcopy(self.data)
+        data.update(
+            haemoglobin_value=5.0,
+            haemoglobin_units=GRAMS_PER_DECILITER,
+            haemoglobin_abnormal=YES,
+            haemoglobin_reportable=GRADE4,
             results_abnormal=YES,
             results_reportable=YES,
         )

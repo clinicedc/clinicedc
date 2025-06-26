@@ -7,9 +7,9 @@ from edc_lab import site_labs
 from edc_metadata.tests.models import SubjectConsentV1
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
-from edc_reportable import site_reportables
-from edc_reportable.grading_data.daids_july_2017 import grading_data
-from edc_reportable.normal_data.africa import normal_data
+from edc_reportable.data.grading_data.daids_july_2017 import grading_data
+from edc_reportable.data.normal_data.africa import normal_data
+from edc_reportable.utils import load_reference_ranges
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -22,7 +22,6 @@ from .visit_schedule import visit_schedule
 class TestCaseMixin(TestCase):
     @classmethod
     def setUpClass(cls):
-        site_reportables._registry = {}
         site_labs.initialize()
         site_action_items.registry = {}
         site_visit_schedules._registry = {}
@@ -39,8 +38,8 @@ class TestCaseMixin(TestCase):
         )
         site_consents.register(consent_v1)
         import_holidays()
-        site_reportables.register(
-            name="my_reportables", normal_data=normal_data, grading_data=grading_data
+        load_reference_ranges(
+            "my_reportables", normal_data=normal_data, grading_data=grading_data
         )
         site_labs.register(lab_profile=subject_lab_profile)
         register_actions()

@@ -1,12 +1,13 @@
 from django.apps import apps as django_apps
 from django.test import TestCase
 from edc_appointment.models import Appointment
-from edc_constants.constants import NO, NOT_APPLICABLE, YES
+from edc_constants.constants import GRADE3, NO, NOT_APPLICABLE, YES
 from edc_lab.models import Panel
-from edc_reportable import GRADE3, GRAMS_PER_DECILITER, PERCENT, TEN_X_9_PER_LITER
+from edc_reportable import GRAMS_PER_DECILITER, PERCENT, TEN_X_9_PER_LITER
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
 
+from ...get_summary import get_summary
 from ..models import BloodResultsFbc
 from ..test_case_mixin import TestCaseMixin
 
@@ -39,7 +40,10 @@ class TestBloodResult(TestCaseMixin, TestCase):
 
     def test_summary_none(self):
         obj = BloodResultsFbc.objects.create(**self.data)
-        self.assertEqual(obj.get_summary(), [])
+        reportable, abnormal, errors = get_summary(obj)
+        self.assertEqual([], reportable)
+        self.assertEqual([], abnormal)
+        self.assertEqual([], errors)
 
     def test_summary_normal(self):
         self.data.update(
@@ -51,8 +55,10 @@ class TestBloodResult(TestCaseMixin, TestCase):
             results_reportable=NOT_APPLICABLE,
         )
         obj = BloodResultsFbc.objects.create(**self.data)
-        summary = obj.get_summary()
-        self.assertEqual([], summary)
+        reportable, abnormal, errors = get_summary(obj)
+        self.assertEqual([], reportable)
+        self.assertEqual([], abnormal)
+        self.assertEqual([], errors)
 
     def test_summary_abnormal(self):
         self.data.update(
@@ -64,8 +70,11 @@ class TestBloodResult(TestCaseMixin, TestCase):
             results_reportable=NO,
         )
         obj = BloodResultsFbc.objects.create(**self.data)
-        summary = obj.get_summary()
-        self.assertIn("haemoglobin_value: 12 g/dL is abnormal", summary)
+        reportable, abnormal, errors = get_summary(obj)
+        self.assertEqual([], reportable)
+        self.assertEqual([], errors)
+        abnormal_summary = "\n".join(abnormal)
+        self.assertIn("haemoglobin: 12 g/dL", abnormal_summary)
 
     def test_summary_g3(self):
         self.data.update(
@@ -77,8 +86,10 @@ class TestBloodResult(TestCaseMixin, TestCase):
             results_reportable=YES,
         )
         obj = BloodResultsFbc.objects.create(**self.data)
-        summary = obj.get_summary()
-        self.assertIn("haemoglobin_value: 7.0<=7.5<9.0 g/dL GRADE 3.", summary)
+        reportable, abnormal, errors = get_summary(obj)
+        self.assertIn("haemoglobin: 7.0<=7.5<9.0 g/dL GRADE3", "\n".join(reportable))
+        self.assertEqual([], abnormal)
+        self.assertEqual([], errors)
 
     def test_missing(self):
         obj = BloodResultsFbc.objects.create(**self.data)
