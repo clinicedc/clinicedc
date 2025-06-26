@@ -3,8 +3,7 @@ from django.conf import settings
 from django.urls.base import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from edc_constants.constants import YES
-from edc_reportable import GRADE4, GRADE5
+from edc_constants.constants import GRADE4, GRADE5, YES
 
 from ..form_validators import AeInitialFormValidator
 from ..utils import get_ae_model

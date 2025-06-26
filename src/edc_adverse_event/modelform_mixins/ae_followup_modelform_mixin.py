@@ -1,6 +1,5 @@
 from django import forms
-from edc_constants.constants import DEAD, YES
-from edc_reportable import GRADE5
+from edc_constants.constants import DEAD, GRADE5, YES
 
 from ..form_validators import AeFollowupFormValidator
 from ..utils import validate_ae_initial_outcome_date

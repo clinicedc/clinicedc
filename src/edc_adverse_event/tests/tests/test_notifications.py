@@ -1,9 +1,8 @@
 from django.core import mail
 from django.test import TestCase, override_settings
-from edc_constants.constants import NO, YES
+from edc_constants.constants import GRADE3, GRADE4, GRADE5, NO, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data.site_list_data import site_list_data
-from edc_reportable.constants import GRADE3, GRADE4, GRADE5
 from model_bakery import baker
 
 from adverse_event_app import list_data

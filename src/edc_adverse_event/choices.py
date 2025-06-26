@@ -1,14 +1,6 @@
-from edc_constants.constants import DEAD, NOT_APPLICABLE, OTHER
+from edc_constants.constants import DEAD, GRADE3, GRADE4, GRADE5, NOT_APPLICABLE, OTHER
 from edc_ltfu.constants import LOST_TO_FOLLOWUP
-from edc_reportable import (
-    GRADE3,
-    GRADE4,
-    GRADE5,
-    MILD,
-    MODERATE,
-    SEVERE,
-    SEVERITY_INCREASED_FROM_G3,
-)
+from edc_reportable import MILD, MODERATE, SEVERE, SEVERITY_INCREASED_FROM_G3
 
 from .constants import (
     AE_WITHDRAWN,
