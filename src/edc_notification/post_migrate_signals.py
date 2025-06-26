@@ -1,8 +1,3 @@
-from django.core.management.color import color_style
-
-style = color_style()
-
-
 def post_migrate_update_notifications(sender=None, **kwargs):
     from .site_notifications import site_notifications
 
