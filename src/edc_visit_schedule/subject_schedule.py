@@ -13,6 +13,7 @@ from edc_consent.site_consents import site_consents
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import valid_site_for_subject_or_raise
 from edc_utils import convert_php_dateformat, formatted_datetime, get_utcnow
+from edc_utils.date import to_local
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
 from .exceptions import (
@@ -192,6 +193,21 @@ class SubjectSchedule:
         )
         creator.create_appointments(self.onschedule_obj.onschedule_datetime)
 
+        try:
+            offschedule_obj = self.offschedule_model_cls.objects.get(
+                subject_identifier=self.subject_identifier
+            )
+        except ObjectDoesNotExist:
+            pass
+        else:
+            # clear future appointments
+            self.appointment_model_cls.objects.delete_for_subject_after_date(
+                subject_identifier=self.subject_identifier,
+                cutoff_datetime=offschedule_obj.offschedule_datetime,
+                visit_schedule_name=self.visit_schedule_name,
+                schedule_name=self.schedule_name,
+            )
+
     def take_off_schedule(self, offschedule_datetime: datetime):
         """Takes a subject off-schedule.
 
@@ -368,11 +384,11 @@ class SubjectSchedule:
             )
 
         if offschedule_datetime and not in_date_range:
-            formatted_offschedule_datetime = offschedule_datetime.strftime(
-                convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            formatted_offschedule_datetime = to_local(offschedule_datetime).strftime(
+                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
             )
-            formatted_report_datetime = report_datetime.strftime(
-                convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            formatted_report_datetime = to_local(report_datetime).strftime(
+                convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
             )
             raise NotOnScheduleForDateError(
                 f"Subject not on schedule '{self.schedule_name}' for "
