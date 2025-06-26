@@ -115,7 +115,7 @@ def get_subject_visit(
 
     # get last visitcode and last visit datetime
     df_last = (
-        df[df.reason != "Missed visit"]
+        df[~df.reason.isin(["missed", "Missed visit"])]
         .groupby("subject_identifier")
         .agg({"visit_code": "max", "visit_datetime": "max"})
     ).copy()

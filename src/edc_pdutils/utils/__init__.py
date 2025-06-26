@@ -1,4 +1,6 @@
 from .convert_dates_from_model import convert_dates_from_model
+from .convert_numbers_to_float64_int64 import convert_numbers_to_float64_int64
+from .convert_numbers_to_nullable_dtype import convert_numbers_to_nullable_dtype
 from .convert_numerics_from_model import convert_numerics_from_model
 from .convert_timedelta_from_model import convert_timedelta_from_model
 from .datetime_to_date import datetime_to_date
