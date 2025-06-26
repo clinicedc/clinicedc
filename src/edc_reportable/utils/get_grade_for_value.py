@@ -63,7 +63,9 @@ def get_grade_for_value(
         if eval(condition_str):  # nosec B307
             if not found_grading_data:
                 found_grading_data = grading_data
-                found_condition_str = condition_str
+                found_condition_str = (
+                    f"{label}: {condition_str} {units} GRADE{grading_data.grade}"
+                )
             else:
                 raise BoundariesOverlap(
                     f"Overlapping grading definitions. Got {found_grading_data} "

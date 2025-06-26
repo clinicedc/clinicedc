@@ -161,7 +161,7 @@ class TestLoadData(TestCase):
             in_normal_bounds_or_raise(
                 reference_range_collection,
                 "tbil",
-                3.0,
+                1.1,
                 MILLIGRAMS_PER_DECILITER,
                 gender,
                 dob=dob,
@@ -173,7 +173,7 @@ class TestLoadData(TestCase):
                 in_normal_bounds_or_raise(
                     reference_range_collection,
                     "tbil",
-                    10.0,
+                    1.0,
                     MILLIGRAMS_PER_DECILITER,
                     gender,
                     dob=dob,
@@ -185,7 +185,7 @@ class TestLoadData(TestCase):
                 in_normal_bounds_or_raise(
                     reference_range_collection,
                     "tbil",
-                    12.26,
+                    1.225,
                     MILLIGRAMS_PER_DECILITER,
                     gender,
                     dob=dob,
@@ -198,7 +198,7 @@ class TestLoadData(TestCase):
                 in_normal_bounds_or_raise,
                 reference_range_collection,
                 "tbil",
-                12.28,
+                1.228,
                 MILLIGRAMS_PER_DECILITER,
                 gender=gender,
                 dob=dob,
@@ -314,7 +314,7 @@ class TestLoadData(TestCase):
             create_missing_normal=True,
         )
         self.assertEqual(NormalData.objects.filter(label="tbil").count(), starting_count + 1)
-        self.assertEqual(obj.description, "tbil: 2.923<=x<12.2766 mg/dL M 18<=AGE")
+        self.assertEqual(obj.description, "tbil: 0.2923<=x<1.2277 mg/dL M 18<=AGE")
 
         # do again to ensure does not create duplicates
         get_normal_data_or_raise(
@@ -340,7 +340,7 @@ class TestLoadData(TestCase):
             in_normal_bounds_or_raise(
                 reference_range_collection,
                 "tbil",
-                5.0,
+                0.3000,
                 MILLIGRAMS_PER_DECILITER,
                 MALE,
                 dob=dob,
@@ -380,7 +380,7 @@ class TestLoadData(TestCase):
             in_normal_bounds_or_raise(
                 reference_range_collection,
                 "tbil",
-                11.0,
+                1.022,
                 MILLIGRAMS_PER_DECILITER,
                 MALE,
                 dob=dob,

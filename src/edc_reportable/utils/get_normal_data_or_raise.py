@@ -111,15 +111,15 @@ def create_obj_for_new_units_or_raise(
             not in ["id", "units", "description", "phrase", "lower", "upper", *SYSTEM_COLUMNS]
         }
         opts["lower"] = convert_units(
-            obj.label,
-            obj.lower,
+            label=obj.label,
+            value=obj.lower,
             units_from=obj.units,
             units_to=units,
             places=4,
         )
         opts["upper"] = convert_units(
-            obj.label,
-            obj.upper,
+            label=obj.label,
+            value=obj.upper,
             units_from=obj.units,
             units_to=units,
             places=4,

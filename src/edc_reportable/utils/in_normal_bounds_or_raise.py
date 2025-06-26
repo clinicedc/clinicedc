@@ -23,6 +23,7 @@ def in_normal_bounds_or_raise(
     age_units: str | None = None,
     create_missing_normal: bool | None = None,
 ) -> bool:
+    """Is this used??"""
     obj = get_normal_data_or_raise(
         reference_range_collection=reference_range_collection,
         label=label,

@@ -15,28 +15,27 @@ class TestParser(TestCase):
     @tag("68")
     def test_convert_tbil1(self):
         converted_value = convert_units(
-            "tbil",
-            0.00292,
+            label="tbil",
+            value=0.00292,
             units_from=GRAMS_PER_LITER,
             units_to=MILLIMOLES_PER_LITER,
         )
         self.assertEqual(converted_value, 0.005)
 
-    @tag("68")
     def test_convert_tbil4(self):
         converted_value = convert_units(
-            "tbil",
-            0.00292,
+            label="tbil",
+            value=0.00292,
             units_from=GRAMS_PER_LITER,
             units_to=MICROMOLES_PER_LITER,
         )
-        self.assertEqual(rnd(converted_value, 1), 5.0)
+        self.assertEqual(rnd(converted_value, 4), 4.9949)
 
     @tag("68")
     def test_convert_tbil2(self):
         converted_value = convert_units(
-            "tbil",
-            5.0,
+            label="tbil",
+            value=5.0,
             units_from=MICROMOLES_PER_LITER,
             units_to=MILLIMOLES_PER_LITER,
         )
@@ -45,8 +44,8 @@ class TestParser(TestCase):
     @tag("68")
     def test_convert_tbil3(self):
         converted_value = convert_units(
-            "tbil",
-            5.0,
+            label="tbil",
+            value=5.0,
             units_from=GRAMS_PER_LITER,
             units_to=MILLIGRAMS_PER_DECILITER,
         )
@@ -66,23 +65,26 @@ class TestParser(TestCase):
 
         for value, expected_value in values:
             converted_value = convert_units(
-                "glucose",
-                value,
+                label="glucose",
+                value=value,
                 units_from=MILLIGRAMS_PER_DECILITER,
                 units_to=MILLIMOLES_PER_LITER,
             )
             self.assertEqual(rnd(converted_value, 3), expected_value)
 
         converted_value = convert_units(
-            "glucose",
-            558.559,
+            label="glucose",
+            value=558.559,
             units_from=MILLIMOLES_PER_LITER,
             units_to=MILLIMOLES_PER_LITER,
         )
         self.assertEqual(558.559, converted_value)
 
         converted_value = convert_units(
-            "glucose", 6.9375, units_from=MILLIMOLES_PER_LITER, units_to=MILLIMOLES_PER_LITER
+            label="glucose",
+            value=6.9375,
+            units_from=MILLIMOLES_PER_LITER,
+            units_to=MILLIMOLES_PER_LITER,
         )
         self.assertEqual(6.9375, converted_value)
 
@@ -100,16 +102,16 @@ class TestParser(TestCase):
 
         for value, converted_value in values:
             converted_value = convert_units(
-                "creatinine",
-                value,
+                label="creatinine",
+                value=value,
                 units_from=MILLIGRAMS_PER_DECILITER,
                 units_to=MICROMOLES_PER_LITER,
             )
             self.assertEqual(converted_value, converted_value)
 
         converted_value = convert_units(
-            "creatinine",
-            0.2149,
+            label="creatinine",
+            value=0.2149,
             units_from=MICROMOLES_PER_LITER,
             units_to=MICROMOLES_PER_LITER,
         )

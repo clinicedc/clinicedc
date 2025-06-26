@@ -56,6 +56,8 @@ class GradingDataAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
         "units",
     )
 
+    search_fields = ("label",)
+
     @admin.display(description="Range", ordering="lower")
     def range_desc(self, obj: GradingData) -> str | None:
         if obj and (obj.lower or obj.upper):

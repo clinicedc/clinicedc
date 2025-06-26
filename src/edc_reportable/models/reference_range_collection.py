@@ -15,6 +15,7 @@ from .grading_exception import GradingException
 
 if TYPE_CHECKING:
     from .grading_data import GradingData
+    from .normal_data import NormalData
 
 
 class ReferenceRangeCollection(BaseUuidModel):
@@ -67,12 +68,12 @@ class ReferenceRangeCollection(BaseUuidModel):
         dob: date = None,
         age_units: str | None = None,
         site: Site | None = None,
-    ) -> GradingData | None:
+    ) -> tuple[GradingData | None, str | None]:
         if subject_identifier:
             rs_obj = RegisteredSubject.objects.get(subject_identifier=subject_identifier)
             dob = rs_obj.dob
             gender = rs_obj.gender
-        grading_data, _ = get_grade_for_value(
+        grading_data, eval_phrase = get_grade_for_value(
             reference_range_collection=self,
             value=value,
             label=label,
@@ -83,7 +84,7 @@ class ReferenceRangeCollection(BaseUuidModel):
             age_units=age_units,
             site=site,
         )
-        return grading_data
+        return grading_data, eval_phrase
 
     def is_normal(
         self,
@@ -96,7 +97,7 @@ class ReferenceRangeCollection(BaseUuidModel):
         dob: date = None,
         age_units: str | None = None,
         site: Site | None = None,
-    ) -> bool:
+    ) -> tuple[bool, NormalData]:
         if subject_identifier:
             rs_obj = RegisteredSubject.objects.get(subject_identifier=subject_identifier)
             dob = rs_obj.dob
@@ -111,15 +112,15 @@ class ReferenceRangeCollection(BaseUuidModel):
             age_units=age_units,
         )
         try:
-            normal = normal_data.value_in_normal_range_or_raise(
+            is_normal = normal_data.value_in_normal_range_or_raise(
                 value=value,
                 dob=dob,
                 report_datetime=report_datetime,
                 age_units=age_units,
             )
         except ValueBoundryError:
-            normal = False
-        return normal
+            is_normal = False
+        return is_normal, normal_data
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Reference Range Collection"

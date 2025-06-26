@@ -1,3 +1,4 @@
+# in g/mol
 molecular_weights = dict(
     glucose=180.16,
     chol=386.65,

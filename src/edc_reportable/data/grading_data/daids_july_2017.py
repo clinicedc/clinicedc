@@ -18,6 +18,7 @@ from ...formula import Formula
 from ...units import (
     CELLS_PER_MILLIMETER_CUBED,
     EGFR_UNITS,
+    FEMTOLITERS_PER_CELL,
     GRAMS_PER_DECILITER,
     GRAMS_PER_LITER,
     IU_LITER,
@@ -26,6 +27,7 @@ from ...units import (
     MILLIGRAMS_PER_LITER,
     MILLIMOLES_PER_LITER,
     PERCENT,
+    PICOGRAMS_PER_CELL,
     PLUS,
     TEN_X_9_PER_LITER,
 )
@@ -68,6 +70,33 @@ dummies = {
             gender=[MALE, FEMALE],
             **adult_age_options,
         )
+    ],
+    "mch": [
+        Formula(
+            "x<0",
+            grade=0,
+            units=PICOGRAMS_PER_CELL,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    "mchc": [
+        Formula(
+            "x<0",
+            grade=0,
+            units=GRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    "mcv": [
+        Formula(
+            "x<0",
+            grade=0,
+            units=FEMTOLITERS_PER_CELL,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
     ],
     "rbc": [
         Formula(

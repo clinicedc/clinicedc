@@ -42,10 +42,7 @@ class NormalData(ReferenceModelMixin, BaseUuidModel):
         self.age_in_bounds_or_raise(dob, report_datetime, age_units)
 
         value = float(value)
-        value_condition_str = (
-            f'{"" if not self.lower else self.lower}{self.lower_operator or ""}{value}'
-            f'{self.upper_operator or ""}{"" if not self.upper else self.upper}'
-        )
+        value_condition_str = self.get_eval_phrase(value)
         if not re.match(pattern, value_condition_str):
             raise ValueError(f"Invalid condition string. Got {value_condition_str}.")
         if not eval(value_condition_str):  # nosec B307
@@ -53,6 +50,12 @@ class NormalData(ReferenceModelMixin, BaseUuidModel):
                 f"{self.label}: {value_condition_str}{self.units} [{self.gender}]"
             )
         return True
+
+    def get_eval_phrase(self, value) -> str:
+        return (
+            f'{"" if not self.lower else self.lower}{self.lower_operator or ""}{value}'
+            f'{self.upper_operator or ""}{"" if not self.upper else self.upper}'
+        )
 
     class Meta:
         verbose_name = "Normal Reference"

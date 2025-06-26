@@ -5,6 +5,7 @@ from ...formula import Formula
 from ...units import (
     CELLS_PER_MILLIMETER_CUBED,
     EGFR_UNITS,
+    FEMTOLITERS_PER_CELL,
     GRAMS_PER_DECILITER,
     GRAMS_PER_LITER,
     IU_LITER,
@@ -13,6 +14,7 @@ from ...units import (
     MILLIGRAMS_PER_LITER,
     MILLIMOLES_PER_LITER,
     PERCENT,
+    PICOGRAMS_PER_CELL,
     PLUS,
     TEN_X_9_PER_LITER,
 )
@@ -152,6 +154,30 @@ normal_data = {
         Formula(
             "1.8<=x<=2.9",
             units=MILLIGRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    "mch": [
+        Formula(
+            "27.6<=x<=33.4",
+            units=PICOGRAMS_PER_CELL,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    "mchc": [
+        Formula(
+            "32.8<=x<35.4",
+            units=GRAMS_PER_DECILITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
+    "mcv": [
+        Formula(
+            "81.6<=x<=99.8",
+            units=FEMTOLITERS_PER_CELL,
             gender=[MALE, FEMALE],
             **adult_age_options,
         ),

@@ -205,16 +205,16 @@ class ReferenceRangeEvaluator:
             raise forms.ValidationError({field: str(e)})
         else:
             try:
-                normal = normal_data.value_in_normal_range_or_raise(
+                is_normal = normal_data.value_in_normal_range_or_raise(
                     value=value,
                     dob=self.dob,
                     report_datetime=self.report_datetime,
                     age_units=self.age_units,
                 )
             except ValueBoundryError:
-                normal = False
+                is_normal = False
             # is not normal, user response does not match
-            if not normal and user_form_response.abnormal == NO:
+            if not is_normal and user_form_response.abnormal == NO:
                 raise forms.ValidationError(
                     {
                         field: (
@@ -225,7 +225,7 @@ class ReferenceRangeEvaluator:
                 )
 
             # is not normal and not gradeable, user response does not match
-            if normal and not grading_data and user_form_response.abnormal == YES:
+            if is_normal and not grading_data and user_form_response.abnormal == YES:
                 raise forms.ValidationError(
                     {f"{utest_id}_abnormal": "Invalid. Result is not abnormal"}
                 )
