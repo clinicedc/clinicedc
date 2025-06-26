@@ -25,7 +25,7 @@ class LabProfile:
         if not requisition_model:
             raise LabProfileRequisitionModelError("Invalid requisition model. Got None")
         self.requisition_model = requisition_model
-        # name for site_reportables collection, may also be set by RequisitionPanel
+        # name for reportables collection, may also be set by RequisitionPanel
         self.reference_range_collection_name = reference_range_collection_name
 
     def __repr__(self):

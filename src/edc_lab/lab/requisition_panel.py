@@ -58,7 +58,7 @@ class RequisitionPanel:
         self.verbose_name = verbose_name or panel_attrs.verbose_name
         self.utest_ids = utest_ids
         self.is_poc = is_poc
-        # name for site_reportables collection, may also be set by LabProfile
+        # name for reportables collection, may also be set by LabProfile
         self.reference_range_collection_name = reference_range_collection_name
 
     def __repr__(self):
