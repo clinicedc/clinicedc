@@ -89,7 +89,6 @@ class AppConfig(DjangoAppConfig):
             edc_consent=site_consents.autodiscover,
             edc_auth=site_auths.autodiscover,
             edc_sites=site_sites.autodiscover,
-            # edc_reportable=site_reportables.autodiscover,
             edc_lab=site_labs.autodiscover,
             edc_list_data=site_list_data.autodiscover,
             edc_action_item=site_action_items.autodiscover,
