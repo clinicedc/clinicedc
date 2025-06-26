@@ -1,6 +1,6 @@
 from django.db import models
-from edc_reportable import calculate_bmi
 
+from ..calculators import calculate_bmi
 from ..models import HeightField, WeightField
 
 
