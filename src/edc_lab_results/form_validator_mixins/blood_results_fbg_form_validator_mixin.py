@@ -6,6 +6,7 @@ from edc_glucose.utils import validate_glucose_as_millimoles_per_liter
 
 
 class BloodResultsFbgFormValidatorMixin:
+
     @property
     def reportables_evaluator_options(self: Any):
         if not self.cleaned_data.get("fasting"):
@@ -20,6 +21,5 @@ class BloodResultsFbgFormValidatorMixin:
         )
         return dict(fasting=fasting)
 
-    def evaluate_value(self: Any, field_name: str):
-        if field_name == "ifg_value":
-            validate_glucose_as_millimoles_per_liter("ifg", self.cleaned_data)
+    def evaluate_value(self, prefix: str = None):
+        validate_glucose_as_millimoles_per_liter(prefix=prefix, cleaned_data=self.cleaned_data)

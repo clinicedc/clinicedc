@@ -1,7 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
-from edc_reportable import GRAMS_PER_DECILITER
+from edc_reportable import GRAMS_PER_DECILITER, MICROMOLES_PER_LITER
 from edc_reportable.units import (
     GRAMS_PER_LITER,
     IU_LITER,
@@ -85,7 +85,11 @@ class TotalBilirubinModelMixin(
     reportable_result_model_mixin_factory(
         utest_id="tbil",
         verbose_name="Total Bilirubin",
-        units_choices=((MILLIGRAMS_PER_DECILITER, MILLIGRAMS_PER_DECILITER),),
+        units_choices=(
+            (MILLIGRAMS_PER_DECILITER, MILLIGRAMS_PER_DECILITER),
+            (GRAMS_PER_LITER, GRAMS_PER_LITER),
+            (MICROMOLES_PER_LITER, MICROMOLES_PER_LITER),
+        ),
     ),
     models.Model,
 ):

@@ -1,12 +1,12 @@
+from __future__ import annotations
+
 from typing import Any
 
-from django.apps import apps as django_apps
 from django.db import models
 from edc_constants.choices import YES_NO, YES_NO_NA
-from edc_reportable.site_reportables import site_reportables
-from edc_reportable.utils import get_reference_range_collection_name
 
 from ..calculate_missing import calculate_missing
+from ..get_summary import get_summary
 
 
 class BloodResultsFieldsModelMixin(models.Model):
@@ -31,6 +31,12 @@ class BloodResultsFieldsModelMixin(models.Model):
 
     summary = models.TextField(null=True, blank=True)
 
+    reportable_summary = models.TextField(null=True, blank=True)
+
+    abnormal_summary = models.TextField(null=True, blank=True)
+
+    errors = models.TextField(null=True, blank=True)
+
     missing_count = models.IntegerField(
         default=0,
         editable=False,
@@ -51,45 +57,20 @@ class BloodResultsMethodsModelMixin(models.Model):
     """Requires additional attrs `subject_visit` and `requisition`"""
 
     def save(self, *args, **kwargs):
-        self.summary = "\n".join(self.get_summary())
+        reportable, abnormal, errors = get_summary(self)
+        self.summary = "\n".join(reportable + abnormal)
+        self.reportable_summary = "\n".join(reportable)
+        self.abnormal_summary = "\n".join(abnormal)
+        self.errors = "\n".join(errors)
         self.missing_count, self.missing = calculate_missing(self, self.lab_panel)
         super().save(*args, **kwargs)
 
     def get_summary_options(self: Any) -> dict:
-        model_cls = django_apps.get_model("edc_registration.registeredsubject")
-        registered_subject = model_cls.objects.get(
-            subject_identifier=self.subject_visit.subject_identifier
-        )
         return dict(
-            gender=registered_subject.gender,
-            dob=registered_subject.dob,
-            report_datetime=self.subject_visit.report_datetime,
+            subject_identifier=self.subject_visit.subject_identifier,
+            report_datetime=self.report_datetime,
+            age_units="years",
         )
-
-    def get_summary(self: Any) -> list:
-        opts = self.get_summary_options()
-        summary = []
-        for field_name in [f.name for f in self._meta.get_fields()]:
-            try:
-                utest_id, _ = field_name.split("_value")
-            except ValueError:
-                utest_id = field_name
-            if reference_grp := site_reportables.get(
-                get_reference_range_collection_name(self)
-            ).get(utest_id):
-                if value := getattr(self, field_name):
-                    units = getattr(self, f"{utest_id}_units")
-                    opts.update(units=units)
-                    grade = reference_grp.get_grade(value, **opts)
-                    if grade and grade.grade:
-                        setattr(self, f"{utest_id}_grade", grade.grade)
-                        setattr(self, f"{utest_id}_grade_description", grade.description)
-                        summary.append(f"{field_name}: {grade.description}.")
-                    elif not grade:
-                        normal = reference_grp.get_normal(value, **opts)
-                        if not normal:
-                            summary.append(f"{field_name}: {value} {units} is abnormal")
-        return summary
 
     def get_action_item_reason(self):
         return self.summary
