@@ -35,7 +35,7 @@ from edc_pdutils.site_values_mappings import site_values_mappings
 from edc_prn.site_prn_forms import site_prn_forms
 from edc_pylabels.site_label_configs import site_label_configs
 from edc_randomization.site_randomizers import site_randomizers
-from edc_reportable.site_reportables import site_reportables
+from edc_reportable.post_migrate_signals import post_migrate_load_reference_ranges
 from edc_sites.post_migrate_signals import post_migrate_update_sites
 from edc_sites.site import sites as site_sites
 from edc_sites.system_checks import sites_check
@@ -89,7 +89,6 @@ class AppConfig(DjangoAppConfig):
             edc_consent=site_consents.autodiscover,
             edc_auth=site_auths.autodiscover,
             edc_sites=site_sites.autodiscover,
-            edc_reportable=site_reportables.autodiscover,
             edc_lab=site_labs.autodiscover,
             edc_list_data=site_list_data.autodiscover,
             edc_action_item=site_action_items.autodiscover,
@@ -239,4 +238,11 @@ class AppConfig(DjangoAppConfig):
                 post_migrate_update_notifications,
                 sender=self,
                 dispatch_uid="edc_notification.post_migrate_update_notifications",
+            )
+        if "edc_reportable" in installed_apps:
+            sys.stdout.write("   - post_migrate.post_migrate_load_reference_ranges\n")
+            post_migrate.connect(
+                post_migrate_load_reference_ranges,
+                sender=self,
+                dispatch_uid="edc_reportable.post_migrate_load_reference_ranges",
             )
