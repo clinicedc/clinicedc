@@ -4,9 +4,9 @@ from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
-from edc_reportable import site_reportables
-from edc_reportable.grading_data.daids_july_2017 import grading_data
-from edc_reportable.normal_data.africa import normal_data
+from edc_reportable.data.grading_data.daids_july_2017 import grading_data
+from edc_reportable.data.normal_data.africa import normal_data
+from edc_reportable.utils import load_reference_ranges
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -18,7 +18,6 @@ from dx_app.visit_schedule import visit_schedule
 class TestCaseMixin(TestCase):
     @classmethod
     def setUpClass(cls):
-        site_reportables._registry = {}
         site_action_items.registry = {}
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
@@ -27,8 +26,8 @@ class TestCaseMixin(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-        site_reportables.register(
-            name="my_reportables", normal_data=normal_data, grading_data=grading_data
+        load_reference_ranges(
+            "my_reportables", normal_data=normal_data, grading_data=grading_data
         )
         site_visit_schedules.register(visit_schedule)
 
