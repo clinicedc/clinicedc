@@ -9,8 +9,9 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from edc_constants.constants import NEW
-from edc_reportable import site_reportables
+from edc_reportable.models import ReferenceRangeCollection
 from edc_reportable.units import EGFR_UNITS, PERCENT
+from edc_reportable.utils import get_grade_for_value
 from edc_utils import age, get_utcnow
 
 from .calculators import EgfrCkdEpi, EgfrCockcroftGault, egfr_percent_change
@@ -41,6 +42,7 @@ class Egfr:
         formula_name: str | None = None,
         value_threshold: Decimal | float | None = None,
         percent_drop_threshold: Decimal | float | None = None,
+        reference_range_collection: ReferenceRangeCollection | None = None,
         reference_range_collection_name: str | None = None,
         calling_crf: Any | None = None,
         related_visit: RelatedVisitProtocol | None = None,
@@ -70,7 +72,15 @@ class Egfr:
         self.egfr_units = EGFR_UNITS
         self.ethnicity = ethnicity
         self.gender = gender
-        self.reference_range_collection_name = reference_range_collection_name
+        if not reference_range_collection:
+            try:
+                self.reference_range_collection = ReferenceRangeCollection.objects.get(
+                    name=reference_range_collection_name
+                )
+            except ObjectDoesNotExist as e:
+                raise ObjectDoesNotExist(f"{e} Got {reference_range_collection_name}")
+        else:
+            self.reference_range_collection = reference_range_collection
         self.report_datetime = report_datetime
         self.value_threshold = value_threshold
         self.percent_drop_threshold = percent_drop_threshold
@@ -143,18 +153,18 @@ class Egfr:
     @property
     def egfr_grade(self) -> Optional[int]:
         if self._egfr_grade is None:
-            reference_grp = site_reportables.get(self.reference_range_collection_name).get(
-                "egfr"
-            )
-            grade_obj = reference_grp.get_grade(
-                self.egfr_value,
+            grading_data, _ = get_grade_for_value(
+                self.reference_range_collection,
+                value=self.egfr_value,
+                label="egfr",
                 gender=self.gender,
                 dob=self.dob,
                 report_datetime=self.report_datetime,
                 units=self.egfr_units,
+                age_units="years",
             )
-            if grade_obj:
-                self._egfr_grade = grade_obj.grade
+            if grading_data:
+                self._egfr_grade = grading_data.grade
         return self._egfr_grade
 
     @property
@@ -172,18 +182,18 @@ class Egfr:
     @property
     def egfr_drop_grade(self) -> Optional[int]:
         if self._egfr_drop_grade is None:
-            reference_grp = site_reportables.get(self.reference_range_collection_name).get(
-                "egfr_drop"
-            )
-            grade_obj = reference_grp.get_grade(
-                self.egfr_drop_value,
+            grading_data, _ = get_grade_for_value(
+                self.reference_range_collection,
+                value=self.egfr_drop_value,
+                label="egfr_drop",
                 gender=self.gender,
                 dob=self.dob,
                 report_datetime=self.report_datetime,
                 units=self.egfr_drop_units,
+                age_units="years",
             )
-            if grade_obj:
-                self._egfr_drop_grade = grade_obj.grade
+            if grading_data:
+                self._egfr_drop_grade = grading_data.grade
         return self._egfr_drop_grade
 
     def get_weight_in_kgs(self) -> Optional[float]:

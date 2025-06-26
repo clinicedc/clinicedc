@@ -7,9 +7,10 @@ from edc_lab import site_labs
 from edc_lab.models import Panel
 from edc_lab_panel.panels import rft_panel
 from edc_registration.models import RegisteredSubject
-from edc_reportable import MICROMOLES_PER_LITER, site_reportables
-from edc_reportable.grading_data.daids_july_2017 import grading_data
-from edc_reportable.normal_data.africa import normal_data
+from edc_reportable import MICROMOLES_PER_LITER
+from edc_reportable.data.grading_data.daids_july_2017 import grading_data
+from edc_reportable.data.normal_data.africa import normal_data
+from edc_reportable.utils import load_reference_ranges
 from edc_utils import get_utcnow
 from edc_visit_schedule.constants import DAY1
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -85,9 +86,8 @@ class TestEgfr(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site_reportables._registry = {}
-        site_reportables.register(
-            name="my_reference_list", normal_data=normal_data, grading_data=grading_data
+        load_reference_ranges(
+            "my_reference_list", normal_data=normal_data, grading_data=grading_data
         )
         site_labs.initialize()
         site_labs.register(lab_profile=lab_profile)
