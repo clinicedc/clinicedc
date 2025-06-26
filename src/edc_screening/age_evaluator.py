@@ -2,8 +2,8 @@ from typing import Optional
 
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import localtime
-from edc_reportable import AgeEvaluator as ReportableAgeEvaluator
-from edc_reportable import ValueBoundryError
+from edc_reportable.age_evaluator import AgeEvaluator as ReportableAgeEvaluator
+from edc_reportable.exceptions import ValueBoundryError
 from edc_utils.date import get_utcnow
 
 
