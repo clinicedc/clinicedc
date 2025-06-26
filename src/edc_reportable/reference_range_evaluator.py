@@ -149,8 +149,12 @@ class ReferenceRangeEvaluator:
             grading_data
             and grading_data.grade
             in self.reference_range_collection.reportable_grades(label=utest_id)
-            and user_form_response.reportable
-            not in [str(grading_data.grade), ALREADY_REPORTED, PRESENT_AT_BASELINE]
+            and str(user_form_response.reportable)
+            not in [
+                str(grading_data.grade),
+                ALREADY_REPORTED,
+                PRESENT_AT_BASELINE,
+            ]
         ):
             raise forms.ValidationError(
                 {
@@ -164,7 +168,7 @@ class ReferenceRangeEvaluator:
         if (
             grading_data
             and grading_data.grade
-            and user_form_response.reportable in [str(g) for g in self.grades(utest_id)]
+            and str(user_form_response.reportable) in [str(g) for g in self.grades(utest_id)]
             and str(grading_data.grade) != str(user_form_response.reportable)
         ):
             raise forms.ValidationError(
@@ -178,7 +182,7 @@ class ReferenceRangeEvaluator:
             )
 
         # is not gradeable, user reponse is a valid `opt out`.
-        if not grading_data and user_form_response.reportable not in [NO, NOT_APPLICABLE]:
+        if not grading_data and str(user_form_response.reportable) not in [NO, NOT_APPLICABLE]:
             raise forms.ValidationError(
                 {f"{utest_id}_reportable": "Invalid. Expected 'No' or 'Not applicable'."}
             )
@@ -266,10 +270,12 @@ class ReferenceRangeEvaluator:
         responses = responses or [
             str(g) for g in self.reference_range_collection.default_grades()
         ]
+        responses = [str(r) for r in responses]
         answers = list(
             {k: v for k, v in self.cleaned_data.items() if k.endswith(suffix)}.values()
         )
-        if len([True for v in answers if v is not None]) == 0:
+        answers = [str(v) for v in answers if v is not None]
+        if len(answers) == 0:
             raise forms.ValidationError({"results_abnormal": "No results have been entered."})
         answers_as_bool = [True for v in answers if v in responses]
         if self.cleaned_data.get(field) == NO:
