@@ -9,9 +9,9 @@ from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
-from edc_reportable import site_reportables
-from edc_reportable.grading_data.daids_july_2017 import grading_data
-from edc_reportable.normal_data.africa import normal_data
+from edc_reportable.data.grading_data.daids_july_2017 import grading_data
+from edc_reportable.data.normal_data.africa import normal_data
+from edc_reportable.utils import load_reference_ranges
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
@@ -26,7 +26,6 @@ class LongitudinalTestCaseMixin(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        site_reportables._registry = {}
         site_action_items.registry = {}
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
@@ -34,8 +33,8 @@ class LongitudinalTestCaseMixin(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site_reportables.register(
-            name="my_reportables", normal_data=normal_data, grading_data=grading_data
+        load_reference_ranges(
+            "my_reportables", normal_data=normal_data, grading_data=grading_data
         )
         site_consents.registry = {}
         site_consents.register(cls.consent_definition)
