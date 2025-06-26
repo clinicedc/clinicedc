@@ -10,21 +10,23 @@ from edc_reportable import (
     MICROMOLES_PER_LITER,
     MILLIMOLES_PER_LITER,
     TEN_X_9_PER_LITER,
-    site_reportables,
 )
 from edc_reportable.units import MILLIGRAMS_PER_DECILITER
+from edc_reportable.utils import load_reference_ranges
 from reportable_app.form_validators import SpecimenResultFormValidator
 from reportable_app.models import SpecimenResult
 from reportable_app.reportables import grading_data, normal_data
 
 
 class TestSpecimenResultForm(TestCase):
-    def setUp(self):
-        site_reportables._registry = {}
 
-        site_reportables.register(
-            name="my_reference_list", normal_data=normal_data, grading_data=grading_data
+    @classmethod
+    def setUpTestData(cls):
+        load_reference_ranges(
+            "my_reference_list", normal_data=normal_data, grading_data=grading_data
         )
+
+    def setUp(self):
 
         self.cleaned_data = {
             "subject_visit": "",
