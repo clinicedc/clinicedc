@@ -8,6 +8,7 @@ from django_audit_fields import audit_fieldset_tuple
 from edc_constants.constants import NO, PARTIAL, YES
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockTransferForm
@@ -91,7 +92,12 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock_changelist",
     )
 
-    list_filter = ("transfer_datetime", "from_location", "to_location", ConfirmedListFilter)
+    list_filter = (
+        ("transfer_datetime", DateRangeFilterBuilder()),
+        "from_location",
+        "to_location",
+        ConfirmedListFilter,
+    )
 
     search_fields = (
         "id",

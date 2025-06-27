@@ -7,6 +7,7 @@ from django_audit_fields import audit_fieldset_tuple
 from edc_constants.constants import NO, YES
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import Allocation
@@ -97,7 +98,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     list_filter = (
         "stock__location",
         AssignmentListFilter,
-        "allocation_datetime",
+        ("allocation_datetime", DateRangeFilterBuilder()),
         TransferredFilter,
         DispensedFilter,
         "allocated_by",

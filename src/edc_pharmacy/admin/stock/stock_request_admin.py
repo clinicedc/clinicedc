@@ -12,6 +12,7 @@ from django_audit_fields import audit_fieldset_tuple
 from edc_constants.constants import CANCELLED, COMPLETE, PENDING
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestForm
@@ -129,11 +130,10 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     list_filter = (
         "location",
-        "request_datetime",
+        ("request_datetime", DateRangeFilterBuilder()),
         StatusListFilter,
         "formulation",
         "container",
-        "request_datetime",
         "start_datetime",
         "cutoff_datetime",
     )

@@ -5,6 +5,7 @@ from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StorageBinItemForm
@@ -62,7 +63,8 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
     list_filter = (
         "storage_bin__in_use",
         "storage_bin__location",
-        "item_datetime",
+        "stock__dispensed",
+        ("item_datetime", DateRangeFilterBuilder()),
     )
 
     @admin.display(description="Item #", ordering="-item_identifier")

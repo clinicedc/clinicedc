@@ -14,7 +14,11 @@ class StockOut(QaReportModelMixin, models.Model):
 
     relative_days = models.IntegerField(null=True)
 
+    codes = models.TextField(null=True)
+
+    bins = models.TextField(null=True)
+
     class Meta(QaReportModelMixin.Meta):
-        verbose_name = "Stock out"
-        verbose_name_plural = "Stock out"
+        verbose_name = "Stock availability"
+        verbose_name_plural = "Stock availability"
         default_permissions = qa_reports_permissions

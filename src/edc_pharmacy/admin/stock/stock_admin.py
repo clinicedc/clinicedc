@@ -6,6 +6,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE
@@ -142,7 +143,8 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         ProductAssignmentListFilter,
         "product",
         "confirmed_by",
-        "confirmed_datetime",
+        ("allocated_datetime", DateRangeFilterBuilder()),
+        ("confirmed_datetime", DateRangeFilterBuilder()),
         HasOrderNumFilter,
         HasReceiveNumFilter,
         HasRepackNumFilter,

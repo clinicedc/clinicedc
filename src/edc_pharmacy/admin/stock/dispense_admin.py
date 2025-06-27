@@ -5,6 +5,7 @@ from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import DispenseForm
@@ -56,7 +57,7 @@ class DispenseAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
     )
 
     list_filter = (
-        "dispense_datetime",
+        ("dispense_datetime", DateRangeFilterBuilder()),
         "location__display_name",
     )
 

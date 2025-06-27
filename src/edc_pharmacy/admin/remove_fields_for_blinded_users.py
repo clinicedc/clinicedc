@@ -12,6 +12,10 @@ def remove_fields_for_blinded_users(request: WSGIRequest, fields: tuple) -> tupl
             if isinstance(f, str):
                 if "assignment" in f or "lot_no" in f or "lot" in f:
                     fields.remove(f)
+            elif isinstance(f, tuple):
+                f, _ = f
+                if "assignment" in f or "lot_no" in f or "lot" in f:
+                    fields.remove(f)
             elif issubclass(f, AssignmentListFilter):
                 fields.remove(f)
         fields = tuple(fields)
