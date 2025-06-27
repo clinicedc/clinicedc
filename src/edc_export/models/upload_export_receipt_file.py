@@ -73,4 +73,4 @@ class UploadExportReceiptFile(BaseUuidModel):
         self.errors = "; ".join(error_list)
 
     class Meta(BaseUuidModel.Meta):
-        indexes = [Index(fields=["-created"])]
+        indexes = [Index(fields=["created"])]
