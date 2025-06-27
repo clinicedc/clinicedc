@@ -2,10 +2,7 @@ from django.db import models
 from django.db.models import PROTECT
 from edc_appointment_app.models import SubjectVisit
 from edc_crf.model_mixins import CrfStatusModelMixin
-from edc_lab.model_mixins import (
-    CrfWithRequisitionModelMixin,
-    requisition_fk_options,
-)
+from edc_lab.model_mixins import CrfWithRequisitionModelMixin, requisition_fk_options
 from edc_lab_panel.panels import fbc_panel
 from edc_lab_results.model_mixins import (
     BloodResultsModelMixin,
