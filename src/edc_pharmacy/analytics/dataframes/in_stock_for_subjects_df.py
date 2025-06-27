@@ -10,10 +10,12 @@ from django.db.models import DecimalField, ExpressionWrapper, F
 from django_pandas.io import read_frame
 
 if TYPE_CHECKING:
-    from ...models import StockRequest
+    pass
 
 
-def in_stock_for_subjects_df(stock_request: StockRequest) -> pd.DataFrame:
+def in_stock_for_subjects_df(
+    container_name: str = None, product_name: str = None
+) -> pd.DataFrame:
     """Returns a dataframe of stock allocated to a subject_identifier.
 
     Filter by site_id to keep those rows already at a study site.
@@ -26,21 +28,39 @@ def in_stock_for_subjects_df(stock_request: StockRequest) -> pd.DataFrame:
     """
     location_cls = django_apps.get_model("edc_pharmacy.location")
     stock_cls = django_apps.get_model("edc_pharmacy.stock")
-
     # qs of stock in stock and allocated to a subject_identifier
     difference = ExpressionWrapper(F("qty_in") - F("qty_out"), output_field=DecimalField())
     qs = (
         stock_cls.objects.filter(
-            subject_identifier__isnull=False,
+            allocation__isnull=False,
             confirmed=True,
-            container=stock_request.container,
-            product__in=stock_request.formulation.product_set.all(),
+            transferred=True,
+            confirmed_at_site=True,
+            container__name=container_name,
+            dispensed=False,
+            # product__in=formulation.product_set.all(),
+            product__name__icontains=product_name,
         )
-        .annotate(qty=difference)
+        .values(
+            "stock_identifier",
+            "code",
+            "allocation__registered_subject__subject_identifier",
+            "qty_in",
+            "qty_out",
+            "container__name",
+            "location",
+            "product",
+        )
+        .annotate(container_qty=difference)
         .filter(qty__gte=Decimal("1.00"))
     )
     # read df
-    df = read_frame(qs, verbose=False)
+    df = read_frame(qs, verbose=False).rename(
+        columns={
+            "allocation__registered_subject__subject_identifier": "subject_identifier",
+            "container__name": "container",
+        }
+    )
     df["in_stock"] = True
 
     # merge in site_id

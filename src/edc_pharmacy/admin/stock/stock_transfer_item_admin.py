@@ -5,6 +5,7 @@ from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import StockTransferItem
@@ -48,7 +49,7 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     list_filter = (
         "stock_transfer__to_location",
-        "transfer_item_datetime",
+        ("transfer_item_datetime", DateRangeFilterBuilder()),
         "stock__confirmed_at_site",
     )
 

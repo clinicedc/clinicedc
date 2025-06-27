@@ -7,6 +7,7 @@ from django_audit_fields import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_model_admin.list_filters import FutureDateListFilter
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestItemForm
@@ -79,6 +80,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
 
     list_filter = (
+        ("request_item_datetime", DateRangeFilterBuilder()),
         "stock_request__location",
         StockItemAllocationListFilter,
         AssignmentListFilter,

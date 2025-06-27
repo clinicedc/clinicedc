@@ -4,7 +4,7 @@ from django_audit_fields import audit_fieldset_tuple
 from ...admin_site import edc_pharmacy_admin
 from ...auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE
 from ...models import StockProxy
-from ..list_filters import TransferredListFilter
+from ..list_filters import DispensedFilter, StoredAtSiteFilter, TransferredListFilter
 from .stock_admin import StockAdmin
 
 
@@ -49,8 +49,8 @@ class StockProxyAdmin(StockAdmin):
     list_filter = (
         TransferredListFilter,
         "confirmed_at_site",
-        "stored_at_site",
-        "dispensed",
+        StoredAtSiteFilter,
+        DispensedFilter,
         "product__formulation__description",
         "location__display_name",
         "created",

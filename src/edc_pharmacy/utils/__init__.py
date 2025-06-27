@@ -6,6 +6,7 @@ from .create_new_stock_on_receive import create_new_stock_on_receive
 from .dispense import dispense
 from .format_qty import format_qty
 from .get_codenames import get_codenames
+from .get_imp_schedule_names import get_imp_schedule_names
 from .get_random_code import get_random_code
 from .get_stock_for_location_df import get_stock_for_location_df
 from .miscellaneous import get_rx_model_cls, get_rxrefill_model_cls
@@ -34,4 +35,5 @@ __all__ = [
     "transfer_stock",
     "update_previous_refill_end_datetime",
     "get_stock_for_location_df",
+    "get_imp_schedule_names",
 ]

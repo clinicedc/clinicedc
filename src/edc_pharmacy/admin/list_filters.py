@@ -304,6 +304,23 @@ class DispensedFilter(SimpleListFilter):
         return qs
 
 
+class HasCodesListFilter(SimpleListFilter):
+    title = "Has codes"
+    parameter_name = "has_codes"
+
+    def lookups(self, request, model_admin):
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(codes__isnull=False)
+            elif self.value() == NO:
+                qs = queryset.filter(codes__isnull=True)
+        return qs
+
+
 class StockRequestItemPendingListFilter(SimpleListFilter):
     title = "Request Status"
     parameter_name = "item_status"
