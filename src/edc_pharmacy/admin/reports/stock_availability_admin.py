@@ -11,7 +11,7 @@ from rangefilter.filters import DateRangeFilterBuilder, NumericRangeFilterBuilde
 
 from ...admin_site import edc_pharmacy_admin
 from ...analytics.dataframes.no_stock_for_subjects_df import stock_for_subjects_df
-from ...models import StockOut
+from ...models import StockAvailability
 from ..list_filters import HasCodesListFilter
 
 
@@ -54,8 +54,8 @@ def update_report(modeladmin, request):
         return created
 
 
-@admin.register(StockOut, site=edc_pharmacy_admin)
-class StockOutModelAdmin(
+@admin.register(StockAvailability, site=edc_pharmacy_admin)
+class StockAvailabilityModelAdmin(
     QaReportModelAdminMixin,
     SiteModelAdminMixin,
     ModelAdminDashboardMixin,

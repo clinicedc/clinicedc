@@ -1,1 +1,1 @@
-from .stock_out_admin import StockOutModelAdmin
+from .stock_availability_admin import StockAvailabilityModelAdmin
