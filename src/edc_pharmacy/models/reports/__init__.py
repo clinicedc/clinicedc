@@ -1,1 +1,1 @@
-from .stock_out import StockOut
+from .stock_availability import StockAvailability

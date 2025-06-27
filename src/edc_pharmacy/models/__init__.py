@@ -11,7 +11,7 @@ from .medication import (
 )
 from .prescription import Rx, RxRefill
 from .proxy_models import SiteProxy, VisitSchedule
-from .reports import StockOut
+from .reports import StockAvailability
 from .scan_duplicates import ScanDuplicates
 from .signals import (
     create_or_update_refills_on_post_save,
