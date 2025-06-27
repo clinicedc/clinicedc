@@ -24,4 +24,4 @@ class DataRequestHistory(SiteModelMixin, BaseUuidModel):
     class Meta:
         verbose_name = "Data Request History"
         verbose_name_plural = "Data Request History"
-        indexes = [Index(fields=["-exported_datetime"])]
+        indexes = [Index(fields=["exported_datetime"])]

@@ -32,4 +32,4 @@ class ExportReceipt(BaseUuidModel):
         return (self.export_uuid,)
 
     class Meta(BaseUuidModel.Meta):
-        indexes = [Index(fields=["-timestamp"])]
+        indexes = [Index(fields=["timestamp"])]

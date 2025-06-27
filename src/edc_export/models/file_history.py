@@ -77,4 +77,4 @@ class FileHistory(BaseUuidModel):
         return (self.history_uuid,)
 
     class Meta(BaseUuidModel.Meta):
-        indexes = [Index(fields=["-sent_datetime"])]
+        indexes = [Index(fields=["sent_datetime"])]
