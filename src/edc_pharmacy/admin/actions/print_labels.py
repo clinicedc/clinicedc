@@ -143,7 +143,10 @@ def print_labels_from_stock_request_by_code(modeladmin, request, queryset):
         stock_qs = Stock.objects.values_list("pk", flat=True).filter(
             code__in=[
                 obj.allocation.stock.code
-                for obj in stock_request.stockrequestitem_set.filter(allocation__isnull=False)
+                for obj in stock_request.stockrequestitem_set.filter(
+                    allocation__isnull=False,
+                    allocation__stock__isnull=False,
+                )
             ]
         )
         if stock_qs.exists():
