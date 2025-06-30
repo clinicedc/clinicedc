@@ -51,14 +51,14 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 )
             },
         ),
+        # (
+        #     "Section B",
+        #     {
+        #         "fields": ("received", "received_datetime"),
+        #     },
+        # ),
         (
             "Section B",
-            {
-                "fields": ("received", "received_datetime"),
-            },
-        ),
-        (
-            "Section C",
             {
                 "fields": ("allocation",),
             },
