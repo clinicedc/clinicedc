@@ -301,7 +301,7 @@ class AppointmentAdmin(
         )
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
-        if request.user.userprofile.roles.get(name=DATA_MANAGER_ROLE):
+        if request.user.userprofile.roles.filter(name=DATA_MANAGER_ROLE).exists():
             return [
                 s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id
             ]
