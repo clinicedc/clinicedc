@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 @shared_task
 def bulk_create_stock_request_items(
     stock_request_pk: UUID,
-    df_as_dict: dict,
+    nostock_as_dict: dict,
     user_created: str | None = None,
 ) -> None:
     stock_request_model_cls = django_apps.get_model("edc_pharmacy.StockRequest")
@@ -25,7 +25,7 @@ def bulk_create_stock_request_items(
     rx_model_cls = django_apps.get_model("edc_pharmacy.rx")
 
     stock_request = stock_request_model_cls.objects.get(pk=stock_request_pk)
-    df = pd.DataFrame(df_as_dict)
+    df = pd.DataFrame(nostock_as_dict)
 
     now = get_utcnow()
     data = []

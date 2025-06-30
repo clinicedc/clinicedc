@@ -50,6 +50,23 @@ class DispensedFilter(SimpleListFilter):
         return qs
 
 
+class HasStockFilter(SimpleListFilter):
+    title = "Orphaned"
+    parameter_name = "orphaned"
+
+    def lookups(self, request, model_admin):
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(stock__isnull=True)
+            elif self.value() == NO:
+                qs = queryset.filter(stock__isnull=False)
+        return qs
+
+
 @admin.register(Allocation, site=edc_pharmacy_admin)
 class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
@@ -59,6 +76,8 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     show_object_tools = True
     show_cancel = True
     list_per_page = 20
+
+    actions = ["delete_selected"]
 
     ordering = (
         "registered_subject__subject_identifier",
@@ -102,6 +121,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         TransferredFilter,
         DispensedFilter,
         "allocated_by",
+        HasStockFilter,
     )
 
     search_fields = (

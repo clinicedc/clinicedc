@@ -235,8 +235,9 @@ def stock_on_post_delete(sender, instance, using, **kwargs) -> None:
     dispatch_uid="allocation_post_delete",
 )
 def allocation_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.stock.allocated = False
-    instance.stock.save(update_fields=["allocated"])
+    if getattr(instance, "stock", None):
+        instance.stock.allocated = False
+        instance.stock.save(update_fields=["allocated"])
 
 
 @receiver(

@@ -51,11 +51,6 @@ class StockRequestItem(VisitCodeFieldsModelMixin, BaseUuidModel):
 
     appt_datetime = models.DateTimeField(null=True, blank=True)
 
-    in_stock = models.BooleanField(default=False)
-
-    received = models.BooleanField(default=False, help_text="Received at site")
-    received_datetime = models.DateTimeField(null=True, blank=True)
-
     objects = Manager()
 
     history = HistoricalRecords()
@@ -66,7 +61,7 @@ class StockRequestItem(VisitCodeFieldsModelMixin, BaseUuidModel):
         )
 
     def save(self, *args, **kwargs):
-        """Important: check `create_stock_request_items_action`
+        """Important: check `bulk_create_stock_request_items`
         to ensure fields updated here are also manually
         updated when `bulk_update` is called.
         """

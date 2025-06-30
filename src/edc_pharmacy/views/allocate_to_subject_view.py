@@ -291,7 +291,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             total_count = stock_request.stockrequestitem_set.all().count()
             groupby = (
                 stock_request.stockrequestitem_set.values("assignment__name")
-                .filter(allocation__isnull=True)
+                .filter(allocation__isnull=True, allocation__stock__isnull=True)
                 .annotate(count=Count("assignment__name"))
             )
             groupby = {dct["assignment__name"]: dct["count"] for dct in groupby}

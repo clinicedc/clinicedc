@@ -329,7 +329,7 @@ class StockRequestItemPendingListFilter(SimpleListFilter):
         return (
             ("not_allocated", "Not allocated"),
             ("allocated_only", "Allocated only"),
-            ("transferred", "Transferred"),
+            ("transferred", "Allocation and transferred"),
         )
 
     def queryset(self, request, queryset):
@@ -340,11 +340,13 @@ class StockRequestItemPendingListFilter(SimpleListFilter):
             elif self.value() == "allocated_only":
                 qs = queryset.filter(
                     Q(allocation__isnull=False)
+                    & Q(allocation__stock__transferred=False)
                     & ~Q(allocation__stock__location=F("stock_request__location"))
                 )
             elif self.value() == "transferred":
                 qs = queryset.filter(
                     Q(allocation__isnull=False)
+                    & Q(allocation__stock__transferred=True)
                     & Q(allocation__stock__location=F("stock_request__location"))
                 )
         return qs
