@@ -35,15 +35,15 @@ from ...units import (
 __all__ = ["dummies", "chemistries", "hematology", "urinalysis", "hba1c", "grading_data"]
 
 dummies = {
-    # "hba1c": [
-    #     Formula(
-    #         "x<0",
-    #         grade=0,
-    #         units=PERCENT,
-    #         gender=[MALE, FEMALE],
-    #         **adult_age_options,
-    #     )
-    # ],
+    "hba1c": [
+        Formula(
+            "x<0",
+            grade=0,
+            units=PERCENT,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ],
     "hct": [
         Formula(
             "x<0",
