@@ -14,6 +14,7 @@ class LabProfileError(Exception):
 
 class NothingPanel:
     verbose_name = None
+    reference_range_collection_name = None
 
 
 class PanelModelMixin(models.Model):
