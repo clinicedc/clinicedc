@@ -58,11 +58,14 @@ class MetadataHandler:
         """
         try:
             metadata_obj = self.metadata_model_cls.objects.get(**self.query_options)
-        except ObjectDoesNotExist as e:
-            if self.allow_create:
-                metadata_obj = self._create()
-            else:
-                raise MetadataObjectDoesNotExist(f"Unable to run metadata rule. Got `{e}`")
+        except ObjectDoesNotExist:
+            # TODO: i think allow create should always be true 02/07/2025
+            # if self.allow_create:
+            metadata_obj = self._create()
+            # else:
+            #     raise MetadataObjectDoesNotExist(
+            #         f"Unable to run metadata rule. Using {self.query_options}. Got `{e}`"
+            #     )
         return metadata_obj
 
     def _create(self) -> CrfMetadata | RequisitionMetadata:
@@ -75,7 +78,8 @@ class MetadataHandler:
         except IndexError as e:
             if self.related_visit.reason != MISSED_VISIT:
                 raise MetadataHandlerError(
-                    f"Model not found. Not in visit.all_crfs. Model {self.model}. Got {e}"
+                    "Create failed. Model not found. Not in visit.all_crfs. "
+                    f"Model {self.model}. Got {e}"
                 )
         else:
             metadata_obj = self.creator.create_crf(crf)
