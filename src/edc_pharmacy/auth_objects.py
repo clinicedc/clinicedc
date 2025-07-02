@@ -66,6 +66,7 @@ view_only_models = [
     "edc_pharmacy.product",
     "edc_pharmacy.stock",
     "edc_pharmacy.stockavailability",
+    "edc_pharmacy.stockadjustment",
     "edc_pharmacy.stockproxy",
     "edc_pharmacy.subject",
     "edc_pharmacy.visitschedule",

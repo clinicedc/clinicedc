@@ -118,7 +118,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "verified_assignment",
         "qty",
         "container_str",
-        "unit_qty",
+        "unit_qty_in_out",
         "order_changelist",
         "receive_item_changelist",
         "repack_request_changelist",
@@ -263,7 +263,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         return obj.transferred
 
     @admin.display(description="Units", ordering="unit_qty_out")
-    def unit_qty(self, obj):
+    def unit_qty_in_out(self, obj):
         return format_qty(obj.unit_qty_in - obj.unit_qty_out, obj.container)
 
     @admin.display(description="STOCK #", ordering="-stock_identifier")

@@ -11,7 +11,13 @@ base_dir = Path(__file__).absolute().parent.parent.parent
 
 project_settings = DefaultTestSettings(
     calling_file=__file__,
-    SILENCED_SYSTEM_CHECKS=["sites.E101", "edc_navbar.E002", "edc_navbar.E003"],
+    use_test_urls=True,
+    SILENCED_SYSTEM_CHECKS=[
+        "sites.E101",
+        "edc_navbar.E002",
+        "edc_navbar.E003",
+        "edc_action_item.W001",
+    ],
     EDC_AUTH_CODENAMES_WARN_ONLY=True,
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=True,
@@ -43,11 +49,18 @@ project_settings = DefaultTestSettings(
         "edc_adverse_event.apps.AppConfig",
         "adverse_event_app.apps.AppConfig",
         "edc_appointment.apps.AppConfig",
+        "edc_auth.apps.AppConfig",
+        "edc_data_manager.apps.AppConfig",
         "edc_device.apps.AppConfig",
         "edc_facility.apps.AppConfig",
+        "edc_form_runners.apps.AppConfig",
         "edc_identifier.apps.AppConfig",
+        "edc_lab.apps.AppConfig",
+        "edc_lab_dashboard.apps.AppConfig",
         "edc_list_data.apps.AppConfig",
+        "edc_locator.apps.AppConfig",
         "edc_metadata.apps.AppConfig",
+        "edc_model_admin.apps.AppConfig",
         "edc_notification.apps.AppConfig",
         "edc_offstudy.apps.AppConfig",
         "edc_qareports.apps.AppConfig",
@@ -64,6 +77,7 @@ project_settings = DefaultTestSettings(
         "edc_appconfig.apps.AppConfig",
     ],
     add_dashboard_middleware=True,
+    add_lab_dashboard_middleware=True,
 ).settings
 
 

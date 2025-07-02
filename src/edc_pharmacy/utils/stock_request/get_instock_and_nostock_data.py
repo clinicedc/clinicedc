@@ -16,7 +16,6 @@ def get_instock_and_nostock_data(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     df_stock = get_stock_for_location_df(stock_request.location)
-
     if not df_next_scheduled_visits.empty and not df_stock.empty:
         df_stock = df_next_scheduled_visits.merge(
             df_stock, on="subject_identifier", how="left"
@@ -45,6 +44,7 @@ def get_instock_and_nostock_data(
         df_stock["dispensed"] = pd.NA
         df_stock["dispensed"].astype("boolean").fillna(False)
         df_stock["stock_qty"] = 0.0
+        df_stock["subject_identifier"] = pd.NA
     df_stock = df_stock.reset_index(drop=True)
 
     df_instock = (

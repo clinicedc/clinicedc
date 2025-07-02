@@ -96,6 +96,7 @@ class Stock(BaseUuidModel):
         decimal_places=2,
         max_digits=20,
         default=Decimal(0.0),
+        help_text="Difference of qty_in and qty_out",
     )
 
     qty_in = models.DecimalField(
@@ -105,6 +106,7 @@ class Stock(BaseUuidModel):
         max_digits=20,
         default=Decimal(0.0),
         validators=[MinValueValidator(0), MaxValueValidator(1)],
+        help_text="Container qty, e.g. 1 bucket, 1 bottle, etc",
     )
 
     qty_out = models.DecimalField(
@@ -112,6 +114,7 @@ class Stock(BaseUuidModel):
         max_digits=20,
         default=Decimal(0.0),
         validators=[MinValueValidator(0), MaxValueValidator(1)],
+        help_text="Container qty, e.g. 1 bucket, 1 bottle, etc",
     )
 
     unit_qty_in = models.DecimalField(
@@ -119,6 +122,7 @@ class Stock(BaseUuidModel):
         max_digits=20,
         default=Decimal(0.0),
         validators=[MinValueValidator(0)],
+        help_text="Number of units in this container, e.g. 128 tablets. See post-save signal",
     )
 
     unit_qty_out = models.DecimalField(
@@ -126,6 +130,7 @@ class Stock(BaseUuidModel):
         max_digits=20,
         default=Decimal(0.0),
         validators=[MinValueValidator(0)],
+        help_text="Number of units from this container, e.g. 128 tablets",
     )
 
     status = models.CharField(max_length=25, choices=STOCK_STATUS, default=AVAILABLE)
@@ -144,6 +149,7 @@ class Stock(BaseUuidModel):
         ),
     )
     confirmed_datetime = models.DateTimeField(null=True, blank=True)
+
     confirmed_by = models.CharField(max_length=150, null=True, blank=True)
 
     confirmed_at_site = models.BooleanField(default=False)
@@ -174,7 +180,8 @@ class Stock(BaseUuidModel):
         self.verify_assignment_or_raise()
         self.verify_assignment_or_raise(self.from_stock)
         self.update_status()
-        self.unit_qty_in = Decimal(self.qty_in) * Decimal(self.container.qty)
+        # do this in the post-save signal?
+        # self.unit_qty_in = Decimal(self.qty_in) * Decimal(self.container.qty)
         super().save(*args, **kwargs)
 
     def update_transferred(self) -> bool:
@@ -218,7 +225,7 @@ class Stock(BaseUuidModel):
 
     @property
     def unit_qty(self):
-        """Unit qty of hand"""
+        """Unit qty on hand"""
         return self.unit_qty_in - self.unit_qty_out
 
     class Meta(BaseUuidModel.Meta):
