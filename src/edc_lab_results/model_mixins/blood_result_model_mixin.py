@@ -57,13 +57,16 @@ class BloodResultsMethodsModelMixin(models.Model):
     """Requires additional attrs `subject_visit` and `requisition`"""
 
     def save(self, *args, **kwargs):
-        reportable, abnormal, errors = get_summary(self)
+        reportable, abnormal, errors = self.get_summary()
         self.summary = "\n".join(reportable + abnormal)
         self.reportable_summary = "\n".join(reportable)
         self.abnormal_summary = "\n".join(abnormal)
         self.errors = "\n".join(errors)
         self.missing_count, self.missing = calculate_missing(self, self.lab_panel)
         super().save(*args, **kwargs)
+
+    def get_summary(self):
+        return get_summary(self)
 
     def get_summary_options(self: Any) -> dict:
         return dict(
