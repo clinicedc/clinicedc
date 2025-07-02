@@ -3,6 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 from celery.states import PENDING
+from django.db import transaction
 from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
@@ -15,6 +16,7 @@ from ..utils import (
     create_new_stock_on_receive,
     process_repack_request,
     update_previous_refill_end_datetime,
+    update_stock_instance,
 )
 from .stock import (
     Allocation,
@@ -24,6 +26,7 @@ from .stock import (
     ReceiveItem,
     RepackRequest,
     Stock,
+    StockAdjustment,
     StockRequest,
     StockRequestItem,
     StockTransferConfirmationItem,
@@ -34,38 +37,30 @@ from .stock import (
 
 @receiver(post_save, sender=Stock, dispatch_uid="update_stock_on_post_save")
 def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
+    """Update unit qty and other columns"""
+    if not raw and not update_fields:
+        with transaction.atomic():
+            instance = update_stock_instance(instance)
+            if instance.from_stock:
+                # adjust the unit_qty_out, unit_qty_out on the source stock item
+                # (from_stock). If insufficient, will bomb out here.
+                instance.from_stock.save()
+
+
+@receiver(
+    post_save, sender=StockAdjustment, dispatch_uid="update_stock_adjustment_on_post_save"
+)
+def stock_adjustment_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty"""
     if not raw and not update_fields:
-        instance.unit_qty_in = Decimal(instance.qty_in) * Decimal(instance.container.qty)
-        instance.unit_qty_out = Decimal(
-            sender.objects.filter(from_stock=instance).count()
-        ) * Decimal(instance.container.qty)
-
-        if instance.from_stock:
-            instance.from_stock.unit_qty_out = (
-                sender.objects.filter(from_stock=instance.from_stock)
-                .aggregate(unit_qty_in=Sum("unit_qty_in"))
-                .get("unit_qty_in")
-            )
-            instance.from_stock.save(update_fields=["unit_qty_out"])
-            instance.from_stock.refresh_from_db()
-
-        if (
-            instance.from_stock
-            and instance.from_stock.unit_qty_out > instance.from_stock.unit_qty_in
-        ):
-            raise InsufficientStockError("Unit QTY OUT cannot exceed Unit QTY IN.")
-        elif (
-            instance.from_stock
-            and instance.from_stock.unit_qty_out == instance.from_stock.unit_qty_in
-        ):
-            instance.qty_out = 1
-            instance.qty = 0
-        instance.save(update_fields=["unit_qty_in", "unit_qty_out", "qty"])
-
-        if Allocation.objects.filter(stock=instance).exists():
-            instance.allocated = True
-            instance.save(update_fields=["allocated"])
+        with transaction.atomic():
+            instance.stock.unit_qty_in = instance.unit_qty_in_new
+            if instance.stock.unit_qty_out > instance.stock.unit_qty_in:
+                raise InsufficientStockError(
+                    "Invalid adjustment. Expected a value greater than or equal to "
+                    f"{instance.stock.unit_qty_out}. See {instance}."
+                )
+            instance.stock.save(update_fields=["unit_qty_in"])
 
 
 @receiver(post_save, sender=OrderItem, dispatch_uid="update_order_item_on_post_save")

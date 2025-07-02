@@ -18,7 +18,9 @@ def bulk_create_stock_request_items(
     stock_request_pk: UUID,
     nostock_as_dict: dict,
     user_created: str | None = None,
+    bulk_create: bool | None = None,
 ) -> None:
+    bulk_create = True if bulk_create is None else bulk_create
     stock_request_model_cls = django_apps.get_model("edc_pharmacy.StockRequest")
     stock_request_item_model_cls = django_apps.get_model("edc_pharmacy.StockRequestItem")
     registered_subject_model_cls = django_apps.get_model("edc_registration.registeredsubject")
@@ -54,7 +56,11 @@ def bulk_create_stock_request_items(
         )
         data.append(obj)
     if data:
-        stock_request_item_model_cls.objects.bulk_create(data)
+        if bulk_create:
+            stock_request_item_model_cls.objects.bulk_create(data)
+        else:
+            for obj in data:
+                obj.save()
         stock_request.item_count = len(data)
         stock_request.save(update_fields=["item_count"])
     return None

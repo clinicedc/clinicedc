@@ -12,6 +12,7 @@ from .product_admin import ProductAdmin
 from .receive_admin import ReceiveAdmin
 from .receive_item_admin import ReceiveItemAdmin
 from .repack_request_admin import RequestRepackAdmin
+from .stock_adjustment_admin import StockAdjustmentAdmin
 from .stock_admin import StockAdmin
 from .stock_proxy_admin import StockProxyAdmin
 from .stock_request_admin import StockRequestAdmin

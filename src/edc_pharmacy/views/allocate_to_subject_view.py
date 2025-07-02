@@ -17,7 +17,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 from edc_utils import get_utcnow
 
-from ..exceptions import AllocationError
+from ..exceptions import AllocationError, InsufficientStockError
 from ..models import Assignment, Stock, StockRequest, StockRequestItem
 from ..utils import allocate_stock
 
@@ -337,6 +337,8 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     created=get_utcnow(),
                 )
             except AllocationError as e:
+                messages.add_message(request, messages.ERROR, str(e))
+            except InsufficientStockError as e:
                 messages.add_message(request, messages.ERROR, str(e))
             else:
                 messages.add_message(

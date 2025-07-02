@@ -74,7 +74,7 @@ class TestPrescription(TestCase):
         create_prescription(
             subject_identifier=self.registered_subject.subject_identifier,
             report_datetime=self.registered_subject.registration_datetime,
-            medications=[self.medication],
+            medication_names=[self.medication.name],
             site=self.registered_subject.site,
         )
         try:
@@ -86,7 +86,7 @@ class TestPrescription(TestCase):
         create_prescription(
             subject_identifier=self.registered_subject.subject_identifier,
             report_datetime=self.registered_subject.registration_datetime,
-            medications=[self.medication],
+            medication_names=[self.medication.name],
             site=self.registered_subject.site,
         )
         Rx.objects.get(subject_identifier=self.registered_subject.subject_identifier)
@@ -94,7 +94,7 @@ class TestPrescription(TestCase):
             create_prescription(
                 subject_identifier=self.registered_subject.subject_identifier,
                 report_datetime=self.registered_subject.registration_datetime,
-                medications=[self.medication],
+                medication_names=[self.medication.name],
                 site=self.registered_subject.site,
             )
 
@@ -113,7 +113,7 @@ class TestPrescription(TestCase):
             subject_identifier=self.registered_subject.subject_identifier,
             report_datetime=self.registered_subject.registration_datetime,
             randomizer_name="default",
-            medications=[self.medication],
+            medication_names=[self.medication.name],
             site=self.registered_subject.site,
         )
         try:
@@ -126,7 +126,7 @@ class TestPrescription(TestCase):
             create_prescription(
                 subject_identifier=self.registered_subject.subject_identifier,
                 report_datetime=self.registered_subject.registration_datetime,
-                medications=[self.medication, "blah blah"],
+                medication_names=[self.medication.name, "blah blah"],
                 site=self.registered_subject.site,
             )
         except PrescriptionError:

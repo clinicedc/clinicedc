@@ -1,18 +1,24 @@
 from secrets import choice
+from unittest.mock import patch
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.db.models import Sum
-from django.test import TestCase
+from django.db.models.signals import pre_save
+from django.test import TestCase, override_settings, tag
+from edc_appointment.tests.helper import Helper
 from edc_consent import site_consents
 from edc_constants.constants import COMPLETE, FEMALE, MALE
+from edc_facility import import_holidays
 from edc_list_data import site_list_data
 from edc_randomization.constants import ACTIVE, PLACEBO
 from edc_randomization.models import RandomizationList
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from sequences import get_next_value
 
+from ...analytics import get_next_scheduled_visit_for_subjects_df
 from ...exceptions import RepackRequestError
 from ...models import (
     Assignment,
@@ -32,13 +38,29 @@ from ...models import (
     RepackRequest,
     Route,
     Stock,
+    StockRequest,
+    StockRequestItem,
     Units,
 )
-from ...utils import confirm_stock, process_repack_request
+from ...prescribe import create_prescription
+from ...utils import (
+    bulk_create_stock_request_items,
+    confirm_stock,
+    get_instock_and_nostock_data,
+    process_repack_request,
+)
 from ..consents import consent_v1
+from ..visit_schedule import visit_schedule
 
 
 class TestOrderReceive(TestCase):
+    helper_cls = Helper
+
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
+
     def setUp(self):
         site_list_data.initialize()
         site_list_data.autodiscover()
@@ -365,14 +387,16 @@ class TestOrderReceive(TestCase):
         container_5000 = self.get_container_5000()
         container_128 = self.get_container_128()
 
-        # assert
+        # assert there are 20 containers of 5000
         self.assertEqual(Stock.objects.filter(container=container_5000).count(), 20)
+        # total containers - 20
         self.assertEqual(
             Stock.objects.values("container__name")
             .annotate(count=Sum("qty_in"))[0]
             .get("count"),
             20,
         )
+        # total items in the containers (tablets) 100000
         self.assertEqual(
             Stock.objects.values("container__name")
             .annotate(count=Sum("unit_qty_in"))[0]
@@ -383,7 +407,7 @@ class TestOrderReceive(TestCase):
         # assert raises if stock not confirmed
         stock = Stock.objects.filter(container=container_5000).first()
         with self.assertRaises(RepackRequestError) as cm:
-            repack_request = RepackRequest.objects.create(
+            RepackRequest.objects.create(
                 from_stock=stock,
                 container=container_128,
                 requested_qty=39,
@@ -391,10 +415,13 @@ class TestOrderReceive(TestCase):
         self.assertIn("Unconfirmed stock item", str(cm.exception))
 
         # confirm stock items
+        self.assertEqual(Stock.objects.filter(confirmed=False).count(), 20)
         for stock in Stock.objects.filter(container=container_5000):
             confirm_stock(receive, [stock.code], fk_attr="receive_item__receive")
+        self.assertEqual(Stock.objects.filter(confirmed=True).count(), 20)
 
         # REPACK REQUEST **********************************************
+        # create a repack request from each container_5000, ask for 39 bottles of 128
         for stock in Stock.objects.filter(container=container_5000):
             # create request
             repack_request = RepackRequest.objects.create(
@@ -409,7 +436,7 @@ class TestOrderReceive(TestCase):
             # assert unconfirmed stock instances (central)
             self.assertEqual(repack_request.stock_set.filter(confirmed=False).count(), 39)
 
-        # scan in some or all labels to confirm stock (central)
+        # scan in some or all stock code labels to confirm stock (central)
         for repack_request in RepackRequest.objects.all():
             codes = [obj.code for obj in repack_request.stock_set.filter(confirmed=False)]
             confirmed, already_confirmed, invalid = confirm_stock(
@@ -420,6 +447,7 @@ class TestOrderReceive(TestCase):
             self.assertEqual(len(already_confirmed), 0)
             self.assertEqual(len(invalid), 0)
 
+        # try to scan in bogus stock codes
         for repack_request in RepackRequest.objects.all():
             codes = [
                 f"{obj.code}blah" for obj in repack_request.stock_set.filter(confirmed=True)
@@ -432,6 +460,7 @@ class TestOrderReceive(TestCase):
             self.assertEqual(len(already_confirmed), 0)
             self.assertEqual(len(invalid), 39)
 
+        # try to scan in stock codes that were already confirmed
         for repack_request in RepackRequest.objects.all():
             codes = [obj.code for obj in repack_request.stock_set.filter(confirmed=True)]
             confirmed, already_confirmed, invalid = confirm_stock(
@@ -442,6 +471,7 @@ class TestOrderReceive(TestCase):
             self.assertEqual(len(already_confirmed), 39)
             self.assertEqual(len(invalid), 0)
 
+        # ok, show that all are confirmed
         for repack_request in RepackRequest.objects.all():
             # assert unconfirmed stock instances (central)
             self.assertEqual(repack_request.stock_set.filter(confirmed=False).count(), 0)
@@ -462,7 +492,7 @@ class TestOrderReceive(TestCase):
         unit_qty_out = Stock.objects.all().aggregate(unit_qty_out=Sum("unit_qty_out"))[
             "unit_qty_out"
         ]
-        self.assertEqual(unit_qty_out, 99840)
+        self.assertEqual(unit_qty_out, 99840)  # 20 * 39 * 128
 
         # repackaged 99840 tablets into bottles of 128
         unit_qty_in = Stock.objects.filter(container=container_128).aggregate(
@@ -486,17 +516,97 @@ class TestOrderReceive(TestCase):
         self.assertEqual(unit_qty_out, 99840)
         self.assertEqual(unit_qty_in - unit_qty_out, 160)
 
-    def make_randomized_subject(self, site: Site, subject_count: int):
+    def repack(self):
+        receive = self.order_and_receive()
+
+        container_5000 = self.get_container_5000()
+        container_128 = self.get_container_128()
+
+        # confirm stock items
+        for stock in Stock.objects.filter(container=container_5000):
+            confirm_stock(receive, [stock.code], fk_attr="receive_item__receive")
+
+        # create a repack request from each container_5000, ask for 39 bottles of 128
+        for stock in Stock.objects.filter(container=container_5000):
+            # create request
+            repack_request = RepackRequest.objects.create(
+                from_stock=stock,
+                container=container_128,
+                requested_qty=39,
+            )
+            # process
+            process_repack_request(repack_request.pk, username=None)
+
+    @tag("20")
+    @override_settings(
+        SUBJECT_CONSENT_MODEL="edc_pharmacy.subjectconsent",
+        SITE_ID=1,
+        EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=True,
+    )
+    @patch("edc_model_admin.templatetags.edc_admin_modify.get_cancel_url", return_value="/")
+    def test_create_stock_request_and_items(self, mock_cancel_url):
+        site_consents.registry = {}
+        site_consents.loaded = False
+        site_consents.register(consent_v1)
+
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(visit_schedule)
+
+        self.repack()
+        location = Location.objects.get(name="amana_pharmacy")
+        location.site = Site.objects.get(pk=1)
+        location.site_id = 1
+        location.save()
+        location.refresh_from_db()
+
+        self.make_randomized_subject(
+            site=location.site, subject_count=10, put_on_schedule=True
+        )
+
+        container = Container.objects.get(name="bottle of 128")
+        container.may_request_as = True
+        container.may_dispense_as = True
+        container.max_per_subject = 3
+        container.save()
+
+        # user creates in Admin
+        stock_request = StockRequest.objects.create(
+            request_datetime=get_utcnow(),
+            start_datetime=get_utcnow() - relativedelta(years=5),
+            location=location,
+            formulation=Formulation.objects.all()[0],
+            container=Container.objects.get(name="bottle of 128"),
+            containers_per_subject=3,
+        )
+
+        # use prepares stock request items (admin action against the stock request)
+        df_next_scheduled_visits = get_next_scheduled_visit_for_subjects_df(stock_request)
+        _, df_nostock = get_instock_and_nostock_data(stock_request, df_next_scheduled_visits)
+        nostock_as_dict = df_nostock.to_dict("list")
+        bulk_create_stock_request_items(
+            stock_request.pk, nostock_as_dict, user_created="erikvw", bulk_create=False
+        )
+        self.assertEqual(StockRequestItem.objects.all().count(), 10)
+
+        # user allocates stock to a request item (admin action against the stock request)
+
+    def make_randomized_subject(
+        self, site: Site, subject_count: int, put_on_schedule: bool | None = None
+    ):
         subjects = {}
         for i in range(0, subject_count):
-            subjects.update({f"S{i:4d}": choice([self.product_placebo, self.product_active])})
+            subjects.update({f"S{i:04d}": choice([self.product_placebo, self.product_active])})
         for subject_identifier, product in subjects.items():
-            RegisteredSubject.objects.create(
+            registered_subject = RegisteredSubject.objects.create(
                 subject_identifier=subject_identifier,
                 gender=choice([MALE, FEMALE]),
                 randomization_list_model="edc_randomization.randomizationlist",
+                registration_datetime=get_utcnow() - relativedelta(years=5),
+                site=site,
             )
             RandomizationList.objects.create(
+                randomizer_name="default",
                 sid=get_next_value(sequence_name=RandomizationList._meta.label_lower),
                 subject_identifier=subject_identifier,
                 assignment=product.assignment.name,
@@ -505,6 +615,22 @@ class TestOrderReceive(TestCase):
                 allocated=True,
                 allocated_datetime=get_utcnow(),
             )
+            if put_on_schedule:
+                self.helper = self.helper_cls(
+                    subject_identifier=subject_identifier,
+                    now=get_utcnow() - relativedelta(years=5),
+                )
+                self.helper.consent_and_put_on_schedule(
+                    visit_schedule_name="visit_schedule",
+                    schedule_name="schedule",
+                )
+                create_prescription(
+                    subject_identifier=registered_subject.subject_identifier,
+                    report_datetime=registered_subject.registration_datetime,
+                    medication_names=[self.medication.name],
+                    site=registered_subject.site,
+                    randomizer_name="default",
+                )
         return subjects
 
     def test_allocate_to_subject(self):
