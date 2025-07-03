@@ -6,6 +6,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+
+<!-- edc_model_admin: add attr for delay_save_buttons.js -->
+<script>window.adminSaveDelay = {{ save_delay|default:0 }};</script>
+
 {% endblock %}
 
 {% block extrastyle %}{{ block.super }}
