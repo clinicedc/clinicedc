@@ -12,7 +12,9 @@ from django.utils.module_loading import module_has_submodule
 from edc_notification.site_notifications import (
     AlreadyRegistered as NotificationAlreadyRegistered,
 )
-from edc_notification.site_notifications import site_notifications
+from edc_notification.site_notifications import (
+    site_notifications,
+)
 from edc_prn.prn import Prn
 from edc_prn.site_prn_forms import AlreadyRegistered as PrnAlreadyRegistered
 from edc_prn.site_prn_forms import site_prn_forms
