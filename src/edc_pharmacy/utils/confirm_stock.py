@@ -48,7 +48,6 @@ def confirm_stock(
                     stock=stock,
                     confirmed_datetime=get_utcnow(),
                     confirmed_by=confirmed_by or user_created,
-                    site=stock.location.site,
                 )
                 confirmed.append(stock.code)
             else:
