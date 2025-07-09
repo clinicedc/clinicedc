@@ -30,7 +30,8 @@ class SiteModelMixin(models.Model):
 
     def update_site_on_save(self, *args, **kwargs) -> None:
         if not self.id:
-            self.site = self.get_site_on_create()
+            if not self.site:
+                self.site = self.get_site_on_create()
         elif "update_fields" in kwargs and "site" not in kwargs.get("update_fields"):
             pass
         else:
