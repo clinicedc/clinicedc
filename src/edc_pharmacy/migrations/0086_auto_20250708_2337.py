@@ -15,7 +15,7 @@ def update_sequences(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("edc_pharmacy", "0084_alter_confirmationatsite_options_and_more"),
+        ("edc_pharmacy", "0085_alter_confirmationatsite_options_and_more"),
     ]
 
     operations = [migrations.RunPython(update_sequences)]

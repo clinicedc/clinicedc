@@ -17,7 +17,6 @@ def update_confirm(apps, schema_editor):
                 stock=stock,
                 confirmed_by=stock.confirmed_by,
                 confirmed_datetime=stock.confirmed_datetime,
-                site=stock.location.site,
             )
             obj.save()
 
@@ -25,7 +24,7 @@ def update_confirm(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("edc_pharmacy", "0081_historicalconfirmation_confirmation"),
+        ("edc_pharmacy", "0082_alter_confirmation_managers_remove_confirmation_site_and_more"),
     ]
 
     operations = [migrations.RunPython(update_confirm)]
