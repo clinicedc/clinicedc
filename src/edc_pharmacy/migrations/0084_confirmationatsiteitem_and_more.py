@@ -21,7 +21,7 @@ import edc_pharmacy.models.stock.confirmation_at_site_item
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("edc_pharmacy", "0082_auto_20250707_1820"),
+        ("edc_pharmacy", "0083_auto_20250707_1820"),
         ("sites", "0002_alter_domain_unique"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
