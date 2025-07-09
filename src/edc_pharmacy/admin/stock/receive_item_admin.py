@@ -63,7 +63,6 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
     list_filter = (
         "receive_item_datetime",
-        # "stock__confirmed",
         "lot",
         "reference",
         "created",

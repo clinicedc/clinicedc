@@ -96,7 +96,15 @@ class PrepareAndReviewStockRequestView(
         else:
             df_instock, df_nostock = get_instock_and_nostock_data(stock_request, df)
             session_uuid = str(uuid4())
-            nostock_dict = df_nostock.to_dict("list")
+            nostock_dict = df_nostock[
+                [
+                    "subject_identifier",
+                    "registered_subject_id",
+                    "next_visit_code",
+                    "next_appt_datetime",
+                ]
+            ].to_dict("list")
+            nostock_dict["stock_qty"] = 0.0
             self.request.session[session_uuid] = nostock_dict
 
             stock_request_items_exist = stock_request.stockrequestitem_set.all().exists()

@@ -25,7 +25,7 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
         else repack_request.requested_qty
     )
     number_to_process = repack_request.requested_qty - repack_request.processed_qty
-    if not repack_request.from_stock.confirmed:
+    if not getattr(repack_request.from_stock, "confirmation", None):
         raise RepackError("Source stock item not confirmed")
     else:
         stock_model_cls = repack_request.from_stock.__class__
@@ -40,7 +40,6 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
                     container=repack_request.container,
                     location=repack_request.from_stock.location,
                     repack_request=repack_request,
-                    confirmed=False,
                     lot=repack_request.from_stock.lot,
                     user_created=username,
                     created=get_utcnow(),

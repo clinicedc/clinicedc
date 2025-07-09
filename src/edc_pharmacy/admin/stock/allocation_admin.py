@@ -27,9 +27,9 @@ class TransferredFilter(SimpleListFilter):
         qs = None
         if self.value():
             if self.value() == YES:
-                qs = queryset.filter(stock__transferred=True)
+                qs = queryset.filter(stock__stocktransferitem__isnull=False)
             elif self.value() == NO:
-                qs = queryset.filter(stock__transferred=False)
+                qs = queryset.filter(stock__stocktransferitem__isnull=True)
         return qs
 
 
@@ -44,9 +44,9 @@ class DispensedFilter(SimpleListFilter):
         qs = None
         if self.value():
             if self.value() == YES:
-                qs = queryset.filter(stock__dispensed=True)
+                qs = queryset.filter(stock__dispenseitem__isnull=False)
             elif self.value() == NO:
-                qs = queryset.filter(stock__dispensed=False)
+                qs = queryset.filter(stock__dispenseitem_isnull=True)
         return qs
 
 
@@ -166,12 +166,13 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="T", boolean=True)
     def transferred(self, obj):
-        # return obj.stock.location == obj.stock_request_item.stock_request.location
-        return True if obj.stock.transferred == YES else False
+        return True if obj.stock.stocktransferitem else False
 
     @admin.display(description="D", boolean=True)
     def dispensed(self, obj):
-        return True if obj.stock.dispensed == YES else False
+        if obj and getattr(obj, "stock", None):
+            return True if getattr(obj.stock, "dispense", None) else False
+        return None
 
     @admin.display(description="Product", ordering="stock__product")
     def stock_product(self, obj):

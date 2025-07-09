@@ -43,7 +43,7 @@
       {% else %}
 
         <div class="col-sm-4">
-          <div style="padding:10px"><a href="{% url "edc_pharmacy:home_url" %}">Pharmacy home</a> > <a href="{% url "edc_pharmacy:stock_transfer_confirmation_url" %}">{{ location|default:"Location" }}</a></div>
+          <div style="padding:10px"><a href="{% url "edc_pharmacy:home_url" %}">Pharmacy home</a> > <a href="{% url "edc_pharmacy:confirmation_at_site_url" %}">{{ location|default:"Location" }}</a></div>
           <div class="panel panel-default">
             <div class="panel-heading">Confirm transferred stock: {{ stock_transfer }}</div>
             <div class="panel-body">

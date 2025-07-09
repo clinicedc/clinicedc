@@ -20,11 +20,14 @@ class StorageBinItem(SiteModelMixin, BaseUuidModel):
 
     storage_bin = models.ForeignKey(StorageBin, on_delete=models.PROTECT)
 
-    stock = models.ForeignKey(
+    stock = models.OneToOneField(
         "edc_pharmacy.stock",
         on_delete=models.PROTECT,
         null=True,
-        limit_choices_to={"confirmed_at_site": True, "dispensed": False},
+        limit_choices_to={
+            "confirmationatsiteitem__isnull": False,
+            "dispenseitem__isnull": True,
+        },
     )
 
     item_datetime = models.DateTimeField(default=get_utcnow)

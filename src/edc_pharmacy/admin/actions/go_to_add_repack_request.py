@@ -12,7 +12,7 @@ def go_to_add_repack_request_action(modeladmin, request, queryset):
             messages.ERROR,
             gettext("Select one and only one item"),
         )
-    elif not queryset.first().confirmed:
+    elif not getattr(queryset.first(), "confirmation", None):
         messages.add_message(
             request,
             messages.ERROR,

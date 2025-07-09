@@ -41,8 +41,8 @@ def get_instock_and_nostock_data(
     else:
         df_stock = df_next_scheduled_visits.copy()
         df_stock["code"] = pd.NA
-        df_stock["dispensed"] = pd.NA
-        df_stock["dispensed"].astype("boolean").fillna(False)
+        df_stock["dispensed"] = False
+        df_stock["dispensed"].astype("boolean")
         df_stock["stock_qty"] = 0.0
         df_stock["subject_identifier"] = pd.NA
     df_stock = df_stock.reset_index(drop=True)
@@ -59,7 +59,7 @@ def get_instock_and_nostock_data(
         .sort_values(by=["subject_identifier"])
         .reset_index(drop=True)
     )
-    df_nostock["code"] = df_nostock["code"].fillna("---")
+    df_nostock["code"] = df_nostock["code"].fillna(pd.NA)
     return df_instock, df_nostock
 
 

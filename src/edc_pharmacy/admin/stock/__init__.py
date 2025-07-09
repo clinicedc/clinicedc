@@ -1,5 +1,8 @@
 from .allocation_admin import AllocationAdmin
 from .allocation_proxy_admin import AllocationProxyAdmin
+from .confirmation_admin import ConfirmationAdmin
+from .confirmation_at_site_admin import ConfirmationAtSiteAdmin
+from .confirmation_at_site_item_admin import ConfirmationAtSiteItemAdmin
 from .container_admin import ContainerAdmin
 from .container_type_admin import ContainerTypeAdmin
 from .dispense_admin import DispenseAdmin
@@ -18,8 +21,6 @@ from .stock_proxy_admin import StockProxyAdmin
 from .stock_request_admin import StockRequestAdmin
 from .stock_request_item_admin import StockRequestItemAdmin
 from .stock_transfer_admin import StockTransferAdmin
-from .stock_transfer_confirmation_admin import StockTransferConfirmationAdmin
-from .stock_transfer_confirmation_item_admin import StockTransferConfirmationItemAdmin
 from .stock_transfer_item_admin import StockTransferItemAdmin
 from .storage_bin_admin import StorageBinAdmin
 from .storage_bin_item_admin import StorageBinItemAdmin

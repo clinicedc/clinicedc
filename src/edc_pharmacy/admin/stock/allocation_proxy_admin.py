@@ -26,7 +26,7 @@ class AllocationProxyAdmin(AllocationAdmin):
             super()
             .get_queryset(request)
             .filter(
-                stock__confirmed=True,
+                stock__confirmation__isnull=False,
                 stock__allocation__isnull=False,
                 stock__container__may_request_as=True,
             )

@@ -11,7 +11,7 @@
 
       {% if location_id and formulation_id and subject_identifier %}
 
-        <div style="padding:10px"><a href="{% url "edc_pharmacy:home_url" %}">Pharmacy home</a> > <a href="{% url "edc_pharmacy:stock_transfer_confirmation_url" %}">{{ location|default:"Location" }}</a> > Returns</div>
+        <div style="padding:10px"><a href="{% url "edc_pharmacy:home_url" %}">Pharmacy home</a> > <a href="{% url "edc_pharmacy:confirmation_at_site_url" %}">{{ location|default:"Location" }}</a> > Returns</div>
         <div class="panel panel-default">
           <div class="panel-heading"><h4>{{ subject_identifier }}</h4></div>
           <div class="panel-body">

@@ -65,9 +65,9 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
             opts = {}
             filter_by = self.request.POST.get("filter_by")
             if filter_by == "confirmed_only":
-                opts = dict(confirmed=True)
+                opts = dict(confirmation__isnull=False)
             elif filter_by == "unconfirmed_only":
-                opts = dict(confirmed=False)
+                opts = dict(confirmation__isnull=True)
             queryset: QuerySet[Stock] = self.model_cls.objects.filter(
                 pk__in=stock_pks, **opts
             ).order_by("code")

@@ -25,6 +25,7 @@ for codename in navbar_codenames:
 
 # central pharmacist
 view_only_models = [
+    "edc_pharmacy.confirmation",
     "edc_pharmacy.allocation",
     "edc_pharmacy.formulation",
     "edc_pharmacy.formulationtype",
@@ -54,6 +55,7 @@ exclude_models = [
 view_only_models = [
     "edc_pharmacy.stocktransferproxy",
     "edc_pharmacy.stocktransferitem",
+    "edc_pharmacy.confirmation",
     "edc_pharmacy.allocation",
     "edc_pharmacy.allocationproxy",
     "edc_pharmacy.container",

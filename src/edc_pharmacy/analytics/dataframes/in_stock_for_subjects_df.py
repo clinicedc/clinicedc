@@ -1,16 +1,12 @@
 from __future__ import annotations
 
 from decimal import Decimal
-from typing import TYPE_CHECKING
 
 import pandas as pd
 from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django.db.models import DecimalField, ExpressionWrapper, F
 from django_pandas.io import read_frame
-
-if TYPE_CHECKING:
-    pass
 
 
 def in_stock_for_subjects_df(
@@ -28,17 +24,17 @@ def in_stock_for_subjects_df(
     """
     location_cls = django_apps.get_model("edc_pharmacy.location")
     stock_cls = django_apps.get_model("edc_pharmacy.stock")
+
     # qs of stock in stock and allocated to a subject_identifier
     difference = ExpressionWrapper(F("qty_in") - F("qty_out"), output_field=DecimalField())
     qs = (
         stock_cls.objects.filter(
             allocation__isnull=False,
-            confirmed=True,
-            transferred=True,
-            confirmed_at_site=True,
+            confirmation__isnull=False,
+            stocktransferitem__isnull=False,
+            confirmationatsiteitem__isnull=False,
             container__name=container_name,
-            dispensed=False,
-            # product__in=formulation.product_set.all(),
+            dispenseitem__isnull=True,
             product__name__icontains=product_name,
         )
         .values(
@@ -54,6 +50,7 @@ def in_stock_for_subjects_df(
         .annotate(container_qty=difference)
         .filter(qty__gte=Decimal("1.00"))
     )
+
     # read df
     df = read_frame(qs, verbose=False).rename(
         columns={

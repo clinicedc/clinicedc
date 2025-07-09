@@ -9,6 +9,7 @@ from django_audit_fields import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.celery import get_task_result
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import RepackRequestForm
@@ -19,8 +20,15 @@ from ..actions import (
     print_labels_from_repack_request,
     process_repack_request_action,
 )
+from ..list_filters import AssignmentListFilter as BaseAssignmentListFilter
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
+
+
+class AssignmentListFilter(BaseAssignmentListFilter):
+    title = "Assignment"
+    parameter_name = "assignment"
+    lookup_str = "from_stock__product__assignment__name"
 
 
 @admin.register(RepackRequest, site=edc_pharmacy_admin)
@@ -80,6 +88,11 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "container",
         "from_stock__product__name",
         "task_status",
+    )
+
+    list_filter = (
+        ("repack_datetime", DateRangeFilterBuilder()),
+        AssignmentListFilter,
     )
 
     search_fields = (
@@ -146,7 +159,7 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Confirmed")
     def confirmed_qty(self, obj):
-        return obj.stock_set.filter(confirmed=True).count()
+        return obj.stock_set.filter(confirmation__isnull=False).count()
 
     @admin.display(description="Task")
     def task_status(self, obj):

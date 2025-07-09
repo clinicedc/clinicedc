@@ -53,7 +53,7 @@ class StorageBinAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
     )
 
     list_display = (
-        "bin_identifier",
+        "identifier",
         "name",
         "location",
         "capacity",

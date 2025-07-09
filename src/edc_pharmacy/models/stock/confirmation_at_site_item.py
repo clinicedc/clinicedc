@@ -4,19 +4,18 @@ from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
 from sequences import get_next_value
 
-from ..stock import Stock
-from .stock_transfer_confirmation import StockTransferConfirmation
+from ...exceptions import ConfirmAtSiteError
+from .confirmation_at_site import ConfirmationAtSite
+from .stock import Stock
 
 
 class Manager(models.Manager):
     use_in_migrations = True
 
 
-class StockTransferConfirmationItem(SiteModelMixin, BaseUuidModel):
+class ConfirmationAtSiteItem(SiteModelMixin, BaseUuidModel):
 
-    stock_transfer_confirmation = models.ForeignKey(
-        StockTransferConfirmation, on_delete=models.PROTECT
-    )
+    confirmation_at_site = models.ForeignKey(ConfirmationAtSite, on_delete=models.PROTECT)
 
     transfer_confirmation_item_identifier = models.CharField(
         max_length=36,
@@ -39,15 +38,23 @@ class StockTransferConfirmationItem(SiteModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return self.transfer_confirmation_item_identifier
+        return f"{self.transfer_confirmation_item_identifier} {self.stock.code}"
 
     def save(self, *args, **kwargs):
-        self.site = self.stock_transfer_confirmation.site
+        self.site = self.confirmation_at_site.site
         if not self.transfer_confirmation_item_identifier:
             next_id = get_next_value(self._meta.label_lower)
             self.transfer_confirmation_item_identifier = f"{next_id:010d}"
+        if (
+            self.confirmation_at_site.location.site
+            != self.stock.allocation.registered_subject.site
+        ):
+            raise ConfirmAtSiteError(
+                "Location mismatch. Cannot confirm stock item at this location. "
+                f"Got {self.stock}."
+            )
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Stock Transfer Confirmation Item"
-        verbose_name_plural = "Stock Transfer Confirmation Items"
+        verbose_name = "Stock Confirmation at Site Item"
+        verbose_name_plural = "Stock Confirmation at Site Items"

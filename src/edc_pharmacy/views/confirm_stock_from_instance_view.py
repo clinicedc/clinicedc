@@ -14,7 +14,6 @@ from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
-from edc_utils import get_utcnow
 
 from ..models import Stock
 from ..utils import confirm_stock
@@ -41,7 +40,10 @@ class ConfirmStockFromInstanceView(
 
         unconfirmed_count = (
             Stock.objects.values("pk")
-            .filter(**{dct.get("fk_attr"): dct.get("obj").id}, confirmed=False)
+            .filter(
+                **{dct.get("fk_attr"): dct.get("obj").id},
+                confirmation__isnull=True,
+            )
             .count()
         )
         unconfirmed_count = 12 if unconfirmed_count > 12 else unconfirmed_count
@@ -96,7 +98,6 @@ class ConfirmStockFromInstanceView(
             dct.get("fk_attr"),
             confirmed_by=request.user.username,
             user_created=request.user.username,
-            created=get_utcnow(),
         )
         msg = [
             f"Confirmed {len(confirmed)} stock records. ",

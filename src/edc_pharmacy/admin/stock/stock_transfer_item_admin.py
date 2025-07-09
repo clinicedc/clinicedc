@@ -1,8 +1,10 @@
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
+from edc_constants.constants import NO, YES
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 from rangefilter.filters import DateRangeFilterBuilder
@@ -10,6 +12,35 @@ from rangefilter.filters import DateRangeFilterBuilder
 from ...admin_site import edc_pharmacy_admin
 from ...models import StockTransferItem
 from ..model_admin_mixin import ModelAdminMixin
+
+
+class ConfirmedAtSiteFilter(SimpleListFilter):
+    title = "Confirmed at site"
+    parameter_name = "confirmed_at_site"
+
+    def lookups(self, request, model_admin):
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            opts = dict(
+                stock__from_stock__isnull=False,
+                stock__confirmation__isnull=False,
+                stock__allocation__isnull=False,
+                stock__stocktransferitem__isnull=False,
+            )
+            if self.value() == YES:
+                qs = queryset.filter(
+                    stock__confirmationatsiteitem__isnull=False,
+                    **opts,
+                )
+            elif self.value() == NO:
+                qs = queryset.filter(
+                    stock__confirmationatsiteitem__isnull=True,
+                    **opts,
+                )
+        return qs
 
 
 @admin.register(StockTransferItem, site=edc_pharmacy_admin)
@@ -43,14 +74,14 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "transfer_item_date",
         "stock_changelist",
         "allocation_changelist",
-        "stock_transfer_confirmation_item_changelist",
+        "confirmation_at_site_item_changelist",
         "location",
     )
 
     list_filter = (
         "stock_transfer__to_location",
         ("transfer_item_datetime", DateRangeFilterBuilder()),
-        "stock__confirmed_at_site",
+        ConfirmedAtSiteFilter,
     )
 
     search_fields = (
@@ -74,7 +105,9 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="Location", ordering="stock__location")
     def location(self, obj):
         return (
-            obj.stock.location if obj.stock.confirmed_at_site else f">>> {obj.stock.location}"
+            obj.stock.location
+            if obj.stock.confirmationatsiteitem
+            else f">>> {obj.stock.location}"
         )
 
     @admin.display(description="Transfer date", ordering="transfer_item_datetime")
@@ -110,22 +143,20 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(
         description="Site Confirmation #",
-        ordering="stock__stocktransferconfirmationitem__transfer_confirmation_item_identifier",
+        ordering="stock__confirmationatsiteitem__transfer_confirmation_item_identifier",
     )
-    def stock_transfer_confirmation_item_changelist(self, obj):
+    def confirmation_at_site_item_changelist(self, obj):
         try:
-            transfer_confirmation_item = obj.stock.stocktransferconfirmationitem
+            transfer_confirmation_item = obj.stock.confirmationatsiteitem
         except ObjectDoesNotExist:
-            url = reverse("edc_pharmacy:stock_transfer_confirmation_url")
+            url = reverse("edc_pharmacy:confirmation_at_site_url")
             context = dict(
                 url=url,
                 label="Pending",
                 title="Go to stock transfer site confirmation",
             )
         else:
-            url = reverse(
-                "edc_pharmacy_admin:edc_pharmacy_stocktransferconfirmationitem_changelist"
-            )
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_confirmationatsiteitem_changelist")
             url = f"{url}?q={transfer_confirmation_item.pk}"
             context = dict(
                 url=url,

@@ -2,6 +2,7 @@ from .add_to_storage_bin_view import AddToStorageBinView
 from .allocate_to_subject_view import AllocateToSubjectView
 from .celery_task_status_view import CeleryTaskStatusView
 from .confirm_stock_from_queryset_view import ConfirmStockFromQuerySetView
+from .confirmation_at_site_view import ConfirmationAtSiteView
 from .dispense_view import DispenseView
 from .get_stock_transfers_view import get_stock_transfers_view
 from .home_view import HomeView
@@ -11,5 +12,4 @@ from .print_labels_view import PrintLabelsView
 from .print_stock_transfer_manifest_view import print_stock_transfer_manifest_view
 from .print_stock_view import print_stock_view
 from .return_view import ReturnView
-from .stock_transfer_confirmation_view import StockTransferConfirmationView
 from .transfer_stock_view import TransferStockView

@@ -1,3 +1,4 @@
+from .confirmation_form import ConfirmationForm
 from .container_form import ContainerForm
 from .container_type_form import ContainerTypeForm
 from .container_units_form import ContainerUnitsForm

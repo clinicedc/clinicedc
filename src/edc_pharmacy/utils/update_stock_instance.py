@@ -21,7 +21,7 @@ def get_stockadjustment_model_cls() -> StockAdjustment:
 
 def update_stock_instance(stock: Stock) -> Stock:
     """Update stock instance fields 'unit_qty_in', 'unit_qty_out',
-    'qty', 'qty_out' and 'allocated'
+    'qty', 'qty_out'
     """
     # check if unit_qty_in has been manually adjusted or not
     if get_stockadjustment_model_cls().objects.filter(stock=stock).exists():
@@ -36,14 +36,12 @@ def update_stock_instance(stock: Stock) -> Stock:
     else:
         # confirm default value from container definition
         stock.unit_qty_in = Decimal(stock.qty_in) * Decimal(stock.container.qty)
-    # check if allocated
-    stock.allocated = get_allocation_model_cls().objects.filter(stock=stock).exists()
     # recalculate unit_qty_out
     stock.unit_qty_out = get_unit_qty_out(stock)
     # update overall container quantity if in-out==0
     if stock.unit_qty_out == stock.unit_qty_in:
         stock.qty_out = 1
         stock.qty = 0
-    stock.save(update_fields=["allocated", "unit_qty_in", "unit_qty_out", "qty", "qty_out"])
+    stock.save(update_fields=["unit_qty_in", "unit_qty_out", "qty", "qty_out"])
     stock.refresh_from_db()
     return stock

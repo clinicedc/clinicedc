@@ -5,6 +5,7 @@ from .views import (
     AddToStorageBinView,
     AllocateToSubjectView,
     CeleryTaskStatusView,
+    ConfirmationAtSiteView,
     ConfirmStockFromQuerySetView,
     DispenseView,
     HomeView,
@@ -12,7 +13,6 @@ from .views import (
     PrepareAndReviewStockRequestView,
     PrintLabelsView,
     ReturnView,
-    StockTransferConfirmationView,
     TransferStockView,
     get_stock_transfers_view,
     print_stock_transfer_manifest_view,
@@ -31,26 +31,26 @@ urlpatterns = [
     ),
     path("get-stock-transfers/", get_stock_transfers_view, name="get_stock_transfers_url"),
     path(
-        "stock-transfer-confirmation/<uuid:session_uuid>/<str:stock_transfer_identifier>/"
+        "confirmation-at-site/<uuid:session_uuid>/<str:stock_transfer_identifier>/"
         "<int:location_id>/<int:items_to_scan>/",
-        StockTransferConfirmationView.as_view(),
-        name="stock_transfer_confirmation_url",
+        ConfirmationAtSiteView.as_view(),
+        name="confirmation_at_site_url",
     ),
     path(
-        "stock-transfer-confirmation/<str:stock_transfer_identifier>/"
+        "confirmation-at-site/<str:stock_transfer_identifier>/"
         "<int:location_id>/<int:items_to_scan>/",
-        StockTransferConfirmationView.as_view(),
-        name="stock_transfer_confirmation_url",
+        ConfirmationAtSiteView.as_view(),
+        name="confirmation_at_site_url",
     ),
     path(
-        "stock-transfer-confirmation/<int:location_id>/<int:items_to_scan>/",
-        StockTransferConfirmationView.as_view(),
-        name="stock_transfer_confirmation_url",
+        "confirmation-at-site/<int:location_id>/<int:items_to_scan>/",
+        ConfirmationAtSiteView.as_view(),
+        name="confirmation_at_site_url",
     ),
     path(
-        "stock-transfer-confirmation/<int:site_id>/",
-        StockTransferConfirmationView.as_view(),
-        name="stock_transfer_confirmation_url",
+        "confirmation-at-site/<int:site_id>/",
+        ConfirmationAtSiteView.as_view(),
+        name="confirmation_at_site_url",
     ),
     path(
         "review-stock-request/<uuid:stock_request>/<uuid:session_uuid>/",
@@ -130,8 +130,8 @@ urlpatterns = [
     ),
     path(
         "stock-transfer-confirmation/",
-        StockTransferConfirmationView.as_view(),
-        name="stock_transfer_confirmation_url",
+        ConfirmationAtSiteView.as_view(),
+        name="confirmation_at_site_url",
     ),
     path(
         "dispense/",

@@ -15,7 +15,7 @@ class StockAdjustmentAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Stock adjustment"
     change_form_title = "Pharmacy: Stock adjustment"
     history_list_display = ()
-    show_object_tools = False
+    show_object_tools = True
     show_cancel = True
     list_per_page = 20
 
