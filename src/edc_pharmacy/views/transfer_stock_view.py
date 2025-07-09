@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -15,6 +16,13 @@ from ..utils import transfer_stock
 
 @method_decorator(login_required, name="dispatch")
 class TransferStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
+    """A view for transferring stock from central to a site.
+
+    Creates a StockTransferItem instance per stock instance.
+
+    See also: StockTransferConfirmationItem
+    """
+
     model_pks: list[str] | None = None
     template_name: str = "edc_pharmacy/stock/transfer_stock.html"
     navbar_name = settings.APP_NAME
@@ -49,7 +57,27 @@ class TransferStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
         stock_transfer = StockTransfer.objects.get(pk=self.kwargs.get("stock_transfer"))
         stock_codes = request.POST.getlist("codes")
         if stock_codes:
-            transfer_stock(stock_transfer, stock_codes, username=request.user.username)
+            transferred, skipped_codes, invalid_codes = transfer_stock(
+                stock_transfer, stock_codes, request=request
+            )
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                f"Successfully transferred {len(transferred)} stock items. ",
+            )
+            if skipped_codes:
+                messages.add_message(
+                    request,
+                    messages.WARNING,
+                    f"Skipped {len(skipped_codes)}. Check location/site. Got {skipped_codes}",
+                )
+            if invalid_codes:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    f"{len(invalid_codes)} are invalid. Got {invalid_codes}",
+                )
+
         transferred_count = StockTransferItem.objects.filter(
             stock_transfer=stock_transfer
         ).count()

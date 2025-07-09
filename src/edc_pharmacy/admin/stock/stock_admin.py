@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
@@ -13,7 +12,7 @@ from ...auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE
 from ...exceptions import AllocationError, AssignmentError
 from ...forms import StockForm
 from ...models import RepackRequest, Stock
-from ...utils import format_qty
+from ...utils import format_qty, get_related_or_none
 from ..actions import (
     confirm_stock_from_queryset,
     go_to_add_repack_request_action,
@@ -21,6 +20,9 @@ from ..actions import (
     print_stock_report_action,
 )
 from ..list_filters import (
+    AllocationListFilter,
+    ConfirmedAtSiteFilter,
+    ConfirmedListFilter,
     DecantedListFilter,
     DispensedFilter,
     HasOrderNumFilter,
@@ -46,6 +48,11 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     show_form_tools = True
     show_history_label = True
     autocomplete_fields = ["container"]
+
+    change_list_note = (
+        "C=Confirmed, A=Allocated, T=Transferred to site, "
+        "S=Confirmed at site, B=Stored at site, D=Dispensed"
+    )
 
     actions = [
         print_labels,
@@ -91,29 +98,18 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 )
             },
         ),
-        (
-            "Confirmed",
-            {
-                "fields": (
-                    "confirmed",
-                    "confirmed_datetime",
-                    "confirmed_by",
-                    "confirmed_at_site",
-                )
-            },
-        ),
         audit_fieldset_tuple,
     )
 
     list_display = (
         "formatted_code",
         "from_stock_changelist",
-        "formatted_confirmed",
-        "formatted_allocated",
+        "formatted_confirmation",
+        "formatted_allocation",
         "formatted_transferred",
         "formatted_confirmed_at_site",
         "formatted_stored_at_site",
-        "formatted_dispensed",
+        "dispensed",
         "formulation",
         "verified_assignment",
         "qty",
@@ -134,17 +130,16 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "location",
         "container__container_type",
         "container",
-        "confirmed",
-        "allocated",
+        ConfirmedListFilter,
+        AllocationListFilter,
         TransferredFilter,
-        "confirmed_at_site",
+        ConfirmedAtSiteFilter,
         StoredAtSiteFilter,
         DispensedFilter,
         ProductAssignmentListFilter,
         "product",
-        "confirmed_by",
-        ("allocated_datetime", DateRangeFilterBuilder()),
-        ("confirmed_datetime", DateRangeFilterBuilder()),
+        "confirmation__confirmed_by",
+        ("confirmation__confirmed_datetime", DateRangeFilterBuilder()),
         HasOrderNumFilter,
         HasReceiveNumFilter,
         HasRepackNumFilter,
@@ -171,9 +166,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
     readonly_fields = (
         "code",
-        "confirmed",
-        "confirmed_by",
-        "confirmed_datetime",
+        "confirmation",
         "container",
         "from_stock",
         "location",
@@ -254,14 +247,6 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def qty(self, obj):
         return format_qty(obj.qty_in - obj.qty_out, obj.container)
 
-    @admin.display(description="A", boolean=True)
-    def formatted_allocated(self, obj):
-        return obj.allocated
-
-    @admin.display(description="T", boolean=True)
-    def formatted_transferred(self, obj):
-        return obj.transferred
-
     @admin.display(description="Units", ordering="unit_qty_out")
     def unit_qty_in_out(self, obj):
         return format_qty(obj.unit_qty_in - obj.unit_qty_out, obj.container)
@@ -271,28 +256,63 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         return obj.stock_identifier.split("-")[0]
 
     @admin.display(description="C", boolean=True)
-    def formatted_confirmed(self, obj):
-        return obj.confirmed
+    def formatted_confirmation(self, obj):
+        if obj:
+            return True if get_related_or_none(obj, "confirmation") else False
+        return None
 
     @admin.display(description="A", boolean=True)
-    def allocated(self, obj):
-        if obj.allocation:
-            return True
-        elif not obj.allocation and obj.from_stock:
-            return False
+    def formatted_allocation(self, obj):
+        if (
+            obj
+            and get_related_or_none(obj, "confirmation")
+            and get_related_or_none(obj, "from_stock")
+        ):
+            return True if get_related_or_none(obj, "allocation") else False
+        return None
+
+    @admin.display(description="T", boolean=True)
+    def formatted_transferred(self, obj):
+        if (
+            obj
+            and get_related_or_none(obj, "confirmation")
+            and get_related_or_none(obj, "from_stock")
+        ):
+            return True if get_related_or_none(obj, "stocktransferitem") else False
         return None
 
     @admin.display(description="S", boolean=True)
     def formatted_confirmed_at_site(self, obj):
-        return obj.confirmed_at_site
+        if (
+            obj
+            and get_related_or_none(obj, "confirmation")
+            and get_related_or_none(obj, "from_stock")
+        ):
+            return True if get_related_or_none(obj, "confirmationatsiteitem") else False
+        return None
 
     @admin.display(description="B", boolean=True)
     def formatted_stored_at_site(self, obj):
-        return obj.stored_at_site
+        if (
+            obj
+            and get_related_or_none(obj, "confirmation")
+            and get_related_or_none(obj, "from_stock")
+            and get_related_or_none(obj, "confirmationatsiteitem")
+            and not get_related_or_none(obj, "dispenseitem")
+        ):
+            return True if get_related_or_none(obj, "storagebinitem") else False
+        return None
 
     @admin.display(description="D", boolean=True)
-    def formatted_dispensed(self, obj):
-        return obj.dispensed
+    def dispensed(self, obj):
+        if (
+            obj
+            and get_related_or_none(obj, "confirmation")
+            and get_related_or_none(obj, "from_stock")
+            and get_related_or_none(obj, "confirmationatsiteitem")
+        ):
+            return True if get_related_or_none(obj, "dispenseitem") else False
+        return None
 
     @admin.display(description="Container", ordering="container__name")
     def container_str(self, obj):
@@ -313,7 +333,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="From stock #", ordering="from_stock__code")
     def from_stock_changelist(self, obj):
-        if obj.from_stock:
+        if obj and get_related_or_none(obj, "from_stock"):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
             url = f"{url}?q={obj.from_stock.code}"
             context = dict(
@@ -341,7 +361,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         description="Receive #", ordering="-receive_item__receive__receive_datetime"
     )
     def receive_item_changelist(self, obj):
-        if obj.receive_item:
+        if obj and get_related_or_none(obj, "receive_item"):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
             url = f"{url}?q={obj.receive_item.receive.receive_identifier}"
             context = dict(
@@ -382,7 +402,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         ordering="-allocation__registered_subject__subject_identifier",
     )
     def allocation_changelist(self, obj):
-        if obj.allocation:
+        if obj and get_related_or_none(obj, "allocation"):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
             url = f"{url}?q={obj.code}"
             context = dict(
@@ -398,7 +418,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         ordering="stock_transfer_item.to_location",
     )
     def stock_transfer_item_changelist(self, obj):
-        if obj.stocktransferitem:
+        if obj and get_related_or_none(obj, "stocktransferitem"):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferitem_changelist")
             url = f"{url}?q={obj.code}"
             context = dict(
@@ -411,7 +431,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Request #")
     def stock_request_changelist(self, obj):
-        if obj.allocation:
+        if obj and get_related_or_none(obj, "allocation"):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
             url = f"{url}?q={obj.allocation.stock_request_item.stock_request.id}"
             context = dict(
@@ -424,11 +444,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="DISPENSE #")
     def dispense_changelist(self, obj):
-        try:
-            obj.dispenseitem
-        except ObjectDoesNotExist:
-            pass
-        else:
+        if get_related_or_none(obj, "dispenseitem"):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_dispense_changelist")
             url = f"{url}?q={obj.code}"
             context = dict(

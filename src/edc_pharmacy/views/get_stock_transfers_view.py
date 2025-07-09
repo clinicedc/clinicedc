@@ -9,7 +9,8 @@ def get_stock_transfers_view(request):
     location_id = request.GET.get("location_id", None)
     stock_transfers = (
         StockTransfer.objects.filter(
-            to_location_id=location_id, stocktransferitem__stock__confirmed_at_site=False
+            to_location_id=location_id,
+            stocktransferitem__stock__confirmationatsiteitem__isnull=True,
         )
         .annotate(count=Count("transfer_identifier"))
         .values("id", "transfer_identifier", "item_count")

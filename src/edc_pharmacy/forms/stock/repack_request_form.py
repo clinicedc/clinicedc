@@ -7,7 +7,9 @@ class RepackRequestForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get("from_stock") and not cleaned_data.get("from_stock").confirmed:
+        if cleaned_data.get("from_stock") and not getattr(
+            cleaned_data.get("from_stock"), "confirmation", None
+        ):
             raise forms.ValidationError(
                 {
                     "from_stock": (

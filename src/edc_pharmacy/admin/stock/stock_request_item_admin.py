@@ -16,6 +16,7 @@ from ..actions.print_labels import print_labels_from_stock_request_item
 from ..list_filters import (
     AssignmentListFilter,
     StockItemAllocationListFilter,
+    StockItemTransferredListFilter,
     StockRequestItemPendingListFilter,
 )
 from ..model_admin_mixin import ModelAdminMixin
@@ -51,12 +52,6 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 )
             },
         ),
-        # (
-        #     "Section B",
-        #     {
-        #         "fields": ("received", "received_datetime"),
-        #     },
-        # ),
         (
             "Section B",
             {
@@ -70,10 +65,11 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "request_item_id",
         "item_date",
         "request_changelist",
+        "allocated",
+        "transferred",
         "location",
         "subject",
         "formulation",
-        "transferred",
         "allocation_changelist",
         "stock_changelist",
         "assignment",
@@ -83,6 +79,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         ("request_item_datetime", DateRangeFilterBuilder()),
         "stock_request__location",
         StockItemAllocationListFilter,
+        StockItemTransferredListFilter,
         AssignmentListFilter,
         StockRequestItemPendingListFilter,
         "visit_code",
@@ -146,9 +143,17 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def assignment(self, obj):
         return obj.allocation.assignment
 
+    @admin.display(description="A", boolean=True)
+    def allocated(self, obj):
+        if obj:
+            return True if getattr(obj, "allocation", None) else False
+        return None
+
     @admin.display(description="T", boolean=True)
     def transferred(self, obj):
-        return obj.allocation.stock.transferred
+        if obj and getattr(obj, "allocation", None):
+            return True if obj.allocation.stock.stocktransferitem else False
+        return False
 
     @admin.display(description="Subject", ordering="appt_datetime")
     def subject(self, obj):

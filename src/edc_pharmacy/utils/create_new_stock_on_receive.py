@@ -16,6 +16,5 @@ def create_new_stock_on_receive(receive_item_pk: UUID = None):
             product_id=receive_item.order_item.product.id,
             container_id=receive_item.container.id,
             location_id=receive_item.receive.location.id,
-            confirmed=False,
             lot_id=receive_item.lot.id,
         )

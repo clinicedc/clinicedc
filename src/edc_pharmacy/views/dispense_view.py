@@ -13,7 +13,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 from edc_utils import get_utcnow
 
-from ..models import Formulation, Location, Rx, StockTransferConfirmation
+from ..models import ConfirmationAtSite, Formulation, Location, Rx
 from ..utils import dispense
 
 
@@ -73,18 +73,16 @@ class DispenseView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Template
         return rx
 
     @property
-    def stock_transfer_confirmation(self):
-        stock_transfer_confirmation_id = self.kwargs.get("stock_transfer_confirmation")
+    def confirmation_at_site(self):
+        confirmation_at_site_id = self.kwargs.get("confirmation_at_site")
         try:
-            stock_transfer_confirmation = StockTransferConfirmation.objects.get(
-                id=stock_transfer_confirmation_id
-            )
+            confirmation_at_site = ConfirmationAtSite.objects.get(id=confirmation_at_site_id)
         except ObjectDoesNotExist:
-            stock_transfer_confirmation = None
+            confirmation_at_site = None
             messages.add_message(
                 self.request, messages.ERROR, "Invalid stock transfer confirmation."
             )
-        return stock_transfer_confirmation
+        return confirmation_at_site
 
     def post(self, request, *args, **kwargs):
         location_id = request.POST.get("location_id")

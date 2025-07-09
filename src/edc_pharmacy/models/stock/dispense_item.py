@@ -14,7 +14,7 @@ class Manager(models.Manager):
 
 
 class DispenseItem(SiteModelMixin, VisitCodeFieldsModelMixin, BaseUuidModel):
-    """A model that represents a stock request item."""
+    """A model for the stock dispensing transaction."""
 
     dispense_item_identifier = models.CharField(
         max_length=36,

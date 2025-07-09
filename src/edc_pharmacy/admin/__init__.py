@@ -15,6 +15,7 @@ from .scan_duplicates_admin import ScanDuplicatesAdmin
 from .stock import (
     AllocationAdmin,
     AllocationProxyAdmin,
+    ConfirmationAdmin,
     ContainerAdmin,
     ContainerTypeAdmin,
     DispenseAdmin,

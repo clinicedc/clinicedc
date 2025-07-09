@@ -41,7 +41,7 @@ def stock_for_subjects_df() -> pd.DataFrame:
     df_stock_on_site = read_frame(
         Stock.objects.values(
             "code", "allocation__registered_subject__subject_identifier"
-        ).filter(confirmed_at_site=True, dispensed=False),
+        ).filter(confirmationatsiteitem__isnull=False, dispenseitem__isnull=True),
         verbose=False,
     ).rename(
         columns={"allocation__registered_subject__subject_identifier": "subject_identifier"}
@@ -58,7 +58,7 @@ def stock_for_subjects_df() -> pd.DataFrame:
         StorageBinItem.objects.values("stock__code", "storage_bin__name").filter(
             stock__code__in=df["code"].tolist(),
             storage_bin__in_use=True,
-            stock__dispensed=False,
+            stock__dispenseitem__isnull=True,
         )
     ).rename(columns={"stock__code": "code", "storage_bin__name": "bin"})
 

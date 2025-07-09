@@ -415,10 +415,10 @@ class TestOrderReceive(TestCase):
         self.assertIn("Unconfirmed stock item", str(cm.exception))
 
         # confirm stock items
-        self.assertEqual(Stock.objects.filter(confirmed=False).count(), 20)
+        self.assertEqual(Stock.objects.filter(confirmation__isnull=True).count(), 20)
         for stock in Stock.objects.filter(container=container_5000):
             confirm_stock(receive, [stock.code], fk_attr="receive_item__receive")
-        self.assertEqual(Stock.objects.filter(confirmed=True).count(), 20)
+        self.assertEqual(Stock.objects.filter(confirmation__isnull=False).count(), 20)
 
         # REPACK REQUEST **********************************************
         # create a repack request from each container_5000, ask for 39 bottles of 128
@@ -434,11 +434,16 @@ class TestOrderReceive(TestCase):
 
         for repack_request in RepackRequest.objects.all():
             # assert unconfirmed stock instances (central)
-            self.assertEqual(repack_request.stock_set.filter(confirmed=False).count(), 39)
+            self.assertEqual(
+                repack_request.stock_set.filter(confirmation__isnull=True).count(),
+                39,
+            )
 
         # scan in some or all stock code labels to confirm stock (central)
         for repack_request in RepackRequest.objects.all():
-            codes = [obj.code for obj in repack_request.stock_set.filter(confirmed=False)]
+            codes = [
+                obj.code for obj in repack_request.stock_set.filter(confirmation__isnull=True)
+            ]
             confirmed, already_confirmed, invalid = confirm_stock(
                 repack_request, codes, fk_attr="repack_request"
             )
@@ -450,7 +455,8 @@ class TestOrderReceive(TestCase):
         # try to scan in bogus stock codes
         for repack_request in RepackRequest.objects.all():
             codes = [
-                f"{obj.code}blah" for obj in repack_request.stock_set.filter(confirmed=True)
+                f"{obj.code}blah"
+                for obj in repack_request.stock_set.filter(confirmation__isnull=False)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
                 repack_request, codes, fk_attr="repack_request"
@@ -462,7 +468,9 @@ class TestOrderReceive(TestCase):
 
         # try to scan in stock codes that were already confirmed
         for repack_request in RepackRequest.objects.all():
-            codes = [obj.code for obj in repack_request.stock_set.filter(confirmed=True)]
+            codes = [
+                obj.code for obj in repack_request.stock_set.filter(confirmation__isnull=False)
+            ]
             confirmed, already_confirmed, invalid = confirm_stock(
                 repack_request, codes, fk_attr="repack_request"
             )
@@ -474,9 +482,15 @@ class TestOrderReceive(TestCase):
         # ok, show that all are confirmed
         for repack_request in RepackRequest.objects.all():
             # assert unconfirmed stock instances (central)
-            self.assertEqual(repack_request.stock_set.filter(confirmed=False).count(), 0)
+            self.assertEqual(
+                repack_request.stock_set.filter(confirmation__isnull=True).count(),
+                0,
+            )
             # assert confirmed stock instances (central)
-            self.assertEqual(repack_request.stock_set.filter(confirmed=True).count(), 39)
+            self.assertEqual(
+                repack_request.stock_set.filter(confirmation__isnull=False).count(),
+                39,
+            )
 
         # refer back to repack_request from stock
         self.assertEqual(Stock.objects.filter(repack_request__isnull=True).count(), 20)

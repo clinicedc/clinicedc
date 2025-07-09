@@ -19,15 +19,15 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..constants import ALREADY_CONFIRMED, INVALID
-from ..models import Location, Stock, StockTransfer, StockTransferConfirmation
+from ..models import ConfirmationAtSite, Location, Stock, StockTransfer
 from ..utils import confirm_stock_at_site
 
 
 @method_decorator(login_required, name="dispatch")
-class StockTransferConfirmationView(
+class ConfirmationAtSiteView(
     EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
 ):
-    template_name: str = "edc_pharmacy/stock/stock_transfer_confirmation.html"
+    template_name: str = "edc_pharmacy/stock/confirmation_at_site.html"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"
 
@@ -86,7 +86,8 @@ class StockTransferConfirmationView(
     @property
     def stock_transfers(self):
         qs = StockTransfer.objects.filter(
-            to_location__site=self.site, stocktransferitem__stock__confirmed_at_site=False
+            to_location__site=self.site,
+            stocktransferitem__stock__confirmationatsiteitem__isnull=True,
         )
         return qs.annotate(count=Count("transfer_identifier")).order_by("-transfer_datetime")
 
@@ -109,7 +110,7 @@ class StockTransferConfirmationView(
             .filter(
                 code__in=self.get_stock_codes(stock_transfer),
                 location_id=self.location_id,
-                confirmed_at_site=False,
+                confirmationatsiteitem__isnull=True,
             )
             .count()
         )
@@ -152,28 +153,22 @@ class StockTransferConfirmationView(
         return []
 
     @property
-    def stock_transfer_confirmation(self):
-        stock_transfer_confirmation_id = self.kwargs.get("stock_transfer_confirmation")
+    def confirmation_at_site(self):
+        confirmation_at_site_id = self.kwargs.get("confirmation_at_site")
         try:
-            stock_transfer_confirmation = StockTransferConfirmation.objects.get(
-                id=stock_transfer_confirmation_id
-            )
+            confirmation_at_site = ConfirmationAtSite.objects.get(id=confirmation_at_site_id)
         except ObjectDoesNotExist:
-            stock_transfer_confirmation = None
+            confirmation_at_site = None
             messages.add_message(
                 self.request, messages.ERROR, "Invalid stock transfer confirmation."
             )
-        return stock_transfer_confirmation
+        return confirmation_at_site
 
     @property
-    def stock_transfer_confirmation_changelist_url(self) -> str:
-        if self.stock_transfer_confirmation:
-            url = reverse(
-                "edc_pharmacy_admin:edc_pharmacy_stocktransferconfirmation_changelist"
-            )
-            url = (
-                f"{url}?q={self.stock_transfer_confirmation.transfer_confirmation_identifier}"
-            )
+    def confirmation_at_site_changelist_url(self) -> str:
+        if self.confirmation_at_site:
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_confirmationatsite_changelist")
+            url = f"{url}?q={self.confirmation_at_site.transfer_confirmation_identifier}"
             return url
         return "/"
 
@@ -214,7 +209,7 @@ class StockTransferConfirmationView(
         location_id = request.POST.get("location_id")
         if not stock_transfer or not location_id:
             # nothing selected
-            url = reverse("edc_pharmacy:stock_transfer_confirmation_url", kwargs={})
+            url = reverse("edc_pharmacy:confirmation_at_site_url", kwargs={})
             return HttpResponseRedirect(url)
 
         session_uuid = request.POST.get("session_uuid")
@@ -225,7 +220,7 @@ class StockTransferConfirmationView(
         # you have unconfirmed items, so go to the scan page
         if not stock_codes and stock_transfer.uncomfirmed_items > 0:
             url = reverse(
-                "edc_pharmacy:stock_transfer_confirmation_url",
+                "edc_pharmacy:confirmation_at_site_url",
                 kwargs={
                     "stock_transfer_identifier": stock_transfer_identifier,
                     "location_id": location_id,
@@ -237,7 +232,7 @@ class StockTransferConfirmationView(
         elif stock_codes:
             # you have scanned codes, process them
             confirmed, already_confirmed, invalid = confirm_stock_at_site(
-                stock_transfer, stock_codes, location_id, request.user.username
+                stock_transfer, stock_codes, location_id, request=request
             )
             # message for confirmed
             if confirmed:
@@ -273,7 +268,7 @@ class StockTransferConfirmationView(
             # return to page with any unconfirmed codes for this stock_transfer document
             # might be 0 items
             url = reverse(
-                "edc_pharmacy:stock_transfer_confirmation_url",
+                "edc_pharmacy:confirmation_at_site_url",
                 kwargs={
                     "session_uuid": str(request.POST.get("session_uuid")),
                     "stock_transfer_identifier": stock_transfer_identifier,
@@ -283,4 +278,4 @@ class StockTransferConfirmationView(
             )
             return HttpResponseRedirect(url)
         # can you get here??
-        return HttpResponseRedirect(self.stock_transfer_confirmation_changelist_url)
+        return HttpResponseRedirect(self.confirmation_at_site_changelist_url)

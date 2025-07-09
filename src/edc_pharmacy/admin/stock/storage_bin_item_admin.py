@@ -25,6 +25,8 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
     autocomplete_fields = ["stock"]
     actions = ["delete_selected"]
 
+    change_list_note = "Once an item is dispensed it is automatically removed from storage."
+
     form = StorageBinItemForm
 
     fieldsets = (
@@ -45,7 +47,6 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
         "item_identifier",
         "storage_bin_changelist",
         "stock_changelist",
-        "dispensed",
         "subject",
         "location",
     )
@@ -63,7 +64,6 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
     list_filter = (
         "storage_bin__in_use",
         "storage_bin__location",
-        "stock__dispensed",
         ("item_datetime", DateRangeFilterBuilder()),
     )
 
@@ -101,13 +101,9 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
     def subject(self, obj):
         return obj.stock.allocation.registered_subject.subject_identifier
 
-    @admin.display(description="Dispensed", ordering="stock__dispensed", boolean=True)
-    def dispensed(self, obj):
-        return obj.stock.dispensed
-
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.filter(stock__dispensed=False)
+        return qs.filter(stock__dispenseitem__isnull=True)
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
         return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]

@@ -41,9 +41,9 @@ def move_to_bin(
             stock_obj = Stock.objects.get(
                 code=code,
                 allocation__isnull=False,
-                confirmed_at_site=True,
+                confirmationatsiteitem__isnull=False,
                 stored_at_site=True,
-                dispensed=False,
+                dispenseitem__isnull=True,
                 location=storage_bin.location,
             )
         except ObjectDoesNotExist:

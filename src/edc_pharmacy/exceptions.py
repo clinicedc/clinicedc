@@ -136,3 +136,7 @@ class StockTransferConfirmationError(Exception):
 
 class StorageBinError(Exception):
     pass
+
+
+class ConfirmAtSiteError(Exception):
+    pass

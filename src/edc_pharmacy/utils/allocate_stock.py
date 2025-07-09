@@ -20,10 +20,10 @@ def allocate_stock(
     allocated_by: str,
     user_created: str = None,
     created: datetime = None,
-) -> tuple[int, int]:
+) -> tuple[list[int], list[str]]:
     """Link stock instances to subjects.
 
-    Model `Allocation` is abn fkey on Stock and links the stock obj to a
+    Model `Allocation` is a fkey on Stock and links the stock obj to a
     subject.
 
     allocation_data: dict of {stock code:subject_identifier} coming from
@@ -37,7 +37,7 @@ def allocate_stock(
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
     allocation_model_cls = django_apps.get_model("edc_pharmacy.allocation")
     registered_subject_model_cls = django_apps.get_model("edc_registration.registeredsubject")
-    allocated, skipped = 0, 0
+    allocated, skipped = [], []
     stock_objs = []
     for code, subject_identifier in allocation_data.items():
         # get rs
@@ -50,19 +50,19 @@ def allocate_stock(
             allocation__isnull=True,
         ).first()
         if not stock_request_item:
-            skipped += 1
+            skipped.append(f"{subject_identifier}: N/A")
             continue
         # try to create the allocation instance and update the stock instance
         # for this stock code
         try:
             stock_obj = stock_model_cls.objects.get(
                 code=code,
-                confirmed=True,
+                confirmation__isnull=False,
                 container__may_request_as=True,
                 allocation__isnull=True,
             )
         except ObjectDoesNotExist:
-            skipped += 1
+            skipped.append(f"{subject_identifier}: {code}")
         else:
             with transaction.atomic():
                 allocation = allocation_model_cls.objects.create(
@@ -92,7 +92,7 @@ def allocate_stock(
     if stock_objs:
         for obj in stock_objs:
             obj.save()
-            allocated += 1
+            allocated.append(obj.code)
     return allocated, skipped
 
 

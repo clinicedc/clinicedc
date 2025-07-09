@@ -14,8 +14,11 @@ from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
 from ...exceptions import AllocationError, AssignmentError
 from ...utils import get_random_code
 from .allocation import Allocation
+
+# from .confirmation import Confirmation
 from .container import Container
-from .dispense import Dispense
+
+# from .dispense import Dispense
 from .location import Location
 from .lot import Lot
 from .managers import StockManager
@@ -63,6 +66,17 @@ class Stock(BaseUuidModel):
         null=True,
     )
 
+    confirmed = models.BooleanField(
+        default=False,
+        help_text=(
+            "True if stock was labelled and confirmed; "
+            "False if stock was received/repacked but never confirmed."
+        ),
+    )
+    confirmed_datetime = models.DateTimeField(null=True, blank=True)
+
+    confirmed_by = models.CharField(max_length=150, null=True, blank=True)
+
     allocation = models.OneToOneField(
         Allocation,
         on_delete=models.PROTECT,
@@ -71,14 +85,14 @@ class Stock(BaseUuidModel):
         help_text="Subject allocation",
     )
 
-    dispense = models.OneToOneField(
-        Dispense,
-        verbose_name="Dispense",
-        on_delete=models.PROTECT,
-        null=True,
-        blank=True,
-        help_text="Stock was dispensed",
-    )
+    # dispense = models.OneToOneField(
+    #     Dispense,
+    #     verbose_name="Dispense",
+    #     on_delete=models.PROTECT,
+    #     null=True,
+    #     blank=True,
+    #     help_text="Stock was dispensed",
+    # )
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
 
@@ -137,28 +151,11 @@ class Stock(BaseUuidModel):
 
     description = models.CharField(max_length=100, null=True, blank=True)
 
-    allocated = models.BooleanField(default=False)
+    # transferred = models.BooleanField(default=False)
 
-    transferred = models.BooleanField(default=False)
-
-    confirmed = models.BooleanField(
-        default=False,
-        help_text=(
-            "True if stock was labelled and confirmed; "
-            "False if stock was received/repacked but never confirmed."
-        ),
-    )
-    confirmed_datetime = models.DateTimeField(null=True, blank=True)
-
-    confirmed_by = models.CharField(max_length=150, null=True, blank=True)
-
-    confirmed_at_site = models.BooleanField(default=False)
+    # confirmed_at_site = models.BooleanField(default=False)
 
     stored_at_site = models.BooleanField(default=False)
-
-    dispensed = models.BooleanField(default=False)
-
-    allocated_datetime = models.DateTimeField(null=True, blank=True)
 
     subject_identifier = models.CharField(max_length=50, null=True, blank=True)
 

@@ -27,11 +27,10 @@ def bulk_create_stock_request_items(
     rx_model_cls = django_apps.get_model("edc_pharmacy.rx")
 
     stock_request = stock_request_model_cls.objects.get(pk=stock_request_pk)
-    df = pd.DataFrame(nostock_as_dict)
-
+    df_nostock = pd.DataFrame(nostock_as_dict)
     now = get_utcnow()
     data = []
-    for i, row in df[df.stock_qty == 0].iterrows():
+    for i, row in df_nostock[df_nostock.stock_qty == 0].iterrows():
         registered_subject = registered_subject_model_cls.objects.get(
             id=row["registered_subject_id"]
         )

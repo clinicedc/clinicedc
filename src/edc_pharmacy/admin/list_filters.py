@@ -35,6 +35,23 @@ class MedicationsListFilter(SimpleListFilter):
         return qs
 
 
+class ConfirmedListFilter(SimpleListFilter):
+    title = "Confirmed"
+    parameter_name = "confirmation"
+
+    def lookups(self, request, model_admin):
+        return YES_NO
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(confirmation__isnull=False)
+            elif self.value() == NO:
+                qs = queryset.filter(confirmation__isnull=True)
+        return qs
+
+
 class AllocationListFilter(SimpleListFilter):
     title = "Allocated"
     parameter_name = "allocated"
@@ -45,29 +62,23 @@ class AllocationListFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         qs = None
         if self.value():
-            from_stock = False
-            if "from_stock" in [f.name for f in queryset.model._meta.get_fields()]:
-                from_stock = True
             if self.value() == YES:
-                opts = dict(from_stock__isnull=False) if from_stock else {}
                 qs = queryset.filter(
+                    from_stock__isnull=False,
                     allocation__isnull=False,
                     container__may_request_as=True,
-                    **opts,
                 )
             elif self.value() == NO:
-                opts = dict(from_stock__isnull=False) if from_stock else {}
                 qs = queryset.filter(
+                    from_stock__isnull=False,
                     allocation__isnull=True,
                     container__may_request_as=True,
-                    **opts,
                 )
             elif self.value() == NOT_APPLICABLE:
-                opts = dict(from_stock__isnull=False) if from_stock else {}
                 qs = queryset.filter(
+                    from_stock__isnull=True,
                     allocation__isnull=True,
                     container__may_request_as=False,
-                    **opts,
                 )
         return qs
 
@@ -86,6 +97,29 @@ class StockItemAllocationListFilter(SimpleListFilter):
                 qs = queryset.filter(allocation__isnull=False)
             elif self.value() == NO:
                 qs = queryset.filter(allocation__isnull=True)
+        return qs
+
+
+class StockItemTransferredListFilter(SimpleListFilter):
+    title = "Transferred"
+    parameter_name = "transferred"
+
+    def lookups(self, request, model_admin):
+        return YES_NO
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(
+                    allocation__isnull=False,
+                    allocation__stock__stocktransferitem__isnull=False,
+                )
+            elif self.value() == NO:
+                qs = queryset.filter(
+                    allocation__isnull=True,
+                    allocation__stock__stocktransferitem__isnull=True,
+                )
         return qs
 
 
@@ -190,7 +224,7 @@ class HasRepackNumFilter(SimpleListFilter):
 
 class TransferredFilter(SimpleListFilter):
     title = "Transferred to site"
-    parameter_name = "transferred_now"
+    parameter_name = "transferred"
 
     def lookups(self, request, model_admin):
         return (YES, YES), (NO, NO)
@@ -198,26 +232,21 @@ class TransferredFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         qs = None
         if self.value():
+            opts = dict(
+                from_stock__isnull=False,
+                confirmation__isnull=False,
+                allocation__isnull=False,
+            )
             if self.value() == YES:
-                qs = queryset.filter(
-                    from_stock__isnull=False,
-                    confirmed=True,
-                    allocated=True,
-                    transferred=True,
-                )
+                qs = queryset.filter(stocktransferitem__isnull=False, **opts)
             elif self.value() == NO:
-                qs = queryset.filter(
-                    from_stock__isnull=False,
-                    confirmed=True,
-                    allocated=True,
-                    transferred=False,
-                )
+                qs = queryset.filter(stocktransferitem__isnull=True, **opts)
         return qs
 
 
 class ConfirmedAtSiteFilter(SimpleListFilter):
     title = "Confirmed at site"
-    parameter_name = "confirmed_at_site_now"
+    parameter_name = "confirmed_at_site"
 
     def lookups(self, request, model_admin):
         return (YES, YES), (NO, NO)
@@ -225,22 +254,16 @@ class ConfirmedAtSiteFilter(SimpleListFilter):
     def queryset(self, request, queryset):
         qs = None
         if self.value():
+            opts = dict(
+                from_stock__isnull=False,
+                confirmation__isnull=False,
+                allocation__isnull=False,
+                stocktransferitem__isnull=False,
+            )
             if self.value() == YES:
-                qs = queryset.filter(
-                    from_stock__isnull=False,
-                    confirmed=True,
-                    allocated=True,
-                    transferred=True,
-                    confirmed_at_site=True,
-                )
+                qs = queryset.filter(confirmationatsiteitem__isnull=False, **opts)
             elif self.value() == NO:
-                qs = queryset.filter(
-                    from_stock__isnull=False,
-                    confirmed=True,
-                    allocated=True,
-                    transferred=True,
-                    confirmed_at_site=False,
-                )
+                qs = queryset.filter(confirmationatsiteitem__isnull=True, **opts)
         return qs
 
 
@@ -249,7 +272,7 @@ class StoredAtSiteFilter(SimpleListFilter):
     parameter_name = "stored_at_site_now"
 
     def lookups(self, request, model_admin):
-        return (YES, YES), (NO, NO)
+        return YES_NO_NA
 
     def queryset(self, request, queryset):
         qs = None
@@ -257,50 +280,57 @@ class StoredAtSiteFilter(SimpleListFilter):
             if self.value() == YES:
                 qs = queryset.filter(
                     from_stock__isnull=False,
-                    confirmed=True,
-                    allocated=True,
-                    transferred=True,
-                    stored_at_site=True,
-                    dispensed=False,
+                    confirmation__isnull=False,
+                    allocation__isnull=False,
+                    stocktransferitem__isnull=False,
+                    confirmationatsiteitem__isnull=False,
+                    storagebinitem__isnull=False,
+                    dispenseitem__isnull=True,
                 )
             elif self.value() == NO:
                 qs = queryset.filter(
                     from_stock__isnull=False,
-                    confirmed=True,
-                    allocated=True,
-                    transferred=True,
-                    stored_at_site=False,
-                    dispensed=False,
+                    confirmation__isnull=False,
+                    allocation__isnull=False,
+                    stocktransferitem__isnull=False,
+                    confirmationatsiteitem__isnull=False,
+                    storagebinitem__isnull=True,
+                    dispenseitem__isnull=True,
+                )
+            elif self.value() == NOT_APPLICABLE:
+                qs = queryset.filter(
+                    from_stock__isnull=False,
+                    confirmation__isnull=False,
+                    allocation__isnull=False,
+                    stocktransferitem__isnull=False,
+                    confirmationatsiteitem__isnull=False,
+                    storagebinitem__isnull=True,
+                    dispenseitem__isnull=False,
                 )
         return qs
 
 
 class DispensedFilter(SimpleListFilter):
     title = "Dispensed"
-    parameter_name = "dispensed_now"
+    parameter_name = "dispensed"
 
     def lookups(self, request, model_admin):
-        return (YES, YES), (NO, NO)
+        return YES_NO
 
     def queryset(self, request, queryset):
         qs = None
         if self.value():
+            opts = dict(
+                from_stock__isnull=False,
+                confirmation__isnull=False,
+                allocation__isnull=False,
+                stocktransferitem__isnull=False,
+                confirmationatsiteitem__isnull=False,
+            )
             if self.value() == YES:
-                qs = queryset.filter(
-                    from_stock__isnull=False,
-                    confirmed=True,
-                    allocated=True,
-                    transferred=True,
-                    dispensed=True,
-                )
+                qs = queryset.filter(dispenseitem__isnull=False, **opts)
             elif self.value() == NO:
-                qs = queryset.filter(
-                    from_stock__isnull=False,
-                    confirmed=True,
-                    allocated=True,
-                    transferred=True,
-                    dispensed=False,
-                )
+                qs = queryset.filter(dispenseitem__isnull=True, **opts)
         return qs
 
 
@@ -340,13 +370,13 @@ class StockRequestItemPendingListFilter(SimpleListFilter):
             elif self.value() == "allocated_only":
                 qs = queryset.filter(
                     Q(allocation__isnull=False)
-                    & Q(allocation__stock__transferred=False)
+                    & Q(allocation__stock__stocktransferitem__isnull=True)
                     & ~Q(allocation__stock__location=F("stock_request__location"))
                 )
             elif self.value() == "transferred":
                 qs = queryset.filter(
                     Q(allocation__isnull=False)
-                    & Q(allocation__stock__transferred=True)
+                    & Q(allocation__stock__stocktransferitem__isnull=False)
                     & Q(allocation__stock__location=F("stock_request__location"))
                 )
         return qs
@@ -389,4 +419,25 @@ class DecantedListFilter(SimpleListFilter):
                 qs = queryset.filter(from_stock__isnull=False)
             elif self.value() == NO:
                 qs = queryset.filter(from_stock__isnull=True)
+        return qs
+
+
+class StorageBinItemDispensedFilter(SimpleListFilter):
+    title = "Dispensed"
+    parameter_name = "dispensed"
+
+    def lookups(self, request, model_admin):
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(
+                    stock__dispenseitem__isnull=False,
+                )
+            elif self.value() == NO:
+                qs = queryset.filter(
+                    stock__dispenseitem__isnull=True,
+                )
         return qs

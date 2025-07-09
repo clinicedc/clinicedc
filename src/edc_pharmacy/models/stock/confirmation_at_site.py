@@ -13,7 +13,7 @@ class Manager(models.Manager):
     use_in_migrations = True
 
 
-class StockTransferConfirmation(SiteModelMixin, BaseUuidModel):
+class ConfirmationAtSite(SiteModelMixin, BaseUuidModel):
 
     transfer_confirmation_identifier = models.CharField(
         max_length=36,
@@ -52,5 +52,5 @@ class StockTransferConfirmation(SiteModelMixin, BaseUuidModel):
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        verbose_name = "Stock Transfer Site Confirmation"
-        verbose_name_plural = "Stock Transfer Site Confirmations"
+        verbose_name = "Stock Confirmation at Site "
+        verbose_name_plural = "Stock Confirmations at Site"

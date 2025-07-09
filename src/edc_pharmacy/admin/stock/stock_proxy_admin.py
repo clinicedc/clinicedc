@@ -4,7 +4,12 @@ from django_audit_fields import audit_fieldset_tuple
 from ...admin_site import edc_pharmacy_admin
 from ...auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE
 from ...models import StockProxy
-from ..list_filters import DispensedFilter, StoredAtSiteFilter, TransferredListFilter
+from ..list_filters import (
+    ConfirmedAtSiteFilter,
+    DispensedFilter,
+    StoredAtSiteFilter,
+    TransferredListFilter,
+)
 from .stock_admin import StockAdmin
 
 
@@ -34,7 +39,7 @@ class StockProxyAdmin(StockAdmin):
         "formatted_transferred",
         "formatted_confirmed_at_site",
         "formatted_stored_at_site",
-        "formatted_dispensed",
+        "dispensed",
         "stock_request_changelist",
         "stock_transfer_item_changelist",
         "allocation_changelist",
@@ -48,7 +53,7 @@ class StockProxyAdmin(StockAdmin):
     )
     list_filter = (
         TransferredListFilter,
-        "confirmed_at_site",
+        ConfirmedAtSiteFilter,
         StoredAtSiteFilter,
         DispensedFilter,
         "product__formulation__description",
@@ -70,9 +75,7 @@ class StockProxyAdmin(StockAdmin):
     )
     readonly_fields = (
         "code",
-        "confirmed",
-        "confirmed_by",
-        "confirmed_datetime",
+        "confirmation",
         "container",
         "from_stock",
         "location",
@@ -91,7 +94,11 @@ class StockProxyAdmin(StockAdmin):
         return (
             super()
             .get_queryset(request)
-            .filter(confirmed=True, allocation__isnull=False, container__may_request_as=True)
+            .filter(
+                confirmation__isnull=False,
+                allocation__isnull=False,
+                container__may_request_as=True,
+            )
         )
 
     def get_list_display_links(self, request, list_display):

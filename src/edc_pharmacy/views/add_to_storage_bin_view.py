@@ -35,8 +35,9 @@ def update_bin(
             stock_obj = Stock.objects.get(
                 code=code,
                 allocation__isnull=False,
-                confirmed_at_site=True,
-                dispensed=False,
+                stocktransferitem__isnull=False,
+                confirmationatsiteitem__isnull=False,
+                dispenseitem__isnull=True,
                 location=storage_bin.location,
             )
         except ObjectDoesNotExist:
@@ -139,6 +140,32 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
             return HttpResponseRedirect(url)
         return None
 
+    def redirect_on_invalid_subject_for_location(
+        self, stock_codes: list[str], storage_bin: StorageBin
+    ) -> HttpResponseRedirect | None:
+        if stock_codes:
+            if (
+                Stock.objects.filter(code__in=stock_codes)
+                .exclude(location=storage_bin.location)
+                .exists()
+            ):
+                qs = Stock.objects.filter(code__in=stock_codes).exclude(
+                    location=storage_bin.location
+                )
+                messages.add_message(
+                    self.request,
+                    messages.ERROR,
+                    f"Stock not from this location. See {[obj.stock.code for obj in qs]}.",
+                )
+                url = reverse(
+                    "edc_pharmacy:add_to_storage_bin_url",
+                    kwargs={
+                        "storage_bin": storage_bin.id,
+                    },
+                )
+                return HttpResponseRedirect(url)
+        return None
+
     def post(self, request, *args, **kwargs):
         stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
         storage_bin = StorageBin.objects.get(id=kwargs.get("storage_bin"))
@@ -147,6 +174,7 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
             items_to_scan = int(items_to_scan)
 
         self.redirect_on_has_duplicates(stock_codes, storage_bin)
+        self.redirect_on_invalid_subject_for_location(stock_codes, storage_bin)
         self.redirect_on_stock_already_in_bin(stock_codes, storage_bin)
         if items_to_scan and not stock_codes:
             url = reverse(

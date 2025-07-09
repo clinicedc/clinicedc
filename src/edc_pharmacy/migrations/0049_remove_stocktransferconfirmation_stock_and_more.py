@@ -15,8 +15,8 @@ import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
 
-import edc_pharmacy.models.stock.stock_transfer_confirmation
-import edc_pharmacy.models.stock.stock_transfer_confirmation_item
+import edc_pharmacy.models.stock.confirmation_at_site
+import edc_pharmacy.models.stock.confirmation_at_site_item
 
 
 class Migration(migrations.Migration):
@@ -354,7 +354,7 @@ class Migration(migrations.Migration):
                 "default_manager_name": "objects",
             },
             managers=[
-                ("objects", edc_pharmacy.models.stock.stock_transfer_confirmation.Manager()),
+                ("objects", edc_pharmacy.models.stock.confirmation_at_site.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -673,7 +673,7 @@ class Migration(migrations.Migration):
             managers=[
                 (
                     "objects",
-                    edc_pharmacy.models.stock.stock_transfer_confirmation_item.Manager(),
+                    edc_pharmacy.models.stock.confirmation_at_site_item.Manager(),
                 ),
             ],
         ),

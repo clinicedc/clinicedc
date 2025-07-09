@@ -7,7 +7,7 @@ from edc_visit_schedule.model_mixins import VisitCodeFieldsModelMixin
 from sequences import get_next_value
 
 from ...exceptions import StockRequestItemError
-from .. import Assignment
+from ..medication import Assignment
 from ..prescription import Rx
 from .stock_request import StockRequest
 

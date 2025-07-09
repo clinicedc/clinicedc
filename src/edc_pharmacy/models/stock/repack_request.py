@@ -7,6 +7,7 @@ from edc_utils import get_utcnow
 from sequences import get_next_value
 
 from ...exceptions import RepackRequestError
+from ...utils import get_related_or_none
 from .container import Container
 
 
@@ -84,7 +85,7 @@ class RepackRequest(BaseUuidModel):
             next_id = get_next_value(self._meta.label_lower)
             self.repack_identifier = f"{next_id:06d}"
             self.processed = False
-        if not self.from_stock.confirmed:
+        if not get_related_or_none(self.from_stock, "confirmation"):
             raise RepackRequestError(
                 "Unconfirmed stock item. Only confirmed stock items may "
                 "be used to repack. Perhaps catch this in the form"

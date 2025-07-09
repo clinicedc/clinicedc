@@ -61,11 +61,15 @@ class StockTransfer(BaseUuidModel):
 
     @property
     def comfirmed_items(self) -> int:
-        return self.stocktransferitem_set.filter(stock__confirmed_at_site=True).count()
+        return self.stocktransferitem_set.filter(
+            stock__confirmationatsiteitem__isnull=False
+        ).count()
 
     @property
     def uncomfirmed_items(self) -> int:
-        return self.stocktransferitem_set.filter(stock__confirmed_at_site=False).count()
+        return self.stocktransferitem_set.filter(
+            stock__confirmationatsiteitem__isnull=True
+        ).count()
 
     @property
     def export_references(self):

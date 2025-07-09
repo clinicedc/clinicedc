@@ -8,16 +8,14 @@ from edc_utils.date import to_local
 from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
-from ...models import StockTransferConfirmationItem
+from ...models import ConfirmationAtSiteItem
 from ..model_admin_mixin import ModelAdminMixin
 
 
-@admin.register(StockTransferConfirmationItem, site=edc_pharmacy_admin)
-class StockTransferConfirmationItemAdmin(
-    SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin
-):
-    change_list_title = "Pharmacy: Site stock transfer confirmation items"
-    change_form_title = "Pharmacy: Site stock transfer confirmation item"
+@admin.register(ConfirmationAtSiteItem, site=edc_pharmacy_admin)
+class ConfirmationAtSiteItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
+    change_list_title = "Pharmacy: Stock items confirmed at site"
+    change_form_title = "Pharmacy: Stock item confirmed at site"
     history_list_display = ()
     show_object_tools = True
     show_cancel = True
@@ -34,7 +32,7 @@ class StockTransferConfirmationItemAdmin(
                 "fields": (
                     "transfer_confirmation_item_identifier",
                     "transfer_confirmation_item_datetime",
-                    "stock_transfer_confirmation",
+                    "confirmation_at_site",
                     "stock",
                     "confirmed_datetime",
                     "confirmed_by",
@@ -50,7 +48,7 @@ class StockTransferConfirmationItemAdmin(
         "subject",
         "site",
         "stock_changelist",
-        "stock_transfer_confirmation_changelist",
+        "confirmation_at_site_changelist",
         "confirmed_datetime",
         "confirmed_by",
     )
@@ -60,7 +58,7 @@ class StockTransferConfirmationItemAdmin(
     readonly_fields = (
         "transfer_confirmation_item_identifier",
         "transfer_confirmation_item_datetime",
-        "stock_transfer_confirmation",
+        "confirmation_at_site",
         "stock",
         "confirmed_datetime",
         "confirmed_by",
@@ -68,7 +66,7 @@ class StockTransferConfirmationItemAdmin(
 
     search_fields = (
         "pk",
-        "stock_transfer_confirmation__pk",
+        "confirmation_at_site__pk",
         "stock__code",
         "stock__pk",
         "stock__allocation__registered_subject__subject_identifier",
@@ -84,11 +82,9 @@ class StockTransferConfirmationItemAdmin(
     def transfer_confirmation_item_date(self, obj):
         return to_local(obj.transfer_confirmation_item_datetime).date()
 
-    @admin.display(
-        description="Site", ordering="stock_transfer_confirmation__location__site__id"
-    )
+    @admin.display(description="Site", ordering="confirmation_at_site__location__site__id")
     def site(self, obj):
-        return obj.stock_transfer_confirmation.location.site.id
+        return obj.confirmation_at_site.location.site.id
 
     @admin.display(
         description="SUBJECT #",
@@ -99,14 +95,14 @@ class StockTransferConfirmationItemAdmin(
 
     @admin.display(
         description="Transfer confirmation",
-        ordering="stock_transfer_confirmation__transfer_confirmation_identifier",
+        ordering="confirmation_at_site__transfer_confirmation_identifier",
     )
-    def stock_transfer_confirmation_changelist(self, obj):
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferconfirmation_changelist")
-        url = f"{url}?q={obj.stock_transfer_confirmation.id}"
+    def confirmation_at_site_changelist(self, obj):
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_confirmationatsite_changelist")
+        url = f"{url}?q={obj.confirmation_at_site.id}"
         context = dict(
             url=url,
-            label=obj.stock_transfer_confirmation.transfer_confirmation_identifier,
+            label=obj.confirmation_at_site.transfer_confirmation_identifier,
             title="Go to stock transfer confirmation",
         )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)

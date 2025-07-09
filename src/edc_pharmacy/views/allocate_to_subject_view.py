@@ -133,7 +133,8 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     ) -> str | None:
         if stock_codes:
             confirmed_codes = Stock.objects.filter(
-                code__in=stock_codes, confirmed=True
+                code__in=stock_codes,
+                confirmation__isnull=False,
             ).values_list("code", flat=True)
             if len(confirmed_codes) != len(stock_codes):
                 uncomfirmed_codes = ", ".join(
@@ -344,7 +345,8 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                 messages.add_message(
                     request,
                     messages.SUCCESS,
-                    f"Allocated {allocated} stock records. Skipped {not_allocated}.",
+                    f"Allocated {len(allocated)} stock records. "
+                    f"Skipped {len(not_allocated)}. Skipped {', '.join(not_allocated)}",
                 )
             if self.get_next_subject_identifiers():
                 url = reverse(

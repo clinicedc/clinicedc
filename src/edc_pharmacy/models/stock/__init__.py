@@ -1,5 +1,8 @@
 from .allocation import Allocation
 from .allocation_proxy import AllocationProxy
+from .confirmation import Confirmation
+from .confirmation_at_site import ConfirmationAtSite
+from .confirmation_at_site_item import ConfirmationAtSiteItem
 from .container import Container
 from .container_type import ContainerType
 from .container_units import ContainerUnits
@@ -19,8 +22,6 @@ from .stock_proxy import StockProxy
 from .stock_request import StockRequest
 from .stock_request_item import StockRequestItem
 from .stock_transfer import StockTransfer
-from .stock_transfer_confirmation import StockTransferConfirmation
-from .stock_transfer_confirmation_item import StockTransferConfirmationItem
 from .stock_transfer_item import StockTransferItem
 from .storage_bin import StorageBin
 from .storage_bin_item import StorageBinItem

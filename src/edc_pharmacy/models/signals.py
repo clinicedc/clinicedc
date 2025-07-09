@@ -21,6 +21,7 @@ from ..utils import (
 from .stock import (
     Allocation,
     DispenseItem,
+    Location,
     OrderItem,
     Receive,
     ReceiveItem,
@@ -29,7 +30,6 @@ from .stock import (
     StockAdjustment,
     StockRequest,
     StockRequestItem,
-    StockTransferConfirmationItem,
     StockTransferItem,
     StorageBinItem,
 )
@@ -164,21 +164,7 @@ def stock_transfer_item_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:
     if not raw and not update_fields:
-        instance.stock.transferred = True
-        instance.stock.save(update_fields=["transferred"])
-
-
-@receiver(
-    post_save,
-    sender=StockTransferConfirmationItem,
-    dispatch_uid="stock_transfer_confirmation_item_on_post_save",
-)
-def stock_transfer_confirmation_item_on_post_save(
-    sender, instance, raw, created, update_fields, **kwargs
-) -> None:
-    if not raw and not update_fields:
-        instance.stock.confirmed_at_site = True
-        instance.stock.save(update_fields=["confirmed_at_site"])
+        pass
 
 
 @receiver(
@@ -203,11 +189,9 @@ def dispense_item_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:
     if not raw and not update_fields:
-        instance.stock.dispensed = True
         instance.stock.qty_out = 1
         instance.stock.unit_qty_out = instance.stock.container.qty * 1
-        instance.stock.save(update_fields=["qty_out", "unit_qty_out", "dispensed"])
-
+        instance.stock.save(update_fields=["qty_out", "unit_qty_out"])
         StorageBinItem.objects.filter(stock=instance.stock).delete()
 
 
@@ -221,7 +205,8 @@ def receive_item_on_post_delete(sender, instance, using, **kwargs) -> None:
 
 @receiver(post_delete, sender=Stock, dispatch_uid="stock_on_post_delete")
 def stock_on_post_delete(sender, instance, using, **kwargs) -> None:
-    pass
+    if getattr(instance, "confirmation", None):
+        instance.confirm.delete()
 
 
 @receiver(
@@ -231,8 +216,7 @@ def stock_on_post_delete(sender, instance, using, **kwargs) -> None:
 )
 def allocation_post_delete(sender, instance, using, **kwargs) -> None:
     if getattr(instance, "stock", None):
-        instance.stock.allocated = False
-        instance.stock.save(update_fields=["allocated"])
+        pass
 
 
 @receiver(
@@ -241,18 +225,8 @@ def allocation_post_delete(sender, instance, using, **kwargs) -> None:
     dispatch_uid="stock_transfer_item_post_delete",
 )
 def stock_transfer_item_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.stock.transferred = False
-    instance.stock.save(update_fields=["transferred"])
-
-
-@receiver(
-    post_delete,
-    sender=StockTransferConfirmationItem,
-    dispatch_uid="stock_transfer_confirmation_item_post_delete",
-)
-def stock_transfer_confirmation_item_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.stock.confirmed_at_site = False
-    instance.stock.save(update_fields=["confirmed_at_site"])
+    instance.stock.location = Location.objects.get(name="central")
+    instance.stock.save(update_fields=["location"])
 
 
 @receiver(
@@ -271,10 +245,9 @@ def storage_bin_item_post_delete(sender, instance, using, **kwargs) -> None:
     dispatch_uid="dispense_item_on_post_delete",
 )
 def dispense_item_on_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.stock.dispensed = False
     instance.stock.qty_out = 0
     instance.stock.unit_qty_out = 0
-    instance.stock.save(update_fields=["qty_out", "unit_qty_out", "dispensed"])
+    instance.stock.save(update_fields=["qty_out", "unit_qty_out"])
 
 
 @receiver(

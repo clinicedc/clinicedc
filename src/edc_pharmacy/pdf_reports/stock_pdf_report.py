@@ -11,6 +11,7 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from ..models import Stock
+from ..utils import get_related_or_none
 
 
 class StockReport(Report):
@@ -187,10 +188,10 @@ class StockReport(Report):
     @staticmethod
     def get_catsbd(stock_obj: Stock) -> str:
         catsd = ""
-        catsd += "C" if stock_obj.confirmed else "-"
-        catsd += "A" if stock_obj.allocated else "-"
-        catsd += "T" if stock_obj.transferred else "-"
-        catsd += "S" if stock_obj.confirmed_at_site else "-"
-        catsd += "B" if stock_obj.stored_at_site else "-"
-        catsd += "D" if stock_obj.dispensed else "-"
+        catsd += "C" if get_related_or_none(stock_obj, "stock_obj.confirmed") else "-"
+        catsd += "A" if get_related_or_none(stock_obj, "allocation") else "-"
+        catsd += "T" if get_related_or_none(stock_obj, "stocktransferitem") else "-"
+        catsd += "S" if get_related_or_none(stock_obj, "confirmationatsiteitem") else "-"
+        catsd += "B" if get_related_or_none(stock_obj, "stored_at_site else") else "-"
+        catsd += "D" if get_related_or_none(stock_obj, "dispense") else "-"
         return catsd

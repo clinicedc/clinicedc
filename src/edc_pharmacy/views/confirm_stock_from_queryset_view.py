@@ -13,7 +13,6 @@ from edc_constants.constants import CONFIRMED
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
-from edc_utils import get_utcnow
 
 from ..constants import ALREADY_CONFIRMED, INVALID
 from ..models import Stock
@@ -85,7 +84,10 @@ class ConfirmStockFromQuerySetView(
     def unconfirmed_count(self) -> int:
         return (
             Stock.objects.values("code")
-            .filter(code__in=self.session_data.get("stock_codes"), confirmed=False)
+            .filter(
+                code__in=self.session_data.get("stock_codes"),
+                confirmation__isnull=True,
+            )
             .count()
         )
 
@@ -93,7 +95,10 @@ class ConfirmStockFromQuerySetView(
     def confirmed_count(self) -> int:
         return (
             Stock.objects.values("code")
-            .filter(code__in=self.session_data.get("stock_codes"), confirmed=True)
+            .filter(
+                code__in=self.session_data.get("stock_codes"),
+                confirmation__isnull=False,
+            )
             .count()
         )
 
@@ -134,7 +139,6 @@ class ConfirmStockFromQuerySetView(
                 None,
                 confirmed_by=request.user.username,
                 user_created=request.user.username,
-                created=get_utcnow(),
             )
             if confirmed_codes:
                 messages.add_message(
@@ -160,7 +164,10 @@ class ConfirmStockFromQuerySetView(
 
             if (
                 Stock.objects.values("code")
-                .filter(code__in=self.session_data.get("stock_codes"), confirmed=False)
+                .filter(
+                    code__in=self.session_data.get("stock_codes"),
+                    confirmation__isnull=True,
+                )
                 .exists()
             ):
                 self.request.session[str(self.kwargs.get("session_uuid"))] = dict(

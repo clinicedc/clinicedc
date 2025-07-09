@@ -10,10 +10,12 @@ def delete_order_items_action(modeladmin, request, queryset: QuerySet[OrderItem]
     failed_count = 0
     success_count = 0
     for obj in queryset:
-        if obj.receiveitem_set.filter(stock__confirmed=True).exists():
+        if obj.receiveitem_set.filter(stock__confirmation__isnull=False).exists():
             failed_count += 1
         else:
-            Stock.objects.filter(receive_item__order_item=obj, confirmed=False).delete()
+            Stock.objects.filter(
+                receive_item__order_item=obj, stock__confirmation__isnull=True
+            ).delete()
             obj.receiveitem_set.all().delete()
             obj.delete()
             success_count += 1
