@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from django import forms
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.text import format_lazy
+from django.utils.translation import gettext_lazy as _
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_crf.crf_form_validator_mixins import BaseFormValidatorMixin
@@ -37,3 +41,23 @@ class PrnFormValidatorMixin(BaseFormValidatorMixin):
         elif self.instance:
             report_datetime = self.instance.report_datetime
         return report_datetime
+
+
+class PrnSingletonModelFormMixin:
+    def clean(self) -> dict:
+        cleaned_data = super().clean()
+        self.raise_if_singleton_exists()
+        return cleaned_data
+
+    def raise_if_singleton_exists(self) -> None:
+        """Raise if singleton model instance exists."""
+        if not self.instance.id:
+            opts = {"subject_identifier": (self.get_subject_identifier())}
+            try:
+                self._meta.model.objects.get(**opts)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                msg_string = _("Invalid. This form has already been submitted.")
+                error_msg = format_lazy("{msg_string}", msg_string=msg_string)
+                raise forms.ValidationError(error_msg)
