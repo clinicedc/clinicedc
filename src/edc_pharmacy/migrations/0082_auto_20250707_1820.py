@@ -17,7 +17,7 @@ def update_confirm(apps, schema_editor):
                 stock=stock,
                 confirmed_by=stock.confirmed_by,
                 confirmed_datetime=stock.confirmed_datetime,
-                site_id=stock.location.site_id,
+                site=stock.location.site,
             )
             obj.save()
 
