@@ -85,15 +85,6 @@ class Stock(BaseUuidModel):
         help_text="Subject allocation",
     )
 
-    # dispense = models.OneToOneField(
-    #     Dispense,
-    #     verbose_name="Dispense",
-    #     on_delete=models.PROTECT,
-    #     null=True,
-    #     blank=True,
-    #     help_text="Stock was dispensed",
-    # )
-
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
 
     lot = models.ForeignKey(

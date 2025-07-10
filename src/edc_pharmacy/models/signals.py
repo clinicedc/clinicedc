@@ -3,7 +3,6 @@ from __future__ import annotations
 from decimal import Decimal
 
 from celery.states import PENDING
-from django.db import transaction
 from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
@@ -39,12 +38,11 @@ from .stock import (
 def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty and other columns"""
     if not raw and not update_fields:
-        with transaction.atomic():
-            instance = update_stock_instance(instance)
-            if instance.from_stock:
-                # adjust the unit_qty_out, unit_qty_out on the source stock item
-                # (from_stock). If insufficient, will bomb out here.
-                instance.from_stock.save()
+        instance = update_stock_instance(instance)
+        if instance.from_stock:
+            # adjust the unit_qty_out, unit_qty_out on the source stock item
+            # (from_stock). If insufficient, will bomb out here.
+            instance.from_stock.save()
 
 
 @receiver(
@@ -53,14 +51,13 @@ def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
 def stock_adjustment_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty"""
     if not raw and not update_fields:
-        with transaction.atomic():
-            instance.stock.unit_qty_in = instance.unit_qty_in_new
-            if instance.stock.unit_qty_out > instance.stock.unit_qty_in:
-                raise InsufficientStockError(
-                    "Invalid adjustment. Expected a value greater than or equal to "
-                    f"{instance.stock.unit_qty_out}. See {instance}."
-                )
-            instance.stock.save(update_fields=["unit_qty_in"])
+        instance.stock.unit_qty_in = instance.unit_qty_in_new
+        if instance.stock.unit_qty_out > instance.stock.unit_qty_in:
+            raise InsufficientStockError(
+                "Invalid adjustment. Expected a value greater than or equal to "
+                f"{instance.stock.unit_qty_out}. See {instance}."
+            )
+        instance.stock.save(update_fields=["unit_qty_in"])
 
 
 @receiver(post_save, sender=OrderItem, dispatch_uid="update_order_item_on_post_save")

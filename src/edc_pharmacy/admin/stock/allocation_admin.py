@@ -11,6 +11,7 @@ from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import Allocation
+from ...utils import get_related_or_none
 from ..list_filters import AssignmentListFilter
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
@@ -170,8 +171,8 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="D", boolean=True)
     def dispensed(self, obj):
-        if obj and getattr(obj, "stock", None):
-            return True if getattr(obj.stock, "dispense", None) else False
+        if obj:
+            return True if get_related_or_none(obj.stock, "dispenseitem") else False
         return None
 
     @admin.display(description="Product", ordering="stock__product")

@@ -5,8 +5,6 @@ from tqdm import tqdm
 
 from ..models import (
     Allocation,
-    ConfirmationAtSite,
-    ConfirmationAtSiteItem,
     Dispense,
     DispenseItem,
     StockTransferItem,
@@ -16,10 +14,15 @@ from ..models import (
 
 
 def update_site_id(apps, schema_editor):
+
+    stock_transfer_confirmation = apps.get_model("edc_pharmacy", "StockTransferConfirmation")
+    stock_transfer_confirmation_item = apps.get_model(
+        "edc_pharmacy", "StockTransferConfirmationItem"
+    )
     for model_cls in [
         Allocation,
-        ConfirmationAtSite,
-        ConfirmationAtSiteItem,
+        stock_transfer_confirmation,
+        stock_transfer_confirmation_item,
         StorageBin,
         StorageBinItem,
         Dispense,
