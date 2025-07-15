@@ -42,7 +42,10 @@ class QaReportLogSummaryAdmin(
 
     @admin.display(description="Report", ordering="report_model")
     def report(self, obj=None):
-        model_cls = django_apps.get_model(obj.report_model)
+        try:
+            model_cls = django_apps.get_model(obj.report_model)
+        except LookupError:
+            return obj.report_model
         return model_cls._meta.verbose_name
 
     @admin.display(description="Hits", ordering="access_count")
