@@ -18,13 +18,10 @@ from edc_model_admin.mixins import (
     TemplatesModelAdminMixin,
 )
 from edc_sites.admin import SiteModelAdminMixin
+from rangefilter.filters import DateRangeFilterBuilder
 
 from edc_metadata import KEYED, REQUIRED
-from edc_metadata.admin.list_filters import (
-    CreatedListFilter,
-    DueDatetimeListFilter,
-    FillDatetimeListFilter,
-)
+from edc_metadata.admin.list_filters import CreatedListFilter
 
 
 class MetadataModelAdminMixin(
@@ -40,6 +37,9 @@ class MetadataModelAdminMixin(
 ):
     changelist_url = "edc_metadata_admin:edc_metadata_crfmetadata_changelist"
     change_list_title = "CRF collection status"
+    change_list_note = (
+        "Links to items from sites other than the current may not work as expected."
+    )
     change_form_title = "CRF collection status"
     ordering = ["subject_identifier", "visit_code", "visit_code_sequence", "show_order"]
 
@@ -108,13 +108,13 @@ class MetadataModelAdminMixin(
         "hostname_created",
     )
     list_filter = (
+        ("due_datetime", DateRangeFilterBuilder()),
+        ("fill_datetime", DateRangeFilterBuilder()),
         "entry_status",
         "visit_code",
         "visit_code_sequence",
         "schedule_name",
         "visit_schedule_name",
-        DueDatetimeListFilter,
-        FillDatetimeListFilter,
         "document_name",
         "document_user",
         CreatedListFilter,
@@ -132,6 +132,9 @@ class MetadataModelAdminMixin(
         "document_name",
         "document_user",
     )
+
+    def get_view_only_site_ids_for_user(self, request) -> list[int]:
+        return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]
 
     @admin.display(description="Due", ordering="due_datetime")
     def due(self, obj):
