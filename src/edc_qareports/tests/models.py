@@ -17,6 +17,7 @@ from edc_lab_results.model_mixins import (
 )
 from edc_model.models import BaseUuidModel
 from edc_sites.model_mixins import SiteModelMixin
+from edc_utils import get_utcnow
 
 requisition_fk_options.update(to="edc_appointment_app.SubjectRequisition")
 
@@ -40,12 +41,14 @@ class BloodResultsFbc(
 
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
 
+    report_datetime = models.DateTimeField(default=get_utcnow())
+
     requisition = models.ForeignKey(
         limit_choices_to={"panel__name": fbc_panel.name}, **requisition_fk_options
     )
 
     def get_summary(self):
-        return ""
+        return [], [], []
 
     class Meta(CrfStatusModelMixin.Meta, BaseUuidModel.Meta):
         verbose_name = "Blood Result: FBC"
