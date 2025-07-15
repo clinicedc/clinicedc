@@ -77,7 +77,6 @@ class ModelToDataframe:
         drop_sys_columns: bool | None = None,
         drop_action_item_columns: bool | None = None,
         read_frame_verbose: bool | None = None,
-        verbose: bool | None = None,
         remove_timezone: bool | None = None,
         sites: list[int] | None = None,
     ):
@@ -96,7 +95,6 @@ class ModelToDataframe:
         self.decrypt = decrypt
         self.m2m_columns = []
         self.query_filter = query_filter or {}
-        self.verbose = verbose
         self.remove_timezone = True if remove_timezone is None else remove_timezone
         if queryset:
             self.model = queryset.model._meta.label_lower
