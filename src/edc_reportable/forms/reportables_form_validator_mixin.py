@@ -45,7 +45,6 @@ class ReportablesFormValidatorMixin:
             value_field_suffix=self.value_field_suffix,
             **reportables_evaluator_options,
         )
-
         try:
             reference_range_evaluator.validate_reportable_fields()
         except NotEvaluated as e:
