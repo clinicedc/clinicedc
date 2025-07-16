@@ -1,8 +1,5 @@
-import sys
-
-from django.conf import settings
 from django.contrib.sites.models import Site
-from django.db import OperationalError, connection, models
+from django.db import models
 from django.db.models import DO_NOTHING, Index
 from edc_utils import get_utcnow
 
