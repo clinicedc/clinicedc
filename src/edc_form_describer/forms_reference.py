@@ -1,7 +1,9 @@
 from datetime import datetime
+from importlib.metadata import version
 from typing import Optional
 
 from django.apps import apps as django_apps
+from django.conf import settings
 
 from .form_describer import FormDescriber
 from .markdown_writer import MarkdownWriter
@@ -115,6 +117,9 @@ class FormsReference:
                         markdown.append(f"* {panel_name}\n")
             markdown = self.insert_toc(toc, markdown)
             markdown.insert(0, f"{self.h1} {self.title}")
-            markdown.append(f"\n\n*Rendered on {self.timestamp}*\n")
+            markdown.append(
+                f"\n\n* Version v{version(settings.APP_NAME)} "
+                f"* Rendered on {self.timestamp}*\n"
+            )
             self._markdown = markdown
         return self._markdown

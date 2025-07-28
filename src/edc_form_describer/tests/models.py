@@ -15,7 +15,9 @@ class SubjectVisit(VisitModelMixin, BaseUuidModel):
 class MyModel(CrfModelMixin, BaseUuidModel):
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    f1 = models.CharField(verbose_name="Is it what it is?", max_length=10, choices=YES_NO)
+    f1 = models.CharField(
+        verbose_name="Is it what it is?", max_length=10, choices=YES_NO
+    )
 
     f2 = models.CharField(
         verbose_name="Are they serious?", max_length=10, null=True, blank=True
@@ -30,7 +32,10 @@ class MyModel(CrfModelMixin, BaseUuidModel):
     )
 
     f5 = models.CharField(
-        verbose_name="What am I going to tell them?", max_length=10, null=True, blank=False
+        verbose_name="What am I going to tell them?",
+        max_length=10,
+        null=True,
+        blank=False,
     )
 
     summary_one = models.CharField(

@@ -2,7 +2,8 @@ from tempfile import mkstemp
 
 from django.test import TestCase
 
-from ...form_describer import FormDescriber
+from edc_form_describer.form_describer import FormDescriber
+
 from ..admin import MyModelAdmin
 from ..models import MyModel
 

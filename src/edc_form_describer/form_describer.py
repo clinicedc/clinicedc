@@ -5,7 +5,6 @@ import string
 import sys
 from datetime import datetime
 from math import floor
-from typing import Optional
 
 from django.core.management.color import color_style
 from edc_fieldsets import Fieldsets
@@ -66,7 +65,9 @@ class FormDescriber:
         except AttributeError:
             self.model_cls = admin_cls.form._meta.model
         self.visit_code = visit_code
-        self.models_fields = {fld.name: fld for fld in self.model_cls._meta.get_fields()}
+        self.models_fields = {
+            fld.name: fld for fld in self.model_cls._meta.get_fields()
+        }
 
         # include custom labels from admin
         try:
@@ -147,7 +148,7 @@ class FormDescriber:
         markdown_writer = self.markdown_writer_cls()
         return markdown_writer.to_markdown(markdown=self.markdown)
 
-    def to_file(self, path: Optional[str] = None, overwrite: Optional[bool] = None):
+    def to_file(self, path: str | None = None, overwrite: bool | None = None):
         markdown_writer = self.markdown_writer_cls(path=path, overwrite=overwrite)
         markdown_writer.to_file(markdown=self.markdown)
 
@@ -169,7 +170,9 @@ class FormDescriber:
         if field_cls.help_text:
             self.markdown.append(f"\n&nbsp;&nbsp;&nbsp;&nbsp; *{field_cls.help_text}*")
         if self.custom_form_labels.get(fname):
-            self.markdown.append(f"* custom_prompt: *{self.custom_form_labels.get(fname)}*")
+            self.markdown.append(
+                f"* custom_prompt: *{self.custom_form_labels.get(fname)}*"
+            )
         self.markdown.append(f"- db_table: {self.model_cls._meta.db_table}")
         self.markdown.append(f"- column: {field_cls.name}")
         try:
@@ -191,7 +194,9 @@ class FormDescriber:
             if field_cls.choices:
                 self.markdown.append("- responses:")
                 # TODO: expand custom choices
-                for response in [f"`{tpl[0]}`: *{tpl[1]}*" for tpl in field_cls.choices]:
+                for response in [
+                    f"`{tpl[0]}`: *{tpl[1]}*" for tpl in field_cls.choices
+                ]:
                     self.markdown.append(f"  - {response}")
             else:
                 self.markdown.append("- responses: *free text*")
