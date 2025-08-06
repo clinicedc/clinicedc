@@ -1,0 +1,3 @@
+CREATE = "+"
+DELETE = "-"
+UPDATE = "~"
