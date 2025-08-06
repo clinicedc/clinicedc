@@ -1,0 +1,5 @@
+{% if offstudy_datetime %}
+<div class="panel-footer"> Subject was taken off the <b>{{ visit_schedule.verbose_name }}</b> schedule
+    on {{ offstudy_datetime|date:"SHORT_DATE_FORMAT" }}. See <a href="{{ href }}">{{ verbose_name }}</a>
+</div>
+{% endif %}
