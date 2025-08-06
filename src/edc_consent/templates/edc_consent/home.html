@@ -1,0 +1,40 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block main %}
+<div class="container">
+
+    <div id="div-home-right" class="col-md-12">
+         <div class="panel panel-default">
+    <div class="panel-heading">Consent Versions</div>
+    <table class="table table-hover responsive">
+    	<thead>
+      		<tr>
+       			<th>Model</th>
+        		<th>Version</th>
+        		<th>Start</th>
+        		<th>End</th>
+        		<th>Updates</th>
+        		<th>Updates using model</th>
+     	 	</tr>
+    	</thead>
+    	<tbody>
+      	{% for cdef in  consent_definitions %}
+         <tr>
+            <td>{{cdef.verbose_name|title}}</td>
+            <td>{{cdef.version}}</td>
+              <td>{{cdef.start|date:"d-m-Y"}}</td>
+            <td>{{cdef.end|date:"d-m-Y"}}</td>
+            <td>{{cdef.update_version|default:"-"}}</td>
+            <td>{{cdef.update_model|default:"-"}}</td>
+          </tr>
+      	{% endfor %}
+    	</tbody>
+ 	 </table>
+        </div>
+    </div>
+    </div>
+
+</div>
+{% endblock main %}
