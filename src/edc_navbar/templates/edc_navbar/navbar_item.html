@@ -1,0 +1,2 @@
+{% load static %}
+{% if not navbar_item.disabled %}<li id="li-topbar-{{ navbar_item.name }}"{% if navbar_item.active %} class="active"{% endif %}><a id="navbar_item_{{ navbar_item.name }}" title="{{ navbar_item.title }}" aria-label="{{ navbar_item.title }}" href="{{ url }}">{% if navbar_item.fa_icon %}<i class="fa-solid {{ navbar_item.fa_icon }} fa-fw"></i>&nbsp;{% endif %}{{ navbar_item.label|default:'' }}</a></li>{% endif %}

@@ -1,0 +1,14 @@
+{% load edc_navbar_extras %}
+{% load i18n %}
+<!-- begin class navbar -->
+<form id="logout_form" method="post" action="{% url 'edc_auth_admin:logout' %}">{% csrf_token %}</form>
+<div id="navbar" class="collapse navbar-collapse">
+  <ul class="nav navbar-nav navbar-right">
+    {% for navbar_item in navbar.navbar_items %}{% render_navbar_item navbar_item %}{% endfor %}
+    {% for navbar_item in default_navbar.navbar_items %}{% render_navbar_item navbar_item %}{% endfor %}
+    <li id="li-topbar-logout"><a title="" onclick="document.getElementById('logout_form').submit();"><i class="fas fa-sign-out-alt fa-fw"></i></a></li>
+    <li id="li-topbar-user-profile"><a title="user profile" href="{{ auth_user_change_url }}">{{ user.get_username }}</a></li>
+    <!--begin select lang -->{% include "edc_navbar/select_language_item.html" %}<!-- end select lang -->
+  </ul>
+</div>
+<!-- end class navbar -->
