@@ -1,0 +1,111 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-09-26 14:13-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: edc_visit_tracking/model_mixins/crfs/visit_tracking_crf_model_mixin.py:31
+#: edc_visit_tracking/model_mixins/requisitions/visit_tracking_requisition_model_mixin.py:22
+msgid "Report Date"
+msgstr "Tarehe ya Ripoti"
+
+#: edc_visit_tracking/model_mixins/crfs/visit_tracking_crf_model_mixin.py:35
+#: edc_visit_tracking/model_mixins/requisitions/visit_tracking_requisition_model_mixin.py:26
+msgid ""
+"If reporting today, use today's date/time, otherwise use the date/time this "
+"information was reported."
+msgstr ""
+"Ikiwa unaripoti leo, tumia tarehe/saa ya leo, vinginevyo tumia tarehe/saa "
+"taarifa hii iliripotiwa"
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:43
+msgid "Survival status"
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:46
+msgid "If deceased, complete the death report"
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:51
+msgid ""
+"Were any attempts made to contact the participant since the expected "
+"appointment date?"
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:56
+msgid "Not including pre-appointment reminders"
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:61
+msgid ""
+"Number of attempts made to contact participantsince the expected appointment "
+"date"
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:66
+msgid ""
+"Not including pre-appointment reminders. Multiple attempts on the same day "
+"count as a single attempt."
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:74
+msgid "If contact not made and less than 3 attempts, please explain"
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:80
+msgid "Date of last telephone contact/attempt"
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:87
+msgid "Was contact finally made with the participant?"
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:100
+msgid "Has the participant met the protocol criteria for lost to follow up?"
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:104
+msgid "If 'Yes', complete the Loss to Follow up form"
+msgstr ""
+
+#: edc_visit_tracking/model_mixins/subject_visit_missed_model_mixin.py:108
+msgid "Please provide further details, if any"
+msgstr ""
+
+#: edc_visit_tracking/models/subject_visit.py:35
+msgid "If 'missed', provide the reason for the missed visit"
+msgstr ""
+
+#: edc_visit_tracking/models/subject_visit.py:43
+msgid "What is the main source of this information?"
+msgstr ""
+
+#: edc_visit_tracking/models/subject_visit_missed.py:27
+#: edc_visit_tracking/models/subject_visit_missed.py:28
+msgid "Missed Visit Report"
+msgstr ""
+
+#: edc_visit_tracking/visit_sequence.py:49
+msgid "report"
+msgstr ""
+
+#: edc_visit_tracking/visit_sequence.py:63
+#, python-format
+msgid ""
+"Previous visit report required. Enter report for '%(visit_code)s."
+"%(visit_code_sequence)s' before completing this %(document_type)s."
+msgstr ""
