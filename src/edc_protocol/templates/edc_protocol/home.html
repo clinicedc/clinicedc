@@ -1,0 +1,48 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block main %}
+
+ <div class="container">
+
+    <div class="col-md-8">
+          <div class="panel panel-default">
+            <div class="panel-heading">Protocol</div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                    <li class="list-group-item">Protocol: {{ protocol }}</li>
+                    <li class="list-group-item">Number: {{ protocol_number }}</li>
+                    <li class="list-group-item">Name: {{ protocol_name }}</li>
+                    <li class="list-group-item">Title: {{ protocol_title }}</li>
+                    <li class="list-group-item">Institution: {{ institution }}</li>
+                    <li class="list-group-item">Project Name: {{ project_name }}</li>
+                    <li class="list-group-item">Project Repo: {{ project_repo }}</li>
+                    <li class="list-group-item">Physical Address: {{ physical_address }}</li>
+                    <li class="list-group-item">Postal Address: {{ postal_address }}</li>
+                    <li class="list-group-item">Disclaimer: {{ disclaimer }}</li>
+                    <li class="list-group-item">Copyright: {{ copyright }}</li>
+                    <li class="list-group-item">License: {{ license }}</li>
+                    </ul>
+                </div>
+
+
+    </div>
+</div>
+
+    <div class="col-md-4">
+
+          <div class="panel panel-default">
+            <div class="panel-heading">Dates</div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                    <li class="list-group-item">Study open date: {{ study_open_datetime|date:"Y-m-d" }}</li>
+                    <li class="list-group-item">Study close date: {{ study_close_datetime|date:"Y-m-d" }}</li>
+                  </ul>
+                </div>
+          </div>
+
+    </div>
+
+</div> <!-- container -->
+{% endblock main %}
