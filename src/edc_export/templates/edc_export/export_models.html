@@ -1,0 +1,167 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'edc_export/edc.css' %}">
+    {{ block.super }}
+{% endblock extrastyle %}
+
+{% block scripts %}
+{{ block.super }}
+    <script type="text/javascript" charset="utf8" src="{% static 'edc_export/edc.js' %}"></script>
+{% endblock scripts %}
+
+
+{% block main %}
+
+{% if not perms.edc_export.view_export_dashboard %}
+	<div class="row">
+	<div class="col-sm-12">
+	<p class="text-center">You do not have sufficient permissions to view.</p>
+	</div>
+	</div>
+
+{% else %}
+
+{% if request.session.selected_models %}
+
+	<div class="row">
+	<div class="col-sm-12">
+	<div id="work-in-progress"></div>
+	<form method="post" action="{% url 'edc_export:export_selected_models_url' %}">
+		<div class="form-group">
+
+	 		<div class="panel panel-warning">
+	 		<div class="panel-heading clearfix">
+	 			<i class="fas fa-file-export fa-fw fa-lg"></i>
+	 		</div>
+	 		</div>
+
+			<div class="col-sm-3"></div>
+			<div class="col-sm-6">
+		 		<div class="panel">
+		 		<div class="panel-body">
+					<p class="text-center">
+						Data from the models listed below are ready to send to you at<BR><B>{{ user.email }}</B>.
+					<BR><BR>
+					<a id="btn-cancel" role="button" href="{% url 'edc_export:export_models_url' action='cancel' %}" class="btn btn-default btn-sm"> Cancel </a>
+					<button id="btn-confirm" class="btn btn-primary btn-sm" onclick="confirm();submit();return true;"> Confirm </button>
+					{% if request.session.selected_models|length > 10 %}
+						<BR><BR><small>Note: Since you have selected more than 10 models, your data will be sent over multiple emails each with no more than 10 attachments.</small>
+					{% endif %}
+					</p>
+					{% csrf_token %}
+		 		</div>
+		 		</div>
+	 		</div>
+	 		<div class="col-sm-3"></div>
+		</div>
+	</form>
+	</div>
+	</div>
+
+	<div class="row">
+ 	<div class="table-responsive">
+	<table class="table table-condensed">
+		<th>#</th>
+		<th>Model</th>
+		<th>Table</th>
+		<th>App</th>
+		{% for model in request.session.selected_models %}
+			<tr>
+				<td>{{ forloop.counter }}</td>
+				<td>{{ model.verbose_name|title }}</td>
+				<td>{{ model.db_table }}</td>
+				<td>{{ model.app_name|title }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	</div>
+	</div>
+	</div>
+
+{% else %}
+
+	{% if exportables %}
+		<div class="row">
+		<div class="col-sm-12">
+
+		<form id="frm_exportables" name="frm_exportables" method="post" action="{% url 'edc_export:export_selected_models_url' %}">
+		<div class="form-group">
+
+	 		<div class="panel panel-warning">
+	 		<div class="panel-heading clearfix">
+		        <a id="home_list_group_home" href="{% url 'edc_export:home_url' %}" class="btn btn-primary"><i class="fas fa-reply fa-fw" aria-hidden="true"></i></a>
+	 			<button type="submit" class="btn btn-primary btn-sm pull-right">Export Selected</button>
+	 		</div>
+	 		</div>
+
+		<div class="table-responsive">
+
+		{% csrf_token %}
+
+		{% for exportable in exportables.values %}
+
+			<input type="hidden" name="app_config_name" value="{{ exportable.name }}" form="frm_exportables">
+
+	 		<div class="panel panel-default">
+	 		<div class="panel-heading clearfix"><b>{{ exportable.verbose_name }}</b>&nbsp;<small>({{ exportable.name }})</small>
+	 		</div>
+			<div class="panel-body">
+				<div class="form-group">
+
+			<table class="table table-hover table-condensed">
+			{% for label, models in exportable.items %}
+				{% if models %}
+					<tr><td colspan=4 class="text"><b>{{ label|title }}</b></td></tr>
+					{% if models|length > 1 %}
+						<tr>
+							<td>
+								<input id="select_all_{{ exportable.name }}_{{ label }}"
+									type="checkbox" title="select all"
+									onchange="selectAll('{{exportable.name}}','{{ label }}');" />&nbsp;
+							</td>
+							<td class="text text-muted text-uppercase small text-left" onclick="toggle('select_all_{{ exportable.name }}_{{ label }}');selectAll('{{exportable.name}}','{{ label }}');">select all</td>
+							<td colspan=2 onclick="toggle('select_all_{{ exportable.name }}_{{ label }}');selectAll('{{exportable.name}}','{{ label }}');"></td>
+						 </tr>
+					{% endif %}
+					{% for model in models %}
+						<tr>
+							<td>
+								<input id="chk_{{ exportable.name }}_{{ label }}_{{ forloop.counter }}"
+									name="chk_{{ exportable.name }}_{{ label }}"
+									type="checkbox" value="{{ model.label_lower }}"
+									form="frm_exportables"/>
+							</td>
+							<td onclick="toggle('chk_{{ exportable.name }}_{{ label }}_{{ forloop.counter }}');" class="text text-left align-left">{{ model.verbose_name|title }}</td>
+							<td onclick="toggle('chk_{{ exportable.name }}_{{ label }}_{{ forloop.counter }}');">{{ model.db_table }}</td>
+							<td onclick="toggle('chk_{{ exportable.name }}_{{ label }}_{{ forloop.counter }}');" class="text text-nowrap text-right">{{ exportable.verbose_name }}</td>
+						</tr>
+					{% endfor %}
+				{% endif %}
+			{% endfor %}
+			</table>
+			</div>
+			</div>
+			</div>
+
+		{% endfor %}
+
+		</div>
+
+	 		<div class="panel panel-warning">
+	 		<div class="panel-heading clearfix">
+	 			<i class="fas fa-file-export fa-fw fa-lg"></i> <button type="submit" class="btn btn-primary btn-sm pull-right">Export Selected</button>
+	 		</div>
+	 		</div>
+
+		</form>
+		</div>
+		</div>
+		</div>
+	{% endif %}
+{% endif %}
+
+{% endif %}
+
+{% endblock main %}

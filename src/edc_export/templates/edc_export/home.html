@@ -1,0 +1,28 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+
+{{ block.super }}
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">Export</div>
+
+
+      <div class="list-group">
+      {% if perms.edc_export.view_export_dashboard %}
+        <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+        <a id="home_list_group_export_data" href="{% url 'edc_export:export_models_url' %}" class="list-group-item">Export data</a>
+        <a id="home_list_group_export_admin" href="{% url 'edc_export:edc_export_admin:index' %}" class="list-group-item">Administration</a>
+      {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+{% endblock main %}
