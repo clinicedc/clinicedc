@@ -1,3 +1,14 @@
+
+.. code-block:: text
+
+    2025/08/06
+
+    THIS REPO is in the process of merging all edc modules into one repo ..
+
+    Stable version is https://github.com/clinicedc/edc v1.2.7
+
+
+
 |pypi| |downloads| |black| |django-packages|
 
 clinicedc -  A clinical trials data management framework built on Django
