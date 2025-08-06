@@ -1,0 +1,9 @@
+<div class="list-group">
+{% for prn in prn_forms %}
+  {% if prn.add_url_name %}
+    <div class="btn-group"><div class="btn-group"><a id="{{ prn.add_button_id }}" class="btn btn-success" role="button" data-toggle="tooltip"  title="add {{ prn.verbose_name }}" href="{% url prn.add_url_name %}?next={{ prn.dashboard_url_name }},subject_identifier&subject_identifier={{subject_identifier}}"><i class="fas fa-plus fa-1x fa-fw" aria-hidden="true"></i></a></div><div class="btn-group"><a class="btn btn-default" href="{% url prn.changelist_url_name %}?q={{ subject_identifier }}">{% if prn.fa_icon %}<i class="fa {{ prn.fa_icon }} fa-1x fa-fw" aria-hidden="true"></i> {% endif %}{{ prn.verbose_name_plural|title }}</a></div></div>
+  {% else %}
+    <a class="list-group-item" href="{% url prn.changelist_url_name %}?q={{ subject_identifier }}" title="Click to view list"><small>{{ prn.verbose_name_plural }}  <i class="fas fa-share"></i></small></a>
+  {% endif %}
+{% endfor %}
+</div>
