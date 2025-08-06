@@ -1,0 +1,83 @@
+---
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: |
+      build (Python ${{ matrix.python-version }}, Django ${{ matrix.django-version }}, ${{ matrix.database-engine }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12', '3.13']
+        django-version: ['5.2', 'dev']
+        database-engine: ["mysql", "postgres"]
+
+    services:
+      mysql:
+        image: mysql:latest
+        env:
+          MYSQL_DATABASE: mysql
+          MYSQL_ROOT_PASSWORD: mysql
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Install pycups and words dependency
+        run: |
+          sudo sed -i 's/azure\.//' /etc/apt/sources.list
+          sudo apt-get -y update
+          sudo apt-get install libcups2-dev wamerican
+
+      - uses: actions/checkout@v4
+
+      - name: Install uv and set the python version
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+#      - name: Get uv cache dir
+#        id: uv-cache
+#        run: echo "dir=$(uv run pip cache dir)" >> $GITHUB_OUTPUT
+#
+#      - name: Cache uv dependencies
+#        uses: actions/cache@v4
+#        with:
+#          path: ${{ steps.uv-cache.outputs.dir }}
+#          key: uv-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml') }}-${{ hashFiles('**/tox.ini') }}
+#          restore-keys: |
+#            uv-${{ matrix.python-version }}-
+
+      - name: Install tox
+        run: |
+          uv tool install tox --with tox-uv
+
+      - name: Verify tox plugins
+        run: uv run --active --group test --no-sources tox --version
+
+      - name: Tox tests
+        run: |
+          uv run --active --group test --no-sources tox
+        env:
+          DJANGO: ${{ matrix.django-version }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          name: Python ${{ matrix.python-version }}
