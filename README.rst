@@ -3,9 +3,9 @@
 
     2025/08/06
 
-    THIS REPO is in the process of merging all edc modules into one repo ..
+    We are in the process of merging all edc modules into this one repo, so this is a work in progress.
 
-    Stable version is https://github.com/clinicedc/edc v1.2.7
+    Stable version of edc is https://github.com/clinicedc/edc v1.2.7
 
 
 
