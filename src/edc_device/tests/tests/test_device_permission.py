@@ -6,6 +6,8 @@ from edc_device.constants import CENTRAL_SERVER, CLIENT, NODE_SERVER
 from edc_device.device_permission import (
     DeviceAddPermission,
     DeviceChangePermission,
+    DevicePermissionAddError,
+    DevicePermissionChangeError,
     device_permissions,
 )
 
