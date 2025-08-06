@@ -1,0 +1,15 @@
+{% if role_names %}
+	{% for role_name in role_names %}
+		{{ role_name }}<BR>
+	{% endfor %}
+{% else %}
+	<font color="red">Role not defined!<BR></font>
+{% endif %}
+
+{% if extra_group_names %}
+<font color="orange"><B>Extra groups:</B><BR>
+	{% for extra_group_name in extra_group_names %}
+		<i>-{{ extra_group_name}}</i><BR>
+	{% endfor %}
+</font>
+{% endif %}

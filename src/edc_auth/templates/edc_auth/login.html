@@ -1,0 +1,61 @@
+{% extends 'edc_dashboard/base.html' %}
+{% load edc_dashboard_extras %}
+{% block topbar %}{% endblock topbar %}
+
+{% block main %}
+
+<div class="container">
+    <div class="col-md-3"></div>
+
+    <div class="col-md-6">
+      <div class="panel panel-{% if live_system and not DEBUG %}success{% else %}danger{% endif %}">
+          <div class="panel-heading">
+            <h4 class="text-muted text-center">{{ project_name }}</h4>
+            <h6 class="text-muted text-center">{{ request.site.name|title }}</h6>
+            {% if live_system and not DEBUG %}<h6 class="text-center">LIVE</h6>{% else %}<h6 class="text-center">This site is for testing and UAT only.</h6>{% endif %}
+          </div>
+            <div class="panel-body text-center">
+            {% if failure_limit %}
+              <div class="alert alert-danger text-center">
+                Too many failed attempts. Try again in {{ cooloff_time_minutes|floatformat:"0" }} minutes.
+              </div>
+            {% endif %}
+            {% if next %}
+                {% if user.is_authenticated %}
+                <p>Your account doesn't have access to this page. To proceed,
+                please login with an account that has access.</p>
+                {% endif %}
+            {% endif %}
+
+            <form method="post" action="{% url 'edc_auth_admin:login' %}">
+        		  {% csrf_token %}
+              <div class="form-group">
+                  {{ form.username.label_tag|default:"<h5>Username:</h5>"}}
+                  <input type="text" class="form-control" name="{{ form.username.html_name }}" autofocus maxlength="254" required id="{{ form.username.id_for_label }}" {% if failure_limit %}disabled{% endif %}/>
+              </div>
+              <div class="form-group">
+                  {{ form.password.label_tag|default:"<h5>Password:</h5>" }}
+                  <input type="password" class="form-control" name="{{ form.password.html_name }}" required id="{{ form.password.id_for_label }}" {% if failure_limit %}disabled{% endif %} />
+              </div>
+              <div class="form-group">
+                  <input type="submit" class="btn btn-default" value="Login" />
+                  <input type="hidden" name="next" value="{{ next }}" />
+                  <input type="hidden" name="live_system" value="{{ live_system }}" />
+              </div>
+
+              {% if ALLOW_PASSWORD_RESET %}
+                  {# Assumes you setup the password_reset view in your URLconf #}
+                  <p class="text text-muted"><a href="{% url 'password_reset' %}"><small><small>Lost password?</small></small></a></p>
+              {% endif %}
+
+              {% index_link %}
+
+            </form>
+
+            </div>
+          </div>
+      </div>
+
+    <div class="col-md-3"></div>
+</div>
+{% endblock main %}
