@@ -1,0 +1,166 @@
+import re
+from typing import Union
+from uuid import uuid4
+
+from django.apps import apps as django_apps
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.db import models
+from edc_constants.constants import UUID_PATTERN
+
+from .exceptions import IdentifierError
+from .subject_identifier import SubjectIdentifier
+
+
+class NonUniqueSubjectIdentifierFieldMixin(models.Model):
+    """An internal model mixin providing a non-unique subject
+    identifier field.
+    """
+
+    subject_identifier = models.CharField(max_length=50)
+
+    class Meta:
+        abstract = True
+        indexes = [models.Index(fields=["subject_identifier"])]
+
+
+class UniqueSubjectIdentifierFieldMixin(models.Model):
+    """An internal model mixin providing a unique subject identifier
+    field.
+    """
+
+    subject_identifier = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        abstract = True
+
+
+class SubjectIdentifierAdditionalFieldsModelMixin(models.Model):
+    """An internal model mixin providing additional fields to used
+    with the subject identifier field.
+    """
+
+    subject_identifier_as_pk = models.UUIDField(default=uuid4, editable=False)
+
+    subject_identifier_aka = models.CharField(
+        verbose_name="Subject Identifier a.k.a",
+        max_length=50,
+        null=True,
+        editable=False,
+        help_text="track a previously allocated identifier.",
+    )
+
+    class Meta:
+        abstract = True
+
+
+class SubjectIdentifierMethodsModelMixin(models.Model):
+    """An internal model mixin to add a unique subject identifier
+    field and fill it with a unique value for new instances.
+    """
+
+    subject_identifier_cls = SubjectIdentifier
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.subject_identifier = self.update_subject_identifier_on_save()
+        super().save(*args, **kwargs)
+
+    def update_subject_identifier_on_save(self) -> Union[str, models.CharField]:
+        """Returns a subject_identifier if not already set."""
+        if not self.subject_identifier:
+            self.subject_identifier = self.get_or_create_identifier()
+        elif re.match(UUID_PATTERN, self.subject_identifier):
+            self.subject_identifier = self.get_or_create_identifier()
+        return self.subject_identifier
+
+    @property
+    def registered_subject_model_cls(self):
+        """Returns the registered subject model class."""
+        return django_apps.get_model("edc_registration.registeredsubject")
+
+    def get_or_create_identifier(self) -> str:
+        """Returns a subject identifier either by retrieving and
+        exisiting "subject identifier from RegisteredSubject or
+        creating a new and unique "subject" identifier.
+        """
+        try:
+            subject_identifier = self.registered_subject.subject_identifier
+        except ObjectDoesNotExist:
+            subject_identifier = self.make_new_identifier()
+        return subject_identifier
+
+    def make_new_identifier(self) -> str:
+        """Returns a new and unique identifier.
+
+        Override this if needed.
+        """
+        subject_identifier = self.subject_identifier_cls(
+            identifier_type="subject",
+            requesting_model=self._meta.label_lower,
+            site=self.site,
+        )
+        return subject_identifier.identifier
+
+    @property
+    def registered_subject(self):
+        """Returns a registered subject instance.
+
+        Override this if your query options are different.
+
+        Will raise ObjectDoesNotExist if this is a new instance.
+        """
+        try:
+            obj = self.registered_subject_model_cls.objects.get(identity=self.identity)
+        except MultipleObjectsReturned as e:
+            raise IdentifierError(
+                "Cannot lookup a unique RegisteredSubject instance. "
+                "Identity {} is not unique. Got {}".format(self.identity, e)
+            )
+        return obj
+
+    class Meta:
+        abstract = True
+
+
+class UniqueSubjectIdentifierModelMixin(
+    UniqueSubjectIdentifierFieldMixin,
+    SubjectIdentifierAdditionalFieldsModelMixin,
+    SubjectIdentifierMethodsModelMixin,
+    models.Model,
+):
+    """A model mixin for concrete models requiring a unique subject
+    identifier field and corresponding fields and methods.
+    """
+
+    def get_subject_identifier(self):
+        """Returns the subject_identifier"""
+        return self.subject_identifier
+
+    def get_subject_identifier_as_pk(self):
+        """Returns the subject_identifier_as_pk"""
+        return self.subject_identifier_as_pk  # noqa
+
+    class Meta:
+        abstract = True
+
+
+class NonUniqueSubjectIdentifierModelMixin(
+    NonUniqueSubjectIdentifierFieldMixin,
+    SubjectIdentifierAdditionalFieldsModelMixin,
+    SubjectIdentifierMethodsModelMixin,
+    models.Model,
+):
+    """A model mixin for concrete models requiring a non-unique
+    subject identifier field and corresponding field and methods.
+    """
+
+    def get_subject_identifier(self):
+        """Returns the subject_identifier"""
+        return self.subject_identifier
+
+    def get_subject_identifier_as_pk(self):
+        """Returns the subject_identifier_as_pk"""
+        return self.subject_identifier_as_pk
+
+    class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
+        abstract = True
