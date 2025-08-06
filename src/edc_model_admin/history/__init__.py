@@ -1,0 +1,1 @@
+from .model_admin_simple_history import SimpleHistoryAdmin

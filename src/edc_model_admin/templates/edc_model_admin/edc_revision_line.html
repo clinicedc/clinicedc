@@ -1,0 +1,12 @@
+{% load tz %}
+{% load i18n %}
+<footer class="footer">
+  <div class="container">
+    <span class="text-muted small text-center">
+      <i class="fas fa-copyright"></i> {{ copyright }}&nbsp;{% translate  'Licensed for use under' %} <A href="https://www.gnu.org/licenses/gpl-3.0.en.html">GPL 3.0</A>&nbsp;&nbsp;
+      <i class="fas fa-leaf"></i> {% translate  'Revision' %}: {{ revision }}&nbsp;
+      <i class="fas fa-clock"></i> {% get_current_timezone as TIME_ZONE%}{{TIME_ZONE}}&nbsp;&nbsp;
+      <i class="fas fa-exclamation"></i> {{ disclaimer }}&nbsp;&nbsp;
+    </span>
+  </div>
+</footer>

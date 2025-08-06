@@ -1,0 +1,7 @@
+{% load i18n admin_urls static admin_modify %}
+<!-- begin navbar_for_admin_templates -->
+<button type="button" class="btn btn-{% if LIVE_SYSTEM and not DEBUG %}live{% else %}test{% endif %}">{% if LIVE_SYSTEM and not DEBUG %}{{ LIVE|title }}{% else %}{{ TEST|title }}{% endif %}</button>
+&nbsp;{{ protocol_name |default:project_name }}: {{ request.site.name|title }} ({{ request.site.id }})&nbsp;
+<a href="/">{% translate 'Home' %}</a>&nbsp;&rsaquo;&nbsp;
+{% if site_url %}<a href="/administration/">{% translate 'Administration' %}</a>&nbsp;&rsaquo;{% endif %} {%  if not opts %}{{ verbose_name }}{% endif %}
+<!-- end navbar_for_admin_templates -->

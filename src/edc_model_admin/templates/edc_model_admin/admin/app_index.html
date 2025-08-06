@@ -1,0 +1,35 @@
+{% extends 'admin/app_index.html' %}
+{% load i18n admin_urls static admin_modify %}
+{% load edc_dashboard_extras edc_admin_modify edc_navbar_extras %}
+
+{% block extrahead %}{{ block.super }}
+    <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
+{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+{%  for css in edc_model_admin_css_theme_path %}
+<link rel='stylesheet' type="text/css" href='{% static css %}'>
+{% endfor %}
+{% endblock %}
+
+{% block dark-mode-vars %}
+<link rel="stylesheet" type="text/css" href="{% static 'edc_model_admin/css/dark_mode.css' %}">
+{% endblock %}
+
+
+{% block breadcrumbs %}{% endblock %}
+
+
+{% block branding %}
+  {% show_navbar_for_admin_templates_b3 %}
+{% endblock %}
+
+
+{% block welcome-msg %}{% endblock %}
+
+{% block userlinks %}{% logout_row %}{% endblock %}
+
+{% block content %}
+    {{ block.super }}
+    {% revision_row %}
+{% endblock content %}

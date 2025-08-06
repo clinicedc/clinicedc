@@ -1,0 +1,16 @@
+{% extends 'edc_dashboard/base.html' %}
+{% load static %}
+
+{% block main %}
+
+
+<h1>CRFs</h1>
+<ul>
+{% for obj in object_list %}
+    <li>{{ obj.subject_identifier }} - {{ obj.related_visit }}</li>
+{% empty %}
+    <li>No CRFs yet.</li>
+{% endfor %}
+</ul>
+
+{% endblock main %}

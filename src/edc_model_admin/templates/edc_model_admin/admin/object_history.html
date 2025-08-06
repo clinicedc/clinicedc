@@ -1,0 +1,50 @@
+{% extends 'simple_history/object_history.html' %}
+{% load i18n admin_urls static admin_modify %}
+{% load edc_dashboard_extras edc_admin_modify edc_navbar_extras %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" href="{% static "admin/css/dashboard.css" %}">
+{%  for css in edc_model_admin_css_theme_path %}
+<link rel='stylesheet' type="text/css" href='{% static css %}'>
+{% endfor %}
+{% endblock %}
+
+{% block dark-mode-vars %}
+<link rel="stylesheet" type="text/css" href="{% static 'edc_model_admin/css/dark_mode.css' %}">
+{% endblock %}
+
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block branding %}
+  <button type="button" class="btn btn-{% if LIVE_SYSTEM and not DEBUG %}live{% else %}test{% endif %}">
+    {% if LIVE_SYSTEM and not DEBUG %}{{ LIVE|title }}{% else %}{{ TEST|title }}{% endif %}
+  </button>&nbsp;
+  {{ protocol_name |default:project_name }}: {{ request.site.name|title }} ({{ request.site.id }}) &nbsp;
+  <a href="/">{% translate 'Home' %}</a> &rsaquo;
+    {% if site_url %}
+        <a href="{{ site_url }}">{% translate 'Administration' %}</a>
+    {% endif %}
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {{title| truncatechars:40}}
+
+{% endblock %}
+
+{% block welcome-msg %}{% endblock %}
+
+{% block userlinks %}{% logout_row %}{% endblock %}
+
+{% block content_subtitle %}<p>{{  object }}</p>{% endblock %}
+
+{% block content %}
+  {% block object-tools %}
+    <ul class="object-tools">
+      <li>
+          {% url opts|admin_urlname:'change' object.pk|admin_urlquote as object_url %}
+          <a href="{% add_preserved_filters object_url %}" >{% translate "Current document" %}</a>
+      </li>
+    </ul>
+  {% endblock %}
+  {{ block.super }}
+{% endblock %}

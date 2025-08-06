@@ -1,0 +1,268 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-11-27 22:25-0600\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: edc_model_admin/changelist_buttons/model_admin_changelist_button_mixin.py:19
+#: edc_model_admin/changelist_buttons/model_admin_changelist_button_mixin.py:34
+#: edc_model_admin/changelist_buttons/model_admin_changelist_model_button_mixin.py:59
+#: edc_model_admin/changelist_buttons/model_admin_changelist_model_button_mixin.py:91
+msgid "change"
+msgstr ""
+
+#: edc_model_admin/changelist_buttons/model_admin_changelist_button_mixin.py:49
+#: edc_model_admin/changelist_buttons/model_admin_changelist_model_button_mixin.py:73
+msgid "add"
+msgstr ""
+
+#: edc_model_admin/dashboard/model_admin_dashboard_mixin.py:20
+msgid "Subject dashboard"
+msgstr ""
+
+#: edc_model_admin/dashboard/model_admin_dashboard_mixin.py:29
+msgid "Go to subject's dashboard"
+msgstr ""
+
+#: edc_model_admin/history/model_admin_simple_history.py:21
+msgid "Change Message"
+msgstr ""
+
+#: edc_model_admin/history/model_admin_simple_history.py:38
+#, python-format
+msgid "<A href=\"%(url)s\">Dashboard</A>"
+msgstr ""
+
+#: edc_model_admin/history/model_admin_simple_history.py:55
+#: edc_model_admin/templates/edc_model_admin/admin/tabular.html:35
+msgid "View"
+msgstr ""
+
+#: edc_model_admin/history/model_admin_simple_history.py:55
+msgid "Revert"
+msgstr ""
+
+#: edc_model_admin/history/model_admin_simple_history.py:56
+#, python-format
+msgid "%(word)s %(verbose_name)s Audit Trail"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:32 edc_model_admin/list_filters.py:122
+msgid "Today"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:33
+msgid "Tomorrow"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:34 edc_model_admin/list_filters.py:124
+msgid "This week"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:35
+msgid "Next week"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:36
+msgid "Any future date"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:37 edc_model_admin/list_filters.py:128
+msgid "Any past date"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:38 edc_model_admin/list_filters.py:129
+msgid "No date"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:39 edc_model_admin/list_filters.py:130
+msgid "Has date"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:123
+msgid "Yesterday"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:125
+msgid "Last week"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:126
+msgid "This month"
+msgstr ""
+
+#: edc_model_admin/list_filters.py:127
+msgid "Last month"
+msgstr ""
+
+#: edc_model_admin/mixins/model_admin_form_instructions_mixin.py:34
+msgid ""
+"Please complete the form below. Required questions are in bold. When all "
+"required questions are complete click SAVE or, if available, SAVE NEXT. "
+"Based on your responses, additional questions may be required or some "
+"answers may need to be corrected."
+msgstr ""
+
+#: edc_model_admin/mixins/templates_model_admin_mixin.py:24
+#: edc_model_admin/templates/edc_model_admin/admin/tabular.html:37
+msgid "View on site"
+msgstr ""
+
+#: edc_model_admin/mixins/templates_model_admin_mixin.py:25
+msgid "Audit trail"
+msgstr ""
+
+#: edc_model_admin/templates/edc_additional_instructions.html:4
+msgid "Additional Instructions"
+msgstr ""
+
+#: edc_model_admin/templates/edc_additional_instructions.html:8
+msgid "Notifications"
+msgstr ""
+
+#: edc_model_admin/templates/edc_instructions.html:3
+msgid "Instructions"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:30
+#: edc_model_admin/templates/edc_model_admin/admin/object_history.html:24
+#: edc_model_admin/templates/edc_model_admin/admin/object_history_form.html:23
+#: edc_model_admin/templates/logout_row.html:6
+#: edc_model_admin/templates/navbar_for_admin_templates_b3.html:5
+msgid "Home"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:32
+#: edc_model_admin/templates/edc_model_admin/admin/object_history.html:26
+#: edc_model_admin/templates/edc_model_admin/admin/object_history_form.html:25
+#: edc_model_admin/templates/logout_row.html:9
+#: edc_model_admin/templates/navbar_for_admin_templates.html:44
+#: edc_model_admin/templates/navbar_for_admin_templates_b3.html:6
+msgid "Administration"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:37
+#: edc_model_admin/templates/edc_submit_line.html:6
+msgid "Delete"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:46
+#, python-format
+msgid ""
+"Deleting the %(object_name)s '%(escaped_object)s' would result in deleting "
+"related objects, but your account doesn't have permission to delete the "
+"following types of objects:"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:53
+#, python-format
+msgid ""
+"Deleting the %(object_name)s '%(escaped_object)s' would require deleting the "
+"following protected related objects:"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:60
+#, python-format
+msgid ""
+"Are you sure you want to delete the %(object_name)s \"%(escaped_object)s\"? "
+"All of the following related items will be deleted:"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:62
+msgid "Objects"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:69
+msgid "Yes, I’m sure"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/delete_confirmation.html:70
+msgid "No, take me back"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/index.html:36
+msgid "Recent actions"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/index.html:37
+msgid "My actions"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/index.html:41
+msgid "None available"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/index.html:55
+msgid "Unknown content"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/object_history.html:45
+msgid "Current document"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/tabular.html:22
+msgid "Delete?"
+msgstr ""
+
+#: edc_model_admin/templates/edc_model_admin/admin/tabular.html:35
+msgid "Change"
+msgstr ""
+
+#: edc_model_admin/templates/edc_revision_line.html:6
+msgid "Licensed for use under"
+msgstr ""
+
+#: edc_model_admin/templates/edc_revision_line.html:7
+msgid "Revision"
+msgstr ""
+
+#: edc_model_admin/templates/edc_submit_line.html:3
+msgid "Save"
+msgstr ""
+
+#: edc_model_admin/templates/edc_submit_line.html:10
+#: edc_model_admin/templates/edc_submit_line.html:13
+#: edc_model_admin/templates/edc_submit_line.html:16
+msgid "Leave form without saving"
+msgstr ""
+
+#: edc_model_admin/templates/edc_submit_line.html:10
+#: edc_model_admin/templates/edc_submit_line.html:13
+#: edc_model_admin/templates/edc_submit_line.html:16
+msgid "Cancel"
+msgstr ""
+
+#: edc_model_admin/templates/edc_submit_line.html:20
+msgid "Save and go to next form in schedule"
+msgstr ""
+
+#: edc_model_admin/templates/edc_submit_line.html:20
+msgid "Save and next"
+msgstr ""
+
+#: edc_model_admin/templates/logout_row.html:12
+#: edc_model_admin/templates/navbar_for_admin_templates.html:60
+msgid "Logout"
+msgstr ""
+
+#: edc_model_admin/templates/navbar_for_admin_templates.html:40
+#: edc_model_admin/templates/navbar_for_admin_templates.html:64
+msgid "Go to user account"
+msgstr ""
+
+#: edc_model_admin/tests/templates/dashboard.html:10
+msgid "You are at the subject dashboard"
+msgstr ""

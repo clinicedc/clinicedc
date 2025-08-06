@@ -1,0 +1,14 @@
+{% extends 'edc_dashboard/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block main %}
+ <div class="container">
+    <div class="panel-group">
+    <div class="panel panel-success">
+      <div class="panel-heading"><h4>{%  trans "You are at the subject dashboard" %}</h4></div>
+      <div class="panel-body">{{subject_identifier}}</div>
+    </div>
+  </div>
+</div> <!-- container -->
+{% endblock main %}

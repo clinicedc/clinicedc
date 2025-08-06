@@ -1,0 +1,36 @@
+{% load i18n admin_urls %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_available_languages as LANGUAGES%}
+{% get_language_info_list for LANGUAGES as languages %}
+
+
+<form id="logout_form" method="post" action="{% url 'edc_auth_admin:logout' %}">{% csrf_token %}</form>
+
+{% if perms.edc_pharmacy.nav_pharmacy_section %}
+  <a class="btn btn-toolbar" href="{% url 'edc_pharmacy:home_url' %}" aria-label="{% translate 'Pharmacy' %}" title="{% translate 'Pharmacy' %}"><i class="fa-solid fa-prescription fa-fw"></i></a>   |
+{% endif %}
+
+{% if perms.edc_data_manager.nav_data_manager_section %}
+  <strong><a class="btn btn-toolbar" href="{% url 'edc_data_manager:home_url' %}" aria-label="{% translate 'Data management' %}" title="{% translate 'Data management' %}">DM</a></strong>   |
+{% endif %}
+
+{% if perms.edc_adverse_event.nav_ae_section %}
+  <strong><a class="btn btn-toolbar" href="{% url 'edc_adverse_event:ae_home_url' %}" aria-label="{% translate 'Adverse events' %}" title="{% translate 'Adverse events' %}">AE</a></strong>   |
+{% endif %}
+
+<a class="btn btn-toolbar" href="/" aria-label="{% translate 'Home' %}" title="{% translate 'Home' %}"><i class="fa-solid fa-home fa-fw"></i></a>   |
+{% if site_url %}
+  <a class="btn btn-toolbar" href="{{ site_url }}" title="{% translate 'Administration' %}" aria-label="{% translate 'Administration' %}"><i class="fa-solid fa-gear fa-fw"></i></a>  |
+{% endif %}
+<strong><a class="btn btn-toolbar" title="{% translate 'Logout' %}" aria-label="{% translate 'Logout' %}" href="#" onclick="document.getElementById('logout_form').submit();"><i class="fa-solid fa-sign-out-alt fa-fw"></i></a></strong>  |
+<strong><A class="btn btn-toolbar" title="Go to user account" href="{% url 'edc_auth_admin:auth_user_change' user.id %}">{{ user.get_username }}</A></strong>
+<span class="btn btn-toolbar">
+<form  action="{% url 'set_language' %}" method="post">{% csrf_token %}
+    <input name="next" type="hidden" value="{{ redirect_to }}">
+    <select class="form-select form-select-sm" name="language" onchange="this.form.submit()" title="Select language" aria-label="Select language">
+    {% for language in languages %}
+      <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>{{ language.code }}</option>
+    {% endfor %}
+    </select>
+</form>
+</span>
