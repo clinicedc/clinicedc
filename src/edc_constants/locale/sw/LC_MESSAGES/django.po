@@ -1,0 +1,923 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-08-21 11:27-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: edc_constants/choices.py:63 edc_constants/choices.py:68
+msgid "Acute"
+msgstr ""
+
+#: edc_constants/choices.py:64 edc_constants/choices.py:69
+msgid "Established"
+msgstr ""
+
+#: edc_constants/choices.py:70 edc_constants/choices.py:411
+#: edc_constants/choices.py:417 edc_constants/choices.py:424
+#: edc_constants/choices.py:431 edc_constants/choices.py:437
+#: edc_constants/choices.py:441 edc_constants/choices.py:443
+#: edc_constants/choices.py:447 edc_constants/choices.py:454
+#: edc_constants/choices.py:461 edc_constants/choices.py:467
+#: edc_constants/choices.py:473 edc_constants/choices.py:480
+#: edc_constants/choices.py:487
+msgid "Negative"
+msgstr ""
+
+#: edc_constants/choices.py:74 edc_constants/choices.py:79
+#: edc_constants/choices.py:85 edc_constants/choices.py:92
+msgid "Alive"
+msgstr ""
+
+#: edc_constants/choices.py:75
+msgid "Dead"
+msgstr ""
+
+#: edc_constants/choices.py:80 edc_constants/choices.py:86
+#: edc_constants/choices.py:93
+msgid "Deceased"
+msgstr ""
+
+#: edc_constants/choices.py:81 edc_constants/choices.py:87
+#: edc_constants/choices.py:94 edc_constants/choices.py:109
+#: edc_constants/choices.py:443 edc_constants/choices.py:449
+#: edc_constants/choices.py:490 edc_constants/choices.py:703
+#: edc_constants/choices.py:722 edc_constants/choices.py:729
+msgid "Unknown"
+msgstr ""
+
+#: edc_constants/choices.py:88 edc_constants/choices.py:232
+#: edc_constants/choices.py:264 edc_constants/choices.py:312
+#: edc_constants/choices.py:353 edc_constants/choices.py:426
+#: edc_constants/choices.py:438 edc_constants/choices.py:475
+#: edc_constants/choices.py:608 edc_constants/choices.py:638
+#: edc_constants/choices.py:644 edc_constants/choices.py:657
+#: edc_constants/choices.py:663 edc_constants/choices.py:671
+#: edc_constants/choices.py:683 edc_constants/choices.py:723
+#: edc_constants/choices.py:750 edc_constants/choices.py:763
+#: edc_constants/choices.py:778
+msgid "Not applicable"
+msgstr ""
+
+#: edc_constants/choices.py:95 edc_constants/choices.py:730
+msgid "Not applicable (if missed)"
+msgstr ""
+
+#: edc_constants/choices.py:100
+msgid "Yes, on ART"
+msgstr ""
+
+#: edc_constants/choices.py:101
+msgid "No, stopped ART"
+msgstr ""
+
+#: edc_constants/choices.py:102
+msgid "No, have never taken ART"
+msgstr ""
+
+#: edc_constants/choices.py:106
+msgid "ON ART"
+msgstr ""
+
+#: edc_constants/choices.py:107
+msgid "Stopped"
+msgstr ""
+
+#: edc_constants/choices.py:108
+msgid "Naive"
+msgstr ""
+
+#: edc_constants/choices.py:113
+msgid "1. Show OPD/IDCC card"
+msgstr ""
+
+#: edc_constants/choices.py:114
+msgid "2. Show pills"
+msgstr ""
+
+#: edc_constants/choices.py:115
+msgid "3. Identify pictorial"
+msgstr ""
+
+#: edc_constants/choices.py:137
+msgid "KAL or ALU"
+msgstr ""
+
+#: edc_constants/choices.py:139
+msgid "HAART,unknown"
+msgstr ""
+
+#: edc_constants/choices.py:143
+msgid "Initial dose"
+msgstr ""
+
+#: edc_constants/choices.py:144
+msgid "Never started"
+msgstr ""
+
+#: edc_constants/choices.py:145
+msgid "Toxicity decreased/resolved"
+msgstr ""
+
+#: edc_constants/choices.py:146
+msgid "Completed PMTCT intervention"
+msgstr ""
+
+#: edc_constants/choices.py:147
+msgid "Completed post-partum \"tail\""
+msgstr ""
+
+#: edc_constants/choices.py:148
+msgid "Scheduled dose increase"
+msgstr ""
+
+#: edc_constants/choices.py:151
+msgid "Confirmed infant HIV infection, ending study drug"
+msgstr ""
+
+#: edc_constants/choices.py:153
+msgid "Completion of protocol-required period of study treatment"
+msgstr ""
+
+#: edc_constants/choices.py:154
+msgid "HAART not available"
+msgstr ""
+
+#: edc_constants/choices.py:155
+msgid "Anemia"
+msgstr ""
+
+#: edc_constants/choices.py:156
+msgid "Bleeding"
+msgstr ""
+
+#: edc_constants/choices.py:157
+msgid "CNS symptoms (sleep, psych, etc)"
+msgstr ""
+
+#: edc_constants/choices.py:158
+msgid "Diarrhea"
+msgstr ""
+
+#: edc_constants/choices.py:159
+msgid "Fatigue"
+msgstr ""
+
+#: edc_constants/choices.py:160
+msgid "Headache"
+msgstr ""
+
+#: edc_constants/choices.py:161
+msgid "Hepatotoxicity"
+msgstr ""
+
+#: edc_constants/choices.py:162
+msgid "Nausea"
+msgstr ""
+
+#: edc_constants/choices.py:163
+msgid "Neutropenia"
+msgstr ""
+
+#: edc_constants/choices.py:164
+msgid "Thrombocytopenia"
+msgstr ""
+
+#: edc_constants/choices.py:165
+msgid "Vomiting"
+msgstr ""
+
+#: edc_constants/choices.py:166
+msgid "Rash"
+msgstr ""
+
+#: edc_constants/choices.py:167
+msgid "Rash resolved"
+msgstr ""
+
+#: edc_constants/choices.py:168
+msgid "Neuropathy"
+msgstr ""
+
+#: edc_constants/choices.py:169
+msgid "Hypersensitivity / allergic reaction"
+msgstr ""
+
+#: edc_constants/choices.py:170
+msgid "Pancreatitis"
+msgstr ""
+
+#: edc_constants/choices.py:171
+msgid "Lactic Acidiosis"
+msgstr ""
+
+#: edc_constants/choices.py:172
+msgid "Pancytopenia"
+msgstr ""
+
+#: edc_constants/choices.py:173
+msgid "Virologic failure"
+msgstr ""
+
+#: edc_constants/choices.py:174
+msgid "Immunologic failure(CD4)"
+msgstr ""
+
+#: edc_constants/choices.py:175
+msgid "Clinical failure"
+msgstr ""
+
+#: edc_constants/choices.py:176
+msgid "Clinician request, other reason (including convenience)"
+msgstr ""
+
+#: edc_constants/choices.py:177
+msgid "Subject request, other reason (including convenience)"
+msgstr ""
+
+#: edc_constants/choices.py:178
+msgid "Non-adherence with clinic visits"
+msgstr ""
+
+#: edc_constants/choices.py:179
+msgid "Non-adherence with ARVs"
+msgstr ""
+
+#: edc_constants/choices.py:180
+msgid "Death"
+msgstr ""
+
+#: edc_constants/choices.py:181 edc_constants/choices.py:249
+#: edc_constants/choices.py:373
+msgid "Other"
+msgstr ""
+
+#: edc_constants/choices.py:186
+msgid "1. No modifications made to existing HAART treatment"
+msgstr ""
+
+#: edc_constants/choices.py:191
+msgid ""
+"2. Started antriretroviral treatment since last attended scheduled "
+"visit(including today)"
+msgstr ""
+
+#: edc_constants/choices.py:199
+msgid ""
+"3. Permanently discontinued antiretroviral treatment at or before last study "
+"visit"
+msgstr ""
+
+#: edc_constants/choices.py:206
+msgid ""
+"4. Change in at least one antiretroviral medication since last attended "
+"scheduled visit (including today)(dose modification, permanent "
+"discontinuation, temporary hold, resumption / initiation after temporary "
+"hold)"
+msgstr ""
+
+#: edc_constants/choices.py:217
+msgid ""
+"1. No modifications made since the last attended scheduled visit or today"
+msgstr ""
+
+#: edc_constants/choices.py:219
+msgid "2. Starting today or has started since last attended scheduled visit"
+msgstr ""
+
+#: edc_constants/choices.py:222
+msgid ""
+"3. Permanently discontinued at or before the last attended scheduled visit"
+msgstr ""
+
+#: edc_constants/choices.py:224
+msgid "4. Never started"
+msgstr ""
+
+#: edc_constants/choices.py:228
+msgid ""
+"5. Change in at least one medication since the last attended scheduled visit "
+"or today"
+msgstr ""
+
+#: edc_constants/choices.py:236
+msgid "Confirmed"
+msgstr "Imethibitishwa"
+
+#: edc_constants/choices.py:237
+msgid "Suspected"
+msgstr "Inashukiwa"
+
+#: edc_constants/choices.py:241
+msgid "Botswana"
+msgstr ""
+
+#: edc_constants/choices.py:242
+msgid "Zimbabwe"
+msgstr ""
+
+#: edc_constants/choices.py:243
+msgid "South Africa"
+msgstr ""
+
+#: edc_constants/choices.py:244
+msgid "Zambia"
+msgstr ""
+
+#: edc_constants/choices.py:245
+msgid "Namibia"
+msgstr ""
+
+#: edc_constants/choices.py:246
+msgid "Nigeria"
+msgstr ""
+
+#: edc_constants/choices.py:247
+msgid "China"
+msgstr ""
+
+#: edc_constants/choices.py:248
+msgid "India"
+msgstr ""
+
+#: edc_constants/choices.py:253
+msgid "Monday"
+msgstr "Jumatatu"
+
+#: edc_constants/choices.py:254
+msgid "Tuesday"
+msgstr "Jumanne"
+
+#: edc_constants/choices.py:255
+msgid "Wednesday"
+msgstr "Jumatano"
+
+#: edc_constants/choices.py:256
+msgid "Thursday"
+msgstr "Alhamisi"
+
+#: edc_constants/choices.py:257
+msgid "Friday"
+msgstr "Ijumaa"
+
+#: edc_constants/choices.py:258
+msgid "Saturday"
+msgstr "Jumamosi"
+
+#: edc_constants/choices.py:259
+msgid "Sunday"
+msgstr "Jumapili"
+
+#: edc_constants/choices.py:260
+msgid "Any day"
+msgstr ""
+
+#: edc_constants/choices.py:265 edc_constants/choices.py:272
+msgid "No"
+msgstr "Hapana"
+
+#: edc_constants/choices.py:266 edc_constants/choices.py:273
+msgid "Yes, estimated the Day"
+msgstr ""
+
+#: edc_constants/choices.py:267 edc_constants/choices.py:274
+msgid "Yes, estimated Month and Day"
+msgstr ""
+
+#: edc_constants/choices.py:268 edc_constants/choices.py:275
+msgid "Yes, estimated Year, Month and Day"
+msgstr ""
+
+#: edc_constants/choices.py:279
+msgid "Definitely not related"
+msgstr ""
+
+#: edc_constants/choices.py:280
+msgid "Probably not related"
+msgstr ""
+
+#: edc_constants/choices.py:281
+msgid "Possible related"
+msgstr ""
+
+#: edc_constants/choices.py:282
+msgid "Probably related"
+msgstr ""
+
+#: edc_constants/choices.py:283
+msgid "Definitely related"
+msgstr ""
+
+#: edc_constants/choices.py:287
+msgid "Incomplete (some data pending)"
+msgstr ""
+
+#: edc_constants/choices.py:288
+msgid "Complete"
+msgstr "Kamilisha"
+
+#: edc_constants/choices.py:292
+msgid "New"
+msgstr "Mpya"
+
+#: edc_constants/choices.py:293
+msgid "Permanently discontinued"
+msgstr ""
+
+#: edc_constants/choices.py:294
+msgid "Temporarily held"
+msgstr ""
+
+#: edc_constants/choices.py:295
+msgid "Dose modified"
+msgstr ""
+
+#: edc_constants/choices.py:296
+msgid "Resumed"
+msgstr ""
+
+#: edc_constants/choices.py:297
+msgid "Not initiated"
+msgstr ""
+
+#: edc_constants/choices.py:300
+msgid "Fasting"
+msgstr ""
+
+#: edc_constants/choices.py:300
+msgid "Non-fasting"
+msgstr ""
+
+#: edc_constants/choices.py:303
+msgid "Breast feed"
+msgstr ""
+
+#: edc_constants/choices.py:304
+msgid "Formula feed"
+msgstr ""
+
+#: edc_constants/choices.py:307 edc_constants/choices.py:310
+#: edc_constants/choices.py:316
+msgid "Male"
+msgstr ""
+
+#: edc_constants/choices.py:307 edc_constants/choices.py:311
+#: edc_constants/choices.py:317
+msgid "Female"
+msgstr ""
+
+#: edc_constants/choices.py:318
+msgid "Undetermined"
+msgstr ""
+
+#: edc_constants/choices.py:322 edc_constants/choices.py:331
+msgid "Grade 1"
+msgstr ""
+
+#: edc_constants/choices.py:323 edc_constants/choices.py:332
+#: edc_constants/choices.py:339
+msgid "Grade 2"
+msgstr ""
+
+#: edc_constants/choices.py:324 edc_constants/choices.py:333
+#: edc_constants/choices.py:340 edc_constants/choices.py:346
+msgid "Grade 3"
+msgstr ""
+
+#: edc_constants/choices.py:325 edc_constants/choices.py:334
+#: edc_constants/choices.py:341 edc_constants/choices.py:347
+msgid "Grade 4"
+msgstr ""
+
+#: edc_constants/choices.py:326 edc_constants/choices.py:335
+msgid "Grade 5"
+msgstr ""
+
+#: edc_constants/choices.py:330
+msgid "Not graded"
+msgstr ""
+
+#: edc_constants/choices.py:351
+msgid "High"
+msgstr ""
+
+#: edc_constants/choices.py:352
+msgid "Low"
+msgstr ""
+
+#: edc_constants/choices.py:357
+msgid "HIV Positive (Reactive)"
+msgstr ""
+
+#: edc_constants/choices.py:358
+msgid "HIV Negative (Non-reactive)"
+msgstr ""
+
+#: edc_constants/choices.py:359 edc_constants/choices.py:412
+#: edc_constants/choices.py:418 edc_constants/choices.py:425
+#: edc_constants/choices.py:448 edc_constants/choices.py:456
+#: edc_constants/choices.py:488
+msgid "Indeterminate"
+msgstr ""
+
+#: edc_constants/choices.py:360
+msgid "Participant declined testing"
+msgstr ""
+
+#: edc_constants/choices.py:363
+msgid "Test could not be performed (e.g. supply outage, technical problem)"
+msgstr ""
+
+#: edc_constants/choices.py:369
+msgid "Omang"
+msgstr ""
+
+#: edc_constants/choices.py:370
+msgid "Driver's License"
+msgstr ""
+
+#: edc_constants/choices.py:371
+msgid "Passport"
+msgstr ""
+
+#: edc_constants/choices.py:372
+msgid "Omang Receipt"
+msgstr ""
+
+#: edc_constants/choices.py:377
+msgid "Always"
+msgstr ""
+
+#: edc_constants/choices.py:378
+msgid "Very Often"
+msgstr ""
+
+#: edc_constants/choices.py:379
+msgid "Sometimes"
+msgstr ""
+
+#: edc_constants/choices.py:380
+msgid "Rarely"
+msgstr ""
+
+#: edc_constants/choices.py:381
+msgid "Never"
+msgstr ""
+
+#: edc_constants/choices.py:385
+msgid "Never married"
+msgstr ""
+
+#: edc_constants/choices.py:386
+msgid "Currently married"
+msgstr ""
+
+#: edc_constants/choices.py:387
+msgid "Separated"
+msgstr ""
+
+#: edc_constants/choices.py:388
+msgid "Divorced"
+msgstr ""
+
+#: edc_constants/choices.py:389
+msgid "Widow / Spinster"
+msgstr ""
+
+#: edc_constants/choices.py:393 edc_constants/choices.py:398
+#: edc_constants/choices.py:404
+msgid "Normal"
+msgstr ""
+
+#: edc_constants/choices.py:394 edc_constants/choices.py:399
+#: edc_constants/choices.py:405
+msgid "Abnormal"
+msgstr ""
+
+#: edc_constants/choices.py:400
+msgid "No exam performed"
+msgstr ""
+
+#: edc_constants/choices.py:406 edc_constants/choices.py:482
+#: edc_constants/choices.py:677 edc_constants/choices.py:684
+msgid "Not evaluated"
+msgstr ""
+
+#: edc_constants/choices.py:410 edc_constants/choices.py:416
+#: edc_constants/choices.py:423 edc_constants/choices.py:430
+#: edc_constants/choices.py:436 edc_constants/choices.py:441
+#: edc_constants/choices.py:443 edc_constants/choices.py:446
+#: edc_constants/choices.py:453 edc_constants/choices.py:460
+#: edc_constants/choices.py:466 edc_constants/choices.py:472
+#: edc_constants/choices.py:479 edc_constants/choices.py:486
+msgid "Positive"
+msgstr ""
+
+#: edc_constants/choices.py:419
+msgid "Refused to disclose"
+msgstr ""
+
+#: edc_constants/choices.py:432
+msgid "Any"
+msgstr ""
+
+#: edc_constants/choices.py:455
+msgid "Possible acute"
+msgstr ""
+
+#: edc_constants/choices.py:462 edc_constants/choices.py:489
+msgid "Never tested for HIV"
+msgstr ""
+
+#: edc_constants/choices.py:468 edc_constants/choices.py:474
+#: edc_constants/choices.py:481 edc_constants/choices.py:600
+#: edc_constants/choices.py:607 edc_constants/choices.py:697
+msgid "Not done"
+msgstr ""
+
+#: edc_constants/choices.py:491 edc_constants/choices.py:632
+#: edc_constants/choices.py:670 edc_constants/choices.py:709
+#: edc_constants/choices.py:743 edc_constants/choices.py:770
+#: edc_constants/choices.py:777 edc_constants/choices.py:811
+msgid "Don't want to answer"
+msgstr "Sitaki kujibu"
+
+#: edc_constants/choices.py:497
+msgid "Not Applicable: e.g. male or post-menopausal"
+msgstr ""
+
+#: edc_constants/choices.py:501 edc_constants/choices.py:506
+msgid "Present"
+msgstr ""
+
+#: edc_constants/choices.py:502 edc_constants/choices.py:507
+msgid "Absent"
+msgstr ""
+
+#: edc_constants/choices.py:508
+msgid "Not Applicable"
+msgstr ""
+
+#: edc_constants/choices.py:512
+msgid "Refused"
+msgstr ""
+
+#: edc_constants/choices.py:513
+msgid "No longer refusing"
+msgstr ""
+
+#: edc_constants/choices.py:517
+msgid "Random sampling"
+msgstr ""
+
+#: edc_constants/choices.py:518
+msgid "Purposively selected"
+msgstr ""
+
+#: edc_constants/choices.py:522
+msgid "Mild"
+msgstr ""
+
+#: edc_constants/choices.py:523
+msgid "Moderate"
+msgstr ""
+
+#: edc_constants/choices.py:524
+msgid "Severe"
+msgstr ""
+
+#: edc_constants/choices.py:528
+msgid "14 or under"
+msgstr ""
+
+#: edc_constants/choices.py:529
+msgid "15 - 17"
+msgstr ""
+
+#: edc_constants/choices.py:530
+msgid "18 or above"
+msgstr ""
+
+#: edc_constants/choices.py:534 edc_constants/choices.py:540
+msgid "Currently smoke"
+msgstr ""
+
+#: edc_constants/choices.py:535 edc_constants/choices.py:541
+msgid "Used to smoke but stopped"
+msgstr ""
+
+#: edc_constants/choices.py:536 edc_constants/choices.py:542
+msgid "Never smoked"
+msgstr ""
+
+#: edc_constants/choices.py:543
+msgid "Not recorded"
+msgstr ""
+
+#: edc_constants/choices.py:548
+msgid "Weekdays"
+msgstr "Siku za wiki"
+
+#: edc_constants/choices.py:549
+msgid "Weekends"
+msgstr "Mwishoni mwa wiki"
+
+#: edc_constants/choices.py:550 edc_constants/choices.py:557
+msgid "Anytime"
+msgstr "Wakati wowote"
+
+#: edc_constants/choices.py:554
+msgid "Morning"
+msgstr "Asubuhi"
+
+#: edc_constants/choices.py:555
+msgid "Afternoon"
+msgstr "Alasiri"
+
+#: edc_constants/choices.py:556
+msgid "Evening"
+msgstr "Jioni"
+
+#: edc_constants/choices.py:561
+msgid "Today"
+msgstr "Leo"
+
+#: edc_constants/choices.py:562
+msgid "Days"
+msgstr "Siku"
+
+#: edc_constants/choices.py:563
+msgid "Weeks"
+msgstr "Wiki"
+
+#: edc_constants/choices.py:564
+msgid "Months"
+msgstr "Miezi"
+
+#: edc_constants/choices.py:565
+msgid "Years"
+msgstr "Miaka"
+
+#: edc_constants/choices.py:569
+msgid "True"
+msgstr "Kweli"
+
+#: edc_constants/choices.py:570
+msgid "False"
+msgstr "Uongo"
+
+#: edc_constants/choices.py:571 edc_constants/choices.py:756
+#: edc_constants/choices.py:762 edc_constants/choices.py:769
+#: edc_constants/choices.py:776
+msgid "Don't know"
+msgstr "Sijui"
+
+#: edc_constants/choices.py:577
+msgid "Sugar Neg"
+msgstr "Sukari (hasi)"
+
+#: edc_constants/choices.py:578
+msgid "Sugar +"
+msgstr "Sukari +"
+
+#: edc_constants/choices.py:579
+msgid "Sugar ++"
+msgstr "Sukari ++"
+
+#: edc_constants/choices.py:580
+msgid "Sugar +++"
+msgstr "Sukari +++"
+
+#: edc_constants/choices.py:581
+msgid "Blood"
+msgstr "Damu"
+
+#: edc_constants/choices.py:582
+msgid "Protein"
+msgstr "Protini"
+
+#: edc_constants/choices.py:583
+msgid "Cells"
+msgstr ""
+
+#: edc_constants/choices.py:588
+msgid "Yes (default)"
+msgstr "Ndiyo (chaguo-msingi)"
+
+#: edc_constants/choices.py:593 edc_constants/choices.py:599
+#: edc_constants/choices.py:606
+msgid "Awaiting results"
+msgstr ""
+
+#: edc_constants/choices.py:614
+msgid "Yes, but subject declined copy"
+msgstr ""
+
+#: edc_constants/choices.py:620
+msgid "Optional"
+msgstr "Hiari"
+
+#: edc_constants/choices.py:626
+msgid "Refused to answer"
+msgstr ""
+
+#: edc_constants/choices.py:636
+msgid "Yes, (Specify below)"
+msgstr ""
+
+#: edc_constants/choices.py:650 edc_constants/choices.py:656
+msgid "Pending"
+msgstr "Inasubiri"
+
+#: edc_constants/choices.py:661
+msgid "Pending (scheduled for 3 days from first)"
+msgstr ""
+
+#: edc_constants/choices.py:690
+msgid "Not examined"
+msgstr ""
+
+#: edc_constants/choices.py:710
+msgid "Cannot remember"
+msgstr ""
+
+#: edc_constants/choices.py:716
+msgid "To be determined"
+msgstr ""
+
+#: edc_constants/choices.py:736 edc_constants/choices.py:742
+#: edc_constants/choices.py:749
+msgid "Not sure"
+msgstr ""
+
+#: edc_constants/choices.py:784
+msgid "Doesn't work"
+msgstr ""
+
+#: edc_constants/choices.py:787
+msgid "Not required"
+msgstr ""
+
+#: edc_constants/choices.py:790
+msgid "I don't have time"
+msgstr "Sina wakati"
+
+#: edc_constants/choices.py:791
+msgid "I don't want to answer the questions"
+msgstr "Sitaki kujibu maswali"
+
+#: edc_constants/choices.py:792
+msgid "I don't want to have the blood drawn"
+msgstr "Sitaki kuchorwa damu"
+
+#: edc_constants/choices.py:795
+msgid "I am afraid my information will not be private"
+msgstr "Ninaogopa habari yangu haitakuwa ya faragha"
+
+#: edc_constants/choices.py:797
+msgid "Fear of needles"
+msgstr "Hofu ya sindano"
+
+#: edc_constants/choices.py:798
+msgid "Illiterate does not want a witness"
+msgstr ""
+
+#: edc_constants/choices.py:799
+msgid "I don't want to take part"
+msgstr "Sitaki kushiriki"
+
+#: edc_constants/choices.py:802
+msgid "I haven't had a chance to think about it"
+msgstr "Sijapata nafasi ya kulifikiria"
+
+#: edc_constants/choices.py:806
+msgid "Have a newly born baby, not permitted"
+msgstr ""
+
+#: edc_constants/choices.py:808
+msgid "The appointment was not honoured"
+msgstr ""
+
+#: edc_constants/choices.py:809
+msgid "I'm not sure"
+msgstr "sina uhakika"
+
+#: edc_constants/choices.py:810
+msgid "Other, specify:"
+msgstr "Nyingine, taja:"
+
+#~ msgid "Yes"
+#~ msgstr "Ndiyo"
