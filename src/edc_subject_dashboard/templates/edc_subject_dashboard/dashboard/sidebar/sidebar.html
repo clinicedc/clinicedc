@@ -1,0 +1,58 @@
+{% load edc_dashboard_extras %}
+<div class="panel-group" id="accordion">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+        <h6 class="panel-title">
+          <i class="{% if gender == MALE %}fas fa-male{% else %}fas fa-female{% endif %} fa-lg fa-fw"></i><a id="demographics-panel-title" data-toggle="collapse" data-parent="#accordion" href="#demographics-panel">{{ subject_identifier }} <span class="caret"></span></a> {% copy_string_to_clipboard_button subject_identifier %}
+        </h6>
+    </div>
+    <div id="demographics-panel" class="panel-collapse collapse in">
+      {% block demographics %}{% endblock demographics %}
+    </div>
+  </div>
+
+  {% if open_action_items %}
+    <div class="panel panel-default">{% block action_items %}{% endblock action_items %}</div>
+    <div class="panel panel-default">{% block data_queries %}{% endblock data_queries %}</div>
+  {% endif %}
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h6 class="panel-title">
+        <a id="prn-forms-panel-title" data-toggle="collapse" data-parent="#accordion" href="#prn-forms-panel">PRN Forms <span class="caret"></span></a>
+      </h6>
+    </div>
+    <div id="prn-forms-panel" class="panel-collapse collapse in">
+      {% block prn_forms %}{% endblock prn_forms %}
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h6 class="panel-title">
+        <a id="prn-lists-panel-title" data-toggle="collapse" data-parent="#accordion" href="#prn-lists-panel">PRN Lists <span class="caret"></span></a>
+      </h6>
+    </div>
+    <div id="prn-lists-panel" class="panel-collapse collapse in">{% block prn_lists %}{% endblock prn_lists %}</div>
+  </div>
+
+  {% if consents %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h6 class="panel-title"><i class="far fa-handshake fa-lg fa-fw"></i>&nbsp;<a id="consents-panel-title" data-toggle="collapse" data-parent="#accordion" href="#consents-panel">Consents <span class="caret"></span></a></h6>
+      </div>
+      <div id="consents-panel" class="panel-collapse collapse in">
+        {% block consents %}{% endblock consents %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h6 class="panel-title"><i class="fa-solid fa-list fa-lg fa-fw"></i>&nbsp;<a id="metadata-panel-title" data-toggle="collapse" data-parent="#accordion" href="#metadata-panel">Collection status<span class="caret"></span></a></h6>
+    </div>
+    <div id="metadata-panel" class="panel-collapse collapse in">
+       {% block metadata %}{% endblock metadata %}
+    </div>
+  </div>
+</div>

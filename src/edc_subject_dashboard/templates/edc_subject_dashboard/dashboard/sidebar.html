@@ -1,0 +1,41 @@
+{% extends 'edc_subject_dashboard/dashboard/sidebar/sidebar.html' %}
+
+{% load tz %}
+{% load edc_dashboard_extras %}
+{% load edc_prn_extras %}
+{% load action_item_extras %}
+
+{% block demographics %}
+    	{% include 'edc_subject_dashboard/dashboard/sidebar/demographics.html' %}
+{% endblock demographics %}
+
+{% block prn_forms %}
+	<div class="list-group list-group-default">
+    {% add_action_item_popover subject_identifier subject_dashboard_url color="warning" %}
+    {% if appointment %}{% add_prn_crf_popover appointment subject_dashboard_url %}{% add_prn_requisition_popover appointment subject_dashboard_url %}{% endif %}
+	</div>
+{% endblock prn_forms %}
+
+{% block prn_lists %}
+    {% prn_list_items subject_identifier %}
+{% endblock prn_lists %}
+
+{% block consents %}
+    {% include 'edc_subject_dashboard/dashboard/sidebar/consents.html' %}
+{% endblock consents %}
+
+{% block metadata %}
+    {% include 'edc_subject_dashboard/dashboard/sidebar/metadata.html' %}
+{% endblock metadata %}
+
+{% block action_items %}
+	{% if open_action_items %}
+		<div class="list-group list-group-default">{% for action_item in open_action_items %}{% if action_item.reference_model != "edc_data_manager.dataquery" %}{% action_item_with_popover action_item forloop.counter %}{% endif %}{% endfor %}</div>
+	{% endif %}
+{% endblock action_items %}
+
+{% block data_queries %}
+	{% if open_data_queries %}
+    <a class="list-group-item list-group-item-warning" href="#subject_dashboard_data_queries_for_{{ subject_identifier }}" title="Click to view list"><small>You have open data queries <i class="fas fa-share"></i></small></a>
+	{% endif %}
+{% endblock data_queries %}

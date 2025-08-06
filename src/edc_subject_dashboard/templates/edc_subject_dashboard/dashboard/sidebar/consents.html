@@ -1,0 +1,20 @@
+{% load edc_subject_dashboard_extras %}
+{% if consents %}
+  <table class="table table-condensed">
+    <thead></thead>
+    <tbody>
+    {% for consent in consents %}
+      <tr>
+        <td class="{% if consent %}default{% else %}warning{% endif %}">
+        {% render_subject_consent_dashboard_button consent appointment %}
+        </td>
+        <td class="{% if consent %}default{% else %}warning{% endif %}">
+          <span class="h6">{{ consent.verbose_name|title }}&nbsp;v{{ consent.version }}
+            <span class="text text-muted">consented {{ consent.consent_datetime|date:"SHORT_DATE_FORMAT"}}</span>
+          </span>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endif %}

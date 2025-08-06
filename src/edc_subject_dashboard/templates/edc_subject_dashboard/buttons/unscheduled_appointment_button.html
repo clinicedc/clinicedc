@@ -1,0 +1,6 @@
+{% if show_button %}
+  <a id="{{ anchor_id }}" role="button" class="btn btn-sm btn-{{ btn.color|default:"default" }}"
+    {% if disabled %} disabled {% else %}href="{{ url }}"{% endif %}>
+    <i class="fas fa-calendar-plus fa-lg" data-toggle="tooltip" title="Add continuation / unscheduled appointment" aria-hidden="true"></i>
+  </a>
+{% endif %}

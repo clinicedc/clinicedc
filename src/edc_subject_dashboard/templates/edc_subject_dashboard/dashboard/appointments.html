@@ -1,0 +1,39 @@
+{% load l10n i18n %}
+{% load edc_subject_dashboard_extras %}
+
+<!-- start appointments -->
+<div id="apointments_list" class="table-responsive">
+  <table class="table table-striped table-hover">
+    <tbody>
+    {% for appointment in appointments %}
+      {% if appointment.visit_schedule_name == schedule_obj.visit_schedule.name and appointment.schedule_name == schedule_obj.schedule.name %}
+        <tr>
+          <td>
+            {% render_appointment_status_icon appt_status=appointment.appt_status %} {{ appointment.visit_code }}{% if appointment.visit_code_sequence %}.{{ appointment.visit_code_sequence }}{% endif %}
+          </td>
+          <td>
+            {%  render_appointment_button appointment %}
+            {% if appointment.appt_status == IN_PROGRESS_APPT%}
+              {% render_related_visit_button appointment %}
+              {% if appointment.related_visit.document_status == COMPLETE %}
+                {% render_gotoforms_button appointment %}
+              {% endif %}
+            {% else %}
+              {% render_timepoint_status_button appointment %}
+            {% endif %}
+          </td>
+          <td>{% render_crf_totals appointment %}</td>
+          <td><!--begin show missed label or nothing -->{{ appointment.title }}{% block show_missed_label %}&nbsp{% if appointment.related_visit.reason == MISSED_VISIT %}<span class="label label-default">MISSED</span>{% endif %}{% endblock show_missed_label %}</td><!--end show missed label or nothing -->
+          <td><!--begin unscheduled appointment button -->{%  render_unscheduled_appointment_button appointment=appointment view_appointment=perms.edc_appointment.view_appointment %}</td><!--end unscheduled appointment button -->
+          {% if appointment.related_visit.report_datetime %}<!--begin show appt or visit report datetime -->
+            <td>{{ appointment.related_visit.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ appointment.related_visit.report_datetime|date:"D"| capfirst }}</td>
+          {% else %}
+            <td class="text text-muted">{{ appointment.appt_datetime|date:"SHORT_DATE_FORMAT" }} {{ appointment.appt_datetime|date:"D"| capfirst }}</td>
+          {% endif %}<!--end show appt or visit report datetime -->
+        </tr>
+      {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+<!-- end appointments -->

@@ -1,0 +1,5 @@
+{% load edc_dashboard_extras %}
+<div class="list-group">
+  <a class="list-group-item"><i class="fas fa-birthday-cake fa-fw"></i> {% if perms.edc_registration.display_dob %}{{ dob|date:"SHORT_DATE_FORMAT" }}{% else %}**/**/****{% endif %} - {% age_in_years dob %} yrs</a>
+  <a class="list-group-item"><i class="far fa-address-card fa-fw"></i> {% if perms.edc_registration.display_identity %}{{ identity|default:'?? identity' }}{% else %}**************{% endif %} <span data-toggle="tooltip" data-placement="right" title="{% if perms.edc_registration.display_firstname %}{{ firstname }}{% endif %} {% if perms.edc_registration.display_lastname %}{{ lastname }}{% endif %}" class="text text-default">{% if perms.edc_registration.display_initials %}{{ initials }}{% else %}**{% endif %}<sup><i class="fas fa-asterisk fa-fw"></i></sup></span></a>
+</div>

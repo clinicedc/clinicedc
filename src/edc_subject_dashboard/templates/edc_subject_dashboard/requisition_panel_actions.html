@@ -1,0 +1,52 @@
+{% load static %}
+{% load edc_subject_dashboard_extras %}
+
+<script type="text/javascript" charset="utf8" src="{%static "edc_lab_dashboard/js/beep.js" %}"></script>
+<script>
+	$(document).ready( function() {
+	    if (parseQueryString().alert === 1) {
+	        document.getElementById('play').play();
+	    }
+	});
+</script>
+
+<!-- begin requisition-panel-actions -->
+
+<audio id="play" src="{% static "edc_lab_dashboard/beep-03.mp3" %}"></audio>
+
+<form id="form_requisition_print_actions" name="form_requisition_print_actions" method="post"
+		action="{% url requisition_print_actions_url %}">
+	    {% csrf_token %}
+	    <input type="hidden" id="subject_identifier" name="subject_identifier" value="{{ subject_identifier }}">
+	    <input type="hidden" id="appointment" name="appointment" value="{{ appointment }}">
+</form>
+
+<form id="form_requisition_verify_actions" name="form_requisition_verify_actions" method="post"
+	action="{% url requisition_verify_actions_url %}">
+    {% csrf_token %}
+    <input type="hidden" id="scanning" name="scanning" value="1">
+    <input type="hidden" id="subject_identifier" name="subject_identifier" value="{{ subject_identifier }}">
+    <input type="hidden" id="appointment" name="appointment" value="{{ appointment }}">
+</form>
+
+<div class="input-group input-group-sm {% if error == '1' %}has-error{% elif error == '0' %}has-success{% else %}{% endif %}">
+	<span class="input-group-addon"><i class="fas fa-barcode fa-sm"></i></span>
+	<input class="form-control" type="text" id="requisition_identifier"
+	name="requisition_identifier" form="form_requisition_verify_actions"
+	placeholder="Requisition Identifier" {{ autofocus }}>
+<div class="input-group-btn">
+	<button class="btn btn-default" type="submit" name="submit" form="form_requisition_verify_actions" value="submit" {{ verify_disabled }} >
+	<i class="fas fa-check fa-sm"></i>
+    </button>
+	<button class="btn btn-default disabled">&nbsp;&nbsp;&nbsp;</button>
+	<button class="btn btn-default" type="submit" name="submit" form="form_requisition_print_actions" value="print_selected_labels">
+	<i class="fas fa-barcode fa-sm"></i> Print Selected
+    </button>
+    <button class="btn btn-default" type="submit" name="submit" form="form_requisition_print_actions" value="print_all_labels">
+	<i class="fas fa-barcode fa-sm"></i> Print All
+    </button>
+    {% print_requisition_popover %}
+</div>
+</div>
+
+<!-- end requisition-panel-actions -->

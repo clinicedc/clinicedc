@@ -1,0 +1,3 @@
+<a id="{{ btn.btn_id }}" role="button" class="btn btn-sm btn-{{ btn.color }}" {%  if not btn.disabled %}href="{{ btn.url }}" data-toggle="tooltip" title="{{ btn.title }}"{% endif %}aria-hidden="true" {{ btn.disabled }}>
+	{% if btn.fa_icon %}<i class="fas {{ btn.fa_icon }} fa-sm" ></i>{% endif %} {{ btn.label }}{% if btn.label_fa_icon %} <i class="fas {{ btn.label_fa_icon }} fa-fw"></i>{% endif %}
+</a>

@@ -1,0 +1,1 @@
+<a id='show-link-to-add-{{ btn.id }}' class='list-group-item list-group-item-{{ btn.color|default:"default" }}' title='{{ btn.title }}' {% if not disabled %}href='{{ btn.url }}'{% else %}{{ btn.disabled }}{% endif %} ><span class='text text-default small'><i class='fas {{ btn.fa_icon }} fa-fw' aria-hidden='true'></i> {{ btn.label }}</span></a>

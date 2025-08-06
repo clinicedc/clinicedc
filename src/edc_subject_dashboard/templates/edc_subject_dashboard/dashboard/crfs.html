@@ -1,0 +1,57 @@
+{% load i18n %}
+{% load l10n %}
+{% load edc_subject_dashboard_extras form_runners_extras %}
+{% load tz %}
+<div class="panel panel-success">
+  <div class="panel-heading">
+    <span class="text text-muted"><i class="fas fa-list-alt fa-fw" aria-hidden="true"></i> CRFs</span>
+    <label class="small pull-right" title="visit report datetime">{{ appointment.object.related_visit.report_datetime|date:"SHORT_DATETIME_FORMAT" }}</label>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped table-hover table-condensed">
+      <tbody>
+      {% for crf in crfs %}
+        <tr>
+          <td>
+            <span class="{% if crf.entry_status == NOT_REQUIRED %}text text-muted small{% endif %}">{{ forloop.counter }}.&nbsp;</span>
+            {% if crf.entry_status == NOT_REQUIRED %}
+              <span class="text text-muted small">{{ crf.verbose_name }}</span>
+            {% else %}
+              {{ crf.verbose_name }}
+              {% if crf.model_instance.user_created %}
+                <p class="text small text-default">
+                  {% show_form_runner_issues crf %}
+                  {% if crf.model_instance.crf_status == INCOMPLETE %}<span class="label label-danger" data-toggle="tooltip" title={% translate "CRF is flagged as incomplete" %}><span class="fas fa-tag"></span></span>{% endif %}
+                  {{ crf.model_instance.user_created }} on {{ crf.model_instance.created|date:"SHORT_DATETIME_FORMAT" }}
+                  {% if crf.model_instance.user_modified %} | {{ crf.model_instance.user_modified }} on {{ crf.model_instance.modified|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
+                </p>
+              {% endif %}
+            {% endif %}
+          </td>
+          <td>
+            {# begin button group crf_button_row #}
+            <span class="btn-group pull-right">
+              {% if crf.entry_status != NOT_REQUIRED %}
+                {% render_crf_button_group crf appointment registered_subject visit_schedule_model_obj %}
+              {% else%}
+                <span class="text text-muted small">not required</span>
+              {% endif %}
+            </span>
+            {# end button group crf_button_row #}
+          </td>
+        </tr>
+      {% endfor %}
+      {% if not crfs %}
+        <tr>
+          <td colspan="3">
+            <span class="text text-muted small">{%  translate "There are no required CRFs for this visit. See also the PRN CRFs" %}.</span>
+          </td>
+        </tr>
+      {% endif %}
+      {% if appointment.object.related_visit.visit.crfs_prn %}
+        <tr><td colspan="3"><span class="text text-default small pull-right">{%  translate "PRN CRFs are available" %}.</span></td></tr>
+      {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>

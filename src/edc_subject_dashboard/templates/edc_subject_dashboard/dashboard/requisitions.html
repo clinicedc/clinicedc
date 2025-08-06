@@ -1,0 +1,74 @@
+{% load edc_dashboard_extras %}
+{% load edc_subject_dashboard_extras form_runners_extras %}
+{% load tz %}
+{% load i18n %}
+{% load l10n %}
+
+<a id="verify_requisition_identifier"></a>
+<div class="panel-group">
+  <div class="panel panel-success">
+    <div class="panel-heading clearfix"><i class="fas fa-flask fa-fw" aria-hidden="true"></i> Requisitions
+      <label class="small pull-right" title="visit report datetime">{{ related_visit.report_datetime|date:"SHORT_DATETIME_FORMAT" }}</label>
+    </div>
+    {% requisition_panel_actions requisitions %}
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <tbody>
+        {% for requisition in requisitions %}
+          <tr>
+            <td>
+              <span class="text{% if requisition.entry_status == NOT_REQUIRED %} text-muted small{% endif %}">
+                <input type="checkbox" name="selected_panel_names" id="selected_panel_names" value="{{ requisition.panel_name }}" form="form_requisition_print_actions" {% if requisition.entry_status == NOT_REQUIRED %}disabled{% endif %}>
+                {{ forloop.counter }}.&nbsp;
+              </span>
+              {% if requisition.entry_status == NOT_REQUIRED %}
+                <span class="text text-muted small">{{ requisition.verbose_name }}</span>
+              {% else %}
+                <span class="text text-default">{{requisition.verbose_name}}</span>
+                {% if requisition.model_instance.user_created and requisition.model_instance.is_drawn%}
+                  <p class="text text-default small">
+                    {% show_form_runner_issues requisition %}
+                    {{ requisition.model_instance.user_created }} on {{ requisition.model_instance.created|date:"SHORT_DATETIME_FORMAT" }}
+                    {% if requisition.model_instance.user_modified %} | {{ requisition.model_instance.user_modified }} on {{ requisition.model_instance.modified|date:"SHORT_DATETIME_FORMAT" }}{% endif %}
+                  </p>
+                {% elif requisition.model_instance.requisition_identifier  and not requisition.model_instance.is_drawn %}
+                  <p class="text text-danger small">{%  translate "Requisition is incomplete" %}.</p>
+                {% endif %}
+              {% endif %}
+            </td>
+            <td>
+              {% if requisition.entry_status == KEYED %}
+                {% if requisition.model_instance.is_drawn == YES and requisition.model_instance.requisition_identifier %}
+                  <span class="text text-success small"><i class="fas fa-check fa-sm"></i>{% if requisition.model_instance.clinic_verified == YES %}<i class="fas fa-check fa-sm"></i>{% endif %}</span>
+                  <span class="text text-default"><strong>{{ requisition.model_instance.requisition_identifier|human }}</strong></span>
+                {% elif requisition.model_instance.reason_not_drawn == NOT_REQUIRED %}
+                  <span class="text text-info small"><i class="fas fa-info-circle"></i> no longer required</span>
+                {% elif requisition.requisition_identifier and not requisition.model_instance.is_drawn %}
+                  <span class="text text-danger"><i class="fas fa-hand-stop-o fa-fw"></i> <strong>{{ requisition.model_instance.requisition_identifier|human }}</strong></span>
+                {% elif requisition.model_instance.is_drawn == NO %}
+                  <span class="text text-info small">not drawn</span>
+                {% else %}
+                  <span class="text text-danger small"><i class="fas fa-warning"></i> ERROR</span>
+                {% endif %}
+              {% endif %}
+              <span class="btn-group pull-right">
+                {% if requisition.entry_status != NOT_REQUIRED %}
+                  {% render_requisition_button_group requisition related_visit.appointment registered_subject visit_schedule_model_obj %}
+                {% else%}
+                  <span class="text text-muted small">{%  translate "not required" %}</span>
+                {% endif %}
+              </span>
+            </td>
+          </tr>
+        {% endfor %}
+        {% if not requisitions %}
+          <tr><td colspan="4"><span class="text text-muted small">{%  translate "There are no required requisitions for this visit" %}.</span></td></tr>
+        {% endif %}
+        {% if related_visit.visit.requisitions_prn %}
+          <tr><td colspan="4"><span class="text text small pull-right">{%  translate "PRN Requisitions are available" %}.</span></td></tr>
+        {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
