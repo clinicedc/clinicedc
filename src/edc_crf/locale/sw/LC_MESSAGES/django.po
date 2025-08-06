@@ -1,0 +1,67 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-09-07 19:30+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: edc_crf/admin/crf_status_admin.py:10
+msgid "CRF status"
+msgstr "Hali ya CRF"
+
+#: edc_crf/crf_form_validator.py:77
+msgid "Invalid. Cannot be before date of consent. Participant consent on"
+msgstr ""
+
+#: edc_crf/crf_form_validator.py:100
+msgid "is required"
+msgstr ""
+
+#: edc_crf/crf_form_validator.py:152 edc_crf/crf_form_validator.py:163
+msgid "Cannot be after report datetime"
+msgstr ""
+
+#: edc_crf/fieldset.py:4
+#, fuzzy
+#| msgid "CRF status"
+msgid "CRF Status"
+msgstr "Hali ya CRF"
+
+#: edc_crf/model_mixins/crf_status_model_mixin.py:26
+msgid "If some data is still pending, flag this CRF as incomplete"
+msgstr ""
+
+#: edc_crf/model_mixins/crf_status_model_mixin.py:30
+msgid "Any comments related to status of this CRF"
+msgstr ""
+
+#: edc_crf/model_mixins/crf_status_model_mixin.py:33
+msgid "for example, why some data is still pending"
+msgstr ""
+
+#: edc_crf/modelform_mixins/crf_singleton_model_form_mixin.py:36
+msgid "Invalid. This form has already been submitted. See"
+msgstr ""
+
+#: edc_crf/utils.py:14
+msgid "Complete"
+msgstr "Kamili"
+
+#: edc_crf/utils.py:15
+#, fuzzy
+#| msgid "CRF status"
+msgid "CRF first"
+msgstr "CRF kwanza"
