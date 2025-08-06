@@ -1,0 +1,11 @@
+{% load i18n %}
+<!-- start appt_button -->
+<div class="btn-group">
+  <a class="button" title="{{ dashboard_title |default:"Go to subject's dashboard"}}" href="{{ dashboard_url }}" {{ disabled|default:'' }} >Dashboard</a>
+  {% if has_call_manager %}
+  <a class="button" title="{{ call_title |default:"Call subject"}}" href="{{ call_url }}" {{ disabled|default:'' }} >
+    {{ label|default:"Call" }}
+  </a>
+  {% endif %}
+</div>
+<!-- end appt_button -->

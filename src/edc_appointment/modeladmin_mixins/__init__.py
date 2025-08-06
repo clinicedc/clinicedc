@@ -1,0 +1,1 @@
+from .next_appointment_crf_modeladmin_mixin import NextAppointmentCrfModelAdminMixin
