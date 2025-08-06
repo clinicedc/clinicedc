@@ -1,0 +1,64 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block main %}
+  {{ block.super }}
+  <div class="container">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+
+      <div style="padding:10px">
+        <a href="{% url "edc_pharmacy:home_url" %}">Pharmacy</a> >
+        <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist" %}?q={{ stock_request.request_identifier }}">Stock Request</a> >
+        {% if assignment %}<a href="{% url "edc_pharmacy:allocate_url" stock_request.pk %}">{{ assignment }}</a>{% else %}Assignment{% endif %} >
+        Allocate to subject
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">Allocate stock to subjects from stock request <a href="{{ stock_request_changelist_url }}">{{ stock_request.request_identifier }}</a>
+          {% if  subject_identifiers and assignment %}<span class="pull-right">{{ show_count }}/{{ remaining_count }} [{{ total_count }}]</span>{% endif %}</div>
+        <div class="panel-body">
+          <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;">
+            {% csrf_token %}
+            <div class="form-group">
+
+              {% if  subject_identifiers and assignment %}
+                <div style="text-align: center"><p class="bg-primary">{{ assignment.name|upper }}</p></div>
+                {% for subject_identifier in subject_identifiers %}
+                <label class="control-label col-sm-5" for="codes">{{ forloop.counter }}. {{ subject_identifier }}</label>
+                <div class="col-sm-5">
+                  <input type="text" class="form-control" id="codes" name="codes" placeholder="stock # {{ i }} " value=""  pattern="[A-Z0-9]{6}" required autofocus>
+                </div>
+                {% endfor %}
+                <input type="hidden" class="form-control" id="assignment" name="assignment"  value="{{ assignment.id }}">
+
+              {% else %}
+
+                <div class="col-sm-5">
+                  <label class="control-label" for="assignment">Select assignment</label>
+                  <select class="form-control" id="assignment" name="assignment" required autofocus >
+                      <option value="" selected> ----- </option>
+                      {% for assignment in assignments %}
+                        <option value="{{ assignment.id }}">{{ assignment.name }}</option>
+                      {% endfor %}
+                  </select>
+                </div>
+
+              {% endif %}
+
+            </div>
+
+            {% if subject_identifiers and assignment %}
+              <div style="text-align: center"><p class="bg-primary">{{ assignment.name|upper }}</p></div>
+            {% endif %}
+              <input type="hidden" name="subject_identifiers" id="subject_identifiers" value="{{ subject_identifiers }}">
+            <button type="submit" class="btn btn-default" name="submit" id="submit">Submit</button>
+            <button class="btn btn-default" onclick="window.location.href='{{ stock_request_changelist_url }}'">Done</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-3"></div>
+  </div>
+{% endblock main %}

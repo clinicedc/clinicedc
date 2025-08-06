@@ -1,0 +1,12 @@
+{% if task_status and task_status != success %}
+  {{ task_status }}
+{%  else %}
+  <span style="white-space: nowrap; display: block;"><strong>Total:</strong> {{ total }}</span>
+  <hr style="margin: 10px 0;">
+  <span style="white-space: nowrap; display: block;">Allocated: {{ allocated }}</span>
+  <span style="white-space: nowrap; display: block;">Transferred: {{ allocated_and_transferred }}</span>
+  {% if pending > 0 %}
+    <hr style="margin: 10px 0;">
+    <span style="white-space: nowrap; display: block; color: red;"><strong >Pending:</strong> {{ pending }}</span>
+  {%  endif %}
+{% endif %}

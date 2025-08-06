@@ -1,0 +1,58 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block main %}
+  {{ block.super }}
+  <div class="container">
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4">
+      <div style="padding:10px"><a href="{% url "edc_pharmacy_admin:index" %}">Edc Pharmacy</a> > <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stocktransfer_changelist" %}">Stock Transfer</a> > Transfer stock</div>
+      <div class="panel panel-default">
+        <div class="panel-heading">{% if from_location and to_location %}Transfer stock from {{ from_location.display_name }} to {{ to_location.display_name }}{% else %}Transfer stock to site{% endif %}</div>
+        <div class="panel-body">
+          <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;">
+            {% csrf_token %}
+            <div class="form-group">
+                {% if stock_transfer %}
+                  {% for i in item_count %}
+                    <label class="control-label col-sm-3" for="codes">{{ forloop.counter }}.</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" id="codes" name="codes" placeholder="stock # {{ i }} " value=""  pattern="[A-Z0-9]{6}" required autofocus>
+                    </div>
+                  {% endfor %}
+                  <input type="hidden" class="form-control" id="stock_transfer" name="stock_transfer"  value="{{ stock_transfer.id }}">
+
+                {% else %}
+
+                  <div class="col-sm-12">
+                    <label class="control-label" for="from_location">From</label>
+                    <select class="form-control" id="from_location" name="from_location" required autofocus >
+                        <option value="" selected> ----- </option>
+                        {% for from_location in from_locations %}
+                          <option value="{{ from_location.id }}">{{ from_location.display_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="control-label" for="to_location">To</label>
+                    <select class="form-control" id="to_location" name="to_location" required >
+                        <option value="" selected> ----- </option>
+                        {% for to_location in to_locations %}
+                          <option value="{{ to_location.id }}">{{ to_location.site.id }}. {{ to_location.display_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label class="control-label" for="stock_count">Number of stock items</label>
+                    <input type="text" class="form-control" id="stock_count" name="stock_count" placeholder="" value=""  pattern="[0-9]{1,4}" required>
+                  </div>
+                {% endif %}
+                <div class="col-sm-12">
+                  <button type="submit" class="btn btn-default" name="submit" id="submit">Submit</button>
+                </div>
+            </div>
+              </form>
+              <button class="btn btn-default" name="done" id="done" onclick="window.location.href='{{ source_changelist_url }}'">Done</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4"></div>
+  </div>
+{% endblock main %}

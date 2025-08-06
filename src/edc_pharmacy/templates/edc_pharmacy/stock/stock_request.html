@@ -1,0 +1,71 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+{% block extrahead %}
+  {{ block.super }}
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block main %}
+  {{ block.super }}
+  <div class="container">
+
+    <div class="col-sm-12">
+      {% if nostock_table %}
+        <h4>Stock Request {{ stock_request.request_identifier }}: {{ rows }} Items for {{ subjects }} subjects</h4>
+        <p>Review the proposed items. When you are ready click "Create Items" below or cancel.</p>
+        {% if subjects_excluded_by_stock > 0 %}<BR>* {{ subjects_excluded_by_stock }} subject{{ subjects_excluded_by_stock|pluralize}} {{ subjects_excluded_by_stock|pluralize:"has,have"}} stock <A href="#on-site">on-site</A>. See below.{% endif %}
+        {% if subjects_excluded_by_request > 0  %}<BR>* {{ subjects_excluded_by_request }} subject{{ subjects_excluded_by_request|pluralize}} {{ subjects_excluded_by_request|pluralize:"was,were"}} found in <A href="#pending">pending requests</A>. See below.{% endif %}
+      {% else %}
+        <h5>Stock Request {{ stock_request.request_identifier }}: 0 Items for 0 subjects.</h5>
+        <p>No items found. Check the cutoff date in the stock request <A href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}?q={{ stock_request.id }}">{{ stock_request.request_identifier }}</A>.</p>
+      {% endif %}
+      <hr>
+      {{ nostock_table|safe }}
+      <hr>
+      <div class="well well-sm">
+        <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;">
+          {% csrf_token %}
+            <input type="hidden" id="stock_request" name="stock_request"  value="{{ stock_request.id }}">
+            <input type="hidden" id="session_uuid" name="session_uuid"  value="{{ session_uuid }}">
+            <button type="submit" class="btn btn-primary" name="submit" id="submit" {% if stock_request_items_exist or not nostock_table %} disabled {% endif %}>Create items</button>
+            <button type="submit" class="btn btn-default" id="cancel" name="cancel" value="cancel">Cancel</button>
+        </form>
+      </div>
+    </div>
+    {% if subjects_excluded_by_stock > 0 %}
+      <div class="col-sm-12">
+        <h4 id="on-site">Stock on-site <span class="text text-muted small"><a href="#top" title="back to top">back to top</a></span></h4>
+        <p>These items are in stock at the site for subjects in your request.</p>
+        <hr>
+        {{ instock_table|safe }}
+      </div>
+    {% endif %}
+
+    {% if subjects_excluded_by_request > 0 %}
+      <div class="col-sm-12">
+        <h4 id="pending">Pending request items <span class="text text-muted small"><a href="#top" title="back to top">back to top</a></span></h4>
+        <p>These subjects from your request are already listed in another pending request. To allocated stock for these subjects, go to the pending request listed here.</p>
+        <hr>
+        {{ unallocated_table|safe }}
+      </div>
+    {% endif %}
+
+  </div>
+{% endblock main %}
+
+
+{% block document_ready %}
+    <script>
+        $(document).ready(function() {
+            $('#my_table').DataTable();
+            $('#in_stock_table').DataTable();
+            $('#unallocated_table').DataTable();
+        });
+    </script>
+{% endblock %}

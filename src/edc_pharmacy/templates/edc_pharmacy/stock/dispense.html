@@ -1,0 +1,102 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block main %}
+  {{ block.super }}
+  <div class="container">
+
+    {% if location_id and formulation_id and subject_identifier %}
+      <div class="col-sm-12"><div style="text-align: center;padding:10px"><a href="{% url "edc_pharmacy:home_url" %}">Pharmacy home</a> > <a href="{% url "edc_pharmacy:dispense_url" %}">{{ location|default:"Location" }}</a> > Dispense to patient</div></div>
+    {% else %}
+      <div style="text-align: center;padding:10px"><a href="{% url "edc_pharmacy:home_url" %}">Pharmacy home</a> > {{ location|default:"Dispense to patient" }}</div>
+    {% endif %}
+
+    <div class="col-sm-4"></div>
+
+    <div class="col-sm-4">
+
+      {% if location_id and formulation_id and subject_identifier %}
+        <div class="panel panel-default">
+          <div class="panel-heading"><h4>{{ subject_identifier }}</h4></div>
+          <div class="panel-body">
+          <p>{{ formulation }}</p>
+            <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;" >
+                {% csrf_token %}
+                <div class="form-group">
+                  {% for i in item_count %}
+                    <label class="control-label col-sm-2" for="codes">{{ i }}.</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" id="codes" name="codes" placeholder="code # {{ i }} " value="" pattern="[A-Z0-9]{6}" required>
+                    </div>
+                  {% endfor %}
+                </div>
+                <input type="hidden" id="container_count" name="container_count"  value="{{ container_count }}">
+                <input type="hidden" id="subject_identifier" name="subject_identifier"  value="{{ subject_identifier }}">
+                <input type="hidden" id="formulation_id" name="formulation_id"  value="{{ formulation_id }}">
+                <input type="hidden" id="location_id" name="location_id"  value="{{ location_id }}">
+                <button type="submit" class="btn btn-default" name="submit" id="submit">Submit</button>
+                <button class="btn btn-default" onclick="window.location.href='{% url "edc_pharmacy:home_url" %}'">Done</button>
+            </form>
+          </div>
+        </div>
+
+      {% else %}
+
+          <div class="panel panel-default">
+            <div class="panel-heading">Dispense from {{ location|default:"..." }}</div>
+            <div class="panel-body">
+              <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;" >
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="control-label col-sm-3" for="location_id">Location</label>
+                    <div class="col-sm-9">
+                    <select class="form-control" id="location_id" name="location_id" required autofocus>
+                      <option value="" selected> --- </option>
+                      {% for location in locations %}
+                        <option value="{{ location.id }}">{{ location.site.id }}: {{ location.display_name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label col-sm-3" for="formulation_id">Medication</label>
+                    <div class="col-sm-9">
+                    <select class="form-control" id="formulation_id" name="formulation_id" required>
+                      <option value="" selected> --- </option>
+                      {% for formulation in formulations %}
+                        <option value="{{ formulation.id }}">{{ formulation.description }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label col-sm-3" for="subject_identifier">Subject</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="subject_identifier" name="subject_identifier" placeholder="subject identifier" value="" pattern="^\d{3}-\d{2}-\d{4}-\d{1}$" required>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="control-label col-sm-3" for="container_count">Containers</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" id="container_count" name="container_count" placeholder="number of containers" value="3" pattern="^\d{1}$" required>
+                </div>
+                </div>
+
+                <button type="submit" class="btn btn-default" name="submit" id="submit">Submit</button>
+                <button class="btn btn-default" onclick="window.location.href='{% url "edc_pharmacy:home_url" %}'">Cancel</button>
+              </form>
+            </div>
+        </div>
+
+      {% endif %}
+
+    </div>
+
+    <div class="col-sm-4"></div>
+  </div>
+{% endblock main %}

@@ -1,0 +1,44 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block main %}
+  {{ block.super }}
+  <div class="container">
+    <div class="col-sm-4">
+    </div>
+    <div class="col-sm-4">
+      <div style="padding:10px"><a href="{% url "edc_pharmacy_admin:index" %}">Edc Pharmacy</a> > <a href="{{ source_changelist_url }}?{{ querystring }}">{{ source_model_name }}</a> > Print labels</div>
+      <div class="panel panel-default">
+        <div class="panel-heading">Print labels <a href="{{ source_changelist_url }}?q={{ source_pk }}">{{ source_model_name }} {{ source_identifier }}</a></div>
+        <div class="panel-body">
+          <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;" >
+            {% csrf_token %}
+            <div class="form-group">
+              <div class="col-sm-10">
+                <label class="control-label" for="filter_by">Which stock from this request</label>
+                <select class="form-control" id="filter_by" name="filter_by" required>
+                    <option value="all" selected>All</option>
+                    <option value="unconfirmed_only">Unconfirmed stock only</option>
+                    <option value="confirmed_only">Confirmed stock only</option>
+                </select>
+                <label class="control-label" for="label_configuration">Select a label format</label>
+                <select class="form-control" id="label_configuration" name="label_configuration" required autofocus>
+                    <option value="" selected> ----- </option>
+                    {% for label_configuration in label_configurations %}
+                      <option value="{{ label_configuration.id }}" {% if label_configuration.name == selected_label_configuration %}selected{% endif %}>{{ label_configuration.name }}</option>
+                    {% endfor %}
+                </select>
+                <label class="control-label" for="max_to_print">Maximum number of labels to print</label>
+                <input type="text" class="form-control" id="max_to_print" name="max_to_print" placeholder="maximum number to print" value="{{ max_to_print }}"  pattern="[0-9]{1,4}">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-default" name="submit" id="submit">Print</button>
+            <button class="btn btn-default" onclick="history.back()">Done</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4"></div>
+  </div>
+{% endblock main %}

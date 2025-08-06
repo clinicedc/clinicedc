@@ -1,0 +1,48 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block main %}
+  {{ block.super }}
+  <div class="container">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-6">
+
+      <div style="padding:10px">
+        <a href="{% url "edc_pharmacy:home_url" %}">Pharmacy</a> >
+        <a href="{% url "edc_pharmacy_admin:edc_pharmacy_storagebin_changelist" %}?q={{ storage_bin.bin_identifier }}">Storage bin</a> >
+        {{ action_word }} stock to bin
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">{{ action_word }} stock to bin <a href="{{ storage_bin_changelist_url }}">{{ storage_bin.bin_identifier }}</a>
+          <span class="pull-right">{{ storage_bin.item_count }}</span></div>
+        <div class="panel-body">
+          <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;">
+            {% csrf_token %}
+            <div class="form-group">
+          {% if not items_to_scan %}
+                  <label class="control-label col-sm-5" for="codes">Items to scan</label>
+                  <div class="col-sm-5">
+                    <input type="text" class="form-control" id="items_to_scan" name="items_to_scan"  value="{{ storage_bin.item_count }}"  pattern="[0-9]{1,2}" required autofocus>
+                  </div>
+
+          {% else %}
+                {% for i in items_to_scan_as_range %}
+                  <label class="control-label col-sm-5" for="codes">{{ forloop.counter }}.</label>
+                  <div class="col-sm-5">
+                    <input type="text" class="form-control" id="codes" name="codes" placeholder="stock # {{ i }} " value=""  pattern="[A-Z0-9]{6}" required autofocus>
+                  </div>
+                {% endfor %}
+            {% endif %}
+                <input type="hidden" class="form-control" id="storage_bin" name="storage_bin"  value="{{ storage_bin.id }}">
+            </div>
+            <button type="submit" class="btn btn-default" name="submit" id="submit">Submit</button>
+            <button class="btn btn-default" onclick="window.location.href='{{ storage_bin_changelist_url }}'">Done</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-3"></div>
+  </div>
+{% endblock main %}

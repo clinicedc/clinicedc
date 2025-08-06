@@ -1,0 +1,7 @@
+{% load tz %}
+{% load static %}
+
+{{ rx_refill.dosage_guideline.medication.display_name }} {{ rx_refill.formulation.strength }}{{ rx_refill.formulation.units.display_name }}
+<BR>{{ rx_refill.dose }} {{ rx_refill.formulation.formulation_type.display_name }} {{ rx_refill.frequency }} {{ rx_refill.frequency_units.display_name }}.
+<BR>Total: {{ total}}
+<BR>Remaining: {{remaining}}

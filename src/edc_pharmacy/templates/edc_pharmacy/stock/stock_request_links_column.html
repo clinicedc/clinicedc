@@ -1,0 +1,6 @@
+{% load static %}
+{% for link in links %}
+  <div class="row" style="margin-bottom: 5px;">
+  <a href="{{link.url}}" class="button" title="{{link.title}}" style="display: block;width: 100%;">{{link.label}}</a>
+  </div>
+{% endfor %}

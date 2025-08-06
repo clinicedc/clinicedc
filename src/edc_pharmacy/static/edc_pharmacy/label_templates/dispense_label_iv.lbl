@@ -1,0 +1,22 @@
+^XA
+^FO100,15^A0N,20,20^FDBOTSWANA HARVARD PARTNERSHIP SITE: ${site}^FS
+^FO100,35^A0N,20,20^FDPRIVATE BAG BO 320, GABORONE  			    TELEPHONE: ${telephone_number}^FS
+^FO100,60^FS
+^FO100,90^A0N,20,20^FDPID: ${patient}                   SID: ${sid}              INITIALS: ${initials}
+^FO100,80^FS
+^FO100,105^A0N,20,20^FDWEIGHT(kg): ${weight}      INFUSION (#): ${infusion}^FS
+^FO100,130^A0N,20,20^FDDrug Name/Concentration: ${drug_name}^FS
+^FO100,155^A0N,20,20^FDTotal Volume: ${total_volume}       Concentration: ${concentration} ^FS
+^FO100,190^A0N,20,20^FD   PHARMACY                                                          CLINIC ^FS
+^FO90,185^A0N^GB320,110,1,B^FS
+^FO410,185^A0N^GB320,110,1,B^FS
+^FO100,220^A0N,20,20^FDD & T Prep: ${prepared_datetime}^FS
+^FO100,240^A0N,20,20^FDD & T Delivery at Clinic^FS
+^FO100,260^A0N,20,20^FDDisp By : ${prepared_by} ^FS
+^FO420,220^A0N,20,20^FDDate of Admin:____________^FS
+^FO420,240^A0N,20,20^FDTime of Admin:____________^FS
+^FO420,260^A0N,20,20^FDAdmin By(Initials):__________^FS
+^FO100,300^A0N,20,20^FDStorage instructions: ${storage_instructions} ^FS
+^FO100,330^A0N,20,20^FDFOR INVESTIGATIONAL USE ONLY (PROTOCOL NUMBER ${protocol})^FS
+^FO100,360^A0N,20,20^FDExpiry Date:________________ ^FS
+^XZ

@@ -1,0 +1,29 @@
+<div class="col-sm-6">
+  <div class="panel panel-info">
+    <div class="panel-heading"><i class="fas fa-prescription fa-lg fa-fw"></i> Site Pharmacy</div>
+    <div class="list-group">
+      {% if perms.edc_pharmacy %}
+        <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+        <a id="home_list_group_stockrequest" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}" class="list-group-item"><b>Request stock</b></a>
+        <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy:confirmation_at_site_url' site_id=request.site.id %}" class="list-group-item"><B>Confirm transferred stock</B></a>
+        <a id="home_list_group_dispense" href="{% url 'edc_pharmacy_admin:edc_pharmacy_storagebin_changelist' %}" class="list-group-item"><b>Add/Update storage bins</b></a>
+        <a id="home_list_group_dispense" href="{% url 'edc_pharmacy_admin:edc_pharmacy_storagebinitem_changelist' %}" class="list-group-item"><b>Search storage bins</b></a>
+        <a id="home_list_group_dispense" href="{% url 'edc_pharmacy:dispense_url' %}" class="list-group-item"><b>Dispense</b></a>
+        <a id="home_list_group_dispense" href="{% url 'edc_pharmacy:return_url' %}" class="list-group-item"><b>Return</b></a>
+      {% endif %}
+    </div>
+    <div class="panel-heading"></div>
+    <div class="list-group">
+        <a id="home_list_group_stock" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockproxy_changelist' %}" class="list-group-item">Stock</a>
+        <a id="home_list_group_allocation" href="{% url 'edc_pharmacy_admin:edc_pharmacy_allocationproxy_changelist' %}" class="list-group-item">Allocations</a>
+        <a id="home_list_group_stockavailability" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockavailability_changelist' %}" class="list-group-item">Stock availability</a>
+        <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy_admin:edc_pharmacy_confirmationatsite_changelist' %}" class="list-group-item">Stock confirmations at site</a>
+        <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy_admin:edc_pharmacy_dispenseitem_changelist' %}" class="list-group-item">Dispensed items</a>
+        <a id="home_edc_pharmacy_admin" href="{% url 'edc_pharmacy_admin:index' %}" class="list-group-item">Admin</a>
+    </div>
+    <div class="panel-heading">Assist at Central</div>
+    <div class="list-group">
+        <a id="home_list_group_repack" href="{% url 'edc_pharmacy_admin:edc_pharmacy_repackrequest_changelist' %}" class="list-group-item"><b>Repack:</b> Decant, label and confirm (Central only)</a>
+    </div>
+  </div>
+</div>

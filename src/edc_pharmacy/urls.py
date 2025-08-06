@@ -1,0 +1,148 @@
+from django.urls import path
+
+from .admin_site import edc_pharmacy_admin
+from .views import (
+    AddToStorageBinView,
+    AllocateToSubjectView,
+    CeleryTaskStatusView,
+    ConfirmationAtSiteView,
+    ConfirmStockFromQuerySetView,
+    DispenseView,
+    HomeView,
+    MoveToStorageBinView,
+    PrepareAndReviewStockRequestView,
+    PrintLabelsView,
+    ReturnView,
+    TransferStockView,
+    get_stock_transfers_view,
+    print_stock_transfer_manifest_view,
+    print_stock_view,
+)
+
+app_name = "edc_pharmacy"
+
+
+urlpatterns = [
+    path(
+        "dispense/<int:location_id>/<uuid:formulation_id>/"
+        "<str:subject_identifier>/<int:container_count>/",
+        DispenseView.as_view(),
+        name="dispense_url",
+    ),
+    path("get-stock-transfers/", get_stock_transfers_view, name="get_stock_transfers_url"),
+    path(
+        "confirmation-at-site/<uuid:session_uuid>/<str:stock_transfer_identifier>/"
+        "<int:location_id>/<int:items_to_scan>/",
+        ConfirmationAtSiteView.as_view(),
+        name="confirmation_at_site_url",
+    ),
+    path(
+        "confirmation-at-site/<str:stock_transfer_identifier>/"
+        "<int:location_id>/<int:items_to_scan>/",
+        ConfirmationAtSiteView.as_view(),
+        name="confirmation_at_site_url",
+    ),
+    path(
+        "confirmation-at-site/<int:location_id>/<int:items_to_scan>/",
+        ConfirmationAtSiteView.as_view(),
+        name="confirmation_at_site_url",
+    ),
+    path(
+        "confirmation-at-site/<int:site_id>/",
+        ConfirmationAtSiteView.as_view(),
+        name="confirmation_at_site_url",
+    ),
+    path(
+        "review-stock-request/<uuid:stock_request>/<uuid:session_uuid>/",
+        PrepareAndReviewStockRequestView.as_view(),
+        name="review_stock_request_url",
+    ),
+    path(
+        "allocate/<uuid:stock_request>/<uuid:assignment>/",
+        AllocateToSubjectView.as_view(),
+        name="allocate_url",
+    ),
+    path(
+        "allocate/<uuid:stock_request>/<uuid:assignment>",
+        AllocateToSubjectView.as_view(),
+        name="allocate_url",
+    ),
+    path(
+        "confirm-stock-qs/<uuid:session_uuid>/",
+        ConfirmStockFromQuerySetView.as_view(),
+        name="confirm_stock_from_queryset_url",
+    ),
+    path(
+        "allocate/<uuid:stock_request>/",
+        AllocateToSubjectView.as_view(),
+        name="allocate_url",
+    ),
+    path(
+        "transfer-stock/<uuid:stock_transfer>/",
+        TransferStockView.as_view(),
+        name="transfer_stock_url",
+    ),
+    path(
+        "review-stock-request/<uuid:stock_request>/",
+        PrepareAndReviewStockRequestView.as_view(),
+        name="review_stock_request_url",
+    ),
+    path(
+        "print-labels/<str:model>/<uuid:session_uuid>/<str:label_configuration>",
+        PrintLabelsView.as_view(),
+        name="print_labels_url",
+    ),
+    path(
+        "print-labels/<str:model>/<uuid:session_uuid>/",
+        PrintLabelsView.as_view(),
+        name="print_labels_url",
+    ),
+    path(
+        "manifest/<uuid:stock_transfer>/",
+        print_stock_transfer_manifest_view,
+        name="generate_manifest",
+    ),
+    path("stock_report/<uuid:session_uuid>/", print_stock_view, name="stock_report"),
+    path(
+        "add-to-storage-bin/<uuid:storage_bin>/<int:items_to_scan>/",
+        AddToStorageBinView.as_view(),
+        name="add_to_storage_bin_url",
+    ),
+    path(
+        "add-to-storage-bin/<uuid:storage_bin>/",
+        AddToStorageBinView.as_view(),
+        name="add_to_storage_bin_url",
+    ),
+    path(
+        "move-to-storage-bin/<uuid:storage_bin>/<int:items_to_scan>/",
+        MoveToStorageBinView.as_view(),
+        name="move_to_storage_bin_url",
+    ),
+    path(
+        "move-to-storage-bin/<uuid:storage_bin>/",
+        MoveToStorageBinView.as_view(),
+        name="move_to_storage_bin_url",
+    ),
+    path(
+        "task-status/<uuid:task_id>/",
+        CeleryTaskStatusView.as_view(),
+        name="celery_task_status_url",
+    ),
+    path(
+        "stock-transfer-confirmation/",
+        ConfirmationAtSiteView.as_view(),
+        name="confirmation_at_site_url",
+    ),
+    path(
+        "dispense/",
+        DispenseView.as_view(),
+        name="dispense_url",
+    ),
+    path(
+        "return/",
+        ReturnView.as_view(),
+        name="return_url",
+    ),
+    path("admin/", edc_pharmacy_admin.urls),
+    path("", HomeView.as_view(), name="home_url"),
+]

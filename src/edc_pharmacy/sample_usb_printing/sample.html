@@ -1,0 +1,22 @@
+<textarea id="zplCode" rows="10" cols="50">^XA^FO50,50^ADN,36,20^FDHello, World!^FS^XZ</textarea>
+<button onclick="sendToPrinter()">Print</button>
+
+<script>
+        async function sendToPrinter() {
+            const zplCode = document.getElementById('zplCode').value;
+            try {
+                const response = await fetch('/edc_pharmacy/print_label_usb/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    },
+                    body: zplCode
+                });
+                const result = await response.json();
+                alert(result.message || result.error);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to send label to printer.');
+            }
+        }
+    </script>

@@ -1,0 +1,29 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+
+{{ block.super }}
+  <div class="col-sm-1">&nbsp;</div>
+  <div class="col-sm-10">
+    {% if PHARMACY_SUPER_ROLE in roles or PHARMACIST_ROLE in roles %}
+      {% include "edc_pharmacy/central_home.html" %}
+      {% include "edc_pharmacy/site_home.html" %}
+    {% endif %}
+    {% if SITE_PHARMACIST_ROLE in roles %}
+        <div class="col-sm-3"></div>
+        {% include "edc_pharmacy/site_home.html" %}
+        <div class="col-sm-3"></div>
+    {% endif %}
+    {% if PHARMACY_SUPER_ROLE not in roles and PHARMACIST_ROLE not in roles and SITE_PHARMACIST_ROLE not in roles %}
+      {% if CLINICIAN_ROLE in roles or CLINICIAN_SUPER_ROLE in roles%}
+        <div class="col-sm-3"></div>
+        {% include "edc_pharmacy/clinic_home.html" %}
+        <div class="col-sm-3"></div>
+    {% endif %}
+    {% endif %}
+
+  </div>
+
+  <div class="col-sm-1">&nbsp;</div>
+{% endblock main %}

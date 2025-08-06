@@ -1,0 +1,136 @@
+{% extends edc_base_template %}
+
+{% load static %}
+
+{% block main %}
+  {{ block.super }}
+  <div class="container">
+    <div class="col-sm-4"></div>
+
+      {% if not stock_transfer %}
+
+        <div class="col-sm-4">
+          <div style="padding:10px"><a href="{% url "edc_pharmacy:home_url" %}">Pharmacy home</a> > Confirm transferred stock</div>
+          <div class="panel panel-default">
+            <div class="panel-heading">Confirm transferred stock</div>
+            <div class="panel-body">
+              <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;" >
+                {% csrf_token %}
+                  <div class="col-sm-10">
+                    <div class="form-group">
+                      <label class="control-label" for="location_id">Location</label>
+                      <select class="form-control" id="location_id" name="location_id" >
+                        <option value="" selected > ----- </option>
+                        {% for loc in locations %}
+                          <option value="{{ loc.id }}" >{{ loc.site.id }}: {{ loc.display_name }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label" for="stock_transfer_identifier">Reference</label>
+                      <select class="form-control" id="stock_transfer_identifier" name="stock_transfer_identifier"></select>
+                    </div>
+                  </div>
+                <input type="hidden" id="session_uuid" name="session_uuid"  value="{{ session_uuid }}">
+                <button type="submit" class="btn btn-default" name="submit" id="submit">Submit</button>
+                <button type="submit" class="btn btn-default" name="cancel" id="cancel" value="cancel">Cancel</button>
+              </form>
+            </div>
+        </div>
+
+        <div class="col-sm-4"></div>
+
+      {% else %}
+
+        <div class="col-sm-4">
+          <div style="padding:10px"><a href="{% url "edc_pharmacy:home_url" %}">Pharmacy home</a> > <a href="{% url "edc_pharmacy:confirmation_at_site_url" %}">{{ location|default:"Location" }}</a></div>
+          <div class="panel panel-default">
+            <div class="panel-heading">Confirm transferred stock: {{ stock_transfer }}</div>
+            <div class="panel-body">
+              {% if not item_count %}All done!{% endif  %}
+              <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;" >
+                {% csrf_token %}
+                <div class="form-group">
+                  {% for i in item_count %}
+                    <label class="control-label col-sm-2" for="code{{ i  }}">{{ i }}.</label>
+                    <div class="col-sm-10">
+                      <input type="text" class="form-control" id="stock_codes" name="stock_codes" placeholder="code # {{ i }} " value="" pattern="[A-Z0-9]{6}" required autofocus>
+                    </div>
+                  {% endfor %}
+                </div>
+                <input type="hidden" id="session_uuid" name="session_uuid"  value="{{ session_uuid }}">
+                <input type="hidden" id="stock_transfer_identifier" name="stock_transfer_identifier"  value="{{ stock_transfer_identifier }}">
+                <input type="hidden" id="location_id" name="location_id"  value="{{ location_id }}">
+                <input type="hidden" id="items_to_scan" name="items_to_scan"  value="{{ items_to_scan }}">
+                <input type="hidden" id="confirmed" name="confirmed"  value="{{ confirmed }}">
+                <input type="hidden" id="already_confirmed" name="already_confirmed"  value="{{ already_confirmed }}">
+                <input type="hidden" id="invalid" name="invalid"  value="{{ invalid }}">
+                <button type="submit" class="btn btn-default" name="submit" id="submit" {% if not item_count %}disabled{% endif %}>Submit</button>
+                <button type="button" class="btn btn-default" onclick="window.location.href='{% url "edc_pharmacy:home_url" %}'">Done</button>
+            </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-4">
+          <div style="padding:10px">&nbsp;</div>
+            <div class="panel panel-default">
+              <div class="panel-heading">Last scanned {{ confirmed_count }}</div>
+                <div class="panel-body">
+                  <div class="col-sm-10">
+                    <table class="table table-condensed">
+                      {% for code, comment in last_codes %}
+                        <tr>
+                          <td class="text text-{% if comment == CONFIRMED %}success{% elif comment == ALREADY_CONFIRMED %}warning{% elif comment == INVALID %}danger{% else %}default{% endif %}">
+                            {% if comment == CONFIRMED %}<i class="fa-solid fa-check fa-fw"></i>
+                            {% elif comment == ALREADY_CONFIRMED %}<i class="fa-solid fa-minus fa-fw"></i>
+                            {% elif comment == INVALID %}<i class="fa-solid fa-xmark fa-fw"></i>
+                            {% endif %}
+                          </td>
+                          <td class="text text-{% if comment == CONFIRMED %}success{% elif comment == ALREADY_CONFIRMED %}warning{% elif comment == INVALID %}danger{% else %}default{% endif %}">
+                            {{ code }}
+                          </td>
+                          <td class="text text-{% if comment == CONFIRMED %}success{% elif comment == ALREADY_CONFIRMED %}warning{% elif comment == INVALID %}danger{% else %}default{% endif %}">
+                            {{ comment }}
+                          </td>
+                        </tr>
+                      {% endfor %}
+                     </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+
+      {% endif %}
+
+    </div>
+
+
+
+{% endblock main %}
+
+{% block extra-scripts-bottom %}
+  <script>
+    document.getElementById('location_id').addEventListener('change', function() {
+      var locationId = this.value;
+      fetch(`/edc_pharmacy/get-stock-transfers/?location_id=${locationId}`)
+        .then(response => response.json())
+        .then(data => {
+            var stockTransferSelect = document.getElementById('stock_transfer_identifier');
+            stockTransferSelect.innerHTML = '';
+            var option = document.createElement('option');
+            option.value = '';
+            option.text = '---';
+            stockTransferSelect.appendChild(option);
+            data.forEach(function(item) {
+                var option = document.createElement('option');
+                option.value = item.transfer_identifier;
+                option.text = `${item.transfer_identifier} -- ${item.item_count} items`; // Use the correct key
+                stockTransferSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error:', error));
+        });
+</script>
+{% endblock %}

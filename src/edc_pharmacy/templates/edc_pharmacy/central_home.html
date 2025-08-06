@@ -1,0 +1,24 @@
+        <div class="col-sm-6">
+          <div class="panel panel-warning">
+            <div class="panel-heading"><i class="fas fa-prescription fa-lg fa-fw"></i> Central Pharmacy</div>
+            <div class="list-group">
+              {% if perms.edc_pharmacy %}
+                <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+                <a id="home_list_group_order" href="{% url 'edc_pharmacy_admin:edc_pharmacy_order_changelist' %}" class="list-group-item"><b>Orders</b></a>
+                <a id="home_list_group_receive_ordered" href="{% url 'edc_pharmacy_admin:edc_pharmacy_orderitem_changelist' %}" class="list-group-item"><B>Receive ordered items</B></a>
+                <a id="home_list_group_receive" href="{% url 'edc_pharmacy_admin:edc_pharmacy_receive_changelist' %}" class="list-group-item"><B>Receiving:</B> Label and confirm received stock</a>
+                <a id="home_list_group_repack" href="{% url 'edc_pharmacy_admin:edc_pharmacy_repackrequest_changelist' %}" class="list-group-item"><b>Repack:</b> Decant, label and confirm</a>
+                <a id="home_list_group_stockrequest" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}" class="list-group-item"><B>Manage Requests:</B> Allocate stock to subjects</a>
+                <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stocktransfer_changelist' %}" class="list-group-item"><b>Transfer stock to site</b></a>
+              {% endif %}
+            </div>
+            <div class="panel-heading"></div>
+            <div class="list-group">
+                <a id="home_list_group_stock" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stock_changelist' %}" class="list-group-item">Stock</a>
+                <a id="home_list_group_allocation" href="{% url 'edc_pharmacy_admin:edc_pharmacy_allocation_changelist' %}" class="list-group-item">Allocations</a>
+                <a id="home_list_group_stockavailability" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockavailability_changelist' %}?has_codes=No" class="list-group-item">Stock availability</a>
+                <a id="home_list_group_allocation" href="{% url 'edc_pylabels_admin:index' %}" class="list-group-item">Label Configurations</a>
+                <a id="home_edc_pharmacy_admin" href="{% url 'edc_pharmacy_admin:index' %}" class="list-group-item">Admin</a>
+            </div>
+          </div>
+        </div>

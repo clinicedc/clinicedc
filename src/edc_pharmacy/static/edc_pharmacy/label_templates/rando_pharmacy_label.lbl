@@ -1,0 +1,7 @@
+^XA^PR4
+^FO315,15^A0N,40,35^FD${protocol}^FS
+^FO315,55^A0N,40,35^FD${site}^FS
+^FO315,95^A0N,40,35^FD${sid}^FS
+^FO315,135^BY2^BCN,75,N,N,N,A
+^FD${barcode_value}^FS
+^XZ
