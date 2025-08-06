@@ -1,0 +1,5 @@
+from .blood_results_fbg_form_validator_mixin import BloodResultsFbgFormValidatorMixin
+
+
+class BloodResultsGluFormValidatorMixin(BloodResultsFbgFormValidatorMixin):
+    pass
