@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
-from visit_schedule_app.models import (
+from edc_visit_schedule_app.models import (
     OffSchedule,
     OnSchedule,
     OnScheduleThree,
@@ -60,7 +60,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         self.consent_v1 = ConsentDefinition(
-            "visit_schedule_app.subjectconsentv1",
+            "edc_visit_schedule_app.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,
@@ -79,8 +79,8 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             VisitSchedule,
             name="visit &&&& schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="visit_schedule_app.deathreport",
-            death_report_model="visit_schedule_app.deathreport",
+            offstudy_model="edc_visit_schedule_app.deathreport",
+            death_report_model="edc_visit_schedule_app.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
 
@@ -89,8 +89,8 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
         v = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="visit_schedule_app.deathreport",
-            death_report_model="visit_schedule_app.deathreport",
+            offstudy_model="edc_visit_schedule_app.deathreport",
+            death_report_model="edc_visit_schedule_app.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
         self.assertTrue(v.__repr__())
@@ -99,8 +99,8 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
         visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="visit_schedule_app.subjectoffstudy",
-            death_report_model="visit_schedule_app.deathreport",
+            offstudy_model="edc_visit_schedule_app.subjectoffstudy",
+            death_report_model="edc_visit_schedule_app.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
         errors = check_visit_schedule_models(visit_schedule)
@@ -123,7 +123,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         self.consent_v1 = ConsentDefinition(
-            "visit_schedule_app.subjectconsentv1",
+            "edc_visit_schedule_app.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,
@@ -138,7 +138,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="visit_schedule_app.subjectoffstudy",
+            offstudy_model="edc_visit_schedule_app.subjectoffstudy",
             death_report_model="visit_schedule_app.deathreport",
             locator_model="edc_locator.subjectlocator",
         )

@@ -55,7 +55,7 @@ class OffScheduleOne(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
 
 
 class CrfOne(SiteModelMixin, OffstudyCrfModelMixin, VisitTrackingCrfModelMixin, BaseUuidModel):
-    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT)
+    subject_visit = models.ForeignKey(SubjectVisit, on_delete=PROTECT, related_name="+")
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 

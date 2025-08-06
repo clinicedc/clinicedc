@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
-from visit_schedule_app.consents import consent_v1
+from edc_visit_schedule_app.consents import consent_v1
 from visit_schedule_app.visit_schedule import visit_schedule
 
 from edc_action_item.site_action_items import site_action_items

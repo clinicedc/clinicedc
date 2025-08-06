@@ -1,3 +1,5 @@
+from django.db import models
+from django.db.models.deletion import PROTECT
 from edc_consent.field_mixins import IdentityFieldsMixin, PersonalFieldsMixin
 from edc_consent.managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 from edc_consent.model_mixins import ConsentModelMixin
@@ -55,6 +57,10 @@ class SubjectVisit(
     TimepointLookupModelMixin,
     BaseUuidModel,
 ):
+    appointment = models.OneToOneField(
+        "edc_appointment.appointment", on_delete=PROTECT, related_name="+"
+    )
+
     timepoint_lookup_cls = VisitTimepointLookup
 
     class Meta(VisitModelMixin.Meta):

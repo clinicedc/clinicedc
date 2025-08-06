@@ -23,7 +23,7 @@ class OffSchedule(SiteModelMixin, OffScheduleModelMixin, BaseUuidModel):
 
 
 class SubjectVisit(VisitModelMixin, BaseUuidModel):
-    appointment = models.OneToOneField(Appointment, on_delete=models.PROTECT)
+    appointment = models.OneToOneField(Appointment, on_delete=models.PROTECT, related_name="+")
 
     subject_identifier = models.CharField(max_length=25)
 
@@ -62,7 +62,7 @@ class SubjectLocator(BaseUuidModel):
 
 
 class CrfModelMixin(models.Model):
-    subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT)
+    subject_visit = models.OneToOneField(SubjectVisit, on_delete=PROTECT, related_name="+")
 
     report_datetime = models.DateTimeField(null=True)
 

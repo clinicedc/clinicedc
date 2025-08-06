@@ -157,185 +157,47 @@ For further information go to https://github.com/erikvw.
 
 
 =========================== ============================= ==================================
-edc-action-item_            |edc-action-item|             |pypi-edc-action-item|
-edc-adherence_              |edc-adherence|               |pypi-edc-adherence|
-edc-adverse-event_          |edc-adverse-event|           |pypi-edc-adverse-event|
-edc-analytics_                                            |pypi-edc-analytics|
-edc-appconfig_              |edc-appconfig|               |pypi-edc-appconfig|
-edc-appointment_            |edc-appointment|             |pypi-edc-appointment|
-edc-auth_                   |edc-auth|                    |pypi-edc-auth|
-edc-consent_                |edc-consent|                 |pypi-edc-consent|
-edc-constants_                                            |pypi-edc-constants|
-edc-crf_                    |edc-crf|                     |pypi-edc-crf|
-edc-dashboard_              |edc-dashboard|               |pypi-edc-dashboard|
-edc-data-manager_           |edc-data-manager|            |pypi-edc-data-manager|
-edc-device_                 |edc-device|                  |pypi-edc-device|
-edc-document-status_        |edc-document-status|         |pypi-edc-document-status|
+edc-csf_                    |edc-csf|                     |pypi-edc-csf|
 edc-dx_                     |edc-dx|                      |pypi-edc-dx|
 edc-dx-review_              |edc-dx-review|               |pypi-edc-dx-review|
 edc-egfr_                   |edc-egfr|                    |pypi-edc-egfr|
-edc-export_                 |edc-export|                  |pypi-edc-export|
-edc-facility_               |edc-facility|                |pypi-edc-facility|
-edc-fieldsets_              |edc-fieldsets|               |pypi-edc-fieldsets|
-edc-form-describer_         |edc-form-describer|          |pypi-edc-form-describer|
-edc-form-label_             |edc-form-label|              |pypi-edc-form-label|
-edc-form-runners_           |edc-form-runners|            |pypi-edc-form-runners|
-edc-form-validators_        |edc-form-validators|         |pypi-edc-form-validators|
 edc-glucose_                |edc-glucose|                 |pypi-edc-glucose|
 edc-he_                     |edc-he|                      |pypi-edc-he|
-edc-identifier_             |edc-identifier|              |pypi-edc-identifier|
-edc-lab_                    |edc-lab|                     |pypi-edc-lab|
-edc-lab-dashboard_          |edc-lab-dashboard|           |pypi-edc-lab-dashboard|
-edc-lab-panel_              |edc-lab-panel|               |pypi-edc-lab-panel|
-edc-lab-results_            |edc-lab-results|             |pypi-edc-lab-results|
-edc-label_                  |edc-label|                   |pypi-edc-label|
-edc-list-data_              |edc-list-data|               |pypi-edc-list-data|
-edc-listboard_              |edc-listboard|               |pypi-edc-listboard|
-edc-locator_                |edc-locator|                 |pypi-edc-locator|
-edc-ltfu_                   |edc-ltfu|                    |pypi-edc-ltfu|
-edc-metadata_               |edc-metadata|                |pypi-edc-metadata|
+edc-microbiology_           |edc-microbiology|            |pypi-edc-microbiology|
+edc-microscopy_             |edc-microscopy|              |pypi-edc-microscopy|
 edc-mnsi_                   |edc-mnsi|                    |pypi-edc-mnsi|
-edc-model_                  |edc-model|                   |pypi-edc-model|
-edc-model-admin_            |edc-model-admin|             |pypi-edc-model-admin|
-edc-model-fields_           |edc-model-fields|            |pypi-edc-model-fields|
-edc-model-form_             |edc-model-form|              |pypi-edc-model-form|
-edc-model-to-dataframe_     |edc-model-to-dataframe|      |pypi-edc-model-to-dataframe|
-edc-navbar_                 |edc-navbar|                  |pypi-edc-navbar|
 edc-next-appointment_       |edc-next-appointment|        |pypi-edc-next-appointment|
-edc-notification_           |edc-notification|            |pypi-edc-notification|
-edc-offstudy_               |edc-offstudy|                |pypi-edc-offstudy|
-edc-pdf-reports_            |edc-pdf-reports|             |pypi-edc-pdf-reports|
-edc-pdutils_                |edc-pdutils|                 |pypi-edc-pdutils|
-edc-pharmacy_               |edc-pharmacy|                |pypi-edc-pharmacy|
-edc-prn_                    |edc-prn|                     |pypi-edc-prn|
-edc-protocol_               |edc-protocol|                |pypi-edc-protocol|
-edc-protocol-incident_      |edc-protocol-incident|       |pypi-edc-protocol-incident|
-edc-pylabels_               |edc-pylabels|                |pypi-edc-pylabels|
-edc-qareports_              |edc-qareports|               |pypi-edc-qareports|
 edc-qol_                    |edc-qol|                     |pypi-edc-qol|
-edc-randomization_          |edc-randomization|           |pypi-edc-randomization|
-edc-refusal_                |edc-refusal|                 |pypi-edc-refusal|
-edc-registration_           |edc-registration|            |pypi-edc-registration|
-edc-reportable_             |edc-reportable|              |pypi-edc-reportable|
-edc-review-dashboard_       |edc-review-dashboard|        |pypi-edc-review-dashboard|
-edc-rx_                     |edc-rx|                      |pypi-edc-rx|
-edc-screening_              |edc-screening|               |pypi-edc-screening|
-edc-search_                 |edc-search|                  |pypi-edc-search|
-edc-sites_                  |edc-sites|                   |pypi-edc-sites|
-edc-subject-dashboard_      |edc-subject-dashboard|       |pypi-edc-subject-dashboard|
-edc-test-utils_             |edc-test-utils|              |pypi-edc-test-utils|
-edc-timepoint_              |edc-timepoint|               |pypi-edc-timepoint|
-edc-transfer_               |edc-transfer|                |pypi-edc-transfer|
-edc-unblinding_             |edc-unblinding|              |pypi-edc-unblinding|
-edc-utils_                  |edc-utils|                   |pypi-edc-utils|
-edc-view-utils_             |edc-view-utils|              |pypi-edc-view-utils|
-edc-visit-schedule_         |edc-visit-schedule|          |pypi-edc-visit-schedule|
-edc-visit-tracking_         |edc-visit-tracking|          |pypi-edc-visit-tracking|
 edc-vitals_                 |edc-vitals|                  |pypi-edc-vitals|
 =========================== ============================= ==================================
 
 
-Contrib
--------
-
-========================== ============================== ==================================
-edc-csf_                    |edc-csf|                     |pypi-edc-csf|
-edc-microbiology_           |edc-microbiology|            |pypi-edc-microbiology|
-edc-microscopy_             |edc-microscopy|              |pypi-edc-microscopy|
-========================== ============================== ==================================
-
 Thanks to JetBrains for support with an opensource PyCharm IDE license. |jet-brains|
 
 
-
-.. |pypi| image:: https://img.shields.io/pypi/v/edc.svg
+.. |pypi| image:: https://img.shields.io/pypi/v/clinicedc.svg
     :target: https://pypi.python.org/pypi/edc
 
-.. |downloads| image:: https://pepy.tech/badge/edc
-   :target: https://pepy.tech/project/edc
+.. |downloads| image:: https://pepy.tech/badge/clinicedc
+   :target: https://pepy.tech/project/clinicedc
 
 .. |django| image:: https://www.djangoproject.com/m/img/badges/djangomade124x25.gif
    :target: http://www.djangoproject.com/
    :alt: Made with Django
 
 
-.. _edc-action-item: https://github.com/clinicedc/edc-action-item
-.. _edc-adherence: https://github.com/clinicedc/edc-adherence
-.. _edc-adverse-event: https://github.com/clinicedc/edc-adverse-event
-.. _edc-analytics: https://github.com/clinicedc/edc-analytics
-.. _edc-appointment: https://github.com/clinicedc/edc-appointment
-.. _edc-appconfig: https://github.com/clinicedc/edc-appconfig
-.. _edc-auth: https://github.com/clinicedc/edc-auth
-.. _edc-consent: https://github.com/clinicedc/edc-consent
-.. _edc-constants: https://github.com/clinicedc/edc-constants
-.. _edc-crf: https://github.com/clinicedc/edc-crf
 .. _edc-csf: https://github.com/clinicedc/edc-csf
-.. _edc-dashboard: https://github.com/clinicedc/edc-dashboard
-.. _edc-data-manager: https://github.com/clinicedc/edc-data-manager
-.. _edc-device: https://github.com/clinicedc/edc-device
-.. _edc-document-status: https://github.com/clinicedc/edc-document-status
 .. _edc-dx: https://github.com/clinicedc/edc-dx
 .. _edc-dx-review: https://github.com/clinicedc/edc-dx-review
 .. _edc-egfr: https://github.com/clinicedc/edc-egfr
-.. _edc-export: https://github.com/clinicedc/edc-export
-.. _edc-facility: https://github.com/clinicedc/edc-facility
-.. _edc-fieldsets: https://github.com/clinicedc/edc-fieldsets
-.. _edc-form-describer: https://github.com/clinicedc/edc-form-describer
-.. _edc-form-label: https://github.com/clinicedc/edc-form-label
-.. _edc-form-runners: https://github.com/clinicedc/edc-form-runners
-.. _edc-form-validators: https://github.com/clinicedc/edc-form-validators
 .. _edc-glucose: https://github.com/clinicedc/edc-glucose
 .. _edc-he: https://github.com/clinicedc/edc-he
-.. _edc-identifier: https://github.com/clinicedc/edc-identifier
-.. _edc-lab: https://github.com/clinicedc/edc-lab
-.. _edc-lab-dashboard: https://github.com/clinicedc/edc-lab-dashboard
-.. _edc-lab-panel: https://github.com/clinicedc/edc-lab-panel
-.. _edc-lab-results: https://github.com/clinicedc/edc-lab-results
-.. _edc-label: https://github.com/clinicedc/edc-label
-.. _edc-list-data: https://github.com/clinicedc/edc-list-data
-.. _edc-listboard: https://github.com/clinicedc/edc-listboard
-.. _edc-locator: https://github.com/clinicedc/edc-locator
-.. _edc-ltfu: https://github.com/clinicedc/edc-ltfu
-.. _edc-metadata: https://github.com/clinicedc/edc-metadata
 .. _edc-mnsi: https://github.com/clinicedc/edc-mnsi
 .. _edc-microbiology: https://github.com/clinicedc/edc-microbiology
 .. _edc-microscopy: https://github.com/clinicedc/edc-microscopy
-.. _edc-model: https://github.com/clinicedc/edc-model
-.. _edc-model-admin: https://github.com/clinicedc/edc-model-admin
-.. _edc-model-fields: https://github.com/clinicedc/edc-model-fields
-.. _edc-model-form: https://github.com/clinicedc/edc-model-form
-.. _edc-model-to-dataframe: https://github.com/clinicedc/edc-model-to-dataframe
-.. _edc-navbar: https://github.com/clinicedc/edc-navbar
 .. _edc-next-appointment: https://github.com/clinicedc/edc-next-appointment
-.. _edc-notification: https://github.com/clinicedc/edc-notification
-.. _edc-offstudy: https://github.com/clinicedc/edc-offstudy
-.. _edc-pdutils: https://github.com/clinicedc/edc-pdutils
-.. _edc-pharmacy: https://github.com/clinicedc/edc-pharmacy
-.. _edc-prn: https://github.com/clinicedc/edc-prn
-.. _edc-protocol: https://github.com/clinicedc/edc-protocol
-.. _edc-protocol-incident: https://github.com/clinicedc/edc-protocol-incident
-.. _edc-pylabels: https://github.com/clinicedc/edc-pylabels
-.. _edc-qareports: https://github.com/clinicedc/edc-qareports
 .. _edc-qol: https://github.com/clinicedc/edc-qol
-.. _edc-randomization: https://github.com/clinicedc/edc-randomization
-.. _edc-refusal: https://github.com/clinicedc/edc-refusal
-.. _edc-registration: https://github.com/clinicedc/edc-registration
-.. _edc-reportable: https://github.com/clinicedc/edc-reportable
-.. _edc-pdf-reports: https://github.com/clinicedc/edc-reports
-.. _edc-review-dashboard: https://github.com/clinicedc/edc-review-dashboard
-.. _edc-rx: https://github.com/clinicedc/edc-rx
-.. _edc-screening: https://github.com/clinicedc/edc-screening
-.. _edc-search: https://github.com/clinicedc/edc-search
-.. _edc-sites: https://github.com/clinicedc/edc-sites
-.. _edc-subject-dashboard: https://github.com/clinicedc/edc-subject-dashboard
 .. _edc-test-utils: https://github.com/clinicedc/edc-test-utils
-.. _edc-timepoint: https://github.com/clinicedc/edc-timepoint
-.. _edc-transfer: https://github.com/clinicedc/edc-transfer
-.. _edc-unblinding: https://github.com/clinicedc/edc-unblinding
-.. _edc-utils: https://github.com/clinicedc/edc-utils
-.. _edc-view-utils: https://github.com/clinicedc/edc-view-utils
-.. _edc-visit-schedule: https://github.com/clinicedc/edc-visit-schedule
-.. _edc-visit-tracking: https://github.com/clinicedc/edc-visit-tracking
 .. _edc-vitals: https://github.com/clinicedc/edc-vitals
 
 .. |edc-action-item| image:: https://github.com/clinicedc/edc-action-item/actions/workflows/build.yml/badge.svg

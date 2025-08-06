@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
-from visit_schedule_app.models import SubjectVisit
+from edc_visit_schedule_app.models import SubjectVisit
 
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
@@ -38,7 +38,7 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         self.consent_v1 = ConsentDefinition(
-            "visit_schedule_app.subjectconsentv1",
+            "edc_visit_schedule_app.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,
@@ -52,14 +52,14 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="visit_schedule_app.subjectoffstudy",
-            death_report_model="visit_schedule_app.deathreport",
+            offstudy_model="edc_visit_schedule_app.subjectoffstudy",
+            death_report_model="edc_visit_schedule_app.deathreport",
         )
 
         self.schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule_app.onschedule",
+            offschedule_model="edc_visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[self.consent_v1],
             base_timepoint=1,
@@ -92,7 +92,7 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
                 site_consents.register(cdef)
 
         _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "visit_schedule_app.onschedule"
+            "edc_visit_schedule_app.onschedule"
         )
         cdef = schedule.consent_definitions[0]
         traveller = time_machine.travel(self.study_open_datetime)

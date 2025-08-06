@@ -2,8 +2,8 @@ from datetime import timedelta
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
-from visit_schedule_app.consents import consent_v1
-from visit_schedule_app.models import OffSchedule, OnSchedule
+from edc_visit_schedule_app.consents import consent_v1
+from edc_visit_schedule_app.models import OffSchedule, OnSchedule
 
 from edc_utils import get_utcnow
 from edc_visit_schedule.schedule import AlreadyRegisteredVisit, Schedule
@@ -21,8 +21,8 @@ class TestSchedule(TestCase):
         """Asserts repr evaluates correctly."""
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule_app.onschedule",
+            offschedule_model="edc_visit_schedule_app.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -31,8 +31,8 @@ class TestSchedule(TestCase):
     def test_visit_schedule_field_value(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule_app.onschedule",
+            offschedule_model="edc_visit_schedule_app.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -42,7 +42,7 @@ class TestSchedule(TestCase):
         schedule = Schedule(
             name="schedule",
             onschedule_model="x.x",
-            offschedule_model="visit_schedule_app.offschedule",
+            offschedule_model="edc_visit_schedule_app.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )

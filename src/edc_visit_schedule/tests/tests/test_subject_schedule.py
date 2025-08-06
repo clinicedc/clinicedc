@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
-from visit_schedule_app.models import OffSchedule, OnSchedule, SubjectConsent
+from edc_visit_schedule_app.models import OffSchedule, OnSchedule, SubjectConsent
 
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
@@ -28,7 +28,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         site_consents.registry = {}
         self.consent_v1 = ConsentDefinition(
-            "visit_schedule_app.subjectconsentv1",
+            "edc_visit_schedule_app.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,
@@ -42,22 +42,22 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="visit_schedule_app.SubjectOffstudy",
-            death_report_model="visit_schedule_app.DeathReport",
+            offstudy_model="edc_visit_schedule_app.SubjectOffstudy",
+            death_report_model="edc_visit_schedule_app.DeathReport",
         )
 
         self.schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.OnSchedule",
-            offschedule_model="visit_schedule_app.OffSchedule",
+            onschedule_model="edc_visit_schedule_app.OnSchedule",
+            offschedule_model="edc_visit_schedule_app.OffSchedule",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[self.consent_v1],
             base_timepoint=1,
         )
         self.schedule3 = Schedule(
             name="schedule_three",
-            onschedule_model="visit_schedule_app.OnScheduleThree",
-            offschedule_model="visit_schedule_app.OffScheduleThree",
+            onschedule_model="edc_visit_schedule_app.OnScheduleThree",
+            offschedule_model="edc_visit_schedule_app.OffScheduleThree",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[self.consent_v1],
             base_timepoint=1,
@@ -70,21 +70,21 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         self.visit_schedule_two = VisitSchedule(
             name="visit_schedule_two",
             verbose_name="Visit Schedule Two",
-            offstudy_model="visit_schedule_app.SubjectOffstudy",
-            death_report_model="visit_schedule_app.DeathReport",
+            offstudy_model="edc_visit_schedule_app.SubjectOffstudy",
+            death_report_model="edc_visit_schedule_app.DeathReport",
         )
 
         self.schedule_two_1 = Schedule(
             name="schedule_two",
-            onschedule_model="visit_schedule_app.OnScheduleTwo",
-            offschedule_model="visit_schedule_app.OffScheduleTwo",
+            onschedule_model="edc_visit_schedule_app.OnScheduleTwo",
+            offschedule_model="edc_visit_schedule_app.OffScheduleTwo",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[self.consent_v1],
         )
         self.schedule_two_2 = Schedule(
             name="schedule_four",
-            onschedule_model="visit_schedule_app.OnScheduleFour",
-            offschedule_model="visit_schedule_app.OffScheduleFour",
+            onschedule_model="edc_visit_schedule_app.OnScheduleFour",
+            offschedule_model="edc_visit_schedule_app.OffScheduleFour",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[self.consent_v1],
         )
@@ -100,7 +100,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
         for onschedule_model, schedule_name in [
-            ("visit_schedule_app.onscheduletwo", "schedule_two"),
+            ("edc_visit_schedule_app.onscheduletwo", "schedule_two"),
             ("visit_schedule_app.onschedulefour", "schedule_four"),
         ]:
             with self.subTest(onschedule_model=onschedule_model, schedule_name=schedule_name):

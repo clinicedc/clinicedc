@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.views.generic.base import ContextMixin
-from visit_schedule_app.models import OnSchedule, SubjectConsent
+from edc_visit_schedule_app.models import OnSchedule, SubjectConsent
 
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
@@ -40,7 +40,7 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         self.consent_v1 = ConsentDefinition(
-            "visit_schedule_app.subjectconsentv1",
+            "edc_visit_schedule_app.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,
@@ -54,21 +54,21 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="visit_schedule_app.SubjectOffstudy",
-            death_report_model="visit_schedule_app.DeathReport",
+            offstudy_model="edc_visit_schedule_app.SubjectOffstudy",
+            death_report_model="edc_visit_schedule_app.DeathReport",
         )
 
         self.schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.OnSchedule",
-            offschedule_model="visit_schedule_app.OffSchedule",
+            onschedule_model="edc_visit_schedule_app.OnSchedule",
+            offschedule_model="edc_visit_schedule_app.OffSchedule",
             consent_definitions=[self.consent_v1],
             appointment_model="edc_appointment.appointment",
         )
         self.schedule3 = Schedule(
             name="schedule_three",
-            onschedule_model="visit_schedule_app.OnScheduleThree",
-            offschedule_model="visit_schedule_app.OffScheduleThree",
+            onschedule_model="edc_visit_schedule_app.OnScheduleThree",
+            offschedule_model="edc_visit_schedule_app.OffScheduleThree",
             consent_definitions=[self.consent_v1],
             appointment_model="edc_appointment.appointment",
         )

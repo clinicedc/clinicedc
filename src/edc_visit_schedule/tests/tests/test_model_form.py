@@ -1,9 +1,9 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
-from visit_schedule_app.consents import consent_v1
-from visit_schedule_app.forms import OffScheduleForm
-from visit_schedule_app.models import OnSchedule, SubjectConsent
-from visit_schedule_app.visit_schedule import visit_schedule
+from edc_visit_schedule_app.consents import consent_v1
+from edc_visit_schedule_app.forms import OffScheduleForm
+from edc_visit_schedule_app.models import OnSchedule, SubjectConsent
+from edc_visit_schedule_app.visit_schedule import visit_schedule
 
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays

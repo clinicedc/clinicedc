@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
-from visit_schedule_app.models import SubjectVisit
+from edc_visit_schedule_app.models import SubjectVisit
 
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents

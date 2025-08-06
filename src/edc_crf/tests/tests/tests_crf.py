@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
-from visit_schedule_app.models import SubjectScreening, SubjectVisit
+from edc_visit_schedule_app.models import SubjectScreening, SubjectVisit
 
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents

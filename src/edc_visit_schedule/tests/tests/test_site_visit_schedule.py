@@ -1,6 +1,6 @@
 from django.test import TestCase
-from visit_schedule_app.consents import consent_v1
-from visit_schedule_app.models import OffSchedule, OnSchedule
+from edc_visit_schedule_app.consents import consent_v1
+from edc_visit_schedule_app.models import OffSchedule, OnSchedule
 
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import (
@@ -16,8 +16,8 @@ class TestSiteVisitSchedule(TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="visit_schedule_app.subjectoffstudy",
-            death_report_model="visit_schedule_app.deathreport",
+            offstudy_model="edc_visit_schedule_app.subjectoffstudy",
+            death_report_model="edc_visit_schedule_app.deathreport",
         )
 
     def test_register_no_schedules(self):
@@ -30,8 +30,8 @@ class TestSiteVisitSchedule(TestCase):
         site_visit_schedules._registry = {}
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule_app.onschedule",
+            offschedule_model="edc_visit_schedule_app.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[consent_v1],
             base_timepoint=1,
@@ -50,8 +50,8 @@ class TestSiteVisitSchedule1(TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="visit_schedule_app.subjectoffstudy",
-            death_report_model="visit_schedule_app.deathreport",
+            offstudy_model="edc_visit_schedule_app.subjectoffstudy",
+            death_report_model="edc_visit_schedule_app.deathreport",
         )
 
         self.schedule = Schedule(

@@ -5,7 +5,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
-from visit_schedule_app.models import (
+from edc_visit_schedule_app.models import (
     BadOffSchedule1,
     CrfOne,
     OffSchedule,
@@ -19,7 +19,7 @@ from visit_schedule_app.models import (
     SubjectConsent,
     SubjectVisit,
 )
-from visit_schedule_app.visit_schedule import (
+from edc_visit_schedule_app.visit_schedule import (
     visit_schedule,
     visit_schedule5,
     visit_schedule6,
@@ -65,7 +65,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         self.consent_v1 = ConsentDefinition(
-            "visit_schedule_app.subjectconsentv1",
+            "edc_visit_schedule_app.subjectconsentv1",
             version="1",
             start=ResearchProtocolConfig().study_open_datetime,
             end=ResearchProtocolConfig().study_close_datetime,
