@@ -1,0 +1,6 @@
+SEVEN_DAY_CLINIC = "7-day-clinic"
+SIX_DAY_CLINIC = "6-day-clinic"
+FIVE_DAY_CLINIC = "5-day-clinic"
+TU_WE_TH_CLINIC = "3-day-clinic"
+FOUR_DAY_CLINIC = "4-day-clinic"
+HEALTH_FACILITY = "health_facility"
