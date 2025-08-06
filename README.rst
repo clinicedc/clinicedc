@@ -17,6 +17,8 @@ clinicedc -  A clinical trials data management framework built on Django
 
 A data management framework built on Django for multisite randomized longitudinal clinical trials.
 
+Documentation: `clinicedc.readthedocs.io <https://clinicedc.readthedocs.io/>`_
+
 `Here are a set of python modules that extend Django <https://github.com/clinicedc/edc>`__ to empower you to build an EDC / eSource system to handle data
 collection and management for multi-site longitudinal clinical trials.
 
@@ -41,6 +43,11 @@ The implementations we develop with this framework are mostly eSource systems ra
 The ``clinicedc's`` listed below consist of a subset of trial-specific modules that make heavy use of modules in this framework.
 
 (python 3.12+, Django 5.2+, MySQL 8+, see setup.cfg)
+
+|django| |jet-brains|
+
+Thanks to `JetBrains <https://www.jetbrains.com>`_ for support with an opensource PyCharm IDE license.
+
 
 
 How we describe the EDC in our protocol documents
@@ -153,8 +160,6 @@ Contacts
 
 For further information go to https://github.com/erikvw.
 
-|django| |jet-brains|
-
 Optional modules
 ----------------
 
@@ -174,9 +179,6 @@ edc-vitals_                 |edc-vitals|                  |pypi-edc-vitals|
 edc-test-settings_          |edc-test-settings|           |pypi-edc-test-settings|
 edc-test-utils_             |edc-test-utils|              |pypi-edc-test-utils|
 =========================== ============================= ==================================
-
-
-Thanks to JetBrains for support with an opensource PyCharm IDE license. |jet-brains|
 
 
 .. |pypi| image:: https://img.shields.io/pypi/v/clinicedc.svg
