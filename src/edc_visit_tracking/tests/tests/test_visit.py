@@ -6,7 +6,12 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 from edc_visit_tracking_app.consents import consent_v1
-from edc_visit_tracking_app.models import BadCrfOneInline, CrfOne, CrfOneInline, OtherModel
+from edc_visit_tracking_app.models import (
+    BadCrfOneInline,
+    CrfOne,
+    CrfOneInline,
+    OtherModel,
+)
 from edc_visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
 
 from edc_appointment.constants import INCOMPLETE_APPT

@@ -1,7 +1,7 @@
-from edc_adverse_event_app import list_data
 from django import forms
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
+from edc_adverse_event_app import list_data
 
 from edc_adverse_event.constants import AE_WITHDRAWN
 from edc_adverse_event.form_validators import (

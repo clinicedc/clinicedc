@@ -1,6 +1,6 @@
-from edc_adverse_event_app.models import AeFollowup
 from django import forms
 from django.test import TestCase
+from edc_adverse_event_app.models import AeFollowup
 
 from edc_adverse_event.modelform_mixins import AeFollowupModelFormMixin
 

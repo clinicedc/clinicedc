@@ -6,8 +6,8 @@ from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings
 
-from edc_action_item.site_action_items import site_action_items
 from edc_action_item.models import ActionItem
+from edc_action_item.site_action_items import site_action_items
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE

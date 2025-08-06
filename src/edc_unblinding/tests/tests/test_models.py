@@ -3,8 +3,7 @@ from django.test import TestCase, override_settings
 from edc_visit_schedule_app.consents import consent_v1
 from visit_schedule_app.visit_schedule import visit_schedule
 
-from edc_action_item.site_action_items import site_action_items
-from edc_action_item.site_action_items import AlreadyRegistered
+from edc_action_item.site_action_items import AlreadyRegistered, site_action_items
 from edc_auth.site_auths import site_auths
 from edc_consent.site_consents import site_consents
 from edc_facility import import_holidays

@@ -1,6 +1,6 @@
-from edc_adverse_event_app import list_data
 from django.core import mail
 from django.test import TestCase, override_settings
+from edc_adverse_event_app import list_data
 from model_bakery import baker
 
 from edc_adverse_event.notifications import (

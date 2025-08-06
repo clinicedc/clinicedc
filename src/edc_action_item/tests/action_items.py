@@ -1,7 +1,7 @@
-from edc_action_item.site_action_items import site_action_items
 from edc_action_item.action import Action
 from edc_action_item.action_item_notification import ActionItemNotification
 from edc_action_item.models import ActionType
+from edc_action_item.site_action_items import site_action_items
 from edc_constants.constants import HIGH_PRIORITY, NO
 
 

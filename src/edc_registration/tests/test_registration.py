@@ -2,8 +2,8 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings
-from multisite import SiteID
 from edc_visit_schedule_app.visit_schedule import visit_schedule
+from multisite import SiteID
 
 from edc_registration.exceptions import RegisteredSubjectError
 from edc_registration.models import RegisteredSubject

@@ -1,5 +1,7 @@
 from unittest.mock import PropertyMock, patch
 
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.test import TestCase, override_settings
 from edc_adverse_event_app import list_data
 from edc_adverse_event_app.action_items import (
     AeFollowupAction,
@@ -7,8 +9,6 @@ from edc_adverse_event_app.action_items import (
     StudyTerminationConclusionAction,
 )
 from edc_adverse_event_app.models import AeFollowup, AeInitial, AeSusar, AeTmg
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.test import TestCase, override_settings
 from model_bakery import baker
 
 from edc_action_item.get_action_type import get_action_type

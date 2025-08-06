@@ -6,8 +6,8 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
 
-from edc_action_item.site_action_items import site_action_items
 from edc_action_item.models import ActionItem
+from edc_action_item.site_action_items import site_action_items
 from edc_adverse_event.constants import DEATH_REPORT_ACTION
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_consent.consent_definition import ConsentDefinition

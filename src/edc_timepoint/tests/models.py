@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+
 from edc_consent.field_mixins import IdentityFieldsMixin, PersonalFieldsMixin
 from edc_consent.managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 from edc_consent.model_mixins import ConsentModelMixin

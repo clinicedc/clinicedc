@@ -3,13 +3,13 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from edc_device.constants import CENTRAL_SERVER, CLIENT, NODE_SERVER
-
-from ..models import TestModel, TestModel2, TestModelPermissions
 from edc_device.device_permission import (
-    device_permissions,
     DeviceAddPermission,
     DeviceChangePermission,
+    device_permissions,
 )
+
+from ..models import TestModel, TestModel2, TestModelPermissions
 
 
 class TestDevicePermission(TestCase):

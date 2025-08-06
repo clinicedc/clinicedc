@@ -1,6 +1,6 @@
-from edc_adverse_event_app import list_data
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
+from edc_adverse_event_app import list_data
 from model_bakery import baker
 
 from edc_action_item.models.action_item import ActionItem
