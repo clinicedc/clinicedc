@@ -1,0 +1,47 @@
+{% load i18n static %}
+<!DOCTYPE html><!-- start edc base-dj3 -->
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+  {% block header %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- to suppress browserconfig.xml NOT FOUND -->
+    <meta name="msapplication-config" content="none"/>
+
+    <title>{% block title %}{% endblock %}</title>
+      {% block jquery %}{% endblock %}
+      {% block extrastyle %}{% endblock %}
+      {% block extrahead %}{% endblock %}
+      {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+  {% endblock header %}
+  {% block document_ready %}
+  {% endblock document_ready %}
+</head>
+
+<body class="edc-body" id="edc-body" data-admin-utc-offset="{% now "Z" %}">
+    {% block topbar %}{% endblock topbar %}
+
+<!-- Container -->
+<div class="container">
+    <div class="row">
+        {% block alert %}{% endblock alert %}
+    </div>
+    <div class="row">
+        {% block main %}{% endblock main %}
+    </div>
+</div>
+<!-- END Container -->
+
+{% block modals %}{% endblock modals %}
+{% block bottombar %}{% endblock bottombar %}
+{% block footer %}{% endblock footer %}
+
+</body>
+
+{% block extra-scripts-bottom %}{% endblock %}
+
+</html>
+<!-- end edc base-dj3 -->

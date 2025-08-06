@@ -1,0 +1,30 @@
+{% extends 'edc_dashboard/base.html' %}
+{% load i18n %}
+
+{% block extra-styles %}
+{{ block.super }}
+<style>
+  h1 {
+    font-size: 1200%;
+    font-weight: 900;
+  }
+  #error-page {
+    padding-top: 10%;
+    text-align: center
+  }
+  </style>
+{% endblock %}
+
+{% block main %}
+    <div id="error-page" class="col-md-12">
+        <h1>403</h1>
+        <h2>{%trans "You are not authorized to view this page" %}</h2>
+        <br>
+        <a class="btn btn-primary" onclick="window.history.back();">{% trans "Go Back" %}</a>&nbsp;or&nbsp;
+        <a class="btn btn-primary" href="/">{% trans "Return to the home page" %}</a>
+    </div>
+{% endblock main %}
+
+{% block alert %}{% endblock alert %}
+
+{% block topbar_title %}{% endblock topbar_title %}

@@ -1,0 +1,25 @@
+<!--start searchform-->
+<span class="pull-right">
+  <form  action="{% if search_form_url_reversed %}{{ search_form_url_reversed }}{% endif %}" class="form-inline" id="form-search" method="get" >
+    <div class="form-group" >
+      <div class="controls ">
+        <div class="input-group">
+          <input class="form-control input-sm textinput form-control" id="id_q" maxlength="150" name="q" placeholder="search" type="text" value="{{ q|default:search_term|default:'' }}" />
+          <span class="input-group-btn"><button  type="submit" class="btn btn btn-default btn-sm"><i class="fas fa-search fa-sm"></i></button>
+            {% if listboard_view_filters %}<button  type="button" class="btn btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"><span class="text {% if f == 'all' %}text-default{% elif f or e %}text-info{% else %}text-default{% endif %}"><i class="fas fa-filter fa-sm"></i></span>&nbsp;<span class="caret"></span></button>
+              <ul class="dropdown-menu pull-right" role="menu">
+                {% for listboard_filter in listboard_view_filters %}
+                  <li><a href="{% url listboard_filter_url %}?{{ listboard_filter.querystring }}">{{ listboard_filter.label }}{% if f == listboard_filter.name or e == listboard_filter.name %}&nbsp;<i class="fas fa-check fa-fw"></i>{% endif %}</a></li>
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+    {% if f %}<input type="hidden" name="f" value="{{ f }}">{% endif %}
+	  {% if e %}<input type="hidden" name="e" value="{{ e }}">{% endif %}
+	  {% if o %}<input type="hidden" name="o" value="{{ o }}">{% endif %}
+  </form>
+</span>
+<!--end searchform-->

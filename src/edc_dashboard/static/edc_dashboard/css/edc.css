@@ -1,0 +1,92 @@
+.edc-body {
+    padding-top: 10px;
+}
+
+.table-no-border>thead>tr>th,
+.table-no-border>tbody>tr>th,
+.table-no-border>tfoot>tr>th,
+.table-no-border>thead>tr>td,
+.table-no-border>tbody>tr>td,
+.table-no-border>tfoot>tr>td {
+  border-top: none;
+}
+
+@-ms-viewport       { width: device-width; }
+@-o-viewport        { width: device-width; }
+@viewport           { width: device-width; }
+
+.panel-extended {
+    min-height: 200px;
+    overflow-y: scroll;
+}
+.bg-1 {
+    background-color: #428bca; /* dark blue */
+    color: #ffffff;
+}
+.bg-2 {
+    background-color: #5bc0de; /* light Blue */
+    color: #ffffff;
+}
+.bg-3 {
+    background-color: #f9f9f9; /* White */
+    color: #555555;
+}
+
+/*for EDC changelist buttons*/
+.button.add, input[type=submit].add, .submit-row input.add {
+    float: left;
+    border: none;
+    font-weight: 400;
+    background: #0d47a1;
+}
+
+.button.add:active, input[type=submit].add:active,
+.button.add:focus, input[type=submit].add:focus,
+.button.add:hover, input[type=submit].add:hover {
+    background: #0d47a1;
+}
+
+.button[disabled].add,
+input[type=submit][disabled].add,
+input[type=button][disabled].add {
+    opacity: 0.4;
+}
+
+.button.edit, input[type=submit].edit, .submit-row input.edit {
+    float: left;
+    border: none;
+    font-weight: 400;
+    background: #5cb85c;
+}
+
+.button.edit:active, input[type=submit].edit:active,
+.button.edit:focus, input[type=submit].edit:focus,
+.button.edit:hover, input[type=submit].edit:hover {
+    background: #5cb85c;
+}
+
+.button[disabled].edit,
+input[type=submit][disabled].edit,
+input[type=button][disabled].edit {
+  opacity: 0.4;
+}
+
+.button.go, input[type=submit].go, .submit-row input.go {
+    float: left;
+    border: none;
+    font-weight: 400;
+    background: #337ab7;
+}
+
+.button.go:active, input[type=submit].go:active,
+.button.go:focus, input[type=submit].go:focus,
+.button.go:hover, input[type=submit].go:hover {
+    background: #337ab7;
+}
+
+.button[disabled].go,
+input[type=submit][disabled].go,
+input[type=button][disabled].go {
+    opacity: 0.4;
+
+}

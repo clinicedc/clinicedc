@@ -1,0 +1,45 @@
+{% load i18n static %}
+<!DOCTYPE html><!-- start edc base-dj4 -->
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
+<head>
+  {% block header %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- to suppress browserconfig.xml NOT FOUND -->
+    <meta name="msapplication-config" content="none"/>
+    <title>{% block title %}{% endblock %}</title>
+      {% block jquery %}{% endblock %}
+      {% block extrastyle %}{% endblock %}
+      {% block extrahead %}{% endblock %}
+      {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+  {% endblock header %}
+  {% block document_ready %}
+  {% endblock document_ready %}
+</head>
+<!-- begin base_dj4 body-->
+<body class="edc-body" id="edc-body" data-admin-utc-offset="{% now "Z" %}">
+<!-- begin base_dj4 block topbar -->
+{% block topbar %}{% endblock topbar %}
+<!-- end base_dj4 block topbar -->
+<!-- begin base_dj4 container -->
+<div class="container">
+  <div class="row">
+    <!-- begin base_dj4 block alert -->{% block alert %}{% endblock alert %}
+    <!-- end base_dj4 block alert -->
+  </div>
+  <div class="row">
+    <!-- begin base_dj4 block main -->{% block main %}{% endblock main %}
+    <!-- begin base_dj4 block main -->
+  </div>
+</div>
+<!-- end base_dj4 container -->
+{% block modals %}{% endblock modals %}
+{% block bottombar %}{% endblock bottombar %}
+{% block footer %}{% endblock footer %}
+</body>
+<!-- end base-dj4 body-->
+{% block extra-scripts-bottom %}{% endblock %}
+</html>
+<!-- end base-dj4 -->

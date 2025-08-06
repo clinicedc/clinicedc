@@ -1,0 +1,32 @@
+{% load i18n %}
+
+<!--  begin paginator -->
+{% if show %}
+ <div style="text-align:center">
+ <ul class="pagination pagination-sm">
+
+  {% if first_url %}<li><a  href="{{ first_url }}"><i class="fas fa-angle-double-left fa-fw"></i></a></li>{% endif %}
+  {% if previous_url %}<li><a href="{{ previous_url }}"><i class="fas fa-angle-left fa-fw"></i></a></li>{% endif %}
+
+	{% for number in numbers %}
+		<li class="{{ number.active }}"><a href="{{ number.url }}">{{ number.number }}</a></li>
+	{% endfor %}
+
+  {% if next_url %}<li><a href="{{ next_url }}"><i class="fas fa-angle-right fa-fw"></i></a></li>{% endif %}
+  {% if last_url %}<li><a href="{{ last_url }}"><i class="fas fa-angle-double-right fa-fw"></i></a></li>{% endif %}
+
+</ul>
+</div>
+<div style="text-align:center" class="text text-muted"><small>{{ sub_text }}</small></div>
+{% endif %}
+
+{% if search_term %}
+	<div style="text-align:center">
+		<span class="text small">
+		   <a role="button" href="{{paginator_url}}"
+		       class="btn btn-default btn-sm">
+		           <i class="fas fa-undo fa-sm"></i>&nbsp;{%  trans "Clear search filter" %}</a></span>
+	</div>
+{% endif %}
+
+<!--  end paginator -->

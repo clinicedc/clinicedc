@@ -1,0 +1,41 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <script   src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+
+</head>
+<body class="edc-body" >
+  <div class="container">
+  	<div class="col-md-2"></div>
+	  <div class="col-md-8">
+		  <div class="panel panel-danger">
+			  <div class="panel-heading">{% trans "Server Error" %}</div>
+			  <div class="panel-body">
+		      {% trans "A server error has occured. No additional information is available" %}.
+
+			  <p>{% trans "Please submit a ticket on" %} <A href="http://redmine.clinicedc.org"  target="_blank">Redmine</A></p>
+
+			  <p>{% trans "If you wish to contact support, contact information is on" %} Redmine.</p>
+			  </div>
+		  </div>
+	  </div>
+	  <div class="col-md-2"></div>
+  </div>
+</body>
+{% block boostrap %}
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+{% endblock %}
+</html>

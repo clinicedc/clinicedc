@@ -1,0 +1,64 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-08-21 20:46-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: edc_dashboard/templates/403.html:21
+msgid "You are not authorized to view this page"
+msgstr "Hujaidhinishwa kutazama ukurasa huu"
+
+#: edc_dashboard/templates/403.html:23 edc_dashboard/templates/403_csrf.html:23
+#: edc_dashboard/templates/404.html:23
+msgid "Go Back"
+msgstr "Rudi nyuma"
+
+#: edc_dashboard/templates/403.html:24 edc_dashboard/templates/403_csrf.html:24
+#: edc_dashboard/templates/404.html:24
+msgid "Return to the home page"
+msgstr "Rudi kwenye ukurasa wa nyumbani"
+
+#: edc_dashboard/templates/500.html:20
+msgid "Server Error"
+msgstr "Hitilafu ya Seva"
+
+#: edc_dashboard/templates/500.html:22
+msgid "A server error has occured. No additional information is available"
+msgstr "Hitilafu ya seva imetokea. Hakuna maelezo ya ziada yanayopatikana"
+
+#: edc_dashboard/templates/500.html:24
+msgid "Please submit a ticket on"
+msgstr "Tafadhali wasilisha tikiti kwenye"
+
+#: edc_dashboard/templates/500.html:26
+msgid "If you wish to contact support, contact information is on"
+msgstr "Ikiwa ungependa kuwasiliana na usaidizi, maelezo ya mawasiliano yapo kwenye"
+
+#: edc_dashboard/templates/edc_dashboard/administration.html:15
+msgid "Administration"
+msgstr "Utawala"
+
+#: edc_dashboard/templates/edc_dashboard/controls/change_button.html:4
+msgid "Change"
+msgstr "Badilika"
+
+#: edc_dashboard/templates/edc_dashboard/controls/change_button.html:4
+msgid "Add"
+msgstr "Ongeza"
+
+#: edc_dashboard/templates/edc_dashboard/paginator/paginator_row.html:28
+msgid "Clear search filter"
+msgstr "Futa kichujio cha utafutaji"

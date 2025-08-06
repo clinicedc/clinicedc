@@ -1,0 +1,30 @@
+{% extends 'edc_dashboard/base.html' %}
+{% load i18n %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  h1 {
+    font-size: 1200%;
+    font-weight: 900;
+  }
+  #error-page {
+    padding-top: 10%;
+    text-align: center
+  }
+  </style>
+{% endblock extrastyle %}
+
+{% block main %}
+    <div id="error-page" class="col-md-12">
+            <h1>404</h1>
+            <h2>The requested page was not found.</h2>
+        <br>
+        <a class="btn btn-primary" onclick="window.history.back();">{% translate 'Go Back' %}</a>&nbsp;or&nbsp;
+        <a class="btn btn-primary" href="/">{% translate 'Return to the home page' %}</a>
+    </div>
+{% endblock main %}
+
+{% block alert %}{% endblock alert %}
+
+{% block topbar_title %}{% endblock topbar_title %}

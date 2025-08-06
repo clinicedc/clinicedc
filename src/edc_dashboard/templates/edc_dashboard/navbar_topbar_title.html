@@ -1,0 +1,3 @@
+<!-- begin topbar title -->
+<span class="navbar-brand hidden-sm">{% if live_system and not DEBUG %}<span class="label label-success">Live</span>{% else %}<span class="label label-danger">Test</span>{% endif %}&nbsp;<small>{{ protocol_name |default:project_name }}: {{ request.site.name|title }} ({{ request.site.id }})</small></span>
+<!-- end topbar title -->
