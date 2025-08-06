@@ -1,0 +1,8 @@
+DEVIATION = "protocol_deviation"
+MEDICATION_NONCOMPLIANCE = "medication_noncompliance"
+PROTOCOL_DEVIATION_VIOLATION_ACTION = "submit-protocol-deviation-violation"
+PROTOCOL_INCIDENT_ACTION = "submit-protocol-incident"
+VIOLATION = "protocol_violation"
+PROTOCOL_INCIDENT = "incident"
+PROTOCOL_DEVIATION_VIOLATION = "deviation_violation"
+WITHDRAWN = "withdrawn"
