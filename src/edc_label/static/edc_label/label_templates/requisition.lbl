@@ -1,0 +1,9 @@
+^XA^PR4
+^FO315,15^A0N,20,15^FD${protocol} Site ${site} ${clinician_initials} ${alpha_code} ${aliquot_count}/${children_count} ${primary}^FS
+^FO315,34^BY1^BCN,50,N,N,N,A
+^FD${barcode_value}^FS
+^FO315,92^A0N,20,15^FD${requisition_identifier}^FS
+^FO315,112^A0N,20,15^FD${subject_identifier} (${initials})^FS
+^FO315,132^A0N,20,15^FDDOB: ${dob} ${gender}^FS
+^FO315,152^A0N,20,15^FD${drawn_datetime}  ${panel}^FS
+^XZ

@@ -1,0 +1,7 @@
+CLINIC_LABEL_PRINTER = "clinic_label_printer"
+CLINIC_LABEL_PRINTER_NAME = "clinic_label_printer_name"
+LABELS = "labels"
+LAB_LABEL_PRINTER = "lab_label_printer"
+LAB_LABEL_PRINTER_NAME = "lab_label_printer_name"
+PRINT_SERVER_NAME = "print_server_name"
+TESTDATA = "test_data"

@@ -1,0 +1,46 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block extrahead %}{{ block.super }}
+  <script type="text/javascript" src="{% static 'edc_label/js/BrowserPrint-3.0.216.min.js' %}"></script>
+  <script type="text/javascript">
+    function printLabel(device, zpl_data) {
+      zpl_data = zpl_data.split('|');
+      for (let i = 0; i < zpl_data.length; ++i) {
+        device.send(zpl_data[i], undefined, function(error){console.error('Error:' + error)});}
+    }
+    $(window).on("load", function() {
+      BrowserPrint.getDefaultDevice("printer", function(device) {
+        printLabel(device, "{{ request.session.zpl_data }}");
+    }, function(error) {
+        alert(`Error getting default device, details: ${error}`);
+    });
+    });
+    $(document).ready(setTimeout(function() {
+      {% if browser_print_page_auto_back %}window.history.back();{% endif %}
+      }, 1000));
+  </script>
+{% endblock %}
+
+{% block main %}
+
+
+  {{ block.super }}
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">Print labels</div>
+      <div class="list-group">
+        <a onclick="window.history.back();" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Go back </a>
+        <a class="list-group-item">Printing labels ...</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+
+{% endblock main %}

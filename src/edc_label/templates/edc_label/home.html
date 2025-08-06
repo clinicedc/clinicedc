@@ -1,0 +1,18 @@
+{% extends 'edc_dashboard/base.html' %}
+{% load static %}
+
+{% block main %}
+{{ block.super }}
+  <div class="col-sm-4">&nbsp;</div>
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading"><i class="fas fa-heartbeat fa-lg fa-fw"></i> Edc Label</div>
+      <div class="list-group">
+      <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+      <a id="home_list_group_label_templates" href="{% url 'edc_label_admin:edc_label_zpllabeltemplates_changelist' %}" class="list-group-item">Label templates</a>
+      <a id="home_list_group_printer_setup" href="{% url 'edc_label:printer_setup_url' %}" class="list-group-item"><i class="fas fa-file-pdf fa-1x fa-fw" aria-hidden="true"></i>Printer setup (network-based)</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4">&nbsp;</div>
+{% endblock main %}

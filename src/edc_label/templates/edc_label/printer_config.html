@@ -1,0 +1,41 @@
+{% load edc_label_extras %}
+    <!--start printer_config -->
+    <div class="panel panel-success">
+      <div class="panel-heading"><h4>{{ heading }}</h4></div>
+      <div class="panel-body">
+      <form action="{% url 'edc_label:change_session_printer' printer_type %}" method="post">
+          {% csrf_token %}
+        <div class="form-group">
+              <select class="form-control" id="{{ printer_type }}_name" name="{{ printer_type }}_name" onchange="submit();">
+              <option {% if not selected_printer %}selected{% endif %} value="--">select one</option>
+              {% for printer in printers.values %}
+                 <option {% if printer.name == selected_printer.name %}selected{% endif %} value="{{ printer.name }}">{{ printer.printer_info|default:printer.name }} ({{ printer.printer_make_and_model }}) {{ printer.printer_location }}</option>
+              {% endfor %}
+            </select>
+        </div>
+      </form>
+      {% if selected_printer %}
+          <form action="{% url 'edc_label:print_label' %}" method="post">
+            {% print_button printer=selected_printer button_label="Test Print Requisition Label" label_template_name="requisition" %}
+            {% print_button printer=selected_printer button_label="Test Print Aliquot Label" label_template_name="aliquot" %}
+            {% print_button printer=selected_printer button_label="Test Print Box Label" label_template_name="box" %}
+            {% print_button printer=selected_printer button_label="Test Print Manifest Label" label_template_name="manifest" %}
+          </form>
+      {% endif %}
+      </div>
+      {% if selected_printer %}
+          <span class="text small">
+          <ul class="list-group">
+            <li class="list-group-item">Name: {{selected_printer.name}}</li>
+            <li class="list-group-item">Description: {{selected_printer.printer_info }}</li>
+            <li class="list-group-item">Location: {{selected_printer.printer_location|default:'Unknown'}}</li>
+            <li class="list-group-item">Shared: {{selected_printer.printer_is_shared}}</li>
+            {% if selected_printer.printer_state_reasons %}
+              <li class="list-group-item">Status: {{ selected_printer.printer_state_reasons }}</li>
+            {% endif %}
+            <li class="list-group-item">{{selected_printer.device_uri}}</li>
+            <li class="list-group-item">{{selected_printer.printer_uri_supported}}</li>
+          </ul></span>
+      {% endif %}
+    </div>
+    <!--end printer_config -->

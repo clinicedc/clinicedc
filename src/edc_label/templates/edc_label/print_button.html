@@ -1,0 +1,8 @@
+<!-- begin print button -->
+  {% csrf_token %}
+    <input type="hidden" name="printer_name" id="printer_name" value="{{ printer.name }}">
+    <input type="hidden" name="printer_server_name" id="printer_server_name" value="{{ printer.print_server_name }}">
+    <button onclick="submit();" class="btn btn-sm btn-default" id="label_template_name" name="label_template_name" value="{{ label_template_name }}">
+        <i class="fas fa-barcode fa-sm"></i> {{ button_label }}
+    </button>
+<!-- end print button -->
