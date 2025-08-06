@@ -1,0 +1,39 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+
+{{ block.super }}
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">Data Management</div>
+      <div class="list-group">
+        <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+        <a id="home_list_group_dataquery" href="{% url 'edc_data_manager_admin:edc_data_manager_dataquery_changelist' %}" class="list-group-item">Data queries</a>
+        <a id="home_list_group_query_rule" href="{% url 'edc_data_manager_admin:edc_data_manager_queryrule_changelist' %}" class="list-group-item">Query rules</a>
+        <a id="home_list_group_datadictionary" href="{% url 'edc_data_manager_admin:edc_data_manager_datadictionary_changelist' %}" class="list-group-item">Data dictionary</a>
+        <a id="home_list_group_queryvisitschedule" href="{% url 'edc_data_manager_admin:edc_data_manager_queryvisitschedule_changelist' %}" class="list-group-item">Visit schedule</a>
+
+        {% if perms.edc_metadata %}
+          <a id="home_edc_metadata_admin" href="{% url 'edc_metadata_admin:app_list' 'edc_metadata' %}" class="list-group-item">Review CRF/Requisition collection status</a>
+        {% endif %}
+        {% if perms.edc_crf %}
+          <a id="home_edc_crf_admin" href="{% url 'edc_crf_admin:edc_crf_crfstatus_changelist' %}" class="list-group-item">Review CRFs Flagged as Incomplete</a>
+        {% endif %}
+        {% if perms.edc_appointment %}
+          <a id="home_edc_appointment_admin" href="{% url 'edc_appointment_admin:edc_appointment_appointment_changelist' %}" class="list-group-item">Review Appointments</a>
+        {% endif %}
+        {% if perms.edc_data_manager %}
+          <a id="home_edc_data_manager_admin" href="{% url 'edc_data_manager_admin:app_list' 'edc_data_manager' %}" class="list-group-item">Admin</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+{% endblock main %}

@@ -1,0 +1,53 @@
+{% load l10n %}
+<small>
+{% if title %}<B><U>{{ title }}</U></B><BR>{% endif %}
+{% if report_datetime %}<B>Queried: </B>{{ report_datetime|localize }}<BR>{% endif %}
+{% if site_resolved_datetime %}<B>Responded: </B>{{ site_resolved_datetime|localize|default:" - " }}<BR>{% endif %}
+{% if resolved_datetime %}<B>TCC: </B>{{ resolved_datetime|localize|default:" - " }}<BR>{% endif %}
+{% if dm_user %}<B>Closed by: </B>{{ dm_user.first_name }} {{ dm_user.last_name }}<BR>{% endif %}
+
+{% if status == CLOSED %}
+
+{% elif status == RESOLVED %}
+
+{% elif status == CLOSED_WITH_ACTION %}
+
+	<B>Plan of action: </B><BR>
+	{{ plane_of_action }}<BR>
+
+{% else %}
+
+	{% if query_priority %}<B>Priority: </B>{{ query_priority_display }}{% if query_priority == HIGH_PRIORITY %}&nbsp;<span style='color:red'><i class='fas fa-tag fa-1x"'></i></span>{% endif %}<BR>{% endif %}
+
+	{% if visit_schedule %}
+		{% if visit_href %}
+			<B>Visit{{ visit_schedules|pluralize }}:</B> <A href='{{ visit_href }}' title='Go to visit'>{{ visit_schedule }}</A><BR>
+		{% else %}
+			<B>Visit{{ visit_schedules|pluralize }}:</B> {{ visit_schedule }} <BR>
+		{% endif %}
+	{% endif %}
+
+	<B>Query text: </B><BR>
+	{{ query_text }}<BR>
+
+	{% if site_response_status %}
+		<B>Site status: </B>{{ site_response_status }}<BR>
+	{% endif %}
+	{% if site_response_text %}
+	<B>Site response: </B><BR>
+	{{ site_response_text|truncatechars:100 }}
+	{% endif %}
+
+	{% if questions %}
+		<B>Question{{ questions|pluralize }}: </B><br>
+		{% for form, numbers in form_and_numbers %}
+			{{ form }} - {{ numbers }}<br>
+		{% endfor %}
+	{% endif %}
+	{% if requisition_panel %}
+		<B>Requisition: </B>{{ requisition_panel.display_name|title }}<br>
+	{% endif %}
+{% endif %}
+
+</small>
+<br>

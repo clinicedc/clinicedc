@@ -1,0 +1,21 @@
+{% if site_response_status == NEW %}
+	<span style="color:red"><i class="fas fa-circle fa-1x"></i>&nbsp;<small>{{ site_response_status_display }}</small></span>
+{% elif site_response_status == OPEN %}
+  <span style="color:orange"><i class="far fa-circle fa-1x"></i>&nbsp;<small>{{ site_response_status_display }}</small></span>
+{% elif site_response_status == FEEDBACK %}
+  <a title="{{ text }}"><span style="color:orange"><i class="fas fa-question-circle fa-1x"></i>&nbsp;<small>Feedback</small></span></a>
+{% elif site_response_status == RESOLVED %}
+	<span style="color:green"><i class="fas fa-check-circle fa-fw"></i></span>
+{% endif %}
+
+{% if dm_status == CLOSED or dm_status == CLOSED_WITH_ACTION %}
+  <span style="color:green"><i class="fas fa-check-circle fa-fw"></i>&nbsp;<small>Closed</small></span>
+{% elif site_response_status == FEEDBACK and dm_status == OPEN %}
+  <span style="color:orange"><br><small>(awaiting data manager)</small></span>
+{% elif site_response_status == RESOLVED and dm_status == OPEN %}
+  <span style="color:orange"><i class="far fa-circle fa-1x"></i>&nbsp;<small>Open</small><br><small>(awaiting data manager)</small></span>
+{% endif %}
+
+{% if comment %}
+	<br><small>{{comment}}</small>
+{% endif %}
