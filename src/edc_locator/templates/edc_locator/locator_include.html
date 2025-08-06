@@ -1,0 +1,50 @@
+{% load crypto_tags %}
+{% load admin_urls %}
+
+<tr style="background:lightyellow;">
+   <td><H4>Contact Info</H4></td></tr>
+   <tr style="background:lightyellow;">
+   {% if not locator %}
+      <td><span style="color:red;">Please provide subject<BR>contact details.</span>
+      <A href="{{locator_add_url}}?next={{ subject_dashboard_url }}&dashboard_type={{ dashboard_type }}&dashboard_model={{ dashboard_model }}&dashboard_id={{ dashboard_id }}&show={{ show }}&registered_subject={{ registered_subject.pk }}&{{visit_attr}}={{ visit_model_instance.pk }}&visit_attr={{visit_attr}}">[ Add ]</A>
+   {% else %}
+       <td>
+       <A href="{{ locator_change_url }}?next={{ subject_dashboard_url }}&dashboard_type={{ dashboard_type }}&dashboard_model={{ dashboard_model }}&dashboard_id={{ dashboard_id }}&show={{ show }}&registered_subject={{ registered_subject.pk }}&{{visit_attr}}={{ visit_model_instance.pk }}&visit_attr={{visit_attr}}">[ Edit ]</A>
+       <BR><b>May follow-up?</b> {{locator.may_follow_up }}
+       {% if locator.may_follow_up.lower == 'yes' %}
+            <BR><b>Home visits?</b> {{locator.home_visit_permission }}
+            <BR><i>Address:</i><BR><pre>{{locator.physical_address|safe|encrypted|wordwrap:25}}</pre>
+            <BR><i>Tel:</i> {{locator.subject_phone|default:''|encrypted}}
+            <BR><i>Alt. Tel:</i> {{locator.subject_phone_alt|default:''|encrypted}}
+            <BR><i>Cell:</i> {{locator.subject_cell|default:''|encrypted}}
+            <BR><i>Alt. Cell:</i> {{locator.subject_cell_alt|default:''|encrypted}}
+            <BR><B>Call work?</B> {{locator.may_call_work}}
+            {% if locator.may_call_work.lower == 'yes' %}
+            <BR>{{locator.subject_work_place }}
+            <BR>{{locator.subject_work_phone }}
+            {% endif%}
+            <BR><b>Contact anyone else?</b>{{locator.may_contact_someone}}
+            {% if locator.may_contact_someone.lower == 'yes' %}
+               <BR>Name: {{ locator.contact_name|encrypted }}
+               <BR>Relation: {{ locator.contact_rel|encrypted }}
+               <BR><i>Address:</i><BR><pre>{{ locator.contact_physical_address|safe|encrypted|wordwrap:25 }}</pre>
+               <BR><i>Tel:</i> {{ locator.contact_tel|encrypted }}
+               <BR><i>Cell:</i> {{ locator.contact_cell|encrypted }}
+            {% endif%}
+            <BR><b>Contact next of kin?</b> {{locator.has_alt_contact}}
+            {% if locator.has_alt_contact.lower == 'yes' %}
+               <BR>Name: {{ locator.alt_contact_name|encrypted }}
+               <BR>Cell: {{ locator.alt_contact_cell|encrypted }}
+               <BR>Tel: {{ locator.alt_contact_tel|encrypted }}
+           {% endif%}
+            {% if locator.local_clinic %}
+               <BR><b><i>Health Post or Clinic:</i></b> {{ locator.local_clinic }}
+            {% if locator.home_village %}
+               <BR><b><i>Home Village:</i></b> {{ locator.home_village }}
+           {% endif%}
+           {% endif%}
+       {% endif%}
+       <BR><i><small>Updated on {{ locator.modified|date:"SHORT_DATE_FORMAT" }}
+       by {{ locator.user_modified }}</small></i>
+   {% endif %}
+   </td></tr>
