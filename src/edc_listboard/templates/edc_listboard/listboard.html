@@ -1,0 +1,106 @@
+{% extends listboard_base_template %}
+
+{% load edc_dashboard_extras %}
+{% load tz %}
+{% load static %}
+
+{% block main %}
+<!-- start listboard main block-->
+
+{% block listboard_tabs %}{% endblock listboard_tabs %}
+
+<!--begin panel-group -->
+<div class="panel-group">
+
+<!--begin panel -->
+<div class="panel panel-{{ listboard_panel_style }}">
+<div class="panel-heading clearfix">
+
+{% block listboard_panel_back %}
+{% if listboard_back_url %}
+    <a class="btn btn-default btn-sm btn-primary" role="button" href="{% url listboard_back_url %}"><i class="fas fa-reply"></i></a>
+{% endif %}
+{% endblock listboard_panel_back %}
+
+
+  {% if listboard_fa_icon %}
+    <i class="{{ listboard_fa_icon }} fa-1x"></i>
+  {% endif %}
+
+
+{% block listboard_panel_title %}
+  {% if listboard_panel_title %}
+    <span class="text">&nbsp;&nbsp;{{ listboard_panel_title }}</span>
+  {% endif %}
+{% endblock listboard_panel_title %}
+
+<!-- begin search form -->
+<span class="pull-right">
+    {% block listboard_search_form %}
+      <div class="btn-group">{% block listboard_search_btn_group %}{% endblock listboard_search_btn_group %}{% include 'edc_listboard/search_form.html' %}</div>
+    {% endblock listboard_search_form %}
+</span>
+<!-- end search form -->
+
+{% block listboard_panel %}
+{% endblock listboard_panel %}
+
+</div> <!--end panel heading -->
+
+<!-- begin panel-body -->
+<div class="panel-body">
+
+<!-- begin table -->
+{% if listboard_instructions %}
+<table class="table table-condensed table-hover table-responsive">
+    <td>{{ listboard_instructions }}</td>
+</table>
+{% endif%}
+<table class="table table-condensed table-hover table-responsive">
+
+<thead>
+
+{% block listboard_table_header %}
+    {% include 'edc_listboard/include/results_header.html' %}
+{% endblock listboard_table_header %}
+
+</thead><tbody>
+
+{% block listboard_table_body %}
+
+    {% for result in results %}
+        <tr>
+
+        <td>{{ forloop.counter }}</td>
+
+        {% block listboard_table_button_column %}
+            {% include 'edc_listboard/include/buttons_column.html' %}
+        {% endblock listboard_table_button_column %}
+
+        {% block listboard_table_columns %}
+            {% include 'edc_listboard/include/columns.html' %}
+        {% endblock listboard_table_columns %}
+        </tr>
+
+    {% endfor %}
+
+{% endblock listboard_table_body %}
+
+<!-- begin spacer rows -->
+{% if not results %}
+<tr><td><i class="fa-solid fa-info-circle fa-fw"></i> No records have been added yet.</td></tr>
+{% endif %}
+
+</tbody></table>
+<!-- end table -->
+
+
+<!-- end spacer rows -->
+
+{% paginator_row %}
+
+</div><!--end panel body -->
+</div>  <!--end panel -->
+</div> <!--end panel-group -->
+<!-- end listboard main block -->
+{% endblock main %}

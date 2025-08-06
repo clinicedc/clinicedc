@@ -1,0 +1,12 @@
+<td style="white-space: nowrap">
+  <div class="btn-group">
+  {% if show_change_form_button %}
+    <a title="Edit subject's screening form" role="button"  class="btn btn-success btn-sm" {% if has_listboard_model_perms %}href="{{ result.href }}"{% else %} disabled {% endif %}><i class="fas fa-pencil-alt fa-sm"></i></a>
+  {% endif %}
+  {% if result.id %}
+    <a id="btn-subject-dashboard-{{result.subject_identifier}}" class="btn btn-primary btn-sm" role="button" title="Go to subject's dashboard" href="{% url subject_dashboard_url result.subject_identifier %}">Dashboard <i class="fas fa-share"></i></a>
+  {% else %}
+    <a id="btn-consent-add-{{result.subject_identifier}}" title="Consent to participate" class="btn btn-warning btn-sm" {% if has_listboard_model_perms %}href="{{ result.href }}"{% else %} disabled {% endif %}>Consent (v{{ result.version }})</a>
+  {% endif %}
+  </div>
+</td>
