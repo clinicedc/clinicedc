@@ -1,0 +1,27 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+
+{{ block.super }}
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">Visit Schedule</div>
+      <div class="list-group">
+        <a id="home_list_group_home" href="{% url 'administration_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+        <a id="home_list_group_visit_schedule" href="{% url 'edc_visit_schedule:visit_schedule_url' %}" class="list-group-item">Visit schedules</a>
+        <a id="home_list_group_subject_schedule_history" href="{% url 'edc_visit_schedule_admin:edc_visit_schedule_subjectschedulehistory_changelist' %}" class="list-group-item">Subject schedule history</a>
+        {% if perms.edc_visit_schedule %}
+          <a id="home_edc_visit_schedule_admin" href="{% url 'edc_visit_schedule_admin:app_list' 'edc_visit_schedule' %}" class="list-group-item">Admin</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+{% endblock main %}
