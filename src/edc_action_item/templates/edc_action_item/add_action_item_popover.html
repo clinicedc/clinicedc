@@ -1,0 +1,6 @@
+{% load i18n l10n %}
+{% load action_item_extras %}
+<!-- begin add_action_item_popover -->
+<a id="show_link_to_add_actions" class="list-group-item list-group-item-success" tabindex="0" href="javascript://" data-toggle="popover" data-placement="auto" data-html="true" title="Add New Action" role="button" data-content="<div class='list-group'>{% if not add_actions %}{% trans "Nothing to show for subject" %} {{ subject_identifier }}.{% endif %}{% for add_action in add_actions %}{% render_action_item_button action_item=action_item name=add_action appointment=appointment color=color %}{% endfor %}</div><p><a title='close' class='btn btn-sm btn-primary pull-right'><i class='fas fa-times fa-fw' aria-hidden='true'></i></a><br></p>">
+<span class="text text-default" title="Click to see more ..."><i class="fas fa-caret-left" aria-hidden="true"></i> <small>Add Action linked PRN</small></span>
+</a><!-- end add_action_item_popover -->
