@@ -1,0 +1,53 @@
+{% extends edc_listboard_template %}
+
+{% load edc_dashboard_extras %}
+{% load edc_adverse_event_extras %}
+
+{% load tz %}
+{% load static %}
+
+
+{% block listboard_table_header %}
+
+    <!-- begin results header -->
+    <th>#</th>
+    <th></th>
+    <th>AE Description</th>
+    <th>Documents</th>
+    <th>Created</th>
+    <th>Modified</th>
+    <!-- end results header -->
+
+{% endblock listboard_table_header %}
+
+{% block listboard_table_button_column %}
+    <td nowrap>
+       <a title="Edit AE Initial" href="{{ result.ae_initial.href }}" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
+       <a title="Print AE Initial" href="?pdf={{result.action_identifier}}" class="btn btn-default btn-sm"><i class="fas fa-file-pdf fa-fw"></i></a>
+       <a title="Go to subject's dashboard" class="btn btn-primary btn-sm" href="{% url subject_dashboard_url result.subject_identifier %}"><i class="fas fa-share fa-fw"></i></a>
+    </td>
+{% endblock %}
+
+{% block listboard_table_columns %}
+
+    <td>
+        {% format_ae_description result.object.reference_obj 50 %}
+    </td>
+
+    <td>{{ result.reference_model_name }}
+        {% if result.reference_obj.parent_reference_model_name %}
+            <BR>{{ result.parent_reference_model_name }}
+        {% endif %}
+        {% if result.reference_obj.ae_follow_ups %}
+            {% for obj in result.reference_obj.ae_follow_ups %}<BR>AE Followup {{ obj }}{% endfor %}
+        {% endif %}
+        {% if result.death_report.id %}
+            <BR>Death report: <a href="{% url death_report_listboard_url %}?q={{result.subject_identifier }}">{{ result.death_report.object.identifier }}</a>
+        {% endif %}
+    </td>
+
+    <td>{{ result.reference_obj.user_created|default:"---" }}<BR>{{ result.reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
+
+    <td>{{ result.reference_obj.user_modified|default:"---" }}<BR>{{ result.reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
+
+{% endblock listboard_table_columns %}

@@ -1,0 +1,15 @@
+{% load i18n %}
+<div class="list-group-item list-group-item-{{ panel_color }}">
+  <a class="btn btn-sm btn-{{ btn.color }}" title="{{ btn.title }}" data-toggle="tooltip" role="button" id="reference_obj-{{ btn.id }}" {% if not btn.disabled %} href="{{ btn.url }}" {% endif %} {{ btn.disabled }} >
+    <i class="fas {{ btn.fa_icon }} fa-fw"></i> {{ btn.label }}
+  </a>&nbsp;
+  {{ panel_label }} {% if report_status == OPEN %}<span class="label label-danger" data-toggle="tooltip" title="{% trans "This report is open" %}">OPEN</span>{% endif %}
+</div>
+{% if reference_obj %}
+  <div class="list-group-item"><b>{% trans "Created" %}:</b> {{ reference_obj.user_created|default:"---" }}&nbsp;{{ reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+  <div class="list-group-item"><b>{% trans "Last modified" %}:</b> {{ reference_obj.user_modified|default:"---" }}&nbsp;{{ reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+  {% if reference_obj.report_status == CLOSED %}
+    <div class="list-group-item"><b>{% trans "Report closed" %}:</b> {{ reference_obj.report_closed_datetime|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+  {% endif %}
+{% endif %}
+<div class="list-group-item"><B>Action first created:</B> {{ action_item.report_datetime|date:"SHORT_DATETIME_FORMAT" }}</div>

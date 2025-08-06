@@ -1,0 +1,52 @@
+{% extends 'edc_dashboard/base.html' %}
+{% load static %}
+{% load edc_adverse_event_extras %}
+
+{% block main %}
+
+{{ block.super }}
+
+  <div class="col-sm-4">
+        <div class="panel panel-warning">
+          <div class="panel-heading">Closed AE TMG reports</div>
+          <div class="panel-body">
+        <table class="table table-striped table-condensed">
+        {% for item in summary %}
+          <tr><td>{{ item.site__name|title }}</td><td align="right">{{ item.count }}</td></tr>
+        {% endfor %}
+        </table>
+        </div>
+        </div>
+  </div>
+
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">TMG Reports</div>
+
+
+      <div class="list-group">
+      {% if perms.edc_adverse_event.nav_tmg_section %}
+        <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+        <a id="home_list_group_tmg_ae_listboard" href="{% url new_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>New</i> <span class="label label-danger">{{ new_count }}</span></a>
+        <a id="home_list_group_tmg_ae_listboard" href="{% url open_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>Open</i> <span class="label label-danger">{{ open_count }}</span></a>
+        <a id="home_list_group_tmg_ae_listboard" href="{% url closed_tmg_ae_listboard_url %}" class="list-group-item">AE Reports: <i>Closed</i> <span class="label label-success">{{ closed_count }}</span></a>
+        <a id="home_list_group_tmg_changelist" href="{{ death_report_changelist_url }}" class="list-group-item">Death Reports</a>
+        <a id="home_list_group_tmg_summary_listboard" href="{% url tmg_summary_listboard_url %}" class="list-group-item">Event Summary</a>
+      {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-4">
+    {% if notices %}
+      <ul class="list-group">
+        <li class="list-group-item list-group-item-info">Notice</li>
+        <li class="list-group-item">
+        {% for item in notices %}
+          {{ item.0|title }} has {{ item.2 }} {{ item.1|lower }} AE TMG report{{ item.2|pluralize }}<BR>
+      {% endfor %}
+    </li>
+    </ul>
+    {% endif %}
+  </div>
+{% endblock main %}

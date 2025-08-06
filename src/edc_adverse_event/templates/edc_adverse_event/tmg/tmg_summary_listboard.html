@@ -1,0 +1,61 @@
+{% extends edc_listboard_template %}
+
+{% load edc_dashboard_extras %}
+{% load edc_adverse_event_extras %}
+{% load tz %}
+{% load static %}
+{% load l10n %}
+
+{% block listboard_table_header %}
+
+    <!-- begin results header -->
+    <th>#</th>
+    <th>Actions</th>
+    <th>Subject</th>
+    <th>Created</th>
+    <th>Modified</th>
+    <th>Parent</th>
+    <th>Related</th>
+    <th>Follow-ups</th>
+    <!-- end results header -->
+
+{% endblock listboard_table_header %}
+
+{% block listboard_table_button_column %}{% endblock %}
+
+{% block listboard_table_columns %}
+  <td>
+    {{ result.display_name|cut:"Submit"|cut:"pending" }} {{ result.identifier }}<BR>
+    <span class="label label-default">{{ result.status }}</span>
+    <BR>
+    {% if result.reference_obj.report_status != CLOSED %}<span class="label label-danger">{{ result.reference_obj.report_status|default:'New'|title }}</span>{% endif %}&nbsp;<span class="text text-muted small">{{ utc_date|timeuntil:result.report_datetime.date }} ago</span>
+  </td>
+  <td>{{ result.subject_identifier }}
+    <br>{{ result.parent_reference_obj.site.name|title }}
+    {% death_report_queryset  subject_identifier=result.subject_identifier as qs %}
+    {% for death_report in qs %}
+      <BR><span class="label label-info">Deceased</span>
+    {% endfor %}
+  </td>
+  <td>{{ result.reference_obj.user_created|default:"---" }}<BR>{{ result.reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
+  <td>{{ result.reference_obj.user_modified|default:"---" }}<BR>{{ result.reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</td>
+  <td>{{ result.parent_action_item.display_name|cut:"Submit"|cut:"pending" }} {{ result.parent_action_item.identifier }} <span class="label label-default">{{ result.parent_action_item.status }}</span></td>
+  <td>
+    {% if result.parent_action_item.id != result.related_action_item.id %}
+      {{ result.related_action_item.display_name|cut:"Submit"|cut:"pending" }}  {{ result.related_action_item.identifier }} <span class="label label-default">{{ result.related_action_item.status }}</span>
+    {% endif %}
+  </td>
+
+  <td>
+    {% ae_followup_queryset result.parent_action_item.reference_obj as qs%}
+    {% for ae_followup in qs %}
+      <p>AE Followup {{ ae_followup }}</p>
+    {% endfor %}
+    {%  if  result.parent_action_item.id != result.related_action_item.id %}
+        {% ae_followup_queryset result.related_action_item.reference_obj as qs%}
+        {% for ae_followup in qs %}
+        <p>AE Followup {{ ae_followup }}</p>
+        {% endfor %}
+    {%  endif %}
+  </td>
+{% endblock listboard_table_columns %}

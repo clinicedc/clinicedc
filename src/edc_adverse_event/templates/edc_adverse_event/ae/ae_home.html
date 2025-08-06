@@ -1,0 +1,28 @@
+{% extends 'edc_dashboard/base.html' %}
+{% load static %}
+{% load edc_adverse_event_extras %}
+
+{% block main %}
+
+{{ block.super }}
+
+
+  <div class="col-sm-4">&nbsp;</div>
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading"><i class="fas fa-heartbeat fa-lg fa-fw"></i> Adverse Events (AE)</div>
+
+      <div class="list-group">
+      {% if perms.edc_subject_dashboard.view_subject_listboard %}
+        <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+        <a id="home_list_group_ae_initial_changelist" href="{{ ae_initial_changelist_url }}" class="list-group-item"><i class="fas fa-file-pdf fa-1x fa-fw" aria-hidden="true"></i>AE Initial and Follow-up Reports</a>
+        <a id="home_list_group_death_changelist" href="{{ death_report_changelist_url }}" class="list-group-item"><i class="fas fa-file-pdf fa-1x fa-fw" aria-hidden="true"></i>Death Reports</a>
+        <a id="home_list_group_ae_initial" href="{% url app_list_url ADVERSE_EVENT_APP_LABEL %}" class="list-group-item">AE Forms (Administration)</a>
+      {% endif %}
+
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4">&nbsp;</div>
+
+{% endblock main %}

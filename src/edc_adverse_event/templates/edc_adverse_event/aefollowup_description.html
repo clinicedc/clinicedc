@@ -1,0 +1,42 @@
+{% load edc_dashboard_extras %}
+{% load edc_adverse_event_extras %}
+{% load tz %}
+{% load static %}
+{% load l10n %}
+
+<style>
+div.ae_description {min-width: 400px;}
+</style>
+
+<B>{{ ae_initial.subject_identifier }}</B>
+<BR>
+  {% if  ae_followup.outcome == AE_WITHDRAWN %}
+    <span style="color:darkorange;">WITHDRAWN</span>
+  {% endif %}
+<BR><B>Followup required:</B> <span style="color:{% if ae_followup.followup == YES%}red{%else%}green{%endif%};">{{ ae_followup.get_followup_display }}</span>
+<BR><B>Followup reported:</B> {{ ae_followup.report_datetime|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_followup.report_datetime.date }} ago)
+<BR><B>This followup:</B>
+<BR>{{ relevant_history|default:ae_followup.relevant_history }}
+<BR>
+<BR><B><U>Original AE Report</U></B>
+<BR><B>Reported:</B> {{ ae_initial.report_datetime|date:SHORT_DATE_FORMAT}} ({{ utc_date|timeuntil:ae_initial.report_datetime.date }} ago)
+<BR><B>Site aware:</B> {{ ae_initial.ae_awareness_date|date:SHORT_DATE_FORMAT }}
+<BR><B>Grade:</B> {{ ae_initial.get_ae_grade_display }}
+<BR><B>Classification:</B>
+{% if ae_initial.ae_classification.name == OTHER %}
+	Other: {{ ae_initial.ae_classification_other }}
+{% else %}
+	{{ ae_initial.ae_classification.display_name }}
+{% endif %}
+<BR><B>SAE:</B> {{ ae_initial.get_sae_display }}
+{% if ae_initial.sae == YES %}
+	<BR><B>SAE Reason:</B> {{ sae_reason|default:ae_initial.sae_reason.display_name }}
+{% endif %}
+<BR><B>SUSAR:</B>
+{% if ae_initial.susar_reported == YES %}
+	Yes. {% if ae_initial.susar_reported == YES %}Reported{% else %}<span style="color: red" >Not reported</span>{% endif %}
+{% else %}
+	{{ ae_initial.get_susar_display }}
+{% endif %}
+<BR><B>Description:</B>
+  <BR><div class="ae_description">{{ ae_description|default:ae_initial.ae_description }}</div>

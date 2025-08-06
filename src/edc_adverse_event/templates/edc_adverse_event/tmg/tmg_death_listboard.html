@@ -1,0 +1,77 @@
+{% extends edc_listboard_template %}
+
+{% load edc_dashboard_extras %}
+{% load tz %}
+{% load static %}
+{% load l10n %}
+{% load i18n %}
+
+
+{% block listboard_table_header %}
+
+    <!-- begin results header -->
+    <th>#</th>
+    <th>Subject</th>
+    <th>TMG Death Reports</th>
+    <th>Death Report</th>
+    <!-- end results header -->
+
+{% endblock listboard_table_header %}
+
+{% block listboard_table_button_column %}{% endblock %}
+
+
+{% block listboard_table_columns %}
+
+    <td>
+        <small>
+            <a id="{{ result.object.action_identifier }}" name="{{ result.object.action_identifier }}"></a>
+            <a class="btn btn-primary" href="{% url subject_dashboard_url subject_identifier=result.subject_identifier %}" title={%  translate "Go to subject dashboard" %}><small>{{ result.subject_identifier }}
+                <i class="fas fa-share"></i></small></a> {% copy_string_to_clipboard_button result.subject_identifier %}
+
+    </td>
+
+    <td>
+
+        {% for tmg_death_report in  result.tmg_death_reports %}
+            {% if tmg_death_report.id %}
+                <a class="btn btn-sm btn-success" title="Edit {{ tmg_death_report.verbose_name }}" href="{{ tmg_death_report.href }}death_report={{ tmg_death_report.object.death_report.pk }}&action_identifier={{ tmg_death_report.action_identifier }}" role="button"><i class="fas fa-pencil-alt fa-fw"></i> {{ tmg_death_report.verbose_name }}
+                </a>
+            {% else %}
+                <a class="btn btn-sm btn-warning" title="Add {{ tmg_death_report.verbose_name }}" href="{{ tmg_death_report.href }}death_report={{ result.pk }}&action_identifier={{ tmg_death_report.action_identifier }}" role="button"><i class="fas fa-plus fa-fw"></i> {{ tmg_death_report.verbose_name }}
+                </a>
+            {% endif %}
+            {% if tmg_death_report.id %}
+                <span class="label label-{% if tmg_death_report.object.action_item.status|default:tmg_death_report.object.report_status == OPEN %}default{% else %}success{% endif %}">
+            {{ tmg_death_report.object.action_item.status|default:tmg_death_report.object.report_status }}</span>
+            {% endif %}
+
+            <small>
+                <BR>Reference: {{ tmg_death_report.action_identifier }}
+                <BR>Reported: {{ tmg_death_report.object.report_datetime|date:"SHORT_DATE_FORMAT" }}
+                <BR>Created: {{ tmg_death_report.object.created|date:"SHORT_DATE_FORMAT" }}
+                {% if tmg_death_report.object.user_modified %}
+                    <BR>Modified: {{ tmg_death_report.object.modified|date:"SHORT_DATE_FORMAT" }}{% endif %}
+                <BR>{{ tmg_death_report.object.user_created }}
+                {% if tmg_death_report.object.user_modified %}/{{ tmg_death_report.object.user_modified }}{% endif %}
+                <BR></small>
+        {% endfor %}
+    <td>
+        <a title="View Death Report"
+           href="{% if SITE_ID != result.object.site.id %}#{% else %}{{ result.href }}{% endif %}"
+           role="button"
+           class="btn btn-sm btn-{% if  perms.ambition_ae.change_deathreport %}success{% else %}info{% endif %}"
+           {% if SITE_ID != result.object.site.id %}disabled{% endif %}>
+            {% if  perms.ambition_ae.change_deathreport %}
+                <i class="fas fa-pencil-alt fa-fw"></i>
+            {% else %}
+                <i class="fas fa-eye fa-fw"></i>
+            {% endif %}&nbsp;<tt>{{ result.object.identifier }}</tt></span>
+        </a>
+        <small>
+            <BR>Died: {{ result.object.death_datetime|date:"SHORT_DATE_FORMAT" }}
+            <BR>Reported: {{ result.object.report_datetime|date:"SHORT_DATE_FORMAT" }}
+            <BR>{% if result.object.cause_of_death == OTHER %}{{ result.object.cause_of_death_other }}{% else %}{{ result.object.get_cause_of_death_display }}{% endif %}
+        </small>
+    </td>
+{% endblock listboard_table_columns %}

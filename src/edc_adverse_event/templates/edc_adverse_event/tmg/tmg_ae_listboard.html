@@ -1,0 +1,45 @@
+{% extends edc_listboard_template %}
+{% load edc_dashboard_extras %}
+{% load tz %}
+{% load static %}
+{% load edc_adverse_event_extras %}
+
+
+{% block main %}
+
+<div id="loader"></div>
+
+<div class="panel panel-{{ listboard_panel_style }}">
+<div class="panel-heading">
+
+<span class="text clearfix">
+<a class="btn btn-default btn-sm btn-primary" role="button" href="{% url listboard_back_url %}"><i class="fas fa-reply"></i></a>
+&nbsp;{{ listboard_panel_title }}&nbsp; {% if results|length > 0 %}&nbsp;<span class="label label-{% if status == CLOSED %}success{% else %}danger{% endif %}">{{ results|length }} of {{ paginator.count }}</span>{% endif %}
+
+<span class="pull-right">
+  {% if subject_identifier %}
+    <a class="btn btn-sm btn-primary" role="button" title="go to list of reported visits for this subject" href="{% url subject_review_listboard_url|default:"subject_review_listboard_url_cannot_be_none" subject_identifier=subject_identifier %}?q={{ subject_identifier }}">Subject Review  <i class="fas fa-share fa-fw"></i></a>
+  {% endif %}
+  {% include 'edc_dashboard/search_form.html' %}
+</span></span>
+
+</div> <!--end panel heading -->
+</div>
+
+<!-- begin new tab -->
+  {# results in qs of ActionItem #}
+
+{% if status == NEW %}
+  {% get_empty_qs_message "new" search_term as msg %}
+  {% tmg_listboard_results results msg %}
+{% elif status == OPEN %}
+  {% get_empty_qs_message "open" search_term as msg %}
+  {% tmg_listboard_results results msg %}
+{% elif status == CLOSED %}
+  {% get_empty_qs_message "closed" search_term as msg %}
+  {% tmg_listboard_results results msg %}
+{% endif %}
+<!-- end new tab -->
+
+
+{% endblock main %}

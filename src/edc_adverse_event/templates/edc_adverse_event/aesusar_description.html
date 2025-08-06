@@ -1,0 +1,29 @@
+{% load edc_dashboard_extras %}
+{% load edc_adverse_event_extras %}
+{% load tz %}
+{% load static %}
+{% load l10n %}
+
+<B>{{ ae_initial.subject_identifier }}</B>
+<BR><b>SUSAR Submitted:</b> {{ ae_susar.submitted_datetime|date:SHORT_DATE_FORMAT|default:'<font color="red">not submitted</font>'}}
+<BR><b>AE Reported:</b> {{ ae_initial.report_datetime|date:SHORT_DATE_FORMAT}}
+<BR><b>AE Site aware:</b> {{ ae_initial.ae_awareness_date|date:SHORT_DATE_FORMAT }}
+<BR><b>Grade:</b> {{ ae_initial.get_ae_grade_display }}
+<BR><b>Classification:</b>
+{% if ae_initial.ae_classification.short_name == OTHER %}
+	Other: {{ ae_initial.ae_classification_other }}
+{% else %}
+	{{ ae_initial.ae_classification.name }}
+{% endif %}
+<BR><b>SAE:</b> {{ ae_initial.get_sae_display }}
+{% if ae_initial.sae == YES %}
+	<BR><b>SAE Reason:</b> {{ sae_reason|default:ae_initial.sae_reason.name }}
+{% endif %}
+<BR><b>SUSAR:</b>
+{% if ae_initial.susar_reported == YES %}
+	Yes. {% if ae_initial.susar_reported == YES %}Reported{% else %}<font color="red">Not reported</font>{% endif %}
+{% else %}
+	{{ ae_initial.get_susar_display }}
+{% endif %}
+<BR><b>Description:</b>
+<BR>{{ ae_description|default:ae_initial.ae_description }}

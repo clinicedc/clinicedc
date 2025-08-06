@@ -1,0 +1,7 @@
+{% if as_button %}
+  <a style="white-space: nowrap;background-color:darkgray;color: black" title="{{ title }}" class="button" href="{{ url }}?q={{ q }}">{{ action_identifier }}</a>
+  <BR><BR>
+{% else %}
+  {{ action_identifier }}
+{% endif %}
+{% if status == CANCELLED %}<span style="color: red">{{ status_display }}</span>{% else %}<span>{{ status_display }}</span>{% endif %}
