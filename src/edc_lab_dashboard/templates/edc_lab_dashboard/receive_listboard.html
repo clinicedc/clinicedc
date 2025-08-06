@@ -1,0 +1,19 @@
+{% extends requisition_listboard_template %}
+
+{% block panel_action_buttons %}
+
+    <div class="input-group input-group-sm">
+    	<span class="input-group-addon"><i class="fas fa-barcode"></i></span>
+		<div class="input-group input-group-sm">
+			<textarea id="requisition_identifiers" name="requisition_identifiers" rows="1"
+				class="form-control" placeholder="List of requisition identifiers"></textarea>
+		</div>
+	</div>
+
+    <div class="btn-group btn-group-sm">
+    	<button class="btn btn-default btn-sm" type="submit" id="action" name="action" form="{{ form_action_name }}" value="receive">Receive</button>
+    	<button class="btn btn-default btn-sm" type="submit" id="action" name="action" form="{{ form_action_name }}" value="receive_and_process">Receive and Process</button>
+    </div>
+
+
+{% endblock panel_action_buttons %}

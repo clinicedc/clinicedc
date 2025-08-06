@@ -1,0 +1,39 @@
+{% extends edc_lab_listboard_template %}
+
+{% block panel_back %}
+    <a title="Back to list of boxes" role="button" class="btn btn-default btn-sm"
+        href="{% url pack_listboard_url %}"><i class="fas fa-reply fa-fw"></i>
+    </a>&nbsp;
+{% endblock panel_back %}
+
+{% block panel_description %}
+    <span class="text">
+    <span class="label label-success">Box</span>&nbsp;
+     <span class="text text-identifier"><strong>{{ box.human_readable_identifier }}</strong></span>&nbsp;
+     <span class="label label-success">{{ box.get_category_display }}</span>
+     <span class="label label-success">{{ box.specimen_types }}</span>
+     {% if box.accept_primary %}
+         <span class="label label-success">accepts primary</span>
+     {% endif %}
+     <span class="label label-success">{{ box.box_type }}</span>
+     <span class="label label-success">{{ box.count}}/{{ box.box_type.total}}</span>
+     <span class="label label-success">{{ box.object.box_datetime|date:"Y-m-d" }}</span>
+    {% if box.status == SHIPPED %}
+        <span class="label label-default">SHIPPED</span>
+    {% endif %}
+     </span>
+{% endblock panel_description %}
+
+{% block panel_inputs %}
+{% endblock panel_inputs %}
+{% block panel_action_buttons %}
+{% endblock panel_action_buttons %}
+
+
+{% block results_header %}
+    {% include 'edc_lab_dashboard/listboard/box/results_header.html' %}
+{% endblock results_header %}
+
+{% block results_body %}
+    {% include 'edc_lab_dashboard/listboard/box/results_body.html' %}
+{% endblock results_body %}

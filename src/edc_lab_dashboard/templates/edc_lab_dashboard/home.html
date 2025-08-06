@@ -1,0 +1,46 @@
+{% extends edc_lab_base_template %}
+{% load static %}
+
+{% block main %}
+
+<style>
+
+.bg-1 {
+    background-color: #428bca; /* dark blue */
+    color: #ffffff;
+}
+.bg-2 {
+    background-color: #5bc0de; /* light Blue */
+    color: #ffffff;
+}
+.bg-3 {
+    background-color: #f9f9f9; /* White */
+    color: #555555;
+}
+
+</style>
+
+    {{ block.super }}
+
+<div class="container bg-3">
+
+<div class="row">
+  <div class="col-sm-4"></div>
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">{{ protocol_name |default:project_name }} {{ request.site.name|title }} Lab</div>
+
+      <div class="list-group">
+        <a {% if perms.edc_lab_dashboard.nav_lab_receive %}href="{% url receive_listboard_url %}"{% else %} disabled {% endif %} class="list-group-item"><i class="fas fa-inbox fa-lg fa-fw"></i>&nbsp;&nbsp;&nbsp;Receive</a>
+        <a {% if perms.edc_lab_dashboard.nav_lab_process %}href="{% url process_listboard_url %}"{% else %} disabled {% endif %} class="list-group-item"><i class="fas fa-sitemap fa-lg fa-fw"></i>&nbsp;&nbsp;&nbsp;Process</a>
+        <a {% if perms.edc_lab_dashboard.nav_lab_pack %}href="{% url pack_listboard_url %}"{% else %} disabled {% endif %} class="list-group-item"><i class="fas fa-shopping-bag fa-lg fa-fw"></i>&nbsp;&nbsp;&nbsp;Pack</a>
+
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4"></div>
+</div>
+</div>
+
+
+{% endblock main %}

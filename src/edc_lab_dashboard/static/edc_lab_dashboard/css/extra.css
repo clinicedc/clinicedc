@@ -1,0 +1,7 @@
+@media print {
+    div.do-not-print {display: none;}
+}
+.text.text-identifier {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+}

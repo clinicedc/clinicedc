@@ -1,0 +1,13 @@
+
+{% for wrapped in object_list %}
+  <!-- result is a ModelWithLogEntry wrapper -->
+  <tr>
+    <!--counter-->
+    <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
+    <!--buttons-->
+
+      {% include 'edc_lab_dashboard/listboard/manifest/columns.html' %}
+
+  </tr>
+
+{% endfor %}

@@ -1,0 +1,21 @@
+
+<!-- begin columns -->
+
+    <td>
+      <input id="requisition_{{wrapped.object.id}}" name="requisitions" type="checkbox" value="{{wrapped.object.id}}">
+    </td>
+    <td>
+        {{ wrapped.object.requisition.requisition_identifier }}&nbsp;
+        <div class="btn-group">
+           <a title="Edit Manifest" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
+   	       <a title="List aliquots in manifest" role="button" href="{% url aliquot_listboard_url %}?q={{wrapped.manifest_identifier}}" class="btn btn-default btn-sm">{{ wrapped.item_count }} Aliquots</a>
+  	    </div>
+    </td>
+    <td>
+      {{ wrapped.object.manifest_datetime|date:"Y-m-d H:i" }}
+    </td>
+    <td>
+      {{ wrapped.status }}
+    </td>
+
+<!-- end columns -->

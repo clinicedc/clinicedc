@@ -1,0 +1,23 @@
+<tr><td></td>
+{% for header in headers %}
+    <td class="text text-center">{{ header }}</td>
+{% endfor %}
+</tr>
+{% for row in rows %}
+    <tr><td>{{ row.position }}</td>
+	{% with forloop_first=forloop.first %}
+	{% for cell in row.cells %}
+	    <td class="text text-center {% if cell.has_focus %}info{% elif cell.box_item.id %}warning{% endif %}">
+	       <div class="input-group-btn">
+	       <a href="{{ cell.href }}" role="button" title="{{ cell.btn_title }}"
+	           data-placement="{% if forloop_first %}bottom{% else %}top{% endif %}"
+	           data-toggle="tooltip"
+	           class="btn {{ cell.btn_style }} btn-sm">
+	           {{ cell.btn_label }}
+	       </a>
+	       </div>
+	    </td>
+	{% endfor %}
+	{% endwith %}
+    </tr>
+{% endfor %}

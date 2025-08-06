@@ -1,0 +1,22 @@
+{% extends box_listboard_template %}
+
+
+{% block results_panel_form %}
+
+    <form action="{{ form_action_url }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
+    <div class="form-group form-inline">
+        <div class="input-group input-group-sm">
+        <input class="form-control" type="text" form="{{ form_action_name }}" id="manifest_item_identifier" name="manifest_item_identifier" placeholder="aliquot identifier" autofocus />
+        <div class="input-group-btn">
+        <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="add_item" form="{{ form_action_name }}">
+             <i class="fas fa-plus fa-sm"></i>
+        </button>
+        </div>
+        </div>
+        <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="remove_selected_items" form="{{ form_action_name }}">
+             <span class="text text-danger"><i class="fas fa-window-close fa-sm"></i></span> &nbsp;Remove selected
+        </button>
+    </div>
+    {% csrf_token %}
+    </form>
+{% endblock results_panel_form %}

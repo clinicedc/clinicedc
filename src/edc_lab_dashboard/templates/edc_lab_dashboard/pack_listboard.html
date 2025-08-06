@@ -1,0 +1,56 @@
+{% extends edc_lab_listboard_template %}
+
+{% block panel_action_buttons %}
+
+	<a href="{{ new_box.href }}" role="button" class="btn btn-sm btn-default" />New box</a>
+
+{% endblock panel_action_buttons %}
+
+{% block panel_action_hidden %}
+    {% csrf_token %}
+{% endblock panel_action_hidden %}
+
+{% block results_panel_form %}
+
+    <form action="{{ form_action_url_reversed }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
+    <div class="form-group form-group-sm form-inline">
+       {% if open_manifests %}
+        <div class="btn-group">
+           <select class="form-control" id="selected_manifest" name="selected_manifest" form="{{ form_action_name }}">
+            <option value=""><span class="text text-muted" selected>select a manifest</span></option>
+           {% for manifest in open_manifests %}
+             <option value="{{ manifest.pk }}">{{ manifest.get_category_display }} {{ manifest.destination.name|upper }} {{ manifest.human_readable_identifier }}</option>
+           {% endfor %}
+           </select>
+        </div>
+            <button title="add checked boxes to the selected manifest" type="submit" class="btn btn-default btn-sm" id="action" name="action" value="add_selected_to_manifest" form="{{ form_action_name }}">
+                 <i class="fas fa-plus fa-sm"></i> &nbsp;Add selected boxes to manifest
+            </button>
+      {% else %}
+        <a href="{% url manifest_listboard_url %}" role="submit" class="btn btn-default btn-sm">
+             Open a manifest
+        </a>
+      {% endif %}
+
+        <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="remove_selected_items" form="{{ form_action_name }}">
+             <span class="text text-danger"><i class="fas fa-window-close fa-sm"></i></span> &nbsp;Remove selected boxes
+        </button>
+
+	    <button class="btn btn-sm btn-default" type="submit" id="action" name="action" form="{{ form_action_name }}" value="print_labels">
+	       <i class="fas fa-barcode fa-sm"></i> Print labels
+	    </button>
+
+    </div>
+    {% csrf_token %}
+    </form>
+
+{% endblock results_panel_form %}
+
+
+{% block results_header %}
+    {% include 'edc_lab_dashboard/listboard/pack/results_header.html' %}
+{% endblock results_header %}
+
+{% block results_body %}
+    {% include 'edc_lab_dashboard/listboard/pack/results_body.html' %}
+{% endblock results_body %}

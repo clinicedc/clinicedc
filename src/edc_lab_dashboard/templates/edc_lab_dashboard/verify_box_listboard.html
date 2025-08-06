@@ -1,0 +1,56 @@
+{% extends box_listboard_template %}
+
+{% load static %}
+{% load edc_lab_extras %}
+
+{% block extrahead %}
+{{ block.super }}
+    <script type="text/javascript" charset="utf8" src="{%static "edc_lab_dashboard/js/beep.js" %}"></script>
+	<script>
+		$(document).ready( function() {
+		    if (parseQueryString().alert == 1) {
+		        document.getElementById('play').play();
+		    }
+		});
+	</script>
+{% endblock extrahead %}
+
+
+{% block results_panel_form %}
+    <audio id="play" src="{% static "edc_lab_dashboard/beep-03.mp3" %}"></audio>
+    <form action="{{ form_action_url_reversed }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
+    <div class="form-group form-inline">
+        <div class="input-group input-group-sm">
+        <input class="form-control" type="text" form="{{ form_action_name }}" id="box_item_identifier" name="box_item_identifier" placeholder="aliquot identifier" autofocus />
+        <div class="input-group-btn">
+            <button title="check item"  type="submit" class="btn btn-default btn-sm" id="action" name="action" value="verify_item" form="{{ form_action_name }}">
+                 <i class="fas fa-check fa-sm"></i> {{ position }}
+            </button>
+        </div>
+        </div>
+		<button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="reset_box" form="{{ form_action_name }}">
+		     <i class="fas fa-undo fa-sm"></i> &nbsp;Undo All
+		</button>
+        <a role="button" class="btn btn-default btn-sm" href="{{ manage_box_listboard_url_reversed }}">
+            Manage box
+        </a>
+        {% if box.verified %}
+            <span class="text lead"><span class="label label-success"><i class="fas fa-check fa-fw"></i>&nbsp;Verified</span></span>
+        {% endif %}
+        {% if box.status == SHIPPED %}
+        <a role="button" class="btn btn-default btn-sm" href="{% url manifest_listboard_url %}?f=shipped">
+             <i class="fas fa-ship fa-fw"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% csrf_token %}
+    </form>
+
+{% endblock results_panel_form %}
+
+{% block results_header %}
+{% endblock results_header %}
+
+{% block results_body %}
+    {% show_box_rows box listboard_url position=position %}
+{% endblock results_body %}

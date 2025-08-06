@@ -1,0 +1,19 @@
+{% extends edc_lab_listboard_template %}
+
+{% block panel_action_buttons %}
+	<button class="btn btn-sm btn-default" type="submit" id="action" name="action" form="{{ form_action_name }}" value="print_labels">
+        <i class="fas fa-barcode fa-sm"></i> Print labels
+    </button>
+	<button class="btn btn-sm btn-default" type="submit" id="action" name="action" form="{{ form_action_name }}" value="print_aliquot_labels">
+        <i class="fas fa-barcode fa-sm"></i> Print aliquot labels
+    </button>
+{% endblock panel_action_buttons %}
+
+
+{% block results_header %}
+    {% include 'edc_lab_dashboard/listboard/requisition/results_header.html' %}
+{% endblock results_header %}
+
+{% block results_body %}
+    {% include 'edc_lab_dashboard/listboard/requisition/results_body.html' %}
+{% endblock results_body %}

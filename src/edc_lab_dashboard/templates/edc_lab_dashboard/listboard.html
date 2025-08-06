@@ -1,0 +1,84 @@
+{% extends edc_lab_base_listboard_template %}
+
+{% load static %}
+{% load tz %}
+{% load edc_dashboard_extras %}
+
+<!-- begin panel_action_form -->
+{% block panel_action_form %}
+
+    {% block panel_back %}{% endblock panel_back %}
+    {% block panel_description%}{% endblock panel_description%}
+	<form action="{% if form_action_url_reversed %}{{ form_action_url_reversed }}{% else %}{% url listboard_url %}{% endif %}" method="post" name="{{ form_action_name }}" id="{{ form_action_name }}">
+	 <div class="form-inline">
+	 <div class="input-group input-group-sm">
+
+       <!-- begin panel_inputs -->
+	   {% block panel_inputs %}
+	   {% endblock panel_inputs %}
+       <!-- end panel_inputs -->
+
+	  </div>
+
+	   <!-- begin panel_action_buttons -->
+	   {% block panel_action_buttons %}
+	   {% endblock panel_action_buttons %}
+       <!-- end panel_action_buttons -->
+
+
+       <!-- begin panel_action_hidden -->
+	   {% block panel_action_hidden %}
+	       <input type="hidden" id="box_identifier" name="box_identifier" value="{{ box_identifier }}" />
+	       {% csrf_token %}
+	   {% endblock panel_action_hidden %}
+       <!-- end panel_action_hidden -->
+
+	  </div>
+	</form>
+
+{% endblock panel_action_form %}
+<!-- end panel_action_form -->
+
+
+
+{% block results_table %}
+  <!--start results-->
+    <div class="form-group">
+
+       {% block results_panel_form %}
+       {% endblock results_panel_form %}
+
+      <div class="table-responsive">
+        <table class="table table-condensed table-hover small">
+          <thead>
+
+            {% block results_header %}
+                {% include 'edc_lab_dashboard/listboard/box/results_header.html' %}
+            {% endblock results_header %}
+
+          </thead>
+          <tbody>
+
+            {% block results_body %}
+                {% include 'edc_lab_dashboard/listboard/box/results_body.html' %}
+            {% endblock results_body %}
+
+          </tbody>
+        </table>
+
+        {% paginator_row %}
+
+      </div>
+  </div>
+
+  {% if not has_view_listboard_perms %}
+      <span class="alert alert-warning"><i class="far fa-hand-paper fa-fw"></i> {{ permissions_warning_message }}</span>
+  {% else %}
+    {% if not results %}
+        <span class="alert alert-success"><i class="far fa-thumbs-up fa-fw"></i> {{ empty_queryset_message }}</span>
+    {% endif %}
+  {% endif %}
+
+
+  <!--end results-->
+{% endblock results_table %}

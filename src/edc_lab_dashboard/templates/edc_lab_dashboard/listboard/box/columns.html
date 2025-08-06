@@ -1,0 +1,26 @@
+{% load edc_lab_extras %}
+<!-- begin columns -->
+
+    <td>
+      <input id="box_items_{{wrapped.object.id}}" name="{{ form_action_selected_items_name }}" form="{{ form_action_name }}" type="checkbox" value="{{wrapped.object.id}}">
+    </td>
+    <td>
+        <a href="{{ wrapped.href }}" role="button" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
+    </td>
+    <td>
+        {{ wrapped.position }}{{ wrapped|verified }}
+    </td>
+    <td>
+        <span class="text text-identifier">{{ wrapped.human_readable_identifier }}</span>
+    </td>
+    <td>
+        {{ wrapped.comment }}
+    </td>
+    <td>
+      {{ wrapped.created }}
+    </td>
+    <td>
+      {{ wrapped.user_created }}
+    </td>
+
+<!-- end columns -->

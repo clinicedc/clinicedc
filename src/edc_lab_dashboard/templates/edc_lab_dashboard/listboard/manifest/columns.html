@@ -1,0 +1,41 @@
+
+<!-- begin columns -->
+
+    <td>
+      <input id="selected_item_{{wrapped.object.id}}" form="{{ form_action_name }}" name="{{ form_action_selected_items_name }}" type="checkbox" value="{{wrapped.object.id}}" />
+    </td>
+    <td>
+        <div class="btn-group">
+           <a title="Edit manifest" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
+           <a role="button" href="{% url manage_manifest_listboard_url manifest_identifier=wrapped.manifest_identifier action_name='manage' %}" class="btn btn-default btn-sm">Manage</a>
+           <a role="button" href="?pdf={{wrapped.manifest_identifier}}" class="btn btn-sm {% if wrapped.object.shipped and not wrapped.object.printed %}btn-warning{% elif wrapped.object.shipped and wrapped.object.printed %}btn-success{% else %}btn-default{% endif %}"><i class="fas fa-file-pdf-o fa-sm"></i></a>
+
+        </div>&nbsp;
+      <span class="text text-identifier">
+      {{ wrapped.object.human_readable_identifier }}
+      </span>
+    </td>
+    <td>
+      {% if wrapped.object.category == OTHER %}
+        {{ wrapped.object.category_other }}
+      {% else %}
+        {{ wrapped.object.get_category_display }}
+      {% endif %}
+    </td>
+    <td>
+      {{ wrapped.object.count }} boxes
+    </td>
+    <td>
+      {{ wrapped.object.get_status_display }} {% if wrapped.printed %} and printed {% endif %}
+    </td>
+    <td>
+      {{ wrapped.object.manifest_datetime|date:"Y-m-d H:i" }}
+    </td>
+    <td>
+      {{ wrapped.user_created }}
+    </td>
+    <td>
+      {{ wrapped.hostname_created }}
+    </td>
+
+<!-- end columns -->

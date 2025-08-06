@@ -1,0 +1,13 @@
+{% extends edc_base_template %}
+{% load static %}
+
+    {% block extrastyle %}
+    {{ block.super }}
+        <link rel="stylesheet" type="text/css" href="{% static 'edc_dashboard/css/extra.css' %}">
+        <link rel="stylesheet" type="text/css" href="{% static 'edc_dashboard/css/print.css' %}">
+    {% endblock extrastyle %}
+
+    {% block extrahead %}
+    {{ block.super }}
+        <script type="text/javascript" charset="utf8" src="{% static 'edc_dashboard/js/beep.js' %}"></script>
+    {% endblock extrahead %}

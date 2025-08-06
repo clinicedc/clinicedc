@@ -1,0 +1,43 @@
+{% extends edc_lab_base_template %}
+{% load static %}
+{% load tz %}
+
+
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static "edc_lab_dashboard/css/extra.css" %}">
+{{ block.super }}
+{% endblock extrastyle %}
+
+
+{% block main %}
+  <!-- start lab listboard -->
+  <div class="panel-group">
+    <div class="panel panel-success">
+      <div class="panel-heading clearfix">
+
+             <div class="col-sm-8">
+             {% block panel_action_form %}
+             {% endblock panel_action_form %}
+             </div>
+
+             <div class="col-sm-4">
+              {% block search_form %}
+                  {% include 'edc_dashboard/search_form.html' %}
+              {% endblock search_form %}
+             </div>
+
+
+
+      </div>
+    </div>
+
+
+    <div class="panel-body">
+
+      {% block results_table %}
+      {% endblock results_table %}
+
+    </div>
+  </div>
+<!-- end lab listboard -->
+{% endblock main %}

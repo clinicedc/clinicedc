@@ -1,0 +1,50 @@
+
+<!-- begin columns -->
+
+    <td>
+      <input id="selected_item_{{wrapped.object.id}}" form="{{ form_action_name }}" name="{{ form_action_selected_items_name }}" type="checkbox" value="{{wrapped.object.id}}" />
+    </td>
+    <td>
+        <div class="btn-group">
+           <a title="Edit {% if wrapped.is_primary %}primary {% endif %}aliquot" role="button" href="{{ wrapped.href }}" class="btn {% if wrapped.is_primary %}btn-info{% else %}btn-default{% endif %} btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
+          {% if wrapped.box_item %}
+             <a title="Box {{ wrapped.box_item.box.box_identifier }} ({{ wrapped.box_item.box.get_category_display }})" href="{% url manage_box_listboard_url box_identifier=wrapped.box_item.box.box_identifier action_name='manage' %}" role="button" class="btn btn-default btn-sm">
+                <i class="fas fa-archive fa-fw"></i>
+            </a>
+          {% endif %}
+          {% if wrapped.manifest_item.manifest %}
+             <a title="{{ wrapped.manifest_item.manifest.manifest_identifier }}" href="{% url manage_manifest_listboard_url action_name='manage' manifest_identifier=wrapped.manifest_item.manifest.manifest_identifier %}" role="button" class="btn btn-default btn-sm"><i class="fas fa-ship fa-fw"></i></a>
+          {% endif %}
+        </div>&nbsp;
+      <span class="text text-identifier">
+        {{ wrapped.object.human_readable_identifier }}
+      </span>
+    </td>
+    <td>
+      <span class="text text-identifier">
+      {{ wrapped.subject_identifier }}
+      </span>
+    </td>
+    <td>
+      {{ wrapped.object.aliquot_datetime|date:"Y-m-d H:i" }}
+    </td>
+    <td>
+      {{ wrapped.aliquot_type }} {{ wrapped.numeric_code }} {{ wrapped.alpha_code }}
+    </td>
+    <td>
+      {% if wrapped.box_item %}
+        <span class="text text-success"><i class="fas fa-check-circle fa-fw" title="Packed"></i></span>
+      {% else %}
+        <span class="text text-danger"><i class="fas fa-times-circle fa-fw" title="Not packed"></i></span>
+      {% endif %}
+      {% if wrapped.shipped %}
+        <span class="text text-success"><i class="fas fa-check-circle fa-fw" title="Shipped"></i></span>
+      {% else %}
+        <span class="text text-danger"><i class="fas fa-times-circle fa-fw" title="Not shipped"></i></span>
+      {% endif %}
+    </td>
+    <td>
+      {{ wrapped.count }}
+    </td>
+
+<!-- end columns -->

@@ -1,0 +1,28 @@
+{% extends edc_lab_listboard_template %}
+
+
+{% block panel_action_form %}
+    <form action="{{ form_action_url_reversed }}" method="post" name="{{ form_action_name }}" id="{{ form_action_name }}">
+     <div class="form-inline">
+     <div class="input-group input-group-sm">
+
+       {% block panel_inputs %}
+       {% endblock panel_inputs %}
+
+      </div>
+
+       {% block panel_action_buttons %}
+       {% endblock panel_action_buttons %}
+
+
+       {% block panel_action_hidden %}
+           <input type="hidden" id="box_identifier" name="box_identifier" value="{{ box_identifier }}" />
+           {% csrf_token %}
+       {% endblock panel_action_hidden %}
+
+      </div>
+    </form>
+
+    {% block panel_description %}{% endblock panel_description%}
+
+{% endblock panel_action_form %}

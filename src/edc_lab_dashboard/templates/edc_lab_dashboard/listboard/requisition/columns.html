@@ -1,0 +1,42 @@
+{% load edc_lab_extras %}
+
+<!-- begin columns -->
+
+    <td>
+        <input id="selected_item_{{wrapped.object.id}}" data-toggle="tooltip" name="{{ form_action_selected_items_name }}" form="{{ form_action_name }}" type="checkbox" value="{{wrapped.object.id}}" {% if wrapped.clinic_verified != YES %} disabled {% endif %}/>
+    </td>
+    <td>
+      {% if wrapped.clinic_verified == YES %}
+        <a title="Edit requisition" role="button" href="{{ wrapped.href }}" class="btn btn-default btn-sm"><i class="fas fa-pencil-alt fa-fw"></i></a>
+      {% else %}
+        <span class="text text-danger"><i class="fas fa-exclamation-circle fa-lg"></i> Not verified</span>
+      {% endif %}
+      <span class="text text-identifier">
+        {{ wrapped.object.human_readable_identifier }}
+      </span>&nbsp;
+    </td>
+    <td>
+      <span class="text text-identifier">
+      {{ wrapped.object.related_visit.subject_identifier }}
+      </span>
+    </td>
+    <td>
+      {{ wrapped.object.visit_code }}
+    </td>
+    <td>
+      {% status_column wrapped 'received' 'processed' %}
+    </td>
+    <td>
+      {{ wrapped.object.panel_object.verbose_name }}
+    </td>
+    <td>
+      {{wrapped.object.panel_object.processing_profile.verbose_name|default:'<span class="text text-danger"><i class="fas fa-warning"></i> Processing profile not configured</span>'}}
+    </td>
+    <td>
+      {{ wrapped.object.drawn_datetime|date:"Y-m-d H:i" }}
+    </td>
+    <td>
+      {{ wrapped.object.requisition_datetime|date:"Y-m-d" }}
+    </td>
+
+<!-- end columns -->

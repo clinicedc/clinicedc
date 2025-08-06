@@ -1,0 +1,37 @@
+{% extends edc_lab_listboard_template %}
+
+
+{% block results_panel_form %}
+
+    <form action="{{ form_action_url_reversed }}" method="post" id="{{ form_action_name }}" name="{{ form_action_name }}">
+    <div class="form-group form-inline">
+        <div class="input-group input-group-sm">
+        <input class="form-control" type="text" form="{{ form_action_name }}" id="box_item_identifier" name="box_item_identifier" placeholder="aliquot identifier" autofocus />
+        <div class="input-group-btn">
+        <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="add_item" form="{{ form_action_name }}">
+             <i class="fas fa-plus fa-sm"></i>
+        </button>
+        </div>
+        </div>
+
+        <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="renumber_items" form="{{ form_action_name }}">
+             <i class="fas fa-sort-numeric-desc fa-sm"></i> &nbsp;Renumber
+        </button>
+        <button type="submit" class="btn btn-default btn-sm" id="action" name="action" value="remove_selected_items" form="{{ form_action_name }}">
+             <span class="text text-danger"><i class="fas fa-window-close fa-sm"></i></span> &nbsp;Remove selected
+        </button>
+        <a role="button" class="btn btn-default btn-sm" href="{{ verify_box_listboard_url_reversed }}">
+             Verify box
+        </a>
+        {% if box.verified %}
+            <span class="text lead"><span class="label label-success"><i class="fas fa-check fa-fw"></i>&nbsp;Verified</span></span>
+        {% endif %}
+        {% if box.status == SHIPPED %}
+        <a role="button" class="btn btn-default btn-sm" href="{% url manifest_listboard_url %}?f=shipped">
+             <i class="fas fa-ship fa-fw"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% csrf_token %}
+    </form>
+{% endblock results_panel_form %}
