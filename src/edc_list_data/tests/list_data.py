@@ -1,0 +1,56 @@
+from edc_constants.constants import OTHER
+
+from edc_list_data.row import Row
+
+list_data = {
+    "edc_list_data.antibiotic": [
+        ("amoxicillin_ampicillin", "Amoxicillin/Ampicillin"),
+        ("ceftriaxone", "Ceftriaxone"),
+        ("ciprofloxacin", "Ciprofloxacin"),
+        ("doxycycline", "Doxycycline"),
+        ("erythromycin", "Erythromycin"),
+        ("flucloxacillin", "Flucloxacillin"),
+        ("gentamicin", "Gentamicin"),
+        (OTHER, "Other, specify"),
+    ],
+    "edc_list_data.neurological": [
+        ("focal_neurologic_deficit", "Focal neurologic deficit"),
+        ("meningism", "Meningism"),
+        ("papilloedema", " Papilloedema"),
+        ("CN_III_palsy", "Cranial Nerve III palsy"),
+        ("CN_IV_palsy", "Cranial Nerve IV palsy"),
+        ("CN_VIII_palsy", "Cranial Nerve VIII palsy"),
+        ("CN_VII_palsy", "Cranial Nerve VII palsy"),
+        ("CN_VI_palsy", "Cranial Nerve VI palsy"),
+        (OTHER, "Other CN palsy"),
+    ],
+    "edc_list_data.significantnewdiagnosis": [
+        ("bacteraemia", "Bacteraemia"),
+        ("bacterial_pneumonia", "Bacterial pneumonia"),
+        ("diarrhoeal_wasting", "Diarrhoeal wasting"),
+        ("kaposi_sarcoma", "Kaposi’s sarcoma"),
+        ("malaria", "Malaria"),
+        ("tb_extra_pulmonary", "TB extra-pulmonary"),
+        ("tb_pulmonary", "TB pulmonary"),
+        (OTHER, "Other, please specify:"),
+    ],
+    "edc_list_data.symptom": [
+        Row(("double_vision", "Double vision", "01")),
+        Row(("behaviour_change", "Behaviour change", "02")),
+        Row(("confusion", "Confusion", "03")),
+        Row(("cough", "Cough", "04")),
+        Row(("drowsiness", "Drowsiness", "05")),
+        Row(("fever", "Fever", "06")),
+        Row(("focal_weakness", "Focal weakness", "07")),
+        Row(("headache", "Headache", "08")),
+        Row(("hearing_loss", "Hearing loss", "09")),
+        Row(("nausea", "Nausea", "10")),
+        Row(("seizures_gt_72", "Seizures (72 hrs - 1 mo)", "11")),
+        Row(("seizures_lt_72 hrs", "Seizures (<72 hrs)", "12")),
+        Row(("shortness_of_breath", "Shortness of breath", "13"), extra="Uganda"),
+        Row(("skin_lesions", "Skin lesions", "14"), extra="Uganda"),
+        Row(("visual_loss", "Visual loss", "15"), extra="Uganda"),
+        Row(("vomiting", "Vomiting", "16"), extra="Uganda"),
+        Row(("weight_loss", "Weight loss", "17"), extra="Uganda"),
+    ],
+}
