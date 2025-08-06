@@ -1,0 +1,2 @@
+from .pdf_intermediate_view import PdfIntermediateView
+from .print_pdf_report_view import PrintPdfReportView
