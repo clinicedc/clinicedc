@@ -1,0 +1,7 @@
+CRF = "crf"
+DO_NOTHING = "do_nothing"
+KEYED = "KEYED"
+MISSED = "missed"
+NOT_REQUIRED = "NOT_REQUIRED"
+REQUIRED = "REQUIRED"
+REQUISITION = "requisition"
