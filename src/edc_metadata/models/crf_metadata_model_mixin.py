@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.translation import gettext as _
+
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_sites.model_mixins import SiteModelMixin
 from edc_visit_schedule.model_mixins import (

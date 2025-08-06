@@ -7,10 +7,11 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
+from multisite.exceptions import MultisiteSiteDoesNotExist
+
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import get_site_model_cls
 from edc_utils.date import to_local
-from multisite.exceptions import MultisiteSiteDoesNotExist
 
 from .exceptions import FacilityCountryError, FacilitySiteError, HolidayError
 from .holidays_disabled import holidays_disabled

@@ -4,6 +4,7 @@ from dataclasses import InitVar, dataclass, field
 from typing import TYPE_CHECKING, Type
 
 from django.contrib.auth import get_permission_codename
+
 from edc_sites.site import sites as site_sites
 
 if TYPE_CHECKING:

@@ -4,14 +4,14 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.test import TestCase
 from django.test.utils import override_settings
-from edc_sites.site import sites
-from edc_sites.tests import SiteTestCaseMixin
-from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 
 from edc_facility.facility import Facility
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday
+from edc_sites.site import sites
+from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
+from edc_utils import get_utcnow
 
 
 class TestFacility(SiteTestCaseMixin, TestCase):

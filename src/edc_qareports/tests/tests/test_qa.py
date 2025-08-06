@@ -4,17 +4,17 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.db import OperationalError, connection
 from django.test import TestCase, override_settings
-from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper
 from edc_appointment_app.models import CrfOne, Panel, SubjectRequisition, SubjectVisit
 from edc_appointment_app.tests import AppointmentAppTestCaseMixin
+
+from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper
 from edc_auth.get_app_codenames import get_app_codenames
 from edc_constants.constants import YES
 from edc_lab_panel.constants import FBC
-from edc_reportable import TEN_X_9_PER_LITER
-
 from edc_qareports.sql_generator import CrfCase, CrfCaseError, RequisitionCase
 from edc_qareports.sql_generator.crf_subquery import CrfSubqueryError
+from edc_reportable import TEN_X_9_PER_LITER
 
 from ..models import BloodResultsFbc
 

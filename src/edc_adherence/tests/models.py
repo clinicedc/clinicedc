@@ -1,5 +1,8 @@
 from django.db import models
 from django.db.models import PROTECT
+
+from edc_adherence.model_mixins import MedicationAdherenceModelMixin
+from edc_adherence.tests.consents import consent_v1
 from edc_appointment.models import Appointment
 from edc_consent.managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 from edc_consent.model_mixins.consent_version_model_mixin import (
@@ -20,9 +23,6 @@ from edc_visit_tracking.model_mixins import (
     SubjectVisitMissedModelMixin,
     VisitModelMixin,
 )
-
-from edc_adherence.model_mixins import MedicationAdherenceModelMixin
-from edc_adherence.tests.consents import consent_v1
 
 
 class DeathReport(BaseUuidModel):

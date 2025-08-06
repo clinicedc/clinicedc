@@ -9,9 +9,10 @@ from typing import TYPE_CHECKING, Type
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from tqdm import tqdm
+
 from edc_sites.site import sites
 from edc_utils import get_utcnow
-from tqdm import tqdm
 
 from .exceptions import HolidayFileNotFoundError, HolidayImportError
 from .utils import get_holiday_model_cls

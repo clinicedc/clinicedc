@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.db import models
 from django.db.models import Index
 from django.utils import timezone
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 

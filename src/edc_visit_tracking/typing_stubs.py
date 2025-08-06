@@ -9,6 +9,7 @@ from django.contrib.sites.models import Site
 from django.db.models import ForeignObjectRel, Model
 from django.db.models.manager import BaseManager
 from django.forms import Field
+
 from edc_appointment.models import Appointment
 from edc_metadata.metadata import Destroyer, Metadata
 from edc_metadata.metadata_rules import MetadataRuleEvaluator
@@ -23,23 +24,23 @@ _Self = TypeVar("_Self", bound=Model)
 
 class ModelBase(type):
     @property
-    def objects(cls: type[_Self]) -> BaseManager[_Self]: ...
+    def objects(cls: type[_Self]) -> BaseManager[_Self]: ...  # noqa
 
     @property
-    def _default_manager(cls: type[_Self]) -> BaseManager[_Self]: ...
+    def _default_manager(cls: type[_Self]) -> BaseManager[_Self]: ...  # noqa
 
     @property
-    def _base_manager(cls: type[_Self]) -> BaseManager[_Self]: ...
+    def _base_manager(cls: type[_Self]) -> BaseManager[_Self]: ...  # noqa
 
 
 class Options(Generic[_M]):
-    def label_lower(self) -> str: ...
+    def label_lower(self) -> str: ...  # noqa
 
-    def fields(self) -> Tuple[Field]: ...
+    def fields(self) -> Tuple[Field]: ...  # noqa
 
     def get_fields(
-        self, include_parents: bool = ..., include_hidden: bool = ...
-    ) -> list[Field | ForeignObjectRel | GenericForeignKey]: ...
+        self, include_parents: bool = ..., include_hidden: bool = ...  # noqa
+    ) -> list[Field | ForeignObjectRel | GenericForeignKey]: ...  # noqa
 
 
 class SiteFieldsProtocol(Protocol):
@@ -52,7 +53,7 @@ class RelatedVisitProtocol(VisitScheduleFieldsProtocol, Protocol):
     metadata_destroyer_cls: Type[Destroyer]
     metadata_rule_evaluator_cls: Type[MetadataRuleEvaluator]
 
-    class Meta: ...
+    class Meta: ...  # noqa
 
     _meta: Options[Any]
 

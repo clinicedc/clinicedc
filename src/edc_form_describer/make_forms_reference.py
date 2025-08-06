@@ -7,6 +7,7 @@ from importlib import import_module
 from django.conf import settings
 from django.core.management.color import color_style
 from django.utils.translation import gettext as _
+
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .forms_reference import FormsReference
@@ -24,9 +25,7 @@ def make_forms_reference(
     module = import_module(app_label)
     admin_site = getattr(getattr(module, "admin_site"), admin_site_name)
     visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
-    title = title or _("%(title_app)s Forms Reference") % dict(
-        title_app=app_label.upper()
-    )
+    title = title or _("%(title_app)s Forms Reference") % dict(title_app=app_label.upper())
     sys.stdout.write(
         style.MIGRATE_HEADING(f"Refreshing CRF reference document for {app_label}\n")
     )

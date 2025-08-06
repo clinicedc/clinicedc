@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django import forms
+
 from edc_screening.utils import (
     get_subject_screening_model_cls,
     get_subject_screening_or_raise,

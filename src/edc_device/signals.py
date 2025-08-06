@@ -3,7 +3,7 @@ from django.conf import settings
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
-from . import device_permissions
+from .device_permission import device_permissions
 
 
 def update_device_fields(instance):

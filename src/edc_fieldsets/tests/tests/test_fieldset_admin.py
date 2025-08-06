@@ -7,6 +7,7 @@ from django.contrib.auth.models import Permission, User
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
+
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_consent import site_consents

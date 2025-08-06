@@ -3,6 +3,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase
+
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays

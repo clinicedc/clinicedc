@@ -2,6 +2,7 @@ from typing import Tuple
 
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
+
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_randomization.blinding import user_is_blinded_from_request
 

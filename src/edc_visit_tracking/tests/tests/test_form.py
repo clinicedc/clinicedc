@@ -8,6 +8,10 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
+from edc_visit_tracking_app.consents import consent_v1
+from edc_visit_tracking_app.models import BadCrfNoRelatedVisit, CrfOne
+from edc_visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
+
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -24,7 +28,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_metadata.constants import MISSED
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.exceptions import RelatedVisitReasonError
 from edc_visit_tracking.form_validators import VisitFormValidator
@@ -33,9 +36,6 @@ from edc_visit_tracking.modelform_mixins import (
     VisitTrackingModelFormMixin,
 )
 from edc_visit_tracking.models import SubjectVisit
-from visit_tracking_app.consents import consent_v1
-from visit_tracking_app.models import BadCrfNoRelatedVisit, CrfOne
-from visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
 
 from ..helper import Helper
 

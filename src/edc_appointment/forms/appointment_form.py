@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django import forms
+
 from edc_consent.modelform_mixins import RequiresConsentModelFormMixin
 from edc_form_validators import FormValidatorMixin
 from edc_model_form.mixins import BaseModelFormMixin

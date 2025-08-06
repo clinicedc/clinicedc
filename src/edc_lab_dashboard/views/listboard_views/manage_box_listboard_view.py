@@ -2,6 +2,7 @@ from copy import copy
 from typing import Any
 
 from django.urls.base import reverse
+
 from edc_dashboard.url_names import url_names
 
 from .base_box_item_listboard_view import BaseBoxItemListboardView

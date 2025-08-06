@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
+
 from edc_sites.site import sites
 
 from ..constants import (

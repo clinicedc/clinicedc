@@ -4,18 +4,18 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
+
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
+from edc_metadata.constants import KEYED, REQUIRED
+from edc_metadata.metadata_refresher import MetadataRefresher
+from edc_metadata.models import CrfMetadata
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
-
-from edc_metadata.constants import KEYED, REQUIRED
-from edc_metadata.metadata_refresher import MetadataRefresher
-from edc_metadata.models import CrfMetadata
 
 from ..models import CrfFive, CrfOne, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin

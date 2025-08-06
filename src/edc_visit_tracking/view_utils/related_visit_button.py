@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Type, TypeVar
 
 from django.utils.translation import gettext as _
+
 from edc_appointment.constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
@@ -16,8 +17,8 @@ from edc_view_utils import ADD, CHANGE, VIEW, DashboardModelButton
 
 if TYPE_CHECKING:
     from django.contrib.sites.models import Site
-    from edc_appointment.models import Appointment
 
+    from edc_appointment.models import Appointment
     from edc_visit_tracking.model_mixins import VisitModelMixin
 
     RelatedVisitModel = TypeVar("RelatedVisitModel", bound=VisitModelMixin)

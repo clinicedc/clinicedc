@@ -1,4 +1,5 @@
 from django.core.management import color_style
+
 from edc_utils.context_processors_check import edc_context_processors_check
 
 style = color_style()

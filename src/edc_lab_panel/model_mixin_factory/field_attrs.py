@@ -2,6 +2,7 @@ from typing import Optional
 
 from django.core.validators import MinValueValidator
 from django.db import models
+
 from edc_constants.choices import GRADING_SCALE_WITH_NOT_GRADED, YES_NO
 from edc_lab.choices import RESULT_QUANTIFIER
 from edc_lab.constants import EQ

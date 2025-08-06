@@ -1,5 +1,6 @@
 from django.contrib.admin.decorators import register
 from django.contrib.sites.shortcuts import get_current_site
+
 from edc_auth.admin import UserAdmin as BaseUserAdmin
 
 from ..admin_site import edc_unblinding_admin

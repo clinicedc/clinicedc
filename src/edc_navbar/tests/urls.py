@@ -1,5 +1,6 @@
 from django.urls import include, path
 from django.views.generic.base import RedirectView, View
+
 from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
 
 urlpatterns = []

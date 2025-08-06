@@ -8,6 +8,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
+
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin

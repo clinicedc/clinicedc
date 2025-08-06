@@ -2,12 +2,13 @@ from django.contrib import admin
 from django.db.models import QuerySet
 from django.urls import reverse
 from django.utils.html import format_html
+from rangefilter.filters import DateRangeFilterBuilder, NumericRangeFilterBuilder
+
 from edc_model_admin.dashboard import ModelAdminDashboardMixin
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 from edc_qareports.modeladmin_mixins import QaReportModelAdminMixin
 from edc_sites.admin import SiteModelAdminMixin
 from edc_utils import get_utcnow
-from rangefilter.filters import DateRangeFilterBuilder, NumericRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...analytics.dataframes.no_stock_for_subjects_df import stock_for_subjects_df

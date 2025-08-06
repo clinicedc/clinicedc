@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django_audit_fields.admin import audit_fieldset_tuple
+
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin

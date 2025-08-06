@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Type
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+
 from edc_model import DEFAULT_BASE_FIELDS
 
 from ..utils import get_registered_subject_model_cls

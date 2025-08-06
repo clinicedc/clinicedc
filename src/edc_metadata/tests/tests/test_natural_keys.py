@@ -6,6 +6,8 @@ from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.test import TestCase, override_settings
+from faker import Faker
+
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
@@ -16,7 +18,6 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from faker import Faker
 
 from ..models import SubjectConsentV1
 from ..visit_schedule import get_visit_schedule

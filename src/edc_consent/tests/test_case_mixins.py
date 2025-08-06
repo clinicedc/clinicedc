@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
-from edc_constants.constants import FEMALE
-from edc_utils import get_utcnow, get_utcnow_as_date
 from model_bakery import baker
 
 from edc_consent.utils import get_consent_model_name
+from edc_constants.constants import FEMALE
+from edc_utils import get_utcnow, get_utcnow_as_date
 
 if TYPE_CHECKING:
     from screening_app.models import SubjectScreening

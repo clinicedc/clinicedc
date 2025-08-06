@@ -9,9 +9,9 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.core.management.color import color_style
 from django.utils.translation import gettext as _
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from edc_form_describer.forms_reference import FormsReference
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 style = color_style()
 
@@ -29,9 +29,7 @@ def update_forms_reference(
     filename = filename or "forms_reference.md"
     admin_site = getattr(getattr(module, "admin_site"), admin_site_name)
     visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
-    title = title or _("%(title_app)s Forms Reference") % dict(
-        title_app=app_label.upper()
-    )
+    title = title or _("%(title_app)s Forms Reference") % dict(title_app=app_label.upper())
     sys.stdout.write(
         style.MIGRATE_HEADING(f"Refreshing CRF reference document for {app_label}\n")
     )

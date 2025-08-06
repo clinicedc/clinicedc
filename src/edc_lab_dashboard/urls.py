@@ -1,4 +1,5 @@
 from django.urls.conf import path, re_path
+
 from edc_dashboard.url_names import url_names
 
 from .dashboard_urls import dashboard_urls

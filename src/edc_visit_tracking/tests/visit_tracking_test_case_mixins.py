@@ -3,7 +3,6 @@ from __future__ import annotations
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_consent.tests.test_case_mixins import ConsentTestCaseMixin
 from edc_visit_schedule.constants import DAY1
-
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
 

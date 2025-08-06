@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.html import format_html
+
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
 from edc_model import models as edc_models

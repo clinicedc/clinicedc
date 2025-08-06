@@ -1,6 +1,5 @@
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
-from edc_notification.modeladmin_mixins import NotificationModelAdminMixin
 
 from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,
@@ -10,6 +9,7 @@ from edc_model_admin.mixins import (
     ModelAdminRedirectOnDeleteMixin,
     TemplatesModelAdminMixin,
 )
+from edc_notification.modeladmin_mixins import NotificationModelAdminMixin
 
 
 class ModelAdminStackedInlineMixin(

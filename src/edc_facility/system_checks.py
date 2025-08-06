@@ -4,6 +4,7 @@ from pathlib import Path
 from django.conf import settings
 from django.core.checks import Error, Warning
 from django.core.management import color_style
+
 from edc_sites.site import sites
 
 style = color_style()

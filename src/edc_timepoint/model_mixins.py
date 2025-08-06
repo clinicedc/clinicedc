@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+
 from edc_utils import get_utcnow
 
 from .choices import TIMEPOINT_STATUS

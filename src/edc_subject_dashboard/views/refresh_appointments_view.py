@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
+
 from edc_appointment.utils import refresh_appointments
 from edc_dashboard.url_names import url_names
 

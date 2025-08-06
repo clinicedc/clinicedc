@@ -1,6 +1,7 @@
 from typing import Any, Optional
 
 from django.db import models
+
 from edc_constants.choices import DOCUMENT_STATUS
 from edc_constants.constants import COMPLETE
 

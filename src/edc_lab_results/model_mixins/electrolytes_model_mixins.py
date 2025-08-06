@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_reportable import MILLIMOLES_PER_LITER_DISPLAY
 from edc_reportable.units import MILLIGRAMS_PER_DECILITER, MILLIMOLES_PER_LITER

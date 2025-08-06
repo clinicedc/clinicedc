@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
+
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import PACKED
 from edc_lab import Manifest as ManifestObject

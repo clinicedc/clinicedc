@@ -8,7 +8,6 @@ from ...visit_sequence import VisitSequence, VisitSequenceError
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
-
     from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 
 

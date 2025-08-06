@@ -4,6 +4,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.db.models.aggregates import Count
 from django.urls import reverse
 from django.views.generic import TemplateView
+
 from edc_action_item.models.action_item import ActionItem
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin

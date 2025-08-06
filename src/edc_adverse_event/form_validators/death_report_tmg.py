@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date
 
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_constants.constants import CLOSED, NO, OTHER
 from edc_form_validators import INVALID_ERROR, FormValidator
 

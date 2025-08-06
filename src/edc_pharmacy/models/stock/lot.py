@@ -1,7 +1,8 @@
 from django.db import models
 from django.db.models import PROTECT
-from edc_model.models import BaseUuidModel, HistoricalRecords
 from sequences import get_next_value
+
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ...exceptions import LotError
 from ..medication import Assignment

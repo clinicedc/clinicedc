@@ -7,9 +7,12 @@ from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
+from edc_test_utils.get_user_for_tests import get_user_for_tests
+
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.constants import CLINIC
 from edc_auth.site_auths import site_auths
+from edc_dashboard.url_names import url_names
 from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 from edc_listboard.view_mixins import ListboardFilterViewMixin, QueryStringViewMixin
 from edc_listboard.views import ListboardView
@@ -19,11 +22,8 @@ from edc_sites.site import sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 from edc_subject_dashboard.view_mixins import RegisteredSubjectViewMixin
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
-
-from edc_dashboard.url_names import url_names
 
 from .models import SubjectVisit
 

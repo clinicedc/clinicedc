@@ -1,5 +1,6 @@
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
+
 from edc_appointment.constants import ONTIME_APPT
 from edc_constants.constants import NOT_APPLICABLE, PATIENT
 from edc_metadata import REQUIRED

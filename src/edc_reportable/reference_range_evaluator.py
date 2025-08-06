@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Type
 
 from django import forms
 from django.apps import apps as django_apps
+
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_metadata.constants import REQUIRED
 

@@ -1,4 +1,5 @@
 from django.conf import settings
+
 from edc_navbar import Navbar, NavbarItem, site_navbars
 
 no_url_namespace = True if settings.APP_NAME == "edc_adverse_event" else False

@@ -1,5 +1,6 @@
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
+
 from edc_sites import site_sites
 
 from ..model_mixins import RequiresConsentFieldsModelMixin

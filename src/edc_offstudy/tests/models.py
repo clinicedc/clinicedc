@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+
 from edc_consent.managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel

@@ -2,15 +2,15 @@ from unittest.case import skip
 
 from django.core import mail
 from django.test import TestCase
-from edc_constants.constants import NEW
-from edc_notification.notification import NewModelNotification, UpdatedModelNotification
-from edc_notification.site_notifications import site_notifications
 
 from edc_action_item.action_item_notification import (
     NOTIFY_ON_CHANGED_REFERENCE_OBJ,
     NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ,
 )
 from edc_action_item.site_action_items import site_action_items
+from edc_constants.constants import NEW
+from edc_notification.notification import NewModelNotification, UpdatedModelNotification
+from edc_notification.site_notifications import site_notifications
 
 from ..action_items import FormZeroAction, register_actions
 from ..models import FormZero

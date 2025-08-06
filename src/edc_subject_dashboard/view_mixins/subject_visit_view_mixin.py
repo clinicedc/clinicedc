@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_utils import get_utcnow
 from edc_visit_schedule.models import VisitSchedule
 

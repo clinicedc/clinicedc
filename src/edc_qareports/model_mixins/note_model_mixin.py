@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
+
 from edc_model.models import BaseUuidModel
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow

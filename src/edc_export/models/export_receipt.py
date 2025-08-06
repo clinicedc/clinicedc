@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Index
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 

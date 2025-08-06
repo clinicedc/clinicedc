@@ -6,20 +6,20 @@ from uuid import UUID
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
+
 from edc_view_utils import ADD, PrnButton
 
 if TYPE_CHECKING:
+    from edc_action_item.models import ActionItem
     from edc_appointment.models import Appointment
     from edc_crf.model_mixins import CrfModelMixin
     from edc_model.models import BaseUuidModel
 
-    from edc_action_item.models import ActionItem
-
     class PrnModel(BaseUuidModel):
         subject_identifier: str
-        ...
+        ...  # noqa
 
-    class CrfModel(CrfModelMixin): ...
+    class CrfModel(CrfModelMixin): ...  # noqa
 
 
 @dataclass

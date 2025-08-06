@@ -1,6 +1,7 @@
 import uuid
 
 from dateutil.relativedelta import relativedelta
+
 from edc_appointment.models import Appointment
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow

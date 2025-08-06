@@ -4,13 +4,13 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
-from edc_visit_tracking.constants import SCHEDULED
 
 from edc_metadata.constants import KEYED, NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_handler import MetadataHandlerError
 from edc_metadata.metadata_inspector import MetaDataInspector
 from edc_metadata.metadata_updater import MetadataUpdater
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
+from edc_visit_tracking.constants import SCHEDULED
 
 from ..models import CrfOne, CrfThree, CrfTwo, SubjectRequisition, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin

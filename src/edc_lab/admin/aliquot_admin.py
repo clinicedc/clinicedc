@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_fieldsets import Fieldset
+
+from edc_fieldsets.fieldset import Fieldset
 
 from ..admin_site import edc_lab_admin
 from ..forms import AliquotForm

@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_list_data.model_mixins import ListModelMixin
 
 

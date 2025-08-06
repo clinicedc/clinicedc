@@ -10,6 +10,8 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from django_audit_fields.admin import audit_fieldset_tuple
+from rangefilter.filters import DateRangeFilterBuilder
+
 from edc_constants.constants import NOT_APPLICABLE
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_document_status.fieldsets import document_status_fieldset_tuple
@@ -25,7 +27,6 @@ from edc_visit_schedule.fieldsets import (
     visit_schedule_fieldset_tuple,
 )
 from edc_visit_schedule.utils import off_schedule_or_raise
-from rangefilter.filters import DateRangeFilterBuilder
 
 from ..admin_site import edc_appointment_admin
 from ..choices import APPT_STATUS, APPT_TIMING, DEFAULT_APPT_REASON_CHOICES

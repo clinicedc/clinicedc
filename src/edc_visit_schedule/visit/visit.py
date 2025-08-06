@@ -5,6 +5,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
+
 from edc_facility.utils import get_default_facility_name, get_facility
 from edc_utils import get_utcnow, to_utc
 
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from dateutil.relativedelta import relativedelta
+
     from edc_facility import Facility
 
     from .crf import Crf

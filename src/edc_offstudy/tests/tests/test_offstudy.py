@@ -2,19 +2,19 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
-from edc_action_item import site_action_items
+
+from edc_action_item.site_action_items import site_action_items
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_constants.constants import DEAD
 from edc_facility.import_holidays import import_holidays
+from edc_offstudy.models import SubjectOffstudy
+from edc_offstudy.utils import OffstudyError
 from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.exceptions import OffScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from edc_offstudy.models import SubjectOffstudy
-from edc_offstudy.utils import OffstudyError
 
 from ...action_items import EndOfStudyAction
 from ..forms import CrfOneForm, NonCrfOneForm, SubjectOffstudyForm

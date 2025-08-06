@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_consent import site_consents
 
 from .utils import get_subject_screening_model

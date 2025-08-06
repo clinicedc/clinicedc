@@ -1,6 +1,7 @@
 from typing import Optional
 
 from django.apps import apps as django_apps
+
 from edc_constants.constants import INCOMPLETE
 
 from .model_mixins import CrfStatusModelMixin

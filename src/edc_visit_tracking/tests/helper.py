@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from edc_appointment.tests.helper import Helper as BaseHelper
+from edc_visit_tracking_app.models import SubjectScreening
 
-from visit_tracking_app.models import SubjectScreening
+from edc_appointment.tests.helper import Helper as BaseHelper
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment

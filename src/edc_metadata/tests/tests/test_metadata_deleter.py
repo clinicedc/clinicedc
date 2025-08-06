@@ -4,15 +4,15 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django.db.models import ProtectedError
 from django.test import TestCase, override_settings
+
 from edc_appointment.constants import INCOMPLETE_APPT, MISSED_APPT
 from edc_appointment.models import Appointment
 from edc_lab.models import Panel
-from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
-from edc_visit_tracking.models import SubjectVisit
-
 from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.metadata import DeleteMetadataError
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from ..models import CrfOne, SubjectRequisition
 from .metadata_test_mixin import TestMetadataMixin

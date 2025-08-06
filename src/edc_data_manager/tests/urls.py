@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls.conf import include, path
+
 from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
 
 from .views import HomeView

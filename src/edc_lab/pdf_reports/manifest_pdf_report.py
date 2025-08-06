@@ -5,23 +5,25 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_pdf_reports import Report
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
 from reportlab.lib.units import cm, mm
 from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
+
+from edc_pdf_reports import Report
 
 from ..models import Aliquot, Box, BoxItem
 from ..site_labs import site_labs
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
+
     from edc_model.models import BaseUuidModel
     from edc_pdf_reports.model_mixins import PdfReportModelMixin
 
     from ..model_mixins import ManifestModelMixin
 
-    class Model(PdfReportModelMixin, ManifestModelMixin, BaseUuidModel): ...
+    class Model(PdfReportModelMixin, ManifestModelMixin, BaseUuidModel): ...  # noqa
 
 
 class ManifestPdfReportError(Exception):

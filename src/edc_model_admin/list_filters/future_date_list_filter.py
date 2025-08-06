@@ -4,6 +4,7 @@ from dateutil.relativedelta import MO, relativedelta
 from django.contrib.admin import SimpleListFilter
 from django.db.models import QuerySet
 from django.utils.translation import gettext as _
+
 from edc_constants.constants import (
     FUTURE_DATE,
     IS_NULL,

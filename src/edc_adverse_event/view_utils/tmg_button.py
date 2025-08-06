@@ -4,26 +4,26 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from django.utils.translation import gettext as _
+
 from edc_view_utils import ModelButton
 
 if TYPE_CHECKING:
     from edc_action_item.models import ActionItem
-    from edc_model.models import BaseUuidModel
-
     from edc_adverse_event.model_mixins import (
         AeFollowupModelMixin,
         AeInitialModelMixin,
         DeathReportModelMixin,
         DeathReportTmgModelMixin,
     )
+    from edc_model.models import BaseUuidModel
 
-    class AeInitialModel(AeInitialModelMixin, BaseUuidModel): ...
+    class AeInitialModel(AeInitialModelMixin, BaseUuidModel): ...  # noqa
 
-    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel): ...
+    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel): ...  # noqa
 
-    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel): ...
+    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel): ...  # noqa
 
-    class DeathReportModel(DeathReportModelMixin, BaseUuidModel): ...
+    class DeathReportModel(DeathReportModelMixin, BaseUuidModel): ...  # noqa
 
 
 @dataclass

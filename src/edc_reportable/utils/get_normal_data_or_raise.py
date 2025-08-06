@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
+
 from edc_model_to_dataframe.constants import SYSTEM_COLUMNS
 from edc_utils import age as get_age
 from edc_utils import get_utcnow

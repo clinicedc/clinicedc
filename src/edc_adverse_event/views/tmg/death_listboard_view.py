@@ -4,6 +4,7 @@ import re
 from typing import Any
 
 from django.db.models import Q
+
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin

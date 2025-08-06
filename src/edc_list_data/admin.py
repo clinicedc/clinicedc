@@ -1,6 +1,7 @@
 from typing import Tuple
 
 from django.contrib import admin
+
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 

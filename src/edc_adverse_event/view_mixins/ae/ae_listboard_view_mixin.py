@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin

@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_search.model_mixins import SearchSlugManager
 from edc_visit_tracking.managers import CrfModelManager
 

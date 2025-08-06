@@ -4,6 +4,7 @@ from django.core.validators import (
     RegexValidator,
 )
 from django.db import models
+
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.choices import YES_NO_TBD
 from edc_constants.constants import TBD

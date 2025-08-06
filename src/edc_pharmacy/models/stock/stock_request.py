@@ -1,9 +1,10 @@
 from django.db import models
+from sequences import get_next_value
+
 from edc_constants.constants import CANCELLED, CLOSED, OPEN
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
-from sequences import get_next_value
 
 from ...exceptions import InvalidContainer, StockRequestError
 from ..medication import Formulation

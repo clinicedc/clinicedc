@@ -1,5 +1,4 @@
 from django.test import TestCase, tag
-from edc_utils import round_half_away_from_zero as rnd
 
 from edc_reportable.units import (
     GRAMS_PER_LITER,
@@ -8,6 +7,7 @@ from edc_reportable.units import (
     MILLIMOLES_PER_LITER,
 )
 from edc_reportable.utils import convert_units
+from edc_utils import round_half_away_from_zero as rnd
 
 
 class TestParser(TestCase):

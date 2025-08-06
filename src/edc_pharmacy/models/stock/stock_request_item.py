@@ -1,10 +1,11 @@
 from django.db import models
+from sequences import get_next_value
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_randomization.site_randomizers import site_randomizers
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import VisitCodeFieldsModelMixin
-from sequences import get_next_value
 
 from ...exceptions import StockRequestItemError
 from ..medication import Assignment

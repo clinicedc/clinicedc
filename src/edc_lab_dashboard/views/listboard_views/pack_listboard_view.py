@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.apps import apps as django_apps
+
 from edc_constants.constants import OPEN
 from edc_lab.constants import SHIPPED
 from edc_lab.models import Manifest

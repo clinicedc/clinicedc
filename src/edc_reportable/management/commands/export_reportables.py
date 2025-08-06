@@ -4,8 +4,8 @@ from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.core.management.color import color_style
 from django_pandas.io import read_frame
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_reportable.models import GradingData, NormalData
 
 style = color_style()

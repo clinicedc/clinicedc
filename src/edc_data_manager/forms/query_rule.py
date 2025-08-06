@@ -1,4 +1,5 @@
 from django import forms
+
 from edc_form_validators import FormValidator, FormValidatorMixin
 
 from ..models import QueryRule

@@ -1,9 +1,11 @@
 from django.test import TestCase
-from edc_action_item import site_action_items
+
+from edc_action_item.site_action_items import site_action_items
 from edc_consent.site_consents import site_consents
 from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_facility.import_holidays import import_holidays
 from edc_lab import site_labs
+from edc_lab_results.action_items import register_actions
 from edc_metadata.tests.models import SubjectConsentV1
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
@@ -12,8 +14,6 @@ from edc_reportable.data.normal_data.africa import normal_data
 from edc_reportable.utils import load_reference_ranges
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from edc_lab_results.action_items import register_actions
 
 from .lab_profiles import subject_lab_profile
 from .visit_schedule import visit_schedule

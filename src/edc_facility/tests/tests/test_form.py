@@ -2,11 +2,11 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
-from edc_utils import get_utcnow
 
 from edc_facility.form_validators import HealthFacilityFormValidator
 from edc_facility.forms import HealthFacilityForm
 from edc_facility.models import HealthFacility, HealthFacilityTypes
+from edc_utils import get_utcnow
 
 
 class TestForm(TestCase):

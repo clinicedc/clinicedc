@@ -4,10 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
-from edc_facility import import_holidays
-from edc_sites.tests import SiteTestCaseMixin
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_appointment_app.visit_schedule import get_visit_schedule4
 
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
@@ -16,7 +13,10 @@ from edc_appointment.utils import (
     get_appointment_by_datetime,
     get_window_gap_days,
 )
-from edc_appointment_app.visit_schedule import get_visit_schedule4
+from edc_facility import import_holidays
+from edc_sites.tests import SiteTestCaseMixin
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc = ZoneInfo("UTC")
 

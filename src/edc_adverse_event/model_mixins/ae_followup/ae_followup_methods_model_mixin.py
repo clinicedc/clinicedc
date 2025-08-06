@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_constants.constants import NOT_APPLICABLE
 
 

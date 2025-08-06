@@ -1,4 +1,5 @@
 from django import forms
+
 from edc_registration.models import RegisteredSubject
 
 from ...models import Allocation, StockRequest

@@ -4,13 +4,12 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test.testcases import TestCase
-from edc_action_item import site_action_items
+from protocol_app.action_items import ProtocolIncidentAction
+from protocol_app.visit_schedule import visit_schedule
+
+from edc_action_item.site_action_items import site_action_items
 from edc_constants.constants import CLOSED, NO, NOT_APPLICABLE, OPEN, OTHER
 from edc_list_data import site_list_data
-from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
 from edc_protocol_incident import list_data
 from edc_protocol_incident.constants import DEVIATION, WITHDRAWN
 from edc_protocol_incident.forms import ProtocolIncidentForm
@@ -19,8 +18,9 @@ from edc_protocol_incident.models import (
     ProtocolIncident,
     ProtocolViolations,
 )
-from protocol_app.action_items import ProtocolIncidentAction
-from protocol_app.visit_schedule import visit_schedule
+from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class TestProtocolIncident(TestCase):

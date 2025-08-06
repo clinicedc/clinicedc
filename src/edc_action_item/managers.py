@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_sites.managers import CurrentSiteManager as BaseCurrentSiteManager
 
 

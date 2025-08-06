@@ -2,9 +2,14 @@ import re
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
+from screening_app.models import (
+    SubjectScreening,
+    SubjectScreeningWithEligibility,
+    SubjectScreeningWithEligibilitySimple,
+)
+
 from edc_constants.constants import MALE, NO, UUID_PATTERN, YES
 from edc_identifier.models import IdentifierModel
-
 from edc_screening.age_evaluator import AgeEvaluator
 from edc_screening.constants import ELIGIBLE, NOT_ELIGIBLE
 from edc_screening.gender_evaluator import GenderEvaluator
@@ -14,11 +19,6 @@ from edc_screening.utils import (
     get_subject_screening_app_label,
     get_subject_screening_model,
     get_subject_screening_model_cls,
-)
-from screening_app.models import (
-    SubjectScreening,
-    SubjectScreeningWithEligibility,
-    SubjectScreeningWithEligibilitySimple,
 )
 
 

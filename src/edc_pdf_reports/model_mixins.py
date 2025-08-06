@@ -7,7 +7,6 @@ from django.core.handlers.wsgi import WSGIRequest
 if TYPE_CHECKING:
     from edc_crf.model_mixins import CrfModelMixin
     from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
-
     from edc_pdf_reports import CrfPdfReport
 
     class ModelMixin(CrfModelMixin, UniqueSubjectIdentifierModelMixin):

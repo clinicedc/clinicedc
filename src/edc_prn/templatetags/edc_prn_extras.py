@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 

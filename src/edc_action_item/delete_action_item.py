@@ -1,4 +1,5 @@
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+
 from edc_constants.constants import NEW
 
 from .get_action_type import get_action_type

@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_utils import get_utcnow
 

@@ -2,15 +2,12 @@ import re
 
 from django.conf import settings
 from django.test import TestCase, override_settings
+from lab_app.models import SubjectRequisition, SubjectVisit
+
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_facility import import_holidays
-from edc_sites.single_site import SingleSite
-from edc_sites.utils import add_or_update_django_sites
-from edc_utils.date import get_utcnow
-from edc_visit_tracking.constants import SCHEDULED
-
 from edc_lab.lab import (
     AliquotType,
     LabProfile,
@@ -19,7 +16,10 @@ from edc_lab.lab import (
     ProcessingProfileAlreadyAdded,
 )
 from edc_lab.site_labs import SiteLabs, site_labs
-from lab_app.models import SubjectRequisition, SubjectVisit
+from edc_sites.single_site import SingleSite
+from edc_sites.utils import add_or_update_django_sites
+from edc_utils.date import get_utcnow
+from edc_visit_tracking.constants import SCHEDULED
 
 from ..site_labs_test_helper import SiteLabsTestHelper
 

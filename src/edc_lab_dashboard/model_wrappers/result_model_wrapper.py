@@ -1,5 +1,6 @@
-from edc_lab.models import Result
 from edc_model_wrapper import ModelWrapper
+
+from edc_lab.models import Result
 
 
 class ResultModelWrapper(ModelWrapper):

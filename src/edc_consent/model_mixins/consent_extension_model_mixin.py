@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext as _
 from django_crypto_fields.fields import EncryptedTextField
+
 from edc_constants.choices import YES_NO_NA
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_utils import get_utcnow

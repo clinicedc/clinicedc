@@ -1,9 +1,9 @@
 from dateutil.relativedelta import relativedelta
+
+from edc_offstudy.tests.consents import consent_v1
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import Crf, FormsCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
-
-from edc_offstudy.tests.consents import consent_v1
 
 crfs = FormsCollection(
     Crf(show_order=1, model="edc_offstudy.crfone", required=True),

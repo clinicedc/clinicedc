@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.checks import register
 from django.core.management.color import color_style
 from django.db.backends.signals import connection_created
+
 from edc_utils.sqlite import activate_foreign_keys
 
 from .system_checks import check_for_edc_model

@@ -6,12 +6,12 @@ from typing import Any
 from django.apps import apps as django_apps
 from django.contrib.admin.sites import all_sites
 from django.db.models import Count
-from edc_appointment.models import Appointment
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.utils import get_related_visit_model_cls
 from tqdm import tqdm
 
+from edc_appointment.models import Appointment
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from .metadata import CrfMetadataGetter, RequisitionMetadataGetter
 from .metadata_rules import site_metadata_rules

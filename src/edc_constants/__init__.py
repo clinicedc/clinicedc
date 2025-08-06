@@ -1,3 +1,3 @@
-from importlib.metadata import version
-
-__version__ = version("edc_constants")
+# from importlib.metadata import version
+#
+# __version__ = version("edc_constants")

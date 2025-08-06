@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.validators import datetime_not_future

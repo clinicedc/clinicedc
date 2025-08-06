@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Type
 
 from django.urls.conf import re_path
+
 from edc_constants.constants import UUID_PATTERN
 
 from .url_names import url_names
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 
     from .view_mixins import UrlRequestContextMixin
 
-    class View(UrlRequestContextMixin, BaseView): ...
+    class View(UrlRequestContextMixin, BaseView): ...  # noqa
 
 
 class UrlConfig:

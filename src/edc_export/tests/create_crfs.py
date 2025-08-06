@@ -1,9 +1,9 @@
 import uuid
 
+from export_app.models import Crf, CrfOne, CrfThree, CrfTwo, ListModel, SubjectVisit
+
 from edc_appointment.models import Appointment
 from edc_utils import get_utcnow
-
-from export_app.models import Crf, CrfOne, CrfThree, CrfTwo, ListModel, SubjectVisit
 
 from .create_crfs_with_inlines import create_crf_with_inlines
 

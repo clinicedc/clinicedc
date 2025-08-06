@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import PROTECT
+
 from edc_constants.constants import CLOSED, NEW, NORMAL, OPEN, RESOLVED
 from edc_utils import get_utcnow
 

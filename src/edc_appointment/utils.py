@@ -22,6 +22,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Count, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
+
 from edc_constants.constants import CLINIC
 from edc_constants.constants import ERROR as ERROR_CODE
 from edc_constants.constants import NOT_APPLICABLE, OK
@@ -66,6 +67,7 @@ if TYPE_CHECKING:
     from decimal import Decimal
 
     from django.db.models import QuerySet
+
     from edc_crf.model_mixins import CrfModelMixin as Base
     from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 

@@ -7,6 +7,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
+
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import (
     ConsentDefinitionDoesNotExist,

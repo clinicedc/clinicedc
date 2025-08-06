@@ -3,6 +3,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+
 from edc_model import model_exists_or_raise
 
 

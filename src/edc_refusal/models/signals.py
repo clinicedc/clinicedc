@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
+
 from edc_screening.utils import get_subject_screening_model_cls
 
 from ..utils import get_subject_refusal_model

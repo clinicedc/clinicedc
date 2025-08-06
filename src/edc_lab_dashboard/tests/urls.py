@@ -1,6 +1,7 @@
 from django.conf.urls import include
 from django.urls.conf import path
 from django.views.generic.base import TemplateView
+
 from edc_lab.admin_site import edc_lab_admin
 
 urlpatterns = [

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Type
 
 from django.conf import settings
 from django.urls import reverse
+
 from edc_model.models import BaseUuidModel
 from edc_utils import convert_php_dateformat
 
@@ -14,11 +15,11 @@ if TYPE_CHECKING:
 
     from .modeladmin_mixins import AdverseEventModelAdminMixin
 
-    class ModelAdmin(AdverseEventModelAdminMixin, admin.ModelAdmin): ...
+    class ModelAdmin(AdverseEventModelAdminMixin, admin.ModelAdmin): ...  # noqa
 
     class Model(BaseUuidModel):
         report_datetime: datetime
-        ...
+        ...  # noqa
 
 
 @dataclass(order=True)

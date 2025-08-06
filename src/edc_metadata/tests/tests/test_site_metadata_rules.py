@@ -3,11 +3,11 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
+
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
-
 from edc_metadata import NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_rules import (
     CrfRule,

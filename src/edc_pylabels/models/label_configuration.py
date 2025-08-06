@@ -1,7 +1,7 @@
 from django.db import models
 from django_pylabels.models import LabelSpecification
-from edc_model.models import BaseUuidModel
 
+from edc_model.models import BaseUuidModel
 from edc_pylabels.site_label_configs import site_label_configs
 
 

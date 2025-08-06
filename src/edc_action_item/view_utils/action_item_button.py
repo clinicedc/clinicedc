@@ -5,15 +5,15 @@ from typing import TYPE_CHECKING, Type
 from uuid import UUID
 
 from django.contrib.sites.models import Site
+
 from edc_view_utils import ModelButton
 
 from ..models import ActionType
 
 if TYPE_CHECKING:
-    from edc_appointment.models import Appointment
-
-    from edc_action_item import Action
+    from edc_action_item.action import Action
     from edc_action_item.models import ActionItem
+    from edc_appointment.models import Appointment
 
 
 @dataclass(kw_only=True)

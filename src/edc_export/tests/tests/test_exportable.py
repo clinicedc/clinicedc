@@ -5,12 +5,12 @@ from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, User
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
-from edc_appointment.models import Appointment
-from edc_registration.models import RegisteredSubject
 
+from edc_appointment.models import Appointment
 from edc_export.constants import EXPORT
 from edc_export.exportables import Exportables
 from edc_export.model_options import ModelOptions
+from edc_registration.models import RegisteredSubject
 
 
 @override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())

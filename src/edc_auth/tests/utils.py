@@ -8,16 +8,16 @@ from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
-from edc_lab.auth_objects import LAB_TECHNICIAN_ROLE
-from edc_randomization.randomizer import Randomizer
-from edc_randomization.site_randomizers import site_randomizers
-from edc_sites.models import SiteProfile
 from faker import Faker
 from mempass import mkpassword
 
 from edc_auth.constants import CLINICIAN_ROLE
 from edc_auth.site_auths import site_auths
 from edc_auth.tests.randomizers import CustomRandomizer
+from edc_lab.auth_objects import LAB_TECHNICIAN_ROLE
+from edc_randomization.randomizer import Randomizer
+from edc_randomization.site_randomizers import site_randomizers
+from edc_sites.models import SiteProfile
 
 from ..import_users import fieldnames
 

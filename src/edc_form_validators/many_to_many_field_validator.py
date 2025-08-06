@@ -1,6 +1,7 @@
 from typing import Optional, Union
 
 from django.forms import ValidationError
+
 from edc_constants.constants import NOT_APPLICABLE, OTHER
 
 from .base_form_validator import (

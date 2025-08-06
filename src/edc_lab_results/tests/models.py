@@ -1,12 +1,10 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from edc_crf.model_mixins import CrfModelMixin, CrfWithActionModelMixin
 from edc_lab.model_mixins import CrfWithRequisitionModelMixin
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_lab_panel.panels import fbc_panel
-from edc_model import models as edc_models
-from edc_reportable import GRAMS_PER_DECILITER
-
 from edc_lab_results import BLOOD_RESULTS_FBC_ACTION
 from edc_lab_results.model_mixins import (
     BloodResultsModelMixin,
@@ -17,6 +15,8 @@ from edc_lab_results.model_mixins import (
     RbcModelMixin,
     WbcModelMixin,
 )
+from edc_model import models as edc_models
+from edc_reportable import GRAMS_PER_DECILITER
 
 
 class BloodResultsFbc(

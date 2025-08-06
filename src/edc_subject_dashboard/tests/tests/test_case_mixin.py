@@ -1,12 +1,12 @@
 from django.core.exceptions import ObjectDoesNotExist
-from edc_sites import site_sites
-from edc_sites.utils import add_or_update_django_sites, get_site_model_cls
 from edc_test_utils.get_user_for_tests import get_user_for_tests
-from edc_visit_schedule.models import VisitSchedule
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
 from subject_dashboard_app.sites import all_sites
 from subject_dashboard_app.visit_schedule import visit_schedule1
+
+from edc_sites import site_sites
+from edc_sites.utils import add_or_update_django_sites, get_site_model_cls
+from edc_visit_schedule.models import VisitSchedule
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class TestCaseMixin:

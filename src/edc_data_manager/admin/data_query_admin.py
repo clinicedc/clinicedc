@@ -8,6 +8,7 @@ from django.template.loader import render_to_string
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
+
 from edc_action_item.fieldsets import action_fields, action_fieldset_tuple
 from edc_appointment.models import Appointment
 from edc_constants.constants import (

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin.decorators import register
 from django.contrib.sites.shortcuts import get_current_site
+
 from edc_auth.admin import UserAdmin as BaseUserAdmin
 from edc_lab.admin import PanelAdmin as BasePanelAdmin
 from edc_model_admin.mixins import TemplatesModelAdminMixin

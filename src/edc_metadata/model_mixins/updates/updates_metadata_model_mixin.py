@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Type
 
 from django.db import models
+
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...constants import CRF, REQUIRED

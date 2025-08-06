@@ -5,11 +5,28 @@ from decimal import Decimal
 from typing import Optional
 from unittest import skip
 
+from data_manager_app.lab_profiles import lab_profile
+from data_manager_app.models import (
+    CrfOne,
+    SubjectConsentV1,
+    SubjectRequisition,
+    SubjectVisit,
+)
+from data_manager_app.visit_schedules import visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
+
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, OPEN, YES
+from edc_data_manager.models import (
+    CrfDataDictionary,
+    DataQuery,
+    QueryRule,
+    QueryVisitSchedule,
+)
+from edc_data_manager.models.requisition_panel import RequisitionPanel
+from edc_data_manager.rule import RuleRunner
 from edc_facility.import_holidays import import_holidays
 from edc_lab.constants import TUBE
 from edc_lab.models.panel import Panel
@@ -20,23 +37,6 @@ from edc_visit_schedule.constants import HOURS
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-
-from data_manager_app.lab_profiles import lab_profile
-from data_manager_app.models import (
-    CrfOne,
-    SubjectConsentV1,
-    SubjectRequisition,
-    SubjectVisit,
-)
-from data_manager_app.visit_schedules import visit_schedule
-from edc_data_manager.models import (
-    CrfDataDictionary,
-    DataQuery,
-    QueryRule,
-    QueryVisitSchedule,
-)
-from edc_data_manager.models.requisition_panel import RequisitionPanel
-from edc_data_manager.rule import RuleRunner
 
 User = get_user_model()
 

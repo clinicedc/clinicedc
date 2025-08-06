@@ -2,6 +2,8 @@ from typing import Any
 
 from django.db import models
 from django.db.models.deletion import CASCADE, PROTECT
+
+from edc_action_item.models import ActionModelMixin
 from edc_consent.field_mixins import PersonalFieldsMixin
 from edc_consent.managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 from edc_consent.model_mixins import ConsentModelMixin
@@ -15,8 +17,6 @@ from edc_identifier.model_mixins import (
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
 from edc_visit_schedule.model_mixins import OffScheduleModelMixin, OnScheduleModelMixin
-
-from edc_action_item.models import ActionModelMixin
 
 
 class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):

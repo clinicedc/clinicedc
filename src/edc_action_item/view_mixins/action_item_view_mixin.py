@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from django.db.models import QuerySet
+
 from edc_constants.constants import NEW, OPEN
 from edc_sites.site import sites
 

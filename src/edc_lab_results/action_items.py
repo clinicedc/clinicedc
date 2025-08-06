@@ -1,6 +1,8 @@
 from django.apps import apps as django_apps
 from django.conf import settings
-from edc_action_item import Action, site_action_items
+
+from edc_action_item.action import Action
+from edc_action_item.site_action_items import site_action_items
 from edc_adverse_event.constants import AE_INITIAL_ACTION
 from edc_constants.constants import HIGH_PRIORITY, YES
 from edc_visit_schedule.utils import is_baseline

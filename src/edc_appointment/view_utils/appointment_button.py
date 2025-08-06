@@ -6,6 +6,7 @@ from uuid import UUID
 
 from django.apps import apps as django_apps
 from django.utils.translation import gettext as _
+
 from edc_utils import get_utcnow
 from edc_view_utils.dashboard_model_button import DashboardModelButton
 from edc_view_utils.model_button import ADD

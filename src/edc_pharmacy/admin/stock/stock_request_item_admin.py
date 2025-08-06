@@ -4,10 +4,11 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields import audit_fieldset_tuple
+from rangefilter.filters import DateRangeFilterBuilder
+
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_model_admin.list_filters import FutureDateListFilter
 from edc_utils.date import to_local
-from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestItemForm

@@ -13,6 +13,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
+
 from edc_constants.constants import CONFIRMED
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin

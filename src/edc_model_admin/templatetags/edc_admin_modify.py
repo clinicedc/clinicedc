@@ -11,10 +11,10 @@ from django.contrib.admin.templatetags.admin_modify import (
 from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django_revision.revision import site_revision
-from edc_constants.constants import NO, YES
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
+from edc_constants.constants import NO, YES
 from edc_model_admin.utils import get_next_url
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 if TYPE_CHECKING:
     from django.contrib.sites.models import Site

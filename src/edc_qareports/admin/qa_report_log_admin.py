@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.contrib import admin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+
 from edc_model_admin.mixins import ModelAdminInstitutionMixin, TemplatesModelAdminMixin
 from edc_sites.admin import SiteModelAdminMixin
 

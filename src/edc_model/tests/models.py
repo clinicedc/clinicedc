@@ -1,7 +1,5 @@
 from dateutil.relativedelta import relativedelta
 from django.db import models
-from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from edc_model.models import (
     BaseModel,
@@ -18,6 +16,8 @@ from edc_model.validators import (
     datetime_not_future,
     telephone_number,
 )
+from edc_sites.model_mixins import SiteModelMixin
+from edc_utils import get_utcnow
 
 
 def get_future_date():

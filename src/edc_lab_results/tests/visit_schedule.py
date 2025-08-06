@@ -1,4 +1,5 @@
 from dateutil.relativedelta import relativedelta
+
 from edc_lab_panel.panels import (
     blood_glucose_panel,
     fbc_panel,
@@ -7,6 +8,7 @@ from edc_lab_panel.panels import (
     lipids_panel,
     rft_panel,
 )
+from edc_lab_results.tests.consents import consent_v1
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import (
     Crf,
@@ -16,8 +18,6 @@ from edc_visit_schedule.visit import (
     Visit,
 )
 from edc_visit_schedule.visit_schedule import VisitSchedule
-
-from edc_lab_results.tests.consents import consent_v1
 
 crfs = CrfCollection(
     Crf(show_order=1, model="edc_lab_results.BloodResultsFbc", required=True),

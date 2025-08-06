@@ -2,6 +2,7 @@ import sys
 
 from django.apps import AppConfig as DjangoAppConfig
 from django.conf import settings
+
 from edc_appointment.constants import COMPLETE_APPT
 
 from .timepoint import Timepoint
@@ -38,6 +39,7 @@ class AppConfig(DjangoAppConfig):
 
 if settings.APP_NAME == "edc_timepoint":
     from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE
+
     from edc_facility.apps import AppConfig as BaseEdcFacilityAppConfig
 
     class EdcFacilityAppConfig(BaseEdcFacilityAppConfig):

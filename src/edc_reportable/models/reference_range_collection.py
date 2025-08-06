@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+
 from edc_model.models import BaseUuidModel
 from edc_registration.models import RegisteredSubject
 

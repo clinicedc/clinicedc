@@ -5,18 +5,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django_webtest import WebTest
-from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper
-from edc_consent import site_consents
-from edc_constants.constants import YES
-from edc_facility.import_holidays import import_holidays
-from edc_lab.models.panel import Panel
-from edc_lab.tests import SiteLabsTestHelper
 from edc_test_utils.get_webtest_form import get_webtest_form
-from edc_utils.date import get_utcnow
-from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.models import SubjectVisit
-
 from model_admin_app.consents import consent_v1
 from model_admin_app.models import (
     CrfFive,
@@ -27,6 +16,17 @@ from model_admin_app.models import (
     CrfTwo,
     Requisition,
 )
+
+from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper
+from edc_consent import site_consents
+from edc_constants.constants import YES
+from edc_facility.import_holidays import import_holidays
+from edc_lab.models.panel import Panel
+from edc_lab.tests import SiteLabsTestHelper
+from edc_utils.date import get_utcnow
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 User = get_user_model()
 

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_utils import get_utcnow

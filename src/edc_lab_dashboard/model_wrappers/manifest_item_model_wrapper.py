@@ -1,5 +1,6 @@
-from edc_lab.models import Box, ManifestItem
 from edc_model_wrapper import ModelWrapper
+
+from edc_lab.models import Box, ManifestItem
 
 
 class ManifestItemModelWrapper(ModelWrapper):

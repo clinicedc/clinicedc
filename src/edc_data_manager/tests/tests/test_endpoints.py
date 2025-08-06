@@ -1,28 +1,28 @@
 from importlib import import_module
 
+from data_manager_app.lab_profiles import lab_profile
+from data_manager_app.visit_schedules import visit_schedule
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls.base import reverse
 from django_webtest import WebTest
+from edc_test_utils.webtest import login
+from model_bakery import baker
+
 from edc_action_item.models.action_item import ActionItem
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.constants import STAFF_ROLE
 from edc_auth.models import Role
 from edc_auth.site_auths import site_auths
-from edc_lab.site_labs import site_labs
-from edc_registration.models import RegisteredSubject
-from edc_test_utils.webtest import login
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from model_bakery import baker
-
-from data_manager_app.lab_profiles import lab_profile
-from data_manager_app.visit_schedules import visit_schedule
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_data_manager.models import CrfDataDictionary, DataQuery
 from edc_data_manager.models.user import DataManagerUser
 from edc_data_manager.populate_data_dictionary import (
     populate_data_dictionary_from_sites,
 )
+from edc_lab.site_labs import site_labs
+from edc_registration.models import RegisteredSubject
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 User = get_user_model()
 

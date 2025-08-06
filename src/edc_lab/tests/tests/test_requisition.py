@@ -2,8 +2,6 @@ import re
 
 from django.conf import settings
 from django.test import TestCase, override_settings
-from edc_sites.single_site import SingleSite
-from edc_sites.utils import add_or_update_django_sites
 
 from edc_lab.identifiers import RequisitionIdentifier
 from edc_lab.lab import (
@@ -14,6 +12,8 @@ from edc_lab.lab import (
     RequisitionPanel,
 )
 from edc_lab.site_labs import site_labs
+from edc_sites.single_site import SingleSite
+from edc_sites.utils import add_or_update_django_sites
 
 
 @override_settings(SITE_ID=10)

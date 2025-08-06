@@ -8,7 +8,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.test import TestCase
 from django.test.utils import override_settings
-from edc_utils import get_utcnow
 
 from edc_notification.constants import CREATE, UPDATE
 from edc_notification.decorators import RegisterNotificationError, register
@@ -20,6 +19,7 @@ from edc_notification.notification import (
     Notification,
     UpdatedModelNotification,
 )
+from edc_utils import get_utcnow
 
 from ...site_notifications import (
     AlreadyRegistered,

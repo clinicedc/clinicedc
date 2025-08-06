@@ -1,11 +1,11 @@
 from django.db import models
 from django.test import TestCase, override_settings
 from django.utils.text import slugify
-from edc_utils import get_utcnow
 
 from edc_search.model_mixins import SearchSlugModelMixin
 from edc_search.search_slug import SearchSlug
 from edc_search.updater import SearchSlugDuplicateFields
+from edc_utils import get_utcnow
 
 from ..models import TestModel, TestModelDuplicate, TestModelExtra
 

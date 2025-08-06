@@ -1,7 +1,8 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from edc_utils import get_utcnow
 from model_bakery import baker
+
+from edc_utils import get_utcnow
 
 from ..constants import SCHEDULED
 

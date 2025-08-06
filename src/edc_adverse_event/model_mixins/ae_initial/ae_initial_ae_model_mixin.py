@@ -1,8 +1,8 @@
 from django.db import models
-from edc_constants.choices import YES_NO, YES_NO_UNKNOWN
-from edc_model_fields.fields.other_charfield import OtherCharField
 
 from edc_adverse_event.models import AeActionClassification
+from edc_constants.choices import YES_NO, YES_NO_UNKNOWN
+from edc_model_fields.fields.other_charfield import OtherCharField
 
 
 class AeInitialAeModelMixin(models.Model):

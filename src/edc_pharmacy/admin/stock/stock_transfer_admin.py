@@ -4,10 +4,11 @@ from django.db.models import Count
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
+from rangefilter.filters import DateRangeFilterBuilder
+
 from edc_constants.constants import NO, PARTIAL, YES
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
-from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockTransferForm

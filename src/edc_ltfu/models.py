@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel

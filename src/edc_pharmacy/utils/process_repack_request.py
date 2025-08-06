@@ -4,6 +4,7 @@ from uuid import UUID
 
 from celery import shared_task
 from django.apps import apps as django_apps
+
 from edc_utils import get_utcnow
 
 from ..exceptions import InsufficientStockError, RepackError

@@ -9,6 +9,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
+from model_bakery import baker
+
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
@@ -16,13 +18,6 @@ from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility import import_holidays
-from edc_utils import get_utcnow
-from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.models import SubjectVisit
-from model_bakery import baker
-
 from edc_metadata import KEYED, NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata import CrfMetadataGetter
 from edc_metadata.metadata_handler import MetadataHandlerError
@@ -33,6 +28,11 @@ from edc_metadata.metadata_rules import (
     site_metadata_rules,
 )
 from edc_metadata.models import CrfMetadata
+from edc_utils import get_utcnow
+from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from ..models import CrfOne, SubjectConsent
 from ..visit_schedule2 import get_visit_schedule

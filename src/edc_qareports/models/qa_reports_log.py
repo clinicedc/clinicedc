@@ -1,5 +1,6 @@
 from django.contrib.sites.models import Site
 from django.db import models
+
 from edc_utils import get_utcnow
 
 from ..model_mixins import qa_reports_permissions

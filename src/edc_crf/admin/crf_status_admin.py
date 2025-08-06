@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
+
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 
 from ..admin_site import edc_crf_admin

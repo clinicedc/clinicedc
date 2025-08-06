@@ -8,6 +8,7 @@ from django import template
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.urls import reverse
+
 from edc_appointment.constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,

@@ -2,16 +2,16 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import time_machine
+from consent_app.models import SubjectConsent
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase, override_settings
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
 from faker import Faker
 from model_bakery import baker
 
-from consent_app.models import SubjectConsent
 from edc_consent.site_consents import site_consents
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_utils import get_utcnow
 
 from ...consent_definition import ConsentDefinition
 from ...exceptions import ConsentDefinitionDoesNotExist

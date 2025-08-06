@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext_lazy as _
+
 from edc_dashboard.url_names import url_names
 from edc_registration import get_registered_subject_model_cls
 

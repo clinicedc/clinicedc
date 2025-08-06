@@ -5,20 +5,20 @@ import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, override_settings
-from edc_consent.site_consents import site_consents
-from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.models import SubjectVisit
+from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment, appointments_on_post_delete
 from edc_appointment.utils import delete_appointment_in_sequence
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.models import SubjectVisit
-from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
+from edc_consent.site_consents import site_consents
+from edc_facility.import_holidays import import_holidays
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
 
 from ..helper import Helper
 

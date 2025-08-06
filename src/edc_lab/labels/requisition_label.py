@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 from arrow.arrow import Arrow
 from django.apps import apps as django_apps
 from django.conf import settings
+
 from edc_label import Label
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 

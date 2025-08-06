@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from edc_constants.constants import NO, PENDING, TBD, YES
 
 from .exceptions import (
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
 
     from .model_mixins import EligibilityModelMixin, ScreeningModelMixin
 
-    class SubjectScreeningModel(ScreeningModelMixin, BaseUuidModel): ...
+    class SubjectScreeningModel(ScreeningModelMixin, BaseUuidModel): ...  # noqa
 
 
 __all__ = ["ScreeningEligibility"]

@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_model_fields.fields import OtherCharField
 
 from ..choices import APPT_STATUS, APPT_TIMING, DEFAULT_APPT_REASON_CHOICES

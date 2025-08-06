@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+
 from edc_utils import get_utcnow
 
 from ..exceptions import AllocationError

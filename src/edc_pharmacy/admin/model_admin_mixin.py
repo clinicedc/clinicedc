@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+
 from edc_appointment.models import Appointment
 from edc_dashboard.url_names import url_names
 from edc_model_admin.mixins import (

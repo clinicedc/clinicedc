@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
+
 from edc_appointment.models import Appointment
 from edc_constants.constants import YES
 from edc_lab.model_mixins import RequisitionModelMixin

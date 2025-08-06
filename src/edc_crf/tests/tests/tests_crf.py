@@ -2,19 +2,19 @@ from django import forms
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
+from visit_schedule_app.models import SubjectScreening, SubjectVisit
+
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import INCOMPLETE
+from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
+from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_facility import import_holidays
 from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.tests.helper import Helper
-from visit_schedule_app.models import SubjectScreening, SubjectVisit
-
-from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
-from edc_crf.modelform_mixins import CrfModelFormMixin
 
 from ..consents import consent_v1
 from ..models import Crf

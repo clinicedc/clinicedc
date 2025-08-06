@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.forms import ModelForm
+
 from edc_model_form.mixins.report_datetime_modelform_mixin import (
     ReportDatetimeModelFormMixin,
 )

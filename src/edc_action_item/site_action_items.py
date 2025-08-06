@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Type
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
+
 from edc_notification.site_notifications import (
     AlreadyRegistered as NotificationAlreadyRegistered,
 )

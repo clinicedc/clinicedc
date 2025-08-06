@@ -1,12 +1,8 @@
+from edc_adverse_event_app import list_data
 from django import forms
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
-from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
-from edc_form_validators import NOT_REQUIRED_ERROR
-from edc_list_data.site_list_data import site_list_data
-from edc_sites.tests import SiteTestCaseMixin
 
-from adverse_event_app import list_data
 from edc_adverse_event.constants import AE_WITHDRAWN
 from edc_adverse_event.form_validators import (
     AeFollowupFormValidator,
@@ -14,6 +10,10 @@ from edc_adverse_event.form_validators import (
     AeTmgFormValidator,
 )
 from edc_adverse_event.models import AeClassification, SaeReason
+from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
+from edc_form_validators import NOT_REQUIRED_ERROR
+from edc_list_data.site_list_data import site_list_data
+from edc_sites.tests import SiteTestCaseMixin
 
 
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
@@ -21,7 +21,7 @@ class TestFormValidators(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpClass(cls):
         site_list_data.initialize()
-        site_list_data.register(list_data, app_name="adverse_event_app")
+        site_list_data.register(list_data, app_name="edc_adverse_event_app")
         site_list_data.load_data()
         super().setUpClass()
 

@@ -5,6 +5,7 @@ import re
 from django import forms
 from django.urls.base import reverse
 from django.utils.html import format_html
+
 from edc_constants.constants import UUID_PATTERN
 from edc_dashboard.url_names import url_names
 

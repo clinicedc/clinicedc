@@ -1,5 +1,6 @@
 from django.db import models
 from django_crypto_fields.fields import EncryptedCharField
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 

@@ -4,8 +4,9 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_model_admin.history import SimpleHistoryAdmin
 from rangefilter.filters import DateRangeFilterBuilder
+
+from edc_model_admin.history import SimpleHistoryAdmin
 
 from ...admin_site import edc_pharmacy_admin
 from ...auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE

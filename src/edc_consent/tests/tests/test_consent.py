@@ -1,16 +1,12 @@
 from datetime import datetime, timedelta
 from unittest import skip
 
-from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from model_bakery import baker
-
 from consent_app.models import CrfOne, SubjectVisit
 from consent_app.visit_schedules import get_visit_schedule
+from dateutil.relativedelta import relativedelta
+from django.test import TestCase, override_settings
+from model_bakery import baker
+
 from edc_consent.exceptions import (
     ConsentDefinitionDoesNotExist,
     ConsentDefinitionError,
@@ -19,6 +15,10 @@ from edc_consent.exceptions import (
     SiteConsentError,
 )
 from edc_consent.site_consents import site_consents
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...consent_definition import ConsentDefinition
 from ..consent_test_utils import consent_definition_factory

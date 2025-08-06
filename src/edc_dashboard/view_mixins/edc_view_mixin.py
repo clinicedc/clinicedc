@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import gettext as _
 from django_revision.views import RevisionMixin
+
 from edc_sites.view_mixins import SiteViewMixin
 
 from .message_view_mixin import MessageViewMixin

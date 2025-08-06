@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django_audit_fields.admin import audit_fieldset_tuple
+
 from edc_consent import site_consents
 from edc_constants.constants import NO, YES
 from edc_model_admin.mixins import ModelAdminProtectPiiMixin

@@ -1,6 +1,7 @@
 from django.contrib.sites.models import Site
 from django.core.validators import RegexValidator
 from django.db import models
+
 from edc_list_data.model_mixins import ListModelMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 

@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from django.contrib.admin import ModelAdmin
     from django.db.models import QuerySet
     from django.forms import ModelForm
+
     from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
     from edc_model.models import BaseUuidModel
     from edc_sites.model_mixins import SiteModelMixin

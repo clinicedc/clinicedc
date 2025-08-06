@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 from django.apps import apps as django_apps
 from django.core.exceptions import FieldError
 from django.db import IntegrityError
+
 from edc_metadata.utils import has_keyed_metadata
 
 from .constants import MISSED_APPT, NEW_APPT, SKIPPED_APPT

@@ -4,8 +4,6 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.admin import SimpleListFilter
 from django.db.models import QuerySet
 from django.utils.translation import gettext as _
-from edc_model_admin.list_filters import FutureDateListFilter
-from edc_utils import get_utcnow
 
 from edc_appointment.choices import APPT_STATUS
 from edc_appointment.constants import (
@@ -19,6 +17,8 @@ from edc_appointment.constants import (
     INCOMPLETE_APPT,
     LT_30_DAYS,
 )
+from edc_model_admin.list_filters import FutureDateListFilter
+from edc_utils import get_utcnow
 
 
 class AppointmentListFilter(FutureDateListFilter):

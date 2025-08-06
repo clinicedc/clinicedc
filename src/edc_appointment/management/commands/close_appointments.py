@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
-from edc_metadata.models import CrfMetadata
 
 from edc_appointment.constants import COMPLETE_APPT, INCOMPLETE_APPT
 from edc_appointment.forms import AppointmentForm
 from edc_appointment.models import Appointment
+from edc_metadata.models import CrfMetadata
 
 
 def close_appointments():

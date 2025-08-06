@@ -7,6 +7,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+
 from edc_list_data.model_mixins import ListModelMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_model_admin.mixins import (

@@ -1,6 +1,10 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase
+
+from edc_adherence import list_data
+from edc_adherence.models import NonAdherenceReasons
+from edc_adherence.tests.admin import MedicationAdherenceAdmin, my_admin_site
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_consent import site_consents
@@ -8,10 +12,6 @@ from edc_constants.constants import NEVER, NO, OTHER, YES
 from edc_facility import import_holidays
 from edc_list_data import site_list_data
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from edc_adherence import list_data
-from edc_adherence.models import NonAdherenceReasons
-from edc_adherence.tests.admin import MedicationAdherenceAdmin, my_admin_site
 
 from ..consents import consent_v1
 from ..forms import MedicationAdherenceForm

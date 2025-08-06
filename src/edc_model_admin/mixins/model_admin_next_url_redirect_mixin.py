@@ -7,6 +7,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import NoReverseMatch, reverse
+
 from edc_metadata.next_form_getter import NextFormGetter
 
 from .base_model_admin_redirect_mixin import BaseModelAdminRedirectMixin

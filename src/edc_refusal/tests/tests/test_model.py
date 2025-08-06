@@ -2,10 +2,10 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
-from edc_utils.date import get_utcnow
 
 from edc_refusal.forms import SubjectRefusalForm
 from edc_refusal.models import RefusalReasons, SubjectRefusal
+from edc_utils.date import get_utcnow
 
 from ...utils import get_subject_refusal_model, get_subject_refusal_model_cls
 from ..models import SubjectScreening

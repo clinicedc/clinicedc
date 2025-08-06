@@ -8,6 +8,16 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.test import TestCase, override_settings, tag
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.forms import (
+    NextAppointmentCrfForm,
+    NextAppointmentCrfFormValidator,
+)
+from edc_appointment_app.models import NextAppointmentCrf, SubjectConsent
+from edc_appointment_app.visit_schedule import get_visit_schedule6
+
+from edc_appointment.exceptions import AppointmentWindowError
+from edc_appointment.models import Appointment, InfoSources
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import CLINIC, NO, PATIENT
 from edc_facility import import_holidays
@@ -21,16 +31,6 @@ from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
-
-from edc_appointment.exceptions import AppointmentWindowError
-from edc_appointment.models import Appointment, InfoSources
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.forms import (
-    NextAppointmentCrfForm,
-    NextAppointmentCrfFormValidator,
-)
-from edc_appointment_app.models import NextAppointmentCrf, SubjectConsent
-from edc_appointment_app.visit_schedule import get_visit_schedule6
 
 utc = ZoneInfo("UTC")
 tz = ZoneInfo("Africa/Dar_es_Salaam")

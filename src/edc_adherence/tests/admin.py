@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.contrib.admin import AdminSite as DjangoAdminSite
-from edc_model_admin.dashboard import ModelAdminCrfDashboardMixin
-from edc_model_admin.history import SimpleHistoryAdmin
 
 from edc_adherence.model_admin_mixin import MedicationAdherenceAdminMixin
+from edc_model_admin.dashboard import ModelAdminCrfDashboardMixin
+from edc_model_admin.history import SimpleHistoryAdmin
 
 from .forms import MedicationAdherenceForm
 from .models import MedicationAdherence

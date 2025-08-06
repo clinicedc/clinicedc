@@ -3,9 +3,6 @@ from pathlib import Path
 
 from django.test import TestCase
 from django.test.utils import override_settings
-from edc_pdf_reports.utils import write_model_to_insecure_pdf
-from edc_sites.tests import SiteTestCaseMixin
-from edc_sites.utils import add_or_update_django_sites
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 from multisite import SiteID
 from pypdf import PdfReader
@@ -21,6 +18,9 @@ from edc_lab.models import (
     Shipper,
 )
 from edc_lab.pdf_reports import ManifestPdfReportError
+from edc_pdf_reports.utils import write_model_to_insecure_pdf
+from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 
 
 @override_settings(SITE_ID=10)

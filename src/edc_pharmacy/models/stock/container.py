@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from .container_type import ContainerType

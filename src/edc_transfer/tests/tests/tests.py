@@ -4,9 +4,9 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
+
 from edc_constants.constants import OTHER
 from edc_metadata.tests.tests.metadata_test_mixin import TestMetadataMixin
-
 from edc_transfer.form_validators import SubjectTransferFormValidator
 from edc_transfer.tests.forms import SubjectTransferForm
 

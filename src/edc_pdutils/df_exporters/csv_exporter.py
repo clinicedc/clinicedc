@@ -8,6 +8,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.management.color import color_style
 from django.db.models import QuerySet
+
 from edc_export.exceptions import (
     ExporterExportFolder,
     ExporterFileExists,

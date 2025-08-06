@@ -11,6 +11,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+
 from edc_utils import floor_secs, formatted_datetime, to_utc
 from edc_utils.date import to_local
 
@@ -20,6 +21,7 @@ from .site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:
     from django.db import models
+
     from edc_appointment.models import Appointment
 
     from .model_mixins import OnScheduleModelMixin

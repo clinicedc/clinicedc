@@ -3,12 +3,12 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django_webtest import WebTest
-from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
 from edc_test_utils.webtest import login
-from edc_utils import get_utcnow
 
+from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
 from edc_facility.auths import codenames
 from edc_facility.models import HealthFacility, HealthFacilityTypes
+from edc_utils import get_utcnow
 
 
 class TestAdmin(WebTest):

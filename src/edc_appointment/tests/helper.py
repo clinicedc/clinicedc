@@ -7,14 +7,14 @@ from uuid import uuid4
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
+
+from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_consent.consent_definition import ConsentDefinition
 from edc_registration.models import RegisteredSubject
 from edc_sites import site_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from edc_appointment.creators import UnscheduledAppointmentCreator
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment

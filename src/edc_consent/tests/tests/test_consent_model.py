@@ -2,21 +2,21 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import time_machine
+from consent_app.models import CrfOne, SubjectConsent, SubjectConsentV1Ext, SubjectVisit
+from consent_app.visit_schedules import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
+from faker import Faker
+from model_bakery import baker
+
+from edc_consent.field_mixins import IdentityFieldsMixinError
+from edc_consent.site_consents import site_consents
 from edc_constants.constants import YES
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from faker import Faker
-from model_bakery import baker
-
-from consent_app.models import CrfOne, SubjectConsent, SubjectConsentV1Ext, SubjectVisit
-from consent_app.visit_schedules import get_visit_schedule
-from edc_consent.field_mixins import IdentityFieldsMixinError
-from edc_consent.site_consents import site_consents
 
 from ...consent_definition_extension import ConsentDefinitionExtension
 from ...exceptions import (

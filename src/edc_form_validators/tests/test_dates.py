@@ -4,10 +4,10 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase
-from edc_utils import get_utcnow
 
 from edc_form_validators.date_validator import DateValidatorError
 from edc_form_validators.form_validator import FormValidator
+from edc_utils import get_utcnow
 
 
 class TestDateFieldValidator(TestCase):

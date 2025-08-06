@@ -7,11 +7,8 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
-from edc_facility.import_holidays import import_holidays
-from edc_sites.tests import SiteTestCaseMixin
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
+from edc_appointment_app.models import SubjectVisit
+from edc_appointment_app.visit_schedule import get_visit_schedule3
 from tqdm import tqdm
 
 from edc_appointment.constants import (
@@ -27,8 +24,11 @@ from edc_appointment.exceptions import (
 )
 from edc_appointment.forms import AppointmentForm
 from edc_appointment.models import Appointment
-from edc_appointment_app.models import SubjectVisit
-from edc_appointment_app.visit_schedule import get_visit_schedule3
+from edc_facility.import_holidays import import_holidays
+from edc_sites.tests import SiteTestCaseMixin
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 
 from ...utils import AppointmentDateWindowPeriodGapError, get_appointment_by_datetime
 from ..helper import Helper

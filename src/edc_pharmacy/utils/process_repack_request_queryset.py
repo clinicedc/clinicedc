@@ -3,6 +3,7 @@ from __future__ import annotations
 from uuid import UUID
 
 from celery import shared_task
+
 from edc_utils.celery import celery_is_active, run_task_sync_or_async
 
 from ..utils import process_repack_request

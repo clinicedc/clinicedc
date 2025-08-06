@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Type
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+
 from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 from edc_appointment.creators import AppointmentsCreator
 from edc_consent.exceptions import NotConsentedError
@@ -39,7 +40,7 @@ if TYPE_CHECKING:
     class RelatedVisitModel(SiteModelMixin, Base, BaseUuidModel):
         pass
 
-    class OnScheduleLikeModel(OnScheduleModelMixin): ...
+    class OnScheduleLikeModel(OnScheduleModelMixin): ...  # noqa
 
 
 class SubjectSchedule:

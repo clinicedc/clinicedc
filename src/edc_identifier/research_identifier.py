@@ -4,6 +4,7 @@ from string import Formatter
 from typing import TYPE_CHECKING, Optional
 
 from django.apps import apps as django_apps
+
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .checkdigit_mixins import LuhnMixin

@@ -1,6 +1,7 @@
 from django.test import TestCase
-from edc_constants.constants import NO, TBD, YES
+from screening_app.models import SubjectScreening
 
+from edc_constants.constants import NO, TBD, YES
 from edc_screening.exceptions import (
     ScreeningEligibilityAttributeError,
     ScreeningEligibilityError,
@@ -11,7 +12,6 @@ from edc_screening.fc import FC
 from edc_screening.screening_eligibility import (
     ScreeningEligibility as BaseScreeningEligibility,
 )
-from screening_app.models import SubjectScreening
 
 
 class TestScreening(TestCase):

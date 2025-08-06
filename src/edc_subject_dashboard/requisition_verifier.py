@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, YES
 from edc_lab.constants import TUBE

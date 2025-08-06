@@ -2,17 +2,17 @@ from unittest.case import skip
 
 from django.test import TestCase
 from django.views.generic.base import ContextMixin
-from edc_action_item import site_action_items
-from edc_action_item.models import ActionItem
-from edc_registration.models import RegisteredSubject
-from edc_sites.view_mixins import SiteViewMixin
-from edc_subject_dashboard.view_mixins import RegisteredSubjectViewMixin
 from edc_test_utils.get_httprequest_for_tests import get_request_object_for_tests
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 
+from edc_action_item.site_action_items import site_action_items
+from edc_action_item.models import ActionItem
 from edc_locator.action_items import SUBJECT_LOCATOR_ACTION
 from edc_locator.exceptions import SubjectLocatorViewMixinError
 from edc_locator.view_mixins import SubjectLocatorViewMixin
+from edc_registration.models import RegisteredSubject
+from edc_sites.view_mixins import SiteViewMixin
+from edc_subject_dashboard.view_mixins import RegisteredSubjectViewMixin
 
 
 class TestViewMixins(TestCase):

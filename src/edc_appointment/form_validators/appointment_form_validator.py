@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from edc_consent.form_validators import ConsentDefinitionFormValidatorMixin
 from edc_facility.utils import get_facilities
 from edc_form_validators import INVALID_ERROR

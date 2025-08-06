@@ -1,6 +1,7 @@
 import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_constants.constants import NO, OPEN, RESOLVED
 from edc_lab.utils import get_requisition_model
 from edc_metadata.constants import KEYED, REQUIRED

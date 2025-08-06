@@ -2,16 +2,14 @@ from django.apps import apps as django_apps
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from edc_device import (
-    DeviceAddPermission,
-    DeviceChangePermission,
-    DevicePermissionAddError,
-    DevicePermissionChangeError,
-    device_permissions,
-)
 from edc_device.constants import CENTRAL_SERVER, CLIENT, NODE_SERVER
 
 from ..models import TestModel, TestModel2, TestModelPermissions
+from edc_device.device_permission import (
+    device_permissions,
+    DeviceAddPermission,
+    DeviceChangePermission,
+)
 
 
 class TestDevicePermission(TestCase):

@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db import models
+
 from edc_model import models as edc_models
 
 from ..model_mixins import VisitScheduleMethodsModelMixin

@@ -5,9 +5,10 @@ from decimal import Decimal
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import PROTECT
+from sequences import get_next_value
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
-from sequences import get_next_value
 
 from ...choices import STOCK_STATUS
 from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM

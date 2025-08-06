@@ -4,6 +4,7 @@ from django.contrib.messages import SUCCESS
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
+
 from edc_appointment.utils import update_appt_status_for_timepoint
 from edc_dashboard.url_names import url_names
 from edc_utils import get_utcnow

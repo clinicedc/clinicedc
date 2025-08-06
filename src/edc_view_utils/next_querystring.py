@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 from uuid import UUID
 
 from django.urls import reverse
+
 from edc_dashboard.url_names import url_names
 
 __all__ = ["NextQuerystring"]

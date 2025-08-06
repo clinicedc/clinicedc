@@ -2,9 +2,10 @@ from typing import Optional
 from urllib.parse import urlparse
 
 from django.core.mail.message import EmailMessage
+from mempass.password_generator import PasswordGenerator
+
 from edc_dashboard.utils import get_index_page
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from mempass.password_generator import PasswordGenerator
 
 from .import_users import change_user_template
 

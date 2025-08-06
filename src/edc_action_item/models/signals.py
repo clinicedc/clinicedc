@@ -3,9 +3,10 @@ from typing import Any
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
+from simple_history.signals import post_create_historical_record
+
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_notification.site_notifications import site_notifications
-from simple_history.signals import post_create_historical_record
 
 from ..utils import reset_and_delete_action_item
 from .action_item import ActionItem

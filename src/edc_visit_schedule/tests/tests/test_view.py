@@ -7,18 +7,18 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.views.generic.base import ContextMixin
+from visit_schedule_app.models import OnSchedule, SubjectConsent
+
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
-
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from visit_schedule_app.models import OnSchedule, SubjectConsent
 
 
 class MyView(VisitScheduleViewMixin, ContextMixin):

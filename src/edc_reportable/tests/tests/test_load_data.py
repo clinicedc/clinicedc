@@ -1,9 +1,9 @@
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count
 from django.test import TestCase
-from edc_constants.constants import FEMALE, MALE
-from edc_utils import get_utcnow
+from reportable_app.reportables import grading_data, normal_data
 
+from edc_constants.constants import FEMALE, MALE
 from edc_reportable import (
     MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
@@ -19,7 +19,7 @@ from edc_reportable.utils import (
 from edc_reportable.utils.get_normal_data_or_raise import (
     create_obj_for_new_units_or_raise,
 )
-from reportable_app.reportables import grading_data, normal_data
+from edc_utils import get_utcnow
 
 
 class TestLoadData(TestCase):

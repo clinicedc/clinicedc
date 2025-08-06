@@ -1,4 +1,5 @@
 from django import forms
+
 from edc_model_fields.widgets import SliderWidget
 
 

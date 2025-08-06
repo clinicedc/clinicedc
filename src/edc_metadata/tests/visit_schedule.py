@@ -1,4 +1,5 @@
 from dateutil.relativedelta import relativedelta
+
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.tests import DummyPanel
 from edc_visit_schedule.visit import (

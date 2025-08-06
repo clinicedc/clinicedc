@@ -1,8 +1,8 @@
 from django import forms
 from django.test import TestCase
-from edc_constants.constants import NO, YES
-
 from form_validators_app.models import TestModel
+
+from edc_constants.constants import NO, YES
 
 from ..base_form_validator import (
     InvalidModelFormFieldValidator,

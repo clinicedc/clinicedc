@@ -6,11 +6,11 @@ from zoneinfo import ZoneInfo
 from django.db import models
 from django.db.models import PROTECT
 from django.utils.translation import gettext_lazy as _
+
+from edc_appointment.utils import validate_date_is_on_clinic_day
 from edc_constants.choices import YES_NO
 from edc_constants.constants import NO
 from edc_facility.utils import get_health_facility_model
-
-from edc_appointment.utils import validate_date_is_on_clinic_day
 
 __all__ = ["NextAppointmentCrfModelMixin"]
 

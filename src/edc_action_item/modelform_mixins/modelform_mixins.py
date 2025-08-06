@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django import forms
+
 from edc_sites.exceptions import InvalidSiteForSubjectError
 from edc_sites.utils import valid_site_for_subject_or_raise
 

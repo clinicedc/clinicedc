@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
+
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 

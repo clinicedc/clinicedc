@@ -1,11 +1,11 @@
 import sys
 
 from django.core.management.base import BaseCommand
-from edc_registration.models import RegisteredSubject
 from tqdm import tqdm
 
 from edc_appointment.models import Appointment
 from edc_appointment.utils import reset_visit_code_sequence_or_pass
+from edc_registration.models import RegisteredSubject
 
 
 class Command(BaseCommand):

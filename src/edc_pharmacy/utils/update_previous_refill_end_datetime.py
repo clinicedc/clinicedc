@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_visit_tracking.utils import get_previous_related_visit
 
 

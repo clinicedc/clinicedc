@@ -4,6 +4,7 @@ from collections import namedtuple
 from typing import TYPE_CHECKING, Any, Tuple
 
 from django.core.exceptions import ValidationError
+
 from edc_visit_schedule.visit import RequisitionCollection
 
 from ...requisition import RequisitionMetadataUpdater

@@ -1,6 +1,6 @@
 from django.forms import ModelForm
-from edc_crf.modelform_mixins import CrfModelFormMixin
 
+from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_visit_tracking.form_validators import VisitMissedFormValidator
 from edc_visit_tracking.models import SubjectVisitMissed
 

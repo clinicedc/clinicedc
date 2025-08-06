@@ -1,5 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
 from edc_crf.model_mixins import CrfModelMixin, CrfNoManagerModelMixin
 from edc_lab.model_mixins import RequisitionModelMixin
 from edc_model.models import BaseUuidModel

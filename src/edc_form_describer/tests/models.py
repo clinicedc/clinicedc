@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_constants.choices import YES_NO
 from edc_crf.model_mixins import CrfModelMixin
 from edc_model.models import BaseUuidModel
@@ -15,9 +16,7 @@ class SubjectVisit(VisitModelMixin, BaseUuidModel):
 class MyModel(CrfModelMixin, BaseUuidModel):
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    f1 = models.CharField(
-        verbose_name="Is it what it is?", max_length=10, choices=YES_NO
-    )
+    f1 = models.CharField(verbose_name="Is it what it is?", max_length=10, choices=YES_NO)
 
     f2 = models.CharField(
         verbose_name="Are they serious?", max_length=10, null=True, blank=True

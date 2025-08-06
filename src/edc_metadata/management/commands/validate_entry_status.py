@@ -4,8 +4,9 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from django.db.models import Count
-from edc_utils.round_up import round_half_away_from_zero
 from tqdm import tqdm
+
+from edc_utils.round_up import round_half_away_from_zero
 
 from ...constants import KEYED
 from ...models import CrfMetadata, RequisitionMetadata

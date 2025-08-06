@@ -4,6 +4,16 @@ from unittest.mock import patch
 from django.test import override_settings
 from django.urls import reverse
 from django_webtest import WebTest
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.visit_schedule import get_visit_schedule1
+from edc_test_utils.get_user_for_tests import get_user_for_tests
+from edc_test_utils.webtest import login
+
+from edc_appointment.admin import AppointmentAdmin
+from edc_appointment.auth_objects import codenames
+from edc_appointment.constants import NEW_APPT
+from edc_appointment.tests.helper import Helper
+from edc_appointment.utils import get_appointment_model_cls
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
 from edc_auth.models import Role
@@ -12,19 +22,9 @@ from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_export.constants import EXPORT
 from edc_facility import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_test_utils.get_user_for_tests import get_user_for_tests
-from edc_test_utils.webtest import login
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
-
-from edc_appointment.admin import AppointmentAdmin
-from edc_appointment.auth_objects import codenames
-from edc_appointment.constants import NEW_APPT
-from edc_appointment.tests.helper import Helper
-from edc_appointment.utils import get_appointment_model_cls
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.visit_schedule import get_visit_schedule1
 
 
 def get_url_name():

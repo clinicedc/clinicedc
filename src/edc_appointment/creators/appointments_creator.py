@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from django.apps import apps as django_apps
 from django.db.models.deletion import ProtectedError
+
 from edc_facility.exceptions import FacilityError
 from edc_facility.utils import get_facility
 
@@ -14,6 +15,7 @@ from .appointment_creator import AppointmentCreator
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
+
     from edc_visit_schedule.schedule import Schedule
     from edc_visit_schedule.visit_schedule import VisitSchedule
 

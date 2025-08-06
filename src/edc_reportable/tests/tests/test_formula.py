@@ -1,6 +1,6 @@
 from django.test import TestCase
-from edc_constants.constants import MALE
 
+from edc_constants.constants import MALE
 from edc_reportable import MILLIMOLES_PER_LITER
 from edc_reportable.formula import Formula, FormulaError, clean_and_validate_phrase
 

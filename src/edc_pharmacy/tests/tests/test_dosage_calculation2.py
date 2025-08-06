@@ -1,6 +1,6 @@
 from django.test import TestCase
-from edc_list_data import site_list_data
 
+from edc_list_data import site_list_data
 from edc_pharmacy.dosage_calculator import DosageCalculator
 from edc_pharmacy.models import (
     DosageGuideline,

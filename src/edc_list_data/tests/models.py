@@ -1,7 +1,7 @@
 from django.db import models
-from edc_model.models.base_uuid_model import BaseUuidModel
 
 from edc_list_data.model_mixins import BaseListModelMixin
+from edc_model.models.base_uuid_model import BaseUuidModel
 
 
 class Antibiotic(BaseListModelMixin, BaseUuidModel):

@@ -5,6 +5,11 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
+from edc_appointment_app.models import SubjectConsentV1, SubjectConsentV1Ext
+from edc_appointment_app.visit_schedule import get_visit_schedule6
+
+from edc_appointment.models import Appointment
+from edc_appointment.utils import refresh_appointments
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.consent_definition_extension import ConsentDefinitionExtension
 from edc_consent.site_consents import site_consents
@@ -16,11 +21,6 @@ from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
-
-from edc_appointment.models import Appointment
-from edc_appointment.utils import refresh_appointments
-from edc_appointment_app.models import SubjectConsentV1, SubjectConsentV1Ext
-from edc_appointment_app.visit_schedule import get_visit_schedule6
 
 utc = ZoneInfo("UTC")
 tz = ZoneInfo("Africa/Dar_es_Salaam")

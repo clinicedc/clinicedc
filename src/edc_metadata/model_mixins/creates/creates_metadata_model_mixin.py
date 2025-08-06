@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 else:
 
-    class RelatedVisitProtocol: ...
+    class RelatedVisitProtocol: ...  # noqa
 
 
 class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):

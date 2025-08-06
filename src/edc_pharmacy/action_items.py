@@ -1,4 +1,5 @@
-from edc_action_item import Action, site_action_items
+from edc_action_item.action import Action
+from edc_action_item.site_action_items import site_action_items
 from edc_constants.constants import HIGH_PRIORITY
 
 from .constants import PRESCRIPTION_ACTION

@@ -8,8 +8,9 @@ from bs4 import BeautifulSoup
 from django.apps import apps as django_apps
 from django.db.models import ForeignKey, ManyToManyField, Model, OneToOneField, QuerySet
 from django.forms import ModelForm
-from edc_utils import get_utcnow
 from tqdm import tqdm
+
+from edc_utils import get_utcnow
 
 from .exceptions import FormRunnerModelAdminNotFound, FormRunnerModelFormNotFound
 from .utils import get_modeladmin_cls

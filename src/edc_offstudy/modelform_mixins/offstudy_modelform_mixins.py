@@ -1,4 +1,5 @@
 from django import forms
+
 from edc_visit_schedule.exceptions import OffScheduleError
 from edc_visit_schedule.utils import (
     off_all_schedules_or_raise,

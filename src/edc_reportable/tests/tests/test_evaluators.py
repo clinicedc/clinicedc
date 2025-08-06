@@ -3,7 +3,6 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
-from edc_utils import age
 
 from edc_reportable.age_evaluator import AgeEvaluator
 from edc_reportable.evaluator import (
@@ -14,6 +13,7 @@ from edc_reportable.evaluator import (
     InvalidUpperBound,
     ValueBoundryError,
 )
+from edc_utils import age
 
 
 class TestEvaluators(TestCase):

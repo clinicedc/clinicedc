@@ -3,6 +3,7 @@ from tempfile import mkdtemp
 
 from django.apps import apps as django_apps
 from django.test import TransactionTestCase, override_settings
+
 from edc_appointment import list_data as appointment_list_data
 from edc_list_data import site_list_data
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules

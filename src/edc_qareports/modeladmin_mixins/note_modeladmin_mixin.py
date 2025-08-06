@@ -4,6 +4,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.html import format_html
 from django_audit_fields import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+
 from edc_model_admin.dashboard import ModelAdminDashboardMixin
 from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,

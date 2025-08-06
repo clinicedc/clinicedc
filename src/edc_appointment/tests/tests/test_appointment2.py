@@ -6,6 +6,12 @@ import time_machine
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
+
+from edc_appointment.constants import INCOMPLETE_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
+from edc_appointment.exceptions import AppointmentDatetimeError
+from edc_appointment.utils import get_appointment_model_cls, get_appt_reason_choices
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
@@ -13,12 +19,6 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
-
-from edc_appointment.constants import INCOMPLETE_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
-from edc_appointment.exceptions import AppointmentDatetimeError
-from edc_appointment.utils import get_appointment_model_cls, get_appt_reason_choices
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
 
 from ..helper import Helper
 

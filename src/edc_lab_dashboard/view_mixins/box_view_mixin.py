@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import escape
 from django.views.generic.base import ContextMixin
+
 from edc_lab.models import Aliquot, Box, BoxItem
 
 

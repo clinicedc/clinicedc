@@ -1,5 +1,6 @@
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count, QuerySet
+
 from edc_constants.constants import NEW
 
 from ..choices import NOTE_STATUSES

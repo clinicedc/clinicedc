@@ -11,6 +11,7 @@ from django_crypto_fields.fields import (
     IdentityField,
     LastnameField,
 )
+
 from edc_constants.choices import GENDER
 from edc_constants.constants import UUID_PATTERN
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin

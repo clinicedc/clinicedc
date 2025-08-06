@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Type
 
 from django import template
+
 from edc_auth.utils import get_user
 from edc_constants.constants import CANCELLED, CLOSED, HIGH_PRIORITY, NEW, OPEN
 from edc_utils import formatted_date
@@ -19,6 +20,7 @@ from ..view_utils import ActionItemButton, ActionItemPopoverListItem
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+
     from edc_appointment.models import Appointment
 
     from ..action import Action

@@ -8,6 +8,7 @@ from edc_constants.constants import UUID_PATTERN
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+
     from edc_crf.model_mixins import CrfModelMixin
 
     from ..model_mixins import VisitModelMixin

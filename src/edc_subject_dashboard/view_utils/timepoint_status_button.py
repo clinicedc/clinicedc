@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 
 from django.utils.translation import gettext as _
+
 from edc_appointment.constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,

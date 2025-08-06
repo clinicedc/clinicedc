@@ -9,15 +9,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, override_settings, tag
-from edc_consent.site_consents import site_consents
-from edc_constants.constants import INCOMPLETE
-from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
-from edc_visit_tracking.exceptions import RelatedVisitReasonError
-from edc_visit_tracking.utils import get_related_visit_model_cls
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.models import OnScheduleOne, OnScheduleTwo, SubjectConsent
+from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
 
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,
@@ -28,9 +22,15 @@ from edc_appointment.constants import (
 from edc_appointment.exceptions import AppointmentBaselineError
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.utils import get_appointment_model_cls
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.models import OnScheduleOne, OnScheduleTwo, SubjectConsent
-from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
+from edc_consent.site_consents import site_consents
+from edc_constants.constants import INCOMPLETE
+from edc_facility.import_holidays import import_holidays
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
+from edc_visit_tracking.exceptions import RelatedVisitReasonError
+from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from ..helper import Helper
 

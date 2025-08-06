@@ -8,6 +8,10 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
+
+from edc_appointment.creators import AppointmentCreator
+from edc_appointment.models import Appointment
+from edc_appointment.tests.helper import Helper
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE
@@ -19,10 +23,6 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
-
-from edc_appointment.creators import AppointmentCreator
-from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper
 
 utc_tz = ZoneInfo("UTC")
 

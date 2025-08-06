@@ -2,7 +2,8 @@ from typing import Type
 
 from django.apps import apps as django_apps
 from django.test import TestCase
-from edc_action_item import site_action_items
+
+from edc_action_item.site_action_items import site_action_items
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_consent.consent_definition import ConsentDefinition
@@ -12,11 +13,10 @@ from edc_registration.models import RegisteredSubject
 from edc_reportable.data.grading_data.daids_july_2017 import grading_data
 from edc_reportable.data.normal_data.africa import normal_data
 from edc_reportable.utils import load_reference_ranges
+from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
-
-from edc_utils import get_utcnow
 
 
 class LongitudinalTestCaseMixin(TestCase):

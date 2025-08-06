@@ -4,15 +4,15 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase
-from edc_action_item import site_action_items
+
+from edc_action_item.site_action_items import site_action_items
 from edc_appointment.models import Appointment
 from edc_constants.constants import GRADE3, GRADE4, NO, NOT_APPLICABLE, YES
 from edc_lab.models import Panel
+from edc_lab_results.action_items import register_actions
 from edc_reportable import GRAMS_PER_DECILITER, PERCENT
 from edc_utils import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
-
-from edc_lab_results.action_items import register_actions
 
 from ..forms import BloodResultsFbcForm, BloodResultsHba1cForm
 from ..test_case_mixin import TestCaseMixin

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
+
 from edc_lab.utils import get_panel_model
 from edc_model.utils import is_inline_model
 

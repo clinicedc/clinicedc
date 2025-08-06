@@ -1,17 +1,17 @@
 from django.test import TestCase, override_settings
+from lab_app.models import SubjectRequisition, SubjectVisit
+
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper
 from edc_constants.constants import NO, YES
 from edc_facility import import_holidays
-from edc_sites.tests import SiteTestCaseMixin
-from edc_utils.date import get_utcnow
-from edc_visit_tracking.constants import SCHEDULED
-
 from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
 from edc_lab.lab import AliquotCreator as AliquotCreatorBase
 from edc_lab.lab import Specimen as SpecimenBase
 from edc_lab.lab import SpecimenNotDrawnError, SpecimenProcessor
-from lab_app.models import SubjectRequisition, SubjectVisit
+from edc_sites.tests import SiteTestCaseMixin
+from edc_utils.date import get_utcnow
+from edc_visit_tracking.constants import SCHEDULED
 
 from ..site_labs_test_helper import SiteLabsTestHelper
 

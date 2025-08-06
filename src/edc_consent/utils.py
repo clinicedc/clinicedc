@@ -7,19 +7,19 @@ from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.db import models
+
 from edc_sites import site_sites
 
 from .exceptions import ConsentDefinitionDoesNotExist
 from .site_consents import site_consents
 
 if TYPE_CHECKING:
-    from edc_model.models import BaseUuidModel
-
     from edc_consent.consent_definition import ConsentDefinition
+    from edc_model.models import BaseUuidModel
 
     from .model_mixins import ConsentModelMixin
 
-    class ConsentModel(ConsentModelMixin, BaseUuidModel): ...
+    class ConsentModel(ConsentModelMixin, BaseUuidModel): ...  # noqa
 
 
 class InvalidInitials(Exception):

@@ -12,6 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest as BaseWSGIRequest
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
+
 from edc_auth.utils import user_has_change_perms
 from edc_constants.constants import OTHER
 from edc_model_admin.utils import add_to_messages_once

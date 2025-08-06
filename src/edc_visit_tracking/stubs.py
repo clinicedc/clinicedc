@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Protocol, TypeVar, Union
 
 from django.db import models
+
 from edc_model.stubs import ModelMetaStub
 
 

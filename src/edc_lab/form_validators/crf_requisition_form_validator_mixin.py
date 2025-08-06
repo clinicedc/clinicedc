@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django import forms
+
 from edc_utils import formatted_datetime, to_utc
 
 if TYPE_CHECKING:

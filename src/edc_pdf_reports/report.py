@@ -8,13 +8,14 @@ from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils import timezone
 from django_revision.revision import Revision
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils.date import to_local
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, StyleSheet1, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.platypus import SimpleDocTemplate
+
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_utils.date import to_local
 
 from .numbered_canvas import NumberedCanvas
 

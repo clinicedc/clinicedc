@@ -1,11 +1,11 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase
-from edc_constants.constants import CLOSED, NEW, OPEN
 
 from edc_action_item.delete_action_item import ActionItemDeleteError, delete_action_item
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
+from edc_constants.constants import CLOSED, NEW, OPEN
 
 from ..action_items import (
     FormOneAction,

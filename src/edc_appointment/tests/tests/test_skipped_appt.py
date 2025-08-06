@@ -8,12 +8,21 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings, tag
-from edc_consent.site_consents import site_consents
-from edc_facility import import_holidays
-from edc_visit_schedule.models import VisitSchedule
-from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.forms import CrfThreeForm
+from edc_appointment_app.models import (
+    CrfFive,
+    CrfFour,
+    CrfOne,
+    CrfThree,
+    CrfTwo,
+    SubjectVisit,
+)
+from edc_appointment_app.visit_schedule import (
+    get_visit_schedule1,
+    get_visit_schedule2,
+    get_visit_schedule5,
+)
 
 from edc_appointment.constants import (
     COMPLETE_APPT,
@@ -30,21 +39,12 @@ from edc_appointment.skip_appointments import (
 from edc_appointment.tests.helper import Helper
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_appointment.utils import get_allow_skipped_appt_using
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.forms import CrfThreeForm
-from edc_appointment_app.models import (
-    CrfFive,
-    CrfFour,
-    CrfOne,
-    CrfThree,
-    CrfTwo,
-    SubjectVisit,
-)
-from edc_appointment_app.visit_schedule import (
-    get_visit_schedule1,
-    get_visit_schedule2,
-    get_visit_schedule5,
-)
+from edc_consent.site_consents import site_consents
+from edc_facility import import_holidays
+from edc_visit_schedule.models import VisitSchedule
+from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
 
 utc = ZoneInfo("UTC")
 

@@ -13,6 +13,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django_pandas.io import read_frame
+
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin

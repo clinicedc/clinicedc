@@ -1,8 +1,8 @@
 from django.db.models import NOT_PROVIDED
 from django.test import TestCase
-from edc_reportable import MILLIMOLES_PER_LITER, MILLIMOLES_PER_LITER_DISPLAY
 
 from edc_lab_panel.model_mixin_factory import field_attrs
+from edc_reportable import MILLIMOLES_PER_LITER, MILLIMOLES_PER_LITER_DISPLAY
 
 
 class TestFieldAttrs(TestCase):

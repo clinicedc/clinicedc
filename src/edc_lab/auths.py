@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+
 from edc_auth.constants import (
     ADMINISTRATION,
     AUDITOR_ROLE,

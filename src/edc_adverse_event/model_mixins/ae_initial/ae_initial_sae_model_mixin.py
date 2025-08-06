@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+
 from edc_constants.choices import YES_NO
 
 

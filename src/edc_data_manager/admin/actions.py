@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from edc_constants.constants import CLOSED, OPEN
 from edc_utils import formatted_datetime, get_utcnow
 

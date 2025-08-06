@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+
 from edc_constants.choices import YES_NO
 from edc_model import models as edc_models
 from edc_protocol.validators import date_not_before_study_start

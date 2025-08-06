@@ -1,6 +1,5 @@
 from edc_constants.constants import CLOSED
 from edc_form_validators import INVALID_ERROR
-
 from edc_protocol_incident.constants import WITHDRAWN
 
 

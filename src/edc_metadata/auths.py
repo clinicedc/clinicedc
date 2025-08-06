@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+
 from edc_auth.site_auths import site_auths
 
 if django_apps.is_installed("edc_export"):

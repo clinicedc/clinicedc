@@ -9,6 +9,7 @@ from django.http.request import HttpRequest
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
+
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment

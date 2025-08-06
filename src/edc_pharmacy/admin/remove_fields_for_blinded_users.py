@@ -1,4 +1,5 @@
 from django.core.handlers.wsgi import WSGIRequest
+
 from edc_randomization.blinding import user_is_blinded_from_request
 
 from .list_filters import AssignmentListFilter

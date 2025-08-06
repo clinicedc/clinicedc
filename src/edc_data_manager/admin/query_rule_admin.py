@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.admin.decorators import register
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,

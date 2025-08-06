@@ -1,4 +1,5 @@
 from django.conf import settings
+
 from edc_lab.constants import SHIPPED
 
 from .dashboard_templates import dashboard_templates

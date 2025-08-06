@@ -1,9 +1,11 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES
-from edc_utils import get_utcnow
+from reportable_app.form_validators import SpecimenResultFormValidator
+from reportable_app.models import SpecimenResult
+from reportable_app.reportables import grading_data, normal_data
 
+from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES
 from edc_reportable import (
     GRAMS_PER_DECILITER,
     IU_LITER,
@@ -13,9 +15,7 @@ from edc_reportable import (
 )
 from edc_reportable.units import MILLIGRAMS_PER_DECILITER
 from edc_reportable.utils import load_reference_ranges
-from reportable_app.form_validators import SpecimenResultFormValidator
-from reportable_app.models import SpecimenResult
-from reportable_app.reportables import grading_data, normal_data
+from edc_utils import get_utcnow
 
 
 class TestSpecimenResultForm(TestCase):

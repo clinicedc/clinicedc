@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_constants.constants import INCOMPLETE, NOT_APPLICABLE
 from edc_metadata import KEYED
 from edc_metadata.metadata_helper import MetadataHelperMixin

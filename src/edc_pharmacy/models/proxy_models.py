@@ -1,4 +1,5 @@
 from django.contrib.sites.models import Site
+
 from edc_sites.site import sites as site_sites
 from edc_visit_schedule.models import VisitSchedule as BaseVisitSchedule
 

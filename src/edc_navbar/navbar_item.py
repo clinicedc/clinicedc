@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from django.core.management.color import color_style
 from django.urls import NoReverseMatch
 from django.urls.base import reverse
+
 from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 
 if TYPE_CHECKING:

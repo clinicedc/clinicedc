@@ -1,11 +1,11 @@
 from django.contrib.sites.models import Site
-from edc_sites.single_site import SingleSite
-from edc_sites.site import sites
-from edc_sites.utils import add_or_update_django_sites
 
 from edc_randomization.randomizer import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
 from edc_randomization.tests.make_test_list import make_test_list
+from edc_sites.single_site import SingleSite
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
 
 suffix = "example.clinicedc.org"
 all_sites = (

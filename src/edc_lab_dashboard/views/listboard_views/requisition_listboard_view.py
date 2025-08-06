@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q
 from django.utils.html import format_html
+
 from edc_constants.constants import YES
 
 from ..listboard_filters import RequisitionListboardViewFilters

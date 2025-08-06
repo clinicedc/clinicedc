@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.encoding import force_str
+
 from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 
 

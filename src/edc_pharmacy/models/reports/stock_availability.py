@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_qareports.model_mixins import QaReportModelMixin, qa_reports_permissions
 
 

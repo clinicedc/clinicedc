@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.views.generic.base import View
+
 from edc_dashboard.url_names import url_names
 from edc_label.printers_mixin import PrintersMixin
 

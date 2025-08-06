@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.utils import timezone
+
 from edc_constants.constants import OPEN, OTHER
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin

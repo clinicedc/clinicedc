@@ -1,4 +1,5 @@
 from django.test import TestCase
+from lab_app.models import SubjectRequisition
 
 from edc_lab.lab import (
     AliquotType,
@@ -9,7 +10,6 @@ from edc_lab.lab import (
     ProcessingProfileInvalidDerivative,
     RequisitionPanel,
 )
-from lab_app.models import SubjectRequisition
 
 from .edc_lab_test_mixin import EdcLabTestMixin
 

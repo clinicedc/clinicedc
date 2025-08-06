@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 from edc_constants.choices import DOCUMENT_STATUS
 from edc_constants.constants import INCOMPLETE
 

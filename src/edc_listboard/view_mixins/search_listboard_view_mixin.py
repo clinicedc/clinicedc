@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.db.models.constants import LOOKUP_SEP
 from django.utils.html import escape
 from django.utils.translation import gettext as _
+
 from edc_model_admin.utils import add_to_messages_once
 
 

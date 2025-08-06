@@ -5,14 +5,14 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings
+
+from edc_action_item.site_action_items import site_action_items
+from edc_action_item.models import ActionItem
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility import import_holidays
 from edc_visit_tracking.constants import SCHEDULED
-
-from edc_action_item import site_action_items
-from edc_action_item.models import ActionItem
 
 from ..action_items import CrfLongitudinalOneAction, CrfLongitudinalTwoAction
 from ..models import CrfLongitudinalOne

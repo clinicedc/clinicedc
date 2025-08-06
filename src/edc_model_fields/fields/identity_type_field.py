@@ -1,5 +1,6 @@
 from django.db.models import CharField
 from django.utils.translation import gettext as _
+
 from edc_constants.choices import IDENTITY_TYPE
 
 

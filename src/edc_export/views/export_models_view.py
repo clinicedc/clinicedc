@@ -3,6 +3,7 @@ from typing import Any
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.generic.base import TemplateView
+
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 

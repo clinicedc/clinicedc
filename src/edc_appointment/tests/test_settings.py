@@ -55,7 +55,7 @@ project_settings = DefaultTestSettings(
         "edc_auth.apps.AppConfig",
         "edc_action_item.apps.AppConfig",
         "edc_adverse_event.apps.AppConfig",
-        # "adverse_event_app.apps.AppConfig",
+        # "edc_adverse_event_app.apps.AppConfig",
         "edc_qareports.apps.AppConfig",
         "edc_offstudy.apps.AppConfig",
         "edc_consent.apps.AppConfig",

@@ -1,4 +1,5 @@
 from django.db.models import UniqueConstraint
+
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, default_permissions
 

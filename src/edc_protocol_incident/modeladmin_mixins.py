@@ -3,8 +3,8 @@ from typing import Tuple
 from django.contrib import admin
 from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_constants.constants import CLOSED, OPEN
 
+from edc_constants.constants import CLOSED, OPEN
 from edc_protocol_incident.constants import WITHDRAWN
 
 

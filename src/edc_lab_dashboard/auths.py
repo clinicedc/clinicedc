@@ -1,7 +1,6 @@
 from edc_auth.site_auths import site_auths
 from edc_auth.utils import remove_default_model_permissions_from_edc_permissions
 from edc_lab.auth_objects import LAB, LAB_VIEW
-
 from edc_lab_dashboard.auth_objects import (
     lab_dashboard_codenames,
     lab_dashboard_tuples,

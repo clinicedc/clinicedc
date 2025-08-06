@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_action_item.managers import (
     ActionIdentifierModelManager,
     ActionIdentifierSiteManager,

@@ -13,6 +13,7 @@ from django.template.loader import select_template
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+
 from edc_action_item.utils import get_reference_obj
 from edc_constants.constants import CLOSED, OPEN, OTHER, YES
 from edc_model_admin.utils import add_to_messages_once
@@ -30,6 +31,7 @@ from ..view_utils import TmgButton
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
+
     from edc_action_item.models import ActionItem
     from edc_model.models import BaseUuidModel
 
@@ -40,15 +42,15 @@ if TYPE_CHECKING:
         DeathReportTmgModelMixin,
     )
 
-    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel): ...
+    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel): ...  # noqa
 
-    class DeathReportTmgSecondModel(DeathReportTmgModelMixin, BaseUuidModel): ...
+    class DeathReportTmgSecondModel(DeathReportTmgModelMixin, BaseUuidModel): ...  # noqa
 
-    class AeInitialModel(AeInitialModelMixin, BaseUuidModel): ...
+    class AeInitialModel(AeInitialModelMixin, BaseUuidModel): ...  # noqa
 
-    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel): ...
+    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel): ...  # noqa
 
-    class DeathReportModel(DeathReportModelMixin, BaseUuidModel): ...
+    class DeathReportModel(DeathReportModelMixin, BaseUuidModel): ...  # noqa
 
 
 register = template.Library()

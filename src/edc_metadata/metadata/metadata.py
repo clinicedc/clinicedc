@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib.admin.sites import all_sites
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction
+
 from edc_visit_schedule.visit import CrfCollection, RequisitionCollection
 from edc_visit_tracking.constants import MISSED_VISIT
 

@@ -6,6 +6,7 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
+
 from edc_constants.constants import NORMAL
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_visit_schedule.constants import DAYS, HOURS, MONTHS, WEEKS

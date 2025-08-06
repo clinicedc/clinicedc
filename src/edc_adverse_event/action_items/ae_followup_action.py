@@ -1,7 +1,13 @@
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from edc_action_item.action_with_notification import ActionWithNotification
 from edc_action_item.site_action_items import site_action_items
+from edc_adverse_event.constants import (
+    AE_FOLLOWUP_ACTION,
+    AE_INITIAL_ACTION,
+    DEATH_REPORT_ACTION,
+)
 from edc_constants.constants import DEAD, GRADE5, HIGH_PRIORITY, YES
 from edc_ltfu.constants import LOST_TO_FOLLOWUP
 from edc_notification.utils import get_email_contacts
@@ -9,12 +15,6 @@ from edc_visit_schedule.utils import (
     OnScheduleError,
     get_offschedule_models,
     get_onschedule_models,
-)
-
-from edc_adverse_event.constants import (
-    AE_FOLLOWUP_ACTION,
-    AE_INITIAL_ACTION,
-    DEATH_REPORT_ACTION,
 )
 
 from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL

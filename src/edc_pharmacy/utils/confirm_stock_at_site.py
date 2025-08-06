@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
+
 from edc_utils import get_utcnow
 
 from ..exceptions import ConfirmAtSiteError

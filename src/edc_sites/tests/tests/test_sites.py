@@ -7,11 +7,10 @@ from django.contrib.messages import get_messages
 from django.contrib.sites.models import Site
 from django.test import Client, RequestFactory, TestCase
 from django.test.utils import override_settings
-from edc_constants.constants import OTHER
-from edc_utils import get_utcnow
 from multisite import SiteID
 from multisite.models import Alias
 
+from edc_constants.constants import OTHER
 from edc_sites.forms import SiteModelFormMixin
 from edc_sites.models import SiteProfile
 from edc_sites.single_site import SingleSite
@@ -25,6 +24,7 @@ from edc_sites.site import (
     sites,
 )
 from edc_sites.utils import add_or_update_django_sites, get_message_text
+from edc_utils import get_utcnow
 
 from ..models import TestModelWithSite
 from ..site_test_case_mixin import SiteTestCaseMixin

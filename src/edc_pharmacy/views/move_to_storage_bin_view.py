@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+
 from edc_utils import get_utcnow
 
 from ..models import Stock, StorageBin, StorageBinItem

@@ -7,12 +7,13 @@ from ..utils import get_crf_metadata_model_cls, get_requisition_metadata_model_c
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
+
     from edc_visit_schedule.typing_stubs import VisitScheduleFieldsProtocol
 
     from ..models import CrfMetadata, RequisitionMetadata
 else:
 
-    class VisitScheduleFieldsProtocol: ...
+    class VisitScheduleFieldsProtocol: ...  # noqa
 
 
 class MetadataHelperMixin(VisitScheduleFieldsProtocol):

@@ -1,4 +1,5 @@
 from django.urls.conf import include, path
+
 from edc_dashboard.views import AdministrationView
 
 urlpatterns = [

@@ -1,5 +1,6 @@
-from edc_lab.models import Aliquot, BoxItem, ManifestItem
 from edc_model_wrapper import ModelWrapper
+
+from edc_lab.models import Aliquot, BoxItem, ManifestItem
 
 
 class AliquotModelWrapper(ModelWrapper):

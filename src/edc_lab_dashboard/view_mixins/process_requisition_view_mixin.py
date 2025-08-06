@@ -1,6 +1,7 @@
 import re
 
 from django.apps import apps as django_apps
+
 from edc_constants.constants import UUID_PATTERN
 from edc_lab.lab import Specimen as SpecimenObject
 from edc_lab.site_labs import site_labs

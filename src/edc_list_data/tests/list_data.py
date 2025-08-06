@@ -1,5 +1,4 @@
 from edc_constants.constants import OTHER
-
 from edc_list_data.row import Row
 
 list_data = {

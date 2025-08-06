@@ -5,10 +5,10 @@ from tempfile import mkdtemp
 from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.test.utils import override_settings
-from edc_registration.models import RegisteredSubject
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
+from edc_registration.models import RegisteredSubject
 
 
 @override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())

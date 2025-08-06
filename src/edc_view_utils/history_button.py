@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from django.utils.translation import gettext as _
+
 from edc_model.utils import get_history_url
 
 if TYPE_CHECKING:

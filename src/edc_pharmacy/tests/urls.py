@@ -2,6 +2,7 @@ from django.contrib.auth.views import LogoutView
 from django.urls.conf import include, path, re_path
 from django.views.defaults import page_not_found, server_error  # noqa
 from django.views.generic import RedirectView
+
 from edc_dashboard.utils import get_index_page
 from edc_dashboard.views import AdministrationView
 from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns

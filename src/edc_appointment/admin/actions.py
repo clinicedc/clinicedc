@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+
 from edc_constants.constants import NEW
 from edc_metadata import REQUIRED
 

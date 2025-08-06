@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
     from edc_model.models import BaseUuidModel
     from edc_sites.model_mixins import SiteModelMixin
-
     from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
     from ..modelform_mixins import VisitTrackingCrfModelFormMixin

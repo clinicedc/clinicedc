@@ -1,18 +1,18 @@
 import string
 from secrets import choice
 
+from consent_app.models import SubjectConsentV1
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
 from django.test import TestCase, override_settings
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
 from faker import Faker
 from model_bakery import baker
 
-from consent_app.models import SubjectConsentV1
 from edc_consent.actions import unverify_consent, verify_consent
 from edc_consent.site_consents import site_consents
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_utils import get_utcnow
 
 from ..consent_test_utils import consent_definition_factory
 

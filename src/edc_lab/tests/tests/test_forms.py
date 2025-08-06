@@ -3,16 +3,16 @@ from datetime import timedelta
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.test import TestCase, override_settings
+from lab_app.consents import consent_v1
+from lab_app.models import SubjectRequisition, SubjectVisit
+from lab_app.visit_schedules import visit_schedule
+
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_crf.modelform_mixins import RequisitionModelFormMixin
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidator
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
-
 from edc_lab.form_validators import (
     RequisitionFormValidator as BaseRequisitionFormValidator,
 )
@@ -21,9 +21,9 @@ from edc_lab.form_validators.requisition_form_validator import (
 )
 from edc_lab.forms import BoxForm, BoxTypeForm, ManifestForm
 from edc_lab.models import Aliquot
-from lab_app.consents import consent_v1
-from lab_app.models import SubjectRequisition, SubjectVisit
-from lab_app.visit_schedules import visit_schedule
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
 
 from ..helper import Helper
 from ..site_labs_test_helper import SiteLabsTestHelper

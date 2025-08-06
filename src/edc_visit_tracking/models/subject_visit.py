@@ -1,13 +1,13 @@
 from django.db import models
 from django.db.models import PROTECT
 from django.utils.translation import gettext_lazy as _
+
 from edc_appointment.utils import get_appointment_model_name
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
-
 from edc_visit_tracking.choices import (
     VISIT_INFO_SOURCE,
     VISIT_REASON,

@@ -1,6 +1,7 @@
 from typing import Optional
 
 from django.apps import apps as django_apps
+
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .label import Label

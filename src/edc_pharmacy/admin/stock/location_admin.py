@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from edc_model_admin.history import SimpleHistoryAdmin
 
 from ...admin_site import edc_pharmacy_admin

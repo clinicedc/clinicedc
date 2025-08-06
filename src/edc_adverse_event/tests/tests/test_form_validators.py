@@ -1,15 +1,15 @@
 from datetime import date
 
+from edc_adverse_event_app.models import DeathReportTmg
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase
-from edc_facility import import_holidays
-from edc_form_validators import FormValidator
 
-from adverse_event_app.models import DeathReportTmg
 from edc_adverse_event.form_validator_mixins import (
     RequiresDeathReportFormValidatorMixin,
 )
+from edc_facility import import_holidays
+from edc_form_validators import FormValidator
 
 from .mixins import DeathReportTestMixin
 

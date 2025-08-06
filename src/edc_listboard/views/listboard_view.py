@@ -7,6 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
+
 from edc_dashboard.view_mixins import (
     TemplateRequestContextMixin,
     UrlRequestContextMixin,

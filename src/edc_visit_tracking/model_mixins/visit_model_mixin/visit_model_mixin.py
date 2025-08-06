@@ -2,6 +2,7 @@ from typing import Any
 
 from django.db import models
 from django.db.models.deletion import PROTECT
+
 from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
 from edc_appointment.constants import MISSED_APPT
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin

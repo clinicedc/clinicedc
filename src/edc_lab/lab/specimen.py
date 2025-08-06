@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+
 from edc_constants.constants import YES
 
 from ..identifiers import Prefix as IdentifierPrefix

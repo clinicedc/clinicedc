@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_constants.constants import FEMALE, MALE
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_screening.utils import get_subject_screening_model
@@ -26,7 +27,9 @@ if TYPE_CHECKING:
     from .consent_definition_extension import ConsentDefinitionExtension
     from .stubs import ConsentLikeModel
 
-    class SubjectScreening(ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel): ...
+    class SubjectScreening(
+        ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel
+    ): ...  # noqa
 
 
 @dataclass(order=True)
@@ -37,8 +40,14 @@ class ConsentDefinition:
 
     proxy_model: str = field(compare=False)
     _ = KW_ONLY
-    start: datetime = field(default=ResearchProtocolConfig().study_open_datetime, compare=True)
-    end: datetime = field(default=ResearchProtocolConfig().study_close_datetime, compare=False)
+    start: datetime = field(
+        default=ResearchProtocolConfig().study_open_datetime,
+        compare=True,
+    )
+    end: datetime = field(
+        default=ResearchProtocolConfig().study_close_datetime,
+        compare=False,
+    )
     version: str = field(default="1", compare=False)
     updates: ConsentDefinition = field(default=None, compare=False)
     extends: ConsentDefinition = field(default=None, compare=False)
@@ -56,7 +65,11 @@ class ConsentDefinition:
     name: str = field(init=False, compare=False)
     # set updated_by when the cdef is registered, see site_consents
     updated_by: ConsentDefinition = field(default=None, compare=False, init=False)
-    extended_by: ConsentDefinitionExtension = field(default=None, compare=False, init=False)
+    extended_by: ConsentDefinitionExtension = field(
+        default=None,
+        compare=False,
+        init=False,
+    )
     _model: str = field(init=False, compare=False)
     sort_index: str = field(init=False)
 

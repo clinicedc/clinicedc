@@ -1,6 +1,7 @@
 from typing import Optional
 
 from django.apps import apps as django_apps
+
 from edc_model.stubs import BaseUuidHistoryModelStub
 
 from ..constants import CREATE, DELETE, UPDATE

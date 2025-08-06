@@ -1,24 +1,24 @@
 from datetime import timedelta
 from uuid import uuid4
 
+from consent_app.models import SubjectConsent, SubjectConsentV1, SubjectScreening
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.contrib.sites.models import Site
 from django.forms import model_to_dict
 from django.test import TestCase, override_settings
+from faker import Faker
+from model_bakery import baker
+
+from edc_consent.consent_definition import ConsentDefinition
+from edc_consent.form_validators import SubjectConsentFormValidatorMixin
+from edc_consent.modelform_mixins import ConsentModelFormMixin
+from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, YES
 from edc_crf.crf_form_validator_mixins import BaseFormValidatorMixin
 from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import age, get_utcnow
-from faker import Faker
-from model_bakery import baker
-
-from consent_app.models import SubjectConsent, SubjectConsentV1, SubjectScreening
-from edc_consent.consent_definition import ConsentDefinition
-from edc_consent.form_validators import SubjectConsentFormValidatorMixin
-from edc_consent.modelform_mixins import ConsentModelFormMixin
-from edc_consent.site_consents import site_consents
 
 fake = Faker()
 

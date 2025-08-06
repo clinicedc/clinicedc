@@ -5,9 +5,8 @@ import shutil
 import sys
 from typing import TYPE_CHECKING
 
-from edc_utils import get_utcnow
-
 from edc_export.utils import get_base_dir
+from edc_utils import get_utcnow
 
 if TYPE_CHECKING:
     from datetime import datetime

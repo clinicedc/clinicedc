@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.db import models
+
 from edc_search.model_mixins import SearchSlugManager
 from edc_sites.managers import CurrentSiteManager
 

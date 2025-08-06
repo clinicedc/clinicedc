@@ -1,9 +1,20 @@
 from unittest.mock import PropertyMock, patch
 
+from edc_adverse_event_app import list_data
+from edc_adverse_event_app.action_items import (
+    AeFollowupAction,
+    AeInitialAction,
+    StudyTerminationConclusionAction,
+)
+from edc_adverse_event_app.models import AeFollowup, AeInitial, AeSusar, AeTmg
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.test import TestCase, override_settings
+from model_bakery import baker
+
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models.action_item import ActionItem
+from edc_adverse_event.constants import CONTINUING_UPDATE, RECOVERED, RECOVERING
+from edc_adverse_event.models import AeClassification
 from edc_constants.constants import CLOSED, DEAD, GRADE5, NEW, NO, YES
 from edc_constants.disease_constants import ANAEMIA
 from edc_list_data.site_list_data import site_list_data
@@ -12,17 +23,6 @@ from edc_registration.models import RegisteredSubject
 from edc_registration.utils import RegisteredSubjectDoesNotExist
 from edc_utils import get_utcnow
 from edc_visit_schedule.utils import OnScheduleError
-from model_bakery import baker
-
-from adverse_event_app import list_data
-from adverse_event_app.action_items import (
-    AeFollowupAction,
-    AeInitialAction,
-    StudyTerminationConclusionAction,
-)
-from adverse_event_app.models import AeFollowup, AeInitial, AeSusar, AeTmg
-from edc_adverse_event.constants import CONTINUING_UPDATE, RECOVERED, RECOVERING
-from edc_adverse_event.models import AeClassification
 
 
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
@@ -30,7 +30,7 @@ class TestAeAndActions(TestCase):
     @classmethod
     def setUpClass(cls):
         site_list_data.initialize()
-        site_list_data.register(list_data, app_name="adverse_event_app")
+        site_list_data.register(list_data, app_name="edc_adverse_event_app")
         site_list_data.load_data()
         super().setUpClass()
 
@@ -47,13 +47,13 @@ class TestAeAndActions(TestCase):
 
     def test_subject_identifier(self):
         baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "edc_adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
         )
 
         self.assertRaises(
             RegisteredSubjectDoesNotExist,
             baker.make_recipe,
-            "adverse_event_app.aeinitial",
+            "edc_adverse_event_app.aeinitial",
             subject_identifier="blahblah",
         )
 
@@ -62,16 +62,16 @@ class TestAeAndActions(TestCase):
             subject_identifier = f"ABCDEF-{index}"
             RegisteredSubject.objects.create(subject_identifier=subject_identifier)
             ae_initial = baker.make_recipe(
-                "adverse_event_app.aeinitial", subject_identifier=subject_identifier
+                "edc_adverse_event_app.aeinitial", subject_identifier=subject_identifier
             )
             baker.make_recipe(
-                "adverse_event_app.aefollowup",
+                "edc_adverse_event_app.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,
             )
             baker.make_recipe(
-                "adverse_event_app.aefollowup",
+                "edc_adverse_event_app.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,

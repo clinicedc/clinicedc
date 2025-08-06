@@ -5,6 +5,7 @@ from uuid import uuid4
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
+
 from edc_constants.constants import UUID_PATTERN
 
 from .exceptions import IdentifierError

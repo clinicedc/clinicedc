@@ -1,4 +1,5 @@
 from django.urls.conf import path
+
 from edc_dashboard.views import HomeView
 
 app_name = "edc_listboard"

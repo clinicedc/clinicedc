@@ -5,6 +5,7 @@ import pandas as pd
 from django.apps import apps as django_apps
 from django.db.models import Model
 from django_pandas.io import read_frame
+
 from edc_constants.constants import FEMALE, MALE
 
 from ..utils import convert_dates_from_model

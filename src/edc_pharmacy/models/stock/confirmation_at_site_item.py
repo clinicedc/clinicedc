@@ -1,8 +1,9 @@
 from django.db import models
+from sequences import get_next_value
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
-from sequences import get_next_value
 
 from ...exceptions import ConfirmAtSiteError
 from .confirmation_at_site import ConfirmationAtSite

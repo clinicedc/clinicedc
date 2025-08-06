@@ -6,18 +6,18 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
-from edc_consent import site_consents
-from edc_facility.import_holidays import import_holidays
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from edc_appointment.constants import INCOMPLETE_APPT
-from edc_appointment.models import Appointment
 from edc_appointment_app.consents import consent_v1
 from edc_appointment_app.models import SubjectVisit
 from edc_appointment_app.tests.appointment_app_test_case_mixin import (
     AppointmentAppTestCaseMixin,
 )
 from edc_appointment_app.visit_schedule import get_visit_schedule3
+
+from edc_appointment.constants import INCOMPLETE_APPT
+from edc_appointment.models import Appointment
+from edc_consent import site_consents
+from edc_facility.import_holidays import import_holidays
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...creators import UnscheduledAppointmentCreator
 from ..helper import Helper

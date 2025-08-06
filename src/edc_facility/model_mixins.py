@@ -2,6 +2,7 @@ import calendar
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from edc_model.models import BaseUuidModel
 from edc_model_fields.fields import OtherCharField
 from edc_utils import get_utcnow

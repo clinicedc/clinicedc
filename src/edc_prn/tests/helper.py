@@ -1,6 +1,6 @@
-from edc_appointment.tests.helper import Helper as BaseHelper
-
 from prn_app.models import SubjectScreening
+
+from edc_appointment.tests.helper import Helper as BaseHelper
 
 
 class Helper(BaseHelper):

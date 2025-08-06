@@ -1,7 +1,8 @@
 from django.db import models
+from sequences import get_next_value
+
 from edc_constants.constants import NEW
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from sequences import get_next_value
 
 from ...choices import ORDER_CHOICES
 from ...exceptions import InvalidContainer, OrderItemError

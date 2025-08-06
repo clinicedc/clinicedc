@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase
+from visit_schedule_app.consents import consent_v1
 
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -11,7 +12,6 @@ from edc_visit_schedule.system_checks import (
 from edc_visit_schedule.visit import CrfCollection, FormsCollectionError, Visit
 from edc_visit_schedule.visit.crf import Crf
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from visit_schedule_app.consents import consent_v1
 
 
 class TestSystemChecks(TestCase):

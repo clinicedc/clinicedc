@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
 from django.urls.base import reverse
+
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.constants import CLOSED, RESOLVED
 from edc_dashboard.url_names import InvalidDashboardUrlName, url_names

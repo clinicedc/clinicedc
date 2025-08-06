@@ -2,6 +2,7 @@ import re
 from datetime import date, datetime
 
 from django.db import models
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ..exceptions import ValueBoundryError

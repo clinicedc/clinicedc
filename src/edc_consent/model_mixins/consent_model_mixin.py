@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.db import models
 from django.db.models import UniqueConstraint
 from django_crypto_fields.fields import EncryptedTextField
+
 from edc_constants.constants import OPEN
 from edc_data_manager.get_data_queries import get_data_queries
 from edc_model.validators import datetime_not_future

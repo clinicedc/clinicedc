@@ -5,6 +5,7 @@ from django.contrib.admin import AdminSite as DjangoAdminSite
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.response import TemplateResponse
 from django.urls import NoReverseMatch, reverse
+
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 admin.site.enable_nav_sidebar = False

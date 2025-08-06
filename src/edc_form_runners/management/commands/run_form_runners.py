@@ -62,16 +62,17 @@ class Command(BaseCommand):
                 f"Got {app_labels} and {model_names}."
             )
 
-        if app_labels:
-            for app_config in django_apps.get_app_configs():
-                if app_config.name in app_labels:
-                    for model_cls in app_config.get_models():
-                        if not model_cls._meta.label_lower.split(".")[1].startswith(
-                            "historical"
-                        ):
-                            model_names.append(model_cls._meta.label_lower)
-
-        model_names = [m for m in model_names if m not in skip_model_names]
+        # if app_labels:
+        #     for app_config in django_apps.get_app_configs():
+        #         if app_config.name in app_labels:
+        #             for model_cls in app_config.get_models():
+        #                 if not model_cls._meta.label_lower.split(".")[1].startswith(
+        #                     "historical"
+        #                 ):
+        #                     model_names.append(model_cls._meta.label_lower)
+        #
+        # model_names = [m for m in model_names if m not in skip_model_names]
+        model_names = get_model_names(app_labels, model_names, skip_model_names)
 
         try:
             run_form_runners(model_names=model_names)
@@ -79,3 +80,14 @@ class Command(BaseCommand):
             if debug:
                 raise
             raise CommandError(e)
+
+
+def get_model_names(app_labels, model_names, skip_model_names):
+    if app_labels:
+        for app_config in django_apps.get_app_configs():
+            if app_config.name in app_labels:
+                for model_cls in app_config.get_models():
+                    if not model_cls._meta.label_lower.split(".")[1].startswith("historical"):
+                        model_names.append(model_cls._meta.label_lower)
+
+    return [m for m in model_names if m not in skip_model_names]

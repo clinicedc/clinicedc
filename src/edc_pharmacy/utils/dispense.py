@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
+
 from edc_utils import get_utcnow
 
 if TYPE_CHECKING:

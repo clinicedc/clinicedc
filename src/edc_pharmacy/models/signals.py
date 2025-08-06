@@ -6,6 +6,7 @@ from celery.states import PENDING
 from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
+
 from edc_constants.constants import COMPLETE, PARTIAL
 from edc_utils.celery import get_task_result, run_task_sync_or_async
 

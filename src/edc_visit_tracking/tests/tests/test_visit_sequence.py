@@ -4,6 +4,9 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
+from edc_visit_tracking_app.consents import consent_v1
+from edc_visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
+
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
@@ -12,13 +15,10 @@ from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
 from edc_visit_tracking.models import SubjectVisit
 from edc_visit_tracking.visit_sequence import VisitSequence, VisitSequenceError
-from visit_tracking_app.consents import consent_v1
-from visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
 
 from ..helper import Helper
 
@@ -31,7 +31,7 @@ class DisabledVisitSequence(VisitSequence):
 
 
 @time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SUBJECT_SCREENING_MODEL="visit_tracking_app.subjectscreening")
+@override_settings(SUBJECT_SCREENING_MODEL="edc_visit_tracking_app.subjectscreening")
 class TestPreviousVisit(TestCase):
     helper_cls = Helper
 

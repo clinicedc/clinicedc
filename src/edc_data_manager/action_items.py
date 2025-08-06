@@ -1,6 +1,10 @@
 from django.conf import settings
 from django.template.loader import render_to_string
-from edc_action_item import Action, site_action_items
+
+from edc_action_item.action import Action
+from edc_action_item.site_action_items import site_action_items
+
+
 from edc_constants.constants import (
     CLOSED,
     FEEDBACK,

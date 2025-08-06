@@ -4,8 +4,9 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, LiteralString
 
-from edc_registration.models import RegisteredSubject
 from tqdm import tqdm
+
+from edc_registration.models import RegisteredSubject
 
 from ..site_data_manager import site_data_manager
 

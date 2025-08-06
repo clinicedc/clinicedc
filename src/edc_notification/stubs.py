@@ -17,7 +17,7 @@ class BaseNotificationStub(Protocol):
     sms_test_line: str
 
     @property
-    def default_email_to(self) -> List[str]: ...
+    def default_email_to(self) -> List[str]: ...  # noqa
 
     def notify(
         self,
@@ -29,7 +29,7 @@ class BaseNotificationStub(Protocol):
     ) -> bool: ...
 
 
-class NotificationStub(BaseNotificationStub, Protocol): ...
+class NotificationStub(BaseNotificationStub, Protocol): ...  # noqa
 
 
 class NotificationModelStub(BaseNotificationStub, Protocol):

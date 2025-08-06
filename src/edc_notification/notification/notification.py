@@ -4,11 +4,12 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
+from twilio.base.exceptions import TwilioException, TwilioRestException
+from twilio.rest import Client
+
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import SiteNotRegistered, sites
 from edc_utils import get_utcnow
-from twilio.base.exceptions import TwilioException, TwilioRestException
-from twilio.rest import Client
 
 from ..site_notifications import site_notifications
 from ..stubs import NotificationModelStub

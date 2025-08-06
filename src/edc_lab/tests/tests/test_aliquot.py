@@ -1,9 +1,9 @@
 from django.db.utils import IntegrityError
 from django.test import TestCase, override_settings
-from edc_sites.tests import SiteTestCaseMixin
 
 from edc_lab.lab import AliquotCreator, AliquotCreatorError
 from edc_lab.models import Aliquot
+from edc_sites.tests import SiteTestCaseMixin
 
 
 @override_settings(SITE_ID=10)

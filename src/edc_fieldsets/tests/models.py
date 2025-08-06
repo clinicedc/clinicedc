@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.db import models
+
 from edc_consent.managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 from edc_constants.choices import YES_NO
 from edc_crf.model_mixins import CrfModelMixin, CrfWithActionModelMixin

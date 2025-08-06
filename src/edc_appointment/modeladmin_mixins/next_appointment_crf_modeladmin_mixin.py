@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django_audit_fields import audit_fieldset_tuple
+
 from edc_constants.constants import PATIENT
 from edc_crf.admin import crf_status_fieldset_tuple
 from edc_utils.date import to_local

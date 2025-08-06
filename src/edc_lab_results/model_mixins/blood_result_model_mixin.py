@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from django.db import models
+
 from edc_constants.choices import YES_NO, YES_NO_NA
 
 from ..calculate_missing import calculate_missing

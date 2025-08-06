@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+
 from edc_constants.constants import YES
 
 from ..mappings import yes_no

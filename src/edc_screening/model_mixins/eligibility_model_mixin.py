@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_utils import get_utcnow
 
 from ..screening_eligibility import ScreeningEligibility

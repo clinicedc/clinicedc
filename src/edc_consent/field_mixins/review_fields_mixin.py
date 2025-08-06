@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_constants.choices import YES_NO, YES_NO_DECLINED
 
 from ..validators import eligible_if_yes, eligible_if_yes_or_declined

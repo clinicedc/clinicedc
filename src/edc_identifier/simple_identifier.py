@@ -5,6 +5,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
+
 from edc_utils import get_utcnow
 
 from .utils import convert_to_human_readable

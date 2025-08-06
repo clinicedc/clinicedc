@@ -6,9 +6,8 @@ from django.forms import ValidationError
 from django.test import TestCase
 
 if TYPE_CHECKING:
-    from edc_model.models import BaseUuidModel
-
     from edc_form_validators.form_validator import FormValidator
+    from edc_model.models import BaseUuidModel
 
 
 class FormValidatorTestCaseMixin:

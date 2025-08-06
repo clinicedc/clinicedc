@@ -1,16 +1,17 @@
 from tempfile import mkdtemp
 
 from django.contrib import messages
+from reportlab.graphics.barcode import code39
+from reportlab.lib import colors
+from reportlab.lib.units import cm, mm
+from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
+
 from edc_constants.constants import YES
 from edc_identifier.utils import convert_to_human_readable
 from edc_lab.model_mixins import RequisitionModelMixin
 from edc_lab.models.manifest.shipper import Shipper
 from edc_pdf_reports import Report
 from edc_utils import get_utcnow
-from reportlab.graphics.barcode import code39
-from reportlab.lib import colors
-from reportlab.lib.units import cm, mm
-from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
 
 
 class RequisitionReport(Report):

@@ -1,7 +1,7 @@
 from django import forms
+
 from edc_form_validators import FormValidatorMixin
 from edc_sites.forms import SiteModelFormMixin
-
 from edc_transfer.form_validators import SubjectTransferFormValidator
 
 from .models import SubjectTransfer

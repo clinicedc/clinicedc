@@ -1,5 +1,6 @@
-from edc_lab.models import Box
 from edc_model_wrapper import ModelWrapper
+
+from edc_lab.models import Box
 
 
 class BoxModelWrapper(ModelWrapper):

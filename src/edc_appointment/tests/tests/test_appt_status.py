@@ -3,19 +3,19 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.test import TestCase, override_settings
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.models import SubjectVisit
+from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
+
+from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
+from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
+from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.utils import get_crf_metadata_model_cls
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-
-from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
-from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
-from edc_appointment.models import Appointment
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.models import SubjectVisit
-from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
 
 from ..helper import Helper
 

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_metadata.model_mixins.updates import UpdatesCrfMetadataModelMixin
 from edc_offstudy.model_mixins import OffstudyCrfModelMixin

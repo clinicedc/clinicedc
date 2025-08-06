@@ -3,9 +3,8 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
-from edc_constants.constants import FEMALE, MALE
-from edc_utils import get_utcnow
 
+from edc_constants.constants import FEMALE, MALE
 from edc_reportable import Formula
 from edc_reportable.adult_age_options import adult_age_options
 from edc_reportable.constants import HIGH_VALUE
@@ -21,6 +20,7 @@ from edc_reportable.utils import (
     update_grading_data,
     update_normal_data,
 )
+from edc_utils import get_utcnow
 
 
 class TestGrading(TestCase):

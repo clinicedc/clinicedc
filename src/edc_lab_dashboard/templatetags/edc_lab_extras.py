@@ -2,6 +2,7 @@ from django import template
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
+
 from edc_lab.constants import SHIPPED
 from edc_lab.models import BoxItem
 

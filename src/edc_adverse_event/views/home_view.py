@@ -2,6 +2,7 @@ from typing import Any
 
 from django.urls import reverse
 from django.views.generic import TemplateView
+
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin, UrlRequestContextMixin
 from edc_navbar import NavbarViewMixin

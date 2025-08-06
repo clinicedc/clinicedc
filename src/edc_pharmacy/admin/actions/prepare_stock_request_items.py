@@ -5,6 +5,7 @@ from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext
+
 from edc_utils.celery import get_task_result
 
 if TYPE_CHECKING:

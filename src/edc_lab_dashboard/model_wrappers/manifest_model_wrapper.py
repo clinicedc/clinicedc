@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
-from edc_lab.models import Manifest
 from edc_model_wrapper import ModelWrapper
+
+from edc_lab.models import Manifest
 
 edc_lab_app_config = django_apps.get_app_config("edc_lab")
 

@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from edc_utils.celery import run_task_sync_or_async
 
 from ...utils import process_repack_request_queryset

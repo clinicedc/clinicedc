@@ -1,10 +1,10 @@
 from django.urls.conf import path
 from django.views.generic.base import RedirectView
-from edc_listboard.views import ListboardView
-from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
 
 from edc_dashboard.url_config import UrlConfig
 from edc_dashboard.views import AdministrationView
+from edc_listboard.views import ListboardView
+from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
 
 from .admin import edc_dashboard_admin
 

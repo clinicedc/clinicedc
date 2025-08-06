@@ -5,14 +5,14 @@ import time_machine
 from dateutil._common import weekday
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.test import TestCase, override_settings
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.visit_schedule import get_visit_schedule1
+
+from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.schedule.visit_collection import VisitCollection
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from edc_appointment.models import Appointment
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.visit_schedule import get_visit_schedule1
 
 from ..helper import Helper
 

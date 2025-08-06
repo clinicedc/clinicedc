@@ -1,5 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_reportable import GRAMS_PER_DECILITER, MICROMOLES_PER_LITER
 from edc_reportable.units import (

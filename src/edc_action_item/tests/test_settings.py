@@ -46,7 +46,7 @@ project_settings = DefaultTestSettings(
         "edc_sites.apps.AppConfig",
         "edc_auth.apps.AppConfig",
         "edc_adverse_event.apps.AppConfig",
-        "adverse_event_app.apps.AppConfig",
+        "edc_adverse_event_app.apps.AppConfig",
         "edc_appointment.apps.AppConfig",
         "edc_crf.apps.AppConfig",
         "edc_dashboard.apps.AppConfig",

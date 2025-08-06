@@ -4,8 +4,6 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.utils.translation import gettext as _
-from edc_form_validators import INVALID_ERROR
-from edc_sites.site import sites as site_sites
 
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import (
@@ -15,6 +13,8 @@ from edc_consent.exceptions import (
     SiteConsentError,
 )
 from edc_consent.site_consents import site_consents
+from edc_form_validators import INVALID_ERROR
+from edc_sites.site import sites as site_sites
 
 if TYPE_CHECKING:
     from django.contrib.sites.models import Site

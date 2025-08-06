@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
+
 from edc_constants.constants import YES
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import Specimen

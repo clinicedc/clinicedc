@@ -7,6 +7,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from edc_identifier import SubjectIdentifierError, is_subject_identifier_or_raise
 
 from ..actions import flag_as_verified_against_paper, unflag_as_verified_against_paper

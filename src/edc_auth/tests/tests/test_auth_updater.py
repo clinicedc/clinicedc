@@ -5,6 +5,9 @@ from typing import List
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
+
+from edc_auth.auth_updater import AuthUpdater
+from edc_auth.site_auths import site_auths
 from edc_randomization.auth_objects import (
     RANDO_BLINDED,
     RANDO_UNBLINDED,
@@ -12,9 +15,6 @@ from edc_randomization.auth_objects import (
 )
 from edc_randomization.randomizer import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
-
-from edc_auth.auth_updater import AuthUpdater
-from edc_auth.site_auths import site_auths
 
 from ...auth_objects import default_groups
 from ..randomizers import CustomRandomizer

@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.contrib.admin import SimpleListFilter
 from django.core.exceptions import FieldError
 from django.db.models import Count, Q
+
 from edc_constants.constants import OTHER
 from edc_sites.site import sites
 

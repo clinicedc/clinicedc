@@ -4,6 +4,7 @@ from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.text import slugify
 from django.views.generic.base import TemplateView
+
 from edc_dashboard.url_names import url_names
 
 from ...dashboard_templates import dashboard_templates

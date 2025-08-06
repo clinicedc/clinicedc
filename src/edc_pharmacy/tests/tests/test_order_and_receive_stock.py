@@ -6,6 +6,8 @@ from django.contrib.sites.models import Site
 from django.db.models import Sum
 from django.db.models.signals import pre_save
 from django.test import TestCase, override_settings, tag
+from sequences import get_next_value
+
 from edc_appointment.tests.helper import Helper
 from edc_consent import site_consents
 from edc_constants.constants import COMPLETE, FEMALE, MALE
@@ -16,7 +18,6 @@ from edc_randomization.models import RandomizationList
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from sequences import get_next_value
 
 from ...analytics import get_next_scheduled_visit_for_subjects_df
 from ...exceptions import RepackRequestError

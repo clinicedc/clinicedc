@@ -6,8 +6,9 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from celery import shared_task
 from django.apps import apps as django_apps
-from edc_utils import get_utcnow
 from sequences import get_next_value
+
+from edc_utils import get_utcnow
 
 if TYPE_CHECKING:
     from uuid import UUID

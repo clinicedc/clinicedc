@@ -6,6 +6,7 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_crf.crf_form_validator_mixins import BaseFormValidatorMixin

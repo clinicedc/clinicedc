@@ -4,8 +4,9 @@ from typing import List, Optional
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from mempass import PasswordGenerator
+
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 
 class PasswordSetterError(Exception):

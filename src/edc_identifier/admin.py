@@ -2,6 +2,7 @@ from typing import Tuple
 
 from django.contrib import admin
 from django_audit_fields import audit_fieldset_tuple
+
 from edc_model import DEFAULT_BASE_FIELDS
 
 from .admin_site import edc_identifier_admin

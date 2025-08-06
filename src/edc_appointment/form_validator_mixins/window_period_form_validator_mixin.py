@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from dateutil.relativedelta import relativedelta
 from django.utils.translation import gettext as _
+
 from edc_utils import formatted_date, to_utc
 from edc_utils.date import floor_secs, to_local
 from edc_visit_schedule.exceptions import (

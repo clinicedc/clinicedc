@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_pdf_reports.model_mixins import PdfReportModelMixin
 from edc_search.model_mixins import SearchSlugManager, SearchSlugModelMixin

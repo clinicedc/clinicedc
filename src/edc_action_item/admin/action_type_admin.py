@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
+
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 

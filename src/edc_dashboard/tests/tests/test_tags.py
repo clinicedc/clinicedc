@@ -1,7 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.core.paginator import Paginator
 from django.test import TestCase
-from edc_utils.date import get_utcnow
 
 from edc_dashboard.templatetags.edc_dashboard_extras import (
     age_in_years,
@@ -9,6 +8,7 @@ from edc_dashboard.templatetags.edc_dashboard_extras import (
     page_numbers,
     paginator_row,
 )
+from edc_utils.date import get_utcnow
 
 from ..models import TestModel
 

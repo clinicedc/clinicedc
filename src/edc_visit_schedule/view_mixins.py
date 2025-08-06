@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_utils import get_utcnow
 
 from .site_visit_schedules import site_visit_schedules
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
     from .schedule import Schedule
     from .visit_schedule import VisitSchedule
 
-    class OnScheduleLikeModel(OnScheduleModelMixin): ...
+    class OnScheduleLikeModel(OnScheduleModelMixin): ...  # noqa
 
 
 class VisitScheduleViewMixin:

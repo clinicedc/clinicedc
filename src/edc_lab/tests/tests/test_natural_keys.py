@@ -1,6 +1,7 @@
 from django.test import TestCase, override_settings
-from edc_sites.tests import SiteTestCaseMixin
 from edc_test_utils.natural_key_test_helper import NaturalKeyTestHelper
+
+from edc_sites.tests import SiteTestCaseMixin
 
 
 @override_settings(SITE_ID=10)

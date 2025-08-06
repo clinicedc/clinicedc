@@ -5,7 +5,8 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
-from edc_action_item import site_action_items
+
+from edc_action_item.site_action_items import site_action_items
 from edc_action_item.models import ActionItem
 from edc_adverse_event.constants import DEATH_REPORT_ACTION
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
@@ -14,6 +15,9 @@ from edc_consent.site_consents import site_consents
 from edc_constants.constants import CLOSED, FEMALE, HOSPITALIZED, MALE, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data import load_list_data
+from edc_ltfu.action_items import LtfuAction
+from edc_ltfu.constants import LTFU_ACTION
+from edc_ltfu.models import Ltfu
 from edc_metadata.tests.models import SubjectConsent
 from edc_metadata.tests.visit_schedule import get_visit_schedule
 from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
@@ -21,10 +25,6 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
 from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from edc_ltfu.action_items import LtfuAction
-from edc_ltfu.constants import LTFU_ACTION
-from edc_ltfu.models import Ltfu
 
 from ...utils import get_ltfu_model_cls, get_ltfu_model_name
 

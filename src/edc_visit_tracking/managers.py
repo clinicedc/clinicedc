@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from django.contrib.sites.managers import CurrentSiteManager as DjangoCurrentSiteManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, models, transaction
+
 from edc_constants.constants import INCOMPLETE, NOT_APPLICABLE, OTHER
 
 from .constants import MISSED_VISIT

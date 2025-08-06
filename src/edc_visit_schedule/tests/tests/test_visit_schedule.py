@@ -4,6 +4,14 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
+from visit_schedule_app.models import (
+    OffSchedule,
+    OnSchedule,
+    OnScheduleThree,
+    SubjectConsent,
+    SubjectVisit,
+)
+
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import NotConsentedError
@@ -15,8 +23,6 @@ from edc_registration.models import RegisteredSubject
 from edc_registration.utils import RegisteredSubjectDoesNotExist
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
-from edc_visit_tracking.constants import SCHEDULED
-
 from edc_visit_schedule.constants import ON_SCHEDULE
 from edc_visit_schedule.models import SubjectScheduleHistory
 from edc_visit_schedule.schedule import Schedule
@@ -35,13 +41,7 @@ from edc_visit_schedule.visit_schedule import (
     VisitSchedule,
     VisitScheduleNameError,
 )
-from visit_schedule_app.models import (
-    OffSchedule,
-    OnSchedule,
-    OnScheduleThree,
-    SubjectConsent,
-    SubjectVisit,
-)
+from edc_visit_tracking.constants import SCHEDULED
 
 
 @time_machine.travel(datetime(2019, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))

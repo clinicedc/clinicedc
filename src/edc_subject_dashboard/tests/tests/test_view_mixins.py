@@ -1,22 +1,6 @@
 from django.test import TestCase, override_settings
 from django.views.generic.base import ContextMixin
-from edc_appointment.view_mixins import AppointmentViewMixin
-from edc_consent import site_consents
-from edc_locator.exceptions import SubjectLocatorViewMixinError
-from edc_locator.view_mixins import SubjectLocatorViewMixin
-from edc_sites.utils import get_site_model_cls
-from edc_sites.view_mixins import SiteViewMixin
 from edc_test_utils.get_httprequest_for_tests import get_request_object_for_tests
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.models import SubjectVisit
-
-from edc_subject_dashboard.view_mixins import (
-    RegisteredSubjectViewMixin,
-    SubjectVisitViewMixin,
-    SubjectVisitViewMixinError,
-)
 from subject_dashboard_app.consents import consent_v1
 from subject_dashboard_app.models import (
     Appointment,
@@ -24,6 +8,22 @@ from subject_dashboard_app.models import (
     SubjectConsent,
     TestModel,
 )
+
+from edc_appointment.view_mixins import AppointmentViewMixin
+from edc_consent import site_consents
+from edc_locator.exceptions import SubjectLocatorViewMixinError
+from edc_locator.view_mixins import SubjectLocatorViewMixin
+from edc_sites.utils import get_site_model_cls
+from edc_sites.view_mixins import SiteViewMixin
+from edc_subject_dashboard.view_mixins import (
+    RegisteredSubjectViewMixin,
+    SubjectVisitViewMixin,
+    SubjectVisitViewMixinError,
+)
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from .test_case_mixin import TestCaseMixin
 

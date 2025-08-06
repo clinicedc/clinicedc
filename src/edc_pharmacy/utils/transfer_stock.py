@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
+
 from edc_utils import get_utcnow
 
 if TYPE_CHECKING:

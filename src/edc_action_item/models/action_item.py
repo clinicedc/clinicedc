@@ -7,6 +7,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.deletion import PROTECT
+
 from edc_constants.constants import CANCELLED, NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
@@ -28,9 +29,9 @@ if TYPE_CHECKING:
 
     class PrnModel(BaseUuidModel):
         subject_identifier: str
-        ...
+        ...  # noqa
 
-    class CrfModel(CrfModelMixin): ...
+    class CrfModel(CrfModelMixin): ...  # noqa
 
 
 class CurrentSiteManager(BaseCurrentSiteManager):

@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Index
+
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_visit_schedule.model_mixins import (

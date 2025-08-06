@@ -1,21 +1,21 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
-from edc_action_item import site_action_items
+from visit_schedule_app.consents import consent_v1
+from visit_schedule_app.visit_schedule import visit_schedule
+
+from edc_action_item.site_action_items import site_action_items
 from edc_action_item.site_action_items import AlreadyRegistered
 from edc_auth.site_auths import site_auths
 from edc_consent.site_consents import site_consents
 from edc_facility import import_holidays
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.tests.helper import Helper
-from visit_schedule_app.consents import consent_v1
-from visit_schedule_app.visit_schedule import visit_schedule
-
 from edc_unblinding.action_items import UnblindingRequestAction, UnblindingReviewAction
 from edc_unblinding.auth_objects import (
     UNBLINDING_REQUESTORS_ROLE,
     UNBLINDING_REVIEWERS_ROLE,
 )
 from edc_unblinding.models import UnblindingRequest, UnblindingRequestorUser
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.tests.helper import Helper
 
 
 @override_settings(

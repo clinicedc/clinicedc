@@ -1,4 +1,4 @@
-from edc_action_item import ActionWithNotification
+from edc_action_item.action_with_notification import ActionWithNotification
 from edc_constants.constants import CLOSED, HIGH_PRIORITY
 
 from .constants import (

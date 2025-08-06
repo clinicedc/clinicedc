@@ -1,8 +1,9 @@
 from typing import Any
 
 from django import forms
-from edc_constants.constants import FASTING, YES
 from edc_glucose.utils import validate_glucose_as_millimoles_per_liter
+
+from edc_constants.constants import FASTING, YES
 
 
 class BloodResultsFbgFormValidatorMixin:

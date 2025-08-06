@@ -1,9 +1,12 @@
 from urllib.parse import parse_qs, urlparse
 
+from dashboard_app.consents import consent_v1
+from dashboard_app.models import SubjectConsent
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission, User
 from django.shortcuts import get_object_or_404
 from django.test import TestCase, override_settings
+
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_data_manager.models import DataQuery
@@ -12,13 +15,10 @@ from edc_registration.models import RegisteredSubject
 from edc_sites.utils import get_site_model_cls
 from edc_subject_dashboard.view_utils import CrfButton
 from edc_utils import get_utcnow
+from edc_view_utils import DashboardModelButton, Perms, QueryButton
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from dashboard_app.consents import consent_v1
-from dashboard_app.models import SubjectConsent
-from edc_view_utils import DashboardModelButton, Perms, QueryButton
 
 from .test_case_mixin import TestCaseMixin
 

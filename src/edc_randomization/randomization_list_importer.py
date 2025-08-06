@@ -8,8 +8,9 @@ from uuid import uuid4
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
-from edc_sites.site import sites as site_sites
 from tqdm import tqdm
+
+from edc_sites.site import sites as site_sites
 
 from .randomization_list_verifier import RandomizationListVerifier
 

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db.models.signals import pre_save
 from django.test import TestCase, override_settings
+
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
@@ -14,12 +15,6 @@ from edc_appointment.utils import get_next_appointment
 from edc_consent import site_consents
 from edc_constants.constants import YES
 from edc_facility import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
-
 from edc_pharmacy.exceptions import NextStudyMedicationError, StudyMedicationError
 from edc_pharmacy.models import (
     DosageGuideline,
@@ -32,6 +27,11 @@ from edc_pharmacy.models import (
     RxRefill,
     Units,
 )
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 
 from ..consents import consent_v1
 from ..forms import StudyMedicationForm

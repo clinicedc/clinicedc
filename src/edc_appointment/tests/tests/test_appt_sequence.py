@@ -7,17 +7,17 @@ import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, override_settings
-from edc_facility.import_holidays import import_holidays
-from edc_metadata.models import CrfMetadata
+from edc_appointment_app.models import CrfOne, SubjectVisit
+from edc_appointment_app.tests.appointment_app_test_case_mixin import (
+    AppointmentAppTestCaseMixin,
+)
 
 from edc_appointment.constants import INCOMPLETE_APPT, NEW_APPT
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
 from edc_appointment.utils import delete_appointment_in_sequence, get_next_appointment
-from edc_appointment_app.models import CrfOne, SubjectVisit
-from edc_appointment_app.tests.appointment_app_test_case_mixin import (
-    AppointmentAppTestCaseMixin,
-)
+from edc_facility.import_holidays import import_holidays
+from edc_metadata.models import CrfMetadata
 
 from ..helper import Helper
 

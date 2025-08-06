@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
+
 from edc_constants.constants import NO
 from edc_utils import formatted_datetime, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules

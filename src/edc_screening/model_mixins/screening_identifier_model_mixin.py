@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierModelMixin
 from edc_search.model_mixins import SearchSlugModelMixin
 

@@ -1,5 +1,6 @@
 from django_audit_fields import ModelAdminAuditFieldsMixin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+
 from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,
     ModelAdminFormInstructionsMixin,

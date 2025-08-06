@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+
 from edc_visit_tracking.constants import SCHEDULED
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED

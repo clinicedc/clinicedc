@@ -1,9 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
-from edc_constants.constants import FEMALE
-from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
 
+from edc_constants.constants import FEMALE
 from edc_pharmacy.exceptions import PrescriptionNotStarted
 from edc_pharmacy.models import (
     DosageGuideline,
@@ -22,6 +20,8 @@ from edc_pharmacy.refill import (
     deactivate_refill,
     get_active_refill,
 )
+from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
 
 
 class TestRefill(TestCase):

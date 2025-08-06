@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Type
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.module_loading import import_module, module_has_submodule
+
 from edc_reportable.utils import reference_range_colllection_model_cls
 
 if TYPE_CHECKING:

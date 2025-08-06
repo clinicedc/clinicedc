@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Tuple
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_appointment.utils import get_next_appointment
 from edc_constants.constants import YES
 from edc_utils import formatted_datetime

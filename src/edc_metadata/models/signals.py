@@ -1,7 +1,7 @@
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-from edc_crf.model_mixins import SingletonCrfModelMixin
 
+from edc_crf.model_mixins import SingletonCrfModelMixin
 from edc_metadata import KEYED
 from edc_metadata.utils import refresh_metadata_for_timepoint
 

@@ -2,6 +2,7 @@ import json
 import re
 
 from django.apps import apps as django_apps
+
 from edc_locator.utils import LocatorModelError, get_locator_model
 from edc_offstudy.utils import get_offstudy_model
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED

@@ -10,6 +10,7 @@ from django.db.utils import IntegrityError, OperationalError
 from django.test.client import RequestFactory
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from edc_list_data.model_mixins import ListModelMixin
 
 from .models import DataDictionary, DataManagerUser

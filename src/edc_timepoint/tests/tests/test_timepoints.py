@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase
+
 from edc_appointment.constants import COMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment

@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase
 from django.test.client import RequestFactory
+
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO

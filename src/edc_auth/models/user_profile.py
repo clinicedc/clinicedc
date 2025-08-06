@@ -6,6 +6,7 @@ from django.db.models.deletion import CASCADE
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from edc_export.choices import EXPORT_FORMATS
 from edc_export.constants import CSV
 from edc_notification.model_mixins import NotificationUserProfileModelMixin

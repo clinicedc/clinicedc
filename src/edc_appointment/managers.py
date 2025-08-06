@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Dict
 
 from django.db import models, transaction
 from django.db.models.deletion import ProtectedError
+
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:

@@ -1,16 +1,16 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
+from visit_schedule_app.models import SubjectVisit
+
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import COMPLETE, INCOMPLETE
+from edc_crf.models import CrfStatus
 from edc_facility import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.tests.helper import Helper
-from visit_schedule_app.models import SubjectVisit
-
-from edc_crf.models import CrfStatus
 
 from ..consents import consent_v1
 from ..models import Crf

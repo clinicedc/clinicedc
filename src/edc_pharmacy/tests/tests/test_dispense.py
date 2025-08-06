@@ -1,7 +1,5 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
-from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
 
 from edc_pharmacy.models import (
     DosageGuideline,
@@ -14,6 +12,8 @@ from edc_pharmacy.models import (
     Units,
 )
 from edc_pharmacy.refill import RefillCreator
+from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
 
 
 class TestDispense(TestCase):

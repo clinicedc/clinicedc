@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+
 from edc_model.models import BaseUuidModel
 
 from ..model_mixins import UpdatesOrCreatesRegistrationModelMixin

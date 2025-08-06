@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 from django import forms
 from django.conf import settings
+
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
 from edc_appointment.form_validators import validate_appt_datetime_unique

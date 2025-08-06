@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Type
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .exceptions import RegisteredSubjectError

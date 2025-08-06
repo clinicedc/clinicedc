@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch.dispatcher import receiver
+
 from edc_constants.constants import NO, YES
 from edc_notification.models import Notification
 from edc_utils import get_utcnow

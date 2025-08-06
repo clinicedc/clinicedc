@@ -4,7 +4,8 @@ from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_action_item import action_fieldset_tuple
+
+from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_constants.constants import NOT_APPLICABLE, OTHER
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin

@@ -1,13 +1,13 @@
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase
+
+from edc_adverse_event.form_validators import DeathReportFormValidator as Base
 from edc_constants.constants import OTHER, UNKNOWN
 from edc_constants.disease_constants import BACTERAEMIA
 from edc_form_validators import FormValidatorTestCaseMixin
 from edc_form_validators.tests.mixins import FormValidatorTestMixin
 from edc_utils import get_utcnow
-
-from edc_adverse_event.form_validators import DeathReportFormValidator as Base
 
 
 class DeathReportFormValidator(FormValidatorTestMixin, Base):

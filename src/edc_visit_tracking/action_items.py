@@ -1,6 +1,6 @@
 from typing import List
 
-from edc_action_item import Action
+from edc_action_item.action import Action
 from edc_action_item.action_with_notification import ActionWithNotification
 from edc_constants.constants import HIGH_PRIORITY, YES
 from edc_ltfu.constants import LTFU_ACTION

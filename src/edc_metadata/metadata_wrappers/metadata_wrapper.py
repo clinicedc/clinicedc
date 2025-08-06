@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING, Any, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+
 from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 
 if TYPE_CHECKING:
     from edc_crf.model_mixins import CrfModelMixin
-
     from edc_metadata.models import CrfMetadata, RequisitionMetadata
 
 

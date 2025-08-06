@@ -1,14 +1,14 @@
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
-from edc_constants.constants import CLOSED, NEW, NO, YES
-from edc_sites.exceptions import InvalidSiteForSubjectError
-from edc_sites.single_site import SingleSite
-from edc_sites.site import sites as site_sites
 
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import site_action_items
+from edc_constants.constants import CLOSED, NEW, NO, YES
+from edc_sites.exceptions import InvalidSiteForSubjectError
+from edc_sites.single_site import SingleSite
+from edc_sites.site import sites as site_sites
 
 from ..action_items import (
     FormFourAction,

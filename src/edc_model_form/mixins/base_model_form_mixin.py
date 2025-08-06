@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
-from edc_registration import get_registered_subject_model_cls
 
 from edc_model_form.mixins.report_datetime_modelform_mixin import (
     ReportDatetimeModelFormMixin,
 )
+from edc_registration import get_registered_subject_model_cls
 
 
 class BaseModelFormMixinError(Exception):

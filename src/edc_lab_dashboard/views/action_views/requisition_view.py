@@ -1,4 +1,5 @@
 from django.contrib import messages
+
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab.labels import AliquotLabel, RequisitionLabel
 from edc_lab.models import Aliquot

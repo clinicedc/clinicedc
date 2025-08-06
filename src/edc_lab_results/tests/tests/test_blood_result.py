@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.test import TestCase
+
 from edc_appointment.models import Appointment
 from edc_constants.constants import GRADE3, NO, NOT_APPLICABLE, YES
 from edc_lab.models import Panel

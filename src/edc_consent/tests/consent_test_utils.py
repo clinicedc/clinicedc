@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-
 from edc_consent.consent_definition import ConsentDefinition
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 
 def consent_definition_factory(

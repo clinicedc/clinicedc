@@ -4,18 +4,13 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
+from faker import Faker
+
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
-from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.models import SubjectVisit
-from faker import Faker
-
 from edc_metadata.constants import NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_rules import (
     PF,
@@ -30,6 +25,11 @@ from edc_metadata.metadata_rules import (
     site_metadata_rules,
 )
 from edc_metadata.models import CrfMetadata
+from edc_registration.models import RegisteredSubject
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
 from ..models import CrfOne, SubjectConsentV1
 from ..visit_schedule import get_visit_schedule

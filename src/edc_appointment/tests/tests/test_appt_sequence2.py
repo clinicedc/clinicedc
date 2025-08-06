@@ -6,20 +6,20 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.tests.appointment_app_test_case_mixin import (
+    AppointmentAppTestCaseMixin,
+)
+from edc_appointment_app.visit_schedule import get_visit_schedule1
+
+from edc_appointment.constants import INCOMPLETE_APPT
+from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.models import CrfMetadata
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from edc_appointment.constants import INCOMPLETE_APPT
-from edc_appointment.models import Appointment
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.tests.appointment_app_test_case_mixin import (
-    AppointmentAppTestCaseMixin,
-)
-from edc_appointment_app.visit_schedule import get_visit_schedule1
 
 from ...creators import UnscheduledAppointmentCreator
 from ...utils import reset_visit_code_sequence_or_pass

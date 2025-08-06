@@ -1,6 +1,7 @@
 from typing import Any, Optional
 
 from django.forms import ValidationError
+
 from edc_constants.constants import OTHER
 
 from .base_form_validator import NOT_REQUIRED_ERROR, REQUIRED_ERROR, BaseFormValidator

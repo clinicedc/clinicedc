@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_utils import get_utcnow
 
 if TYPE_CHECKING:

@@ -1,6 +1,6 @@
 from django.test import TestCase
-from edc_lab.models import Box, BoxItem, BoxType
 
+from edc_lab.models import Box, BoxItem, BoxType
 from edc_lab_dashboard.templatetags.edc_lab_extras import verified
 
 

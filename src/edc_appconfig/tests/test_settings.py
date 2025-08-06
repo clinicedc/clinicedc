@@ -51,7 +51,7 @@ project_settings = DefaultTestSettings(
         "edc_review_dashboard.apps.AppConfig",
         "edc_visit_schedule.apps.AppConfig",
         "edc_visit_tracking.apps.AppConfig",
-        "adverse_event_app.apps.AppConfig",
+        "edc_adverse_event_app.apps.AppConfig",
         "edc_appconfig.apps.AppConfig",
     ],
     SUBJECT_VISIT_MODEL="edc_visit_tracking.subjectvisit",

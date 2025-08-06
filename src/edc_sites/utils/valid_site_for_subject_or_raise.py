@@ -11,6 +11,7 @@ from .get_site_model_cls import get_site_model_cls
 
 if TYPE_CHECKING:
     from django.contrib.sites.models import Site
+
     from edc_registration.models import RegisteredSubject
 
 __all__ = ["valid_site_for_subject_or_raise"]

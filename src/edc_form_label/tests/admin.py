@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from edc_constants.constants import NO
 
 from ..custom_label_condition import CustomLabelCondition

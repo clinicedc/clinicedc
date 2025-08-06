@@ -3,21 +3,21 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.urls.base import reverse
 from django_webtest import WebTest
+from edc_test_utils.get_user_for_tests import get_user_for_tests
+from review_dashboard_app.consents import consent_v1
+from review_dashboard_app.lab_profiles import lab_profile
+from review_dashboard_app.models import SubjectConsentV1
+from review_dashboard_app.visit_schedule import visit_schedule
+
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_lab.site_labs import site_labs
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from review_dashboard_app.consents import consent_v1
-from review_dashboard_app.lab_profiles import lab_profile
-from review_dashboard_app.models import SubjectConsentV1
-from review_dashboard_app.visit_schedule import visit_schedule
 
 User = get_user_model()
 

@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
+
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import SHIPPED
 from edc_lab.labels import ManifestLabel

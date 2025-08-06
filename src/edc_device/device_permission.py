@@ -126,3 +126,6 @@ class DevicePermissions:
     def check(self, model_obj=None, **kwargs):
         for device_permission in self._registry:
             device_permission.check(model_obj=model_obj, **kwargs)
+
+
+device_permissions = DevicePermissions()

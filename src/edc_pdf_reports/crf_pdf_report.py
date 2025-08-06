@@ -9,14 +9,6 @@ from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.text import slugify
-from edc_data_manager.get_longitudinal_value import (
-    DataDictionaryError,
-    get_longitudinal_value,
-)
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_randomization.auth_objects import RANDO_UNBLINDED
-from edc_utils import formatted_age, get_static_file
-from edc_utils.date import to_local
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
@@ -25,11 +17,21 @@ from reportlab.platypus import Paragraph, TableStyle
 from reportlab.platypus.flowables import KeepTogether, Spacer
 from reportlab.platypus.tables import Table
 
+from edc_data_manager.get_longitudinal_value import (
+    DataDictionaryError,
+    get_longitudinal_value,
+)
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_randomization.auth_objects import RANDO_UNBLINDED
+from edc_utils import formatted_age, get_static_file
+from edc_utils.date import to_local
+
 from .report import Report
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
     from django.core.handlers.wsgi import WSGIRequest
+
     from edc_crf.model_mixins import CrfModelMixin
     from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 

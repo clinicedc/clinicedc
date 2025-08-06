@@ -9,8 +9,9 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from mempass import PasswordGenerator
+
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .constants import ACCOUNT_MANAGER_ROLE, STAFF_ROLE
 from .export_users import export_users

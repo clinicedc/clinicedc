@@ -4,6 +4,7 @@ from pathlib import Path
 
 from dateutil.relativedelta import relativedelta
 from edc_test_settings.default_test_settings import DefaultTestSettings
+
 from edc_utils import get_utcnow
 
 app_name = "edc_adverse_event"
@@ -16,9 +17,9 @@ project_settings = DefaultTestSettings(
     ETC_DIR=str(base_dir / app_name / "tests" / "etc"),
     HOLIDAY_FILE=base_dir / app_name / "tests" / "etc" / "holidays.csv",
     SILENCED_SYSTEM_CHECKS=["sites.E101", "edc_navbar.E002", "edc_navbar.E003"],
-    SUBJECT_VISIT_MODEL="adverse_event_app.subjectvisit",
-    ADVERSE_EVENT_APP_LABEL="adverse_event_app",
-    ADVERSE_EVENT_ADMIN_SITE="adverse_event_app_admin",
+    SUBJECT_VISIT_MODEL="edc_adverse_event_app.subjectvisit",
+    ADVERSE_EVENT_APP_LABEL="edc_adverse_event_app",
+    ADVERSE_EVENT_ADMIN_SITE="edc_adverse_event_app_admin",
     EMAIL_ENABLED=True,
     EMAIL_CONTACTS={
         "ae_reports": "aereports@example.com",
@@ -76,7 +77,7 @@ project_settings = DefaultTestSettings(
         "edc_timepoint.apps.AppConfig",
         "edc_visit_tracking.apps.AppConfig",
         "edc_visit_schedule.apps.AppConfig",
-        "adverse_event_app.apps.AppConfig",
+        "edc_adverse_event_app.apps.AppConfig",
         "edc_appconfig.apps.AppConfig",
     ],
     add_dashboard_middleware=True,

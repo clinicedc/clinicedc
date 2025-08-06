@@ -1,9 +1,9 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
-from edc_sites import site_sites
 
 from edc_consent import site_consents
 from edc_consent.exceptions import ConsentDefinitionModelError
+from edc_sites import site_sites
 
 
 class ConsentVersionModelMixin(models.Model):

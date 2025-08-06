@@ -1,12 +1,13 @@
 from textwrap import fill
 
 import inflect
-from edc_constants.constants import OTHER, YES
-from edc_pdf_reports.crf_pdf_report import CrfPdfReport
 from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Table
 from reportlab.platypus.flowables import KeepTogether, Spacer
+
+from edc_constants.constants import OTHER, YES
+from edc_pdf_reports.crf_pdf_report import CrfPdfReport
 
 from ..utils import get_adverse_event_app_label, get_ae_model
 

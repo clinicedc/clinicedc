@@ -1,6 +1,6 @@
-from edc_utils import get_utcnow
-
 from export_app.models import CrfWithInline, ListOne, ListTwo
+
+from edc_utils import get_utcnow
 
 
 def create_crf_with_inlines(subject_visit):

@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django_crypto_fields.fields.encrypted_char_field import EncryptedCharField
+
 from edc_appointment.models import Appointment
 from edc_constants.constants import YES
 from edc_list_data.model_mixins import ListModelMixin

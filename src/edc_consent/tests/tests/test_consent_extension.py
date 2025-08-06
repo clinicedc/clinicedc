@@ -5,13 +5,13 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase, override_settings
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
 from model_bakery import baker
 
 from edc_consent import site_consents
 from edc_consent.consent_definition_extension import ConsentDefinitionExtension
 from edc_consent.tests.consent_test_utils import consent_factory
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_utils import get_utcnow
 
 
 class TestConsentExtension(TestCase):

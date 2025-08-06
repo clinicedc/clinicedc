@@ -5,22 +5,6 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings
-from edc_appointment.models import Appointment
-from edc_consent.consent_definition import ConsentDefinition
-from edc_consent.site_consents import site_consents
-from edc_constants.constants import FEMALE, MALE
-from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_sites.tests import SiteTestCaseMixin
-from edc_utils import get_utcnow
-from edc_visit_tracking.constants import SCHEDULED
-
-from edc_visit_schedule.constants import OFF_SCHEDULE, ON_SCHEDULE
-from edc_visit_schedule.models import SubjectScheduleHistory
-from edc_visit_schedule.site_visit_schedules import (
-    RegistryNotLoaded,
-    site_visit_schedules,
-)
 from visit_schedule_app.models import (
     BadOffSchedule1,
     CrfOne,
@@ -41,6 +25,22 @@ from visit_schedule_app.visit_schedule import (
     visit_schedule6,
     visit_schedule7,
 )
+
+from edc_appointment.models import Appointment
+from edc_consent.consent_definition import ConsentDefinition
+from edc_consent.site_consents import site_consents
+from edc_constants.constants import FEMALE, MALE
+from edc_facility.import_holidays import import_holidays
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_sites.tests import SiteTestCaseMixin
+from edc_utils import get_utcnow
+from edc_visit_schedule.constants import OFF_SCHEDULE, ON_SCHEDULE
+from edc_visit_schedule.models import SubjectScheduleHistory
+from edc_visit_schedule.site_visit_schedules import (
+    RegistryNotLoaded,
+    site_visit_schedules,
+)
+from edc_visit_tracking.constants import SCHEDULED
 
 
 @time_machine.travel(datetime(2019, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))

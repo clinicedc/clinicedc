@@ -1,6 +1,7 @@
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from reportlab.graphics.barcode.widgets import BarcodeStandard39
 from reportlab.graphics.shapes import Drawing, String
+
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from ..models import Stock
 from ..utils import format_qty

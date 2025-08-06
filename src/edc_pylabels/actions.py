@@ -7,8 +7,9 @@ from django.contrib import admin, messages
 from django.db.models import Count, QuerySet
 from django.http import FileResponse
 from django.utils.translation import gettext as _
-from edc_utils import get_utcnow
 from pylabels import Sheet, Specification
+
+from edc_utils import get_utcnow
 
 from .site_label_configs import LabelConfig, site_label_configs
 

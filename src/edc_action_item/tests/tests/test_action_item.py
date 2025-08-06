@@ -6,9 +6,6 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, override_settings
-from edc_consent.tests.consent_test_utils import consent_definition_factory
-from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
-from edc_utils import get_utcnow
 
 from edc_action_item.action import Action
 from edc_action_item.create_or_update_action_type import create_or_update_action_type
@@ -17,6 +14,9 @@ from edc_action_item.forms import ActionItemForm
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import site_action_items
+from edc_consent.tests.consent_test_utils import consent_definition_factory
+from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
+from edc_utils import get_utcnow
 
 from ..action_items import FormOneAction, FormThreeAction, FormTwoAction, FormZeroAction
 from ..models import FormOne, FormThree, FormTwo, TestModelWithAction

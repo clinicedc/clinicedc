@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+
 from edc_label import Label
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 

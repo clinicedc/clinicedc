@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+
 from edc_utils import formatted_datetime
 
 from .research_protocol_config import ResearchProtocolConfig

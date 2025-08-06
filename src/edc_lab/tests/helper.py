@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from edc_appointment.tests.helper import Helper as BaseHelper
-
 from lab_app.models import SubjectScreening
+
+from edc_appointment.tests.helper import Helper as BaseHelper
 
 
 class Helper(BaseHelper):

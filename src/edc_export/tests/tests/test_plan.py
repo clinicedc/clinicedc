@@ -2,15 +2,15 @@ import uuid
 from tempfile import mkdtemp
 
 from django.test import TestCase, override_settings
+from export_app.models import Crf, ListModel, SubjectVisit
+from export_app.visit_schedule import visit_schedule1
+
 from edc_appointment.models import Appointment
+from edc_export.model_exporter import PlanExporter
+from edc_export.models import Plan
 from edc_facility import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from edc_export.model_exporter import PlanExporter
-from edc_export.models import Plan
-from export_app.models import Crf, ListModel, SubjectVisit
-from export_app.visit_schedule import visit_schedule1
 
 from ..helper import Helper
 

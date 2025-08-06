@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Type, TypeVar
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+
 from edc_facility.facility import Facility
 from edc_facility.utils import get_facility
 from edc_visit_tracking.model_mixins import get_related_visit_model_attr

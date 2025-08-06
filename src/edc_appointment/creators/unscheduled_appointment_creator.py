@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+
 from edc_utils import formatted_datetime, to_utc
 from edc_utils.date import to_local
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules

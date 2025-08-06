@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_constants.choices import YES_NO
 from edc_lab.choices import RESULT_QUANTIFIER
 from edc_lab.constants import EQ

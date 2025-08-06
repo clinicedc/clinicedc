@@ -1,6 +1,7 @@
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+
 from edc_form_validators import FormValidator
 
 from ..constants import LTFU

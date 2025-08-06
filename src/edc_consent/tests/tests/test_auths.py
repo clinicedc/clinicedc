@@ -1,6 +1,7 @@
 from importlib import import_module
 
 from django.test import TestCase, override_settings
+
 from edc_adverse_event.constants import TMG_ROLE
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths

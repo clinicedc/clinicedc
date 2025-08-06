@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
 

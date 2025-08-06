@@ -13,6 +13,7 @@ from .perms import Perms
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
     from django.contrib.sites.models import Site
+
     from edc_model.models import BaseUuidModel
 
     class Model(BaseUuidModel):

@@ -9,11 +9,11 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.db import models
 from django.utils.formats import localize
+
+from edc_action_item.stubs import ActionItemStub
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_model.constants import DEFAULT_BASE_FIELDS
 from edc_sites.utils import valid_site_for_subject_or_raise
-
-from edc_action_item.stubs import ActionItemStub
 
 from .create_action_item import SingletonActionItemError, create_action_item
 from .exceptions import ActionError

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Type
 
 from django.db import models
 from django.db.models.deletion import PROTECT
+
 from edc_model.models import HistoricalRecords
 
 from ..exceptions import ActionClassNotDefined, ActionItemError

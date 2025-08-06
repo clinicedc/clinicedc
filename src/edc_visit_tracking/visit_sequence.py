@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.utils.translation import gettext_lazy as _
+
 from edc_appointment.constants import SKIPPED_APPT
 
 
@@ -12,7 +13,6 @@ class VisitSequenceError(Exception):
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
-
     from edc_visit_tracking.model_mixins import VisitModelMixin
 
 

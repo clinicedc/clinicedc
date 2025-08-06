@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from edc_list_data.admin import ListModelAdminMixin
 
 from .admin_site import edc_facility_admin

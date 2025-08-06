@@ -2,7 +2,6 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from django.core.management.color import color_style
-from edc_registration.models import RegisteredSubject
 from tqdm import tqdm
 
 from edc_appointment.skip_appointments import (
@@ -10,6 +9,7 @@ from edc_appointment.skip_appointments import (
     SkipAppointmentsValueError,
 )
 from edc_appointment.utils import get_allow_skipped_appt_using
+from edc_registration.models import RegisteredSubject
 
 style = color_style()
 

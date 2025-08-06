@@ -6,6 +6,7 @@ from typing import Iterable
 
 from django import forms
 from django.utils.html import format_html
+
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .constants import EXPORT_PII

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django_audit_fields import audit_fieldset_tuple
+
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from ..admin_site import edc_reportable_admin

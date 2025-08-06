@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.db import models
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from .reference_model_mixins import ReferenceModelMixin

@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
+
 from edc_appointment.models import Appointment
 from edc_utils import convert_php_dateformat, formatted_age, get_utcnow
 

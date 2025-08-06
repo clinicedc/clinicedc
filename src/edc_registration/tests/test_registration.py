@@ -2,15 +2,15 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings
-from edc_sites.tests import SiteTestCaseMixin
-from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from multisite import SiteID
 from visit_schedule_app.visit_schedule import visit_schedule
 
 from edc_registration.exceptions import RegisteredSubjectError
 from edc_registration.models import RegisteredSubject
+from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from .models import SubjectModelOne, SubjectModelThree, SubjectModelTwo
 

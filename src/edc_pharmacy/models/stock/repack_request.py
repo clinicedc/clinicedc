@@ -2,9 +2,10 @@ from decimal import Decimal
 
 from django.core.validators import MinValueValidator
 from django.db import models
+from sequences import get_next_value
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils import get_utcnow
-from sequences import get_next_value
 
 from ...exceptions import RepackRequestError
 from ...utils import get_related_or_none

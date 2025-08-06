@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
+
 from edc_visit_tracking.constants import SCHEDULED
 
 from ...constants import REQUIRED

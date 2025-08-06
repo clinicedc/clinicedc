@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
+
 from edc_constants.constants import CONFIRMED
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin

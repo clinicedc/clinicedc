@@ -1,11 +1,11 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
 
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import SiteConsentError
 from edc_consent.site_consents import site_consents
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_utils import get_utcnow
 
 
 @override_settings(

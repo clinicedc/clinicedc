@@ -5,13 +5,9 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
-from edc_consent.site_consents import site_consents
-from edc_facility.import_holidays import import_holidays
-from edc_sites.tests import SiteTestCaseMixin
-from edc_utils import get_utcnow
-from edc_visit_schedule.exceptions import ScheduleError
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
+from edc_appointment_app.consents import consent_v1
+from edc_appointment_app.models import SubjectVisit
+from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
 
 from edc_appointment.constants import (
     CANCELLED_APPT,
@@ -27,9 +23,13 @@ from edc_appointment.exceptions import (
     UnscheduledAppointmentNotAllowed,
 )
 from edc_appointment.models import Appointment
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.models import SubjectVisit
-from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
+from edc_consent.site_consents import site_consents
+from edc_facility.import_holidays import import_holidays
+from edc_sites.tests import SiteTestCaseMixin
+from edc_utils import get_utcnow
+from edc_visit_schedule.exceptions import ScheduleError
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 
 from ..helper import Helper
 

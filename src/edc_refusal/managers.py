@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_search.model_mixins import SearchSlugManager
 
 

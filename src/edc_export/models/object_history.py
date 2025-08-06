@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django_crypto_fields.fields import EncryptedTextField
+
 from edc_constants.constants import CLOSED, NEW
 from edc_model.models import BaseUuidModel, HistoricalRecords
 

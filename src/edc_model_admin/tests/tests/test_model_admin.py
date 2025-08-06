@@ -1,11 +1,11 @@
 from django.test import TestCase
 from django.test.client import RequestFactory
+from model_admin_app.models import BasicModel
 
 from edc_model_admin.mixins import (
     ModelAdminNextUrlRedirectError,
     ModelAdminNextUrlRedirectMixin,
 )
-from model_admin_app.models import BasicModel
 
 
 class TestModelAdmin(TestCase):

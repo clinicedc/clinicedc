@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import PROTECT
+
 from edc_constants.choices import YES_NO
 from edc_crf.model_mixins import CrfModelMixin
 from edc_lab.model_mixins import PanelModelMixin

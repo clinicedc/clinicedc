@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+
 from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,
     ModelAdminFormInstructionsMixin,

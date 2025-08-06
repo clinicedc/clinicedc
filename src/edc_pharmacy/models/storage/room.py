@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from django.db import models
+
 from edc_model.models import BaseUuidModel
 from edc_utils import get_utcnow
 

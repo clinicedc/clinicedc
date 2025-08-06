@@ -3,9 +3,10 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django_audit_fields import audit_fieldset_tuple
+from rangefilter.filters import DateRangeFilterBuilder
+
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
-from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import ConfirmationAtSite

@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase
+
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition

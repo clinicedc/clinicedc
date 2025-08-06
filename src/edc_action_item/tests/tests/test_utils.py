@@ -5,11 +5,6 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings
-from edc_appointment.models import Appointment
-from edc_consent import site_consents
-from edc_consent.consent_definition import ConsentDefinition
-from edc_constants.constants import FEMALE, MALE
-from edc_visit_tracking.constants import SCHEDULED
 
 from edc_action_item.models import ActionItem
 from edc_action_item.utils import (
@@ -17,6 +12,11 @@ from edc_action_item.utils import (
     get_reference_obj,
     get_related_reference_obj,
 )
+from edc_appointment.models import Appointment
+from edc_consent import site_consents
+from edc_consent.consent_definition import ConsentDefinition
+from edc_constants.constants import FEMALE, MALE
+from edc_visit_tracking.constants import SCHEDULED
 
 from ..action_items import CrfOneAction, register_actions
 from ..models import CrfOne, CrfTwo, FormOne, FormTwo

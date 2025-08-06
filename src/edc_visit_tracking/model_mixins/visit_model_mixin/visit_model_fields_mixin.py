@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_constants.choices import ALIVE_DEAD_UNKNOWN_NA_MISSED, YES_NO
 from edc_constants.constants import ALIVE, NOT_APPLICABLE, YES
 from edc_model.validators import date_not_future, datetime_not_future

@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
+
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from ..identifiers import AliquotIdentifier

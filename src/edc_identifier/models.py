@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import UniqueConstraint
+
 from edc_model.models import BaseUuidModel
 from edc_sites.model_mixins import SiteModelMixin
 

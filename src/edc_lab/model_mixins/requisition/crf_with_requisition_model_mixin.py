@@ -1,9 +1,9 @@
 from django.db import models
 from django.db.models import PROTECT
-from edc_model.validators import datetime_not_future
 
 from edc_lab import RequisitionPanel
 from edc_lab.utils import get_requisition_model_name
+from edc_model.validators import datetime_not_future
 
 requisition_fk_options = dict(
     to=get_requisition_model_name(),

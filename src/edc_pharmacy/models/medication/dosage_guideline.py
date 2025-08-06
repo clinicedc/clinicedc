@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import PROTECT, UniqueConstraint
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_utils.round_up import round_half_away_from_zero
 

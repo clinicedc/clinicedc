@@ -11,14 +11,15 @@ class CrfDialect:
             "V.report_datetime as visit_datetime, A.appt_status, "  # nosec
             "A.visit_code, A.timepoint, V.reason, "  # nosec
             "A.appt_datetime, A.timepoint_datetime,  "  # nosec
-            "R.screening_age_in_years, R.registration_status, R.registration_datetime, "  # nosec
+            "R.screening_age_in_years, R.registration_status, "  # nosec
+            "R.registration_datetime, "  # nosec
             "R.randomization_datetime, V.survival_status, V.last_alive_date, "  # nosec
             f"V.id as {self.obj.visit_column} "  # nosec
             f"from {self.obj.appointment_tbl} as A "  # nosec
             f"LEFT JOIN {self.obj.visit_tbl} as V on A.id=V.appointment_id "  # nosec
             f"LEFT JOIN {self.obj.registered_subject_tbl} as R "  # nosec
             "on A.subject_identifier=R.subject_identifier "  # nosec
-        )
+        )  # noqa
         return sql, None
 
     @property
@@ -32,9 +33,11 @@ class CrfDialect:
             "SELECT R.subject_identifier, R.screening_identifier, R.dob, "  # nosec
             "R.gender, R.subject_type, R.sid, "  # nosec
             "V.report_datetime as visit_datetime, A.appt_status, V.study_status, "  # nosec
-            "VDEF.code as visit_code, VDEF.title as visit_title, VDEF.time_point, V.reason, "  # nosec
+            "VDEF.code as visit_code, VDEF.title as visit_title, VDEF.time_point, "  # nosec
+            "V.reason, "  # nosec
             "A.appt_datetime, A.timepoint_datetime, A.best_appt_datetime, "  # nosec
-            "R.screening_age_in_years, R.registration_status, R.registration_datetime, "  # nosec
+            "R.screening_age_in_years, R.registration_status, "  # nosec
+            "R.registration_datetime, "  # nosec
             "R.randomization_datetime, V.survival_status, V.last_alive_date, "  # nosec
             f"V.id as {self.obj.visit_column} "  # nosec
             f"from {self.obj.appointment_tbl} as  A "  # nosec
@@ -43,7 +46,7 @@ class CrfDialect:
             "on A.visit_definition_id=VDEF.id "  # nosec
             f"LEFT JOIN {self.obj.registered_subject_tbl} as R "  # nosec
             "on A.registered_subject_id=R.id "  # nosec
-        )
+        )  # noqa
         return sql, None
 
     @property
@@ -53,9 +56,11 @@ class CrfDialect:
             "SELECT R.subject_identifier, R.screening_identifier, R.dob, "  # nosec
             "R.gender, R.subject_type, R.sid, "  # nosec
             "V.report_datetime as visit_datetime, A.appt_status, V.study_status, "  # nosec
-            "VDEF.code as visit_code, VDEF.title as visit_title, VDEF.time_point, V.reason, "  # nosec
+            "VDEF.code as visit_code, VDEF.title as visit_title, VDEF.time_point, "  # nosec
+            "V.reason, "  # nosec
             "A.appt_datetime, A.timepoint_datetime, A.best_appt_datetime, "  # nosec
-            "R.screening_age_in_years, R.registration_status, R.registration_datetime, "  # nosec
+            "R.screening_age_in_years, R.registration_status, "  # nosec
+            "R.registration_datetime, "  # nosec
             "R.randomization_datetime, V.survival_status, V.last_alive_date, "  # nosec
             f"V.id as {self.obj.visit_column} "  # nosec
             f"from {self.obj.appointment_tbl} as A "  # nosec
@@ -64,5 +69,5 @@ class CrfDialect:
             "on A.visit_definition_id=VDEF.id "  # nosec
             f"LEFT JOIN {self.obj.registered_subject_tbl} as R "  # nosec
             "on A.registered_subject_id=R.id "  # nosec
-        )
+        )  # noqa
         return sql, None

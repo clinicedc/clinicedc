@@ -8,6 +8,7 @@ from .model_button import ModelButton
 
 if TYPE_CHECKING:
     from django.contrib.sites.models import Site
+
     from edc_appointment.models import Appointment
     from edc_crf.model_mixins import CrfModelMixin
     from edc_lab.model_mixins import RequisitionModelMixin

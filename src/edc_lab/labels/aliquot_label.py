@@ -1,5 +1,6 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from ..site_labs import site_labs
