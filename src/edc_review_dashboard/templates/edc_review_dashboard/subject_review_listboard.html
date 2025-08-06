@@ -1,0 +1,60 @@
+{% extends edc_listboard_template %}
+
+{% load edc_dashboard_extras edc_subject_dashboard_extras edc_adverse_event_extras %}
+{% load tz static l10n i18n %}
+
+{% block main %}
+
+
+<div class="row">
+
+<div class="panel panel-{{ listboard_panel_style }}">
+<div class="panel-heading clearfix">
+
+{% if search_term or subject_identifier %}
+    <a href="{% url subject_review_listboard_url %}" role="button" class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></a>&nbsp;
+    {{ listboard_panel_title }}{% if subject_identifier %}: Reported visits for <b>{{ subject_identifier }}</b> {% copy_string_to_clipboard_button subject_identifier %}{% endif %}
+{% else%}
+    <a href="{% url 'home_url' %}" role="button" class="btn btn-primary btn-sm"><i class="fas fa-reply"></i></a>&nbsp;
+    {{ listboard_panel_title }}: Subjects
+{% endif %}
+
+<span class="pull-right">
+    {% if subject_identifier %}
+      {% render_tmg_button_group subject_identifier=subject_identifier %}
+      {% render_subject_schedule_button subject_dashboard_url=subject_dashboard_url subject_identifier=subject_identifier %}
+    {% endif %}
+    <a id="home_list_group_subject_schedule_history" href="{% url 'edc_visit_schedule_admin:edc_visit_schedule_subjectschedulehistory_changelist' %}?q={% if search_term %}{{ search_term }}{% else %}{{ subject_identifier }}{% endif %}" role="button" class="btn btn-default btn-sm">Subject on/off schedule history</a>
+    {% include 'edc_dashboard/search_form.html' %}
+</span>
+
+</div> <!--end panel heading -->
+
+<div class="list-group">
+
+    {% for result in results %}
+        {% if not result.visit_count %}
+            <a id="{{ result.subject_identifier }}-{{ result.visit_code }}-{{ result.visit_code_sequence }}"></a>
+
+            <a id="id-reported-visits-{{ result.subject_identifier }}-{{ result.visit_code }}-{{ result.visit_code_sequence }}" href="{{ result.subject_dashboard_href }}" class="list-group-item list-group-item-info" title={%  trans "click to go to subject dashboard for visit" %}>{% render_appointment_status_icon appt_status=result.appointment.appt_status %} {{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.visit_code }}.{{ result.visit_code_sequence }}</b> on {{ result.report_datetime|date:"SHORT_DATE_FORMAT" }} {{ result.metadata_summary }}</a>
+
+            {% for crf in result.crf_metadata_required %}
+                <a id="id-report-{{ crf.model }}-{{ result.subject_identifier }}-{{ result.visit_code }}" href="{% url subject_dashboard_url result.subject_identifier result.appointment.pk %}" class="list-group-item {% if result.appointment.appt_status == IN_PROGRESS_APPT %}list-group-item-warning{% else %}list-group-item-default{% endif %}">{% if crf.entry_status == KEYED %}<span class="text text-muted text-success">{% elif crf.entry_status == REQUIRED%}<span class="text text-danger">{% else %}<span class="text text-default">status={{ crf.entry_status }}{% endif %}<i class="fas fa-list-alt fa-fw"></i> {{ crf.verbose_name }}</span><span class="pull-right">{{ result.visit_code }}.{{ result.visit_code_sequence }}</span></a>
+            {% endfor %}
+            {% for requisition in result.requisition_metadata_required %}
+                <a id="id-report--{{ requisition.model }}-{{ requisition.panel_name }}-{{ result.subject_identifier }}-{{ result.visit_code }}" href="{{ result.subject_dashboard_href }}" class="list-group-item {% if result.appointment.appt_status == IN_PROGRESS_APPT %}list-group-item-warning{% else %}list-group-item-default{% endif %}">{% if requisition.entry_status == KEYED %}<span class="text text-muted text-success">{% else %}<span class="text text-danger">{% endif %}<i class="fas fa-flask fa-fw"></i> {{ requisition.verbose_name }}</span><span class="pull-right">{{ result.visit_code }}.{{ result.visit_code_sequence }}</span></a>
+            {% endfor %}
+
+        {% else %}
+            <a id="{{ result.subject_identifier }}-{{ forloop.counter }}"></a>
+            <a id="id-reported-visit-list-{{ result.subject_identifier }}" href="{% url paginator_url|default:'paginator_url_cannot_be_none'  result.subject_identifier %}?q={{ result.subject_identifier}}" class="list-group-item" title={%  trans "click to list reported visits for this subject" %}>{{ forloop.counter|add:page_obj.start_index|add:-1 }}. <b>{{ result.subject_identifier }}</b> <span class="text text-muted">{{ result.visit_count }} visits</span></a>
+        {% endif %}
+    {% endfor %}
+
+</div>
+</div>
+<div class="well">{% paginator_row %}</div>
+</div>
+
+
+{% endblock main %}
