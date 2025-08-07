@@ -1,0 +1,6 @@
+from .ae_followup_admin import AeFollowupAdmin
+from .ae_initial_admin import AeInitialAdmin
+from .ae_tmg_admin import AeTmgAdmin
+from .death_report_admin import DeathReportAdmin
+from .death_report_tmg_admin import DeathReportTmgAdmin
+from .death_report_tmg_second_admin import DeathReportTmgSecondAdmin

@@ -1,0 +1,33 @@
+[project]
+name = "demo-edc"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django-audit-fields",
+]
+
+[build-system]
+requires = ["uv_build>=0.8.2,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "src"
+module-name = [
+    "demo_ae",
+    "demo_auth",
+    "demo_consent",
+    "demo_dashboard",
+    "demo_edc",
+    "demo_lab",
+    "demo_lists",
+    "demo_prn",
+    "demo_reports",
+    "demo_screening",
+    "demo_sites",
+    "demo_subject",
+]
+source-include = ["demo_*/templates/**", "demo_*/locale/**", "locale/**"]
+source-exclude = ["demo_*/tests/**", "demo_*/notebooks/**", "tests/**", "bin"]
+namespace = false

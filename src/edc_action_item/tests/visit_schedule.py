@@ -53,7 +53,7 @@ def get_visit_schedule(cdef):
     visit_schedule = VisitSchedule(
         name="visit_schedule",
         offstudy_model="edc_offstudy.subjectoffstudy",
-        death_report_model="edc_metadata.deathreport",
+        death_report_model="edc_adverse_event.deathreport",
     )
 
     visit_schedule.add_schedule(schedule)

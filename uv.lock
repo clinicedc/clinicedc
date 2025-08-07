@@ -7,6 +7,12 @@ resolution-markers = [
     "python_full_version < '3.13'",
 ]
 
+[manifest]
+members = [
+    "clinicedc",
+    "demo-edc",
+]
+
 [[package]]
 name = "accessible-pygments"
 version = "0.0.5"
@@ -559,6 +565,7 @@ test = [
     { name = "edc-glucose" },
     { name = "edc-microbiology" },
     { name = "edc-test-settings" },
+    { name = "edc-test-utils" },
     { name = "edc-visit-schedule-app" },
     { name = "edc-visit-tracking-app" },
     { name = "edc-vitals" },
@@ -651,6 +658,7 @@ test = [
     { name = "edc-glucose", specifier = ">=1.0.3" },
     { name = "edc-microbiology", specifier = ">=1.0.0" },
     { name = "edc-test-settings", specifier = ">=1.1.2" },
+    { name = "edc-test-utils", specifier = ">=1.0.0" },
     { name = "edc-visit-schedule-app", editable = "../../edc-visit-schedule-app" },
     { name = "edc-visit-tracking-app", editable = "../../edc-visit-tracking-app" },
     { name = "edc-vitals", specifier = ">=1.1.2" },
@@ -735,6 +743,17 @@ wheels = [
 ]
 
 [[package]]
+name = "demo-edc"
+version = "0.1.0"
+source = { editable = "demo-edc" }
+dependencies = [
+    { name = "django-audit-fields" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "django-audit-fields", editable = "../../django-audit-fields" }]
+
+[[package]]
 name = "distlib"
 version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -745,16 +764,16 @@ wheels = [
 
 [[package]]
 name = "django"
-version = "5.2.4"
+version = "5.2.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "asgiref" },
     { name = "sqlparse" },
     { name = "tzdata", marker = "sys_platform == 'win32'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9c/7e/034f0f9fb10c029a02daaf44d364d6bf2eced8c73f0d38c69da359d26b01/django-5.2.4.tar.gz", hash = "sha256:a1228c384f8fa13eebc015196db7b3e08722c5058d4758d20cb287503a540d8f", size = 10831909, upload-time = "2025-07-02T18:47:39.19Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/62/9b/779f853c3d2d58b9e08346061ff3e331cdec3fe3f53aae509e256412a593/django-5.2.5.tar.gz", hash = "sha256:0745b25681b129a77aae3d4f6549b62d3913d74407831abaa0d9021a03954bae", size = 10859748, upload-time = "2025-08-06T08:26:29.978Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/14/ae/706965237a672434c8b520e89a818e8b047af94e9beb342d0bee405c26c7/django-5.2.4-py3-none-any.whl", hash = "sha256:60c35bd96201b10c6e7a78121bd0da51084733efa303cc19ead021ab179cef5e", size = 8302187, upload-time = "2025-07-02T18:47:35.373Z" },
+    { url = "https://files.pythonhosted.org/packages/9d/6e/98a1d23648e0085bb5825326af17612ecd8fc76be0ce96ea4dc35e17b926/django-5.2.5-py3-none-any.whl", hash = "sha256:2b2ada0ee8a5ff743a40e2b9820d1f8e24c11bac9ae6469cd548f0057ea6ddcd", size = 8302999, upload-time = "2025-08-06T08:26:23.562Z" },
 ]
 
 [[package]]
@@ -991,14 +1010,14 @@ wheels = [
 
 [[package]]
 name = "djangorestframework"
-version = "3.16.0"
+version = "3.16.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7d/97/112c5a72e6917949b6d8a18ad6c6e72c46da4290c8f36ee5f1c1dcbc9901/djangorestframework-3.16.0.tar.gz", hash = "sha256:f022ff46613584de994c0c6a4aebbace5fd700555fbe9d33b865ebf173eba6c9", size = 1068408, upload-time = "2025-03-28T14:18:42.065Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8a/95/5376fe618646fde6899b3cdc85fd959716bb67542e273a76a80d9f326f27/djangorestframework-3.16.1.tar.gz", hash = "sha256:166809528b1aced0a17dc66c24492af18049f2c9420dbd0be29422029cfc3ff7", size = 1089735, upload-time = "2025-08-06T17:50:53.251Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/eb/3e/2448e93f4f87fc9a9f35e73e3c05669e0edd0c2526834686e949bb1fd303/djangorestframework-3.16.0-py3-none-any.whl", hash = "sha256:bea7e9f6b96a8584c5224bfb2e4348dfb3f8b5e34edbecb98da258e892089361", size = 1067305, upload-time = "2025-03-28T14:18:39.489Z" },
+    { url = "https://files.pythonhosted.org/packages/b0/ce/bf8b9d3f415be4ac5588545b5fcdbbb841977db1c1d923f7568eeabe1689/djangorestframework-3.16.1-py3-none-any.whl", hash = "sha256:33a59f47fb9c85ede792cbf88bde71893bcda0667bc573f784649521f1102cec", size = 1080442, upload-time = "2025-08-06T17:50:50.667Z" },
 ]
 
 [[package]]
@@ -1115,6 +1134,20 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/b9/b2/3fb900f0deb5b4e206b879e4d61507e9ee9980ac2544c1ac6332fb8d7ac0/edc_test_settings-1.1.2.tar.gz", hash = "sha256:472feaee3cb6db212a257aea6dfa4cf0243ca0b6e0531c3e464c8e4aba5544f9", size = 21476, upload-time = "2025-07-21T16:11:07.269Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/78/f8/68ba3dafea23a7f2d3a06adb01142ef8237bf306f2ee2db89d9d574a3453/edc_test_settings-1.1.2-py3-none-any.whl", hash = "sha256:60c7aa38af6ad2dae28029f5ef5f9399f094be830a1c647c2e146f779fa236dc", size = 19491, upload-time = "2025-07-21T16:11:06.141Z" },
+]
+
+[[package]]
+name = "edc-test-utils"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django-webtest" },
+    { name = "faker" },
+    { name = "model-bakery" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e7/7c/a14abd2fa8f1201ba35406a46da55ab185e23b69d0fef982c5d4564f54c1/edc_test_utils-1.0.0.tar.gz", hash = "sha256:23aa9718766ccfdcf51caebf5cc536c3ee57d64923662d14d204bf9ae89800f1", size = 25187, upload-time = "2025-06-26T11:27:32.248Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3a/12/1fc731aa8c36b71fb2a0f8fd3b6d38a83ee6dd8ae4270125a66ef1833d6e/edc_test_utils-1.0.0-py3-none-any.whl", hash = "sha256:db8e2739334b65b671b2a3312cc074b4bcdd324d8f07298a9f6deed918b4320d", size = 23773, upload-time = "2025-06-26T11:27:31.435Z" },
 ]
 
 [[package]]

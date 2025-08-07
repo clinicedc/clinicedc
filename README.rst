@@ -1,9 +1,13 @@
 
-.. code-block:: text
+.. attention::
 
     2025/08/06
 
-    We are in the process of merging all edc modules into this one repo, so this is a work in progress.
+    We are in the process of merging all edc modules into this one repo.
+
+    This is a work in progress.
+
+    the stable version of clinicedc / edc is edc v1.2.7
 
 
 As of 2025/08/06, the stable version of edc is `edc v1.2.7 <https://github.com/clinicedc/edc>`_

@@ -211,6 +211,7 @@ test = [
     "time-machine>=2.16.0",
     "tox-uv>=1.26.2",
     "tqdm>=4.67.1",
+    "edc-test-utils>=1.0.0",
 ]
 
 develop = [
@@ -242,3 +243,9 @@ edc-adverse-event-app = { path = "../../edc-adverse-event-app", editable = true 
 edc-data-manager-app = { path = "../../edc-data-manager-app", editable = true }
 edc-visit-tracking-app = { path = "../../edc-visit-tracking-app", editable = true }
 edc-visit-schedule-app = { path = "../../edc-visit-schedule-app", editable = true }
+demo-edc = { path = "demo-edc", editable = true }
+
+[tool.uv.workspace]
+members = [
+    "demo-edc",
+]
