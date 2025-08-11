@@ -2,24 +2,25 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import time_machine
-from consent_app.models import SubjectConsent
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from faker import Faker
 from model_bakery import baker
 
+from edc_consent.consent_definition import ConsentDefinition
+from edc_consent.exceptions import ConsentDefinitionDoesNotExist
 from edc_consent.site_consents import site_consents
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
+from tests.models import SubjectConsent
 
-from ...consent_definition import ConsentDefinition
-from ...exceptions import ConsentDefinitionDoesNotExist
 from ..consent_test_utils import consent_factory
 
 fake = Faker()
 
 
+@tag("consent")
 @time_machine.travel(datetime(2019, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
@@ -46,14 +47,14 @@ class TestConsentModel(TestCase):
         site_consents.registry = {}
         if consent_v1 is None:
             consent_v1 = consent_factory(
-                proxy_model="consent_app.subjectconsentv1",
+                proxy_model="tests.subjectconsentv1",
                 start=self.study_open_datetime,
                 end=self.study_open_datetime + timedelta(days=50),
                 version="1.0",
             )
         if consent_v2 is None:
             consent_v2 = consent_factory(
-                proxy_model="consent_app.subjectconsentv2",
+                proxy_model="tests.subjectconsentv2",
                 start=self.study_open_datetime + timedelta(days=51),
                 end=self.study_open_datetime + timedelta(days=100),
                 version="2.0",
@@ -62,7 +63,7 @@ class TestConsentModel(TestCase):
         if consent_v3 is None:
             self.consent_v3_start_date = self.study_open_datetime + timedelta(days=101)
             consent_v3 = consent_factory(
-                proxy_model="consent_app.subjectconsentv3",
+                proxy_model="tests.subjectconsentv3",
                 start=self.study_open_datetime + timedelta(days=101),
                 end=self.study_open_datetime + timedelta(days=150),
                 version="3.0",
@@ -134,7 +135,9 @@ class TestConsentModel(TestCase):
         self.create_v2_consent_for_subject()
         self.create_v3_consent_for_subject()
 
-        self.assertEqual(SubjectConsent.objects.filter(identity=self.identity).count(), 3)
+        self.assertEqual(
+            SubjectConsent.objects.filter(identity=self.identity).count(), 3
+        )
 
         consent = site_consents.get_consent_or_raise(
             subject_identifier=self.subject_identifier,
@@ -153,7 +156,9 @@ class TestConsentModel(TestCase):
         self.create_v2_consent_for_subject()
         v3_consent_datetime = self.create_v3_consent_for_subject(days=10)
 
-        self.assertEqual(SubjectConsent.objects.filter(identity=self.identity).count(), 3)
+        self.assertEqual(
+            SubjectConsent.objects.filter(identity=self.identity).count(), 3
+        )
         cdef = site_consents.get_consent_definition(report_datetime=v3_consent_datetime)
         cosent_obj_v3 = SubjectConsent.objects.get(
             consent_datetime__range=[cdef.start, cdef.end]
@@ -176,13 +181,13 @@ class TestConsentModel(TestCase):
         consent date.
         """
         consent_v2 = consent_factory(
-            proxy_model="consent_app.subjectconsentv2",
+            proxy_model="tests.subjectconsentv2",
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="2.0",
         )
         consent_v3 = consent_factory(
-            proxy_model="consent_app.subjectconsentv3",
+            proxy_model="tests.subjectconsentv3",
             start=self.study_open_datetime + timedelta(days=120),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
@@ -206,7 +211,9 @@ class TestConsentModel(TestCase):
         self.create_v2_consent_for_subject()
         v3_consent_datetime = self.create_v3_consent_for_subject()
 
-        self.assertEqual(SubjectConsent.objects.filter(identity=self.identity).count(), 3)
+        self.assertEqual(
+            SubjectConsent.objects.filter(identity=self.identity).count(), 3
+        )
 
         consent = site_consents.get_consent_or_raise(
             subject_identifier=self.subject_identifier,
@@ -221,7 +228,9 @@ class TestConsentModel(TestCase):
         self.create_v2_consent_for_subject()
         v3_consent_datetime = self.create_v3_consent_for_subject()
 
-        self.assertEqual(SubjectConsent.objects.filter(identity=self.identity).count(), 3)
+        self.assertEqual(
+            SubjectConsent.objects.filter(identity=self.identity).count(), 3
+        )
 
         consent = site_consents.get_consent_or_raise(
             subject_identifier=self.subject_identifier,

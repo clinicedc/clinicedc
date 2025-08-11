@@ -9,9 +9,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, override_settings, tag
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.models import OnScheduleOne, OnScheduleTwo, SubjectConsent
-from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
 
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,
@@ -31,8 +28,13 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from edc_visit_tracking.exceptions import RelatedVisitReasonError
 from edc_visit_tracking.utils import get_related_visit_model_cls
-
-from ..helper import Helper
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import OnScheduleOne, OnScheduleTwo, SubjectConsent
+from tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+    get_visit_schedule2,
+)
 
 if TYPE_CHECKING:
     from edc_visit_schedule.schedule import Schedule
@@ -41,8 +43,9 @@ if TYPE_CHECKING:
 utc_tz = ZoneInfo("UTC")
 
 
+@tag("appointment")
 @override_settings(SITE_ID=10, EDC_SITES_REGISTER_DEFAULT=True)
-@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointment(TestCase):
     helper_cls = Helper
 
@@ -65,7 +68,8 @@ class TestAppointment(TestCase):
             now=ResearchProtocolConfig().study_open_datetime,
         )
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=self.visit_schedule1.name, schedule_name=self.schedule1.name
+            visit_schedule_name=self.visit_schedule1.name,
+            schedule_name=self.schedule1.name,
         )
 
     def test_appointments_creation(self):
@@ -75,7 +79,6 @@ class TestAppointment(TestCase):
         )
         self.assertEqual(appointments.count(), 4)
 
-    @tag("2")
     def test_appointments_creation2(self):
         """Asserts first appointment correctly selected if
         both visit_schedule_name and schedule_name provided.
@@ -203,7 +206,9 @@ class TestAppointment(TestCase):
             subject_identifier=subject_consent.subject_identifier,
             onschedule_datetime=subject_consent.consent_datetime,
         )
-        onschedule_one = OnScheduleOne.objects.get(subject_identifier=self.subject_identifier)
+        onschedule_one = OnScheduleOne.objects.get(
+            subject_identifier=self.subject_identifier
+        )
         first_appointment = get_appointment_model_cls().objects.first_appointment(
             subject_identifier=onschedule_one.subject_identifier,
             visit_schedule_name=self.visit_schedule1,
@@ -233,7 +238,9 @@ class TestAppointment(TestCase):
             subject_identifier=subject_consent.subject_identifier,
             onschedule_datetime=subject_consent.consent_datetime,
         )
-        onschedule_one = OnScheduleOne.objects.get(subject_identifier=self.subject_identifier)
+        onschedule_one = OnScheduleOne.objects.get(
+            subject_identifier=self.subject_identifier
+        )
 
         first_appointment = get_appointment_model_cls().objects.first_appointment(
             subject_identifier=onschedule_one.subject_identifier,
@@ -263,7 +270,9 @@ class TestAppointment(TestCase):
         self.assertEqual(first_appointment, appointment)
 
     def test_next_appointment(self):
-        onschedule = OnScheduleOne.objects.get(subject_identifier=self.subject_identifier)
+        onschedule = OnScheduleOne.objects.get(
+            subject_identifier=self.subject_identifier
+        )
         first_appointment = get_appointment_model_cls().objects.first_appointment(
             subject_identifier=onschedule.subject_identifier,
             visit_schedule_name=self.visit_schedule1.name,
@@ -293,7 +302,9 @@ class TestAppointment(TestCase):
         )
 
     def test_next_appointment_with_unscheduled(self):
-        onschedule = OnScheduleOne.objects.get(subject_identifier=self.subject_identifier)
+        onschedule = OnScheduleOne.objects.get(
+            subject_identifier=self.subject_identifier
+        )
         first_appointment = get_appointment_model_cls().objects.first_appointment(
             subject_identifier=onschedule.subject_identifier,
             visit_schedule_name=self.visit_schedule1.name,
@@ -347,7 +358,9 @@ class TestAppointment(TestCase):
             schedule_name=self.schedule1.name,
         )
         self.assertEqual(
-            get_appointment_model_cls().objects.next_appointment(appointment=last_appointment),
+            get_appointment_model_cls().objects.next_appointment(
+                appointment=last_appointment
+            ),
             None,
         )
 
@@ -378,7 +391,9 @@ class TestAppointment(TestCase):
         self.helper.add_unscheduled_appointment(last_appointment)
 
         self.assertEqual(
-            get_appointment_model_cls().objects.next_appointment(appointment=last_appointment),
+            get_appointment_model_cls().objects.next_appointment(
+                appointment=last_appointment
+            ),
             None,
         )
 
@@ -395,7 +410,9 @@ class TestAppointment(TestCase):
         appts = [first]
         for appointment in appointments:
             appts.append(
-                get_appointment_model_cls().objects.next_appointment(appointment=appointment)
+                get_appointment_model_cls().objects.next_appointment(
+                    appointment=appointment
+                )
             )
         self.assertIsNotNone(appts[0])
         self.assertEqual(appts[0], first)

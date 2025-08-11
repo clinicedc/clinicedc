@@ -29,7 +29,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from ...utils import get_ltfu_model_cls, get_ltfu_model_name
 
 list_data = {
-    "edc_metadata.subjectvisitmissedreasons": [
+    "edc_visit_tracking.subjectvisitmissedreasons": [
         ("forgot", "Forgot / Can't remember being told about appointment"),
         ("family_emergency", "Family emergency (e.g. funeral) and was away"),
         ("travelling", "Away travelling/visiting"),
@@ -43,8 +43,12 @@ list_data = {
 
 
 @override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2018, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2027, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")),
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(
+        2018, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")
+    ),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(
+        2027, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")
+    ),
 )
 class TestLtfu(AppointmentTestCaseMixin, TestCase):
     @classmethod
@@ -67,7 +71,8 @@ class TestLtfu(AppointmentTestCaseMixin, TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(get_visit_schedule(consent_v1))
         load_list_data(
-            list_data=list_data, model_name="edc_metadata.subjectvisitmissedreasons"
+            list_data=list_data,
+            model_name="edc_visit_tracking.subjectvisitmissedreasons",
         )
         import_holidays()
 

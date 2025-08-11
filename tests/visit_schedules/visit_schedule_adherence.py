@@ -1,12 +1,12 @@
 from dateutil.relativedelta import relativedelta
 
-from edc_adherence.tests.consents import consent_v1
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
+from tests.consents import consent_v1
 
 crfs = CrfCollection(
-    Crf(show_order=1, model="edc_adherence.medicationadherence", required=True)
+    Crf(show_order=1, model="tests.medicationadherence", required=True)
 )
 
 visit = Visit(
@@ -24,21 +24,21 @@ visit = Visit(
 )
 
 
-schedule = Schedule(
-    name="schedule",
-    onschedule_model="edc_adherence.onschedule",
-    offschedule_model="edc_adherence.offschedule",
+schedule_adherence = Schedule(
+    name="schedule_adherence",
+    onschedule_model="edc_visit_schedule.onschedule",
+    offschedule_model="tests.offschedule",
     appointment_model="edc_appointment.appointment",
     consent_definitions=[consent_v1],
 )
 
-visit_schedule = VisitSchedule(
-    name="visit_schedule",
-    offstudy_model="edc_adherence.offstudy",
-    death_report_model="edc_adherence.deathreport",
+visit_schedule_adherence = VisitSchedule(
+    name="visit_schedule_adherence",
+    offstudy_model="edc_offstudy.subjectoffstudy",
+    death_report_model="edc_adverse_event.deathreport",
     locator_model="edc_locator.subjectlocator",
 )
 
-schedule.add_visit(visit)
+schedule_adherence.add_visit(visit)
 
-visit_schedule.add_schedule(schedule)
+visit_schedule_adherence.add_schedule(schedule_adherence)

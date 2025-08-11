@@ -1,6 +1,6 @@
 from importlib import import_module
 
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_adverse_event.constants import TMG_ROLE
 from edc_auth.auth_updater import AuthUpdater
@@ -9,6 +9,7 @@ from edc_data_manager.auth_objects import DATA_MANAGER_ROLE, SITE_DATA_MANAGER_R
 from edc_export.constants import EXPORT
 
 
+@tag("consent")
 class TestAuths(TestCase):
     @override_settings(
         EDC_AUTH_SKIP_SITE_AUTHS=True,

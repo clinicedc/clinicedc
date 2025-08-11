@@ -6,15 +6,15 @@ from edc_action_item.delete_action_item import ActionItemDeleteError, delete_act
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
 from edc_constants.constants import CLOSED, NEW, OPEN
-
-from ..action_items import (
+from tests.action_items import (
     FormOneAction,
     FormThreeAction,
     FormTwoAction,
     SingletonAction,
     register_actions,
 )
-from ..models import FormOne, FormTwo
+from tests.models import FormOne, FormTwo
+
 from ..test_case_mixin import TestCaseMixin
 
 
@@ -75,5 +75,7 @@ class TestAction(TestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier, form_one=form_one
         )
 
-        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
+        action_item = ActionItem.objects.get(
+            action_identifier=form_two.action_identifier
+        )
         self.assertRaises(ProtectedError, action_item.delete)

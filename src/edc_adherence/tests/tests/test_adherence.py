@@ -6,17 +6,19 @@ from edc_adherence import list_data
 from edc_adherence.models import NonAdherenceReasons
 from edc_adherence.tests.admin import MedicationAdherenceAdmin, my_admin_site
 from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper
-from edc_consent import site_consents
+from edc_consent.site_consents import site_consents
 from edc_constants.constants import NEVER, NO, OTHER, YES
-from edc_facility import import_holidays
-from edc_list_data import site_list_data
+from edc_facility.import_holidays import import_holidays
+from edc_list_data.site_list_data import site_list_data
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import MedicationAdherence
+from tests.visit_schedules import visit_schedule_adherence
 
-from ..consents import consent_v1
 from ..forms import MedicationAdherenceForm
-from ..models import MedicationAdherence, SubjectVisit
-from ..visit_schedules import visit_schedule
 
 
 class TestAdherence(TestCase):
@@ -33,17 +35,21 @@ class TestAdherence(TestCase):
         site_list_data.register(list_data, app_name="edc_adherence")
         site_list_data.load_data()
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(visit_schedule_adherence)
         self.subject_identifier = "101-123400-0"
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
         )
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name="visit_schedule",
-            schedule_name="schedule",
+            visit_schedule_name="visit_schedule_adherence",
+            schedule_name="schedule_adherence",
         )
-        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
-        self.subject_visit = SubjectVisit.objects.create(appointment=appointments[0])
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier
+        )
+        self.subject_visit = SubjectVisit.objects.create(
+            appointment=appointments[0], reason=SCHEDULED
+        )
 
     def test_ok(self):
         opts = dict(

@@ -186,6 +186,23 @@ edc-test-utils_             |edc-test-utils|              |pypi-edc-test-utils|
 =========================== ============================= ==================================
 
 
+Tests
+=====
+
+.. code-block:: bash
+
+    uv venv
+    source .venv/bin/activate
+    uv sync --group lint --group test
+    uv run runtests.py --settings=tests.test_settings
+
+or just
+
+.. code-block:: bash
+
+    uv run --group lint --group test runtests.py --settings=tests.test_settings
+
+
 .. |pypi| image:: https://img.shields.io/pypi/v/clinicedc.svg
     :target: https://pypi.python.org/pypi/edc
 

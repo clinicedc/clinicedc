@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django import forms
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_adverse_event.form_validators import HospitalizationFormValidator as Base
 from edc_constants.constants import NO, NOT_APPLICABLE, UNKNOWN, YES
@@ -14,6 +14,7 @@ class HospitalizationFormValidator(FormValidatorTestMixin, Base):
     pass
 
 
+@tag("ae")
 class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
     form_validator_cls = HospitalizationFormValidator
 

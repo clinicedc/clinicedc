@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 from unittest import skip
 
-from consent_app.models import CrfOne, SubjectVisit
-from consent_app.visit_schedules import get_visit_schedule
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from model_bakery import baker
 
+from edc_appointment.models import Appointment
+from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import (
     ConsentDefinitionDoesNotExist,
     ConsentDefinitionError,
@@ -15,15 +15,20 @@ from edc_consent.exceptions import (
     SiteConsentError,
 )
 from edc_consent.site_consents import site_consents
+from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.models import SubjectVisit
+from tests.helper import Helper
+from tests.models import CrfEight, SubjectVisitWithoutAppointment
+from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
-from ...consent_definition import ConsentDefinition
 from ..consent_test_utils import consent_definition_factory
 
 
+@tag("consent")
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
@@ -31,6 +36,12 @@ from ..consent_test_utils import consent_definition_factory
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
 )
 class TestConsent(TestCase):
+    helper_cls = Helper
+
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+
     def setUp(self):
         site_consents.registry = {}
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
@@ -48,7 +59,7 @@ class TestConsent(TestCase):
         self.assertRaises(
             SiteConsentError,
             baker.make_recipe,
-            "consent_app.subjectconsentv1",
+            "tests.subjectconsentv1",
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
         )
@@ -70,7 +81,7 @@ class TestConsent(TestCase):
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
         self.assertRaises(
             NotConsentedError,
-            SubjectVisit.objects.create,
+            SubjectVisitWithoutAppointment.objects.create,
             report_datetime=self.study_open_datetime,
             subject_identifier=self.subject_identifier,
             visit_schedule_name=visit_schedule.name,
@@ -97,16 +108,15 @@ class TestConsent(TestCase):
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
-        subject_visit = SubjectVisit.objects.create(
+        subject_visit = SubjectVisitWithoutAppointment.objects.create(
             report_datetime=subject_consent.consent_datetime,
             subject_identifier=self.subject_identifier,
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
         )
         try:
-            CrfOne.objects.create(
+            CrfEight.objects.create(
                 subject_visit=subject_visit,
-                subject_identifier=self.subject_identifier,
                 report_datetime=self.study_open_datetime,
             )
         except NotConsentedError:
@@ -163,16 +173,24 @@ class TestConsent(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(get_visit_schedule(consent_definition))
 
-        subject_visit = SubjectVisit.objects.create(
-            report_datetime=subject_consent.consent_datetime,
-            subject_identifier=self.subject_identifier,
+        self.helper = self.helper_cls(
+            subject_identifier=subject_consent.subject_identifier,
+            now=ResearchProtocolConfig().study_open_datetime,
+        )
+        self.helper.consent_and_put_on_schedule(
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
         )
 
-        crf_one = CrfOne.objects.create(
+        subject_visit = SubjectVisit.objects.create(
+            appointment=Appointment.objects.get(visit_code="1000"),
+            report_datetime=subject_consent.consent_datetime,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
+
+        crf_one = CrfEight.objects.create(
             subject_visit=subject_visit,
-            subject_identifier=self.subject_identifier,
             report_datetime=subject_consent.consent_datetime,
         )
         self.assertEqual(crf_one.consent_version, "1.0")
@@ -185,6 +203,12 @@ class TestConsent(TestCase):
         )
         site_consents.register(cdef)
 
+        subject_consent = baker.make_recipe(
+            cdef.model,
+            subject_identifier=self.subject_identifier,
+            consent_datetime=self.study_open_datetime,
+            dob=self.study_open_datetime - relativedelta(years=25),
+        )
         baker.make_recipe(
             cdef.model,
             subject_identifier=self.subject_identifier,
@@ -197,15 +221,24 @@ class TestConsent(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(get_visit_schedule(cdef))
 
-        subject_visit = SubjectVisit.objects.create(
-            subject_identifier=self.subject_identifier,
+        self.helper = self.helper_cls(
+            subject_identifier=subject_consent.subject_identifier,
+            now=ResearchProtocolConfig().study_open_datetime,
+        )
+        self.helper.consent_and_put_on_schedule(
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
         )
 
-        crf_one = CrfOne.objects.create(
+        subject_visit = SubjectVisit.objects.create(
+            appointment=Appointment.objects.get(visit_code="1000"),
+            report_datetime=subject_consent.consent_datetime,
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+        )
+
+        crf_one = CrfEight.objects.create(
             subject_visit=subject_visit,
-            subject_identifier=self.subject_identifier,
             report_datetime=self.study_open_datetime,
         )
         self.assertEqual(crf_one.consent_version, "1.2")
@@ -247,7 +280,7 @@ class TestConsent(TestCase):
         site_consents.register(cdef10)
 
         cdef20 = consent_definition_factory(
-            model="consent_app.subjectconsentv2",
+            model="tests.subjectconsentv2",
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="2.0",
@@ -255,6 +288,7 @@ class TestConsent(TestCase):
         site_consents.register(cdef20)
 
         consent_datetime = self.study_open_datetime + timedelta(days=10)
+
         subject_consent = baker.make_recipe(
             cdef10.model,
             subject_identifier=self.subject_identifier,
@@ -271,16 +305,15 @@ class TestConsent(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
 
-        subject_visit = SubjectVisit.objects.create(
+        subject_visit = SubjectVisitWithoutAppointment.objects.create(
             report_datetime=consent_datetime,
             subject_identifier=self.subject_identifier,
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
         )
 
-        crf_one = CrfOne.objects.create(
+        crf_one = CrfEight.objects.create(
             subject_visit=subject_visit,
-            subject_identifier=self.subject_identifier,
             report_datetime=consent_datetime,
         )
         self.assertEqual(crf_one.consent_version, "1.0")
@@ -293,9 +326,8 @@ class TestConsent(TestCase):
         )
         crf_one.delete()
         crf_one.report_datetime = consent_datetime
-        crf_one = CrfOne.objects.create(
+        crf_one = CrfEight.objects.create(
             subject_visit=subject_visit,
-            subject_identifier=self.subject_identifier,
             report_datetime=consent_datetime,
         )
 
@@ -317,14 +349,14 @@ class TestConsent(TestCase):
 
     def test_consent_periods_cannot_overlap2(self):
         cdef1 = consent_definition_factory(
-            model="consent_app.subjectconsentv1",
+            model="tests.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
 
         cdef2 = consent_definition_factory(
-            model="consent_app.subjectconsentv2",
+            model="tests.subjectconsentv2",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="2.0",
@@ -337,14 +369,14 @@ class TestConsent(TestCase):
 
     def test_consent_periods_can_overlap_if_different_model(self):
         cdef1 = consent_definition_factory(
-            model="consent_app.subjectconsentv1",
+            model="tests.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
 
         cdef2 = consent_definition_factory(
-            model="consent_app.subjectconsentv2",
+            model="tests.subjectconsentv2",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
@@ -454,7 +486,7 @@ class TestConsent(TestCase):
         self.assertRaises(
             ConsentVersionSequenceError,
             baker.make_recipe,
-            "consent_app.subjectconsent",
+            "tests.subjectconsent",
             dob=self.study_open_datetime - relativedelta(years=25),
             consent_datetime=self.study_open_datetime + timedelta(days=60),
         )
@@ -474,13 +506,13 @@ class TestConsent(TestCase):
             update_versions=["1.0"],
         )
         subject_consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            "tests.subjectconsent",
             consent_datetime=self.study_open_datetime + timedelta(days=5),
             dob=self.study_open_datetime - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.version, "1.0")
         subject_consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            "tests.subjectconsent",
             subject_identifier=subject_consent.subject_identifier,
             consent_datetime=self.study_open_datetime + timedelta(days=60),
             first_name=subject_consent.first_name,
@@ -515,7 +547,7 @@ class TestConsent(TestCase):
             update_versions=["1.1"],
         )
         subject_consent = baker.make_recipe(
-            "consent_app.subjectconsent",
+            "tests.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
@@ -524,7 +556,7 @@ class TestConsent(TestCase):
         self.assertRaises(
             ConsentVersionSequenceError,
             baker.make_recipe,
-            "consent_app.subjectconsent",
+            "tests.subjectconsent",
             consent_datetime=self.study_open_datetime + timedelta(days=125),
             subject_identifier=subject_consent.subject_identifier,
             first_name=subject_consent.first_name,

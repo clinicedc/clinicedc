@@ -9,14 +9,13 @@ from edc_dashboard.templatetags.edc_dashboard_extras import (
     paginator_row,
 )
 from edc_utils.date import get_utcnow
-
-from ..models import TestModel
+from tests.models import TestModel
 
 
 class TestTags(TestCase):
     def test_(self):
         for i in range(0, 100):
-            TestModel.objects.create(f1=f"object{i}")
+            TestModel.objects.create(name=f"object{i}")
 
         object_list = TestModel.objects.all()
         paginator = Paginator(object_list, 5)

@@ -17,7 +17,9 @@ def get_visit_schedule(cdef):
         """
 
         def __init__(self, name):
-            super().__init__(requisition_model="edc_metadata.subjectrequisition", name=name)
+            super().__init__(
+                requisition_model="edc_metadata.subjectrequisition", name=name
+            )
 
     crfs_prn = CrfCollection(
         Crf(show_order=100, model=f"{app_label}.prnone"),
@@ -25,14 +27,22 @@ def get_visit_schedule(cdef):
     )
 
     crfs_missed = CrfCollection(
-        Crf(show_order=1, model="edc_metadata.subjectvisitmissed", required=True),
+        Crf(show_order=1, model="edc_visit_tracking.subjectvisitmissed", required=True),
     )
 
-    crfs0 = CrfCollection(Crf(show_order=1, model=f"{app_label}.crftwo", required=False))
+    crfs0 = CrfCollection(
+        Crf(show_order=1, model=f"{app_label}.crftwo", required=False)
+    )
     crfs1 = CrfCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=True))
-    crfs2 = CrfCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=False))
-    crfs3 = CrfCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=False))
-    crfs4 = CrfCollection(Crf(show_order=1, model=f"{app_label}.crfone", required=False))
+    crfs2 = CrfCollection(
+        Crf(show_order=1, model=f"{app_label}.crfone", required=False)
+    )
+    crfs3 = CrfCollection(
+        Crf(show_order=1, model=f"{app_label}.crfone", required=False)
+    )
+    crfs4 = CrfCollection(
+        Crf(show_order=1, model=f"{app_label}.crfone", required=False)
+    )
 
     visit0 = Visit(
         code=DAY1,

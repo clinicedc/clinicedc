@@ -17,15 +17,24 @@ from edc_action_item.site_action_items import site_action_items
 from edc_consent.tests.consent_test_utils import consent_definition_factory
 from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
 from edc_utils import get_utcnow
+from tests.action_items import (
+    FormOneAction,
+    FormThreeAction,
+    FormTwoAction,
+    FormZeroAction,
+)
+from tests.models import FormOne, FormThree, FormTwo, TestModelWithAction
 
-from ..action_items import FormOneAction, FormThreeAction, FormTwoAction, FormZeroAction
-from ..models import FormOne, FormThree, FormTwo, TestModelWithAction
 from ..test_case_mixin import TestCaseMixin
 
 
 @override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2018, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2027, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")),
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(
+        2018, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")
+    ),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(
+        2027, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")
+    ),
 )
 class TestActionItem(TestCaseMixin, TestCase):
 
@@ -34,7 +43,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         traveller = time_machine.travel(test_datetime)
         traveller.start()
         consent_v1 = consent_definition_factory(
-            model="edc_action_item.subjectconsentv1",
+            model="tests.subjectconsentv1",
             start=get_utcnow() - relativedelta(years=1),
             end=get_utcnow() + relativedelta(years=1),
         )
@@ -53,7 +62,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         self.assertTrue(obj.action_identifier.startswith("AC"))
         self.assertEqual(obj.status, NEW)
         self.assertIsNotNone(obj.report_datetime)
-        self.assertEqual(obj.action_type.reference_model, "edc_action_item.formzero")
+        self.assertEqual(obj.action_type.reference_model, "tests.formzero")
 
     def test_create_requires_existing_subject(self):
         self.assertRaises(
@@ -70,8 +79,12 @@ class TestActionItem(TestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier, form_one=form_one
         )
         form_two.refresh_from_db()
-        action_item_one = ActionItem.objects.get(action_identifier=form_one.action_identifier)
-        action_item_two = ActionItem.objects.get(action_identifier=form_two.action_identifier)
+        action_item_one = ActionItem.objects.get(
+            action_identifier=form_one.action_identifier
+        )
+        action_item_two = ActionItem.objects.get(
+            action_identifier=form_two.action_identifier
+        )
 
         self.assertEqual(
             action_item_two.action_cls,
@@ -115,19 +128,18 @@ class TestActionItem(TestCaseMixin, TestCase):
         class MyAction(Action):
             name = "my-action"
             display_name = "my action"
-            reference_model = "edc_action_item.reference"
+            reference_model = "tests.FormOne"
 
         class MyActionWithNextAction(Action):
             name = "my-action-with-next-as-self"
             display_name = "my action with next as self"
             next_actions = [MyAction]
-            reference_model = "edc_action_item.reference"
 
         class MyActionWithNextActionAsSelf(Action):
             name = "my-action-with-next"
             display_name = "my action with next"
             next_actions = ["self"]
-            reference_model = "edc_action_item.reference"
+            reference_model = "tests.FormOne"
 
         site_action_items.register(MyAction)
         site_action_items.register(MyActionWithNextAction)
@@ -135,7 +147,9 @@ class TestActionItem(TestCaseMixin, TestCase):
         my_action = MyAction(subject_identifier=self.subject_identifier)
 
         try:
-            action_item = ActionItem.objects.get(action_identifier=my_action.action_identifier)
+            action_item = ActionItem.objects.get(
+                action_identifier=my_action.action_identifier
+            )
         except ObjectDoesNotExist:
             self.fail("ActionItem unexpectedly does not exist")
 
@@ -150,7 +164,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         class MyActionWithIncorrectModel(Action):
             name = "my-action2"
             display_name = "my action 2"
-            reference_model = "edc_action_item.TestModelWithAction"
+            reference_model = "tests.TestModelWithAction"
 
         site_action_items.register(MyActionWithIncorrectModel)
 
@@ -166,7 +180,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         class MyAction(Action):
             name = "my-action3"
             display_name = "original display_name"
-            reference_model = "edc_action_item.FormOne"
+            reference_model = "tests.FormOne"
 
         site_action_items.register(MyAction)
         MyAction(subject_identifier=self.subject_identifier)
@@ -217,7 +231,9 @@ class TestActionItem(TestCaseMixin, TestCase):
         # delete form one
         form_one.delete()
         # assert resets action item
-        action_item = ActionItem.objects.get(action_type__name=FormOneAction.name, status=NEW)
+        action_item = ActionItem.objects.get(
+            action_type__name=FormOneAction.name, status=NEW
+        )
 
         # assert cleans up child action items
         self.assertRaises(
@@ -292,7 +308,9 @@ class TestActionItem(TestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier, form_one=form_one
         )
 
-        form_three = FormThree.objects.create(subject_identifier=self.subject_identifier)
+        form_three = FormThree.objects.create(
+            subject_identifier=self.subject_identifier
+        )
 
         self.assertEqual(form_one.action_item.status, CLOSED)
         self.assertEqual(form_two.action_item.status, CLOSED)
@@ -329,7 +347,9 @@ class TestActionItem(TestCaseMixin, TestCase):
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one
         )
-        form_three = FormThree.objects.create(subject_identifier=self.subject_identifier)
+        form_three = FormThree.objects.create(
+            subject_identifier=self.subject_identifier
+        )
 
         form_one.f1 = "blah"
         form_one.save()

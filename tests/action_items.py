@@ -1,14 +1,42 @@
 from edc_action_item.action import Action
 from edc_action_item.action_with_notification import ActionWithNotification
-from edc_action_item.models import ActionType
 from edc_action_item.site_action_items import site_action_items
+from edc_adverse_event.action_items import (
+    AeFollowupAction,
+    AeInitialAction,
+    AeSusarAction,
+    AeTmgAction,
+    DeathReportAction,
+    DeathReportTmgAction,
+    DeathReportTmgSecondAction,
+)
+from edc_adverse_event.constants import AE_FOLLOWUP_ACTION, DEATH_REPORT_ACTION
 from edc_constants.constants import HIGH_PRIORITY, NO
+from edc_visit_schedule.constants import OFFSCHEDULE_ACTION
+
+
+class OffscheduleAction(ActionWithNotification):
+    name = OFFSCHEDULE_ACTION
+    display_name = "Submit Off-Schedule"
+    notification_display_name = "Off-Schedule"
+    parent_action_names = [
+        # UNBLINDING_REVIEW_ACTION,
+        DEATH_REPORT_ACTION,
+        AE_FOLLOWUP_ACTION,
+        # LTFU_ACTION,
+        # BLOOD_RESULTS_RFT_ACTION,
+        # SUBJECT_TRANSFER_ACTION,
+    ]
+    reference_model = "tests.offschedule"
+    show_link_to_changelist = True
+    priority = HIGH_PRIORITY
+    singleton = True
 
 
 class FormZeroAction(ActionWithNotification):
     name = "submit-form-zero"
     display_name = "Submit Form Zero"
-    reference_model = "edc_action_item.formzero"
+    reference_model = "tests.formzero"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     parent_action_names = ["submit-form-three"]
@@ -34,7 +62,7 @@ class TestPrnAction(Action):
 class FormThreeAction(Action):
     name = "submit-form-three"
     display_name = "Submit Form Three"
-    reference_model = "edc_action_item.formthree"
+    reference_model = "tests.formthree"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     next_actions = [FormZeroAction.name]
@@ -44,10 +72,10 @@ class FormThreeAction(Action):
 class FormTwoAction(Action):
     name = "submit-form-two"
     display_name = "Submit Form Two"
-    reference_model = "edc_action_item.formtwo"
+    reference_model = "tests.formtwo"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
-    related_reference_model = "edc_action_item.formone"
+    related_reference_model = "tests.formone"
     related_reference_fk_attr = "form_one"
     next_actions = ["self"]
     parent_action_names = ["submit-form-two", "submit-form-one"]
@@ -56,7 +84,7 @@ class FormTwoAction(Action):
 class FormOneAction(Action):
     name = "submit-form-one"
     display_name = "Submit Form One"
-    reference_model = "edc_action_item.formone"
+    reference_model = "tests.formone"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     next_actions = [FormTwoAction.name, FormThreeAction.name]
@@ -66,7 +94,7 @@ class FormOneAction(Action):
 class FormFourAction(Action):
     name = "submit-form-four"
     display_name = "Submit Form Four"
-    reference_model = "edc_action_item.formfour"
+    reference_model = "tests.formfour"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     parent_action_names = ["submit-form-one"]
@@ -84,19 +112,19 @@ class FormFourAction(Action):
 class FollowupAction(Action):
     name = "submit-followup"
     display_name = "Submit Followup"
-    reference_model = "edc_action_item.followup"
+    reference_model = "tests.followup"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     next_actions = ["self"]
     related_reference_fk_attr = "initial"
-    related_reference_model = "edc_action_item.initial"
+    related_reference_model = "tests.initial"
     parent_action_names = ["submit-followup", "submit-initial"]
 
 
 class CrfTwoAction(Action):
     name = "submit-crf-two"
     display_name = "Submit Crf Two"
-    reference_model = "edc_action_item.crftwo"
+    reference_model = "tests.crftwo"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     next_actions = ["self"]
@@ -106,7 +134,7 @@ class CrfTwoAction(Action):
 class CrfOneAction(Action):
     name = "submit-crf-one"
     display_name = "Submit Crf One"
-    reference_model = "edc_action_item.crfone"
+    reference_model = "tests.crfone"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     next_actions = [CrfTwoAction.name]
@@ -115,7 +143,7 @@ class CrfOneAction(Action):
 class InitialAction(Action):
     name = "submit-initial"
     display_name = "Submit Initial"
-    reference_model = "edc_action_item.initial"
+    reference_model = "tests.initial"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     next_actions = [FollowupAction.name]
@@ -124,7 +152,7 @@ class InitialAction(Action):
 class SingletonAction(Action):
     name = "singleton"
     display_name = "Singleton"
-    reference_model = "edc_action_item.formzero"
+    reference_model = "tests.formzero"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     singleton = True
@@ -133,7 +161,7 @@ class SingletonAction(Action):
 class CrfLongitudinalTwoAction(Action):
     name = "submit-crf-longitudinal-two"
     display_name = "Submit Crf Two"
-    reference_model = "edc_action_item.crflongitudinaltwo"
+    reference_model = "tests.crflongitudinaltwo"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     next_actions = None
@@ -143,14 +171,14 @@ class CrfLongitudinalTwoAction(Action):
 class CrfLongitudinalOneAction(Action):
     name = "submit-crf-longitudinal-one"
     display_name = "Submit Crf One"
-    reference_model = "edc_action_item.crflongitudinalone"
+    reference_model = "tests.crflongitudinalone"
     show_on_dashboard = True
     priority = HIGH_PRIORITY
     next_actions = [CrfLongitudinalTwoAction.name]
 
 
 def register_actions():
-    ActionType.objects.all().delete()
+    # ActionType.objects.all().delete()
     site_action_items.registry = {}
     site_action_items.register(FormZeroAction)
     site_action_items.register(FormOneAction)
@@ -159,10 +187,23 @@ def register_actions():
     site_action_items.register(FormFourAction)
     site_action_items.register(InitialAction)
     site_action_items.register(FollowupAction)
-    site_action_items.register(TestDoNothingPrnAction)
-    site_action_items.register(TestPrnAction)
+    # site_action_items.register(TestDoNothingPrnAction)
+    # site_action_items.register(TestPrnAction)
     site_action_items.register(SingletonAction)
     site_action_items.register(CrfOneAction)
     site_action_items.register(CrfTwoAction)
     site_action_items.register(CrfLongitudinalOneAction)
     site_action_items.register(CrfLongitudinalTwoAction)
+
+    # edc-adverse-event
+    site_action_items.register(AeFollowupAction)
+    site_action_items.register(AeInitialAction)
+    site_action_items.register(AeSusarAction)
+    site_action_items.register(AeTmgAction)
+    site_action_items.register(DeathReportAction)
+    site_action_items.register(DeathReportTmgAction)
+    site_action_items.register(DeathReportTmgSecondAction)
+    site_action_items.register(OffscheduleAction)
+
+
+register_actions()

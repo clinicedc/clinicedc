@@ -141,7 +141,7 @@ Repository = "https://github.com/clinicedc/clinicedc.git"
 Changelog = "https://github.com/clinicedc/clinicedc/blob/main/CHANGES"
 
 [tool.black]
-line-length = 95
+line-length = 88
 target-version = ["py312"]
 extend-exclude = '''^(.*\/)*\b(migrations|\.venv)\b($|\/.*$)'''
 
@@ -184,6 +184,7 @@ lint = [
 ]
 
 test = [
+    "arrow>=1.3.0",
     "clinicedc",
     "coverage>=7.10.1",
     "django-admin-rangefilter>=0.13.3",
@@ -197,21 +198,16 @@ test = [
     "django-storages>=1.14.6",
     "django-webtest>=1.9.13",
     "edc-adverse-event-app>=1.0.5",
-    "edc-csf>=1.0.0",
-    "edc-egfr>=1.0.2",
-    "edc-glucose>=1.0.3",
-    "edc-microbiology>=1.0.0",
+    "edc-data-manager-app",
     "edc-test-settings>=1.1.2",
+    "edc-test-utils>=1.0.0",
     "edc-visit-schedule-app>=0.1.2",
     "edc-visit-tracking-app>=0.1.1",
-    "edc-data-manager-app",
-    "edc-vitals>=1.1.2",
     "faker>=37.4.2",
     "model-bakery>=1.20.5",
     "time-machine>=2.16.0",
     "tox-uv>=1.26.2",
     "tqdm>=4.67.1",
-    "edc-test-utils>=1.0.0",
 ]
 
 develop = [
@@ -237,12 +233,12 @@ django-audit-fields = { path = "../../django-audit-fields", editable = true }
 django-crypto-fields = { path = "../../django-crypto-fields", editable = true }
 django-revision = { path = "../../django-revision", editable = true }
 django-multisite2 = { path = "../../django-multisite2", editable = true }
-django-simple-history = { path = "../../django-simple-history", editable = true }
-django-logentry-admin = { path = "../../django-logentry-admin", editable = true }
 edc-adverse-event-app = { path = "../../edc-adverse-event-app", editable = true }
 edc-data-manager-app = { path = "../../edc-data-manager-app", editable = true }
 edc-visit-tracking-app = { path = "../../edc-visit-tracking-app", editable = true }
 edc-visit-schedule-app = { path = "../../edc-visit-schedule-app", editable = true }
+edc-test-settings = { path = "../../edc-test-settings", editable = true }
+edc-test-utils = { path = "../../edc-test-utils", editable = true }
 demo-edc = { path = "demo-edc", editable = true }
 
 [tool.uv.workspace]

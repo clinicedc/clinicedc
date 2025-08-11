@@ -6,28 +6,27 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.models import SubjectVisit
-from edc_appointment_app.tests.appointment_app_test_case_mixin import (
-    AppointmentAppTestCaseMixin,
-)
-from edc_appointment_app.visit_schedule import get_visit_schedule3
 
 from edc_appointment.constants import INCOMPLETE_APPT
+from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.models import SubjectVisit
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule3
 
-from ...creators import UnscheduledAppointmentCreator
-from ..helper import Helper
+from ..test_case_mixins import AppointmentAppTestCaseMixin
 
 utc_tz = ZoneInfo("UTC")
 
 
-test_datetime = dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz)
+test_datetime = dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz)
 
 
+@tag("appointment")
 @override_settings(SITE_ID=10)
 @time_machine.travel(test_datetime)
 class TestInsertUnscheduled(AppointmentAppTestCaseMixin, TestCase):
@@ -83,7 +82,8 @@ class TestInsertUnscheduled(AppointmentAppTestCaseMixin, TestCase):
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
-            suggested_appt_datetime=appointment.appt_datetime + relativedelta(days=days),
+            suggested_appt_datetime=appointment.appt_datetime
+            + relativedelta(days=days),
             suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
         )
         appointment = creator.appointment
@@ -92,14 +92,15 @@ class TestInsertUnscheduled(AppointmentAppTestCaseMixin, TestCase):
         return appointment
 
     @staticmethod
-    def get_visit_codes(by: str = None, visit_schedule_name: str | None = None, **kwargs):
+    def get_visit_codes(
+        by: str = None, visit_schedule_name: str | None = None, **kwargs
+    ):
         opts = dict(visit_schedule_name=visit_schedule_name)
         return [
             f"{o.visit_code}.{o.visit_code_sequence}"
             for o in Appointment.objects.filter(**opts).order_by(by)
         ]
 
-    @tag("5")
     def test_insert_unscheduled_between_related_visits(self):
 
         appt1030 = Appointment.objects.get(

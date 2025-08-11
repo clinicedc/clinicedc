@@ -1,59 +1,64 @@
 from unittest.mock import PropertyMock, patch
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.test import TestCase, override_settings
-from edc_adverse_event_app import list_data
-from edc_adverse_event_app.action_items import (
-    AeFollowupAction,
-    AeInitialAction,
-    StudyTerminationConclusionAction,
-)
-from edc_adverse_event_app.models import AeFollowup, AeInitial, AeSusar, AeTmg
+from django.test import TestCase, override_settings, tag
 from model_bakery import baker
 
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models.action_item import ActionItem
 from edc_adverse_event.constants import CONTINUING_UPDATE, RECOVERED, RECOVERING
 from edc_adverse_event.models import AeClassification
+from edc_consent import site_consents
 from edc_constants.constants import CLOSED, DEAD, GRADE5, NEW, NO, YES
-from edc_constants.disease_constants import ANAEMIA
-from edc_list_data.site_list_data import site_list_data
 from edc_ltfu.constants import LOST_TO_FOLLOWUP
 from edc_registration.models import RegisteredSubject
 from edc_registration.utils import RegisteredSubjectDoesNotExist
 from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import OnScheduleError
+from tests.action_items import AeFollowupAction, AeInitialAction, OffscheduleAction
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import AeFollowup, AeInitial, AeSusar, AeTmg
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
+@tag("ae")
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
 class TestAeAndActions(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        site_list_data.initialize()
-        site_list_data.register(list_data, app_name="edc_adverse_event_app")
-        site_list_data.load_data()
-        super().setUpClass()
+    helper_cls = Helper
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
 
     def setUp(self):
-        self.subject_identifier = "12345"
-        RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
+        self.subject_identifier = "101-123400-0"
+        self.helper = self.helper_cls(
+            subject_identifier=self.subject_identifier,
+        )
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+        )
 
     def tearDown(self):
         RegisteredSubject.objects.all().delete()
 
     def test_subject_identifier(self):
         baker.make_recipe(
-            "edc_adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial",
+            subject_identifier=self.subject_identifier,
         )
 
         self.assertRaises(
             RegisteredSubjectDoesNotExist,
             baker.make_recipe,
-            "edc_adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier="blahblah",
         )
 
@@ -62,28 +67,28 @@ class TestAeAndActions(TestCase):
             subject_identifier = f"ABCDEF-{index}"
             RegisteredSubject.objects.create(subject_identifier=subject_identifier)
             ae_initial = baker.make_recipe(
-                "edc_adverse_event_app.aeinitial", subject_identifier=subject_identifier
+                "tests.aeinitial", subject_identifier=subject_identifier
             )
             baker.make_recipe(
-                "edc_adverse_event_app.aefollowup",
+                "tests.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,
             )
             baker.make_recipe(
-                "edc_adverse_event_app.aefollowup",
+                "tests.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,
             )
             baker.make_recipe(
-                "adverse_event_app.aefollowup",
+                "tests.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,
             )
             baker.make_recipe(
-                "adverse_event_app.aefollowup",
+                "tests.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERED,
@@ -92,28 +97,28 @@ class TestAeAndActions(TestCase):
 
     def test_fk1(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
@@ -121,22 +126,22 @@ class TestAeAndActions(TestCase):
 
     def test_fk2(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERED,
@@ -154,7 +159,7 @@ class TestAeAndActions(TestCase):
         )
         # create ae initial
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             action_identifier=action_item.action_identifier,
             subject_identifier=self.subject_identifier,
         )
@@ -198,25 +203,25 @@ class TestAeAndActions(TestCase):
 
     def test_ae_initial_action2(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             action_identifier=ae_initial.action_identifier,
-            action_type__reference_model="adverse_event_app.aeinitial",
+            action_type__reference_model="tests.aeinitial",
         )
         self.assertEqual(action_item.status, CLOSED)
 
     def test_ae_initial_creates_action(self):
         # create reference model first which creates action_item
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         try:
             ActionItem.objects.get(
                 subject_identifier=self.subject_identifier,
                 action_identifier=ae_initial.action_identifier,
-                action_type__reference_model="adverse_event_app.aeinitial",
+                action_type__reference_model="tests.aeinitial",
             )
         except ObjectDoesNotExist:
             self.fail("action item unexpectedly does not exist.")
@@ -226,7 +231,7 @@ class TestAeAndActions(TestCase):
             ActionItem.objects.filter(
                 subject_identifier=self.subject_identifier,
                 action_identifier=ae_initial.action_identifier,
-                action_type__reference_model="adverse_event_app.aeinitial",
+                action_type__reference_model="tests.aeinitial",
             ).count(),
             1,
         )
@@ -235,7 +240,7 @@ class TestAeAndActions(TestCase):
                 subject_identifier=self.subject_identifier,
                 parent_action_item=ae_initial.action_item,
                 related_action_item=ae_initial.action_item,
-                action_type__reference_model="adverse_event_app.aefollowup",
+                action_type__reference_model="tests.aefollowup",
             ).count(),
             1,
         )
@@ -243,7 +248,7 @@ class TestAeAndActions(TestCase):
     def test_ae_initial_does_not_recreate_action_on_resave(self):
         # create reference model first which creates action_item
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
         ae_initial.save()
@@ -251,7 +256,7 @@ class TestAeAndActions(TestCase):
             ActionItem.objects.filter(
                 subject_identifier=self.subject_identifier,
                 action_identifier=ae_initial.action_identifier,
-                action_type__reference_model="adverse_event_app.aeinitial",
+                action_type__reference_model="tests.aeinitial",
             ).count(),
             1,
         )
@@ -265,18 +270,20 @@ class TestAeAndActions(TestCase):
 
         # then create reference model
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
         )
 
         action_item = ActionItem.objects.get(pk=action_item.pk)
-        self.assertEqual(action_item.action_type.reference_model, ae_initial._meta.label_lower)
+        self.assertEqual(
+            action_item.action_type.reference_model, ae_initial._meta.label_lower
+        )
         self.assertEqual(action_item.action_identifier, ae_initial.action_identifier)
 
     def test_ae_initial_creates_next_action_on_close(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
         self.assertTrue(
@@ -284,7 +291,7 @@ class TestAeAndActions(TestCase):
                 subject_identifier=self.subject_identifier,
                 action_identifier=ae_initial.action_identifier,
                 parent_action_item=None,
-                action_type__reference_model="adverse_event_app.aeinitial",
+                action_type__reference_model="tests.aeinitial",
                 status=CLOSED,
             )
         )
@@ -293,35 +300,35 @@ class TestAeAndActions(TestCase):
                 subject_identifier=self.subject_identifier,
                 parent_action_item=ae_initial.action_item,
                 related_action_item=ae_initial.action_item,
-                action_type__reference_model="adverse_event_app.aefollowup",
+                action_type__reference_model="tests.aefollowup",
                 status=NEW,
             )
         )
 
     def test_next_action1(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         # action item has no parent, is updated
         ActionItem.objects.get(
             parent_action_item=None,
             action_identifier=ae_initial.action_identifier,
-            action_type__reference_model="adverse_event_app.aeinitial",
+            action_type__reference_model="tests.aeinitial",
         )
 
         # action item a parent, is not updated
         ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.aefollowup",
+            action_type__reference_model="tests.aefollowup",
         )
 
     def test_next_action2(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_followup = baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
@@ -332,31 +339,31 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_followup.action_identifier,
-            action_type__reference_model="adverse_event_app.aefollowup",
+            action_type__reference_model="tests.aefollowup",
             linked_to_reference=True,
             status=CLOSED,
         )
         ActionItem.objects.get(
             parent_action_item=ae_followup.action_item,
             related_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.aefollowup",
+            action_type__reference_model="tests.aefollowup",
             linked_to_reference=False,
             status=NEW,
         )
 
     def test_next_action3(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_followup1 = baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         ae_followup1 = AeFollowup.objects.get(pk=ae_followup1.pk)
         ae_followup2 = baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
@@ -366,7 +373,7 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_followup1.action_identifier,
-            action_type__reference_model="adverse_event_app.aefollowup",
+            action_type__reference_model="tests.aefollowup",
             linked_to_reference=True,
             status=CLOSED,
         )
@@ -374,24 +381,24 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_followup1.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_followup2.action_identifier,
-            action_type__reference_model="adverse_event_app.aefollowup",
+            action_type__reference_model="tests.aefollowup",
             linked_to_reference=True,
             status=CLOSED,
         )
         ActionItem.objects.get(
             parent_action_item=ae_followup2.action_item,
             related_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.aefollowup",
+            action_type__reference_model="tests.aefollowup",
             linked_to_reference=False,
             status=NEW,
         )
 
     def test_next_action4(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_followup1 = baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=CONTINUING_UPDATE,
@@ -400,7 +407,7 @@ class TestAeAndActions(TestCase):
         ae_followup1 = AeFollowup.objects.get(pk=ae_followup1.pk)
         # set followup = NO so next action item is not created
         ae_followup2 = baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERED,
@@ -412,7 +419,7 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_followup1.action_identifier,
-            action_type__reference_model="adverse_event_app.aefollowup",
+            action_type__reference_model="tests.aefollowup",
             linked_to_reference=True,
             status=CLOSED,
         )
@@ -421,7 +428,7 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_followup1.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_followup2.action_identifier,
-            action_type__reference_model="adverse_event_app.aefollowup",
+            action_type__reference_model="tests.aefollowup",
             linked_to_reference=True,
             status=CLOSED,
         )
@@ -431,17 +438,17 @@ class TestAeAndActions(TestCase):
             ActionItem.objects.get,
             parent_action_item=ae_followup2.action_item,
             related_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.aefollowup",
+            action_type__reference_model="tests.aefollowup",
             linked_to_reference=False,
             status=NEW,
         )
 
     def test_next_action5(self):
-        anaemia = AeClassification.objects.get(name=ANAEMIA)
+        adverse_rx_reaction = AeClassification.objects.get(name="adr")
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
-            ae_classification=anaemia,
+            ae_classification=adverse_rx_reaction,
         )
         ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
 
@@ -449,7 +456,7 @@ class TestAeAndActions(TestCase):
             parent_action_item=None,
             related_action_item=None,
             action_identifier=ae_initial.action_identifier,
-            action_type__reference_model="adverse_event_app.aeinitial",
+            action_type__reference_model="tests.aeinitial",
             linked_to_reference=True,
             status=CLOSED,
         )
@@ -457,17 +464,17 @@ class TestAeAndActions(TestCase):
         ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.aetmg",
+            action_type__reference_model="tests.aetmg",
             linked_to_reference=False,
             status=NEW,
         )
 
         # note: ae_classification matches ae_initial
         ae_tmg = baker.make_recipe(
-            "adverse_event_app.aetmg",
+            "tests.aetmg",
             subject_identifier=self.subject_identifier,
             ae_initial=ae_initial,
-            ae_classification=anaemia.name,
+            ae_classification=adverse_rx_reaction.name,
             report_status=CLOSED,
         )
 
@@ -477,19 +484,19 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_tmg.action_identifier,
-            action_type__reference_model="adverse_event_app.aetmg",
+            action_type__reference_model="tests.aetmg",
             linked_to_reference=True,
             status=CLOSED,
         )
 
     def test_ae_followup_multiple_instances(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
 
         ae_followup = baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
@@ -497,29 +504,31 @@ class TestAeAndActions(TestCase):
         AeFollowup.objects.get(pk=ae_followup.pk)
 
         ae_followup = baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         AeFollowup.objects.get(pk=ae_followup.pk)
 
-    @patch("edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model")
+    @patch(
+        "edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model"
+    )
     @patch.object(AeFollowupAction, "offschedule_models", new_callable=PropertyMock)
     @patch.object(AeFollowupAction, "onschedule_models", new_callable=PropertyMock)
     def test_ae_followup_outcome_ltfu_creates_action(
         self, mock_onschedule_models, mock_offschedule_models, mock_get_by_model
     ):
-        mock_onschedule_models.return_value = ["adverse_event_app.subjectconsentv1"]
-        mock_offschedule_models.return_value = ["adverse_event_app.studyterminationconclusion"]
-        mock_get_by_model.return_value = StudyTerminationConclusionAction
+        mock_onschedule_models.return_value = ["tests.subjectconsentv1"]
+        mock_offschedule_models.return_value = ["tests.offschedule"]
+        mock_get_by_model.return_value = OffscheduleAction
 
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
 
         ae_followup = baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
@@ -528,12 +537,14 @@ class TestAeAndActions(TestCase):
         try:
             ActionItem.objects.get(
                 parent_action_item=ae_followup.action_item,
-                action_type__reference_model="adverse_event_app.studyterminationconclusion",
+                action_type__reference_model="tests.offschedule",
             )
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
 
-    @patch("edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model")
+    @patch(
+        "edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model"
+    )
     @patch.object(AeFollowupAction, "offschedule_models", new_callable=PropertyMock)
     @patch.object(AeFollowupAction, "onschedule_models", new_callable=PropertyMock)
     def test_ae_followup_outcome_ltfu_raises(
@@ -541,34 +552,38 @@ class TestAeAndActions(TestCase):
     ):
         mock_onschedule_models.return_value = []  # not on schedule
         mock_offschedule_models.return_value = []
-        mock_get_by_model.return_value = StudyTerminationConclusionAction
+        mock_get_by_model.return_value = OffscheduleAction
 
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
 
         self.assertRaises(
             OnScheduleError,
             baker.make_recipe,
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
             outcome=LOST_TO_FOLLOWUP,
         )
 
-    @patch("edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model")
+    @patch(
+        "edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model"
+    )
     @patch.object(AeFollowupAction, "offschedule_models", new_callable=PropertyMock)
-    def test_ae_followup_outcome_not_ltfu(self, mock_offschedule_models, mock_get_by_model):
-        mock_offschedule_models.return_value = ["adverse_event_app.studyterminationconclusion"]
-        mock_get_by_model.return_value = StudyTerminationConclusionAction
+    def test_ae_followup_outcome_not_ltfu(
+        self, mock_offschedule_models, mock_get_by_model
+    ):
+        mock_offschedule_models.return_value = ["tests.offschedule"]
+        mock_get_by_model.return_value = OffscheduleAction
 
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial", subject_identifier=self.subject_identifier
+            "tests.aeinitial", subject_identifier=self.subject_identifier
         )
 
         ae_followup = baker.make_recipe(
-            "adverse_event_app.aefollowup",
+            "tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
@@ -578,7 +593,7 @@ class TestAeAndActions(TestCase):
         try:
             ActionItem.objects.get(
                 parent_action_item=ae_followup.action_item,
-                action_type__reference_model="adverse_event_app.studyterminationconclusion",
+                action_type__reference_model="tests.offschedule",
             )
         except ObjectDoesNotExist:
             pass
@@ -587,7 +602,7 @@ class TestAeAndActions(TestCase):
 
     def test_ae_creates_death_report_action(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE5,
             sae=NO,
@@ -595,17 +610,17 @@ class TestAeAndActions(TestCase):
 
         ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.deathreport",
+            action_type__reference_model="tests.deathreport",
         )
 
         ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.aetmg",
+            action_type__reference_model="tests.aetmg",
         )
 
     def test_ae_initial_creates_susar_if_not_reported(self):
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=YES,
@@ -616,11 +631,11 @@ class TestAeAndActions(TestCase):
             ObjectDoesNotExist,
             ActionItem.objects.get,
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.aesusar",
+            action_type__reference_model="tests.aesusar",
         )
 
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=NO,
@@ -629,13 +644,13 @@ class TestAeAndActions(TestCase):
 
         ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.aesusar",
+            action_type__reference_model="tests.aesusar",
         )
 
     def test_susar_updates_aeinitial_if_submitted(self):
         # create ae initial
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=NO,
@@ -645,14 +660,14 @@ class TestAeAndActions(TestCase):
         # confirm ae susar action item is created
         action_item = ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.aesusar",
+            action_type__reference_model="tests.aesusar",
         )
 
         self.assertEqual(action_item.status, NEW)
 
         # create ae susar
         baker.make_recipe(
-            "adverse_event_app.aesusar",
+            "tests.aesusar",
             subject_identifier=self.subject_identifier,
             submitted_datetime=get_utcnow(),
             ae_initial=ae_initial,
@@ -669,7 +684,7 @@ class TestAeAndActions(TestCase):
     def test_aeinitial_can_close_action_without_susar_model(self):
         # create ae initial
         ae_initial = baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=NO,
@@ -679,7 +694,7 @@ class TestAeAndActions(TestCase):
         # confirm ae susar action item is created
         action_item = ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="adverse_event_app.aesusar",
+            action_type__reference_model="tests.aesusar",
         )
 
         # change to YES before submitting an AeSusar

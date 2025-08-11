@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_adverse_event.form_validators import DeathReportFormValidator as Base
 from edc_constants.constants import OTHER, UNKNOWN
@@ -14,6 +14,7 @@ class DeathReportFormValidator(FormValidatorTestMixin, Base):
     pass
 
 
+@tag("ae")
 class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
     @staticmethod
     def get_cleaned_data() -> dict:
@@ -38,7 +39,8 @@ class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
         for death_report_date_field in ["death_date", "death_datetime"]:
             for days_after in [1, 3, 14]:
                 with self.subTest(
-                    death_report_date_field=death_report_date_field, days_after=days_after
+                    death_report_date_field=death_report_date_field,
+                    days_after=days_after,
                 ):
                     report_datetime = get_utcnow()
                     death_datetime = report_datetime + relativedelta(days=days_after)
@@ -68,7 +70,8 @@ class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
         for death_report_date_field in ["death_date", "death_datetime"]:
             for days_before in [0, 1, 2, 14]:
                 with self.subTest(
-                    death_report_date_field=death_report_date_field, days_before=days_before
+                    death_report_date_field=death_report_date_field,
+                    days_before=days_before,
                 ):
                     report_datetime = get_utcnow()
                     death_datetime = report_datetime - relativedelta(days=days_before)

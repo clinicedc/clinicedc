@@ -13,7 +13,7 @@ from edc_constants.constants import FEMALE
 from edc_utils import get_utcnow, get_utcnow_as_date
 
 if TYPE_CHECKING:
-    from screening_app.models import SubjectScreening
+    from tests.models import SubjectScreening
 
 
 class ConsentTestCaseMixin:
@@ -31,19 +31,17 @@ class ConsentTestCaseMixin:
     ):
         now = get_utcnow()
         now_as_date = get_utcnow_as_date()
-        screening_identifier = (
-            subject_screening.screening_identifier
-            if subject_screening
-            else (screening_identifier or "ABCDEF")
+        screening_identifier = getattr(
+            subject_screening,
+            "screening_identifier",
+            screening_identifier or "ABCDEF",
         )
-        initials = subject_screening.initials if subject_screening else (initials or "XX")
-        gender = subject_screening.gender if subject_screening else (gender or FEMALE)
-        age_in_years = (
-            subject_screening.age_in_years if subject_screening else (age_in_years or 25)
-        )
+        initials = getattr(subject_screening, "initials", initials or "XX")
+        gender = getattr(subject_screening, "gender", gender or FEMALE)
+        age_in_years = getattr(subject_screening, "age_in_years", age_in_years or 25)
         dob = dob or (now_as_date - relativedelta(years=age_in_years))
-        report_datetime = (
-            subject_screening.report_datetime if subject_screening else report_datetime or now
+        report_datetime = getattr(
+            subject_screening, "report_datetime", report_datetime or now
         )
         consent_datetime = consent_datetime or report_datetime
 

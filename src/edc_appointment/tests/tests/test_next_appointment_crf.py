@@ -8,19 +8,12 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.test import TestCase, override_settings, tag
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.forms import (
-    NextAppointmentCrfForm,
-    NextAppointmentCrfFormValidator,
-)
-from edc_appointment_app.models import NextAppointmentCrf, SubjectConsent
-from edc_appointment_app.visit_schedule import get_visit_schedule6
 
 from edc_appointment.exceptions import AppointmentWindowError
 from edc_appointment.models import Appointment, InfoSources
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import CLINIC, NO, PATIENT
-from edc_facility import import_holidays
+from edc_facility.import_holidays import import_holidays
 from edc_facility.models import HealthFacility, HealthFacilityTypes
 from edc_facility.utils import get_health_facility_model_cls
 from edc_metadata.metadata_handler import MetadataHandlerError
@@ -31,6 +24,10 @@ from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
+from tests.consents import consent_v1
+from tests.forms import NextAppointmentCrfForm, NextAppointmentCrfFormValidator
+from tests.models import NextAppointmentCrf, SubjectConsentV1
+from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule6
 
 utc = ZoneInfo("UTC")
 tz = ZoneInfo("Africa/Dar_es_Salaam")
@@ -60,30 +57,17 @@ def update_health_facility_model():
         )
 
 
+@tag("appointment")
 @override_settings(SITE_ID=10)
 class TestNextAppointmentCrf(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
 
-    @time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc))
+    @time_machine.travel(dt.datetime(2025, 6, 10, 8, 00, tzinfo=utc))
     def setUp(self):
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
         update_health_facility_model()
-        # health_facility_type = HealthFacilityTypes.objects.create(
-        #     name="clinic", display_name="clinic"
-        # )
-        # HealthFacility.objects.create(
-        #     name="clinic",
-        #     health_facility_type=health_facility_type,
-        #     mon=True,
-        #     tue=True,
-        #     wed=True,
-        #     thu=True,
-        #     fri=True,
-        #     sat=False,
-        #     sun=False,
-        # )
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(get_visit_schedule6())
@@ -93,7 +77,7 @@ class TestNextAppointmentCrf(TestCase):
 
         self.subject_identifier = "101-40990029-4"
         identity = "123456789"
-        subject_consent = SubjectConsent.objects.create(
+        subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=self.subject_identifier,
             consent_datetime=get_utcnow() - relativedelta(days=10),
             identity=identity,
@@ -103,7 +87,7 @@ class TestNextAppointmentCrf(TestCase):
 
         # put subject on schedule
         _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_appointment_app.onschedulesix"
+            "tests.onschedulesix"
         )
         schedule.put_on_schedule(
             subject_identifier=subject_consent.subject_identifier,
@@ -112,10 +96,10 @@ class TestNextAppointmentCrf(TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.nextappointmentcrf": ("appt_date", "visitschedule")
+            "tests.nextappointmentcrf": ("appt_date", "visitschedule")
         }
     )
-    @time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc))
+    @time_machine.travel(dt.datetime(2025, 6, 10, 8, 00, tzinfo=utc))
     def test_next_appt_ok(self):
         health_facility_type = HealthFacilityTypes.objects.create(
             name="Integrated", display_name="Integrated"
@@ -152,12 +136,16 @@ class TestNextAppointmentCrf(TestCase):
             health_facility=health_facility.id,
             offschedule_today=NO,
         )
-        obj = NextAppointmentCrf(subject_visit=subject_visit, health_facility=health_facility)
+        obj = NextAppointmentCrf(
+            subject_visit=subject_visit, health_facility=health_facility
+        )
         form = NextAppointmentCrfForm(data=data, instance=obj)
         form.is_valid()
 
         self.assertIn("visitschedule", form._errors)
-        self.assertIn("Cannot be the current visit", str(form._errors.get("visitschedule")))
+        self.assertIn(
+            "Cannot be the current visit", str(form._errors.get("visitschedule"))
+        )
 
         # still from 1000, attempt to update NextAppointmentCrf
         # but this time correctly link this to visit code 1010
@@ -174,18 +162,21 @@ class TestNextAppointmentCrf(TestCase):
         form.is_valid()
         self.assertIn("Invalid clinic day", str(form._errors.get("appt_date")))
 
-        data.update(appt_date=appointment.next.appt_datetime.date() + relativedelta(days=1))
+        data.update(
+            appt_date=appointment.next.appt_datetime.date() + relativedelta(days=1)
+        )
         form = NextAppointmentCrfForm(data=data, instance=obj)
         form.is_valid()
-        del form._errors["subject_visit"]
+        # del form._errors["subject_visit"]
         self.assertEqual({}, form._errors)
 
+    @tag("3")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.nextappointmentcrf": ("appt_date", "visitschedule")
+            "tests.nextappointmentcrf": ("appt_date", "visitschedule")
         }
     )
-    @time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc))
+    @time_machine.travel(dt.datetime(2025, 6, 10, 8, 00, tzinfo=utc))
     def test_next_appt_with_health_facility(self):
         self.assertEqual(get_utcnow().weekday(), 1)  # tues
         health_facility_type = HealthFacilityTypes.objects.create(
@@ -214,7 +205,9 @@ class TestNextAppointmentCrf(TestCase):
         data = dict(
             report_datetime=subject_visit.report_datetime,
             appt_date=(
-                appointment.appt_datetime + relativedelta(months=3) + relativedelta(days=3)
+                appointment.appt_datetime
+                + relativedelta(months=3)
+                + relativedelta(days=3)
             ).date(),
             info_source=InfoSources.objects.get(name=PATIENT),
             visitschedule=VisitSchedule.objects.get(visit_code="1030"),
@@ -240,11 +233,11 @@ class TestNextAppointmentCrf(TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.nextappointmentcrf": ("appt_date", "visitschedule")
+            "tests.nextappointmentcrf": ("appt_date", "visitschedule")
         },
         LANGUAGE_CODE="sw",
     )
-    @time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=tz))
+    @time_machine.travel(dt.datetime(2025, 6, 10, 8, 00, tzinfo=tz))
     def test_next_appt_with_health_facility_tz(self):
         self.assertEqual(get_utcnow().weekday(), 1)  # tues
         health_facility_type = HealthFacilityTypes.objects.create(
@@ -272,7 +265,9 @@ class TestNextAppointmentCrf(TestCase):
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             appt_date=(
-                appointment.appt_datetime + relativedelta(months=3) + relativedelta(days=2)
+                appointment.appt_datetime
+                + relativedelta(months=3)
+                + relativedelta(days=2)
             ).date(),
             info_source=InfoSources.objects.get(name=PATIENT),
             visitschedule=VisitSchedule.objects.get(visit_code="1030"),
@@ -280,7 +275,6 @@ class TestNextAppointmentCrf(TestCase):
         )
         self.assertEqual(data.get("appt_date").weekday(), 3)
 
-    @tag("1")
     def test_in_visit_crfs(self):
         subject_visit_model_cls = get_related_visit_model_cls()
         for timepoint in [0, 1, 2]:
@@ -367,8 +361,8 @@ class TestNextAppointmentCrf(TestCase):
                 report_datetime=appointment.report_datetime,
             )
         next_appt = subject_visit.appointment.next
-        next_appt_date = subject_visit.appointment.next.appt_datetime.date() + relativedelta(
-            days=1
+        next_appt_date = (
+            subject_visit.appointment.next.appt_datetime.date() + relativedelta(days=1)
         )
         NextAppointmentCrf.objects.create(
             subject_visit=subject_visit,
@@ -519,7 +513,9 @@ class TestNextAppointmentCrf(TestCase):
 
         # set appt date to that of the next appointment, visit_code to
         # next visit code
-        cleaned_data = dict(appt_date=appt_date, visitschedule=visitschedule, **defaults)
+        cleaned_data = dict(
+            appt_date=appt_date, visitschedule=visitschedule, **defaults
+        )
 
         form_validator = NextAppointmentCrfFormValidator(
             cleaned_data=cleaned_data, model=NextAppointmentCrf

@@ -11,11 +11,11 @@ from edc_action_item.site_action_items import site_action_items
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
-from edc_facility import import_holidays
+from edc_facility.import_holidays import import_holidays
 from edc_visit_tracking.constants import SCHEDULED
+from tests.action_items import CrfLongitudinalOneAction, CrfLongitudinalTwoAction
+from tests.models import CrfLongitudinalOne
 
-from ..action_items import CrfLongitudinalOneAction, CrfLongitudinalTwoAction
-from ..models import CrfLongitudinalOne
 from ..test_case_mixin import TestCaseMixin
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
@@ -36,7 +36,7 @@ class TestLongitudinal(TestCaseMixin, TestCase):
         site_action_items.register(CrfLongitudinalOneAction)
         site_action_items.register(CrfLongitudinalTwoAction)
         consent_v1 = ConsentDefinition(
-            "edc_action_item.subjectconsentv1",
+            "tests.subjectconsentv1",
             version="1",
             start=test_datetime,
             end=test_datetime + relativedelta(years=3),
@@ -45,7 +45,9 @@ class TestLongitudinal(TestCaseMixin, TestCase):
             age_max=64,
             gender=[MALE, FEMALE],
         )
-        self.subject_identifier = self.enroll(consent_datetime=test_datetime, cdef=consent_v1)
+        self.subject_identifier = self.enroll(
+            consent_datetime=test_datetime, cdef=consent_v1
+        )
 
     def test_(self):
         appointment = Appointment.objects.get(

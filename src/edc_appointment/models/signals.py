@@ -26,7 +26,9 @@ from ..utils import (
 from .appointment import Appointment
 
 
-@receiver(post_save, sender=Appointment, weak=False, dispatch_uid="appointment_post_save")
+@receiver(
+    post_save, sender=Appointment, weak=False, dispatch_uid="appointment_post_save"
+)
 def appointment_post_save(sender, instance, raw, update_fields, **kwargs):
     if not raw and not update_fields:
         # use the AppointmentStatusUpdater to set all
@@ -66,7 +68,9 @@ def create_appointments_on_post_save(sender, instance, raw, created, using, **kw
                 raise
 
 
-@receiver(post_save, weak=False, dispatch_uid="update_appt_status_on_related_visit_post_save")
+@receiver(
+    post_save, weak=False, dispatch_uid="update_appt_status_on_related_visit_post_save"
+)
 def update_appt_status_on_related_visit_post_save(
     sender, instance, created, raw, update_fields, **kwargs
 ):
@@ -86,7 +90,9 @@ def update_appt_status_on_related_visit_post_save(
 
 
 @receiver(
-    post_delete, weak=False, dispatch_uid="update_appt_status_on_related_visit_post_delete"
+    post_delete,
+    weak=False,
+    dispatch_uid="update_appt_status_on_related_visit_post_delete",
 )
 def update_appt_status_on_related_visit_post_delete(sender, instance, using, **kwargs):
     if isinstance(instance, (get_related_visit_model_cls(),)):
@@ -101,7 +107,10 @@ def update_appt_status_on_related_visit_post_delete(sender, instance, using, **k
 
 
 @receiver(
-    pre_delete, sender=Appointment, weak=False, dispatch_uid="appointments_on_pre_delete"
+    pre_delete,
+    sender=Appointment,
+    weak=False,
+    dispatch_uid="appointments_on_pre_delete",
 )
 def appointments_on_pre_delete(sender, instance, using, **kwargs):
     if instance.visit_code_sequence == 0:
@@ -135,7 +144,11 @@ def appointments_on_pre_delete(sender, instance, using, **kwargs):
                     f"first."
                 )
             else:
-                if onschedule_datetime <= instance.appt_datetime <= offschedule_datetime:
+                if (
+                    onschedule_datetime
+                    <= instance.appt_datetime
+                    <= offschedule_datetime
+                ):
                     raise AppointmentDeleteError(
                         f"Appointment may not be deleted. "
                         f"Subject {instance.subject_identifier} is on schedule "
@@ -148,7 +161,10 @@ def appointments_on_pre_delete(sender, instance, using, **kwargs):
 
 
 @receiver(
-    post_delete, sender=Appointment, weak=False, dispatch_uid="appointments_on_post_delete"
+    post_delete,
+    sender=Appointment,
+    weak=False,
+    dispatch_uid="appointments_on_post_delete",
 )
 def appointments_on_post_delete(sender, instance, using, **kwargs):
     if (
@@ -168,7 +184,9 @@ def appointments_on_post_delete(sender, instance, using, **kwargs):
     weak=False,
     dispatch_uid="update_appointments_to_next_on_post_save",
 )
-def update_appointments_to_next_on_post_save(sender, instance, raw, created, using, **kwargs):
+def update_appointments_to_next_on_post_save(
+    sender, instance, raw, created, using, **kwargs
+):
     if not raw and not kwargs.get("update_fields"):
         if get_allow_skipped_appt_using().get(instance._meta.label_lower):
             skip_appt = SkipAppointments(instance)
@@ -181,7 +199,9 @@ def update_appointments_to_next_on_post_save(sender, instance, raw, created, usi
                 )
 
 
-@receiver(post_delete, weak=False, dispatch_uid="update_appointments_to_next_on_post_delete")
+@receiver(
+    post_delete, weak=False, dispatch_uid="update_appointments_to_next_on_post_delete"
+)
 def update_appointments_to_next_on_post_delete(sender, instance, using, **kwargs):
     if get_allow_skipped_appt_using().get(instance._meta.label_lower):
         SkipAppointments(instance).reset_appointments()

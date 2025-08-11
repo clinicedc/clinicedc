@@ -1,6 +1,5 @@
 from django.core import mail
-from django.test import TestCase, override_settings
-from edc_adverse_event_app import list_data
+from django.test import TestCase, override_settings, tag
 from model_bakery import baker
 
 from edc_adverse_event.notifications import (
@@ -9,7 +8,6 @@ from edc_adverse_event.notifications import (
 )
 from edc_constants.constants import GRADE3, GRADE4, GRADE5, NO, YES
 from edc_facility.import_holidays import import_holidays
-from edc_list_data.site_list_data import site_list_data
 
 from ...action_items import (
     AeFollowupAction,
@@ -22,18 +20,16 @@ from ...action_items import (
 from .mixins import DeathReportTestMixin
 
 
+@tag("ae")
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
 class TestNotifications(DeathReportTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
-        site_list_data.initialize()
-        site_list_data.register(list_data, app_name="edc_adverse_event_app")
-        site_list_data.load_data()
         import_holidays()
 
     def test_notifies_initial_ae_g3_not_sae(self):
         baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE3,
             sae=NO,
@@ -48,7 +44,8 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialAction.notification_display_name in m.__dict__.get("subject")
+                    if AeInitialAction.notification_display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -60,7 +57,8 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialG3EventNotification.display_name in m.__dict__.get("subject")
+                    if AeInitialG3EventNotification.display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -72,14 +70,15 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeFollowupAction.notification_display_name in m.__dict__.get("subject")
+                    if AeFollowupAction.notification_display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
 
     def test_notifies_initial_ae_g3_is_sae(self):
         baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE3,
             sae=YES,
@@ -94,7 +93,8 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialAction.notification_display_name in m.__dict__.get("subject")
+                    if AeInitialAction.notification_display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -106,7 +106,8 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialG3EventNotification.display_name in m.__dict__.get("subject")
+                    if AeInitialG3EventNotification.display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -118,7 +119,8 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeFollowupAction.notification_display_name in m.__dict__.get("subject")
+                    if AeFollowupAction.notification_display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -130,14 +132,15 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeTmgAction.notification_display_name in m.__dict__.get("subject")
+                    if AeTmgAction.notification_display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
 
     def test_notifies_initial_ae_g4_is_sae(self):
         baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE4,
             sae=YES,
@@ -152,14 +155,15 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialG4EventNotification.display_name in m.__dict__.get("subject")
+                    if AeInitialG4EventNotification.display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
 
     def test_notifies_initial_ae_death(self):
         baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE5,
             sae=YES,
@@ -174,7 +178,8 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialAction.notification_display_name in m.__dict__.get("subject")
+                    if AeInitialAction.notification_display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -186,7 +191,8 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if DeathReportAction.notification_display_name in m.__dict__.get("subject")
+                    if DeathReportAction.notification_display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -198,7 +204,8 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeTmgAction.notification_display_name in m.__dict__.get("subject")
+                    if AeTmgAction.notification_display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -215,7 +222,8 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeInitialAction.notification_display_name in m.__dict__.get("subject")
+                    if AeInitialAction.notification_display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )
@@ -241,7 +249,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
 
     def test_notifies_initial_ae_susar(self):
         baker.make_recipe(
-            "adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE4,
             sae=YES,
@@ -257,7 +265,8 @@ class TestNotifications(DeathReportTestMixin, TestCase):
                 [
                     m.__dict__.get("subject")
                     for m in mail.outbox
-                    if AeSusarAction.notification_display_name in m.__dict__.get("subject")
+                    if AeSusarAction.notification_display_name
+                    in m.__dict__.get("subject")
                 ]
             ),
         )

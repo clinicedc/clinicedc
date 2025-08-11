@@ -12,20 +12,21 @@ base_dir = Path(__file__).absolute().parent.parent
 
 project_settings = DefaultTestSettings(
     calling_file=__file__,
-    use_test_urls=True,
+    BASE_DIR=base_dir,
+    APP_NAME=app_name,
+    HOLIDAY_FILE=base_dir / "tests" / "holidays.csv",
     SILENCED_SYSTEM_CHECKS=[
         "sites.E101",
         "edc_navbar.E002",
         "edc_navbar.E003",
         "edc_action_item.W001",
+        "edc_sites.E001",
+        # "edc_sites.E002",
     ],
     DJANGO_REVISION_IGNORE_WORKING_DIR=True,
     EDC_AUTH_CODENAMES_WARN_ONLY=True,
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=True,
-    BASE_DIR=base_dir,
-    APP_NAME=app_name,
-    EDC_SITES_REGISTER_DEFAULT=True,
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=(
         get_utcnow().replace(microsecond=0, second=0, minute=0, hour=0)
         - relativedelta(years=6)
@@ -34,13 +35,21 @@ project_settings = DefaultTestSettings(
         get_utcnow().replace(microsecond=999999, second=59, minute=59, hour=11)
         + relativedelta(years=6)
     ),
-    SUBJECT_SCREENING_MODEL="edc_screening.subjectscreening",
+    SUBJECT_SCREENING_MODEL="tests.subjectscreening",
     SUBJECT_CONSENT_MODEL="edc_consent.subjectconsent",
     SUBJECT_VISIT_MODEL="edc_visit_tracking.subjectvisit",
     SUBJECT_VISIT_MISSED_MODEL="edc_visit_tracking.subjectvisitmissed",
     SUBJECT_REQUISITION_MODEL="edc_lab.subjectrequisition",
     SUBJECT_REFUSAL_MODEL="edc_refusal.subjectrefusal",
     # SUBJECT_APP_LABEL=f"{self.app_name}",
+    ADVERSE_EVENT_APP_LABEL="tests",
+    EMAIL_ENABLED=True,
+    EMAIL_CONTACTS={
+        "ae_reports": "joe@sample.com",
+        "data_manager": "joe@sample.com",
+        "tmg": "joe@sample.com",
+    },
+    EDC_SITES_REGISTER_DEFAULT=True,
     INSTALLED_APPS=[
         "django.contrib.admin",
         "django.contrib.auth",
@@ -49,8 +58,6 @@ project_settings = DefaultTestSettings(
         "django.contrib.sessions",
         "django.contrib.sites",
         "django.contrib.staticfiles",
-        "django_crypto_fields.apps.AppConfig",
-        "django_pylabels.apps.AppConfig",
         "multisite",
         "sequences.apps.SequencesConfig",
         "fontawesomefree",
@@ -68,6 +75,8 @@ project_settings = DefaultTestSettings(
         "edc_adverse_event.apps.AppConfig",
         "edc_appointment.apps.AppConfig",
         "edc_auth.apps.AppConfig",
+        "edc_consent.apps.AppConfig",
+        "edc_crf.apps.AppConfig",
         "edc_dashboard.apps.AppConfig",
         "edc_data_manager.apps.AppConfig",
         "edc_device.apps.AppConfig",
@@ -80,6 +89,7 @@ project_settings = DefaultTestSettings(
         "edc_locator.apps.AppConfig",
         "edc_metadata.apps.AppConfig",
         "edc_model_admin.apps.AppConfig",
+        "edc_navbar.apps.AppConfig",
         "edc_notification.apps.AppConfig",
         "edc_offstudy.apps.AppConfig",
         "edc_pdutils.apps.AppConfig",
@@ -89,18 +99,21 @@ project_settings = DefaultTestSettings(
         "edc_randomization.apps.AppConfig",
         "edc_registration.apps.AppConfig",
         "edc_review_dashboard.apps.AppConfig",
+        "edc_screening.apps.AppConfig",
         "edc_sites.apps.AppConfig",
         "edc_subject_dashboard.apps.AppConfig",
         "edc_timepoint.apps.AppConfig",
         "edc_visit_schedule.apps.AppConfig",
         "edc_visit_tracking.apps.AppConfig",
         "edc_visit_schedule_app.apps.AppConfig",
-        "adverse_event_app.apps.AppConfig",
+        # "adverse_event_app.apps.AppConfig",
         "data_manager_app.apps.AppConfig",
+        "tests.apps.AppConfig",
         "edc_appconfig.apps.AppConfig",
     ],
     add_dashboard_middleware=True,
     add_lab_dashboard_middleware=True,
+    use_test_urls=True,
 ).settings
 
 

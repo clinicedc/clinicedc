@@ -1,11 +1,11 @@
 from dateutil.relativedelta import relativedelta
 
-from edc_crf.tests.consents import consent_v1
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
+from tests.consents import consent_v1
 
-crfs = CrfCollection(Crf(show_order=1, model="edc_crf.crf", required=True))
+crfs = CrfCollection(Crf(show_order=1, model="tests.crffour", required=True))
 
 visit0 = Visit(
     code="1000",
@@ -49,8 +49,8 @@ visit3 = Visit(
 
 schedule = Schedule(
     name="schedule",
-    onschedule_model="edc_crf.onschedule",
-    offschedule_model="edc_crf.offschedule",
+    onschedule_model="edc_visit_schedule.onschedule",
+    offschedule_model="tests.offschedule",
     appointment_model="edc_appointment.appointment",
     consent_definitions=[consent_v1],
 )
@@ -63,7 +63,7 @@ schedule.add_visit(visit3)
 visit_schedule = VisitSchedule(
     name="visit_schedule",
     offstudy_model="edc_offstudy.subjectoffstudy",
-    death_report_model="edc_crf.deathreport",
+    death_report_model="tests.deathreport",
 )
 
 visit_schedule.add_schedule(schedule)

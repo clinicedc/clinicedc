@@ -1,6 +1,5 @@
-from copy import copy, deepcopy
+from copy import deepcopy
 from importlib import import_module
-from typing import List
 
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist
@@ -18,167 +17,6 @@ from edc_randomization.site_randomizers import site_randomizers
 
 from ...auth_objects import default_groups
 from ..randomizers import CustomRandomizer
-
-
-@override_settings(
-    EDC_AUTH_SKIP_SITE_AUTHS=True,
-    EDC_AUTH_SKIP_AUTH_UPDATER=False,
-)
-class TestAuthUpdater2(TestCase):
-    def test_add_group(self):
-        codenames = [
-            "edc_auth.add_testmodel",
-            "edc_auth.change_testmodel",
-            "edc_auth.delete_testmodel",
-            "edc_auth.view_testmodel",
-        ]
-        site_auths.clear()
-        site_auths.add_group(*codenames, name="GROUP")
-        AuthUpdater()
-        group = Group.objects.get(name="GROUP")
-        self.assertEqual(
-            [p.codename for p in group.permissions.filter(content_type__app_label="edc_auth")],
-            [c.split(".")[1] for c in codenames],
-        )
-
-    def test_add_group_with_callable(self):
-        def codenames_callable() -> List[str]:
-            return [
-                "edc_auth.add_subjectrequisition",
-                "edc_auth.change_subjectrequisition",
-                "edc_auth.delete_subjectrequisition",
-                "edc_auth.view_subjectrequisition",
-            ]
-
-        codenames = [
-            "edc_auth.add_testmodel",
-            "edc_auth.change_testmodel",
-            "edc_auth.delete_testmodel",
-            "edc_auth.view_testmodel",
-        ]
-        codenames_with_callable: list = copy(codenames)
-        codenames_with_callable.append(codenames_callable)
-        site_auths.clear()
-        site_auths.add_group(*codenames_with_callable, name="GROUP")
-        AuthUpdater(verbose=False, warn_only=True)
-        group = Group.objects.get(name="GROUP")
-
-        codenames.extend(codenames_callable())
-        codenames.sort()
-        self.assertEqual(
-            [
-                p.codename
-                for p in group.permissions.filter(content_type__app_label="edc_auth").order_by(
-                    "codename"
-                )
-            ],
-            [c.split(".")[1] for c in codenames],
-        )
-
-    def test_add_group_view_only(self):
-        codenames = [
-            "edc_auth.add_testmodel",
-            "edc_auth.change_testmodel",
-            "edc_auth.delete_testmodel",
-            "edc_auth.view_testmodel",
-        ]
-        site_auths.clear()
-        site_auths.add_group(*codenames, name="GROUP_VIEW_ONLY", view_only=True)
-        AuthUpdater(verbose=False, warn_only=True)
-        group = Group.objects.get(name="GROUP_VIEW_ONLY")
-        self.assertEqual(
-            [p.codename for p in group.permissions.filter(content_type__app_label="edc_auth")],
-            ["view_testmodel"],
-        )
-
-    def test_add_group_view_only_with_callable(self):
-        def more_codenames():
-            return [
-                "edc_auth.add_subjectrequisition",
-                "edc_auth.change_subjectrequisition",
-                "edc_auth.delete_subjectrequisition",
-                "edc_auth.view_subjectrequisition",
-            ]
-
-        codenames = [
-            "edc_auth.add_testmodel",
-            "edc_auth.change_testmodel",
-            "edc_auth.delete_testmodel",
-            "edc_auth.view_testmodel",
-            more_codenames,
-        ]
-        site_auths.clear()
-        site_auths.add_group(*codenames, name="GROUP_VIEW_ONLY", view_only=True)
-        AuthUpdater(verbose=False, warn_only=True)
-        group = Group.objects.get(name="GROUP_VIEW_ONLY")
-        self.assertEqual(
-            [p.codename for p in group.permissions.filter(content_type__app_label="edc_auth")],
-            ["view_subjectrequisition", "view_testmodel"],
-        )
-
-    def test_add_group_convert_to_export_with_callable(self):
-        def more_codenames():
-            return [
-                "edc_auth.add_subjectrequisition",
-                "edc_auth.change_subjectrequisition",
-                "edc_auth.delete_subjectrequisition",
-                "edc_auth.view_subjectrequisition",
-            ]
-
-        codenames = [
-            "edc_auth.add_testmodel",
-            "edc_auth.change_testmodel",
-            "edc_auth.delete_testmodel",
-            "edc_auth.view_testmodel",
-            more_codenames,
-        ]
-        site_auths.clear()
-        site_auths.add_group(*codenames, name="GROUP_EXPORT", convert_to_export=True)
-        AuthUpdater(verbose=False, warn_only=True)
-        group = Group.objects.get(name="GROUP_EXPORT")
-        self.assertEqual(
-            [p.codename for p in group.permissions.filter(content_type__app_label="edc_auth")],
-            ["export_subjectrequisition", "export_testmodel"],
-        )
-
-    def test_add_group_remove_delete_with_callable(self):
-        def more_codenames():
-            return [
-                "edc_auth.add_subjectrequisition",
-                "edc_auth.change_subjectrequisition",
-                "edc_auth.delete_subjectrequisition",
-                "edc_auth.view_subjectrequisition",
-            ]
-
-        codenames = [
-            "edc_auth.add_testmodel",
-            "edc_auth.change_testmodel",
-            "edc_auth.delete_testmodel",
-            "edc_auth.view_testmodel",
-            more_codenames,
-        ]
-        site_auths.clear()
-        site_auths.add_group(*codenames, name="GROUP_NO_DELETE", no_delete=True)
-        AuthUpdater(verbose=False, warn_only=True)
-        group = Group.objects.get(name="GROUP_NO_DELETE")
-
-        codenames = [
-            "add_subjectrequisition",
-            "add_testmodel",
-            "change_subjectrequisition",
-            "change_testmodel",
-            "view_subjectrequisition",
-            "view_testmodel",
-        ]
-        self.assertEqual(
-            [
-                p.codename
-                for p in group.permissions.filter(content_type__app_label="edc_auth").order_by(
-                    "codename"
-                )
-            ],
-            codenames,
-        )
 
 
 @override_settings(
@@ -207,7 +45,7 @@ class TestAuthUpdater(TestCase):
 
         self.assertIn(
             (
-                "edc_auth.view_customrandomizationlist",
+                "tests.view_customrandomizationlist",
                 "Can view custom randomization list",
             ),
             get_rando_permissions_tuples(),
@@ -278,9 +116,15 @@ class TestAuthUpdater(TestCase):
         AuthUpdater(verbose=False, warn_only=True)
         for group in Group.objects.all():
             qs = group.permissions.all()
-            self.assertNotIn("add_randomizationlist", "|".join([o.codename for o in qs]))
-            self.assertNotIn("change_randomizationlist", "|".join([o.codename for o in qs]))
-            self.assertNotIn("delete_randomizationlist", "|".join([o.codename for o in qs]))
+            self.assertNotIn(
+                "add_randomizationlist", "|".join([o.codename for o in qs])
+            )
+            self.assertNotIn(
+                "change_randomizationlist", "|".join([o.codename for o in qs])
+            )
+            self.assertNotIn(
+                "delete_randomizationlist", "|".join([o.codename for o in qs])
+            )
 
     def test_removes_randomization_list_model_perms2(self):
         self.assertIn(
@@ -289,15 +133,23 @@ class TestAuthUpdater(TestCase):
         )
         AuthUpdater(verbose=False, warn_only=True)
         Permission.objects.filter(
-            content_type__app_label__in=["edc_randomization", "edc_auth"]
+            content_type__app_label__in=["edc_randomization", "tests"]
         )
         # confirm add_, change_, delete_ codenames for rando
         # does not exist in any groups.
         for group in Group.objects.all():
             qs = group.permissions.all()
             for model_name in ["customrandomizationlist", "randomizationlist"]:
-                self.assertNotIn(f"add_{model_name}", "|".join([o.codename for o in qs]))
-                self.assertNotIn(f"change_{model_name}", "|".join([o.codename for o in qs]))
-                self.assertNotIn(f"delete_{model_name}", "|".join([o.codename for o in qs]))
+                self.assertNotIn(
+                    f"add_{model_name}", "|".join([o.codename for o in qs])
+                )
+                self.assertNotIn(
+                    f"change_{model_name}", "|".join([o.codename for o in qs])
+                )
+                self.assertNotIn(
+                    f"delete_{model_name}", "|".join([o.codename for o in qs])
+                )
                 if group.name in [RANDO_UNBLINDED, RANDO_BLINDED]:
-                    self.assertIn(f"view_{model_name}", "|".join([o.codename for o in qs]))
+                    self.assertIn(
+                        f"view_{model_name}", "|".join([o.codename for o in qs])
+                    )

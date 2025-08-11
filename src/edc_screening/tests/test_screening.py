@@ -2,11 +2,6 @@ import re
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
-from screening_app.models import (
-    SubjectScreening,
-    SubjectScreeningWithEligibility,
-    SubjectScreeningWithEligibilitySimple,
-)
 
 from edc_constants.constants import MALE, NO, UUID_PATTERN, YES
 from edc_identifier.models import IdentifierModel
@@ -20,12 +15,19 @@ from edc_screening.utils import (
     get_subject_screening_model,
     get_subject_screening_model_cls,
 )
+from tests.models import (
+    SubjectScreening,
+    SubjectScreeningSimple,
+    SubjectScreeningWithoutEligibility,
+)
 
 
 class TestScreening(TestCase):
     @override_settings(SUBJECT_SCREENING_MODEL="screening_app.subjectscreening")
     def test_model_funcs(self):
-        self.assertEqual(get_subject_screening_model(), "screening_app.subjectscreening")
+        self.assertEqual(
+            get_subject_screening_model(), "screening_app.subjectscreening"
+        )
         self.assertEqual(get_subject_screening_app_label(), "screening_app")
         self.assertEqual(get_subject_screening_model_cls(), SubjectScreening)
 
@@ -40,7 +42,8 @@ class TestScreening(TestCase):
 
         str_values = ["age_in_years", None, None, "on_art"]
         self.assertEqual(
-            format_reasons_ineligible(*str_values, delimiter="<BR>"), "age_in_years<BR>on_art"
+            format_reasons_ineligible(*str_values, delimiter="<BR>"),
+            "age_in_years<BR>on_art",
         )
 
         str_values = []
@@ -93,13 +96,15 @@ class TestScreening(TestCase):
     def test_model_with_screening_eligiblity_cls_missing(self):
         """No criteria is being assessed"""
         self.assertFalse(
-            SubjectScreeningWithEligibilitySimple.objects.create(
+            SubjectScreeningSimple.objects.create(
                 age_in_years=25,
             ).eligible
         )
 
     def test_model_screening_eligiblity_resave(self):
-        obj = SubjectScreeningWithEligibility.objects.create(age_in_years=17, alive=NO)
+        obj = SubjectScreeningWithoutEligibility.objects.create(
+            age_in_years=17, alive=NO
+        )
         self.assertFalse(obj.eligible)
         # note model attr is formatted as a string of dict.values()
         self.assertEqual(obj.reasons_ineligible, "must be >=18|must be alive")

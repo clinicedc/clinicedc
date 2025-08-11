@@ -1,12 +1,13 @@
 from importlib import import_module
 
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_auth.auth_updater import AuthUpdater
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE, SITE_DATA_MANAGER_ROLE
 from edc_export.constants import EXPORT
 
 
+@tag("ae")
 class TestAuths(TestCase):
     @override_settings(
         EDC_AUTH_SKIP_SITE_AUTHS=True,
@@ -17,7 +18,7 @@ class TestAuths(TestCase):
         import_module("edc_navbar.auths")
         # import_module("edc_data_manager.auths")
         # import_module("edc_lab.auths")
-        import_module("edc_adverse_event.auths")
+        # import_module("edc_adverse_event.auths")
         AuthUpdater.add_empty_groups_for_tests(EXPORT)
         AuthUpdater.add_empty_roles_for_tests(DATA_MANAGER_ROLE, SITE_DATA_MANAGER_ROLE)
         AuthUpdater(verbose=True)

@@ -30,3 +30,9 @@ Clinic EDC is open-source and written in python on top of Django
    backup_recovery_strategies
    other_technologies
    articles
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Clinicedc modules:
+
+   clinicedc_modules/index

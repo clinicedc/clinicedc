@@ -17,9 +17,9 @@ from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_visit_tracking.constants import SCHEDULED
+from tests.action_items import CrfOneAction, register_actions
+from tests.models import CrfOne, CrfTwo, FormOne, FormTwo
 
-from ..action_items import CrfOneAction, register_actions
-from ..models import CrfOne, CrfTwo, FormOne, FormTwo
 from ..test_case_mixin import TestCaseMixin
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
@@ -34,7 +34,9 @@ class TestHelpers(TestCaseMixin, TestCase):
         site_consents.registry = {}
         register_actions()
         self.subject_identifier = self.fake_enroll()
-        self.form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
+        self.form_one = FormOne.objects.create(
+            subject_identifier=self.subject_identifier
+        )
         self.action_item = ActionItem.objects.get(
             action_identifier=self.form_one.action_identifier
         )
@@ -49,17 +51,23 @@ class TestHelpers(TestCaseMixin, TestCase):
         form_two = FormTwo.objects.create(
             form_one=self.form_one, subject_identifier=self.subject_identifier
         )
-        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
+        action_item = ActionItem.objects.get(
+            action_identifier=form_two.action_identifier
+        )
         self.assertEqual(get_reference_obj(action_item), form_two)
         form_two.delete()
-        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
+        action_item = ActionItem.objects.get(
+            action_identifier=form_two.action_identifier
+        )
         self.assertIsNone(get_reference_obj(action_item))
 
     def test_create_parent_reference_model_instance(self):
         form_two = FormTwo.objects.create(
             form_one=self.form_one, subject_identifier=self.subject_identifier
         )
-        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
+        action_item = ActionItem.objects.get(
+            action_identifier=form_two.action_identifier
+        )
         self.assertEqual(get_reference_obj(action_item), form_two)
         self.assertEqual(get_parent_reference_obj(action_item), self.form_one)
         self.assertEqual(get_related_reference_obj(action_item), self.form_one)
@@ -80,7 +88,7 @@ class TestHelpers(TestCaseMixin, TestCase):
 
     def test_reference_as_crf(self):
         consent_v1 = ConsentDefinition(
-            "edc_action_item.subjectconsentv1",
+            "tests.subjectconsentv1",
             version="1",
             start=test_datetime,
             end=test_datetime + relativedelta(years=3),
@@ -90,7 +98,9 @@ class TestHelpers(TestCaseMixin, TestCase):
             gender=[MALE, FEMALE],
         )
         self.enroll(consent_datetime=test_datetime, cdef=consent_v1)
-        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
+        appointment = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
         traveller = time_machine.travel(appointment.appt_datetime)
         traveller.start()
         subject_visit = django_apps.get_model(
@@ -101,7 +111,9 @@ class TestHelpers(TestCaseMixin, TestCase):
             reason=SCHEDULED,
         )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
-        action_item = ActionItem.objects.get(action_identifier=crf_one.action_identifier)
+        action_item = ActionItem.objects.get(
+            action_identifier=crf_one.action_identifier
+        )
         self.assertEqual(get_reference_obj(action_item), crf_one)
         self.assertIsNone(get_parent_reference_obj(action_item))
         self.assertIsNone(get_related_reference_obj(action_item))
@@ -109,7 +121,7 @@ class TestHelpers(TestCaseMixin, TestCase):
 
     def test_reference_as_crf_create_next_model_instance(self):
         consent_v1 = ConsentDefinition(
-            "edc_action_item.subjectconsentv1",
+            "tests.subjectconsentv1",
             version="1",
             start=test_datetime,
             end=test_datetime + relativedelta(years=3),
@@ -121,13 +133,17 @@ class TestHelpers(TestCaseMixin, TestCase):
         self.enroll(consent_datetime=test_datetime, cdef=consent_v1)
         traveller = time_machine.travel(test_datetime)
         traveller.start()
-        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
+        appointment = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
         subject_visit = django_apps.get_model(
             "edc_visit_tracking.subjectvisit"
         ).objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         crf_two = CrfTwo.objects.create(subject_visit=subject_visit)
-        action_item = ActionItem.objects.get(action_identifier=crf_two.action_identifier)
+        action_item = ActionItem.objects.get(
+            action_identifier=crf_two.action_identifier
+        )
         self.assertEqual(get_reference_obj(action_item), crf_two)
         self.assertEqual(get_parent_reference_obj(action_item), crf_one)
         self.assertIsNone(get_related_reference_obj(action_item))

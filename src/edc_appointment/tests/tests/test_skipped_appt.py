@@ -8,21 +8,6 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings, tag
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.forms import CrfThreeForm
-from edc_appointment_app.models import (
-    CrfFive,
-    CrfFour,
-    CrfOne,
-    CrfThree,
-    CrfTwo,
-    SubjectVisit,
-)
-from edc_appointment_app.visit_schedule import (
-    get_visit_schedule1,
-    get_visit_schedule2,
-    get_visit_schedule5,
-)
 
 from edc_appointment.constants import (
     COMPLETE_APPT,
@@ -36,21 +21,31 @@ from edc_appointment.skip_appointments import (
     SkipAppointmentsFieldError,
     SkipAppointmentsValueError,
 )
-from edc_appointment.tests.helper import Helper
 from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_appointment.utils import get_allow_skipped_appt_using
 from edc_consent.site_consents import site_consents
-from edc_facility import import_holidays
+from edc_facility.import_holidays import import_holidays
+from edc_utils import get_utcnow
 from edc_visit_schedule.models import VisitSchedule
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from tests.consents import consent_v1
+from tests.forms import CrfThreeForm
+from tests.helper import Helper
+from tests.models import CrfFive, CrfFour, CrfSeven, CrfSix, CrfThree, SubjectVisit
+from tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+    get_visit_schedule2,
+    get_visit_schedule5,
+)
 
 utc = ZoneInfo("UTC")
 
 
+@tag("appointment")
 @override_settings(SITE_ID=10)
-@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc))
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc))
 class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
     helper_cls = Helper
 
@@ -68,20 +63,22 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         site_consents.register(consent_v1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=datetime(2017, 6, 5, 8, 0, 0, tzinfo=utc),
+            now=get_utcnow(),
         )
         populate_visit_schedule()
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crfone": ("next_appt_date", "next_visit_code")
+            "tests.crfsix": ("next_appt_date", "next_visit_code")
         }
     )
     def test_skip_appointments_using_crf_date(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
         subject_visit = SubjectVisit.objects.create(
@@ -94,29 +91,31 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
         self.assertRaises(
             SkipAppointmentsValueError,
-            CrfOne.objects.create,
+            CrfSix.objects.create,
             subject_visit=subject_visit,
             next_appt_date=subject_visit.report_datetime + relativedelta(weeks=3),
         )
-        CrfOne.objects.all().delete()
+        CrfSix.objects.all().delete()
 
-        CrfOne.objects.create(
+        CrfSix.objects.create(
             subject_visit=subject_visit,
             next_appt_date=subject_visit.report_datetime + relativedelta(weeks=3),
             next_visit_code=appointments[3].visit_code,
         )
 
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
 
         self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crfone": ("next_appt_date", "next_visit_code"),
-            "edc_appointment_app.crftwo": ("report_datetime", "next_visit_code"),
-            "edc_appointment_app.crfthree": ("report_datetime", "f1"),
-            "edc_appointment_app.crffour": ("report_datetime", "next_visit_code"),
+            "tests.crfsix": ("next_appt_date", "next_visit_code"),
+            "tests.crfseven": ("report_datetime", "next_visit_code"),
+            "tests.crfthree": ("report_datetime", "f1"),
+            "tests.crffour": ("report_datetime", "next_visit_code"),
         }
     )
     def test_settings_improperly_configured(self):
@@ -124,14 +123,16 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crftwo": ("report_datetime", "next_visit_code_blah"),
+            "tests.crfseven": ("report_datetime", "next_visit_code_blah"),
         }
     )
     def test_skip_appointments_using_bad_settings_for_crf(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
         subject_visit = SubjectVisit.objects.create(
@@ -145,21 +146,23 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         # next_visit_code_blah is not a valid field on Crf
         self.assertRaises(
             SkipAppointmentsFieldError,
-            CrfTwo.objects.create,
+            CrfSeven.objects.create,
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
         )
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crftwo": ("report_datetime_blah", "f1"),
+            "tests.crfseven": ("report_datetime_blah", "f1"),
         }
     )
     def test_skip_appointments_using_bad_settings_for_crf2(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
         subject_visit = SubjectVisit.objects.create(
@@ -173,7 +176,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         # report_datetime_blah is not a valid field on Crf
         self.assertRaises(
             SkipAppointmentsFieldError,
-            CrfTwo.objects.create,
+            CrfSeven.objects.create,
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             f1=appointments[3].visit_code,
@@ -181,14 +184,16 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crfthree": ("report_datetime", "f1"),
+            "tests.crfthree": ("report_datetime", "f1"),
         }
     )
     def test_skip_appointments_using_crf_ok(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
         subject_visit = SubjectVisit.objects.create(
@@ -211,14 +216,16 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crfthree": ("report_datetime", "f1"),
+            "tests.crfthree": ("report_datetime", "f1"),
         }
     )
     def test_skip_multiple_appointments_using_good_crf(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
         subject_visit = SubjectVisit.objects.create(
@@ -233,21 +240,25 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             report_datetime=appointments[3].appt_datetime,
             f1=appointments[3].visit_code,
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[2].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[3].appt_status, NEW_APPT)
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crfthree": ("appt_date", "f1"),
+            "tests.crfthree": ("appt_date", "f1"),
         }
     )
     def test_skip_multiple_appointments_using_last_crf(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
         subject_visit = SubjectVisit.objects.create(
@@ -261,7 +272,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             f1=appointments[2].visit_code,
         )
 
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[2].appt_status, NEW_APPT)
@@ -280,7 +293,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             appt_date=appointments[3].appt_datetime.date(),
         )
 
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         self.assertEqual(appointments[0].appt_status, INCOMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[2].appt_status, SKIPPED_APPT)
@@ -288,14 +303,16 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crftwo": ("report_datetime", "visitschedule"),
+            "tests.crfseven": ("report_datetime", "visitschedule"),
         }
     )
     def test_visit_code_as_visit_schedule_fk_ok(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
         subject_visit = SubjectVisit.objects.create(
@@ -305,30 +322,36 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         )
         self.assertRaises(
             SkipAppointmentsValueError,
-            CrfTwo.objects.create,
+            CrfSeven.objects.create,
             subject_visit=subject_visit,
             report_datetime=appointments[1].appt_datetime,
-            visitschedule=VisitSchedule.objects.get(visit_code=appointments[3].visit_code),
+            visitschedule=VisitSchedule.objects.get(
+                visit_code=appointments[3].visit_code
+            ),
         )
 
         self.assertRaises(
             SkipAppointmentsValueError,
-            CrfTwo.objects.create,
+            CrfSeven.objects.create,
             subject_visit=subject_visit,
             report_datetime=appointments[3].appt_datetime,
-            visitschedule=VisitSchedule.objects.get(visit_code=appointments[1].visit_code),
+            visitschedule=VisitSchedule.objects.get(
+                visit_code=appointments[1].visit_code
+            ),
         )
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crfthree": ("appt_date", "f1"),
+            "tests.crfthree": ("appt_date", "f1"),
         }
     )
     def test_last_crf_with_absurd_date_relative_to_visit_code(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
         subject_visit = SubjectVisit.objects.create(
@@ -346,14 +369,16 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crfthree": ("appt_date", "f1"),
+            "tests.crfthree": ("appt_date", "f1"),
         }
     )
     def test_delete(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
         subject_visit = SubjectVisit.objects.create(
@@ -366,7 +391,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             appt_date=appointments[2].appt_datetime.date(),
             f1=appointments[2].visit_code,
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[1].appt_status = IN_PROGRESS_APPT
         appointments[1].save()
         subject_visit = SubjectVisit.objects.create(
@@ -379,21 +406,27 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             f1=appointments[3].visit_code,
             appt_date=appointments[3].appt_datetime.date(),
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         self.assertEqual(appointments[0].appt_status, INCOMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[2].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[3].appt_status, NEW_APPT)
 
         crf_three_2000.delete()
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         self.assertEqual(appointments[0].appt_status, INCOMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[2].appt_status, NEW_APPT)
         self.assertEqual(appointments[3].appt_status, NEW_APPT)
 
         crf_three_1000.delete()
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         self.assertEqual(appointments[0].appt_status, INCOMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[2].appt_status, NEW_APPT)
@@ -402,7 +435,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
     @tag("3")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crfthree": ("appt_date", "f1"),
+            "tests.crfthree": ("appt_date", "f1"),
         }
     )
     def test_skip2(self):
@@ -411,7 +444,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         )
         appointments = [
             obj
-            for obj in Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            for obj in Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )
         ]
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
@@ -423,12 +458,14 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
         appointments = [
             obj
-            for obj in Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            for obj in Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )
         ]
         self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[1].appt_status, NEW_APPT)
 
-        for model_cls in [CrfOne, CrfTwo, CrfFour, CrfFive]:
+        for model_cls in [CrfSix, CrfSeven, CrfFour, CrfFive]:
             model_cls.objects.create(
                 subject_visit=subject_visit,
                 report_datetime=appointments[0].appt_datetime,
@@ -436,7 +473,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             )
         appointments = [
             obj
-            for obj in Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            for obj in Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )
         ]
         self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[1].appt_status, NEW_APPT)
@@ -448,7 +487,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         )
         appointments = [
             obj
-            for obj in Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            for obj in Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )
         ]
         self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
@@ -468,13 +509,15 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
         appointments = [
             obj
-            for obj in Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            for obj in Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )
         ]
         self.assertEqual(appointments[0].appt_status, COMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[2].appt_status, IN_PROGRESS_APPT)
 
-        for model_cls in [CrfOne, CrfTwo, CrfFour, CrfFive]:
+        for model_cls in [CrfSix, CrfSeven, CrfFour, CrfFive]:
             model_cls.objects.create(
                 subject_visit=subject_visit,
                 report_datetime=appointments[2].appt_datetime,
@@ -483,7 +526,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
         appointments = [
             obj
-            for obj in Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            for obj in Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )
         ]
         self.assertEqual(appointments[0].appt_status, COMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
@@ -498,19 +543,25 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
         appointments = [
             obj
-            for obj in Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            for obj in Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )
         ]
         self.assertEqual(appointments[0].appt_status, COMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
         self.assertEqual(appointments[2].appt_status, IN_PROGRESS_APPT)
 
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[2].appt_status = COMPLETE_APPT
         appointments[2].save()
 
         appointments = [
             obj
-            for obj in Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            for obj in Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )
         ]
         self.assertEqual(appointments[0].appt_status, COMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
@@ -527,7 +578,7 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             report_datetime=appointments[3].appt_datetime,
             reason=SCHEDULED,
         )
-        CrfOne.objects.create(
+        CrfSix.objects.create(
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             f1="blah",
@@ -541,7 +592,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
         appointments = [
             obj
-            for obj in Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            for obj in Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )
         ]
         self.assertEqual(appointments[0].appt_status, COMPLETE_APPT)
         self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
@@ -563,7 +616,9 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         )
         appointments = [
             obj
-            for obj in Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            for obj in Appointment.objects.all().order_by(
+                "timepoint", "visit_code_sequence"
+            )
         ]
         self.assertEqual(appointments[0].appt_status, IN_PROGRESS_APPT)
         self.assertEqual(appointments[1].appt_status, SKIPPED_APPT)
@@ -576,14 +631,16 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
     @skip("not allowing intermin")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "edc_appointment_app.crfthree": ("appt_date", "f1"),
+            "tests.crfthree": ("appt_date", "f1"),
         }
     )
     def test_when_next_appointment_in_window(self):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule5", schedule_name="monthly_schedule"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         appointments[0].appt_status = IN_PROGRESS_APPT
         appointments[0].save()
         subject_visit = SubjectVisit.objects.create(
@@ -592,8 +649,10 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             reason=SCHEDULED,
         )
 
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
-        for model_cls in [CrfOne, CrfTwo, CrfFour, CrfFive]:
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
+        for model_cls in [CrfSix, CrfSeven, CrfFour, CrfFive]:
             model_cls.objects.create(
                 subject_visit=subject_visit,
                 report_datetime=appointments[0].appt_datetime,
@@ -607,17 +666,23 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         )
         form = CrfThreeForm(data=data, instance=CrfThree(subject_visit=subject_visit))
         form.is_valid()
-        self.assertEqual({}, {k: v for k, v in form._errors.items() if k != "subject_visit"})
+        self.assertEqual(
+            {}, {k: v for k, v in form._errors.items() if k != "subject_visit"}
+        )
 
         CrfThree.objects.create(subject_visit=subject_visit, **data)
 
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         self.assertEqual(
             (appointments[0].appt_datetime + relativedelta(days=3)).date(),
             appointments[1].appt_datetime.date(),
         )
 
-        traveller = time_machine.travel(appointments[0].appt_datetime + relativedelta(days=3))
+        traveller = time_machine.travel(
+            appointments[0].appt_datetime + relativedelta(days=3)
+        )
         traveller.start()
         appointments[1].appt_status = IN_PROGRESS_APPT
         appointments[1].save()
@@ -626,8 +691,10 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
             report_datetime=appointments[1].appt_datetime,
             reason=SCHEDULED,
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
-        for model_cls in [CrfOne, CrfTwo, CrfFour, CrfFive]:
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
+        for model_cls in [CrfSix, CrfSeven, CrfFour, CrfFive]:
             model_cls.objects.create(
                 subject_visit=subject_visit,
                 report_datetime=appointments[1].appt_datetime,
@@ -642,10 +709,14 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
         )
         form = CrfThreeForm(data=data, instance=CrfThree(subject_visit=subject_visit))
         form.is_valid()
-        self.assertEqual({}, {k: v for k, v in form._errors.items() if k != "subject_visit"})
+        self.assertEqual(
+            {}, {k: v for k, v in form._errors.items() if k != "subject_visit"}
+        )
         CrfThree.objects.create(subject_visit=subject_visit, **data)
 
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         self.assertEqual(appointments[2].visit_code, "1010")
         self.assertEqual(appointments[2].visit_code_sequence, 1)
 

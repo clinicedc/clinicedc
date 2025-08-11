@@ -10,8 +10,7 @@ from edc_device.device_permission import (
     DevicePermissionChangeError,
     device_permissions,
 )
-
-from ..models import TestModel, TestModel2, TestModelPermissions
+from tests.models import TestModel, TestModel2, TestModelPermissions
 
 
 class TestDevicePermission(TestCase):
@@ -20,34 +19,34 @@ class TestDevicePermission(TestCase):
 
     def test_device_permissions_repr_str(self):
         add_test_model = DeviceAddPermission(
-            model="edc_device.testmodel", device_roles=[CENTRAL_SERVER]
+            model="tests.testmodel", device_roles=[CENTRAL_SERVER]
         )
         self.assertTrue(repr(add_test_model))
         self.assertTrue(str(add_test_model))
 
         change_test_model = DeviceChangePermission(
-            model="edc_device.testmodel", device_roles=[CENTRAL_SERVER]
+            model="tests.testmodel", device_roles=[CENTRAL_SERVER]
         )
         self.assertTrue(repr(change_test_model))
         self.assertTrue(str(change_test_model))
 
     def test_device_permissions_register(self):
         device_permission = DeviceAddPermission(
-            model="edc_device.testmodel", device_roles=[CENTRAL_SERVER]
+            model="tests.testmodel", device_roles=[CENTRAL_SERVER]
         )
         device_permissions.register(device_permission)
         device_permission = DeviceChangePermission(
-            model="edc_device.testmodel", device_roles=[NODE_SERVER, CENTRAL_SERVER]
+            model="tests.testmodel", device_roles=[NODE_SERVER, CENTRAL_SERVER]
         )
         device_permissions.register(device_permission)
 
     def test_device_permission_app(self):
         device_permission = DeviceAddPermission(
-            model="edc_device.testmodel", device_roles=[CENTRAL_SERVER]
+            model="tests.testmodel", device_roles=[CENTRAL_SERVER]
         )
         device_permissions.register(device_permission)
         device_permission = DeviceChangePermission(
-            model="edc_device.testmodel", device_roles=[NODE_SERVER, CENTRAL_SERVER]
+            model="tests.testmodel", device_roles=[NODE_SERVER, CENTRAL_SERVER]
         )
         device_permissions.register(device_permission)
         app_config = django_apps.get_app_config("edc_device")
@@ -60,10 +59,10 @@ class TestDevicePermission(TestCase):
 
     def test_device_permission_add(self):
         device_add_permission = DeviceAddPermission(
-            model="edc_device.testmodel", device_roles=[CENTRAL_SERVER]
+            model="tests.testmodel", device_roles=[CENTRAL_SERVER]
         )
         device_change_permission = DeviceChangePermission(
-            model="edc_device.testmodel", device_roles=[NODE_SERVER, CENTRAL_SERVER]
+            model="tests.testmodel", device_roles=[NODE_SERVER, CENTRAL_SERVER]
         )
         device_permissions.register(device_add_permission)
         device_permissions.register(device_change_permission)

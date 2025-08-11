@@ -5,31 +5,30 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.tests.appointment_app_test_case_mixin import (
-    AppointmentAppTestCaseMixin,
-)
-from edc_appointment_app.visit_schedule import get_visit_schedule1
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import INCOMPLETE_APPT
+from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
+from edc_appointment.utils import reset_visit_code_sequence_or_pass
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.models import CrfMetadata
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule1
 
-from ...creators import UnscheduledAppointmentCreator
-from ...utils import reset_visit_code_sequence_or_pass
-from ..helper import Helper
+from ..test_case_mixins import AppointmentAppTestCaseMixin
 
 utc_tz = ZoneInfo("UTC")
 
-test_datetime = dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz)
+test_datetime = dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz)
 
 
+@tag("appointment")
 @override_settings(SITE_ID=10)
 @time_machine.travel(test_datetime)
 class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
@@ -55,7 +54,9 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
             schedule_name="schedule1",
             report_datetime=get_utcnow(),
         )
-        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier
+        )
         self.assertEqual(appointments.count(), 4)
 
         appointment = Appointment.objects.get(timepoint=0.0)
@@ -78,7 +79,8 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
-            suggested_appt_datetime=appointment.appt_datetime + relativedelta(days=days),
+            suggested_appt_datetime=appointment.appt_datetime
+            + relativedelta(days=days),
             suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
         )
         appointment = creator.appointment
@@ -87,7 +89,9 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         return appointment
 
     @staticmethod
-    def get_visit_codes(by: str = None, visit_schedule_name: str | None = None, **kwargs):
+    def get_visit_codes(
+        by: str = None, visit_schedule_name: str | None = None, **kwargs
+    ):
         opts = dict(visit_schedule_name=visit_schedule_name)
         return [
             f"{o.visit_code}.{o.visit_code_sequence}"
@@ -96,9 +100,15 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
 
     def test_resequence_appointment_on_insert_between_two_unscheduled(self):
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
-        self.assertEqual(self.create_unscheduled(appointment, days=2).visit_code_sequence, 1)
-        self.assertEqual(self.create_unscheduled(appointment, days=4).visit_code_sequence, 2)
-        self.assertEqual(self.create_unscheduled(appointment, days=5).visit_code_sequence, 3)
+        self.assertEqual(
+            self.create_unscheduled(appointment, days=2).visit_code_sequence, 1
+        )
+        self.assertEqual(
+            self.create_unscheduled(appointment, days=4).visit_code_sequence, 2
+        )
+        self.assertEqual(
+            self.create_unscheduled(appointment, days=5).visit_code_sequence, 3
+        )
 
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
@@ -121,7 +131,16 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         self.assertEqual(appointment.visit_code_sequence, 2)
 
         self.assertEqual(
-            ["1000.0", "1000.1", "1000.2", "1000.3", "1000.4", "2000.0", "3000.0", "4000.0"],
+            [
+                "1000.0",
+                "1000.1",
+                "1000.2",
+                "1000.3",
+                "1000.4",
+                "2000.0",
+                "3000.0",
+                "4000.0",
+            ],
             self.get_visit_codes(
                 by="appt_datetime", visit_schedule_name=appointment.visit_schedule_name
             ),
@@ -236,10 +255,16 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         )
 
         self.assertEqual(
-            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=3333).count(), 3
+            CrfMetadata.objects.filter(
+                visit_code="1000", visit_code_sequence=3333
+            ).count(),
+            3,
         )
         self.assertEqual(
-            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=33).count(), 3
+            CrfMetadata.objects.filter(
+                visit_code="1000", visit_code_sequence=33
+            ).count(),
+            3,
         )
         reset_visit_code_sequence_or_pass(
             subject_identifier=self.subject_identifier,
@@ -248,15 +273,27 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
             visit_code="1000",
         )
         self.assertEqual(
-            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=3333).count(), 0
+            CrfMetadata.objects.filter(
+                visit_code="1000", visit_code_sequence=3333
+            ).count(),
+            0,
         )
         self.assertEqual(
-            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=33).count(), 0
+            CrfMetadata.objects.filter(
+                visit_code="1000", visit_code_sequence=33
+            ).count(),
+            0,
         )
 
         self.assertEqual(
-            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=2).count(), 3
+            CrfMetadata.objects.filter(
+                visit_code="1000", visit_code_sequence=2
+            ).count(),
+            3,
         )
         self.assertEqual(
-            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=3).count(), 3
+            CrfMetadata.objects.filter(
+                visit_code="1000", visit_code_sequence=3
+            ).count(),
+            3,
         )

@@ -3,25 +3,26 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
-from edc_appointment_app.visit_schedule import get_visit_schedule4
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper
 from edc_appointment.utils import (
     AppointmentDateWindowPeriodGapError,
     get_appointment_by_datetime,
     get_window_gap_days,
 )
-from edc_facility import import_holidays
+from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule4
 
 utc = ZoneInfo("UTC")
 
 
-@time_machine.travel(dt.datetime(2019, 7, 11, 8, 00, tzinfo=utc))
+@tag("appointment")
+@time_machine.travel(dt.datetime(2025, 7, 11, 8, 00, tzinfo=utc))
 @override_settings(SITE_ID=10)
 class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
     helper_cls = Helper
@@ -72,7 +73,8 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
             )
 
         self.assertIn(
-            "Date falls in a `window period gap` between 1030 and 1060", str(cm.exception)
+            "Date falls in a `window period gap` between 1030 and 1060",
+            str(cm.exception),
         )
 
     @override_settings(EDC_VISIT_SCHEDULE_DEFAULT_MAX_VISIT_GAP_ALLOWED=7)
@@ -151,7 +153,9 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
                 raise_if_in_gap=False,
             )
         except AppointmentDateWindowPeriodGapError as e:
-            self.fail(f"AppointmentDateWindowPeriodGapError unexpectedly raised. Got {e}")
+            self.fail(
+                f"AppointmentDateWindowPeriodGapError unexpectedly raised. Got {e}"
+            )
         self.assertIsNone(appointment)
 
     def test_window_gap_days(self):

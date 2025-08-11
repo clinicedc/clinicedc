@@ -4,11 +4,10 @@ from django.test import override_settings
 from django.test.client import RequestFactory
 
 from edc_auth.auth_updater import AuthUpdater
+from edc_auth.backends import ModelBackendWithSite
 from edc_auth.constants import CLINICIAN_ROLE
+from edc_auth.models.role import Role
 from edc_auth.tests.utils import EdcAuthTestCase
-
-from ...backends import ModelBackendWithSite
-from ...models.role import Role
 
 
 @override_settings(
@@ -30,7 +29,9 @@ class TestUserProfile(EdcAuthTestCase):
         request = RequestFactory()
         backend = ModelBackendWithSite()
         self.assertIsNotNone(
-            backend.authenticate(request, username="erik", password="password")  # nosec B106
+            backend.authenticate(
+                request, username="erik", password="password"
+            )  # nosec B106
         )
 
     @override_settings(SITE_ID=10)
@@ -47,7 +48,9 @@ class TestUserProfile(EdcAuthTestCase):
         request = RequestFactory()
         backend = ModelBackendWithSite()
         self.assertIsNotNone(
-            backend.authenticate(request, username="erik", password="password")  # nosec B106
+            backend.authenticate(
+                request, username="erik", password="password"
+            )  # nosec B106
         )
 
     @override_settings(SITE_ID=20)

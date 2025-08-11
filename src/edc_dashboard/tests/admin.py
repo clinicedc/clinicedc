@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import AdminSite as DjangoAdminSite
 
-from .models import SubjectVisit
+from tests.models import SubjectVisit
 
 
 class AdminSite(DjangoAdminSite):

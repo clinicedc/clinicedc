@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_action_item.system_checks import edc_action_item_checks
 from edc_consent.system_checks import check_consents
@@ -16,6 +16,7 @@ from edc_visit_schedule.system_checks import (
 )
 
 
+@tag("appconfig")
 @override_settings(SILENCED_SYSTEM_CHECKS=[])
 class TestAppConfig(TestCase):
     """These tests just run the checks even though the system is

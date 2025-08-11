@@ -1,11 +1,10 @@
 import string
 from secrets import choice
 
-from consent_app.models import SubjectConsentV1
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from faker import Faker
 from model_bakery import baker
 
@@ -13,12 +12,14 @@ from edc_consent.actions import unverify_consent, verify_consent
 from edc_consent.site_consents import site_consents
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
+from tests.models import SubjectConsentV1
 
 from ..consent_test_utils import consent_definition_factory
 
 fake = Faker()
 
 
+@tag("consent")
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
@@ -43,7 +44,7 @@ class TestActions(TestCase):
             last_name = fake.last_name()
             initials = first_name[0] + choice(string.ascii_uppercase) + last_name[0]
             baker.make_recipe(
-                "consent_app.subjectconsentv1",
+                "tests.subjectconsentv1",
                 consent_datetime=self.study_open_datetime + relativedelta(days=1),
                 initials=initials.upper(),
             )

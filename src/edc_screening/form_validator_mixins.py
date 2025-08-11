@@ -46,7 +46,7 @@ class SubjectScreeningFormValidatorMixin:
             except ObjectDoesNotExist:
                 self.raise_validation_error(
                     'Complete the "Subject Screening" form before proceeding.',
-                    code="missing_subject_screening",
+                    error_code="missing_subject_screening",
                 )
         return self._subject_screening
 

@@ -2,31 +2,33 @@ from __future__ import annotations
 
 from random import choice
 
-from edc_adverse_event_app.visit_schedules import visit_schedule
 from model_bakery import baker
 
 from edc_action_item.models import ActionItem
 from edc_adverse_event.models import CauseOfDeath
+from edc_consent import site_consents
 from edc_constants.constants import OTHER, YES
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class DeathReportTestMixin:
-    def setUp(self):
-        site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule)
-        subject_consent = baker.make_recipe(
-            "edc_adverse_event_app.subjectconsentv1", subject_identifier="1234567"
-        )
-        self.subject_identifier = subject_consent.subject_identifier
+    helper_cls = Helper
 
-        # put subject on schedule
-        _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_adverse_event_app.onschedule"
+    def setUp(self):
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
+        self.subject_identifier = "101-123400-0"
+        self.helper = self.helper_cls(
+            subject_identifier=self.subject_identifier,
         )
-        schedule.put_on_schedule(
-            subject_identifier=subject_consent.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
+        self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
         )
 
     def get_death_report(
@@ -42,7 +44,7 @@ class DeathReportTestMixin:
 
         # create ae initial
         ae_initial = baker.make_recipe(
-            "edc_adverse_event_app.aeinitial",
+            "tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=YES,
@@ -53,12 +55,12 @@ class DeathReportTestMixin:
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="edc_adverse_event_app.deathreport",
+            action_type__reference_model="tests.deathreport",
         )
 
         # create death report
         death_report = baker.make_recipe(
-            "edc_adverse_event_app.deathreport",
+            "tests.deathreport",
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
             cause_of_death=cause_of_death,

@@ -1,6 +1,15 @@
 Changes
 -------
 
+2.0.0
+-----
+- import edc_modeules to create monorepo. See `module-name` list in
+  pyproject.toml.
+- add method `get_by_consent_definition` to `site_visit_schedules`
+  to get a visit schedule by consent definition (edc-visit-schedule)
+- refresh appointments in signal on instances of
+  `ConsentExtensionModelMixin`
+
 1.2.0
 -----
 - fix regression in django-audit-fields

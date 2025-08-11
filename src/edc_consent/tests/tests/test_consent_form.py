@@ -1,51 +1,28 @@
 from datetime import timedelta
 from uuid import uuid4
 
-from consent_app.models import SubjectConsent, SubjectConsentV1, SubjectScreening
 from dateutil.relativedelta import relativedelta
-from django import forms
 from django.contrib.sites.models import Site
 from django.forms import model_to_dict
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from faker import Faker
 from model_bakery import baker
 
 from edc_consent.consent_definition import ConsentDefinition
-from edc_consent.form_validators import SubjectConsentFormValidatorMixin
-from edc_consent.modelform_mixins import ConsentModelFormMixin
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, YES
-from edc_crf.crf_form_validator_mixins import BaseFormValidatorMixin
-from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import age, get_utcnow
+from tests.forms import SubjectConsentForm
+from tests.models import SubjectConsent, SubjectConsentV1, SubjectScreening
 
 fake = Faker()
 
 
-class SubjectConsentFormValidator(
-    SubjectConsentFormValidatorMixin, BaseFormValidatorMixin, FormValidator
-):
-    pass
-
-
-class SubjectConsentForm(ConsentModelFormMixin, FormValidatorMixin, forms.ModelForm):
-    form_validator_cls = SubjectConsentFormValidator
-
-    screening_identifier = forms.CharField(
-        label="Screening identifier",
-        widget=forms.TextInput(attrs={"readonly": "readonly"}),
-    )
-
-    class Meta:
-        model = SubjectConsentV1
-        fields = "__all__"
-
-
+@tag("consent")
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
-    EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
 )
 class TestConsentForm(TestCase):
@@ -55,20 +32,20 @@ class TestConsentForm(TestCase):
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
 
         self.consent_v1 = self.consent_factory(
-            proxy_model="consent_app.subjectconsentv1",
+            proxy_model="tests.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
 
         self.consent_v2 = self.consent_factory(
-            proxy_model="consent_app.subjectconsentv2",
+            proxy_model="tests.subjectconsentv2",
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="2.0",
         )
         self.consent_v3 = self.consent_factory(
-            proxy_model="consent_app.subjectconsentv3",
+            proxy_model="tests.subjectconsentv3",
             start=self.study_open_datetime + timedelta(days=101),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",
@@ -92,7 +69,7 @@ class TestConsentForm(TestCase):
             age_max=kwargs.get("age_max", 64),
             age_is_adult=kwargs.get("age_is_adult", 18),
         )
-        proxy_model = kwargs.get("proxy_model", "consent_app.subjectconsentv1")
+        proxy_model = kwargs.get("proxy_model", "tests.subjectconsentv1")
         consent_definition = ConsentDefinition(proxy_model, **options)
         return consent_definition
 
@@ -148,21 +125,20 @@ class TestConsentForm(TestCase):
         consent_datetime = consent_datetime or self.study_open_datetime
         dob = dob or self.study_open_datetime - relativedelta(years=25)
         gender = gender or FEMALE
-        screening_identifier = screening_identifier or "ABCD"
         age_in_years = age_in_years or age(dob, reference_dt=consent_datetime).years
         initials = initials or "XX"
         if create_subject_screening:
-            SubjectScreening.objects.create(
+            subject_screening = SubjectScreening.objects.create(
                 age_in_years=age_in_years,
                 initials=initials,
                 gender=gender,
-                screening_identifier=screening_identifier,
                 report_datetime=consent_datetime,
                 eligible=True,
                 eligibility_datetime=consent_datetime,
             )
+            screening_identifier = subject_screening.screening_identifier
         subject_consent = baker.prepare_recipe(
-            "consent_app.subjectconsentv1",
+            "tests.subjectconsentv1",
             dob=dob,
             consent_datetime=consent_datetime,
             first_name=first_name or "XXXXXX",
@@ -197,6 +173,7 @@ class TestConsentForm(TestCase):
         )
         self.assertTrue(form.is_valid())
 
+    @tag("980")
     def test_base_form_catches_consent_datetime_before_study_open(self):
         options = dict(
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
@@ -218,7 +195,9 @@ class TestConsentForm(TestCase):
         self.assertEqual(form._errors, {})
 
         # change consent_datetime to before the consent period
-        options.update(consent_datetime=self.study_open_datetime - relativedelta(days=1))
+        options.update(
+            consent_datetime=self.study_open_datetime - relativedelta(days=1)
+        )
         subject_consent = self.prepare_subject_consent(
             **options, create_subject_screening=False
         )

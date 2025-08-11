@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
+from django_audit_fields.admin import audit_fieldset_tuple
+
 from edc_dashboard.url_names import url_names
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
@@ -9,8 +11,6 @@ from edc_model_admin.mixins import ModelAdminHideDeleteButtonOnCondition
 from edc_screening.screening_eligibility import ScreeningEligibility
 from edc_sites.admin import SiteModelAdminMixin
 from edc_utils import get_uuid
-from django_audit_fields.admin import audit_fieldset_tuple
-
 
 from .admin_site import demo_screening_admin
 from .models import SubjectScreening

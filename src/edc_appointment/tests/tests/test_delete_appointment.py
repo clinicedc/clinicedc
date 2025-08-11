@@ -4,10 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase, override_settings
-from edc_appointment_app.consents import consent_v1
-from edc_appointment_app.models import SubjectVisit
-from edc_appointment_app.visit_schedule import get_visit_schedule1, get_visit_schedule2
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -19,14 +16,20 @@ from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-
-from ..helper import Helper
+from edc_visit_tracking.models import SubjectVisit
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+    get_visit_schedule2,
+)
 
 utc = ZoneInfo("UTC")
 
 
+@tag("appointment")
 @override_settings(SITE_ID=10)
-@time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc))
+@time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc))
 class TestDeleteAppointment(TestCase):
     helper_cls = Helper
 
@@ -57,7 +60,9 @@ class TestDeleteAppointment(TestCase):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name, schedule_name="schedule1"
         )
-        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier
+        )
         self.assertEqual(appointments.count(), 4)
 
         appointment = Appointment.objects.get(timepoint=0.0)
@@ -105,7 +110,9 @@ class TestDeleteAppointment(TestCase):
         self.assertRaises(ProtectedError, delete_appointment_in_sequence, appointment)
         SubjectVisit.objects.get(appointment=appointment).delete()
         # raises AppointmentDeleteError (from manager) because not allowed by manager
-        self.assertRaises(AppointmentDeleteError, delete_appointment_in_sequence, appointment)
+        self.assertRaises(
+            AppointmentDeleteError, delete_appointment_in_sequence, appointment
+        )
         # assert nothing was done
         self.assertEqual(
             [0, 1, 2, 3],

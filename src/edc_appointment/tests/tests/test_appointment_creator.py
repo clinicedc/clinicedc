@@ -7,11 +7,10 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 
 from edc_appointment.creators import AppointmentCreator
 from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE
@@ -23,14 +22,16 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
+from tests.helper import Helper
 
 utc_tz = ZoneInfo("UTC")
 
 
-@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
+@tag("appointment")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2024, 6, 11, 8, 00, tzinfo=utc_tz),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2032, 6, 11, 8, 00, tzinfo=utc_tz),
     SITE_ID=10,
 )
 class AppointmentCreatorTestCase(TestCase):
@@ -40,7 +41,7 @@ class AppointmentCreatorTestCase(TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         self.consent_v1 = ConsentDefinition(
-            "edc_appointment_app.subjectconsentv1",
+            "tests.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,
@@ -57,14 +58,14 @@ class AppointmentCreatorTestCase(TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_appointment_app.subjectoffstudy",
-            death_report_model="edc_appointment_app.deathreport",
+            offstudy_model="edc_offstudy.subjectoffstudy",
+            death_report_model="tests.deathreport",
         )
 
         self.schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_appointment_app.onschedule",
-            offschedule_model="edc_appointment_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="tests.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[self.consent_v1],
         )
@@ -115,7 +116,9 @@ class AppointmentCreatorTestCase(TestCase):
         self.model_obj = DummyAppointmentObj()
 
     def put_on_schedule(self, dt, consent_definition: ConsentDefinition | None = None):
-        self.helper = self.helper_cls(subject_identifier=self.subject_identifier, now=dt)
+        self.helper = self.helper_cls(
+            subject_identifier=self.subject_identifier, now=dt
+        )
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
@@ -227,7 +230,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
 
 class TestAppointmentCreator2(AppointmentCreatorTestCase):
     @override_settings(
-        HOLIDAY_FILE=settings.BASE_DIR / "no_holidays.csv",
+        HOLIDAY_FILE=settings.BASE_DIR / "tests" / "no_holidays.csv",
     )
     def test_create_no_holidays(self):
         """test create appointment, no holidays"""
@@ -237,7 +240,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
 
         site_consents.registry = {}
         consent_definition = ConsentDefinition(
-            "edc_appointment_app.subjectconsentv1",
+            "tests.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,

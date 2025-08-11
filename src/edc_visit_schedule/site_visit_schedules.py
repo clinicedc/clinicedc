@@ -15,6 +15,7 @@ from .exceptions import (
 )
 
 if TYPE_CHECKING:
+    from edc_consent.consent_definition import ConsentDefinition
     from edc_sites.single_site import SingleSite
 
     from .models import VisitSchedule as VisitScheduleModel
@@ -91,8 +92,39 @@ class SiteVisitSchedules:
                 visit_schedule_name = visit_schedule_name.split(".")[0]
             except AttributeError:
                 pass
-            visit_schedules[visit_schedule_name] = self.get_visit_schedule(visit_schedule_name)
+            visit_schedules[visit_schedule_name] = self.get_visit_schedule(
+                visit_schedule_name
+            )
         return visit_schedules or self.registry
+
+    def get_by_consent_definition(
+        self, cdef: ConsentDefinition
+    ) -> tuple[VisitSchedule, Schedule]:
+        """Returns a visit schedule instance or raises."""
+        ret = []
+        attr = "consent_definitions"
+        for visit_schedule in self.visit_schedules.values():
+            for schedule in visit_schedule.schedules.values():
+                try:
+                    consent_definitions = getattr(schedule, attr)
+                except (AttributeError, TypeError):
+                    raise SiteVisitScheduleError(
+                        f"Invalid attr for Schedule. See {schedule}. Got `{attr}`."
+                    )
+                for _cdef in consent_definitions:
+                    if _cdef == cdef:
+                        ret.append([visit_schedule, schedule])
+        if not ret:
+            raise SiteVisitScheduleError(
+                f"Schedule not found. No schedule exists for {attr}={cdef}."
+            )
+        elif len(ret) > 1:
+            raise SiteVisitScheduleError(
+                f"Schedule is ambiguous. More than one schedule exists for "
+                f"{attr}={cdef}. Got {ret}"
+            )
+        visit_schedule, schedule = ret[0]
+        return visit_schedule, schedule
 
     def get_by_onschedule_model(
         self, onschedule_model: str = None
@@ -122,7 +154,9 @@ class SiteVisitSchedules:
 
         attr `loss_to_followup_model` is in "label_lower" format.
         """
-        return self.get_by_model(attr="loss_to_followup_model", model=loss_to_followup_model)
+        return self.get_by_model(
+            attr="loss_to_followup_model", model=loss_to_followup_model
+        )
 
     def get_by_model(
         self, attr: str = None, model: str = None
@@ -172,7 +206,9 @@ class SiteVisitSchedules:
         site: SingleSite | None = None,
     ) -> str:
         """Returns the consent model name specified on the schedule"""
-        schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(schedule_name)
+        schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(
+            schedule_name
+        )
         if isinstance(schedule.consent_model, (dict,)):
             # schedule returns a dict, get model name for this
             # site_id or country
@@ -186,7 +222,9 @@ class SiteVisitSchedules:
 
     def get_onschedule_model(self, visit_schedule_name: str, schedule_name: str) -> str:
         """Returns the onschedule model name"""
-        schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(schedule_name)
+        schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(
+            schedule_name
+        )
         return schedule.onschedule_model
 
     @staticmethod
@@ -282,7 +320,9 @@ class SiteVisitSchedules:
                     before_import_registry = copy.copy(site_visit_schedules._registry)
                     import_module(f"{app}.{module_name}")
                     if verbose:
-                        sys.stdout.write("   - registered visit schedule from " f"'{app}'\n")
+                        sys.stdout.write(
+                            "   - registered visit schedule from " f"'{app}'\n"
+                        )
                 except Exception as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         raise

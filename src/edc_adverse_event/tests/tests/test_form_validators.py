@@ -2,18 +2,19 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase
-from edc_adverse_event_app.models import DeathReportTmg
+from django.test import TestCase, tag
 
 from edc_adverse_event.form_validator_mixins import (
     RequiresDeathReportFormValidatorMixin,
 )
-from edc_facility import import_holidays
+from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidator
+from tests.models import DeathReportTmg
 
 from .mixins import DeathReportTestMixin
 
 
+@tag("ae")
 class TestFormValidators(DeathReportTestMixin, TestCase):
     @classmethod
     def setUpClass(cls):
@@ -27,7 +28,9 @@ class TestFormValidators(DeathReportTestMixin, TestCase):
             def clean(self):
                 self.match_date_of_death_or_raise()
 
-        data = dict(subject_identifier=self.subject_identifier, death_date=date(2000, 1, 1))
+        data = dict(
+            subject_identifier=self.subject_identifier, death_date=date(2000, 1, 1)
+        )
         form_validator = TestFormValidator(cleaned_data=data, model=DeathReportTmg)
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn("not found", str(form_validator._errors.get("__all__")))
@@ -66,7 +69,9 @@ class TestFormValidators(DeathReportTestMixin, TestCase):
             self.fail(f"ValidationError unexpectedly raised. Got {e}")
 
         # specify date of death when there is not death report, raises
-        data = dict(subject_identifier=self.subject_identifier, death_date=date(2000, 1, 1))
+        data = dict(
+            subject_identifier=self.subject_identifier, death_date=date(2000, 1, 1)
+        )
         form_validator = TestFormValidator(cleaned_data=data, model=DeathReportTmg)
         self.assertRaises(forms.ValidationError, form_validator.validate)
         self.assertIn("not found", str(form_validator._errors.get("__all__")))
@@ -80,7 +85,9 @@ class TestFormValidators(DeathReportTestMixin, TestCase):
         )
         form_validator = TestFormValidator(cleaned_data=data, model=DeathReportTmg)
         self.assertRaises(forms.ValidationError, form_validator.validate)
-        self.assertIn("Date does not match", str(form_validator._errors.get("death_date")))
+        self.assertIn(
+            "Date does not match", str(form_validator._errors.get("death_date"))
+        )
 
         # use correct date of death, ok
         data = dict(
