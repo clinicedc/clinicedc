@@ -1,5 +1,5 @@
 edc-appointment
----------------
+===============
 
 This module works closely with ``edc_visit_tracking`` and ``edc_visit_schedule``.
 
