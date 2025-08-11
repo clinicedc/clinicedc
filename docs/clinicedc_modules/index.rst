@@ -5,4 +5,4 @@ Clinicedc modules
    :maxdepth: 2
    :caption: Contents:
 
-    edc_appointment
+   edc_appointment
