@@ -4,8 +4,7 @@ edc-action-items
 Add patient `action items` to the Edc
 
 Overview
-========
-
+++++++++
 Action items are reminders to submit a form.
 
 Action items can be configured to drive data collection

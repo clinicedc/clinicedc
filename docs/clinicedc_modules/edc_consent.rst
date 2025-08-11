@@ -5,7 +5,7 @@ Add classes for the Informed Consent form and process.
 
 
 Concepts
-========
+++++++++
 
 In the EDC, the ICF is a model to be completed by each participant that is to follow the data collection schedule linked to the consent.
 
@@ -18,7 +18,7 @@ In the EDC, the ICF is a model to be completed by each participant that is to fo
 
 
 Features
-========
+++++++++
 
 * base class for an informed consent document
 * data for models that require consent cannot be add until the consent is added
@@ -29,7 +29,7 @@ Features
 
 
 Usage
-=====
++++++
 
 Declare the consent model:
 
@@ -253,7 +253,7 @@ If the report date is after 2016/10/15, data entry for "Subjects who completed v
 will be blocked until the version 2 consent is submitted.
 
 Extending followup for an existing version
-==========================================
+++++++++++++++++++++++++++++++++++++++++++
 
 After a protocol amendment, you may need to extend the number of timepoints for participants who agree to the extension.
 This is usually done by setting a new consent version with a start date that corresponds with the implementation date of
@@ -294,7 +294,7 @@ The ``ConsentExtensionDefinition`` links to a model to be completed by the parti
 
 
 ModelForm
-=========
++++++++++
 
 Declare the ModelForm:
 
@@ -348,7 +348,7 @@ If a consent version cannot be found given the consent model class and report_da
 If a consent for this subject_identifier cannot be found that matches the ``ConsentDefinition`` a ``NotConsentedError`` is raised.
 
 Specimen Consent
-================
+++++++++++++++++
 
 A participant may consent to the study but not agree to have specimens stored long term. A specimen consent is administered separately to clarify the participant\'s intention.
 
@@ -377,7 +377,7 @@ A specimen consent is declared in your app like this:
 
 
 Validators
-==========
+++++++++++
 
 The ``ConsentAgeValidator`` validates the date of birth to within a given age range, for example:
 
@@ -414,15 +414,15 @@ The ``PersonalFieldsMixin`` includes a date of birth field and you can set the a
 
 
 Common senarios
-===============
++++++++++++++++
 
 Tracking the consent version with collected data
-++++++++++++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All model data is tagged with the consent version identified in ``ConsentDefinition`` for the consent model class and report_datetime.
 
 Reconsenting consented subjects when the consent changes
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The consent model is unique on subject_identifier, identity and version. If a new consent version is added to ``ConsentDefinition``, a new consent will be required for each subject as data is reported within the validity period of the new consent.
 
@@ -430,20 +430,12 @@ Some care must be taken to ensure that the consent model is queried with an unde
 
 
 Linking the consent version to added or removed model fields on models that require consent
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-TODO
-
-Infants use mother's consent
-++++++++++++++++++++++++++++
-
-TODO
-
-By adding the property ``consenting_subject_identifier`` to the consent
-
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+TBW
 
 Patient names
-=============
++++++++++++++
+
 If patient names need to be removed from the data collection, there are a few helper
 attributes and methods to consider.
 
@@ -467,13 +459,8 @@ See also edc_sites.all_sites
 
 This method could be added to any ModeLadmin with names.
 
-
-
-using
-
-
-Other TODO
-==========
+TODO
+++++
 
 * ``Timepoint`` model update in ``save`` method of models requiring consent
 * handle added or removed model fields (questions) because of consent version change

@@ -70,13 +70,13 @@ see ``edc_facility``
 
 
 Available Appointment Model Manager Methods
-===========================================
++++++++++++++++++++++++++++++++++++++++++++
 
 The ``Appointment`` model is declared with ``AppointmentManager``. It has several useful methods.
 
 
 first_appointment() last_appointment()
-++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Returns the first (or last) appointment. If just the ``subject_identifier`` is provided, the first appointment of the protocol for the subject is returned. To be more specific, provide ``{subject_identifier=subject_identifier, visit_schedule_name=visit_schedule_name}``.
 To be even more specific,  ``{subject_identifier=subject_identifier, visit_schedule_name=visit_schedule_name, schedule_name=schedule_name}``.
@@ -89,7 +89,7 @@ The most common usage is to just provide these values with an appointment instan
 
 
 next_appointment() previous_appointment()
-+++++++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The next and previous appointment are relative to the schedule and a visit_code within that schedule. If next is called on the last appointment in the sequence ``None`` is returned. If previous is called on the first appointment in the sequence ``None`` is returned.
 
@@ -140,7 +140,7 @@ The ``previous_appointment`` acts as expected:
 
 
 delete_for_subject_after_date()
-+++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This method will delete all appointments for a subject after a given datetime. See also ``edc-offstudy``.
 

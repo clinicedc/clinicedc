@@ -2,12 +2,12 @@ edc-adverse-event
 =================
 
 Create an AE application
-------------------------
+++++++++++++++++++++++++
 
 Create an AE app that will house your AE concrete models, admin site, list data, and action items.
 
 Adverse events models
----------------------
++++++++++++++++++++++
 
 Model mixins exist for you to create the following concrete models in your AE app:
 
@@ -24,7 +24,7 @@ TMG: Trial Management Group forms
 * AE Tmg:
 
 Settings
---------
+++++++++
 
 These are the ``settings`` attributes you need to define for ``edc_adverse_event``:
 
@@ -40,7 +40,7 @@ These are the ``settings`` attributes you need to define for ``edc_adverse_event
     ...
 
 Define a list_data.py
----------------------
++++++++++++++++++++++
 
 There are a few FK fields on the AE models. You need to define a ``list_data.py`` that will be read to populate the FK list models.
 
@@ -84,7 +84,7 @@ The list model tables are:
 
 
 Register AE Action Items
-------------------------
+++++++++++++++++++++++++
 
 The AE action items are not registered by default. To register, in the root of your AE app add an ``action_items.py``:
 
