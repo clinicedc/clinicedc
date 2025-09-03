@@ -93,14 +93,22 @@ class DispenseAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_dispenseitem_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(url=url, label="Dispense items", title="Go to items")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     @admin.display(description="Stock")
     def stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(url=url, label="Stock", title="Go to stock")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
-        return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]
+        return [
+            s.id
+            for s in request.user.userprofile.sites.all()
+            if s.id != request.site.id
+        ]

@@ -32,13 +32,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -97,7 +99,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
     ]

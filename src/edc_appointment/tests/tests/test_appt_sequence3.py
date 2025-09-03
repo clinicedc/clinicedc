@@ -5,11 +5,12 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
+from edc_appointment.tests.utils import create_related_visit
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -18,7 +19,6 @@ from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule3
 
-from ..test_case_mixins import AppointmentAppTestCaseMixin
 
 utc_tz = ZoneInfo("UTC")
 
@@ -29,7 +29,7 @@ test_datetime = dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz)
 @tag("appointment")
 @override_settings(SITE_ID=10)
 @time_machine.travel(test_datetime)
-class TestInsertUnscheduled(AppointmentAppTestCaseMixin, TestCase):
+class TestInsertUnscheduled(TestCase):
     helper_cls = Helper
 
     def setUp(self):
@@ -43,7 +43,6 @@ class TestInsertUnscheduled(AppointmentAppTestCaseMixin, TestCase):
         site_visit_schedules.register(self.visit_schedule)
 
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
             now=test_datetime,
         )
 
@@ -57,15 +56,15 @@ class TestInsertUnscheduled(AppointmentAppTestCaseMixin, TestCase):
         self.assertEqual(appointments.count(), 5)
 
         appointment = Appointment.objects.get(timepoint=0.0)
-        self.create_related_visit(appointment)
+        create_related_visit(appointment)
         appointment = Appointment.objects.get(timepoint=3.0)
-        self.create_related_visit(appointment)
+        create_related_visit(appointment)
         appointment = Appointment.objects.get(timepoint=6.0)
-        self.create_related_visit(appointment)
+        create_related_visit(appointment)
         appointment = Appointment.objects.get(timepoint=9.0)
-        self.create_related_visit(appointment)
+        create_related_visit(appointment)
         appointment = Appointment.objects.get(timepoint=12.0)
-        self.create_related_visit(appointment)
+        create_related_visit(appointment)
 
         self.appt_datetimes = [
             o.appt_datetime for o in Appointment.objects.all().order_by("appt_datetime")
@@ -110,17 +109,17 @@ class TestInsertUnscheduled(AppointmentAppTestCaseMixin, TestCase):
         )
 
         appt = self.create_unscheduled(appt1030, days=2)
-        self.create_related_visit(appt)
+        create_related_visit(appt)
         appt = self.create_unscheduled(appt1030, days=3)
-        self.create_related_visit(appt)
+        create_related_visit(appt)
         appt = self.create_unscheduled(appt1030, days=4)
-        self.create_related_visit(appt)
+        create_related_visit(appt)
         appt = self.create_unscheduled(appt1030, days=6)
-        self.create_related_visit(appt)
+        create_related_visit(appt)
         appt = self.create_unscheduled(appt1030, days=7)
-        self.create_related_visit(appt)
+        create_related_visit(appt)
         appt = self.create_unscheduled(appt1030, days=8)
-        self.create_related_visit(appt)
+        create_related_visit(appt)
 
         visit_codes = self.get_visit_codes(
             by="appt_datetime",

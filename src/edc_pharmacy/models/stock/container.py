@@ -16,7 +16,9 @@ class Container(BaseUuidModel):
 
     display_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
 
-    container_type = models.ForeignKey(ContainerType, on_delete=models.PROTECT, null=True)
+    container_type = models.ForeignKey(
+        ContainerType, on_delete=models.PROTECT, null=True
+    )
 
     units = models.ForeignKey(ContainerUnits, on_delete=models.PROTECT, null=True)
 

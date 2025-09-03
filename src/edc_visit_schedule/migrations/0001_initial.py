@@ -134,6 +134,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="subjectschedulehistory",
-            unique_together={("subject_identifier", "visit_schedule_name", "schedule_name")},
+            unique_together={
+                ("subject_identifier", "visit_schedule_name", "schedule_name")
+            },
         ),
     ]

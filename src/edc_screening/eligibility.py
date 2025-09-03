@@ -57,7 +57,9 @@ class Eligibility:
                     elif k not in ["age", "gender"]:
                         self.reasons_ineligible.update({k: k})
             if not self.age_evaluator.eligible(age):
-                self.reasons_ineligible.update(age=self.age_evaluator.reasons_ineligible)
+                self.reasons_ineligible.update(
+                    age=self.age_evaluator.reasons_ineligible
+                )
             if not self.gender_evaluator.eligible:
                 self.reasons_ineligible.update(
                     gender=f"{' and '.join(self.gender_evaluator.reasons_ineligible)}."

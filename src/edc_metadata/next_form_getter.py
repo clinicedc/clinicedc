@@ -79,7 +79,9 @@ class NextFormGetter:
                     appointment=self.appointment
                 )
             else:
-                self._getter = self.crf_metadata_getter_cls(appointment=self.appointment)
+                self._getter = self.crf_metadata_getter_cls(
+                    appointment=self.appointment
+                )
         return self._getter
 
     @property

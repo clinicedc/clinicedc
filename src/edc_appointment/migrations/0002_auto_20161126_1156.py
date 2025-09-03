@@ -236,7 +236,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "comment",
-                    models.CharField(blank=True, max_length=250, verbose_name="Comment"),
+                    models.CharField(
+                        blank=True, max_length=250, verbose_name="Comment"
+                    ),
                 ),
                 ("is_confirmed", models.BooleanField(default=False, editable=False)),
                 (
@@ -461,7 +463,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "comment",
-                    models.CharField(blank=True, max_length=250, verbose_name="Comment"),
+                    models.CharField(
+                        blank=True, max_length=250, verbose_name="Comment"
+                    ),
                 ),
                 ("is_confirmed", models.BooleanField(default=False, editable=False)),
                 (

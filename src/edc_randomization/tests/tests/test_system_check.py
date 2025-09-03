@@ -41,7 +41,8 @@ class TestRandomizer(TestCaseMixin, TestCase):
         self.assertIn("1001", [e.id for e in errors])
 
     @override_settings(
-        EDC_RANDOMIZATION_BLINDED_TRIAL=False, EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"]
+        EDC_RANDOMIZATION_BLINDED_TRIAL=False,
+        EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"],
     )
     def test_blinded_trial_settings_check(self):
         errors = blinded_trial_settings_check(
@@ -50,7 +51,8 @@ class TestRandomizer(TestCaseMixin, TestCase):
         self.assertIn("edc_randomization.E002", [e.id for e in errors])
 
     @override_settings(
-        EDC_RANDOMIZATION_BLINDED_TRIAL=True, EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"]
+        EDC_RANDOMIZATION_BLINDED_TRIAL=True,
+        EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"],
     )
     def test_blinded_trial_settings_check2(self):
         errors = blinded_trial_settings_check(

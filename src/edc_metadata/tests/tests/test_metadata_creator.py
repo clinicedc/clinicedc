@@ -9,8 +9,8 @@ from edc_metadata.metadata import CreatesMetadataError
 from edc_metadata.metadata_updater import MetadataUpdater
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
+from edc_visit_tracking.models import SubjectVisit
 
-from ..models import SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))

@@ -22,11 +22,15 @@ class PreloadData:
         self.model_data = model_data or {}
         self.item_count = 0
         if self.list_data:
-            self.item_count += self.load_list_data(model_name=list_data_model_name, apps=apps)
+            self.item_count += self.load_list_data(
+                model_name=list_data_model_name, apps=apps
+            )
         if self.model_data:
             self.item_count += self.load_model_data()
 
-    def load_list_data(self, model_name: str = None, apps: Optional[AppConfig] = None) -> int:
+    def load_list_data(
+        self, model_name: str = None, apps: Optional[AppConfig] = None
+    ) -> int:
         return load_list_data(self.list_data, model_name=model_name, apps=apps)
 
     def load_model_data(self, apps: Optional[AppConfig] = None) -> int:

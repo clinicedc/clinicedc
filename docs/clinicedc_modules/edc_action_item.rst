@@ -12,7 +12,7 @@ Action items can be configured to drive data collection
 * for forms that do not fit well in a visit schedule;
 * for forms that are required based on some clinical event.
 
-Action items are tracked. Each is allocated a unique `action_identifier` and maintain status (New, Open, Closed).
+Action items are tracked. Each is allocated a unique ``action_identifier`` and maintain status (New, Open, Closed).
 
 Actions can be chained. One action can create another action, group of actions or recreate itself.
 
@@ -21,14 +21,14 @@ Adverse Events, Death, OffSchedule are all good candidates.
 
 Adverse Event reports are required based on some clinical event. Since the event must be reported, leaving the decision to report to the user is not sufficient. An action item can be opened based on the clinical event and the status of the action item tracked administratively. The action item is associtaed with the AE report. Once the report is submitted, the action item closes. If additional data is required after an initial AE report is submitted, a follow-up action can automatically be opened.
 
-See module `ambition-ae.action_items` for examples.
+See module ``ambition-ae.action_items`` for examples.
 
 Defining action items
 +++++++++++++++++++++
 
-In the root of your App, define an `action_items` module. The edc-action-item site controller will `autodiscover` this module and `register` the action item classes.
+In the root of your App, define an ``action_items`` module. The edc-action-item site controller will ``autodiscover`` this module and ``register`` the action item classes.
 
-Register action item classes in the `action_items` module like this
+Register action item classes in the ``action_items`` module like this
 
 .. code-block:: python
 

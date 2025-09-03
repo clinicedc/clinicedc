@@ -1,14 +1,11 @@
 from django import forms
 from django.contrib.sites.models import Site
 from django.test import TestCase
-from prn_app.consents import consent_v1
-from prn_app.models import Prn
-from prn_app.visit_schedule import visit_schedule
 
 from edc_appointment.models import Appointment
 from edc_consent.modelform_mixins import RequiresConsentModelFormMixin
 from edc_consent.site_consents import site_consents
-from edc_facility import import_holidays
+from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_prn.modelform_mixins import PrnFormValidatorMixin
 from edc_sites.modelform_mixins import SiteModelFormMixin
@@ -17,8 +14,10 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from ..helper import Helper
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import Prn
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class TestPrn(TestCase):
@@ -30,17 +29,20 @@ class TestPrn(TestCase):
         add_or_update_django_sites()
 
     def setUp(self):
-        self.subject_identifier = "12345"
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
+
+        visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules.register(visit_schedule=visit_schedule)
         schedule = visit_schedule.schedules.get("schedule")
-        self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
+        self.helper = self.helper_cls()
         self.subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=visit_schedule.name, schedule_name=schedule.name
         )
-        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
+        appointment = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
@@ -53,7 +55,7 @@ class TestPrn(TestCase):
             def clean(self) -> None:
                 """test all methods"""
                 # _ = self.subject_consent
-                _ = self.subject_identifier
+                _ = self.subject_consent.subject_identifier
                 _ = self.report_datetime
 
         class MyForm(

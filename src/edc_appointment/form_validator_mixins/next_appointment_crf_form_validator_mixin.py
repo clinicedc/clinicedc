@@ -48,7 +48,9 @@ class NextAppointmentCrfFormValidatorMixin(FormValidator):
             field_required="health_facility",
         )
 
-        if self.cleaned_data.get("appt_date") and self.cleaned_data.get("visitschedule"):
+        if self.cleaned_data.get("appt_date") and self.cleaned_data.get(
+            "visitschedule"
+        ):
             self.validate_with_appointment_form_validator()
             self.validate_date_is_on_clinic_day()
 
@@ -103,7 +105,9 @@ class NextAppointmentCrfFormValidatorMixin(FormValidator):
             and instance.appt_datetime.date() != self.cleaned_data.get("appt_date")
         ):
             self.raise_validation_error(
-                {"appt_date": "May not be changed. Next appointment has already started"},
+                {
+                    "appt_date": "May not be changed. Next appointment has already started"
+                },
                 INVALID_ERROR,
             )
 
@@ -155,7 +159,10 @@ class NextAppointmentCrfFormValidatorMixin(FormValidator):
     def health_facility(self) -> HealthFacility | None:
         if not self._health_facility:
             if self.cleaned_data.get("health_facility"):
-                if self.cleaned_data.get("health_facility").site != self.related_visit.site:
+                if (
+                    self.cleaned_data.get("health_facility").site
+                    != self.related_visit.site
+                ):
                     raise self.raise_validation_error(
                         {"health_facility": "Invalid for this site"}, INVALID_ERROR
                     )

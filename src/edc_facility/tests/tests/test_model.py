@@ -1,9 +1,10 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_facility.models import HealthFacility, HealthFacilityTypes, Holiday
 from edc_utils import get_utcnow
 
 
+@tag("facility")
 class TestModel(TestCase):
     def test_str(self):
         obj = Holiday.objects.create(

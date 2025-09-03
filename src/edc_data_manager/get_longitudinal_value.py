@@ -6,7 +6,9 @@ class DataDictionaryError(Exception):
     pass
 
 
-def get_longitudinal_value(subject_identifier=None, reference_dt=None, model=None, field=None):
+def get_longitudinal_value(
+    subject_identifier=None, reference_dt=None, model=None, field=None
+):
     DataDictionary = django_apps.get_model("edc_data_manager.datadictionary")
     opts = dict(field_name=field)
     if model:
@@ -20,7 +22,8 @@ def get_longitudinal_value(subject_identifier=None, reference_dt=None, model=Non
         )
     except MultipleObjectsReturned:
         fields = [
-            f"{obj.model}.{obj.field_name}" for obj in DataDictionary.objects.filter(**opts)
+            f"{obj.model}.{obj.field_name}"
+            for obj in DataDictionary.objects.filter(**opts)
         ]
         raise DataDictionaryError(
             "Unable to determine longitudinal value. "

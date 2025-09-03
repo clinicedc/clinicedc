@@ -20,11 +20,17 @@ def convert_dates_from_model(
             if field_cls.name in source_df.columns:
                 date_cols.append(field_cls.name)
     if date_cols:
-        source_df[date_cols] = source_df[date_cols].apply(pd.to_datetime, errors="coerce")
+        source_df[date_cols] = source_df[date_cols].apply(
+            pd.to_datetime, errors="coerce"
+        )
         if normalize:
-            source_df[date_cols] = source_df[date_cols].apply(lambda x: x.dt.normalize())
+            source_df[date_cols] = source_df[date_cols].apply(
+                lambda x: x.dt.normalize()
+            )
         if localize:
             source_df[date_cols] = source_df[date_cols].apply(
-                lambda x: x.dt.tz_localize(None) if x.dtype == "datetime64[ns, UTC]" else x
+                lambda x: (
+                    x.dt.tz_localize(None) if x.dtype == "datetime64[ns, UTC]" else x
+                )
             )
     return source_df

@@ -36,7 +36,10 @@ class ConsentDefinitionFormValidatorMixin:
     ) -> datetime:
         """Returns the consent_datetime of this subject"""
         consent_obj = self.get_consent_or_raise(
-            report_datetime=report_datetime, site=site, fldname=fldname, error_code=error_code
+            report_datetime=report_datetime,
+            site=site,
+            fldname=fldname,
+            error_code=error_code,
         )
         return consent_obj.consent_datetime
 
@@ -66,7 +69,10 @@ class ConsentDefinitionFormValidatorMixin:
         return consent_obj
 
     def get_consent_definition(
-        self, report_datetime: datetime = None, fldname: str = None, error_code: str = None
+        self,
+        report_datetime: datetime = None,
+        fldname: str = None,
+        error_code: str = None,
     ) -> ConsentDefinition:
         # get the consent definition (must be from this schedule)
         schedule = getattr(self, "related_visit", self.instance).schedule

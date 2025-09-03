@@ -11,8 +11,9 @@ from edc_metadata.metadata_inspector import MetaDataInspector
 from edc_metadata.metadata_updater import MetadataUpdater
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.models import SubjectVisit
+from tests.models import CrfOne, CrfThree, CrfTwo, SubjectRequisition
 
-from ..models import CrfOne, CrfThree, CrfTwo, SubjectRequisition, SubjectVisit
 from .metadata_test_mixin import TestMetadataMixin
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
@@ -81,11 +82,13 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment, reason=SCHEDULED
         )
-        SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_one)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit, panel=self.panel_one
+        )
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=KEYED,
-                model="edc_metadata.subjectrequisition",
+                model="tests.subjectrequisition",
                 panel_name=self.panel_one.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -94,7 +97,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
-                model="edc_metadata.subjectrequisition",
+                model="tests.subjectrequisition",
                 panel_name=self.panel_two.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -143,7 +146,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
-                model="edc_metadata.subjectrequisition",
+                model="tests.subjectrequisition",
                 panel_name=self.panel_one.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -152,7 +155,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
-                model="edc_metadata.subjectrequisition",
+                model="tests.subjectrequisition",
                 panel_name=self.panel_two.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -170,7 +173,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
-                model="edc_metadata.subjectrequisition",
+                model="tests.subjectrequisition",
                 panel_name=self.panel_one.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -179,7 +182,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
-                model="edc_metadata.subjectrequisition",
+                model="tests.subjectrequisition",
                 panel_name=self.panel_two.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -203,8 +206,12 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
                     metadata_a.append(obj.model)
         metadata_a.sort()
         forms = (
-            subject_visit.schedule.visits.get(subject_visit.visit_code).scheduled_forms.forms
-            + subject_visit.schedule.visits.get(subject_visit.visit_code).prn_forms.forms
+            subject_visit.schedule.visits.get(
+                subject_visit.visit_code
+            ).scheduled_forms.forms
+            + subject_visit.schedule.visits.get(
+                subject_visit.visit_code
+            ).prn_forms.forms
         )
         metadata_b = [f.full_name for f in forms]
         metadata_b = list(set(metadata_b))
@@ -287,7 +294,9 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             source_model="edc_metadata.blah",
         )
         self.assertRaises(
-            MetadataHandlerError, metadata_updater.get_and_update, entry_status=NOT_REQUIRED
+            MetadataHandlerError,
+            metadata_updater.get_and_update,
+            entry_status=NOT_REQUIRED,
         )
 
     def test_crf_model_not_scheduled(self):

@@ -15,7 +15,9 @@ class ManifestItemManager(SearchSlugManager, models.Manager):
         return self.get(identifier=identifier, manifest_identifier=manifest_identifier)
 
 
-class ManifestItem(SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
+class ManifestItem(
+    SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel
+):
     def get_search_slug_fields(self):
         return ["identifier", "human_readable_identifier"]
 
@@ -41,6 +43,7 @@ class ManifestItem(SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseU
         verbose_name = "Manifest Item"
         constraints = [
             UniqueConstraint(
-                fields=["manifest", "identifier"], name="%(app_label)s_%(class)s_manifest_uniq"
+                fields=["manifest", "identifier"],
+                name="%(app_label)s_%(class)s_manifest_uniq",
             )
         ]

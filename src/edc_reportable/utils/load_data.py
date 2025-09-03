@@ -69,8 +69,11 @@ def load_reference_ranges(
 
     See also: load_all_reference_ranges
     """
-    reference_range_collection, _ = (
-        reference_range_colllection_model_cls().objects.get_or_create(name=collection_name)
+    (
+        reference_range_collection,
+        _,
+    ) = reference_range_colllection_model_cls().objects.get_or_create(
+        name=collection_name
     )
     reportable_grades = reportable_grades or get_default_reportable_grades()
     for grade in reportable_grades:

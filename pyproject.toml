@@ -5,6 +5,7 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-root = "src"
 module-name = [
+    "clinicedc",
     "edc_action_item",
     "edc_adherence",
     "edc_adverse_event",
@@ -105,9 +106,10 @@ dependencies = [
     "argon2-cffi>=25.1.0",
     "boto3>=1.39.16",
     "celery>=5.5.3",
+    "cryptography>=45.0.7",
     "django>=5.2.4,<5.3",
     "django-admin-rangefilter>=0.13.3",
-    "django-audit-fields>=1.1.0",
+    "django-audit-fields>=2.0.0",
     "django-crypto-fields>=1.0.1",
     "django-db-views>=0.1.11",
     "django-defender>=0.9.8",
@@ -117,20 +119,24 @@ dependencies = [
     "django-pandas>=0.6.7",
     "django-pylabels>=1.0.1",
     "django-redis>=6.0.0",
-    "django-revision>=1.0.0",
     "django-sequences>=3.0",
     "django-simple-history>=3.10.1",
     "django-storages>=1.14.6",
     "djangorestframework>=3.16.0",
+    "edc-glucose>=1.0.3",
     "fontawesomefree>=6.6.0",
     "gunicorn>=23.0.0",
     "inflect>=7.5.0",
     "mempass>=0.1.2",
+    "mysqlclient>=2.2.7",
     "pycups>=2.0.4",
     "pypdf>=5.9.0",
+    "python-dateutil>=2.9.0.post0",
     "python-memcached>=1.62",
     "reportlab>=4.4.3",
     "sqlalchemy>=2.0.42",
+    "sqlglot>=27.8.0",
+    "tqdm>=4.67.1",
     "twilio>=9.7.0",
 ]
 
@@ -153,10 +159,10 @@ skip = [".tox", ".eggs", "migrations", "_version.py", ".venv"]
 [tool.coverage.run]
 parallel = false
 branch = true
-source = ["clinicedc"]
+source = ["src"]
 
 [tool.coverage.paths]
-source = ["clinicedc"]
+source = ["src"]
 
 [tool.coverage.report]
 show_missing = true
@@ -185,38 +191,27 @@ lint = [
 
 test = [
     "arrow>=1.3.0",
-    "clinicedc",
     "coverage>=7.10.1",
-    "django-admin-rangefilter>=0.13.3",
-    "django-crypto-fields>=1.0.1",
-    "django-db-views>=0.1.11",
-    "django-logentry-admin>=1.1.0",
-    "django-multisite2>=2.1.0",
-    "django-pandas>=0.6.7",
-    "django-revision>=1.0.0",
-    "django-simple-history>=3.10.1",
-    "django-storages>=1.14.6",
+    "django-audit-fields>=2.0.0",
     "django-webtest>=1.9.13",
-    "edc-adverse-event-app>=1.0.5",
-    "edc-data-manager-app",
+    "edc-glucose>=1.0.3",
     "edc-test-settings>=1.1.2",
     "edc-test-utils>=1.0.0",
-    "edc-visit-schedule-app>=0.1.2",
-    "edc-visit-tracking-app>=0.1.1",
     "faker>=37.4.2",
     "model-bakery>=1.20.5",
     "time-machine>=2.16.0",
     "tox-uv>=1.26.2",
-    "tqdm>=4.67.1",
 ]
 
 develop = [
+    "clinicedc",
+    "edc-glucose",
     'argon2-cffi',
     'python-memcached',
     'django-environ',
     'django-storages',
     'fontawesomefree',
-    'django-audit-fields',
+    "django-audit-fields",
     'django-crypto-fields',
     'django-revision',
     'django-multisite2',
@@ -225,6 +220,9 @@ develop = [
     'django-logentry-admin',
     'django-admin-rangefilter',
     'django-db-views',
+    "model-bakery>=1.20.5",
+    "faker>=37.5.3",
+    "time-machine>=2.17.0",
 ]
 
 [tool.uv.sources]
@@ -233,15 +231,6 @@ django-audit-fields = { path = "../../django-audit-fields", editable = true }
 django-crypto-fields = { path = "../../django-crypto-fields", editable = true }
 django-revision = { path = "../../django-revision", editable = true }
 django-multisite2 = { path = "../../django-multisite2", editable = true }
-edc-adverse-event-app = { path = "../../edc-adverse-event-app", editable = true }
-edc-data-manager-app = { path = "../../edc-data-manager-app", editable = true }
-edc-visit-tracking-app = { path = "../../edc-visit-tracking-app", editable = true }
-edc-visit-schedule-app = { path = "../../edc-visit-schedule-app", editable = true }
+edc-glucose = { path = "../../edc-glucose", editable = true }
 edc-test-settings = { path = "../../edc-test-settings", editable = true }
 edc-test-utils = { path = "../../edc-test-utils", editable = true }
-demo-edc = { path = "demo-edc", editable = true }
-
-[tool.uv.workspace]
-members = [
-    "demo-edc",
-]

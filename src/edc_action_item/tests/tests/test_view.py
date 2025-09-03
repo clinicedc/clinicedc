@@ -1,4 +1,8 @@
-from django.test import RequestFactory, TestCase
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
+from django.test import RequestFactory, TestCase, tag
 from django.views.generic.base import ContextMixin, View
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 
@@ -13,6 +17,11 @@ class MyActionItemViewMixin(ActionItemViewMixin, ContextMixin, View):
     pass
 
 
+utc_tz = ZoneInfo("UTC")
+
+
+@tag("action_item")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAction(TestCaseMixin, TestCase):
     def setUp(self):
         self.subject_identifier = self.fake_enroll()

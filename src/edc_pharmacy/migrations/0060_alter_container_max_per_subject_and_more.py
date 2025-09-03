@@ -75,13 +75,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -123,7 +125,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -170,15 +174,24 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("bin_datetime", models.DateTimeField(default=edc_utils.date.get_utcnow)),
+                (
+                    "bin_datetime",
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                ),
                 ("name", models.CharField(blank=True, max_length=10, null=True)),
                 ("capacity", models.PositiveIntegerField(default=0)),
                 ("in_use", models.BooleanField(default=True)),
-                ("description", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -236,13 +249,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -284,7 +299,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -332,11 +349,17 @@ class Migration(migrations.Migration):
                         unique=True,
                     ),
                 ),
-                ("bin_datetime", models.DateTimeField(default=edc_utils.date.get_utcnow)),
+                (
+                    "bin_datetime",
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                ),
                 ("name", models.CharField(blank=True, max_length=10, null=True)),
                 ("capacity", models.PositiveIntegerField(default=0)),
                 ("in_use", models.BooleanField(default=True)),
-                ("description", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 (
                     "location",
                     models.ForeignKey(
@@ -350,7 +373,14 @@ class Migration(migrations.Migration):
                 "verbose_name": "Storage bin",
                 "verbose_name_plural": "Storage bins",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
             },
         ),
@@ -371,13 +401,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -419,7 +451,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -466,11 +500,17 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("item_datetime", models.DateTimeField(default=edc_utils.date.get_utcnow)),
+                (
+                    "item_datetime",
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                ),
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -496,7 +536,10 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         blank=True,
                         db_constraint=False,
-                        limit_choices_to={"confirmed_at_site": True, "dispensed": False},
+                        limit_choices_to={
+                            "confirmed_at_site": True,
+                            "dispensed": False,
+                        },
                         null=True,
                         on_delete=django.db.models.deletion.DO_NOTHING,
                         related_name="+",
@@ -540,13 +583,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -588,7 +633,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -636,11 +683,17 @@ class Migration(migrations.Migration):
                         unique=True,
                     ),
                 ),
-                ("item_datetime", models.DateTimeField(default=edc_utils.date.get_utcnow)),
+                (
+                    "item_datetime",
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                ),
                 (
                     "stock",
                     models.ForeignKey(
-                        limit_choices_to={"confirmed_at_site": True, "dispensed": False},
+                        limit_choices_to={
+                            "confirmed_at_site": True,
+                            "dispensed": False,
+                        },
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
                         to="edc_pharmacy.stock",
@@ -658,7 +711,14 @@ class Migration(migrations.Migration):
                 "verbose_name": "Storage bin item",
                 "verbose_name_plural": "Storage bin items",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
             },
         ),
@@ -671,7 +731,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="storagebin",
             index=models.Index(
-                fields=["user_modified", "user_created"], name="edc_pharmac_user_mo_b81f20_idx"
+                fields=["user_modified", "user_created"],
+                name="edc_pharmac_user_mo_b81f20_idx",
             ),
         ),
         migrations.AddIndex(
@@ -683,7 +744,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="storagebinitem",
             index=models.Index(
-                fields=["user_modified", "user_created"], name="edc_pharmac_user_mo_dc165a_idx"
+                fields=["user_modified", "user_created"],
+                name="edc_pharmac_user_mo_dc165a_idx",
             ),
         ),
     ]

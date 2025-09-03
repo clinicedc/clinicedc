@@ -79,7 +79,9 @@ class FormRunner:
         form = self.modelform_cls(data, instance=src_obj)
         form.is_valid()
         errors = {
-            k: v for k, v in form._errors.items() if k not in self.get_exclude_formfields()
+            k: v
+            for k, v in form._errors.items()
+            if k not in self.get_exclude_formfields()
         }
         if errors:
             for fldname, errmsg in errors.items():
@@ -110,7 +112,10 @@ class FormRunner:
                 )
 
                 fields = [
-                    k for k, v in getattr(self.modeladmin_cls.form(), "fields", {}).items()
+                    k
+                    for k, v in getattr(
+                        self.modeladmin_cls.form(), "fields", {}
+                    ).items()
                 ]
         fields = list(set(fields))
         return fields
@@ -146,7 +151,9 @@ class FormRunner:
     def unique_opts(self, src_obj: Model) -> dict[str, Any]:
         """Note: unique constraint includes `field_name`"""
         model_obj_or_related_visit = src_obj
-        get_related_visit_model_attr = getattr(src_obj, "related_visit_model_attr", None)
+        get_related_visit_model_attr = getattr(
+            src_obj, "related_visit_model_attr", None
+        )
         if (
             get_related_visit_model_attr
             and get_related_visit_model_attr()
@@ -178,7 +185,9 @@ class FormRunner:
 
     @property
     def src_qs(self) -> QuerySet:
-        return self.src_model_cls.objects.filter(**(self.get_src_filter_options() or {}))
+        return self.src_model_cls.objects.filter(
+            **(self.get_src_filter_options() or {})
+        )
 
     def get_form_data(self, src_obj: Any) -> dict[str, Any]:
         data = {

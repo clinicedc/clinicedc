@@ -37,7 +37,9 @@ def allocate_stock(
     """
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
     allocation_model_cls = django_apps.get_model("edc_pharmacy.allocation")
-    registered_subject_model_cls = django_apps.get_model("edc_registration.registeredsubject")
+    registered_subject_model_cls = django_apps.get_model(
+        "edc_registration.registeredsubject"
+    )
     allocated, skipped = [], []
     stock_objs = []
     for code, subject_identifier in allocation_data.items():

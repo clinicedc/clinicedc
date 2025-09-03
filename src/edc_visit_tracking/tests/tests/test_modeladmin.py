@@ -3,12 +3,9 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.contrib import admin
-from django.test import TestCase
+from django.test import tag, TestCase
 from django.test.client import RequestFactory
-from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fields
-from edc_visit_tracking_app.consents import consent_v1
-from edc_visit_tracking_app.models import CrfOne
-from edc_visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
+from django_audit_fields.admin import audit_fields, ModelAdminAuditFieldsMixin
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -19,34 +16,63 @@ from edc_visit_tracking.admin_site import edc_visit_tracking_admin
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.modeladmin_mixins import CrfModelAdminMixin
 from edc_visit_tracking.models import SubjectVisit
-
-from ..helper import Helper
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import CrfOne
+from tests.visit_schedules.visit_schedule import get_visit_schedule
+from ..crfs import crfs
+from ..requisitions import requisitions
 
 utc_tz = ZoneInfo("UTC")
 
 
 @admin.register(CrfOne, site=edc_visit_tracking_admin)
-class CrfOneModelAdmin(CrfModelAdminMixin, ModelAdminAuditFieldsMixin, admin.ModelAdmin):
+class CrfOneModelAdmin(
+    CrfModelAdminMixin, ModelAdminAuditFieldsMixin, admin.ModelAdmin
+):
     def get_field_queryset(self, db, db_field, request):
         return CrfOne.objects.all()
 
 
-@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
+@tag("visit_tracking")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestModelAdmin(TestCase):
     helper_cls = Helper
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-
-    def setUp(self):
-        self.subject_identifier = "12345"
         site_consents.registry = {}
         site_consents.register(consent_v1)
-        self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
+
         site_visit_schedules._registry = {}
+        visit_schedule1 = get_visit_schedule(
+            consent_v1,
+            crfs=crfs,
+            requisitions=requisitions,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+            onschedule_model="tests.onscheduleone",
+            offschedule_model="tests.offscheduleone",
+            visit_count=4,
+            allow_unscheduled=True,
+        )
         site_visit_schedules.register(visit_schedule=visit_schedule1)
+        visit_schedule2 = get_visit_schedule(
+            consent_v1,
+            crfs=crfs,
+            requisitions=requisitions,
+            visit_schedule_name="visit_schedule2",
+            schedule_name="schedule2",
+            onschedule_model="tests.onscheduletwo",
+            offschedule_model="tests.offscheduletwo",
+            visit_count=4,
+            allow_unscheduled=True,
+        )
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+
+    def setUp(self):
+        self.helper = self.helper_cls()
 
     def test_related_visit_model_attr(self):
         modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
@@ -92,7 +118,8 @@ class TestModelAdmin(TestCase):
     def test_extends_fk_none(self):
         factory = RequestFactory()
         request = factory.get(
-            "/?next=my_url_name,arg1,arg2&arg1=value1&arg2=value2&arg3=value3&arg4=value4"
+            "/?next=my_url_name,arg1,arg2&arg1=value1&"
+            "arg2=value2&arg3=value3&arg4=value4"
         )
         modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
 
@@ -113,7 +140,9 @@ class TestModelAdmin(TestCase):
             schedule_name="schedule1",
         )
         appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
-        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, reason=SCHEDULED
+        )
 
         factory = RequestFactory()
         request = factory.get(
@@ -167,7 +196,9 @@ class TestModelAdmin(TestCase):
             schedule_name="schedule1",
         )
         appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
-        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, reason=SCHEDULED
+        )
 
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
 
@@ -186,7 +217,9 @@ class TestModelAdmin(TestCase):
             schedule_name="schedule1",
         )
         appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
-        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, reason=SCHEDULED
+        )
 
         factory = RequestFactory()
         request = factory.get(
@@ -195,6 +228,10 @@ class TestModelAdmin(TestCase):
         )
         modeladmin = edc_visit_tracking_admin._registry.get(SubjectVisit)
         for field in audit_fields:
-            self.assertIn(field, modeladmin.get_readonly_fields(request, obj=subject_visit))
+            self.assertIn(
+                field, modeladmin.get_readonly_fields(request, obj=subject_visit)
+            )
         for field in visit_schedule_fields:
-            self.assertIn(field, modeladmin.get_readonly_fields(request, obj=subject_visit))
+            self.assertIn(
+                field, modeladmin.get_readonly_fields(request, obj=subject_visit)
+            )

@@ -16,7 +16,10 @@ class Prefix:
     length: int = 10
 
     def __init__(
-        self, template: Optional[str] = None, length: Optional[int] = None, **template_opts
+        self,
+        template: Optional[str] = None,
+        length: Optional[int] = None,
+        **template_opts,
     ):
         self.template: str = template or self.template
         self.length: int = length or self.length

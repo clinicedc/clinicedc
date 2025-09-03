@@ -30,7 +30,9 @@ __all__ = ["RelatedVisitButton"]
 class RelatedVisitButton(DashboardModelButton):
     appointment: Appointment = None
     model_obj: RelatedVisitModel = None
-    labels: tuple[str, str, str] = field(default=("Start", "Visit Report", "Visit Report"))
+    labels: tuple[str, str, str] = field(
+        default=("Start", "Visit Report", "Visit Report")
+    )
     model_cls: Type[RelatedVisitModel] = field(default=None)
 
     def __post_init__(self):

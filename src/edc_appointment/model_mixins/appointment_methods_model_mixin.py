@@ -31,7 +31,11 @@ class AppointmentMethodsModelMixin(models.Model):
     """Mixin of methods for the appointment model only"""
 
     def get_appt_type_display(self: Appointment) -> str:
-        return get_appointment_type_model_cls().objects.get(id=self.appt_type_id).display_name
+        return (
+            get_appointment_type_model_cls()
+            .objects.get(id=self.appt_type_id)
+            .display_name
+        )
 
     @property
     def facility(self: Appointment) -> Facility:

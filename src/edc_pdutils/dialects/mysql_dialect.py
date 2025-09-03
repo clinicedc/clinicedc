@@ -77,7 +77,9 @@ class MysqlDialect:
         return sql, params
 
     @staticmethod
-    def show_inline_tables(referenced_table_name: str = None) -> tuple[TextClause, dict]:
+    def show_inline_tables(
+        referenced_table_name: str = None,
+    ) -> tuple[TextClause, dict]:
         params = {"referenced_table_name": referenced_table_name}
         sql = text(
             "SELECT DISTINCT referenced_table_name, table_name, "

@@ -5,11 +5,12 @@ from edc_randomization.model_mixins import RandomizationListModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
-
 from .randomizers import MyRandomizer
 
 
-class SubjectConsent(UpdatesOrCreatesRegistrationModelMixin, SiteModelMixin, BaseUuidModel):
+class SubjectConsent(
+    UpdatesOrCreatesRegistrationModelMixin, SiteModelMixin, BaseUuidModel
+):
     subject_identifier = models.CharField(max_length=25)
 
     initials = models.CharField(max_length=25)

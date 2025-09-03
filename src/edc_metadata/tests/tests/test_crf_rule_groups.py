@@ -2,151 +2,59 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from dateutil.relativedelta import relativedelta
-from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from faker import Faker
 
-from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_consent.consent_definition import ConsentDefinition
-from edc_constants.constants import FEMALE, MALE
+from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 from edc_metadata import KEYED, NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_handler import MetadataHandlerError
-from edc_metadata.metadata_rules import CrfRule, CrfRuleGroup, P, site_metadata_rules
+from edc_metadata.metadata_rules import site_metadata_rules
 from edc_metadata.models import CrfMetadata
-from edc_utils import get_utcnow
+from edc_metadata.tests.crf_rule_groups import (
+    CrfRuleGroupOne,
+    CrfRuleGroupThree,
+    CrfRuleGroupTwo,
+)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from ..models import CrfOne, CrfTwo, PrnOne, SubjectConsentV1
-from ..visit_schedule import get_visit_schedule
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import CrfOne, CrfTwo, PrnOne
+from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
+    get_visit_schedule,
+)
 
 fake = Faker()
-edc_registration_app_config = django_apps.get_app_config("edc_registration")
-test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
+utc_tz = ZoneInfo("UTC")
 
 
-class CrfRuleGroupOne(CrfRuleGroup):
-    crfs_car = CrfRule(
-        predicate=P("f1", "eq", "car"),
-        consequence=REQUIRED,
-        alternative=NOT_REQUIRED,
-        target_models=["crftwo"],
-    )
-
-    crfs_bicycle = CrfRule(
-        predicate=P("f3", "eq", "bicycle"),
-        consequence=REQUIRED,
-        alternative=NOT_REQUIRED,
-        target_models=["crfthree"],
-    )
-
-    class Meta:
-        app_label = "edc_metadata"
-        source_model = "edc_metadata.crfone"
-
-
-class CrfRuleGroupTwo(CrfRuleGroup):
-    crfs_truck = CrfRule(
-        predicate=P("f1", "eq", "truck"),
-        consequence=REQUIRED,
-        alternative=NOT_REQUIRED,
-        target_models=["crffive"],
-    )
-
-    crfs_train = CrfRule(
-        predicate=P("f1", "eq", "train"),
-        consequence=REQUIRED,
-        alternative=NOT_REQUIRED,
-        target_models=["crfsix"],
-    )
-
-    class Meta:
-        app_label = "edc_metadata"
-        source_model = "edc_metadata.crfone"
-
-
-class CrfRuleGroupThree(CrfRuleGroup):
-    crfs_truck = CrfRule(
-        predicate=P("f1", "eq", "holden"),
-        consequence=REQUIRED,
-        alternative=NOT_REQUIRED,
-        target_models=["prnone"],
-    )
-
-    class Meta:
-        app_label = "edc_metadata"
-        source_model = "edc_metadata.crfone"
-
-
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
-)
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class CrfRuleGroupTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
 
     def setUp(self):
-        consent_v1 = ConsentDefinition(
-            "edc_metadata.subjectconsentv1",
-            version="1",
-            start=test_datetime,
-            end=test_datetime + relativedelta(years=3),
-            age_min=18,
-            age_is_adult=18,
-            age_max=64,
-            gender=[MALE, FEMALE],
-        )
+        self.helper = Helper()
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(get_visit_schedule(consent_v1))
+
         # note crfs in visit schedule are all set to REQUIRED by default.
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_metadata.onschedule"
+            "edc_visit_schedule.onschedule"
         )
 
         site_metadata_rules.registry = {}
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupOne)
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupTwo)
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupThree)
-
-    def enroll(self, gender=None):
-        traveller = time_machine.travel(test_datetime)
-        traveller.start()
-        subject_identifier = fake.credit_card_number()
-        subject_consent = SubjectConsentV1.objects.create(
-            subject_identifier=subject_identifier,
-            consent_datetime=get_utcnow(),
-            gender=gender,
-        )
-        self.schedule.put_on_schedule(
-            subject_identifier=subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
-        )
-        self.appointment = Appointment.objects.get(
-            subject_identifier=subject_identifier,
-            visit_code=self.schedule.visits.first.code,
-        )
-        subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment,
-            subject_identifier=subject_identifier,
-            report_datetime=self.appointment.appt_datetime,
-            visit_code=self.appointment.visit_code,
-            visit_code_sequence=self.appointment.visit_code_sequence,
-            visit_schedule_name=self.appointment.visit_schedule_name,
-            schedule_name=self.appointment.schedule_name,
-            reason=SCHEDULED,
-        )
-        traveller.stop()
-        return subject_visit
 
     def get_next_subject_visit(self, subject_visit):
         return SubjectVisit.objects.create(
@@ -161,7 +69,7 @@ class CrfRuleGroupTestCase(TestCase):
 
     def test_default_d1(self):
         """Test before any CRFs are submitted"""
-        self.enroll(gender=MALE)
+        self.helper.enroll_to_baseline(gender=MALE)
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crfone").entry_status,
             REQUIRED,
@@ -188,7 +96,7 @@ class CrfRuleGroupTestCase(TestCase):
 
     def test_example1(self):
         """Asserts CrfTwo is REQUIRED if f1==\'car\' as specified."""
-        subject_visit = self.enroll(gender=MALE)
+        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
         self.assertEqual(
             CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
             NOT_REQUIRED,
@@ -497,7 +405,9 @@ class CrfRuleGroupTestCase(TestCase):
         # create 1000 then add crf_one then create 2000
         subject_visit = self.enroll(gender=MALE)
 
-        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(
+            1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
+        )
 
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="caufield")
         self.assertEqual(
@@ -509,7 +419,9 @@ class CrfRuleGroupTestCase(TestCase):
 
         subject_visit_two = self.get_next_subject_visit(subject_visit)
 
-        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(
+            2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
+        )
         self.assertEqual(
             2,
             CrfMetadata.objects.filter(
@@ -540,9 +452,13 @@ class CrfRuleGroupTestCase(TestCase):
 
     def test_crf_cannot_be_saved_if_not_in_visits_crfs(self):
         subject_visit = self.enroll(gender=MALE)
-        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(
+            1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
+        )
         subject_visit_two = self.get_next_subject_visit(subject_visit)
-        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(
+            2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
+        )
 
         # note: crf_one is not listed as a crf for visit 2000
         # trigger exception just to prove that the crf_one cannot be saved
@@ -554,9 +470,13 @@ class CrfRuleGroupTestCase(TestCase):
 
     def test_prn_can_be_submitted_if_now_required(self):
         subject_visit = self.enroll(gender=MALE)
-        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(
+            1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
+        )
         self.get_next_subject_visit(subject_visit)
-        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(
+            2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
+        )
         CrfOne.objects.create(subject_visit=subject_visit, f1="holden")
         PrnOne.objects.create(subject_visit=subject_visit)
 

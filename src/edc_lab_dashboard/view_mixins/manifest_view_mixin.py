@@ -38,7 +38,9 @@ class ManifestViewMixin(ContextMixin):
             self.original_manifest_identifier = escape(
                 self.kwargs.get("manifest_identifier")
             ).strip()
-            self._manifest_identifier = "".join(self.original_manifest_identifier.split("-"))
+            self._manifest_identifier = "".join(
+                self.original_manifest_identifier.split("-")
+            )
         return self._manifest_identifier
 
     @property
@@ -83,15 +85,21 @@ class ManifestViewMixin(ContextMixin):
     def get_manifest_item(self, position):
         """Returns a manifest item model instance for the given position."""
         try:
-            manifest_item = ManifestItem.objects.get(manifest=self.manifest, position=position)
+            manifest_item = ManifestItem.objects.get(
+                manifest=self.manifest, position=position
+            )
         except ObjectDoesNotExist:
-            messages.error(self.request, f"Invalid position for manifest. Got {position}")
+            messages.error(
+                self.request, f"Invalid position for manifest. Got {position}"
+            )
             return None
         return manifest_item
 
     def _clean_manifest_item_identifier(self):
         """Returns a valid identifier or raises."""
-        manifest_item_identifier = "".join(self.original_manifest_item_identifier.split("-"))
+        manifest_item_identifier = "".join(
+            self.original_manifest_item_identifier.split("-")
+        )
         try:
             Box.objects.get(box_identifier=manifest_item_identifier)
         except ObjectDoesNotExist:

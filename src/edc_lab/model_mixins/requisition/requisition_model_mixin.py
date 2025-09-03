@@ -150,7 +150,8 @@ class RequisitionModelMixin(
         abstract = True
         constraints = [
             UniqueConstraint(
-                fields=["panel", "subject_visit"], name="%(app_label)s_%(class)s_panel_uniq"
+                fields=["panel", "subject_visit"],
+                name="%(app_label)s_%(class)s_panel_uniq",
             )
         ]
 

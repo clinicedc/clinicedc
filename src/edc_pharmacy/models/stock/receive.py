@@ -39,7 +39,11 @@ class Receive(BaseUuidModel):
     order = models.ForeignKey(Order, on_delete=models.PROTECT, null=True, blank=False)
 
     supplier = models.ForeignKey(
-        Supplier, on_delete=models.PROTECT, verbose_name="Supplier", null=True, blank=False
+        Supplier,
+        on_delete=models.PROTECT,
+        verbose_name="Supplier",
+        null=True,
+        blank=False,
     )
 
     invoice_number = models.CharField(max_length=50, null=True, blank=True)

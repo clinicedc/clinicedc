@@ -88,7 +88,11 @@ class DeathReportModelAdminMixin(
 
     def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
-        custom_fields = (ReportDateListFilter, DeathDateListFilter, CauseOfDeathListFilter)
+        custom_fields = (
+            ReportDateListFilter,
+            DeathDateListFilter,
+            CauseOfDeathListFilter,
+        )
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
     @display(
@@ -100,7 +104,9 @@ class DeathReportModelAdminMixin(
         if cause_of_death == OTHER:
             cause_of_death = f"Other: {obj.cause_of_death_other}"
         else:
-            cause_of_death = getattr(obj.cause_of_death, "display_name", obj.cause_of_death)
+            cause_of_death = getattr(
+                obj.cause_of_death, "display_name", obj.cause_of_death
+            )
         return cause_of_death
 
     @display(description="Report date", ordering="report_datetime")
@@ -121,11 +127,15 @@ class DeathReportModelAdminMixin(
     def action_item_column(self, obj):
         return self.get_action_item_column(obj.action_item, as_button=False)
 
-    @display(description="Parent action", ordering="parent_action_item__action_identifier")
+    @display(
+        description="Parent action", ordering="parent_action_item__action_identifier"
+    )
     def parent_action_item_column(self, obj):
         return self.get_action_item_column(obj.parent_action_item, as_button=True)
 
-    @display(description="Related action", ordering="related_action_item__action_identifier")
+    @display(
+        description="Related action", ordering="related_action_item__action_identifier"
+    )
     def related_action_item_column(self, obj):
         return self.get_action_item_column(obj.related_action_item, as_button=True)
 
@@ -135,9 +145,7 @@ class DeathReportModelAdminMixin(
             verbose_name = action_item.reference_model_cls._meta.verbose_name
             app_label = action_item.reference_model_cls._meta.app_label
             model_name = action_item.reference_model_cls._meta.model_name
-            url_name = (
-                f"{get_adverse_event_app_label()}_admin:{app_label}_{model_name}_changelist"
-            )
+            url_name = f"{get_adverse_event_app_label()}_admin:{app_label}_{model_name}_changelist"
             url = reverse(url_name)
             return render_to_string(
                 "edc_adverse_event/action_item_column.html",

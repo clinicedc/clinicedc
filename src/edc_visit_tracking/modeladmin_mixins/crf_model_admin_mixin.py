@@ -104,11 +104,15 @@ class CrfModelAdminMixin:
         if db_field.name == self.related_visit_model_attr:
             related_visit_id = self.related_visit_id(request)
             if related_visit_id and UUID_PATTERN.match(related_visit_id):
-                kwargs["queryset"] = self.related_visit_model_cls._default_manager.using(
-                    db
-                ).filter(id__exact=related_visit_id)
+                kwargs["queryset"] = (
+                    self.related_visit_model_cls._default_manager.using(db).filter(
+                        id__exact=related_visit_id
+                    )
+                )
             else:
-                kwargs["queryset"] = self.related_visit_model_cls._default_manager.none()
+                kwargs["queryset"] = (
+                    self.related_visit_model_cls._default_manager.none()
+                )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_readonly_fields(

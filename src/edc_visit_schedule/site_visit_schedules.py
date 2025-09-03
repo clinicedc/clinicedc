@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import sys
-from typing import TYPE_CHECKING, Tuple
+from typing import Tuple, TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -162,6 +162,7 @@ class SiteVisitSchedules:
         self, attr: str = None, model: str = None
     ) -> Tuple[VisitSchedule, Schedule]:
         ret = []
+        model = model.lower()
         for visit_schedule in self.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
                 try:

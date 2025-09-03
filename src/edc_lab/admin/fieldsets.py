@@ -28,7 +28,10 @@ requisition_status_fields: Tuple[str, ...] = (
     "shipped_datetime",
 )
 
-requisition_verify_fields: Tuple[str, ...] = ("clinic_verified", "clinic_verified_datetime")
+requisition_verify_fields: Tuple[str, ...] = (
+    "clinic_verified",
+    "clinic_verified_datetime",
+)
 
 requisition_status_fieldset: Tuple[str, Dict[str, Tuple[str, ...]]] = (
     "Status (For laboratory use only)",

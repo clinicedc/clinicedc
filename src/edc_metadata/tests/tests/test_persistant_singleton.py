@@ -8,16 +8,16 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import override_settings, TestCase
 from model_bakery import baker
 
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.models import Appointment
-from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
+from edc_appointment.tests.utils import get_appointment
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
-from edc_facility import import_holidays
+from edc_facility.import_holidays import import_holidays
 from edc_metadata import KEYED, NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata import CrfMetadataGetter
 from edc_metadata.metadata_handler import MetadataHandlerError
@@ -33,9 +33,10 @@ from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from ..models import CrfOne, SubjectConsent
-from ..visit_schedule2 import get_visit_schedule
+from tests.models import CrfOne, SubjectConsent
+from tests.visit_schedules.visit_schedule_metadata.visit_schedule2 import (
+    get_visit_schedule,
+)
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
@@ -46,7 +47,7 @@ class CrfOneForm(forms.ModelForm):
         fields = "__all__"
 
 
-class TestCaseMixin(AppointmentTestCaseMixin):
+class TestCaseMixin:
     @staticmethod
     def get_subject_consent():
         return baker.make_recipe(
@@ -80,7 +81,7 @@ class TestCaseMixin(AppointmentTestCaseMixin):
         )
         if appt_datetime:
             options.update(appt_datetime=appt_datetime)
-        appointment = self.get_appointment(**options)
+        appointment = get_appointment(**options)
         subject_visit = SubjectVisit(
             appointment=appointment,
             subject_identifier=appointment.subject_identifier,
@@ -157,7 +158,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             consent_datetime=get_utcnow(),
         )
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_metadata.onschedule"
+            "edc_visit_schedule.onschedule"
         )
         self.schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
@@ -220,7 +221,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         self.assertEqual({}, form._errors)
         self.assertRaises(MetadataHandlerError, form.save)
 
-        crf_metadata_getter = CrfMetadataGetter(appointment=self.subject_visit.appointment)
+        crf_metadata_getter = CrfMetadataGetter(
+            appointment=self.subject_visit.appointment
+        )
         self.assertFalse(
             crf_metadata_getter.metadata_objects.filter(
                 model="edc_metadata.crfone", entry_status=REQUIRED
@@ -237,7 +240,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         self.assertEqual(subject_visit.visit_code, WEEK2)
         crf_metadata_getter = CrfMetadataGetter(appointment=subject_visit.appointment)
         self.assertTrue(
-            crf_metadata_getter.metadata_objects.filter(model="edc_metadata.crfone").exists()
+            crf_metadata_getter.metadata_objects.filter(
+                model="edc_metadata.crfone"
+            ).exists()
         )
         self.assertEqual(
             crf_metadata_getter.metadata_objects.get(
@@ -246,10 +251,14 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             REQUIRED,
         )
 
-        self.assertEqual(CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 1)
+        self.assertEqual(
+            CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 1
+        )
 
         data = deepcopy(self.data)
-        data.update(subject_visit=subject_visit, report_datetime=subject_visit.report_datetime)
+        data.update(
+            subject_visit=subject_visit, report_datetime=subject_visit.report_datetime
+        )
         form = CrfOneForm(data=data)
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -269,14 +278,16 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         traveller = time_machine.travel(subject_visit.report_datetime)
         traveller.start()
         self.assertEqual(subject_visit.visit_code, WEEK2)
-        self.assertEqual(CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 1)
+        self.assertEqual(
+            CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 1
+        )
         self.assertEqual(
             [(WEEK2, REQUIRED)],
             [
                 (obj.visit_code, obj.entry_status)
-                for obj in CrfMetadata.objects.filter(model="edc_metadata.crfone").order_by(
-                    "timepoint"
-                )
+                for obj in CrfMetadata.objects.filter(
+                    model="edc_metadata.crfone"
+                ).order_by("timepoint")
             ],
         )
         subject_visit = self.get_next_subject_visit(subject_visit)
@@ -284,14 +295,16 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         traveller = time_machine.travel(subject_visit.report_datetime)
         traveller.start()
         self.assertEqual(subject_visit.visit_code, MONTH1)
-        self.assertEqual(CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 2)
+        self.assertEqual(
+            CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 2
+        )
         self.assertEqual(
             [(WEEK2, NOT_REQUIRED), (MONTH1, REQUIRED)],
             [
                 (obj.visit_code, obj.entry_status)
-                for obj in CrfMetadata.objects.filter(model="edc_metadata.crfone").order_by(
-                    "timepoint"
-                )
+                for obj in CrfMetadata.objects.filter(
+                    model="edc_metadata.crfone"
+                ).order_by("timepoint")
             ],
         )
 
@@ -300,14 +313,16 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         traveller = time_machine.travel(subject_visit.report_datetime)
         traveller.start()
         self.assertEqual(subject_visit.visit_code, MONTH3)
-        self.assertEqual(CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 3)
+        self.assertEqual(
+            CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 3
+        )
         self.assertEqual(
             [(WEEK2, NOT_REQUIRED), (MONTH1, NOT_REQUIRED), (MONTH3, REQUIRED)],
             [
                 (obj.visit_code, obj.entry_status)
-                for obj in CrfMetadata.objects.filter(model="edc_metadata.crfone").order_by(
-                    "timepoint"
-                )
+                for obj in CrfMetadata.objects.filter(
+                    model="edc_metadata.crfone"
+                ).order_by("timepoint")
             ],
         )
 
@@ -316,7 +331,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         traveller = time_machine.travel(subject_visit.report_datetime)
         traveller.start()
         self.assertEqual(subject_visit.visit_code, MONTH6)
-        self.assertEqual(CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 4)
+        self.assertEqual(
+            CrfMetadata.objects.filter(model="edc_metadata.crfone").count(), 4
+        )
         self.assertEqual(
             [
                 (WEEK2, NOT_REQUIRED),
@@ -326,9 +343,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             ],
             [
                 (obj.visit_code, obj.entry_status)
-                for obj in CrfMetadata.objects.filter(model="edc_metadata.crfone").order_by(
-                    "timepoint"
-                )
+                for obj in CrfMetadata.objects.filter(
+                    model="edc_metadata.crfone"
+                ).order_by("timepoint")
             ],
         )
 
@@ -343,7 +360,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         self.assertEqual(subject_visit.visit_code, MONTH1)
         crf_metadata_getter = CrfMetadataGetter(appointment=subject_visit.appointment)
         self.assertTrue(
-            crf_metadata_getter.metadata_objects.filter(model="edc_metadata.crfone").exists()
+            crf_metadata_getter.metadata_objects.filter(
+                model="edc_metadata.crfone"
+            ).exists()
         )
         self.assertEqual(
             crf_metadata_getter.metadata_objects.get(
@@ -352,7 +371,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             REQUIRED,
         )
         data = deepcopy(self.data)
-        data.update(subject_visit=subject_visit, report_datetime=subject_visit.report_datetime)
+        data.update(
+            subject_visit=subject_visit, report_datetime=subject_visit.report_datetime
+        )
         form = CrfOneForm(data=data)
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -376,7 +397,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         self.assertEqual(subject_visit.visit_code, MONTH3)
         crf_metadata_getter = CrfMetadataGetter(appointment=subject_visit.appointment)
         self.assertTrue(
-            crf_metadata_getter.metadata_objects.filter(model="edc_metadata.crfone").exists()
+            crf_metadata_getter.metadata_objects.filter(
+                model="edc_metadata.crfone"
+            ).exists()
         )
         self.assertEqual(
             crf_metadata_getter.metadata_objects.get(
@@ -385,7 +408,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             REQUIRED,
         )
         data = deepcopy(self.data)
-        data.update(subject_visit=subject_visit, report_datetime=subject_visit.report_datetime)
+        data.update(
+            subject_visit=subject_visit, report_datetime=subject_visit.report_datetime
+        )
         form = CrfOneForm(data=data)
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -405,7 +430,9 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         subject_visit_1010 = self.get_next_subject_visit(subject_visit_1005)
         subject_visit_1030 = self.get_next_subject_visit(subject_visit_1010)
         self.assertEqual(subject_visit_1030.visit_code, MONTH3)
-        crf_metadata_getter = CrfMetadataGetter(appointment=subject_visit_1030.appointment)
+        crf_metadata_getter = CrfMetadataGetter(
+            appointment=subject_visit_1030.appointment
+        )
         self.assertTrue(
             crf_metadata_getter.metadata_objects.filter(
                 model="edc_metadata.crfone", entry_status=REQUIRED
@@ -422,19 +449,25 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         form.is_valid()
         self.assertEqual({}, form._errors)
         form.save()
-        crf_metadata_getter = CrfMetadataGetter(appointment=subject_visit_1005.appointment)
+        crf_metadata_getter = CrfMetadataGetter(
+            appointment=subject_visit_1005.appointment
+        )
         self.assertTrue(
             crf_metadata_getter.metadata_objects.filter(
                 model="edc_metadata.crfone", entry_status=NOT_REQUIRED
             ).exists()
         )
-        crf_metadata_getter = CrfMetadataGetter(appointment=subject_visit_1010.appointment)
+        crf_metadata_getter = CrfMetadataGetter(
+            appointment=subject_visit_1010.appointment
+        )
         self.assertTrue(
             crf_metadata_getter.metadata_objects.filter(
                 model="edc_metadata.crfone", entry_status=KEYED
             ).exists()
         )
-        crf_metadata_getter = CrfMetadataGetter(appointment=subject_visit_1030.appointment)
+        crf_metadata_getter = CrfMetadataGetter(
+            appointment=subject_visit_1030.appointment
+        )
         self.assertTrue(
             crf_metadata_getter.metadata_objects.filter(
                 model="edc_metadata.crfone", entry_status=NOT_REQUIRED

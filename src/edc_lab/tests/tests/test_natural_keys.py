@@ -1,9 +1,10 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from edc_test_utils.natural_key_test_helper import NaturalKeyTestHelper
 
 from edc_sites.tests import SiteTestCaseMixin
 
 
+@tag("lab")
 @override_settings(SITE_ID=10)
 class TestNaturalKey(SiteTestCaseMixin, TestCase):
     nk_test_helper = NaturalKeyTestHelper()

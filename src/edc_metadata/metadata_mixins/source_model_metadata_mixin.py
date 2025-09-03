@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 
     from ..model_mixins.creates import CreatesMetadataModelMixin
 
-    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel):
+    class RelatedVisitModel(
+        SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel
+    ):
         pass
 
 
@@ -57,7 +59,9 @@ class SourceModelMetadataMixin:
     @property
     def source_model_obj_exists(self) -> bool:
         """Returns True if the source model instance exists."""
-        return self.source_model_cls.objects.filter(**self.source_model_options).exists()
+        return self.source_model_cls.objects.filter(
+            **self.source_model_options
+        ).exists()
 
     @property
     def due_datetime(self) -> datetime | None:
@@ -69,7 +73,9 @@ class SourceModelMetadataMixin:
 
     @property
     def document_user(self) -> str | None:
-        return getattr(self.source_model_obj, "user_created", self.related_visit.user_created)
+        return getattr(
+            self.source_model_obj, "user_created", self.related_visit.user_created
+        )
 
     @property
     def document_name(self) -> str | None:

@@ -29,7 +29,9 @@ class ReceiveItem(BaseUuidModel):
 
     receive_item_datetime = models.DateTimeField(default=get_utcnow)
 
-    receive = models.ForeignKey(Receive, on_delete=models.PROTECT, null=True, blank=False)
+    receive = models.ForeignKey(
+        Receive, on_delete=models.PROTECT, null=True, blank=False
+    )
 
     container = models.ForeignKey(
         Container,
@@ -39,7 +41,9 @@ class ReceiveItem(BaseUuidModel):
         limit_choices_to={"may_receive_as": True},
     )
 
-    order_item = models.ForeignKey(OrderItem, on_delete=models.PROTECT, null=True, blank=False)
+    order_item = models.ForeignKey(
+        OrderItem, on_delete=models.PROTECT, null=True, blank=False
+    )
 
     lot = models.ForeignKey(
         Lot,
@@ -85,7 +89,9 @@ class ReceiveItem(BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.receive_item_identifier:
-            self.receive_item_identifier = f"{get_next_value(self._meta.label_lower):06d}"
+            self.receive_item_identifier = (
+                f"{get_next_value(self._meta.label_lower):06d}"
+            )
         if not self.receive:
             raise ReceiveItemError("Receive may not be null.")
         if not self.container:
@@ -106,7 +112,9 @@ class ReceiveItem(BaseUuidModel):
                 f"Got {self.container}"
             )
         if self.order_item.product.assignment != self.lot.assignment:
-            raise ReceiveError("Lot number assignment does not match product assignment!")
+            raise ReceiveError(
+                "Lot number assignment does not match product assignment!"
+            )
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

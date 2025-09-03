@@ -36,7 +36,9 @@ class BaseResultsAction(Action):
 
     def get_next_actions(self):
         next_actions = []
-        if self.is_reportable and not is_baseline(instance=self.reference_obj.related_visit):
+        if self.is_reportable and not is_baseline(
+            instance=self.reference_obj.related_visit
+        ):
             # AE for reportable result, though at baseline
             next_actions = [AE_INITIAL_ACTION]
         return next_actions

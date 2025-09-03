@@ -44,7 +44,9 @@ class RandomizationListVerifier:
 
         randomizer_cls = site_randomizers.get(randomizer_name)
         if not randomizer_cls:
-            raise RandomizationListError(f"Randomizer not registered. Got `{randomizer_name}`")
+            raise RandomizationListError(
+                f"Randomizer not registered. Got `{randomizer_name}`"
+            )
         self.fieldnames = fieldnames or self.required_csv_fieldnames
         try:
             self.count = self.randomizer_model_cls.objects.all().count()
@@ -60,7 +62,10 @@ class RandomizationListVerifier:
                 )
 
             else:
-                if not self.randomizationlist_path or not self.randomizationlist_path.exists():
+                if (
+                    not self.randomizationlist_path
+                    or not self.randomizationlist_path.exists()
+                ):
                     self.messages.append(
                         f"Randomization list file does not exist but SIDs "
                         f"have been loaded. Expected file "

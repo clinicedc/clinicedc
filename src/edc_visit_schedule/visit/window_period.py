@@ -43,9 +43,9 @@ class WindowPeriod:
         dt_ceil = (
             to_utc(dt)
             if self.no_ceil
-            else dt.replace(hour=23, minute=59, second=59, microsecond=999999).astimezone(
-                ZoneInfo("UTC")
-            )
+            else dt.replace(
+                hour=23, minute=59, second=59, microsecond=999999
+            ).astimezone(ZoneInfo("UTC"))
         )
         window = namedtuple("Window", ["lower", "upper"])
         return window(dt_floor - self.rlower, dt_ceil + self.rupper)

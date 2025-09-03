@@ -47,7 +47,11 @@ MODIFY_ACTIONS = (
     ("VIEW", _("Print")),
 )
 
-ORDER_STATUS = ((PENDING, _("Pending")), (PARTIAL, _("Partial")), (COMPLETE, _("Complete")))
+ORDER_STATUS = (
+    (PENDING, _("Pending")),
+    (PARTIAL, _("Partial")),
+    (COMPLETE, _("Complete")),
+)
 
 GLUCOSE_UNITS = (
     (MILLIGRAMS_PER_DECILITER, MILLIGRAMS_PER_DECILITER),
@@ -76,7 +80,11 @@ RESULT_RELEASE_STATUS = (
     ("AMENDED", _("Amended")),
 )
 
-RESULT_VALIDATION_STATUS = (("P", _("Preliminary")), ("F", _("Final")), ("R", _("Rejected")))
+RESULT_VALIDATION_STATUS = (
+    ("P", _("Preliminary")),
+    ("F", _("Final")),
+    ("R", _("Rejected")),
+)
 
 RESULT_QUANTIFIER = ((EQ, EQ), (GT, GT), (GTE, GTE), (LT, LT), (LTE, LTE))
 

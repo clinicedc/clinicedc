@@ -23,7 +23,10 @@ class TestViewMixins(TestCase):
 
     def test_subject_locator_raises_on_bad_model(self):
         class MySubjectLocatorViewMixin(
-            SiteViewMixin, SubjectLocatorViewMixin, RegisteredSubjectViewMixin, ContextMixin
+            SiteViewMixin,
+            SubjectLocatorViewMixin,
+            RegisteredSubjectViewMixin,
+            ContextMixin,
         ):
             subject_locator_model = "blah.blahblah"
 
@@ -35,7 +38,10 @@ class TestViewMixins(TestCase):
     @skip("problems emulating message framework")
     def test_mixin_messages(self):
         class MySubjectLocatorViewMixin(
-            SiteViewMixin, SubjectLocatorViewMixin, RegisteredSubjectViewMixin, ContextMixin
+            SiteViewMixin,
+            SubjectLocatorViewMixin,
+            RegisteredSubjectViewMixin,
+            ContextMixin,
         ):
             subject_locator_model = "edc_locator.subjectlocator"
 
@@ -46,7 +52,10 @@ class TestViewMixins(TestCase):
 
     def test_subject_locator_view_ok(self):
         class MySubjectLocatorViewMixin(
-            SiteViewMixin, SubjectLocatorViewMixin, RegisteredSubjectViewMixin, ContextMixin
+            SiteViewMixin,
+            SubjectLocatorViewMixin,
+            RegisteredSubjectViewMixin,
+            ContextMixin,
         ):
             subject_locator_model = "edc_locator.subjectlocator"
 
@@ -60,7 +69,10 @@ class TestViewMixins(TestCase):
 
     def test_subject_locator_self_corrects_if_multiple_actionitems(self):
         class MySubjectLocatorViewMixin(
-            SiteViewMixin, SubjectLocatorViewMixin, RegisteredSubjectViewMixin, ContextMixin
+            SiteViewMixin,
+            SubjectLocatorViewMixin,
+            RegisteredSubjectViewMixin,
+            ContextMixin,
         ):
             subject_locator_model = "edc_locator.subjectlocator"
 

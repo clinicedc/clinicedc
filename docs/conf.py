@@ -68,6 +68,11 @@ html_sidebars = {
     ]
 }
 
+html_theme_options = {
+    "source_repository": "https://github.com/clinicedc/clinicedc",
+    "source_branch": "develop",  # or 'develop', 'master', etc.
+    "source_directory": "docs/",  # The directory where your RST files live
+}
 pygments_style = "sphinx"
 
 # EPUB options

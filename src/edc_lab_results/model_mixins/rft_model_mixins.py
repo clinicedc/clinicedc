@@ -1,6 +1,5 @@
 from django.db import models
 
-from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_reportable.units import (
     MICROMOLES_PER_LITER,
     MICROMOLES_PER_LITER_DISPLAY,
@@ -8,6 +7,8 @@ from edc_reportable.units import (
     MILLIMOLES_PER_LITER,
     MILLIMOLES_PER_LITER_DISPLAY,
 )
+
+from ..model_mixin_factory import reportable_result_model_mixin_factory
 
 
 class CreatinineModelMixin(

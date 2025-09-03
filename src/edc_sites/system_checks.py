@@ -40,7 +40,10 @@ def compare_single_sites_with_db():
     if not get_site_model_cls().objects.all().exists():
         raise SitesCheckError("No sites have been imported. You need to run migrate")
     ids1 = sorted(list(site_sites.all()))
-    ids2 = [x[0] for x in get_site_model_cls().objects.values_list("id").all().order_by("id")]
+    ids2 = [
+        x[0]
+        for x in get_site_model_cls().objects.values_list("id").all().order_by("id")
+    ]
     if ids1 != ids2:
         raise SitesCheckError(
             f"Site table is out of sync. Got registered sites = {ids1}. "

@@ -23,9 +23,13 @@ class ActionNoManagersModelMixin(models.Model):
 
     subject_dashboard_url: str = "subject_dashboard_url"
 
-    action_identifier = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    action_identifier = models.CharField(
+        max_length=50, unique=True, null=True, blank=True
+    )
 
-    action_item = models.ForeignKey(ActionItem, null=True, blank=True, on_delete=PROTECT)
+    action_item = models.ForeignKey(
+        ActionItem, null=True, blank=True, on_delete=PROTECT
+    )
 
     parent_action_item = models.ForeignKey(
         ActionItem, related_name="+", null=True, blank=True, on_delete=PROTECT
@@ -61,7 +65,9 @@ class ActionNoManagersModelMixin(models.Model):
     def save(self: Any, *args, **kwargs):
         # ensure action class is defined
         if not self.get_action_cls():
-            raise ActionClassNotDefined(f"Action class name not defined. See {repr(self)}")
+            raise ActionClassNotDefined(
+                f"Action class name not defined. See {repr(self)}"
+            )
 
         # ensure subject_identifier
         if not self.subject_identifier:
@@ -72,7 +78,10 @@ class ActionNoManagersModelMixin(models.Model):
 
         # ensure related_action_item is set if there is a
         # related reference model.
-        if self.get_action_cls().related_reference_model and not self.related_action_item:
+        if (
+            self.get_action_cls().related_reference_model
+            and not self.related_action_item
+        ):
             self.related_action_item = getattr(
                 self, self.get_action_cls().related_reference_fk_attr
             ).action_item
@@ -91,7 +100,9 @@ class ActionNoManagersModelMixin(models.Model):
             self.action_item.linked_to_reference = True
             self.action_identifier = self.action_item.action_identifier
         elif self.id and not self.action_item:
-            self.action_item = ActionItem.objects.get(action_identifier=self.action_identifier)
+            self.action_item = ActionItem.objects.get(
+                action_identifier=self.action_identifier
+            )
         self.parent_action_item = self.action_item.parent_action_item
 
         # also see signals.py

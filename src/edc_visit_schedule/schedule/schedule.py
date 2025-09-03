@@ -4,7 +4,7 @@ import re
 from copy import deepcopy
 from datetime import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, Type
+from typing import Type, TYPE_CHECKING
 
 from django.apps import apps as django_apps
 
@@ -13,16 +13,16 @@ from edc_consent.exceptions import (
     ConsentDefinitionDoesNotExist,
     ConsentDefinitionValidityPeriodError,
 )
+from edc_registration import get_registered_subject_model_cls
 from edc_sites import site_sites
 from edc_sites.single_site import SingleSite
 from edc_utils import formatted_date
-
+from .visit_collection import VisitCollection
+from .window import Window
 from ..exceptions import NotOnScheduleError, NotOnScheduleForDateError
 from ..site_visit_schedules import site_visit_schedules
 from ..subject_schedule import SubjectSchedule
 from ..visit import Visit
-from .visit_collection import VisitCollection
-from .window import Window
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
@@ -106,9 +106,13 @@ class Schedule:
             None if loss_to_followup_model is None else loss_to_followup_model.lower()
         )
         self.offstudymedication_model = (
-            None if offstudymedication_model is None else offstudymedication_model.lower()
+            None
+            if offstudymedication_model is None
+            else offstudymedication_model.lower()
         )
-        self.history_model = history_model or "edc_visit_schedule.subjectschedulehistory"
+        self.history_model = (
+            history_model or "edc_visit_schedule.subjectschedulehistory"
+        )
 
     def __repr__(self):
         return f"Schedule({self.name})"
@@ -135,7 +139,9 @@ class Schedule:
                 f"ConsentDefinition(s) may not be None. See Schedule `{self}`. "
                 f"Got `{consent_definitions}`."
             )
-        self._consent_definitions = sorted(self._consent_definitions, key=lambda x: x.version)
+        self._consent_definitions = sorted(
+            self._consent_definitions, key=lambda x: x.version
+        )
 
     @property
     def visits(self) -> VisitCollection:
@@ -149,6 +155,7 @@ class Schedule:
         subject_identifier: str = None,
         report_datetime: datetime = None,
         site_id: int = None,
+        consent_definition: ConsentDefinition = None,
     ) -> VisitCollection:
         """Returns a deep copy of visits collection filtered for a
         given consented subject.
@@ -162,7 +169,9 @@ class Schedule:
         """
         visits = self.visit_collection_cls()
         cdef = self.get_consent_definition(
-            report_datetime=report_datetime, site=site_sites.get(site_id)
+            report_datetime=report_datetime,
+            site=site_sites.get(site_id),
+            consent_definition=consent_definition,
         )
         if cdef.get_consent_for(subject_identifier=subject_identifier, site_id=site_id):
             visits = deepcopy(self.visits)
@@ -197,8 +206,8 @@ class Schedule:
         if not self.visits and visit.timepoint != self.base_timepoint:
             raise VisitTimepointError(
                 f"First visit timepoint should be {self.base_timepoint}. Set schedule"
-                f".base_timepoint if not using default base_timepoint of 0. See {visit}. "
-                f"Got visit.timepoint={visit.timepoint}."
+                f".base_timepoint if not using default base_timepoint of 0. "
+                f"See {visit}. Got visit.timepoint={visit.timepoint}."
             )
         visit.base_timepoint = self.base_timepoint
         self.visits.update({visit.code: visit})
@@ -232,7 +241,9 @@ class Schedule:
                 visit_codes.append(visit_code)
         return visit_codes
 
-    def subject(self, subject_identifier: str) -> SubjectSchedule:
+    def subject(
+        self, subject_identifier: str, consent_definition: ConsentDefinition = None
+    ) -> SubjectSchedule:
         """Returns a SubjectSchedule instance for this subject.
 
         Note: SubjectSchedule puts a subject on/off schedule by
@@ -257,6 +268,7 @@ class Schedule:
         onschedule_datetime: datetime | None,
         skip_baseline: bool | None = None,
         skip_get_current_site: bool | None = None,
+        # consent_definition: ConsentDefinition = None,
     ) -> None:
         """Puts a subject onto this schedule.
 
@@ -264,10 +276,36 @@ class Schedule:
 
         Appointment are created through this pathway.
         """
-        self.subject(subject_identifier).put_on_schedule(
+        rs = get_registered_subject_model_cls().objects.get(
+            subject_identifier=subject_identifier
+        )
+        consent_definition = self.get_consent_definition(
+            onschedule_datetime, site_sites.get(rs.site.id)
+        )
+        formatted_cdefs = [
+            f"Cdef(proxy_model='{c.proxy_model}', version='{c.version}')"
+            for c in self.consent_definitions
+        ]
+        if not consent_definition:
+            raise ScheduleError(
+                "Consent definition may not be None. Expected one of "
+                f"{formatted_cdefs}."
+            )
+
+        if consent_definition not in self.consent_definitions:
+            raise ScheduleError(
+                "Invalid consent definition for schedule. Expected one of "
+                f"{formatted_cdefs}. Got Cdef(proxy_model="
+                f"'{consent_definition.proxy_model}', "
+                f"version='{consent_definition.version}'). "
+            )
+        self.subject(
+            subject_identifier, consent_definition=consent_definition
+        ).put_on_schedule(
             onschedule_datetime,
             skip_baseline=skip_baseline,
             skip_get_current_site=skip_get_current_site,
+            consent_definition=consent_definition,
         )
 
     def refresh_schedule(self, subject_identifier: str) -> None:
@@ -289,7 +327,9 @@ class Schedule:
         return True
 
     def datetime_in_window(self, **kwargs):
-        return self.window_cls(name=self.name, visits=self.visits, **kwargs).datetime_in_window
+        return self.window_cls(
+            name=self.name, visits=self.visits, **kwargs
+        ).datetime_in_window
 
     @property
     def onschedule_model_cls(self) -> Type[OnSchedule]:
@@ -320,13 +360,23 @@ class Schedule:
         return self.appointment_model_cls.related_visit_model_cls()
 
     def get_consent_definition(
-        self, report_datetime: datetime = None, site: SingleSite = None
+        self,
+        report_datetime: datetime = None,
+        site: SingleSite = None,
+        consent_definition: ConsentDefinition = None,
     ) -> ConsentDefinition:
         """Returns the ConsentDefinition from this schedule valid for the
         given report date or raises an exception.
         """
-        consent_definition = None
-        cdefs = [cdef for cdef in self.consent_definitions if site in cdef.sites]
+        if consent_definition:
+            consent_definitions = [
+                c
+                for c in self.consent_definitions
+                if c.version == consent_definition.version
+            ]
+        else:
+            consent_definitions = self.consent_definitions
+        cdefs = [cdef for cdef in consent_definitions if site in cdef.sites]
         if not cdefs:
             cdefs_as_string = ", ".join(
                 [cdef.display_name for cdef in self.consent_definitions]
@@ -337,25 +387,26 @@ class Schedule:
             )
 
         cdefs = sorted(cdefs, key=lambda x: x.version, reverse=True)
+        cdef = None
         for cdef in cdefs:
             try:
                 cdef.valid_for_datetime_or_raise(report_datetime)
             except ConsentDefinitionValidityPeriodError:
                 pass
             else:
-                consent_definition = cdef
                 break
-        if not consent_definition:
+        if not cdef:
             date_string = formatted_date(report_datetime)
             cdefs_as_string = ", ".join(
                 [cdef.display_name for cdef in self.consent_definitions]
             )
             raise ConsentDefinitionDoesNotExist(
-                "Date does not fall within the validity period of any consent definition "
+                "Date does not fall within the validity period "
+                "of any consent definition "
                 f"for this schedule. Consent definitions are: "
                 f"{cdefs_as_string}. Got {date_string}."
             )
-        return consent_definition
+        return cdef
 
     def to_dict(self):
         return {k: v.to_dict() for k, v in self.visits.items()}

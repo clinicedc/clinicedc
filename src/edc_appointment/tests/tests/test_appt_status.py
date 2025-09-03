@@ -2,7 +2,7 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
@@ -10,7 +10,6 @@ from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.utils import get_crf_metadata_model_cls
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -35,22 +34,21 @@ class TestAppointmentStatus(TestCase):
         import_holidays()
 
     def setUp(self):
-        self.subject_identifier = "12345"
-        site_visit_schedules._registry = {}
-        self.visit_schedule1 = get_visit_schedule1()
-        self.visit_schedule2 = get_visit_schedule2()
-        site_visit_schedules.register(self.visit_schedule1)
-        site_visit_schedules.register(self.visit_schedule2)
         site_consents.registry = {}
         site_consents.register(consent_v1)
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
-            now=ResearchProtocolConfig().study_open_datetime,
-        )
+
+        site_visit_schedules._registry = {}
+        self.visit_schedule1 = get_visit_schedule1(consent_v1)
+        self.visit_schedule2 = get_visit_schedule2(consent_v1)
+        site_visit_schedules.register(self.visit_schedule1)
+        site_visit_schedules.register(self.visit_schedule2)
+
+        self.helper = self.helper_cls()
         schedule_name = self.visit_schedule1.schedules.get("schedule1").name
-        self.helper.consent_and_put_on_schedule(
+        consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name, schedule_name=schedule_name
         )
+        self.subject_identifier = consent.subject_identifier
 
     def test_appointment_status(self):
         appointments = Appointment.objects.filter(

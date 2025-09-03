@@ -52,7 +52,9 @@ def user_is_blinded_from_request(request):
     return False
 
 
-def raise_if_prohibited_from_unblinded_rando_group(username: str, groups: Iterable) -> None:
+def raise_if_prohibited_from_unblinded_rando_group(
+    username: str, groups: Iterable
+) -> None:
     """A user form validation to prevent adding an unlisted
     user to the RANDO_UNBLINDED group.
 

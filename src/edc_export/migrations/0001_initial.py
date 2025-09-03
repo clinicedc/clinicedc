@@ -95,7 +95,9 @@ class Migration(migrations.Migration):
                 ("decrypt", models.BooleanField(default=False)),
                 (
                     "export_format",
-                    models.CharField(choices=[("CSV", "CSV")], default="CSV", max_length=25),
+                    models.CharField(
+                        choices=[("CSV", "CSV")], default="CSV", max_length=25
+                    ),
                 ),
                 (
                     "models",
@@ -387,7 +389,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "filename",
-                    models.CharField(help_text="original filename on export", max_length=250),
+                    models.CharField(
+                        help_text="original filename on export", max_length=250
+                    ),
                 ),
                 (
                     "file_contents",
@@ -418,7 +422,9 @@ class Migration(migrations.Migration):
                 ("received_datetime", models.DateTimeField(null=True)),
                 (
                     "closed",
-                    models.BooleanField(default=False, help_text="exported, sent, received"),
+                    models.BooleanField(
+                        default=False, help_text="exported, sent, received"
+                    ),
                 ),
                 ("closed_datetime", models.DateTimeField(null=True)),
             ],
@@ -497,7 +503,9 @@ class Migration(migrations.Migration):
                 ("decrypt", models.BooleanField(default=False)),
                 (
                     "export_format",
-                    models.CharField(choices=[("CSV", "CSV")], default="CSV", max_length=25),
+                    models.CharField(
+                        choices=[("CSV", "CSV")], default="CSV", max_length=25
+                    ),
                 ),
                 (
                     "models",
@@ -758,7 +766,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "filename",
-                    models.CharField(help_text="original filename on export", max_length=250),
+                    models.CharField(
+                        help_text="original filename on export", max_length=250
+                    ),
                 ),
                 (
                     "file_contents",
@@ -789,7 +799,9 @@ class Migration(migrations.Migration):
                 ("received_datetime", models.DateTimeField(null=True)),
                 (
                     "closed",
-                    models.BooleanField(default=False, help_text="exported, sent, received"),
+                    models.BooleanField(
+                        default=False, help_text="exported, sent, received"
+                    ),
                 ),
                 ("closed_datetime", models.DateTimeField(null=True)),
                 ("history_change_reason", models.CharField(max_length=100, null=True)),
@@ -947,7 +959,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "received",
-                    models.BooleanField(default=False, help_text="True if ACK received"),
+                    models.BooleanField(
+                        default=False, help_text="True if ACK received"
+                    ),
                 ),
                 (
                     "received_datetime",
@@ -1092,7 +1106,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "encrypt",
-                    models.BooleanField(default=True, verbose_name="Mask encrypted values"),
+                    models.BooleanField(
+                        default=True, verbose_name="Mask encrypted values"
+                    ),
                 ),
                 ("history_change_reason", models.CharField(max_length=100, null=True)),
                 ("history_date", models.DateTimeField()),
@@ -1250,7 +1266,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "received",
-                    models.BooleanField(default=False, help_text="True if ACK received"),
+                    models.BooleanField(
+                        default=False, help_text="True if ACK received"
+                    ),
                 ),
                 (
                     "received_datetime",
@@ -1367,7 +1385,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "encrypt",
-                    models.BooleanField(default=True, verbose_name="Mask encrypted values"),
+                    models.BooleanField(
+                        default=True, verbose_name="Mask encrypted values"
+                    ),
                 ),
             ],
             options={
@@ -1451,7 +1471,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "file_name",
-                    models.CharField(editable=False, max_length=50, null=True, unique=True),
+                    models.CharField(
+                        editable=False, max_length=50, null=True, unique=True
+                    ),
                 ),
                 ("app_label", models.CharField(max_length=50)),
                 ("model_name", models.CharField(max_length=50)),

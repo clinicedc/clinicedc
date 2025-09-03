@@ -3,15 +3,13 @@ from __future__ import annotations
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Type, TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db import models
 
 from edc_registration.utils import get_registered_subject_model_cls
-
 from .constants import (
     DEFAULT_ASSIGNMENT_DESCRIPTION_MAP,
     DEFAULT_ASSIGNMENT_MAP,
@@ -21,6 +19,9 @@ from .randomization_list_importer import (
     RandomizationListAlreadyImported,
     RandomizationListImporter,
 )
+
+if TYPE_CHECKING:
+    from edc_registration.models import RegisteredSubject
 
 
 class InvalidAssignmentDescriptionMap(Exception):
@@ -96,7 +97,9 @@ class Randomizer:
     )
     filename: str = "randomization_list.csv"
     randomizationlist_folder: Path | str = getattr(
-        settings, "EDC_RANDOMIZATION_LIST_PATH", Path(settings.BASE_DIR).expanduser() / ".etc"
+        settings,
+        "EDC_RANDOMIZATION_LIST_PATH",
+        Path(settings.BASE_DIR).expanduser() / ".etc",
     )
     extra_csv_fieldnames: list[str] | None = None
     trial_is_blinded: bool = True
@@ -179,7 +182,9 @@ class Randomizer:
         self.registration_obj.sid = self.sid
         self.registration_obj.randomization_datetime = self.model_obj.allocated_datetime
         self.registration_obj.registration_status = RANDOMIZED
-        self.registration_obj.randomization_list_model = self.model_obj._meta.label_lower
+        self.registration_obj.randomization_list_model = (
+            self.model_obj._meta.label_lower
+        )
         self.registration_obj.save()
         # requery
         self._registration_obj = self.get_registration_model_cls().objects.get(
@@ -191,7 +196,7 @@ class Randomizer:
         return {self.identifier_attr: getattr(self, self.identifier_attr)}
 
     @classmethod
-    def get_registration_model_cls(cls) -> models.Model:
+    def get_registration_model_cls(cls) -> Type[RegisteredSubject]:
         return get_registered_subject_model_cls()
 
     @property
@@ -296,7 +301,9 @@ class Randomizer:
                 self._registration_obj = self.get_unallocated_registration_obj()
             except ObjectDoesNotExist:
                 try:
-                    obj = self.get_registration_model_cls().objects.get(**self.identifier_opts)
+                    obj = self.get_registration_model_cls().objects.get(
+                        **self.identifier_opts
+                    )
                 except ObjectDoesNotExist:
                     raise RandomizationError(
                         f"{self.identifier_object_name.title()} does not exist. "

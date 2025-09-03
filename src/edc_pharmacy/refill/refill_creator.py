@@ -128,10 +128,14 @@ class RefillCreator:
         try:
             rx = get_rx_model_cls().objects.get(**opts)
         except ObjectDoesNotExist:
-            raise PrescriptionError(f"Subject does not have a prescription. Got {opts}.")
+            raise PrescriptionError(
+                f"Subject does not have a prescription. Got {opts}."
+            )
         else:
             if self.refill_start_datetime.date() < rx.rx_date:
-                rx_date = rx.rx_date.strftime(convert_php_dateformat(settings.DATE_FORMAT))
+                rx_date = rx.rx_date.strftime(
+                    convert_php_dateformat(settings.DATE_FORMAT)
+                )
                 raise PrescriptionNotStarted(
                     f"Subject's prescription not started. Starts on {rx_date}. "
                     f"Got {self.subject_identifier} attempting "

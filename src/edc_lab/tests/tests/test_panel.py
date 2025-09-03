@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_lab.lab import (
     AliquotType,
@@ -12,6 +12,7 @@ from edc_lab.models import Panel
 from edc_lab.site_labs import site_labs
 
 
+@tag("lab")
 class TestPanel(TestCase):
     def setUp(self):
         site_labs._registry = {}
@@ -24,7 +25,9 @@ class TestPanel(TestCase):
     def test_panel2(self):
         wb = AliquotType(name="Whole Blood", alpha_code="WB", numeric_code="02")
 
-        whole_blood_processing = ProcessingProfile(name="whole_blood_store", aliquot_type=wb)
+        whole_blood_processing = ProcessingProfile(
+            name="whole_blood_store", aliquot_type=wb
+        )
 
         wb_panel = RequisitionPanel(
             name="wb_storage",
@@ -52,7 +55,9 @@ class TestPanel(TestCase):
     def test_requisition_panel_str(self):
         a = AliquotType(name="aliquot_a", numeric_code="55", alpha_code="AA")
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
-        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
+        panel = RequisitionPanel(
+            name="Viral Load", processing_profile=processing_profile
+        )
         self.assertTrue(str(panel))
 
     def test_requisition_panel(self):
@@ -66,9 +71,13 @@ class TestPanel(TestCase):
         """
         a = AliquotType(name="aliquot_a", numeric_code="55", alpha_code="AA")
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
-        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
+        panel = RequisitionPanel(
+            name="Viral Load", processing_profile=processing_profile
+        )
         self.assertIsNone(panel.requisition_model)
-        self.assertRaises(RequisitionPanelLookupError, getattr, panel, "requisition_model_cls")
+        self.assertRaises(
+            RequisitionPanelLookupError, getattr, panel, "requisition_model_cls"
+        )
 
     def test_requisition_panel_raises_on_invalid_requisition_model(self):
         a = AliquotType(name="aliquot_a", numeric_code="55", alpha_code="AA")

@@ -3,12 +3,13 @@ from zoneinfo import ZoneInfo
 
 from arrow import Arrow
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_visit_schedule.visit import Visit, VisitCodeError, WindowPeriod
 from edc_visit_schedule.visit.visit import BaseDatetimeNotSet
 
 
+@tag("visit_schedule")
 class TestVisit(TestCase):
     def test_repr(self):
         visit = Visit(
@@ -71,7 +72,9 @@ class TestVisit(TestCase):
             rupper=relativedelta(days=6),
             timepoint=0,
         )
-        visit.timepoint_datetime = datetime(2001, 12, 1, tzinfo=ZoneInfo("Africa/Gaborone"))
+        visit.timepoint_datetime = datetime(
+            2001, 12, 1, tzinfo=ZoneInfo("Africa/Gaborone")
+        )
         self.assertEqual(
             visit.timepoint_datetime,
             datetime(2001, 11, 30, 22, tzinfo=ZoneInfo("UTC")),

@@ -25,11 +25,15 @@ class ModelAdminFormAutoNumberMixin:
         widget = 1
         start = getattr(form, "AUTO_NUMBER_START", 1)
         base_fields = {
-            k: v for k, v in form.base_fields.items() if k not in self.skip_auto_numbering
+            k: v
+            for k, v in form.base_fields.items()
+            if k not in self.skip_auto_numbering
         }
         for index, fld in enumerate(base_fields.items(), start=start):
             label = str(fld[widget].label)
-            if not re.match(r"^\d+\.", label) and not re.match(r"\<a\ title\=\"", label):
+            if not re.match(r"^\d+\.", label) and not re.match(
+                r"\<a\ title\=\"", label
+            ):
                 fld[widget].original_label = copy(label)
                 fld[widget].label = format_html(
                     '<a title="{}">{}</a>. {}',

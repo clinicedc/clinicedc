@@ -51,7 +51,9 @@ class ModelNotification(Notification):
     def __init__(self) -> None:
         super().__init__()
         if not self.display_name:
-            self.display_name = django_apps.get_model(self.model)._meta.verbose_name.title()
+            self.display_name = django_apps.get_model(
+                self.model
+            )._meta.verbose_name.title()
 
     def __repr__(self) -> str:
         return (
@@ -63,7 +65,9 @@ class ModelNotification(Notification):
     def __str__(self) -> str:
         return f"{self.name}: {self.display_name} ({self.model})"
 
-    def notify_on_condition(self, instance: BaseUuidHistoryModelStub = None, **kwargs) -> bool:
+    def notify_on_condition(
+        self, instance: BaseUuidHistoryModelStub = None, **kwargs
+    ) -> bool:
         """Returns True if the condition in one of the C(r)UD methods is met."""
         if instance._meta.label_lower == self.model:
             return (
@@ -132,7 +136,9 @@ class ModelNotification(Notification):
                     changed_fields.update({field: values})
         return changed_fields or None
 
-    def field_value_condition_on_update(self, field, previous_value, current_value) -> bool:
+    def field_value_condition_on_update(
+        self, field, previous_value, current_value
+    ) -> bool:
         """Returns True if the value has changed.
 
         Override for a more complex evaluation.

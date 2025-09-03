@@ -21,11 +21,15 @@ class Product(BaseUuidModel):
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    name = models.CharField(max_length=50, blank=True, help_text="Leave blank to use default")
+    name = models.CharField(
+        max_length=50, blank=True, help_text="Leave blank to use default"
+    )
 
     formulation = models.ForeignKey(Formulation, on_delete=PROTECT)
 
-    assignment = models.ForeignKey(Assignment, on_delete=PROTECT, null=True, blank=False)
+    assignment = models.ForeignKey(
+        Assignment, on_delete=PROTECT, null=True, blank=False
+    )
 
     objects = Manager()
 

@@ -5,7 +5,6 @@ from django_crypto_fields.fields import EncryptedTextField
 from edc_constants.choices import YES_NO_NA
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_utils import get_utcnow
-
 from .. import site_consents
 from ..consent_definition_extension import ConsentDefinitionExtension
 from ..exceptions import ConsentExtensionDefinitionModelError
@@ -30,7 +29,9 @@ class ConsentExtensionModelMixin(UniqueSubjectIdentifierModelMixin, models.Model
         help_text=_("See above for the definition of extended followup."),
     )
 
-    comment = EncryptedTextField(verbose_name="Comment", max_length=250, blank=True, null=True)
+    comment = EncryptedTextField(
+        verbose_name="Comment", max_length=250, blank=True, null=True
+    )
 
     consent_extension_version = models.CharField(
         verbose_name="Consent extension version",
@@ -63,6 +64,7 @@ class ConsentExtensionModelMixin(UniqueSubjectIdentifierModelMixin, models.Model
         cdef = site_consents.get_consent_definition(
             model=self.subject_consent._meta.label_lower,
             version=self.subject_consent.version,
+            report_datetime=self.report_datetime,
         )
         if self._meta.label_lower != cdef.extended_by.model:
             raise ConsentExtensionDefinitionModelError(

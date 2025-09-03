@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import KW_ONLY, dataclass, field
+from dataclasses import dataclass, field, KW_ONLY
 from datetime import datetime
-from typing import TYPE_CHECKING, Type
+from typing import Type, TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,7 +13,6 @@ from edc_screening.utils import get_subject_screening_model
 from edc_sites import site_sites
 from edc_utils import ceil_secs, floor_secs, formatted_date, formatted_datetime
 from edc_utils.date import to_local
-
 from .exceptions import (
     ConsentDefinitionError,
     ConsentDefinitionValidityPeriodError,
@@ -83,7 +82,9 @@ class ConsentDefinition:
         if MALE not in self.gender and FEMALE not in self.gender:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
         if not self.start.tzinfo:
-            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
+            raise ConsentDefinitionError(
+                f"Naive datetime not allowed. Got {self.start}."
+            )
         elif str(self.start.tzinfo).upper() != "UTC":
             raise ConsentDefinitionError(
                 f"Start date must be UTC. Got {self.start} / {self.start.tzinfo}."
@@ -95,6 +96,11 @@ class ConsentDefinition:
                 f"End date must be UTC. Got {self.end} / {self.start.tzinfo}."
             )
         self.check_date_within_study_period()
+
+    def model_create(self, **kwargs) -> ConsentLikeModel:
+        """Creates a consent model instance and inserts version."""
+        kwargs.update(version=self.version)
+        return self.model_cls.objects.create(**kwargs)
 
     @property
     def model(self):
@@ -134,7 +140,9 @@ class ConsentDefinition:
         if self.country:
             sites = site_sites.get_by_country(self.country, aslist=True)
         elif self.site_ids:
-            sites = [s for s in site_sites.all(aslist=True) if s.site_id in self.site_ids]
+            sites = [
+                s for s in site_sites.all(aslist=True) if s.site_id in self.site_ids
+            ]
         else:
             sites = [s for s in site_sites.all(aslist=True)]
         return sites

@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import (
     CANCELLED_APPT,
@@ -125,7 +125,6 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         site_visit_schedules.register(self.visit_schedule1)
         site_visit_schedules.register(self.visit_schedule2)
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
             now=get_utcnow(),
         )
 

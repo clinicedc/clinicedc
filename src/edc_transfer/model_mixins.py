@@ -37,7 +37,7 @@ class SubjectTransferModelMixin(
     initiated_by_other = edc_models.OtherCharField()
 
     transfer_reason = models.ManyToManyField(
-        f"{settings.LIST_MODEL_APP_LABEL}.transferreasons",
+        "edc_transfer.TransferReasons",
         verbose_name="Reason for transfer",
     )
 
@@ -53,7 +53,9 @@ class SubjectTransferModelMixin(
     )
 
     may_contact = models.CharField(
-        verbose_name="Is the participant willing to be contacted at the end of the study?",
+        verbose_name=(
+            "Is the participant willing to be contacted at the end of the study?"
+        ),
         max_length=15,
         choices=YES_NO,
     )

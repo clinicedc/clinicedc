@@ -13,7 +13,14 @@ class Migration(migrations.Migration):
             name="crfmetadata",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "get_latest_by": "modified",
                 "ordering": ("show_order",),
                 "verbose_name": "Crf collection status",
@@ -24,7 +31,14 @@ class Migration(migrations.Migration):
             name="requisitionmetadata",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "get_latest_by": "modified",
                 "ordering": ("show_order",),
                 "verbose_name": "Requisition collection status",

@@ -12,7 +12,14 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name="nonadherencereasons",
             options={
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Non-Adherence Reasons",
                 "verbose_name_plural": "Non-Adherence Reasons",
             },
@@ -53,7 +60,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="nonadherencereasons",
             index=models.Index(
-                fields=["display_index", "display_name"], name="edc_adheren_display_4c242c_idx"
+                fields=["display_index", "display_name"],
+                name="edc_adheren_display_4c242c_idx",
             ),
         ),
     ]

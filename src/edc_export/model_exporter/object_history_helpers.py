@@ -108,7 +108,9 @@ class ObjectHistoryHelper:
         self.create = create
 
     def get_not_exported(self):
-        return self.obj_getter.get_not_exported(model_obj=self.model_obj, create=self.create)
+        return self.obj_getter.get_not_exported(
+            model_obj=self.model_obj, create=self.create
+        )
 
     def update_as_exported(self, **kwargs):
         self.obj_updater.update_as_exported(**kwargs)

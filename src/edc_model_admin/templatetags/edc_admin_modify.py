@@ -103,7 +103,9 @@ def edc_submit_row(
     See also ModelAdminRedirectAllToChangelistMixin
     """
     request: WSGIRequest = get_request_object(context)
-    model_site_id: int | None = getattr(getattr(context["original"], "site", None), "id", None)
+    model_site_id: int | None = getattr(
+        getattr(context["original"], "site", None), "id", None
+    )
     if model_site_id and request.site.id != model_site_id:
         context["has_add_permission"] = False
         context["has_change_permission"] = False
@@ -148,7 +150,9 @@ def instructions(context):
     return {"instructions": context.get("instructions")}
 
 
-@register.inclusion_tag("edc_model_admin/edc_additional_instructions.html", takes_context=True)
+@register.inclusion_tag(
+    "edc_model_admin/edc_additional_instructions.html", takes_context=True
+)
 def additional_instructions(context):
     return {
         "additional_instructions": context.get("additional_instructions"),
@@ -176,7 +180,9 @@ def yes_no_coloring(value) -> dict:
     return context
 
 
-@register.inclusion_tag("edc_model_admin/navbar_for_admin_templates.html", takes_context=True)
+@register.inclusion_tag(
+    "edc_model_admin/navbar_for_admin_templates.html", takes_context=True
+)
 def show_navbar_for_admin_templates(context):
     return context
 

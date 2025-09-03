@@ -33,4 +33,6 @@ class Command(BaseCommand):
         else:
             p = PasswordSetter(super_username=options["super_user"])
             p.reset_user(username=options["username"])
-            sys.stdout.write(f"\nYour password has been reset and emailed to {user.email}\n")
+            sys.stdout.write(
+                f"\nYour password has been reset and emailed to {user.email}\n"
+            )

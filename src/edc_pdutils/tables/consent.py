@@ -13,7 +13,9 @@ class Consent(Table):
     ]
 
     def prepare(self, **kwargs):
-        self.dataframe["dob"] = self.helper.date_to_local_datetime(self.dataframe["dob"])
+        self.dataframe["dob"] = self.helper.date_to_local_datetime(
+            self.dataframe["dob"]
+        )
         self.dataframe["consent_datetime"] = self.helper.to_local_datetime(
             self.dataframe["consent_datetime"]
         )
@@ -27,7 +29,9 @@ class Consent(Table):
         self.dataframe["duplicate"] = self.dataframe.duplicated(self.dataframe)
         if len(self.dataframe[self.dataframe["duplicate"]]) > 0:
             self.dataframe = self.deduplicate()
-        self.dataframe["consent_date"] = self.dataframe["consent_datetime"].dt.normalize()
+        self.dataframe["consent_date"] = self.dataframe[
+            "consent_datetime"
+        ].dt.normalize()
         self.columns.append("consent_date")
 
     def deduplicate(self):

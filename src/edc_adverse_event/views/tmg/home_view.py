@@ -33,14 +33,18 @@ class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
         )
         # summarize new and open for notice
         qs = (
-            ActionItem.objects.filter(action_type__name=AE_TMG_ACTION, status__in=[NEW, OPEN])
+            ActionItem.objects.filter(
+                action_type__name=AE_TMG_ACTION, status__in=[NEW, OPEN]
+            )
             .exclude(site__name=get_current_site(request=self.request).name)
             .values("status", "site__name")
             .annotate(items=Count("status"))
         )
         notices = []
         for item in qs.order_by("status", "site__name"):
-            notices.append([item.get("site__name"), item.get("status"), item.get("items")])
+            notices.append(
+                [item.get("site__name"), item.get("status"), item.get("items")]
+            )
         new_count = ActionItem.objects.filter(
             action_type__name=AE_TMG_ACTION,
             site__name=get_current_site(request=self.request).name,

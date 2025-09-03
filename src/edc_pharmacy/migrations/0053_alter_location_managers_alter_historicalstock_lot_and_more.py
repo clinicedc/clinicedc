@@ -69,13 +69,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -117,7 +119,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -156,7 +160,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "plural_name",
-                    models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+                    models.CharField(
+                        max_length=250, null=True, verbose_name="Plural name"
+                    ),
                 ),
                 (
                     "display_index",
@@ -177,7 +183,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("extra_value", models.CharField(max_length=250, null=True)),
-                ("version", models.CharField(default="1.0", editable=False, max_length=35)),
+                (
+                    "version",
+                    models.CharField(default="1.0", editable=False, max_length=35),
+                ),
                 ("id", models.IntegerField(blank=True, db_index=True)),
                 (
                     "display_name",
@@ -190,21 +199,32 @@ class Migration(migrations.Migration):
                         verbose_name="Name",
                     ),
                 ),
-                ("contact_name", models.CharField(blank=True, max_length=150, null=True)),
+                (
+                    "contact_name",
+                    models.CharField(blank=True, max_length=150, null=True),
+                ),
                 (
                     "contact_tel",
                     models.CharField(
                         blank=True,
                         max_length=150,
                         null=True,
-                        validators=[django.core.validators.RegexValidator("[0-9]{1,15}")],
+                        validators=[
+                            django.core.validators.RegexValidator("[0-9]{1,15}")
+                        ],
                     ),
                 ),
-                ("contact_email", models.EmailField(blank=True, max_length=150, null=True)),
+                (
+                    "contact_email",
+                    models.EmailField(blank=True, max_length=150, null=True),
+                ),
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),

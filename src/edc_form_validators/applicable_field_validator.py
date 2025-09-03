@@ -16,7 +16,9 @@ class ApplicableFieldValidator(BaseFormValidator):
         msg: Optional[str] = None,
         applicable_msg: Optional[str] = None,
     ) -> None:
-        message = {field: applicable_msg or f"This field is applicable. {msg or ''}".strip()}
+        message = {
+            field: applicable_msg or f"This field is applicable. {msg or ''}".strip()
+        }
         self.raise_validation_error(message, APPLICABLE_ERROR)
 
     def raise_not_applicable(
@@ -26,7 +28,8 @@ class ApplicableFieldValidator(BaseFormValidator):
         not_applicable_msg: Optional[str] = None,
     ) -> None:
         message = {
-            field: not_applicable_msg or f"This field is not applicable. {msg or ''}".strip()
+            field: not_applicable_msg
+            or f"This field is not applicable. {msg or ''}".strip()
         }
         self.raise_validation_error(message, NOT_APPLICABLE_ERROR)
 
@@ -117,9 +120,12 @@ class ApplicableFieldValidator(BaseFormValidator):
             field_applicable_value = self.get(field_applicable)
 
             if field_value in responses and (
-                field_applicable_value is None or field_applicable_value == not_applicable
+                field_applicable_value is None
+                or field_applicable_value == not_applicable
             ):
-                self.raise_applicable(field_applicable, msg=msg, applicable_msg=applicable_msg)
+                self.raise_applicable(
+                    field_applicable, msg=msg, applicable_msg=applicable_msg
+                )
             elif (
                 field_value not in responses
                 and field_applicable_value != not_applicable
@@ -151,7 +157,10 @@ class ApplicableFieldValidator(BaseFormValidator):
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
         if field in self.cleaned_data and field_applicable in self.cleaned_data:
-            if self.get(field) in responses and self.get(field_applicable) != not_applicable:
+            if (
+                self.get(field) in responses
+                and self.get(field_applicable) != not_applicable
+            ):
                 self.raise_not_applicable(
                     field_applicable, msg=msg, not_applicable_msg=not_applicable_msg
                 )
@@ -159,7 +168,9 @@ class ApplicableFieldValidator(BaseFormValidator):
                 self.get(field) not in responses
                 and self.get(field_applicable) == not_applicable
             ):
-                self.raise_applicable(field_applicable, msg=msg, applicable_msg=applicable_msg)
+                self.raise_applicable(
+                    field_applicable, msg=msg, applicable_msg=applicable_msg
+                )
         return False
 
     def applicable_if_true(

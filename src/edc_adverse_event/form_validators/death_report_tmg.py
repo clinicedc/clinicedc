@@ -15,7 +15,9 @@ from ..utils import get_ae_model
 
 
 class DeathReportTmgFormValidator(
-    DeathReportFormValidatorMixin, BaseRequiresDeathReportFormValidatorMixin, FormValidator
+    DeathReportFormValidatorMixin,
+    BaseRequiresDeathReportFormValidatorMixin,
+    FormValidator,
 ):
     @property
     def death_date(self) -> date:

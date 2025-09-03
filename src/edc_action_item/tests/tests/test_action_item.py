@@ -2,10 +2,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, override_settings
+from django.test import tag, TestCase
 
 from edc_action_item.action import Action
 from edc_action_item.create_or_update_action_type import create_or_update_action_type
@@ -14,45 +13,43 @@ from edc_action_item.forms import ActionItemForm
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import site_action_items
-from edc_consent.tests.consent_test_utils import consent_definition_factory
+from edc_consent import site_consents
 from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
-from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from tests.action_items import (
     FormOneAction,
     FormThreeAction,
     FormTwoAction,
     FormZeroAction,
 )
+from tests.consents import consent_v1
+from tests.helper import Helper
 from tests.models import FormOne, FormThree, FormTwo, TestModelWithAction
-
+from tests.visit_schedules.visit_schedule_action_item import get_visit_schedule
 from ..test_case_mixin import TestCaseMixin
 
+utc_tz = ZoneInfo("UTC")
 
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(
-        2018, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")
-    ),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(
-        2027, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")
-    ),
-)
+
+@tag("action_item")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestActionItem(TestCaseMixin, TestCase):
 
     def setUp(self):
-        test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
-        traveller = time_machine.travel(test_datetime)
-        traveller.start()
-        consent_v1 = consent_definition_factory(
-            model="tests.subjectconsentv1",
-            start=get_utcnow() - relativedelta(years=1),
-            end=get_utcnow() + relativedelta(years=1),
+        helper = Helper()
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
+
+        self.subject_identifier = helper.consent_and_put_on_schedule(
+            consent_definition=consent_v1
         )
-        self.subject_identifier = self.enroll(cdef=consent_v1)
         site_action_items.registry = {}
         site_action_items.register(FormZeroAction)
         get_action_type(FormZeroAction)
         self.action_type = ActionType.objects.get(name=FormZeroAction.name)
-        traveller.stop()
 
     def test_creates(self):
         obj = ActionItem.objects.create(

@@ -12,7 +12,9 @@ class InitialsField(CharField):
         kwargs.setdefault("editable", True)
         kwargs.setdefault("verbose_name", _("Initials"))
         kwargs.setdefault("max_length", 3)
-        kwargs.setdefault("help_text", _("Type 2-3 letters, all in uppercase and no spaces"))
+        kwargs.setdefault(
+            "help_text", _("Type 2-3 letters, all in uppercase and no spaces")
+        )
         CharField.__init__(self, *args, **kwargs)
 
     def get_internal_type(self):

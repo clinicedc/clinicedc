@@ -1,4 +1,4 @@
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_lab.identifiers import AliquotIdentifier
 from edc_lab.lab import AliquotCreator, AliquotType, PrimaryAliquot
@@ -12,6 +12,7 @@ class MyAliquotCreator(AliquotCreator):
     aliquot_identifier_cls = MyAliquotIdentifier
 
 
+@tag("lab")
 @override_settings(SITE_ID=10)
 class TestPrimaryAliquot(TestCase):
     def test_create_new_primary_aliquot(self):

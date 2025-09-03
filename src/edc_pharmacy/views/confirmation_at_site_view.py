@@ -38,7 +38,9 @@ class ConfirmationAtSiteView(
 
     def get_context_data(self, **kwargs):
         extra_opts = {}
-        stock_transfer = self.get_stock_transfer(self.kwargs.get("stock_transfer_identifier"))
+        stock_transfer = self.get_stock_transfer(
+            self.kwargs.get("stock_transfer_identifier")
+        )
         if not self.kwargs.get("session_uuid"):
             self.session_uuid = str(uuid4())
             session_obj = None
@@ -57,9 +59,14 @@ class ConfirmationAtSiteView(
         if session_obj:
             last_codes = [(x, "confirmed") for x in session_obj.get("confirmed") or []]
             last_codes.extend(
-                [(x, "already confirmed") for x in session_obj.get("already_confirmed") or []]
+                [
+                    (x, "already confirmed")
+                    for x in session_obj.get("already_confirmed") or []
+                ]
             )
-            last_codes.extend([(x, "invalid") for x in session_obj.get("invalid") or []])
+            last_codes.extend(
+                [(x, "invalid") for x in session_obj.get("invalid") or []]
+            )
             unconfirmed_count = self.get_unconfirmed_count(stock_transfer)
             extra_opts.update(
                 item_count=list(
@@ -90,7 +97,9 @@ class ConfirmationAtSiteView(
             to_location__site=self.site,
             stocktransferitem__stock__confirmationatsiteitem__isnull=True,
         )
-        return qs.annotate(count=Count("transfer_identifier")).order_by("-transfer_datetime")
+        return qs.annotate(count=Count("transfer_identifier")).order_by(
+            "-transfer_datetime"
+        )
 
     def get_adjusted_unconfirmed_count(self, stock_transfer):
         unconfirmed_count = self.get_unconfirmed_count(stock_transfer)
@@ -128,7 +137,9 @@ class ConfirmationAtSiteView(
 
     @property
     def location_id(self) -> uuid.UUID | None:
-        location_id = self.kwargs.get("location_id") or self.request.POST.get("location_id")
+        location_id = self.kwargs.get("location_id") or self.request.POST.get(
+            "location_id"
+        )
         if not location_id and self.site:
             try:
                 location = Location.objects.get(site=self.site)
@@ -157,7 +168,9 @@ class ConfirmationAtSiteView(
     def confirmation_at_site(self):
         confirmation_at_site_id = self.kwargs.get("confirmation_at_site")
         try:
-            confirmation_at_site = ConfirmationAtSite.objects.get(id=confirmation_at_site_id)
+            confirmation_at_site = ConfirmationAtSite.objects.get(
+                id=confirmation_at_site_id
+            )
         except ObjectDoesNotExist:
             confirmation_at_site = None
             messages.add_message(
@@ -168,8 +181,12 @@ class ConfirmationAtSiteView(
     @property
     def confirmation_at_site_changelist_url(self) -> str:
         if self.confirmation_at_site:
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_confirmationatsite_changelist")
-            url = f"{url}?q={self.confirmation_at_site.transfer_confirmation_identifier}"
+            url = reverse(
+                "edc_pharmacy_admin:edc_pharmacy_confirmationatsite_changelist"
+            )
+            url = (
+                f"{url}?q={self.confirmation_at_site.transfer_confirmation_identifier}"
+            )
             return url
         return "/"
 
@@ -206,7 +223,9 @@ class ConfirmationAtSiteView(
             return HttpResponseRedirect(url)
 
         stock_transfer_identifier = request.POST.get("stock_transfer_identifier")
-        stock_transfer = self.get_stock_transfer(stock_transfer_identifier, suppress_msg=True)
+        stock_transfer = self.get_stock_transfer(
+            stock_transfer_identifier, suppress_msg=True
+        )
         location_id = request.POST.get("location_id")
         if not stock_transfer or not location_id:
             # nothing selected
@@ -215,7 +234,9 @@ class ConfirmationAtSiteView(
 
         session_uuid = request.POST.get("session_uuid")
         stock_codes = (
-            request.POST.getlist("stock_codes") if request.POST.get("stock_codes") else []
+            request.POST.getlist("stock_codes")
+            if request.POST.get("stock_codes")
+            else []
         )
 
         # you have unconfirmed items, so go to the scan page

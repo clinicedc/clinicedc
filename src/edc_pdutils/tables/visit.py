@@ -26,7 +26,9 @@ class Visit(Table):
         self.dataframe["visit_datetime"] = self.dataframe["visit_datetime"].astype(
             "datetime64[ns]"
         )
-        self.dataframe["visit_date"] = self.dataframe["visit_date"].astype("datetime64[ns]")
+        self.dataframe["visit_date"] = self.dataframe["visit_date"].astype(
+            "datetime64[ns]"
+        )
         self.dataframe["consent_datetime"] = self.dataframe["consent_datetime"].astype(
             "datetime64[ns]"
         )

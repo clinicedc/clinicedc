@@ -1,18 +1,19 @@
 from datetime import timedelta
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
-from edc_visit_schedule_app.consents import consent_v1
-from edc_visit_schedule_app.models import OffSchedule, OnSchedule
+from django.test import TestCase, tag
 
 from edc_utils import get_utcnow
+from edc_visit_schedule.models import OffSchedule, OnSchedule
 from edc_visit_schedule.schedule import AlreadyRegisteredVisit, Schedule
 from edc_visit_schedule.schedule.schedule import ScheduleNameError, VisitTimepointError
 from edc_visit_schedule.schedule.visit_collection import VisitCollectionError
 from edc_visit_schedule.utils import check_schedule_models
 from edc_visit_schedule.visit import Visit
+from tests.consents import consent_v1
 
 
+@tag("visit_schedule")
 class TestSchedule(TestCase):
     def test_schedule_name(self):
         self.assertRaises(ScheduleNameError, Schedule, name="sched  ule")
@@ -21,8 +22,8 @@ class TestSchedule(TestCase):
         """Asserts repr evaluates correctly."""
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule_app.onschedule",
-            offschedule_model="edc_visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -31,8 +32,8 @@ class TestSchedule(TestCase):
     def test_visit_schedule_field_value(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule_app.onschedule",
-            offschedule_model="edc_visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -42,7 +43,7 @@ class TestSchedule(TestCase):
         schedule = Schedule(
             name="schedule",
             onschedule_model="x.x",
-            offschedule_model="edc_visit_schedule_app.offschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -52,7 +53,7 @@ class TestSchedule(TestCase):
     def test_schedule_bad_label_lower2(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
             offschedule_model="x.x",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
@@ -63,8 +64,8 @@ class TestSchedule(TestCase):
     def test_schedule_onschedule_model_cls(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -73,8 +74,8 @@ class TestSchedule(TestCase):
     def test_schedule_offschedule_model_cls(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -83,8 +84,8 @@ class TestSchedule(TestCase):
     def test_schedule_ok(self):
         Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -92,8 +93,8 @@ class TestSchedule(TestCase):
     def test_add_visits(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -113,8 +114,8 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_code(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -140,8 +141,8 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_title(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -167,8 +168,8 @@ class TestSchedule(TestCase):
     def test_add_visits_custom_base_timepoint(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
             base_timepoint=1,
@@ -189,8 +190,8 @@ class TestSchedule(TestCase):
     def test_add_visits_base_timepoint_mismatch(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="tests.onschedule",
+            offschedule_model="tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
             base_timepoint=1,
@@ -208,8 +209,8 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_timepoint(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="tests.onschedule",
+            offschedule_model="tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -233,8 +234,8 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_rbase(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="tests.onschedule",
+            offschedule_model="tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -260,8 +261,8 @@ class TestScheduleWithVisits(TestCase):
     def setUp(self):
         self.schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="tests.onschedule",
+            offschedule_model="tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -269,8 +270,8 @@ class TestScheduleWithVisits(TestCase):
     def test_wont_accept_visit_before_base_timepoint(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="tests.onschedule",
+            offschedule_model="tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
             base_timepoint=1,

@@ -31,7 +31,9 @@ def create_next_refill(instance: Any, related_visit_model_attr: str) -> Any | No
             refill_start_datetime=instance.refill_end_datetime,
             refill_end_datetime=refill_end_datetime,
             roundup_divisible_by=instance.roundup_divisible_by,
-            subject_identifier=getattr(instance, related_visit_model_attr).subject_identifier,
+            subject_identifier=getattr(
+                instance, related_visit_model_attr
+            ).subject_identifier,
             weight_in_kgs=getattr(instance, "weight_in_kgs", None),
         )
         rx_refill = refill_creator.rx_refill

@@ -19,11 +19,15 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+                    models.DateTimeField(
+                        default=edc_utils.date.get_utcnow, editable=False
+                    ),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+                    models.DateTimeField(
+                        default=edc_utils.date.get_utcnow, editable=False
+                    ),
                 ),
                 (
                     "user_created",

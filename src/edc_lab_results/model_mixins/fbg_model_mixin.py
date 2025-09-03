@@ -6,12 +6,13 @@ from edc_constants.choices import FASTING_CHOICES, YES_NO
 from edc_constants.constants import FASTING
 from edc_lab.choices import RESULT_QUANTIFIER
 from edc_lab.constants import EQ
-from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_reportable import (
     MILLIGRAMS_PER_DECILITER,
     MILLIMOLES_PER_LITER,
     MILLIMOLES_PER_LITER_DISPLAY,
 )
+
+from ..model_mixin_factory import reportable_result_model_mixin_factory
 
 
 class FbgModelMixin(

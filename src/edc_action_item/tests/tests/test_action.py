@@ -1,3 +1,7 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
@@ -22,7 +26,11 @@ from tests.models import FormFour, FormOne, FormThree, FormTwo, FormZero
 
 from ..test_case_mixin import TestCaseMixin
 
+utc_tz = ZoneInfo("UTC")
 
+
+@tag("action_item")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAction(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()

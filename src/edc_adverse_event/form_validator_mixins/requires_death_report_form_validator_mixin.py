@@ -21,7 +21,10 @@ if TYPE_CHECKING:
 class BaseRequiresDeathReportFormValidatorMixin:
     @property
     def subject_identifier(self) -> str:
-        return self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
+        return (
+            self.cleaned_data.get("subject_identifier")
+            or self.instance.subject_identifier
+        )
 
     @property
     def death_report_model_cls(self) -> DeathReportModelMixin:
@@ -48,7 +51,9 @@ class BaseRequiresDeathReportFormValidatorMixin:
             )
         except ObjectDoesNotExist:
             verbose_name = self.death_report_model_cls._meta.verbose_name
-            self.raise_validation_error(f"`{verbose_name}` not found.", DEATH_REPORT_NOT_FOUND)
+            self.raise_validation_error(
+                f"`{verbose_name}` not found.", DEATH_REPORT_NOT_FOUND
+            )
 
     @property
     def death_report_date(self) -> date:

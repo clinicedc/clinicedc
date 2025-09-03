@@ -681,6 +681,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="actionitem",
-            unique_together={("subject_identifier", "action_type", "reference_identifier")},
+            unique_together={
+                ("subject_identifier", "action_type", "reference_identifier")
+            },
         ),
     ]

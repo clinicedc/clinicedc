@@ -63,7 +63,10 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("version", models.CharField(default="1.0", editable=False, max_length=35)),
+                (
+                    "version",
+                    models.CharField(default="1.0", editable=False, max_length=35),
+                ),
                 ("id", models.AutoField(primary_key=True, serialize=False)),
             ],
             options={
@@ -71,7 +74,14 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Refusal Reasons",
                 "ordering": ["display_index", "display_name"],
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -91,13 +101,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -151,7 +163,8 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Report Date and Time"
+                        default=edc_utils.date.get_utcnow,
+                        verbose_name="Report Date and Time",
                     ),
                 ),
                 (
@@ -194,7 +207,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
             managers=[
                 ("on_site", edc_sites.models.CurrentSiteManager()),

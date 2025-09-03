@@ -32,7 +32,9 @@ SKIPPED = 2
 
 @dataclass
 class TimepointStatusButton(AppointmentButton):
-    labels: tuple[str, str, str] = field(default=("Start", "Visit Report", "Visit Report"))
+    labels: tuple[str, str, str] = field(
+        default=("Start", "Visit Report", "Visit Report")
+    )
     colors: tuple[str, str, str, str] = field(
         default=("warning", "success", "default", "danger")
     )

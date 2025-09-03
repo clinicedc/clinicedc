@@ -13,7 +13,14 @@ class Migration(migrations.Migration):
             name="actionitem",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Action Item",
                 "verbose_name_plural": "Action Items",
             },
@@ -22,14 +29,28 @@ class Migration(migrations.Migration):
             name="actiontype",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.AlterModelOptions(
             name="reference",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.RemoveIndex(
@@ -177,7 +198,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="actionitem",
             index=models.Index(
-                fields=["user_modified", "user_created"], name="edc_action__user_mo_b01b34_idx"
+                fields=["user_modified", "user_created"],
+                name="edc_action__user_mo_b01b34_idx",
             ),
         ),
         migrations.AddIndex(
@@ -209,7 +231,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="actiontype",
             index=models.Index(
-                fields=["user_modified", "user_created"], name="edc_action__user_mo_62771e_idx"
+                fields=["user_modified", "user_created"],
+                name="edc_action__user_mo_62771e_idx",
             ),
         ),
         migrations.AddIndex(
@@ -221,7 +244,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="reference",
             index=models.Index(
-                fields=["user_modified", "user_created"], name="edc_action__user_mo_e27ce1_idx"
+                fields=["user_modified", "user_created"],
+                name="edc_action__user_mo_e27ce1_idx",
             ),
         ),
         migrations.AddIndex(

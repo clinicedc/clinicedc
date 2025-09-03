@@ -51,7 +51,9 @@ class EligibilityModelMixin(EligibilityFieldsModelMixin, models.Model):
         if not self.id:
             self.screening_identifier = self.identifier_cls().identifier
         if self.eligible:
-            self.eligibility_datetime = self.get_report_datetime_for_eligibility_datetime()
+            self.eligibility_datetime = (
+                self.get_report_datetime_for_eligibility_datetime()
+            )
             self.real_eligibility_datetime = get_utcnow()
         else:
             self.eligibility_datetime = None

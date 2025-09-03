@@ -26,4 +26,6 @@ class FC:
         self.missing_value = missing_value
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.value, self.msg, self.ignore_if_missing})"
+        return (
+            f"{self.__class__.__name__}({self.value, self.msg, self.ignore_if_missing})"
+        )

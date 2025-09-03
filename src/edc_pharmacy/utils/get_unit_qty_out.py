@@ -17,5 +17,7 @@ def get_unit_qty_out(stock: Stock) -> Decimal:
     for stock_obj in stock.__class__.objects.filter(from_stock=stock):
         unit_qty_out += stock_obj.container.qty
     if stock.unit_qty_out > stock.unit_qty_in:
-        raise InsufficientStockError(f"Unit QTY OUT cannot exceed Unit QTY IN. See {stock}.")
+        raise InsufficientStockError(
+            f"Unit QTY OUT cannot exceed Unit QTY IN. See {stock}."
+        )
     return unit_qty_out

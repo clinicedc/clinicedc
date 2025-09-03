@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_lab.identifiers import (
     AliquotIdentifier,
@@ -10,6 +10,7 @@ from edc_lab.identifiers import (
 )
 
 
+@tag("lab")
 class TestAliquotPrefix(TestCase):
     def test_prefix(self):
         prefix_obj = Prefix(template="{opt1}{opt2}", length=8, opt1="opt1", opt2="opt2")
@@ -31,6 +32,7 @@ class TestAliquotPrefix(TestCase):
         )
 
 
+@tag("lab")
 class TestAliquotIdentifier(TestCase):
     def test_valid_length(self):
         class MyAliquotIdentifier(AliquotIdentifier):
@@ -59,14 +61,18 @@ class TestAliquotIdentifier(TestCase):
         class MyAliquotIdentifier(AliquotIdentifier):
             identifier_length = 16
 
-        identifier = MyAliquotIdentifier(identifier_prefix="XXXXXXXX", numeric_code="02")
+        identifier = MyAliquotIdentifier(
+            identifier_prefix="XXXXXXXX", numeric_code="02"
+        )
         self.assertIn("02", str(identifier))
 
     def test_primary(self):
         class MyAliquotIdentifier(AliquotIdentifier):
             identifier_length = 16
 
-        identifier = MyAliquotIdentifier(identifier_prefix="XXXXXXXX", numeric_code="11")
+        identifier = MyAliquotIdentifier(
+            identifier_prefix="XXXXXXXX", numeric_code="11"
+        )
         self.assertIn("0000", str(identifier))
         self.assertTrue(identifier.is_primary)
 

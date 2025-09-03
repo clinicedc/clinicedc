@@ -1,27 +1,23 @@
+from datetime import datetime
 from secrets import choice
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.db.models import Sum
 from django.db.models.signals import pre_save
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 from sequences import get_next_value
 
-from edc_appointment.tests.helper import Helper
 from edc_consent import site_consents
-from edc_constants.constants import COMPLETE, FEMALE, MALE
-from edc_facility import import_holidays
+from edc_constants.constants import COMPLETE
+from edc_facility.import_holidays import import_holidays
 from edc_list_data import site_list_data
-from edc_randomization.constants import ACTIVE, PLACEBO
-from edc_randomization.models import RandomizationList
-from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from ...analytics import get_next_scheduled_visit_for_subjects_df
-from ...exceptions import RepackRequestError
-from ...models import (
+from edc_pharmacy.analytics import get_next_scheduled_visit_for_subjects_df
+from edc_pharmacy.exceptions import RepackRequestError
+from edc_pharmacy.models import (
     Assignment,
     Container,
     ContainerType,
@@ -43,17 +39,26 @@ from ...models import (
     StockRequestItem,
     Units,
 )
-from ...prescribe import create_prescription
-from ...utils import (
+from edc_pharmacy.prescribe import create_prescription
+from edc_pharmacy.utils import (
     bulk_create_stock_request_items,
     confirm_stock,
     get_instock_and_nostock_data,
     process_repack_request,
 )
-from ..consents import consent_v1
-from ..visit_schedule import visit_schedule
+from edc_randomization.constants import ACTIVE, PLACEBO
+from edc_randomization.models import RandomizationList
+from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule import get_visit_schedule
+
+utc_tz = ZoneInfo("UTC")
 
 
+@tag("pharmacy")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestOrderReceive(TestCase):
     helper_cls = Helper
 
@@ -63,11 +68,17 @@ class TestOrderReceive(TestCase):
         pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
 
     def setUp(self):
+        self.helper = self.helper_cls()
         site_list_data.initialize()
         site_list_data.autodiscover()
+
         site_consents.registry = {}
         site_consents.loaded = False
         site_consents.register(consent_v1)
+
+        visit_schedule = get_visit_schedule(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
 
         self.medication = Medication.objects.create(
             name="METFORMIN",
@@ -353,7 +364,8 @@ class TestOrderReceive(TestCase):
             int(ReceiveItem.objects.values("qty").aggregate(qty=Sum("qty")).get("qty")),
         )
 
-        # confirm deleting stock & received items resets unit_qty_received on order items
+        # confirm deleting stock & received items
+        # resets unit_qty_received on order items
         Stock.objects.all().delete()
         ReceiveItem.objects.all().delete()
         for order_item in OrderItem.objects.all():
@@ -443,7 +455,8 @@ class TestOrderReceive(TestCase):
         # scan in some or all stock code labels to confirm stock (central)
         for repack_request in RepackRequest.objects.all():
             codes = [
-                obj.code for obj in repack_request.stock_set.filter(confirmation__isnull=True)
+                obj.code
+                for obj in repack_request.stock_set.filter(confirmation__isnull=True)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
                 repack_request, codes, fk_attr="repack_request"
@@ -470,7 +483,8 @@ class TestOrderReceive(TestCase):
         # try to scan in stock codes that were already confirmed
         for repack_request in RepackRequest.objects.all():
             codes = [
-                obj.code for obj in repack_request.stock_set.filter(confirmation__isnull=False)
+                obj.code
+                for obj in repack_request.stock_set.filter(confirmation__isnull=False)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
                 repack_request, codes, fk_attr="repack_request"
@@ -495,7 +509,9 @@ class TestOrderReceive(TestCase):
 
         # refer back to repack_request from stock
         self.assertEqual(Stock.objects.filter(repack_request__isnull=True).count(), 20)
-        self.assertEqual(Stock.objects.filter(repack_request__isnull=False).count(), 39 * 20)
+        self.assertEqual(
+            Stock.objects.filter(repack_request__isnull=False).count(), 39 * 20
+        )
 
         # we create bottles of 128 from the two bottles of 50000 tablets
         # the total number of tablets remains the same
@@ -552,31 +568,32 @@ class TestOrderReceive(TestCase):
             # process
             process_repack_request(repack_request.pk, username=None)
 
-    @tag("20")
+    @tag("2001")
+    @time_machine.travel(datetime(2025, 6, 15, 8, 00, tzinfo=utc_tz))
     @override_settings(
-        SUBJECT_CONSENT_MODEL="edc_pharmacy.subjectconsent",
-        SITE_ID=1,
+        SITE_ID=10,
         EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=True,
     )
-    @patch("edc_model_admin.templatetags.edc_admin_modify.get_cancel_url", return_value="/")
+    @patch(
+        "edc_model_admin.templatetags.edc_admin_modify.get_cancel_url", return_value="/"
+    )
     def test_create_stock_request_and_items(self, mock_cancel_url):
         site_consents.registry = {}
-        site_consents.loaded = False
         site_consents.register(consent_v1)
 
+        visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules._registry = {}
-        site_visit_schedules.loaded = False
         site_visit_schedules.register(visit_schedule)
 
         self.repack()
         location = Location.objects.get(name="amana_pharmacy")
-        location.site = Site.objects.get(pk=1)
-        location.site_id = 1
+        location.site = Site.objects.get(pk=10)
+        location.site_id = 10
         location.save()
         location.refresh_from_db()
 
         self.make_randomized_subject(
-            site=location.site, subject_count=10, put_on_schedule=True
+            site=location.site, subject_count=10, add_prescription=True
         )
 
         container = Container.objects.get(name="bottle of 128")
@@ -595,55 +612,51 @@ class TestOrderReceive(TestCase):
             containers_per_subject=3,
         )
 
-        # use prepares stock request items (admin action against the stock request)
-        df_next_scheduled_visits = get_next_scheduled_visit_for_subjects_df(stock_request)
-        _, df_nostock = get_instock_and_nostock_data(stock_request, df_next_scheduled_visits)
+        # user prepares stock request items (admin action against the stock request)
+        df_next_scheduled_visits = get_next_scheduled_visit_for_subjects_df(
+            stock_request
+        )
+        _, df_nostock = get_instock_and_nostock_data(
+            stock_request, df_next_scheduled_visits
+        )
         nostock_as_dict = df_nostock.to_dict("list")
         bulk_create_stock_request_items(
             stock_request.pk, nostock_as_dict, user_created="erikvw", bulk_create=False
         )
         self.assertEqual(StockRequestItem.objects.all().count(), 10)
 
-        # user allocates stock to a request item (admin action against the stock request)
+        # user allocates stock to a request item
+        # (admin action against the stock request)
 
     def make_randomized_subject(
-        self, site: Site, subject_count: int, put_on_schedule: bool | None = None
+        self, site: Site, subject_count: int, add_prescription: bool | None = None
     ):
         subjects = {}
+        products = []
         for i in range(0, subject_count):
-            subjects.update({f"S{i:04d}": choice([self.product_placebo, self.product_active])})
-        for subject_identifier, product in subjects.items():
-            registered_subject = RegisteredSubject.objects.create(
-                subject_identifier=subject_identifier,
-                gender=choice([MALE, FEMALE]),
-                randomization_list_model="edc_randomization.randomizationlist",
-                registration_datetime=get_utcnow() - relativedelta(years=5),
-                site=site,
+            products.append(choice([self.product_placebo, self.product_active]))
+        for product in products:
+            subject_consent = self.helper.consent_and_put_on_schedule(
+                visit_schedule_name="visit_schedule", schedule_name="schedule"
             )
+            subjects.update({subject_consent.subject_identifier: product})
+            self.subject_identifier = subject_consent.subject_identifier
             RandomizationList.objects.create(
                 randomizer_name="default",
                 sid=get_next_value(sequence_name=RandomizationList._meta.label_lower),
-                subject_identifier=subject_identifier,
+                subject_identifier=subject_consent.subject_identifier,
                 assignment=product.assignment.name,
                 allocated_site=site,
                 site_name=site.name,
                 allocated=True,
                 allocated_datetime=get_utcnow(),
             )
-            if put_on_schedule:
-                self.helper = self.helper_cls(
-                    subject_identifier=subject_identifier,
-                    now=get_utcnow() - relativedelta(years=5),
-                )
-                self.helper.consent_and_put_on_schedule(
-                    visit_schedule_name="visit_schedule",
-                    schedule_name="schedule",
-                )
+            if add_prescription:
                 create_prescription(
-                    subject_identifier=registered_subject.subject_identifier,
-                    report_datetime=registered_subject.registration_datetime,
+                    subject_identifier=subject_consent.subject_identifier,
+                    report_datetime=subject_consent.consent_datetime,
                     medication_names=[self.medication.name],
-                    site=registered_subject.site,
+                    site=subject_consent.site,
                     randomizer_name="default",
                 )
         return subjects

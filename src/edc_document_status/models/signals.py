@@ -6,7 +6,9 @@ from edc_constants.constants import INCOMPLETE
 
 
 @receiver(
-    post_save, weak=False, dispatch_uid="update_subject_visit_document_status_on_pre_save"
+    post_save,
+    weak=False,
+    dispatch_uid="update_subject_visit_document_status_on_pre_save",
 )
 def update_subject_visit_document_status_on_pre_save(
     instance, raw, using, update_fields, **kwargs

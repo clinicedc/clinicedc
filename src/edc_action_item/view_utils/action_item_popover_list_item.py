@@ -81,7 +81,8 @@ class ActionItemPopoverListItem(PrnButton):
     @property
     def reverse_kwargs(self) -> dict[str, str]:
         kwargs = dict(
-            subject_identifier=self.subject_identifier or self.model_obj.subject_identifier,
+            subject_identifier=self.subject_identifier
+            or self.model_obj.subject_identifier,
         )
         if self.appointment:
             # add appointment to return back to current timepoint

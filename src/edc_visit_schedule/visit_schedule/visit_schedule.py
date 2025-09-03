@@ -77,7 +77,8 @@ class VisitSchedule:
 
         if not re.match(self.name_regex, name):
             raise VisitScheduleNameError(
-                f"Visit schedule name may only contain {self.name_regex_msg}. Got {name}"
+                f"Visit schedule name may only contain {self.name_regex_msg}. "
+                f"Got {name}"
             )
         self.title = self.verbose_name = verbose_name or " ".join(
             [s.capitalize() for s in name.split("_")]
@@ -130,7 +131,9 @@ class VisitSchedule:
             for schedule in self.schedules.values():
                 for consent_definition in schedule.consent_definitions:
                     models.update({schedule.onschedule_model: consent_definition.model})
-                    models.update({schedule.offschedule_model: consent_definition.model})
+                    models.update(
+                        {schedule.offschedule_model: consent_definition.model}
+                    )
                     for visit in schedule.visits.values():
                         for crf in visit.all_crfs:
                             models.update({crf.model: consent_definition.model})

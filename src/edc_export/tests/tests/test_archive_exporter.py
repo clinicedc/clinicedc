@@ -11,7 +11,9 @@ from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingE
 from edc_registration.models import RegisteredSubject
 
 
-@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
+@override_settings(
+    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp()
+)
 class TestArchiveExporter(TestCase):
     def setUp(self):
         self.user = get_user_for_tests(username="erikvw")
@@ -30,7 +32,9 @@ class TestArchiveExporter(TestCase):
         exporter = ArchiveExporter(models=self.models, user=self.user, archive=True)
         filename = exporter.archive_filename
         self.assertIsNotNone(filename)
-        self.assertTrue(os.path.exists(filename), msg=f"file '{filename}' does not exist")
+        self.assertTrue(
+            os.path.exists(filename), msg=f"file '{filename}' does not exist"
+        )
 
     def test_requested_with_invalid_table(self):
         models = ["auth.blah", "edc_registration.registeredsubject"]

@@ -141,7 +141,9 @@ class Migration(migrations.Migration):
             ],
             options={
                 "ordering": ("site_name", "sid"),
-                "permissions": (("display_randomization", "Can display randomization"),),
+                "permissions": (
+                    ("display_randomization", "Can display randomization"),
+                ),
                 "abstract": False,
                 "unique_together": {("site_name", "sid")},
             },

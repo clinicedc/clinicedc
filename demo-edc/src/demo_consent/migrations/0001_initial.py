@@ -49,13 +49,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -97,7 +99,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -233,8 +237,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("is_verified", models.BooleanField(default=False, editable=False)),
-                ("is_verified_datetime", models.DateTimeField(editable=False, null=True)),
-                ("verified_by", models.CharField(editable=False, max_length=25, null=True)),
+                (
+                    "is_verified_datetime",
+                    models.DateTimeField(editable=False, null=True),
+                ),
+                (
+                    "verified_by",
+                    models.CharField(editable=False, max_length=25, null=True),
+                ),
                 (
                     "version",
                     models.CharField(
@@ -323,13 +333,18 @@ class Migration(migrations.Migration):
                 (
                     "screening_identifier",
                     models.CharField(
-                        db_index=True, max_length=50, verbose_name="Screening identifier"
+                        db_index=True,
+                        max_length=50,
+                        verbose_name="Screening identifier",
                     ),
                 ),
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -387,13 +402,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -435,7 +452,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -571,8 +590,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("is_verified", models.BooleanField(default=False, editable=False)),
-                ("is_verified_datetime", models.DateTimeField(editable=False, null=True)),
-                ("verified_by", models.CharField(editable=False, max_length=25, null=True)),
+                (
+                    "is_verified_datetime",
+                    models.DateTimeField(editable=False, null=True),
+                ),
+                (
+                    "verified_by",
+                    models.CharField(editable=False, max_length=25, null=True),
+                ),
                 (
                     "version",
                     models.CharField(
@@ -661,13 +686,18 @@ class Migration(migrations.Migration):
                 (
                     "screening_identifier",
                     models.CharField(
-                        db_index=True, max_length=50, verbose_name="Screening identifier"
+                        db_index=True,
+                        max_length=50,
+                        verbose_name="Screening identifier",
                     ),
                 ),
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -725,13 +755,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -773,7 +805,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -909,8 +943,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("is_verified", models.BooleanField(default=False, editable=False)),
-                ("is_verified_datetime", models.DateTimeField(editable=False, null=True)),
-                ("verified_by", models.CharField(editable=False, max_length=25, null=True)),
+                (
+                    "is_verified_datetime",
+                    models.DateTimeField(editable=False, null=True),
+                ),
+                (
+                    "verified_by",
+                    models.CharField(editable=False, max_length=25, null=True),
+                ),
                 (
                     "version",
                     models.CharField(
@@ -999,13 +1039,18 @@ class Migration(migrations.Migration):
                 (
                     "screening_identifier",
                     models.CharField(
-                        db_index=True, max_length=50, verbose_name="Screening identifier"
+                        db_index=True,
+                        max_length=50,
+                        verbose_name="Screening identifier",
                     ),
                 ),
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -1063,13 +1108,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -1111,7 +1158,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -1248,8 +1297,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("is_verified", models.BooleanField(default=False, editable=False)),
-                ("is_verified_datetime", models.DateTimeField(editable=False, null=True)),
-                ("verified_by", models.CharField(editable=False, max_length=25, null=True)),
+                (
+                    "is_verified_datetime",
+                    models.DateTimeField(editable=False, null=True),
+                ),
+                (
+                    "verified_by",
+                    models.CharField(editable=False, max_length=25, null=True),
+                ),
                 (
                     "version",
                     models.CharField(
@@ -1384,7 +1439,11 @@ class Migration(migrations.Migration):
                         name="demo_consent_subjectconsentv1_subject_uniq",
                     ),
                     models.UniqueConstraint(
-                        fields=("version", "screening_identifier", "subject_identifier"),
+                        fields=(
+                            "version",
+                            "screening_identifier",
+                            "subject_identifier",
+                        ),
                         name="demo_consent_subjectconsentv1_version_uniq",
                     ),
                 ],
@@ -1420,7 +1479,11 @@ class Migration(migrations.Migration):
                         name="demo_consent_subjectconsentv2_subject_uniq",
                     ),
                     models.UniqueConstraint(
-                        fields=("version", "screening_identifier", "subject_identifier"),
+                        fields=(
+                            "version",
+                            "screening_identifier",
+                            "subject_identifier",
+                        ),
                         name="demo_consent_subjectconsentv2_version_uniq",
                     ),
                 ],
@@ -1442,7 +1505,13 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="subjectconsent",
             constraint=models.UniqueConstraint(
-                fields=("subject_identifier", "first_name", "dob", "initials", "version"),
+                fields=(
+                    "subject_identifier",
+                    "first_name",
+                    "dob",
+                    "initials",
+                    "version",
+                ),
                 name="demo_consent_subjectconsent_subject_uniq",
             ),
         ),

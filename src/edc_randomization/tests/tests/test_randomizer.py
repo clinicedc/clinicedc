@@ -5,7 +5,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.test.utils import override_settings
-from multisite import SiteID
 
 from edc_constants.constants import FEMALE
 from edc_randomization.constants import ACTIVE, PLACEBO
@@ -26,17 +25,17 @@ from edc_randomization.randomizer import (
 )
 from edc_randomization.site_randomizers import NotRegistered, site_randomizers
 from edc_randomization.utils import (
-    RandomizationListExporterError,
     export_randomization_list,
     get_assignment_for_subject,
+    RandomizationListExporterError,
 )
 from edc_registration.models import RegisteredSubject
-
-from ...decorators import RegisterRandomizerError, register
-from ..make_test_list import make_test_list
+from multisite import SiteID
 from ..models import SubjectConsent
 from ..randomizers import MyRandomizer, tmpdir
 from ..testcase_mixin import TestCaseMixin
+from ..utils import make_randomization_list_for_tests
+from ...decorators import register, RegisterRandomizerError
 
 
 @override_settings(
@@ -277,8 +276,12 @@ class TestRandomizer(TestCaseMixin, TestCase):
 
     def test_get_subject_assignment(self):
         self.populate_list(randomizer_name="default", overwrite_site=True)
-        first_assignment = RandomizationList.objects.all().order_by("sid").first().assignment
-        second_assignment = RandomizationList.objects.all().order_by("sid")[1].assignment
+        first_assignment = (
+            RandomizationList.objects.all().order_by("sid").first().assignment
+        )
+        second_assignment = (
+            RandomizationList.objects.all().order_by("sid")[1].assignment
+        )
         site = Site.objects.get_current()
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", site=site, user_created="erikvw"
@@ -289,7 +292,9 @@ class TestRandomizer(TestCaseMixin, TestCase):
             site=subject_consent.site,
             user=subject_consent.user_created,
         ).randomize()
-        self.assertEqual(get_assignment_for_subject("12345", "default"), first_assignment)
+        self.assertEqual(
+            get_assignment_for_subject("12345", "default"), first_assignment
+        )
 
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="54321", site=site, user_created="erikvw"
@@ -300,7 +305,9 @@ class TestRandomizer(TestCaseMixin, TestCase):
             site=subject_consent.site,
             user=subject_consent.user_created,
         ).randomize()
-        self.assertEqual(get_assignment_for_subject("54321", "default"), second_assignment)
+        self.assertEqual(
+            get_assignment_for_subject("54321", "default"), second_assignment
+        )
 
     def test_valid_assignment_description_maps(self):
         self.populate_list(randomizer_name="default", overwrite_site=True)
@@ -473,7 +480,9 @@ class TestRandomizer(TestCaseMixin, TestCase):
                     "consent_datetime"
                 )
             ):
-                rs = RegisteredSubject.objects.get(subject_identifier=obj.subject_identifier)
+                rs = RegisteredSubject.objects.get(
+                    subject_identifier=obj.subject_identifier
+                )
                 self.assertEqual(obj.subject_identifier, randomized_subjects[index][0])
                 self.assertEqual(rs.sid, randomized_subjects[index][1])
 
@@ -509,7 +518,7 @@ class TestRandomizer(TestCaseMixin, TestCase):
     def test_cannot_overwrite(self):
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
-        make_test_list(
+        make_randomization_list_for_tests(
             full_path=MyRandomizer.get_randomizationlist_path(),
             site_names=self.site_names,
             count=5,
@@ -527,7 +536,7 @@ class TestRandomizer(TestCaseMixin, TestCase):
     def test_can_overwrite_explicit(self):
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)
-        make_test_list(
+        make_randomization_list_for_tests(
             full_path=MyRandomizer.get_randomizationlist_path(),
             site_names=self.site_names,
             count=5,
@@ -543,7 +552,7 @@ class TestRandomizer(TestCaseMixin, TestCase):
         site_randomizers.register(MyRandomizer)
 
         MyRandomizer.get_randomizationlist_path()
-        make_test_list(
+        make_randomization_list_for_tests(
             full_path=MyRandomizer.get_randomizationlist_path(),
             site_names=self.site_names,
             # change to a different assignments
@@ -569,7 +578,9 @@ class TestRandomizer(TestCaseMixin, TestCase):
         site = Site.objects.get_current()
         # change number of SIDs in DB
         self.populate_list(randomizer_name="default")
-        RandomizationList.objects.create(sid=100, assignment=ACTIVE, site_name=site.name)
+        RandomizationList.objects.create(
+            sid=100, assignment=ACTIVE, site_name=site.name
+        )
         self.assertEqual(RandomizationList.objects.all().count(), 51)
         with self.assertRaises(RandomizationListError) as cm:
             randomizer_cls.verify_list()
@@ -587,7 +598,7 @@ class TestRandomizer(TestCaseMixin, TestCase):
     def test_randomization_list_importer(self):
         randomizer_cls = site_randomizers.get("default")
 
-        make_test_list(
+        make_randomization_list_for_tests(
             full_path=randomizer_cls.get_randomizationlist_path(),
             site_names=self.site_names,
         )
@@ -609,12 +620,14 @@ class TestRandomizer(TestCaseMixin, TestCase):
             username="me", is_superuser=False, is_staff=True
         )
         randomizer_cls = site_randomizers.get("default")
-        make_test_list(
+        make_randomization_list_for_tests(
             full_path=randomizer_cls.get_randomizationlist_path(),
             site_names=self.site_names,
         )
         randomizer_cls.import_list()
-        self.assertRaises(RandomizationListExporterError, export_randomization_list, "default")
+        self.assertRaises(
+            RandomizationListExporterError, export_randomization_list, "default"
+        )
         self.assertRaises(
             RandomizationListExporterError,
             export_randomization_list,

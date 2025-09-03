@@ -39,4 +39,6 @@ class RelatedVisitModelStub(Protocol):
     def update_document_status_on_save(self, update_fields=None) -> None: ...
 
 
-TRelatedVisitModelStub = TypeVar("TRelatedVisitModelStub", bound="RelatedVisitModelStub")
+TRelatedVisitModelStub = TypeVar(
+    "TRelatedVisitModelStub", bound="RelatedVisitModelStub"
+)

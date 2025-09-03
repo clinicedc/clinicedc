@@ -20,7 +20,10 @@ def notification_on_post_create_historical_record(
 
     Note, this is the post_create of the historical model.
     """
-    if site_notifications.loaded and instance._meta.label_lower in site_notifications.models:
+    if (
+        site_notifications.loaded
+        and instance._meta.label_lower in site_notifications.models
+    ):
         opts = dict(
             instance=instance,
             user=instance.user_modified or instance.user_created,
@@ -33,8 +36,12 @@ def notification_on_post_create_historical_record(
         site_notifications.notify(**opts)
 
 
-@receiver(m2m_changed, weak=False, dispatch_uid="manage_mailists_on_userprofile_m2m_changed")
-def manage_mailists_on_userprofile_m2m_changed(action, instance, pk_set, sender, **kwargs):
+@receiver(
+    m2m_changed, weak=False, dispatch_uid="manage_mailists_on_userprofile_m2m_changed"
+)
+def manage_mailists_on_userprofile_m2m_changed(
+    action, instance, pk_set, sender, **kwargs
+):
     """Updates the mail server mailing lists based on the
     selections in the UserProfile model.
     """

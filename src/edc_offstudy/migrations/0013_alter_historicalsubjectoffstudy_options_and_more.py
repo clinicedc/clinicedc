@@ -24,7 +24,14 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name="subjectoffstudy",
             options={
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "get_latest_by": "modified",
                 "ordering": ("-modified", "-created"),
                 "verbose_name": "Subject Offstudy",

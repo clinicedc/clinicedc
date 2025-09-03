@@ -1,7 +1,6 @@
 from django import forms
 
 from edc_registration.models import RegisteredSubject
-
 from ...models import Allocation, StockRequest
 
 
@@ -39,7 +38,12 @@ class StockRequestForm(forms.ModelForm):
                 site_id=cleaned_data.get("location").site_id,
             ).count() != len(subject_identifiers):
                 raise forms.ValidationError(
-                    {"excluded_subject_identifiers": "Not all subject identifiers are valid."}
+                    {
+                        "excluded_subject_identifiers": (
+                            "Not all subject identifiers are valid. "
+                            "Type one subject per line."
+                        )
+                    }
                 )
 
         if (

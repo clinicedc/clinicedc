@@ -18,7 +18,9 @@ class AeFollowupFieldsModelMixin(models.Model):
         verbose_name="Report date and time", default=get_utcnow
     )
 
-    outcome = models.CharField(blank=False, null=False, max_length=25, choices=AE_OUTCOME)
+    outcome = models.CharField(
+        blank=False, null=False, max_length=25, choices=AE_OUTCOME
+    )
 
     outcome_date = models.DateField(validators=[date_not_future])
 

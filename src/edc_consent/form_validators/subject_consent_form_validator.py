@@ -8,10 +8,9 @@ from django.conf import settings
 from edc_form_validators import INVALID_ERROR
 from edc_screening.form_validator_mixins import SubjectScreeningFormValidatorMixin
 from edc_sites.site import sites
-from edc_utils import AgeValueError, age
+from edc_utils import age, AgeValueError
 from edc_utils.date import to_local, to_utc
 from edc_utils.text import convert_php_dateformat
-
 from ..site_consents import site_consents
 
 
@@ -63,7 +62,9 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
                     self.raise_validation_error(
                         {"consent_datetime": "This field is required."}, INVALID_ERROR
                     )
-                self._consent_datetime = to_utc(self.cleaned_data.get("consent_datetime"))
+                self._consent_datetime = to_utc(
+                    self.cleaned_data.get("consent_datetime")
+                )
             else:
                 self._consent_datetime = self.instance.consent_datetime
         return self._consent_datetime
@@ -80,7 +81,10 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
 
     def validate_age(self) -> None:
         """Validate age matches that on the screening form."""
-        if self.dob and self.screening_age_in_years != self.subject_screening.age_in_years:
+        if (
+            self.dob
+            and self.screening_age_in_years != self.subject_screening.age_in_years
+        ):
             self.raise_validation_error(
                 {
                     "dob": "Age mismatch. The date of birth entered does "
@@ -114,9 +118,9 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
         if not self.subject_screening.eligibility_datetime:
             self.raise_validation_error(
                 (
-                    "Unable to determine the eligibility datetime from the screening form. "
-                    f"Got {self.subject_screening._meta.verbose_name}"
-                    f"({self.subject_screening})."
+                    "Unable to determine the eligibility datetime from the "
+                    f"screening form. See {self.subject_screening._meta.verbose_name}"
+                    f"({self.subject_screening}). Got None."
                 ),
                 INVALID_ERROR,
             )

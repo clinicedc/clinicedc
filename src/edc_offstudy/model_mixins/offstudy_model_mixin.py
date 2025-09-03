@@ -60,9 +60,9 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     )
 
     def __str__(self):
-        dte_str = self.report_datetime.astimezone(ZoneInfo(settings.TIME_ZONE)).strftime(
-            convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
-        )
+        dte_str = self.report_datetime.astimezone(
+            ZoneInfo(settings.TIME_ZONE)
+        ).strftime(convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
         return f"{self.subject_identifier} {dte_str}"
 
     def save(self, *args, **kwargs):

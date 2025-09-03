@@ -96,7 +96,8 @@ class ReferenceRangeEvaluator:
             if (
                 value is not None
                 and self.normal_data_model_cls.objects.filter(
-                    reference_range_collection=self.reference_range_collection, label=utest_id
+                    reference_range_collection=self.reference_range_collection,
+                    label=utest_id,
                 ).exists()
             ):
                 # raise ValidationError if
@@ -105,13 +106,19 @@ class ReferenceRangeEvaluator:
     def validate_results_abnormal_field(self):
         """Validate the "results_abnormal" field."""
         self._validate_final_assessment(
-            field="results_abnormal", responses=[YES], suffix="_abnormal", word="abnormal"
+            field="results_abnormal",
+            responses=[YES],
+            suffix="_abnormal",
+            word="abnormal",
         )
 
     def validate_results_reportable_field(self):
         """Validate the "results_reportable" field."""
         self._validate_final_assessment(
-            field="results_reportable", responses=None, suffix="_reportable", word="reportable"
+            field="results_reportable",
+            responses=None,
+            suffix="_reportable",
+            word="reportable",
         )
 
     def _grade_or_check_normal_range(self, utest_id, value, field):
@@ -169,7 +176,8 @@ class ReferenceRangeEvaluator:
         if (
             grading_data
             and grading_data.grade
-            and str(user_form_response.reportable) in [str(g) for g in self.grades(utest_id)]
+            and str(user_form_response.reportable)
+            in [str(g) for g in self.grades(utest_id)]
             and str(grading_data.grade) != str(user_form_response.reportable)
         ):
             raise forms.ValidationError(
@@ -183,9 +191,14 @@ class ReferenceRangeEvaluator:
             )
 
         # is not gradeable, user reponse is a valid `opt out`.
-        if not grading_data and str(user_form_response.reportable) not in [NO, NOT_APPLICABLE]:
+        if not grading_data and str(user_form_response.reportable) not in [
+            NO,
+            NOT_APPLICABLE,
+        ]:
             raise forms.ValidationError(
-                {f"{utest_id}_reportable": "Invalid. Expected 'No' or 'Not applicable'."}
+                {
+                    f"{utest_id}_reportable": "Invalid. Expected 'No' or 'Not applicable'."
+                }
             )
         self._check_normal_range(
             utest_id, value, field, grading_data, user_form_response, opts
@@ -277,7 +290,9 @@ class ReferenceRangeEvaluator:
         )
         answers = [str(v) for v in answers if v is not None]
         if len(answers) == 0:
-            raise forms.ValidationError({"results_abnormal": "No results have been entered."})
+            raise forms.ValidationError(
+                {"results_abnormal": "No results have been entered."}
+            )
         answers_as_bool = [True for v in answers if v in responses]
         if self.cleaned_data.get(field) == NO:
             if any(answers_as_bool):
@@ -287,4 +302,6 @@ class ReferenceRangeEvaluator:
                 )
         elif self.cleaned_data.get(field) == YES:
             if not any(answers_as_bool):
-                raise forms.ValidationError({field: f"None of the above results are {word}"})
+                raise forms.ValidationError(
+                    {field: f"None of the above results are {word}"}
+                )

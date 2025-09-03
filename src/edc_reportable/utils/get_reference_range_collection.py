@@ -22,8 +22,8 @@ def get_reference_range_collection(obj) -> ReferenceRangeCollection:
         except AttributeError:
             name = obj.panel_object.reference_range_collection_name
         try:
-            reference_range_collection = reference_range_colllection_model_cls().objects.get(
-                name=name
+            reference_range_collection = (
+                reference_range_colllection_model_cls().objects.get(name=name)
             )
         except ObjectDoesNotExist:
             pass

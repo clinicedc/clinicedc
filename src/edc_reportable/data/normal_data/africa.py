@@ -36,15 +36,23 @@ normal_data = {
             **adult_age_options,
         ),
     ],
-    "alp": [Formula("40<=x<=150", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
+    "alp": [
+        Formula(
+            "40<=x<=150", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options
+        )
+    ],
     "alt": [
         Formula("0<=x<=40", units=IU_LITER, gender=[MALE], **adult_age_options),
         Formula("0<=x<=35", units=IU_LITER, gender=[FEMALE], **adult_age_options),
     ],
     "amylase": [
-        Formula("25<=x<=125", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)
+        Formula(
+            "25<=x<=125", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options
+        )
     ],
-    "ast": [Formula("5<=x<=34", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)],
+    "ast": [
+        Formula("5<=x<=34", units=IU_LITER, gender=[MALE, FEMALE], **adult_age_options)
+    ],
     "egfr": [
         Formula(
             "0.0<=x<45.0",
@@ -134,7 +142,9 @@ normal_data = {
     ],
     # hematocrit
     "hct": [
-        Formula("37.0<=x<=54.0", units=PERCENT, gender=[MALE, FEMALE], **adult_age_options)
+        Formula(
+            "37.0<=x<=54.0", units=PERCENT, gender=[MALE, FEMALE], **adult_age_options
+        )
     ],
     "ldl": [
         Formula(
@@ -294,6 +304,11 @@ normal_data = {
         ),
     ],
     "wbc": [
-        Formula("2.49<x", units=TEN_X_9_PER_LITER, gender=[MALE, FEMALE], **adult_age_options),
+        Formula(
+            "2.49<x",
+            units=TEN_X_9_PER_LITER,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
     ],
 }

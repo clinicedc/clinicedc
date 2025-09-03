@@ -46,7 +46,12 @@ class DispenseItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin
         "dispensed_by",
     )
 
-    search_fields = ("id", "dispense__id", "stock__code", "dispense__rx__subject_identifier")
+    search_fields = (
+        "id",
+        "dispense__id",
+        "stock__code",
+        "dispense__rx__subject_identifier",
+    )
 
     readonly_fields = (
         "dispense_item_identifier",
@@ -88,15 +93,25 @@ class DispenseItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin
     def dispense_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_dispense_changelist")
         url = f"{url}?q={obj.dispense.id}"
-        context = dict(url=url, label=obj.dispense.dispense_identifier, title="Go to dispense")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        context = dict(
+            url=url, label=obj.dispense.dispense_identifier, title="Go to dispense"
+        )
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     @admin.display(description="Stock #")
     def stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stockproxy_changelist")
         url = f"{url}?q={obj.stock.code}"
         context = dict(url=url, label=obj.stock.code, title="Go to stock")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
-        return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]
+        return [
+            s.id
+            for s in request.user.userprofile.sites.all()
+            if s.id != request.site.id
+        ]

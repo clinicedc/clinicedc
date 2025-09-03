@@ -13,7 +13,10 @@ class Migration(migrations.Migration):
             model_name="appointment",
             name="appt_reason",
             field=models.CharField(
-                choices=[("scheduled", "Routine / Scheduled"), ("unscheduled", "Unscheduled")],
+                choices=[
+                    ("scheduled", "Routine / Scheduled"),
+                    ("unscheduled", "Unscheduled"),
+                ],
                 help_text="The reason for visit from the visit report will be validated against this response. Refer to the protocol documentation for the definition of a scheduled appointment.",
                 max_length=25,
                 verbose_name="Reason for appointment",
@@ -23,7 +26,10 @@ class Migration(migrations.Migration):
             model_name="appointment",
             name="appt_timing",
             field=models.CharField(
-                choices=[("ontime", "On time (within window period)"), ("missed", "Missed")],
+                choices=[
+                    ("ontime", "On time (within window period)"),
+                    ("missed", "Missed"),
+                ],
                 default="ontime",
                 help_text="If late, you may be required to complete a protocol incident report. Refer to the protocol documentation for the allowed window periods of scheduled appointments.",
                 max_length=25,
@@ -34,7 +40,10 @@ class Migration(migrations.Migration):
             model_name="historicalappointment",
             name="appt_reason",
             field=models.CharField(
-                choices=[("scheduled", "Routine / Scheduled"), ("unscheduled", "Unscheduled")],
+                choices=[
+                    ("scheduled", "Routine / Scheduled"),
+                    ("unscheduled", "Unscheduled"),
+                ],
                 help_text="The reason for visit from the visit report will be validated against this response. Refer to the protocol documentation for the definition of a scheduled appointment.",
                 max_length=25,
                 verbose_name="Reason for appointment",
@@ -44,7 +53,10 @@ class Migration(migrations.Migration):
             model_name="historicalappointment",
             name="appt_timing",
             field=models.CharField(
-                choices=[("ontime", "On time (within window period)"), ("missed", "Missed")],
+                choices=[
+                    ("ontime", "On time (within window period)"),
+                    ("missed", "Missed"),
+                ],
                 default="ontime",
                 help_text="If late, you may be required to complete a protocol incident report. Refer to the protocol documentation for the allowed window periods of scheduled appointments.",
                 max_length=25,

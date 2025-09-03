@@ -19,7 +19,9 @@ if TYPE_CHECKING:
     from ..models import RxRefill
 
 
-class StudyMedicationCrfModelMixin(PreviousNextModelMixin, StudyMedicationRefillModelMixin):
+class StudyMedicationCrfModelMixin(
+    PreviousNextModelMixin, StudyMedicationRefillModelMixin
+):
     """Declare with field subject_visit using a CRF model mixin"""
 
     def save(self, *args, **kwargs):
@@ -48,7 +50,9 @@ class StudyMedicationCrfModelMixin(PreviousNextModelMixin, StudyMedicationRefill
                 "report_datetime",
                 None,
             ) or getattr(
-                get_next_appointment(self.related_visit.appointment, include_interim=True),
+                get_next_appointment(
+                    self.related_visit.appointment, include_interim=True
+                ),
                 "appt_datetime",
                 None,
             )
@@ -56,7 +60,9 @@ class StudyMedicationCrfModelMixin(PreviousNextModelMixin, StudyMedicationRefill
             # if None, means there is not a next appointment
             self.refill_end_datetime = self.refill_start_datetime
 
-        self.number_of_days = (self.refill_end_datetime - self.refill_start_datetime).days
+        self.number_of_days = (
+            self.refill_end_datetime - self.refill_start_datetime
+        ).days
 
         if not self.rx:
             dt = formatted_datetime(self.refill_start_datetime)

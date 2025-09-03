@@ -36,7 +36,8 @@ class IdentityFieldsMixin(CryptoMixin, models.Model):
     def save(self, *args, **kwargs):
         if self.identity != self.confirm_identity:
             raise IdentityFieldsMixinError(
-                "'Identity' must match 'confirm_identity'. " "Catch this error on the form"
+                "'Identity' must match 'confirm_identity'. "
+                "Catch this error on the form"
             )
         super().save(*args, **kwargs)
 

@@ -22,7 +22,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="panel",
             index=models.Index(
-                fields=["user_modified", "user_created"], name="edc_lab_pan_user_mo_ff00b2_idx"
+                fields=["user_modified", "user_created"],
+                name="edc_lab_pan_user_mo_ff00b2_idx",
             ),
         ),
     ]

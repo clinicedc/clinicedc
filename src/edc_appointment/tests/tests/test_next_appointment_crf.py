@@ -7,7 +7,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.exceptions import AppointmentWindowError
 from edc_appointment.models import Appointment, InfoSources
@@ -68,11 +68,11 @@ class TestNextAppointmentCrf(TestCase):
     def setUp(self):
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
         update_health_facility_model()
-        site_visit_schedules._registry = {}
-        site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule6())
         site_consents.registry = {}
         site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(get_visit_schedule6(consent_v1))
         populate_visit_schedule()
 
         self.subject_identifier = "101-40990029-4"

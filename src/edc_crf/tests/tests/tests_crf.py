@@ -37,18 +37,16 @@ class CrfTestCase(TestCase):
         import_holidays()
 
     def setUp(self):
-        self.subject_identifier = "12345"
         site_consents.registry = {}
         site_consents.register(consent_v1)
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
-        )
+        self.helper = self.helper_cls()
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule)
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
         )
+        self.subject_identifier = subject_consent.subject_identifier
         appointment = Appointment.objects.all().order_by(
             "timepoint", "visit_code_sequence"
         )[0]

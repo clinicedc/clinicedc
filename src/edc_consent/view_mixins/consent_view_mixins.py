@@ -76,8 +76,10 @@ class ConsentViewMixin:
                     site=site_sites.get(self.request.site.id),
                 )
             elif self.appointment:
-                self._consent_definition = self.appointment.schedule.get_consent_definition(
-                    report_datetime=self.appointment.appt_datetime,
-                    site=site_sites.get(self.appointment.site.id),
+                self._consent_definition = (
+                    self.appointment.schedule.get_consent_definition(
+                        report_datetime=self.appointment.appt_datetime,
+                        site=site_sites.get(self.appointment.site.id),
+                    )
                 )
         return self._consent_definition

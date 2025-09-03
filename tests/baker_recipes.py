@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from faker import Faker
@@ -7,7 +5,6 @@ from model_bakery.recipe import Recipe, seq
 
 from edc_constants.constants import GRADE4, MALE, NO, NOT_APPLICABLE, YES
 from edc_utils import get_utcnow
-
 from .models import (
     AeFollowup,
     AeInitial,
@@ -18,45 +15,13 @@ from .models import (
     DeathReportTmgSecond,
     SubjectConsent,
     SubjectConsentV1,
+    SubjectConsentV1Ext,
     SubjectConsentV2,
     SubjectConsentV3,
     SubjectConsentV4,
 )
 
 fake = Faker()
-
-# subjectconsent = Recipe(
-#     SubjectConsent,
-#     consent_datetime=get_utcnow() - relativedelta(months=1),
-#     dob=get_utcnow() + relativedelta(days=5) - relativedelta(years=25),
-#     first_name=fake.first_name,
-#     last_name=fake.last_name,
-#     initials="AA",
-#     gender=MALE,
-#     identity=seq("12315678"),
-#     confirm_identity=seq("12315678"),
-#     identity_type="passport",
-#     is_dob_estimated="-",
-#     screening_identifier=uuid4(),
-#     site=Site.objects.get_current(),
-# )
-#
-#
-# subjectconsentv1 = Recipe(
-#     SubjectConsentV1,
-#     consent_datetime=get_utcnow() - relativedelta(months=1),
-#     dob=get_utcnow() + relativedelta(days=5) - relativedelta(years=25),
-#     first_name=fake.first_name,
-#     last_name=fake.last_name,
-#     initials="AA",
-#     gender=MALE,
-#     identity=seq("12315678"),
-#     confirm_identity=seq("12315678"),
-#     identity_type="passport",
-#     is_dob_estimated="-",
-#     screening_identifier=uuid4(),
-#     site=Site.objects.get_current(),
-# )
 
 
 def get_consent_opts():
@@ -91,6 +56,7 @@ subjectconsentv1 = Recipe(SubjectConsentV1, **get_consent_opts())
 subjectconsentv2 = Recipe(SubjectConsentV2, **get_consent_opts())
 subjectconsentv3 = Recipe(SubjectConsentV3, **get_consent_opts())
 subjectconsentv4 = Recipe(SubjectConsentV4, **get_consent_opts())
+subjectconsentv1ext = Recipe(SubjectConsentV1Ext, **get_consent_opts())
 
 
 aeinitial = Recipe(

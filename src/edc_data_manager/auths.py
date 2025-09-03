@@ -24,7 +24,9 @@ site_auths.add_custom_permissions_tuples(
 
 site_auths.add_custom_permissions_tuples(
     model="edc_data_manager.edcpermissions",
-    codename_tuples=[("edc_data_manager.special_bypassmodelform", "Can bypass modelform")],
+    codename_tuples=[
+        ("edc_data_manager.special_bypassmodelform", "Can bypass modelform")
+    ],
 )
 
 

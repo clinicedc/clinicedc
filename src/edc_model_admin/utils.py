@@ -58,5 +58,8 @@ def add_to_messages_once(
 ) -> None:
     if not [msg_obj for msg_obj in get_messages(request) if msg_obj.message == message]:
         messages.add_message(
-            request=request, message=message, level=level or messages.INFO, fail_silently=True
+            request=request,
+            message=message,
+            level=level or messages.INFO,
+            fail_silently=True,
         )

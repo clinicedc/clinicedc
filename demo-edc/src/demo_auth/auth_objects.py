@@ -17,7 +17,9 @@ reports_codenames = get_app_codenames("demo_reports")
 for app_config in django_apps.get_app_configs():
     if app_config.name in ["demo_lists"]:
         for model_cls in app_config.get_models():
-            clinic_codenames.append(f"{app_config.name}.view_{model_cls._meta.model_name}")
+            clinic_codenames.append(
+                f"{app_config.name}.view_{model_cls._meta.model_name}"
+            )
 
 for app_config in django_apps.get_app_configs():
     if app_config.name in [
@@ -28,7 +30,9 @@ for app_config in django_apps.get_app_configs():
     ]:
         for model_cls in app_config.get_models():
             if "historical" in model_cls._meta.label_lower:
-                clinic_codenames.append(f"{app_config.name}.view_{model_cls._meta.model_name}")
+                clinic_codenames.append(
+                    f"{app_config.name}.view_{model_cls._meta.model_name}"
+                )
             else:
                 for prefix in ["add", "change", "view", "delete"]:
                     clinic_codenames.append(

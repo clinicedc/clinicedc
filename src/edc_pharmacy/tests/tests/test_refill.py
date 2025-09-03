@@ -1,7 +1,11 @@
-from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
-from edc_constants.constants import FEMALE
+import time_machine
+from dateutil.relativedelta import relativedelta
+from django.test import tag, TestCase
+
+from edc_consent import site_consents
 from edc_pharmacy.exceptions import PrescriptionNotStarted
 from edc_pharmacy.models import (
     DosageGuideline,
@@ -15,27 +19,34 @@ from edc_pharmacy.models import (
     Units,
 )
 from edc_pharmacy.refill import (
-    RefillCreator,
     activate_refill,
     deactivate_refill,
     get_active_refill,
+    RefillCreator,
 )
-from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
+@tag("pharmacy")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestRefill(TestCase):
     def setUp(self):
-        self.subject_identifier = "12345"
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
 
-        report_datetime = get_utcnow() - relativedelta(days=60)
-        RegisteredSubject.objects.create(
-            subject_identifier="12345",
-            dob=get_utcnow() - relativedelta(years=25),
-            gender=FEMALE,
-            registration_datetime=report_datetime,
-            randomization_datetime=report_datetime,
+        visit_schedule = get_visit_schedule(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+
+        helper = Helper()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule", schedule_name="schedule"
         )
+        self.subject_identifier = subject_consent.subject_identifier
 
         self.medication = Medication.objects.create(
             name="Flucytosine",
@@ -46,8 +57,8 @@ class TestRefill(TestCase):
         self.rx = Rx.objects.create(
             subject_identifier=self.subject_identifier,
             weight_in_kgs=40,
-            report_datetime=report_datetime,
-            rx_date=report_datetime.date(),
+            report_datetime=subject_consent.consent_datetime,
+            rx_date=subject_consent.consent_datetime.date(),
         )
         self.rx.medications.add(self.medication)
 
@@ -222,7 +233,7 @@ class TestRefill(TestCase):
 
     def test_refill_create_duplicate_updates(self):
         # create a refill
-        refill_start_datetime_one = get_utcnow() - relativedelta(days=60)
+        refill_start_datetime_one = get_utcnow()
         RefillCreator(
             subject_identifier=self.subject_identifier,
             refill_start_datetime=refill_start_datetime_one,
@@ -303,7 +314,9 @@ class TestRefill(TestCase):
             weight_in_kgs=65,
         )
 
-        self.assertEqual(refill_creator.rx_refill.refill_start_datetime, refill_start_datetime)
+        self.assertEqual(
+            refill_creator.rx_refill.refill_start_datetime, refill_start_datetime
+        )
 
     def test_refill_create_and_make_active(self):
         refill_start_datetime = get_utcnow()

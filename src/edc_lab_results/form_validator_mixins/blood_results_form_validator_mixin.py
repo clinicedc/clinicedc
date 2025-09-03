@@ -88,7 +88,9 @@ class BloodResultsFormValidatorMixin(
     def fields_names_with_values(self: Any) -> list:
         """Returns a list result `value` fields that are not None"""
         fields_names_with_values = []
-        field_names = [f"{utest_id}{self.value_field_suffix}" for utest_id in self.utest_ids]
+        field_names = [
+            f"{utest_id}{self.value_field_suffix}" for utest_id in self.utest_ids
+        ]
         for field_name in field_names:
             if self.cleaned_data.get(field_name):
                 fields_names_with_values.append(field_name)

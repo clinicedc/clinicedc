@@ -46,7 +46,9 @@ class SubjectReviewListboardView(
     listboard_url = "subject_review_listboard_url"
     listboard_panel_style = "default"
     listboard_panel_title = "Subject Review"
-    listboard_view_permission_codename = "edc_review_dashboard.view_subject_review_listboard"
+    listboard_view_permission_codename = (
+        "edc_review_dashboard.view_subject_review_listboard"
+    )
 
     navbar_selected_item = "subject_review"
     ordering = ["subject_identifier", "visit_code", "visit_code_sequence"]

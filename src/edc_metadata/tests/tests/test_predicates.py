@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
+from django.test import override_settings, TestCase
 from faker import Faker
 
 from edc_appointment.models import Appointment
@@ -11,15 +11,16 @@ from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
-from edc_metadata.metadata_rules import PF, P
+from edc_metadata.metadata_rules import P, PF
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from ..models import CrfOne, SubjectConsentV1
-from ..visit_schedule import get_visit_schedule
+from tests.models import CrfOne, SubjectConsentV1
+from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
+    get_visit_schedule,
+)
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
@@ -54,7 +55,7 @@ class TestPredicates(TestCase):
         site_visit_schedules.register(get_visit_schedule(consent_v1))
 
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_metadata.onschedule"
+            "edc_visit_schedule.onschedule"
         )
 
     def enroll(self, gender=None):

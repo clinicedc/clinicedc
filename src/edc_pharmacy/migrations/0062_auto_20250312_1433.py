@@ -15,7 +15,9 @@ from ..models import (
 
 def update_site_id(apps, schema_editor):
 
-    stock_transfer_confirmation = apps.get_model("edc_pharmacy", "StockTransferConfirmation")
+    stock_transfer_confirmation = apps.get_model(
+        "edc_pharmacy", "StockTransferConfirmation"
+    )
     stock_transfer_confirmation_item = apps.get_model(
         "edc_pharmacy", "StockTransferConfirmationItem"
     )
@@ -37,7 +39,9 @@ def update_site_id(apps, schema_editor):
         stock.allocated = True
         stock.save(update_fields=("allocated",))
 
-    for obj in tqdm(StockTransferItem.objects.all(), total=StockTransferItem.objects.count()):
+    for obj in tqdm(
+        StockTransferItem.objects.all(), total=StockTransferItem.objects.count()
+    ):
         stock = obj.stock
         stock.transferred = True
         stock.save(update_fields=("transferred",))
@@ -46,7 +50,10 @@ def update_site_id(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("edc_pharmacy", "0061_alter_historicalstocktransferconfirmation_options_and_more"),
+        (
+            "edc_pharmacy",
+            "0061_alter_historicalstocktransferconfirmation_options_and_more",
+        ),
     ]
 
     operations = [migrations.RunPython(update_site_id)]

@@ -26,7 +26,8 @@ def get_instock_and_nostock_data(
             qty_needed = (
                 stock_request.containers_per_subject
                 - df_stock.loc[
-                    (df_stock.subject_identifier == subject_identifier) & ~df_stock.dispensed
+                    (df_stock.subject_identifier == subject_identifier)
+                    & ~df_stock.dispensed
                 ].shape[0]
             )
             if qty_needed > 0:
@@ -34,9 +35,13 @@ def get_instock_and_nostock_data(
                     df_next_scheduled_visits.subject_identifier == subject_identifier
                 ].copy()
                 df_stock_needed["code"] = pd.NA
-                df_stock_needed = df_stock_needed.loc[df_stock_needed.index.repeat(qty_needed)]
+                df_stock_needed = df_stock_needed.loc[
+                    df_stock_needed.index.repeat(qty_needed)
+                ]
                 df_stock = pd.concat([df_stock, df_stock_needed]).reset_index(drop=True)
-                df_stock["dispensed"] = df_stock["dispensed"].astype("boolean").fillna(False)
+                df_stock["dispensed"] = (
+                    df_stock["dispensed"].astype("boolean").fillna(False)
+                )
                 df_stock["stock_qty"] = 0.0
     else:
         df_stock = df_next_scheduled_visits.copy()

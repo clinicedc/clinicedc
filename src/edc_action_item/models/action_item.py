@@ -163,7 +163,9 @@ class ActionItem(
                 ).identifier
             )
             # subject_identifier
-            subject_identifier_model_cls = django_apps.get_model(self.subject_identifier_model)
+            subject_identifier_model_cls = django_apps.get_model(
+                self.subject_identifier_model
+            )
             try:
                 subject_identifier_model_cls.objects.get(
                     subject_identifier=self.subject_identifier
@@ -224,7 +226,9 @@ class ActionItem(
 
     @property
     def reference_obj(self) -> PrnModel | CrfModel:
-        return self.reference_model_cls.objects.get(action_identifier=self.action_identifier)
+        return self.reference_model_cls.objects.get(
+            action_identifier=self.action_identifier
+        )
 
     @property
     def parent_reference_obj(self) -> PrnModel | CrfModel:

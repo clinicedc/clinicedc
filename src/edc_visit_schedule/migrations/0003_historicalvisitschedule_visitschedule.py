@@ -104,7 +104,9 @@ class Migration(migrations.Migration):
                 ("timepoint", models.IntegerField()),
                 ("active", models.BooleanField(default=False)),
             ],
-            options={"ordering": ("visit_schedule_name", "schedule_name", "visit_code")},
+            options={
+                "ordering": ("visit_schedule_name", "schedule_name", "visit_code")
+            },
         ),
         migrations.CreateModel(
             name="HistoricalVisitSchedule",

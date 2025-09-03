@@ -70,7 +70,9 @@ class ConsentModelAdminMixin:
         fields = ("subject_identifier", "subject_identifier_as_pk")
         if obj:
             return (
-                fields + ("consent_datetime", "identity", "confirm_identity") + readonly_fields
+                fields
+                + ("consent_datetime", "identity", "confirm_identity")
+                + readonly_fields
             )
         else:
             return fields + readonly_fields
@@ -129,12 +131,16 @@ class ConsentModelAdminMixin:
     def delete_view(self, request, object_id, extra_context=None):
         """Prevent deletion if SubjectVisit objects exist."""
         extra_context = extra_context or {}
-        subject_consent_model_cls = django_apps.get_model(settings.SUBJECT_CONSENT_MODEL)
+        subject_consent_model_cls = django_apps.get_model(
+            settings.SUBJECT_CONSENT_MODEL
+        )
         related_visit_model_cls = django_apps.get_model(settings.SUBJECT_VISIT_MODEL)
         obj = subject_consent_model_cls.objects.get(id=object_id)
         try:
             protected = [
-                related_visit_model_cls.objects.get(subject_identifier=obj.subject_identifier)
+                related_visit_model_cls.objects.get(
+                    subject_identifier=obj.subject_identifier
+                )
             ]
         except ObjectDoesNotExist:
             protected = None
@@ -149,14 +155,18 @@ class ConsentModelAdminMixin:
         """Returns the key/value pairs from the "next" querystring
         as a dictionary.
         """
-        subject_screening_model_cls = django_apps.get_model(settings.SUBJECT_SCREENING_MODEL)
+        subject_screening_model_cls = django_apps.get_model(
+            settings.SUBJECT_SCREENING_MODEL
+        )
         next_options = super().get_next_options(request=request, **kwargs)
         try:
             is_subject_identifier_or_raise(next_options["subject_identifier"])
         except SubjectIdentifierError:
-            next_options["subject_identifier"] = subject_screening_model_cls.objects.get(
-                subject_identifier_as_pk=next_options["subject_identifier"]
-            ).subject_identifier
+            next_options["subject_identifier"] = (
+                subject_screening_model_cls.objects.get(
+                    subject_identifier_as_pk=next_options["subject_identifier"]
+                ).subject_identifier
+            )
         except KeyError:
             pass
         return next_options

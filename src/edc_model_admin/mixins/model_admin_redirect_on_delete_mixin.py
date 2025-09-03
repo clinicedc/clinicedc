@@ -33,7 +33,9 @@ class ModelAdminRedirectOnDeleteMixin:
     def get_post_url_on_delete(self, request, obj) -> str | None:
         """Returns a url for the redirect after delete."""
         post_url_on_delete = None
-        querystring = urlencode(self.post_url_on_delete_querystring_kwargs(request, obj))
+        querystring = urlencode(
+            self.post_url_on_delete_querystring_kwargs(request, obj)
+        )
         if self.get_post_full_url_on_delete(request):
             post_url_on_delete = reverse(self.get_post_full_url_on_delete(request))
         else:

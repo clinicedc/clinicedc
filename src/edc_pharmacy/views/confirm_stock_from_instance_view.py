@@ -57,7 +57,9 @@ class ConfirmStockFromInstanceView(
             item_count=list(range(1, unconfirmed_count + 1)),
             unconfirmed_count=unconfirmed_count,
             confirmed_count=confirmed_count,
-            confirmed_codes=self.get_confirmed_codes(dct.get("obj"), dct.get("fk_attr")),
+            confirmed_codes=self.get_confirmed_codes(
+                dct.get("obj"), dct.get("fk_attr")
+            ),
         )
         return super().get_context_data(**kwargs)
 
@@ -73,7 +75,9 @@ class ConfirmStockFromInstanceView(
             values_dict.update(fk_attr="receive_item__receive")
         return values_dict
 
-    def get_confirmed_codes(self, obj: RepackRequest | Receive, fk_attr: str) -> list[str]:
+    def get_confirmed_codes(
+        self, obj: RepackRequest | Receive, fk_attr: str
+    ) -> list[str]:
         return (
             Stock.objects.values_list("code", flat=True)
             .filter(**{fk_attr: obj.id, "confirmed": True})

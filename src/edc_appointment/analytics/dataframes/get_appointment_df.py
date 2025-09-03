@@ -17,7 +17,9 @@ def get_appointment_df(
     normalize = True if normalize is None else normalize
     localize = True if localize is None else localize
     appointment_model_cls = get_appointment_model_cls()
-    appointment_type_model_cls = django_apps.get_model("edc_appointment.appointmenttype")
+    appointment_type_model_cls = django_apps.get_model(
+        "edc_appointment.appointmenttype"
+    )
     opts = {}
     if site_id:
         opts = {"site_id": site_id}
@@ -26,7 +28,9 @@ def get_appointment_df(
             appointment_model_cls.objects.values(*values).filter(**opts), verbose=False
         )
     else:
-        df_appt = read_frame(appointment_model_cls.objects.filter(**opts), verbose=False)
+        df_appt = read_frame(
+            appointment_model_cls.objects.filter(**opts), verbose=False
+        )
     df_appt = convert_dates_from_model(
         df_appt, appointment_model_cls, normalize=normalize, localize=localize
     )
@@ -59,7 +63,10 @@ def get_appointment_df(
         .agg({"visit_code": "max", "appt_datetime": "max"})
     ).copy()
     df_last = df_last.rename(
-        columns={"visit_code": "endline_visit_code", "appt_datetime": "last_appt_datetime"}
+        columns={
+            "visit_code": "endline_visit_code",
+            "appt_datetime": "last_appt_datetime",
+        }
     )
     df_last["endline_visit_code_str"] = (
         df_last["endline_visit_code"].astype("int64").apply(lambda x: str(x))

@@ -59,7 +59,8 @@ def check_subject_schedule_history(app_configs, **kwargs) -> list:
             except LookupError as e:
                 errors.append(
                     Error(
-                        "Invalid onschedule model referenced in SubjectScheduleHistory. "
+                        "Invalid onschedule model referenced "
+                        "in SubjectScheduleHistory. "
                         f"See {obj.onschedule_model} for {obj.subject_identifier} "
                         f"Got {e}",
                         id="edc_visit_schedule.E005",
@@ -115,10 +116,12 @@ def check_form_collections(app_configs, **kwargs):
                         (visit.crfs_unscheduled, "Unscheduled"),
                         (visit.crfs_missed, "Missed"),
                     ]:
-                        if proxy_root_alongside_child_err := check_proxy_root_alongside_child(
-                            visit=visit,
-                            visit_crf_collection=visit_crf_collection,
-                            visit_type=visit_type,
+                        if proxy_root_alongside_child_err := (
+                            check_proxy_root_alongside_child(
+                                visit=visit,
+                                visit_crf_collection=visit_crf_collection,
+                                visit_type=visit_type,
+                            )
                         ):
                             errors.append(proxy_root_alongside_child_err)
 
@@ -160,6 +163,7 @@ def check_proxy_root_alongside_child(
             f"Proxy root:child models: {proxy_root_child_pairs=}",
             id="edc_visit_schedule.E006",
         )
+    return None
 
 
 def check_multiple_proxies_same_proxy_root(
@@ -179,7 +183,9 @@ def check_multiple_proxies_same_proxy_root(
 
     # Find proxy models declared as sharing a proxy root
     proxies_sharing_roots = get_proxy_models_from_collection(
-        collection=CrfCollection(*[f for f in visit_crf_collection if f.shares_proxy_root])
+        collection=CrfCollection(
+            *[f for f in visit_crf_collection if f.shares_proxy_root]
+        )
     ) + get_proxy_models_from_collection(
         collection=CrfCollection(*[f for f in visit.crfs_prn if f.shares_proxy_root])
     )
@@ -208,3 +214,4 @@ def check_multiple_proxies_same_proxy_root(
             f"Proxy root/child models: {dict(proxy_root_to_child_proxies)}",
             id="edc_visit_schedule.E007",
         )
+    return None

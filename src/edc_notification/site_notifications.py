@@ -60,7 +60,9 @@ class SiteNotifications:
         if not self.loaded:
             raise RegistryNotLoaded(self)
         if not self._registry.get(name):
-            raise NotificationNotRegistered(f"Notification not registered. Got '{name}'.")
+            raise NotificationNotRegistered(
+                f"Notification not registered. Got '{name}'."
+            )
         return self._registry.get(name)
 
     def register(self, notification_cls: Type[Notification] = None):
@@ -78,7 +80,9 @@ class SiteNotifications:
                 models = [getattr(notification_cls, "model")]
             for model in models:
                 try:
-                    if notification_cls.name not in [n.name for n in self.models[model]]:
+                    if notification_cls.name not in [
+                        n.name for n in self.models[model]
+                    ]:
                         self.models[model].append(notification_cls)
                 except KeyError:
                     self.models.update({model: [notification_cls]})
@@ -122,7 +126,9 @@ class SiteNotifications:
         notification_model_cls.objects.all().update(enabled=False)
         if site_notifications.loaded:
             if verbose:
-                sys.stdout.write(style.MIGRATE_HEADING("Populating Notification model:\n"))
+                sys.stdout.write(
+                    style.MIGRATE_HEADING("Populating Notification model:\n")
+                )
             self.delete_unregistered_notifications(apps=apps)
             for name, notification_cls in site_notifications.registry.items():
                 if verbose:
@@ -160,7 +166,8 @@ class SiteNotifications:
         if (
             get_email_enabled()
             and self.loaded
-            and settings.EMAIL_BACKEND != "django.core.mail.backends.locmem.EmailBackend"
+            and settings.EMAIL_BACKEND
+            != "django.core.mail.backends.locmem.EmailBackend"
         ):
             sys.stdout.write(style.MIGRATE_HEADING("Creating mailing lists:\n"))
             for name, notification_cls in self.registry.items():
@@ -174,7 +181,9 @@ class SiteNotifications:
                     response = manager.create()
                 except ConnectionError as e:
                     sys.stdout.write(
-                        style.ERROR(f"  * Failed to create mailing list {name}. " f"Got {e}\n")
+                        style.ERROR(
+                            f"  * Failed to create mailing list {name}. " f"Got {e}\n"
+                        )
                     )
                 else:
                     if verbose:

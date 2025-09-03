@@ -10,5 +10,7 @@ from ..models import DeathReport
 
 
 @admin.register(DeathReport, site=demo_ae_admin)
-class DeathReportAdmin(SiteModelAdminMixin, DeathReportModelAdminMixin, SimpleHistoryAdmin):
+class DeathReportAdmin(
+    SiteModelAdminMixin, DeathReportModelAdminMixin, SimpleHistoryAdmin
+):
     form = DeathReportForm

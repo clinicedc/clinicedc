@@ -48,14 +48,12 @@ class TestAdmin(WebTest):
         AuthUpdater.add_empty_roles_for_tests(DATA_MANAGER_ROLE)
         role = Role.objects.get(name=DATA_MANAGER_ROLE)
         self.user.userprofile.roles.add(role)
-        self.subject_identifier = "12345"
         self.visit_schedule1 = get_visit_schedule1()
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule1)
         site_consents.registry = {}
         site_consents.register(consent_v1)
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
             now=ResearchProtocolConfig().study_open_datetime,
         )
 
@@ -86,7 +84,9 @@ class TestAdmin(WebTest):
     def test_admin_ok(self, mock_get_subject_dashboard_url_name):
         schedule_name = "schedule1"
         subject_consent = self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=self.visit_schedule1.name, schedule_name=schedule_name
+            visit_schedule_name=self.visit_schedule1.name,
+            schedule_name=schedule_name,
+            consent_definition=consent_v1,
         )
         appointments = (
             get_appointment_model_cls()

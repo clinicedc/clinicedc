@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any, TYPE_CHECKING
 
 from dateutil.relativedelta import relativedelta
 from django import forms
 
 from edc_constants.constants import NO, YES
 from edc_model_form.utils import get_field_or_raise
-from edc_utils import AgeValueError, age, formatted_age
-
+from edc_utils import age, AgeValueError, formatted_age
 from ...exceptions import ConsentDefinitionValidityPeriodError
 from ...site_consents import site_consents
 from ...utils import InvalidInitials, verify_initials_against_full_name
@@ -38,7 +37,8 @@ class ConsentModelFormValidationMixin:
         consent_definition = None
         if self.consent_datetime:
             consent_definition = site_consents.get_consent_definition(
-                model=self._meta.model._meta.label_lower, report_datetime=self.consent_datetime
+                model=self._meta.model._meta.label_lower,
+                report_datetime=self.consent_datetime,
             )
             try:
                 consent_definition.valid_for_datetime_or_raise(self.consent_datetime)
@@ -53,7 +53,9 @@ class ConsentModelFormValidationMixin:
 
     @property
     def consent_datetime(self) -> datetime:
-        return self.get_field_or_raise("consent_datetime", "Consent date and time is required")
+        return self.get_field_or_raise(
+            "consent_datetime", "Consent date and time is required"
+        )
 
     @property
     def identity(self) -> str:
@@ -61,7 +63,9 @@ class ConsentModelFormValidationMixin:
 
     @property
     def confirm_identity(self) -> str:
-        return self.get_field_or_raise("confirm_identity", "Confirmed identity is required")
+        return self.get_field_or_raise(
+            "confirm_identity", "Confirmed identity is required"
+        )
 
     @property
     def age_delta(self) -> relativedelta | None:
@@ -88,7 +92,8 @@ class ConsentModelFormValidationMixin:
                     {
                         "dob": (
                             f"Subject's age is {self.age_delta.years}. "
-                            "Subject is not eligible for consent. Minimum age of consent is "
+                            "Subject is not eligible for consent. "
+                            "Minimum age of consent is "
                             f"{self.consent_definition.age_min}."
                         )
                     }
@@ -102,7 +107,8 @@ class ConsentModelFormValidationMixin:
                     {
                         "dob": (
                             f"Subject's age is {self.age_delta.years}. "
-                            "Subject is not eligible for consent. Maximum age of consent is "
+                            "Subject is not eligible for consent. "
+                            "Maximum age of consent is "
                             f"{self.consent_definition.age_max}."
                         )
                     }
@@ -186,7 +192,8 @@ class ConsentModelFormValidationMixin:
         gender = self.cleaned_data.get("gender")
         if gender not in self.consent_definition.gender:
             raise forms.ValidationError(
-                "Gender of consent can only be '%(gender_of_consent)s'. Got '%(gender)s'.",
+                "Gender of consent can only be "
+                "'%(gender_of_consent)s'. Got '%(gender)s'.",
                 params={
                     "gender_of_consent": "' or '".join(self.consent_definition.gender),
                     "gender": gender,
@@ -208,7 +215,8 @@ class ConsentModelFormValidationMixin:
                 raise forms.ValidationError(
                     {
                         "guardian_name": (
-                            f"Subject's age is {formatted_age(dob, self.consent_datetime)}. "
+                            "Subject's age is "
+                            f"{formatted_age(dob, self.consent_datetime)}. "
                             "Subject is a minor. Guardian's "
                             "name is required with signature on the paper "
                             "document."
@@ -220,7 +228,8 @@ class ConsentModelFormValidationMixin:
                 raise forms.ValidationError(
                     {
                         "guardian_name": (
-                            f"Subject's age is {formatted_age(dob, self.consent_datetime)}. "
+                            "Subject's age is "
+                            f"{formatted_age(dob, self.consent_datetime)}. "
                             "Subject is an adult. Guardian's name is NOT required."
                         )
                     }

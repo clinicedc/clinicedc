@@ -12,7 +12,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="datadictionary",
             index=models.Index(
-                fields=["model", "number", "prompt"], name="edc_data_ma_model_92b469_idx"
+                fields=["model", "number", "prompt"],
+                name="edc_data_ma_model_92b469_idx",
             ),
         ),
     ]

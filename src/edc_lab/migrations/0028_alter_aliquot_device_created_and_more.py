@@ -14,12 +14,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="aliquot",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="aliquot",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="aliquot",
@@ -45,12 +49,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="box",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="box",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="box",
@@ -76,12 +84,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="boxitem",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="boxitem",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="boxitem",
@@ -107,12 +119,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="boxtype",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="boxtype",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="boxtype",
@@ -138,12 +154,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="consignee",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="consignee",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="consignee",
@@ -169,12 +189,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalaliquot",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalaliquot",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalaliquot",
@@ -200,12 +224,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalbox",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalbox",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalbox",
@@ -231,12 +259,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalboxitem",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalboxitem",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalboxitem",
@@ -262,12 +294,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalconsignee",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalconsignee",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalconsignee",
@@ -293,12 +329,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalmanifest",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalmanifest",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalmanifest",
@@ -324,12 +364,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalorder",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalorder",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalorder",
@@ -355,12 +399,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalresult",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalresult",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalresult",
@@ -386,12 +434,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalresultitem",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalresultitem",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalresultitem",
@@ -417,12 +469,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalshipper",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalshipper",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalshipper",
@@ -448,12 +504,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="manifest",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="manifest",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="manifest",
@@ -479,12 +539,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="manifestitem",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="manifestitem",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="manifestitem",
@@ -510,12 +574,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="order",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="order",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="order",
@@ -541,12 +609,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="panel",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="panel",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="panel",
@@ -572,12 +644,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="result",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="result",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="result",
@@ -603,12 +679,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="resultitem",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="resultitem",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="resultitem",
@@ -634,12 +714,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="shipper",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="shipper",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="shipper",

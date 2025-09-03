@@ -28,7 +28,9 @@ class Aliquot(Table):
         self.dataframe["aliquot_datetime"] = self.helper.to_local_datetime(
             self.dataframe["aliquot_datetime"]
         )
-        self.dataframe["aliquot_date"] = self.dataframe["aliquot_datetime"].dt.normalize()
+        self.dataframe["aliquot_date"] = self.dataframe[
+            "aliquot_datetime"
+        ].dt.normalize()
 
         # drop sys and other unwanted columns
         base_cols = copy(SYSTEM_COLUMNS)
@@ -81,7 +83,12 @@ class Aliquot(Table):
 
     def fix_parent_identifier(self, value):
         if value:
-            value = value.replace("(", "").replace(")", "").replace("'", "").replace(",", "")
+            value = (
+                value.replace("(", "")
+                .replace(")", "")
+                .replace("'", "")
+                .replace(",", "")
+            )
         return value
 
     def missing_requisition(self, df_requisition=None):

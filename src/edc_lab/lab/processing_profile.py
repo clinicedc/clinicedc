@@ -40,7 +40,10 @@ class ProcessingProfile:
     process_cls = Process
 
     def __init__(
-        self, name: str = None, aliquot_type: AliquotType = None, verbose_name: str = None
+        self,
+        name: str = None,
+        aliquot_type: AliquotType = None,
+        verbose_name: str = None,
     ):
         self.aliquot_type = aliquot_type
         self.name = name

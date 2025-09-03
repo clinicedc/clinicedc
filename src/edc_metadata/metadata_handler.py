@@ -17,7 +17,9 @@ if TYPE_CHECKING:
     from .model_mixins.creates import CreatesMetadataModelMixin
     from .models import CrfMetadata, RequisitionMetadata
 
-    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel):
+    class RelatedVisitModel(
+        SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel
+    ):
         pass
 
 
@@ -45,7 +47,9 @@ class MetadataHandler:
         self.metadata_model: str = metadata_model
         self.model: str = model
         self.related_visit = related_visit
-        self.creator = self.creator_cls(related_visit=self.related_visit, update_keyed=True)
+        self.creator = self.creator_cls(
+            related_visit=self.related_visit, update_keyed=True
+        )
 
     @property
     def metadata_model_cls(self) -> Type[CrfMetadata] | Type[RequisitionMetadata]:
@@ -74,7 +78,9 @@ class MetadataHandler:
         metadata_obj = None
         try:
             crf = [
-                f for f in self.creator.related_visit.visit.all_crfs if f.model == self.model
+                f
+                for f in self.creator.related_visit.visit.all_crfs
+                if f.model == self.model
             ][0]
         except IndexError as e:
             if self.related_visit.reason != MISSED_VISIT:

@@ -46,7 +46,9 @@ class VisitScheduleCrfModelFormMixin:
             visit_schedule = self.visit_schedule
             schedule = self.schedule
             subject_schedule = SubjectSchedule(
-                self.get_subject_identifier(), visit_schedule=visit_schedule, schedule=schedule
+                self.get_subject_identifier(),
+                visit_schedule=visit_schedule,
+                schedule=schedule,
             )
             try:
                 subject_schedule.onschedule_or_raise(

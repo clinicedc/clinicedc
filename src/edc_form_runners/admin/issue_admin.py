@@ -128,7 +128,9 @@ class IssueAdmin(
 
     @admin.display(description="Message", ordering="short_message")
     def error_msg(self, obj):
-        return format_html("<BR>".join(wrap(obj.short_message, 45)).replace(" ", "&nbsp"))
+        return format_html(
+            "<BR>".join(wrap(obj.short_message, 45)).replace(" ", "&nbsp")
+        )
 
     @admin.display(description="Visit", ordering="visit_code")
     def visit(self, obj):
@@ -137,7 +139,9 @@ class IssueAdmin(
     @admin.display(description="Document", ordering="verbose_name")
     def document(self, obj):
         if obj.panel_name:
-            return f"{obj.verbose_name.title()} {obj.panel_name.replace('_', ' ').title()}"
+            return (
+                f"{obj.verbose_name.title()} {obj.panel_name.replace('_', ' ').title()}"
+            )
         return obj.verbose_name
 
     def get_subject_dashboard_url_kwargs(self, obj) -> dict:

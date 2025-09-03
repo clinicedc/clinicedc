@@ -173,7 +173,8 @@ class AppointmentReasonUpdater(MetadataHelperMixin):
         """
         return (
             self.get_crf_metadata_by(KEYED).count() == 1
-            and self.get_crf_metadata_by(KEYED)[0].model == get_subject_visit_missed_model()
+            and self.get_crf_metadata_by(KEYED)[0].model
+            == get_subject_visit_missed_model()
         )
 
     def delete_subject_visit_missed_if_exists(self) -> None:
@@ -186,7 +187,9 @@ class AppointmentReasonUpdater(MetadataHelperMixin):
         """Returns a subject visit reason given the appt reason"""
         if appt_reason == SCHEDULED_APPT:
             visit_reason = SCHEDULED
-        elif appt_reason == UNSCHEDULED_APPT and self.appointment.visit_code_sequence > 0:
+        elif (
+            appt_reason == UNSCHEDULED_APPT and self.appointment.visit_code_sequence > 0
+        ):
             visit_reason = UNSCHEDULED
         else:
             raise AppointmentReasonUpdaterError(

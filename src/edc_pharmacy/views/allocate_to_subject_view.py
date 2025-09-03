@@ -24,7 +24,9 @@ from ..utils import allocate_stock
 
 
 @method_decorator(login_required, name="dispatch")
-class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
+class AllocateToSubjectView(
+    EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+):
     model_pks: list[str] | None = None
     template_name: str = "edc_pharmacy/stock/allocate_to_subject.html"
     navbar_name = settings.APP_NAME
@@ -34,7 +36,9 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     def get_context_data(self, **kwargs):
         remaining_count, total_count = self.get_counts(self.stock_request)
         show_count = (
-            self.items_per_page if remaining_count >= self.items_per_page else remaining_count
+            self.items_per_page
+            if remaining_count >= self.items_per_page
+            else remaining_count
         )
         kwargs.update(
             stock_request=self.stock_request,
@@ -111,7 +115,10 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         return assignment
 
     def redirect_on_has_duplicates(
-        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+        self,
+        stock_codes: list[str],
+        stock_request: StockRequest,
+        assignment: Assignment,
     ) -> str | None:
         if len(stock_codes or []) != len(list(set(stock_codes or []))):
             messages.add_message(
@@ -130,7 +137,10 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         return None
 
     def redirect_on_uncomfirmed_stock_codes(
-        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+        self,
+        stock_codes: list[str],
+        stock_request: StockRequest,
+        assignment: Assignment,
     ) -> str | None:
         if stock_codes:
             confirmed_codes = Stock.objects.filter(
@@ -160,7 +170,10 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         return None
 
     def redirect_on_invalid_stock_codes(
-        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+        self,
+        stock_codes: list[str],
+        stock_request: StockRequest,
+        assignment: Assignment,
     ) -> str | None:
         if stock_codes and Stock.objects.filter(code__in=stock_codes).count() != len(
             stock_codes
@@ -187,7 +200,10 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         return None
 
     def redirect_on_has_multiple_container_types(
-        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+        self,
+        stock_codes: list[str],
+        stock_request: StockRequest,
+        assignment: Assignment,
     ) -> str | None:
         if stock_codes and Stock.objects.filter(
             code__in=stock_codes, container=stock_request.container
@@ -212,11 +228,16 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         return None
 
     def redirect_on_stock_already_allocated(
-        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+        self,
+        stock_codes: list[str],
+        stock_request: StockRequest,
+        assignment: Assignment,
     ) -> str | None:
         if (
             stock_codes
-            and Stock.objects.filter(code__in=stock_codes, allocation__isnull=False).exists()
+            and Stock.objects.filter(
+                code__in=stock_codes, allocation__isnull=False
+            ).exists()
         ):
             allocated_stock_codes = []
             for stock in Stock.objects.filter(code__in=stock_codes):
@@ -264,7 +285,10 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         return None
 
     def redirect_on_incorrect_stock_for_assignment(
-        self, stock_codes: list[str], stock_request: StockRequest, assignment: Assignment
+        self,
+        stock_codes: list[str],
+        stock_request: StockRequest,
+        assignment: Assignment,
     ) -> str | None:
 
         if stock_codes and Stock.objects.filter(
@@ -302,18 +326,26 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         return 0, 0
 
     def post(self, request, *args, **kwargs):
-        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
+        stock_codes = (
+            request.POST.getlist("codes") if request.POST.get("codes") else None
+        )
         subject_identifiers = request.POST.get("subject_identifiers")
         assignment_id = request.POST.get("assignment")
         subject_identifiers = ast.literal_eval(subject_identifiers)
         stock_request = StockRequest.objects.get(id=kwargs.get("stock_request"))
         assignment = self.get_assignment(assignment_id)
 
-        if url := self.redirect_on_all_allocated_for_assignment(stock_request, assignment):
+        if url := self.redirect_on_all_allocated_for_assignment(
+            stock_request, assignment
+        ):
             return HttpResponseRedirect(url)
-        if url := self.redirect_on_has_duplicates(stock_codes, stock_request, assignment):
+        if url := self.redirect_on_has_duplicates(
+            stock_codes, stock_request, assignment
+        ):
             return HttpResponseRedirect(url)
-        if url := self.redirect_on_invalid_stock_codes(stock_codes, stock_request, assignment):
+        if url := self.redirect_on_invalid_stock_codes(
+            stock_codes, stock_request, assignment
+        ):
             return HttpResponseRedirect(url)
         if url := self.redirect_on_uncomfirmed_stock_codes(
             stock_codes, stock_request, assignment

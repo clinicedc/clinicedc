@@ -1,6 +1,10 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from django.apps import apps as django_apps
 from django.db.models.signals import post_save
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_action_item.data_fixers import (
     fix_null_action_item_fk,
@@ -12,7 +16,11 @@ from tests.models import FormOne, FormTwo
 
 from ..test_case_mixin import TestCaseMixin
 
+utc_tz = ZoneInfo("UTC")
 
+
+@tag("action_item")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestUtils(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()

@@ -58,5 +58,7 @@ class SimpleDeathReportModelMixin(
         verbose_name = "Death Report"
         verbose_name_plural = "Death Reports"
         indexes = ActionModelMixin.Meta.indexes + [
-            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
+            models.Index(
+                fields=["subject_identifier", "action_identifier", "site", "id"]
+            )
         ]

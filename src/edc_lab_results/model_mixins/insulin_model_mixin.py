@@ -1,10 +1,10 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from edc_glucose.model_mixins import fasting_model_mixin_factory
+from edc_glucose.model_mixin_factory import fasting_model_mixin_factory
 
 from edc_constants.choices import YES_NO
-from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_reportable.units import MICRO_IU_MILLILITER, MICRO_IU_MILLILITER_DISPLAY
+from ..model_mixin_factory import reportable_result_model_mixin_factory
 
 
 class BaseInsulinModelMixin(

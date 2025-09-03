@@ -77,7 +77,9 @@ class TestSites(SiteTestCaseMixin, TestCase):
         self.assertEqual(obj.site.pk, 40)
         self.assertNotEqual(obj.site.pk, Site.objects.get_current().pk)
 
-    @override_settings(LANGUAGES=[("en", "English"), ("sw", "Swahili"), ("tn", "Setswana")])
+    @override_settings(
+        LANGUAGES=[("en", "English"), ("sw", "Swahili"), ("tn", "Setswana")]
+    )
     def test_get_language_choices_for_site(self):
         sites.register(
             SingleSite(
@@ -246,10 +248,14 @@ class TestSites(SiteTestCaseMixin, TestCase):
         sites.initialize()
         sites.register(*self.default_sites)
         add_or_update_django_sites()
-        self.assertEqual([s.site_id for s in sites.all(aslist=True)], [10, 20, 30, 40, 50, 60])
+        self.assertEqual(
+            [s.site_id for s in sites.all(aslist=True)], [10, 20, 30, 40, 50, 60]
+        )
         self.assertEqual(settings.SITE_ID, 10)
         site = Site.objects.get(id=10)
-        self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
+        self.assertEqual(
+            Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
+        )
 
     @override_settings(EDC_SITES_UAT_DOMAIN=True, SITE_ID=10)
     def test_alias_model_for_uat(self):
@@ -258,7 +264,9 @@ class TestSites(SiteTestCaseMixin, TestCase):
         add_or_update_django_sites()
         self.assertEqual(settings.SITE_ID, 10)
         site = Site.objects.get(id=10)
-        self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.uat.bw.clinicedc.org")
+        self.assertEqual(
+            Alias.objects.get(site=site).domain, "mochudi.uat.bw.clinicedc.org"
+        )
 
     @override_settings(LANGUAGES={"xx": "XXX"})
     def test_site_language_code_not_found_raises(self):

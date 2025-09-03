@@ -60,7 +60,9 @@ def randomizationlist_check(app_configs, **kwargs) -> list:
             for error_msg in error_msgs:
                 errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))
         if not settings.DEBUG:
-            if not randomizer.get_randomizationlist_path().is_relative_to(settings.ETC_DIR):
+            if not randomizer.get_randomizationlist_path().is_relative_to(
+                settings.ETC_DIR
+            ):
                 errors.append(
                     Warning(
                         "Insecure configuration. Randomization list file must be "

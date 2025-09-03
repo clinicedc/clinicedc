@@ -30,10 +30,17 @@ class CsvModelExporter:
     ):
         self.model = model or queryset.model._meta.label_lower
         self.df_maker = self.df_maker_cls(
-            model=model, queryset=queryset, decrypt=decrypt, sites=site_ids or [], **kwargs
+            model=model,
+            queryset=queryset,
+            decrypt=decrypt,
+            sites=site_ids or [],
+            **kwargs,
         )
         self.csv_exporter = self.csv_exporter_cls(
-            model_name=self.model, sort_by=sort_by, export_folder=export_folder, **kwargs
+            model_name=self.model,
+            sort_by=sort_by,
+            export_folder=export_folder,
+            **kwargs,
         )
 
     def to_csv(self):

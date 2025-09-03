@@ -8,7 +8,7 @@ import time_machine
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,
@@ -54,7 +54,6 @@ class TestAppointment(TestCase):
         import_holidays()
 
     def setUp(self):
-        self.subject_identifier = "12345"
         site_visit_schedules._registry = {}
         self.visit_schedule1 = get_visit_schedule1()
         self.schedule1: Schedule = self.visit_schedule1.schedules.get("schedule1")
@@ -64,13 +63,14 @@ class TestAppointment(TestCase):
         site_consents.registry = {}
         site_consents.register(consent_v1)
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
             now=ResearchProtocolConfig().study_open_datetime,
         )
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
+            consent_definition=consent_v1,
         )
+        self.subject_identifier = subject_consent.subject_identifier
 
     def test_appointments_creation(self):
         """Assert appointment triggering method creates appointments."""

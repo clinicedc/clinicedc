@@ -125,7 +125,9 @@ class TestOffstudy(TestCase):
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
         ).order_by("appt_datetime")
-        appointment_datetimes = [appointment.appt_datetime for appointment in appointments]
+        appointment_datetimes = [
+            appointment.appt_datetime for appointment in appointments
+        ]
         # report visits for first and second appointment, 1, 2
         for index, appointment in enumerate(appointments[0:2]):
             SubjectVisit.objects.create(
@@ -154,7 +156,9 @@ class TestOffstudy(TestCase):
         )
 
         subject_visit = SubjectVisit.objects.all().order_by("report_datetime").last()
-        subject_visit.report_datetime = subject_visit.report_datetime + relativedelta(years=1)
+        subject_visit.report_datetime = subject_visit.report_datetime + relativedelta(
+            years=1
+        )
         self.assertRaises(OffstudyError, subject_visit.save)
 
     def test_crf_model_mixin(self):
@@ -251,7 +255,9 @@ class TestOffstudy(TestCase):
         except OffstudyError as e:
             self.fail(f"OffstudyError unexpectedly raised. Got {e}")
 
-        non_crf_one.report_datetime = non_crf_one.report_datetime + relativedelta(years=1)
+        non_crf_one.report_datetime = non_crf_one.report_datetime + relativedelta(
+            years=1
+        )
         self.assertRaises(OffstudyError, non_crf_one.save)
 
     @override_settings(EDC_OFFSTUDY_OFFSTUDY_MODEL="edc_offstudy.SubjectOffstudy")

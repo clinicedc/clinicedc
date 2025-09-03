@@ -268,7 +268,10 @@ class TestGrading(TestCase):
             normal_data={
                 "amylase": [
                     Formula(
-                        "25<=x<=125", units=IU_LITER, gender=[MALE, FEMALE], **self.age_opts
+                        "25<=x<=125",
+                        units=IU_LITER,
+                        gender=[MALE, FEMALE],
+                        **self.age_opts,
                     )
                 ]
             },

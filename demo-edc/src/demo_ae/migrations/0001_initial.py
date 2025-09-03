@@ -49,13 +49,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -97,7 +99,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -178,12 +182,17 @@ class Migration(migrations.Migration):
                 (
                     "ae_cause_other",
                     edc_model_fields.fields.other_charfield.OtherCharField(
-                        blank=True, max_length=250, null=True, verbose_name='If "Yes", specify'
+                        blank=True,
+                        max_length=250,
+                        null=True,
+                        verbose_name='If "Yes", specify',
                     ),
                 ),
                 (
                     "ae_treatment",
-                    models.TextField(verbose_name="Specify action taken for treatment of AE:"),
+                    models.TextField(
+                        verbose_name="Specify action taken for treatment of AE:"
+                    ),
                 ),
                 (
                     "ae_auto_created",
@@ -196,7 +205,8 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Report Date and Time"
+                        default=edc_utils.date.get_utcnow,
+                        verbose_name="Report Date and Time",
                     ),
                 ),
                 (
@@ -277,7 +287,11 @@ class Migration(migrations.Migration):
                 (
                     "susar_reported",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="N/A",
                         max_length=5,
                         verbose_name="Is SUSAR reported?",
@@ -362,7 +376,14 @@ class Migration(migrations.Migration):
             options={
                 "verbose_name": "AE Initial Report",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
             },
             bases=(edc_pdf_reports.model_mixins.PdfReportModelMixin, models.Model),
@@ -388,13 +409,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -436,7 +459,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -501,7 +526,8 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Report date and time"
+                        default=edc_utils.date.get_utcnow,
+                        verbose_name="Report date and time",
                     ),
                 ),
                 (
@@ -526,7 +552,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "outcome_date",
-                    models.DateField(validators=[edc_model.validators.date.date_not_future]),
+                    models.DateField(
+                        validators=[edc_model.validators.date.date_not_future]
+                    ),
                 ),
                 (
                     "ae_grade",
@@ -600,14 +628,22 @@ class Migration(migrations.Migration):
                 (
                     "ae_initial",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT, to="demo_ae.aeinitial"
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="demo_ae.aeinitial",
                     ),
                 ),
             ],
             options={
                 "verbose_name": "AE Follow-up Report",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
             },
             managers=[
@@ -632,13 +668,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -680,7 +718,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -801,15 +841,22 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "ae_description",
-                    models.TextField(blank=True, null=True, verbose_name="Description of AE:"),
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Description of AE:"
+                    ),
                 ),
                 (
                     "investigator_comments",
                     models.TextField(
-                        blank=True, null=True, verbose_name="This investigator's comments:"
+                        blank=True,
+                        null=True,
+                        verbose_name="This investigator's comments:",
                     ),
                 ),
-                ("ae_classification", models.CharField(blank=True, max_length=150, null=True)),
+                (
+                    "ae_classification",
+                    models.CharField(blank=True, max_length=150, null=True),
+                ),
                 (
                     "ae_classification_other",
                     edc_model_fields.fields.other_charfield.OtherCharField(
@@ -836,7 +883,11 @@ class Migration(migrations.Migration):
                 (
                     "investigator_ae_classification_agreed",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="N/A",
                         help_text="If No, select a classification below",
                         max_length=15,
@@ -873,7 +924,8 @@ class Migration(migrations.Migration):
                 (
                     "ae_initial",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT, to="demo_ae.aeinitial"
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="demo_ae.aeinitial",
                     ),
                 ),
                 (
@@ -920,7 +972,14 @@ class Migration(migrations.Migration):
                 "verbose_name": "AE TMG Report",
                 "verbose_name_plural": "AE TMG Reports",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
             },
             managers=[
@@ -945,13 +1004,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -993,7 +1054,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -1109,7 +1172,9 @@ class Migration(migrations.Migration):
                 ("narrative", models.TextField(null=True, verbose_name="Narrative")),
                 (
                     "study_day",
-                    models.IntegerField(default=0, editable=False, help_text="not used"),
+                    models.IntegerField(
+                        default=0, editable=False, help_text="not used"
+                    ),
                 ),
                 (
                     "action_item",
@@ -1164,7 +1229,14 @@ class Migration(migrations.Migration):
                 "verbose_name": "Death Report",
                 "verbose_name_plural": "Death Reports",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
             },
             bases=(edc_pdf_reports.model_mixins.PdfReportModelMixin, models.Model),
@@ -1190,13 +1262,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -1238,7 +1312,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -1376,7 +1452,8 @@ class Migration(migrations.Migration):
                 (
                     "death_report",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.PROTECT, to="demo_ae.deathreport"
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="demo_ae.deathreport",
                     ),
                 ),
                 (
@@ -1413,7 +1490,14 @@ class Migration(migrations.Migration):
                 "verbose_name": "Death Report TMG (1st)",
                 "verbose_name_plural": "Death Report TMG (1st)",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
             },
             managers=[
@@ -1467,13 +1551,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -1515,7 +1601,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -1555,7 +1643,9 @@ class Migration(migrations.Migration):
                 ("subject_identifier", models.CharField(max_length=50)),
                 (
                     "action_identifier",
-                    models.CharField(blank=True, db_index=True, max_length=50, null=True),
+                    models.CharField(
+                        blank=True, db_index=True, max_length=50, null=True
+                    ),
                 ),
                 (
                     "parent_action_identifier",
@@ -1579,7 +1669,8 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Report date and time"
+                        default=edc_utils.date.get_utcnow,
+                        verbose_name="Report date and time",
                     ),
                 ),
                 (
@@ -1604,7 +1695,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "outcome_date",
-                    models.DateField(validators=[edc_model.validators.date.date_not_future]),
+                    models.DateField(
+                        validators=[edc_model.validators.date.date_not_future]
+                    ),
                 ),
                 (
                     "ae_grade",
@@ -1640,7 +1733,10 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -1742,13 +1838,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -1790,7 +1888,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -1830,7 +1930,9 @@ class Migration(migrations.Migration):
                 ("subject_identifier", models.CharField(max_length=50)),
                 (
                     "action_identifier",
-                    models.CharField(blank=True, db_index=True, max_length=50, null=True),
+                    models.CharField(
+                        blank=True, db_index=True, max_length=50, null=True
+                    ),
                 ),
                 (
                     "parent_action_identifier",
@@ -1870,12 +1972,17 @@ class Migration(migrations.Migration):
                 (
                     "ae_cause_other",
                     edc_model_fields.fields.other_charfield.OtherCharField(
-                        blank=True, max_length=250, null=True, verbose_name='If "Yes", specify'
+                        blank=True,
+                        max_length=250,
+                        null=True,
+                        verbose_name='If "Yes", specify',
                     ),
                 ),
                 (
                     "ae_treatment",
-                    models.TextField(verbose_name="Specify action taken for treatment of AE:"),
+                    models.TextField(
+                        verbose_name="Specify action taken for treatment of AE:"
+                    ),
                 ),
                 (
                     "ae_auto_created",
@@ -1888,7 +1995,8 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Report Date and Time"
+                        default=edc_utils.date.get_utcnow,
+                        verbose_name="Report Date and Time",
                     ),
                 ),
                 (
@@ -1969,7 +2077,11 @@ class Migration(migrations.Migration):
                 (
                     "susar_reported",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="N/A",
                         max_length=5,
                         verbose_name="Is SUSAR reported?",
@@ -1987,7 +2099,10 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -2115,13 +2230,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -2163,7 +2280,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -2223,7 +2342,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "action_identifier",
-                    models.CharField(blank=True, db_index=True, max_length=50, null=True),
+                    models.CharField(
+                        blank=True, db_index=True, max_length=50, null=True
+                    ),
                 ),
                 (
                     "parent_action_identifier",
@@ -2283,15 +2404,22 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "ae_description",
-                    models.TextField(blank=True, null=True, verbose_name="Description of AE:"),
+                    models.TextField(
+                        blank=True, null=True, verbose_name="Description of AE:"
+                    ),
                 ),
                 (
                     "investigator_comments",
                     models.TextField(
-                        blank=True, null=True, verbose_name="This investigator's comments:"
+                        blank=True,
+                        null=True,
+                        verbose_name="This investigator's comments:",
                     ),
                 ),
-                ("ae_classification", models.CharField(blank=True, max_length=150, null=True)),
+                (
+                    "ae_classification",
+                    models.CharField(blank=True, max_length=150, null=True),
+                ),
                 (
                     "ae_classification_other",
                     edc_model_fields.fields.other_charfield.OtherCharField(
@@ -2318,7 +2446,11 @@ class Migration(migrations.Migration):
                 (
                     "investigator_ae_classification_agreed",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="N/A",
                         help_text="If No, select a classification below",
                         max_length=15,
@@ -2346,7 +2478,10 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -2461,13 +2596,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -2509,7 +2646,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -2549,7 +2688,9 @@ class Migration(migrations.Migration):
                 ("subject_identifier", models.CharField(db_index=True, max_length=50)),
                 (
                     "action_identifier",
-                    models.CharField(blank=True, db_index=True, max_length=50, null=True),
+                    models.CharField(
+                        blank=True, db_index=True, max_length=50, null=True
+                    ),
                 ),
                 (
                     "parent_action_identifier",
@@ -2624,12 +2765,17 @@ class Migration(migrations.Migration):
                 ("narrative", models.TextField(null=True, verbose_name="Narrative")),
                 (
                     "study_day",
-                    models.IntegerField(default=0, editable=False, help_text="not used"),
+                    models.IntegerField(
+                        default=0, editable=False, help_text="not used"
+                    ),
                 ),
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -2733,13 +2879,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -2781,7 +2929,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -2841,7 +2991,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "action_identifier",
-                    models.CharField(blank=True, db_index=True, max_length=50, null=True),
+                    models.CharField(
+                        blank=True, db_index=True, max_length=50, null=True
+                    ),
                 ),
                 (
                     "parent_action_identifier",
@@ -2899,7 +3051,10 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -3014,13 +3169,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -3062,7 +3219,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -3122,7 +3281,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "action_identifier",
-                    models.CharField(blank=True, db_index=True, max_length=50, null=True),
+                    models.CharField(
+                        blank=True, db_index=True, max_length=50, null=True
+                    ),
                 ),
                 (
                     "parent_action_identifier",
@@ -3180,7 +3341,10 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),

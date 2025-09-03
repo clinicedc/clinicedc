@@ -4,15 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase
-from edc_visit_tracking_app.consents import consent_v1
-from edc_visit_tracking_app.models import (
-    BadCrfOneInline,
-    CrfOne,
-    CrfOneInline,
-    OtherModel,
-)
-from edc_visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
+from django.test import TestCase, tag
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -23,41 +15,73 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import Alphabet, BadCrfOneInline, CrfOne, CrfOneInline, CrfThree
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
-from ..helper import Helper
+from ..crfs import crfs
+from ..requisitions import requisitions
 
 utc_tz = ZoneInfo("UTC")
 
 
-@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
+@tag("visit_tracking")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestVisit(TestCase):
     helper_cls = Helper
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-
-    def setUp(self):
-        self.subject_identifier = "12345"
         site_consents.registry = {}
         site_consents.register(consent_v1)
-        self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
+
         site_visit_schedules._registry = {}
+        visit_schedule1 = get_visit_schedule(
+            consent_v1,
+            crfs=crfs,
+            requisitions=requisitions,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+            onschedule_model="tests.onscheduleone",
+            offschedule_model="tests.offscheduleone",
+            visit_count=4,
+            allow_unscheduled=True,
+        )
         site_visit_schedules.register(visit_schedule=visit_schedule1)
+        visit_schedule2 = get_visit_schedule(
+            consent_v1,
+            crfs=crfs,
+            requisitions=requisitions,
+            visit_schedule_name="visit_schedule2",
+            schedule_name="schedule2",
+            onschedule_model="tests.onscheduletwo",
+            offschedule_model="tests.offscheduletwo",
+            visit_count=4,
+            allow_unscheduled=True,
+        )
         site_visit_schedules.register(visit_schedule=visit_schedule2)
+
+    def setUp(self):
+        self.helper = self.helper_cls()
 
     def test_methods(self):
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
-        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
-        instance = CrfOne(subject_visit=subject_visit)
+        appointment = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, reason=SCHEDULED
+        )
+        instance = CrfThree(subject_visit=subject_visit)
 
         self.assertEqual(instance.subject_visit, subject_visit)
         self.assertEqual(instance.related_visit_model_attr(), "subject_visit")
-        self.assertEqual(CrfOne.related_visit_model_attr(), "subject_visit")
-        self.assertEqual(CrfOne.related_visit_model_cls(), SubjectVisit)
+        self.assertEqual(CrfThree.related_visit_model_attr(), "subject_visit")
+        self.assertEqual(CrfThree.related_visit_model_cls(), SubjectVisit)
 
     def test_crf_related_visit_model_attrs(self):
         """Assert models using the CrfModelMixin can determine which
@@ -70,30 +94,40 @@ class TestVisit(TestCase):
         """Assert models using the CrfModelMixin can determine which
         visit model is in use for the app_label.
         """
-        self.assertEqual(CrfOne().related_visit_model_cls(), SubjectVisit)
-        self.assertEqual(CrfOne.objects.all().count(), 0)
+        self.assertEqual(CrfThree().related_visit_model_cls(), SubjectVisit)
+        self.assertEqual(CrfThree.objects.all().count(), 0)
 
     def test_crf_inline_model_attrs(self):
         """Assert inline model can find visit instance from parent."""
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
-        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        appointment = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, reason=SCHEDULED
+        )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
-        other_model = OtherModel.objects.create()
-        crf_one_inline = CrfOneInline.objects.create(crf_one=crf_one, other_model=other_model)
+        other_model = Alphabet.objects.create()
+        crf_one_inline = CrfOneInline.objects.create(
+            crf_one=crf_one, other_model=other_model
+        )
         self.assertEqual(crf_one_inline.related_visit.pk, subject_visit.pk)
 
     def test_crf_inline_model_parent_model(self):
         """Assert inline model cannot find parent, raises exception."""
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
-        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        appointment = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, reason=SCHEDULED
+        )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
-        other_model = OtherModel.objects.create()
+        other_model = Alphabet.objects.create()
         self.assertRaises(
             ImproperlyConfigured,
             BadCrfOneInline.objects.create,
@@ -104,26 +138,32 @@ class TestVisit(TestCase):
     def test_crf_inline_model_attrs2(self):
         """Assert inline model can find visit instance from parent."""
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
-        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        appointment = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )[0]
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, reason=SCHEDULED
+        )
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
-        other_model = OtherModel.objects.create()
-        crf_one_inline = CrfOneInline.objects.create(crf_one=crf_one, other_model=other_model)
+        other_model = Alphabet.objects.create()
+        crf_one_inline = CrfOneInline.objects.create(
+            crf_one=crf_one, other_model=other_model
+        )
         self.assertIsInstance(crf_one_inline.related_visit, SubjectVisit)
 
     def test_get_previous_model_instance(self):
         """Assert model can determine the previous."""
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
         for index, appointment in enumerate(
             Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         ):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
+                report_datetime=get_utcnow() + relativedelta(months=index),
                 reason=SCHEDULED,
             )
         subject_visits = SubjectVisit.objects.all().order_by(
@@ -144,32 +184,36 @@ class TestVisit(TestCase):
         appointment are inserted.
         """
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+            visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
 
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
+                report_datetime=get_utcnow() + relativedelta(months=index),
                 reason=SCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT
             appointment.save()
 
         appointment = appointments.last()
-        for i in [1, 2]:
+        for _ in [1, 2]:
             appointment = UnscheduledAppointmentCreator(
-                subject_identifier=self.subject_identifier,
+                subject_identifier=appointment.subject_identifier,
                 visit_schedule_name=appointment.visit_schedule_name,
                 schedule_name=appointment.schedule_name,
                 visit_code=appointment.visit_code,
+                suggested_appt_datetime=appointment.appt_datetime
+                + relativedelta(days=1),
                 suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
                 facility=appointment.facility,
             ).appointment
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=(appointment.appt_datetime + relativedelta(days=i)),
+                report_datetime=(appointment.appt_datetime + relativedelta(days=1)),
                 reason=UNSCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT
@@ -188,6 +232,3 @@ class TestVisit(TestCase):
         self.assertEqual(subject_visit.previous_visit, subject_visits[1])
         subject_visit = subject_visits[3]
         self.assertEqual(subject_visit.previous_visit, subject_visits[2])
-
-    def test_missed_no_crfs(self):
-        pass

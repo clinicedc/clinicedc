@@ -10,7 +10,9 @@ from .user import DataManagerUser, QueryUser
 
 
 class DataQueryModelMixin(models.Model):
-    report_datetime = models.DateTimeField(verbose_name="Query date", default=get_utcnow)
+    report_datetime = models.DateTimeField(
+        verbose_name="Query date", default=get_utcnow
+    )
 
     title = models.CharField(max_length=150, null=True, blank=False)
 

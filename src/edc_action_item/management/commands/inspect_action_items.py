@@ -53,13 +53,19 @@ class Command(BaseCommand):
                 action_item.action_cls.related_reference_fk_attr,
                 action_item.parent_action_item,
             )
-            model_cls = django_apps.get_model(action_item.action_cls.get_reference_model())
+            model_cls = django_apps.get_model(
+                action_item.action_cls.get_reference_model()
+            )
             try:
-                obj = model_cls.objects.get(action_identifier=action_item.action_identifier)
+                obj = model_cls.objects.get(
+                    action_identifier=action_item.action_identifier
+                )
             except ObjectDoesNotExist:
                 print("  skipping")
             else:
-                related_obj = getattr(obj, action_item.action_cls.related_reference_fk_attr)
+                related_obj = getattr(
+                    obj, action_item.action_cls.related_reference_fk_attr
+                )
                 if not self.dry_run:
                     related_obj.save()
                 else:

@@ -28,7 +28,9 @@ class RuleEvaluatorRegisterSubjectError(Exception):
     pass
 
 
-show_edc_metadata_warnings = getattr(settings, "EDC_METADATA_SHOW_NOVALUEERROR_WARNING", False)
+show_edc_metadata_warnings = getattr(
+    settings, "EDC_METADATA_SHOW_NOVALUEERROR_WARNING", False
+)
 
 
 class RuleEvaluator:
@@ -49,7 +51,9 @@ class RuleEvaluator:
         self.result: str | None = None
         self.related_visit = related_visit
         options = dict(
-            visit=self.related_visit, registered_subject=self.registered_subject, **kwargs
+            visit=self.related_visit,
+            registered_subject=self.registered_subject,
+            **kwargs,
         )
         predicate = self.logic.predicate(**options)
         if predicate:

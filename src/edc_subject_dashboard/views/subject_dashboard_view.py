@@ -50,7 +50,9 @@ class SubjectDashboardView(
 
     def __init__(self, **kwargs):
         if not self.navbar_name:
-            raise ImproperlyConfigured(f"'navbar_name' cannot be None. See {repr(self)}.")
+            raise ImproperlyConfigured(
+                f"'navbar_name' cannot be None. See {repr(self)}."
+            )
         super().__init__(**kwargs)
 
     @property

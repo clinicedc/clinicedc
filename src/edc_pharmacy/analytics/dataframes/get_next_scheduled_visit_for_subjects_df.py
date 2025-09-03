@@ -10,8 +10,8 @@ from edc_appointment.analytics import get_appointment_df
 from edc_appointment.constants import NEW_APPT
 from edc_registration import get_registered_subject_model_cls
 from edc_sites.site import sites as site_sites
-
 from ...models import Rx
+
 
 if TYPE_CHECKING:
     from ...models import StockRequest
@@ -122,6 +122,9 @@ def get_next_scheduled_visit_for_subjects_df(
                 excluded_subject_identifiers = (
                     stock_request.excluded_subject_identifiers.split("\n")
                 )
+                excluded_subject_identifiers = [
+                    s.strip() for s in excluded_subject_identifiers
+                ]
                 df = df[~df.subject_identifier.isin(excluded_subject_identifiers)]
                 df = df.reset_index(drop=True)
     return df

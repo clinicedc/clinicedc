@@ -23,4 +23,6 @@ class BloodResultsFbgFormValidatorMixin:
         return dict(fasting=fasting)
 
     def evaluate_value(self, prefix: str = None):
-        validate_glucose_as_millimoles_per_liter(prefix=prefix, cleaned_data=self.cleaned_data)
+        validate_glucose_as_millimoles_per_liter(
+            prefix=prefix, cleaned_data=self.cleaned_data
+        )

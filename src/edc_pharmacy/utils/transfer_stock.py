@@ -17,7 +17,9 @@ def transfer_stock(
     stock_transfer: StockTransfer, stock_codes: list[str], request: WSGIRequest = None
 ) -> tuple[list[str], list[str], list[str]]:
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
-    stock_transfer_item_model_cls = django_apps.get_model("edc_pharmacy.stocktransferitem")
+    stock_transfer_item_model_cls = django_apps.get_model(
+        "edc_pharmacy.stocktransferitem"
+    )
     transferred, skipped_codes, invalid_codes = [], [], []
     for stock_code in stock_codes:
         try:

@@ -94,5 +94,7 @@ class NoteModelAdminMixin(
         return render_to_string(self.note_template_name, context)
 
     def redirect_url(self, request, obj, post_url_continue=None) -> str | None:
-        redirect_url = super().redirect_url(request, obj, post_url_continue=post_url_continue)
+        redirect_url = super().redirect_url(
+            request, obj, post_url_continue=post_url_continue
+        )
         return f"{redirect_url}?q={obj.subject_identifier}"

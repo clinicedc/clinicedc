@@ -73,7 +73,10 @@ class BloodResultFieldset:
     def fieldsets(self):
         fieldsets = [
             (None, {"fields": ("subject_visit", "report_datetime")}),
-            ("Requisition and Result Date", {"fields": ["requisition", "assay_datetime"]}),
+            (
+                "Requisition and Result Date",
+                {"fields": ["requisition", "assay_datetime"]},
+            ),
         ]
         for utest_id in self.panel.utest_ids:
             if utest_id in self.excluded_utest_ids:

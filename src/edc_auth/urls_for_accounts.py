@@ -25,7 +25,9 @@ if allow_password_reset:
             views.PasswordChangeDoneView.as_view(),
             name="password_change_done",
         ),
-        path("password_reset/", views.PasswordResetView.as_view(), name="password_reset"),
+        path(
+            "password_reset/", views.PasswordResetView.as_view(), name="password_reset"
+        ),
         path(
             "password_reset/done/",
             views.PasswordResetDoneView.as_view(),
@@ -46,6 +48,10 @@ else:
     urlpatterns += [
         path("password_reset/", LogoutView.as_view(), name="password_reset"),
         path("password_reset/done/", LogoutView.as_view(), name="password_reset_done"),
-        path("reset/<uidb64>/<token>/", LogoutView.as_view(), name="password_reset_confirm"),
+        path(
+            "reset/<uidb64>/<token>/",
+            LogoutView.as_view(),
+            name="password_reset_confirm",
+        ),
         path("reset/done/", LogoutView.as_view(), name="password_reset_complete"),
     ]

@@ -45,7 +45,10 @@ def get_model_names(
     model_names = []
     exclude_views = True if exclude_views is None else exclude_views
     for table_name in get_table_names(
-        app_label, with_columns=with_columns, without_columns=without_columns, db_cls=db_cls
+        app_label,
+        with_columns=with_columns,
+        without_columns=without_columns,
+        db_cls=db_cls,
     ):
         model_name = table_name.split(app_label)[1][1::]
         if (exclude_historical and model_name.startswith("historical")) or (

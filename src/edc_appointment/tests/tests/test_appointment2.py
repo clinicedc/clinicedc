@@ -3,9 +3,9 @@ from decimal import Context
 from zoneinfo import ZoneInfo
 
 import time_machine
-from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
+from dateutil.relativedelta import FR, MO, relativedelta, SA, SU, TH, TU, WE
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import INCOMPLETE_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
 from edc_appointment.exceptions import AppointmentDatetimeError
@@ -47,7 +47,6 @@ class TestAppointment(TestCase):
         site_consents.registry = {}
         site_consents.register(consent_v1)
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
             now=ResearchProtocolConfig().study_open_datetime,
         )
 
@@ -55,7 +54,6 @@ class TestAppointment(TestCase):
         """Test appointment datetimes are chronological."""
         for day in [MO, TU, WE, TH, FR, SA, SU]:
             helper = self.helper_cls(
-                subject_identifier=f"{self.subject_identifier}-{day}",
                 now=ResearchProtocolConfig().study_open_datetime,
             )
             subject_consent = helper.consent_and_put_on_schedule(
@@ -65,6 +63,7 @@ class TestAppointment(TestCase):
                 onschedule_datetime=get_utcnow()
                 + relativedelta(weeks=2)
                 + relativedelta(weekday=day(-1)),
+                consent_definition=consent_v1,
             )
             appt_datetimes = [
                 obj.appt_datetime
@@ -85,13 +84,13 @@ class TestAppointment(TestCase):
     def test_attempt_to_change(self):
         for day in [MO, TU, WE, TH, FR, SA, SU]:
             helper = self.helper_cls(
-                subject_identifier=f"{self.subject_identifier}-{day}",
                 now=ResearchProtocolConfig().study_open_datetime,
             )
             subject_consent = helper.consent_and_put_on_schedule(
                 visit_schedule_name=self.visit_schedule1.name,
                 schedule_name="schedule1",
                 report_datetime=get_utcnow(),
+                consent_definition=consent_v1,
             )
         subject_identifier = subject_consent.subject_identifier
         self.assertEqual(
@@ -139,7 +138,9 @@ class TestAppointment(TestCase):
         context = Context(prec=2)
         schedule_name = self.visit_schedule1.schedules.get("schedule1").name
         self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=self.visit_schedule1.name, schedule_name=schedule_name
+            visit_schedule_name=self.visit_schedule1.name,
+            schedule_name=schedule_name,
+            consent_definition=consent_v1,
         )
         self.assertEqual(
             [
@@ -157,7 +158,9 @@ class TestAppointment(TestCase):
         """
         schedule_name = self.visit_schedule2.schedules.get("schedule2").name
         subject_consent = self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=self.visit_schedule2.name, schedule_name=schedule_name
+            visit_schedule_name=self.visit_schedule2.name,
+            schedule_name=schedule_name,
+            consent_definition=consent_v1,
         )
 
         schedule = self.visit_schedule1.schedules.get("schedule1")

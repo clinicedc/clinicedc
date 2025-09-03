@@ -82,4 +82,6 @@ class ConfirmationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.stock.code}"
         context = dict(url=url, label=f"{obj.stock.code}", title="Go to stock")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )

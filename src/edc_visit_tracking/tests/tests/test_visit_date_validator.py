@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_utils import get_utcnow
 from edc_visit_tracking.crf_date_validator import (
@@ -15,7 +15,8 @@ from edc_visit_tracking.crf_date_validator import (
 utc_tz = ZoneInfo("UTC")
 
 
-@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
+@tag("visit_tracking")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestVisitDateValidator(TestCase):
     def test_cls_ok(self):
         dt = get_utcnow()
@@ -48,11 +49,14 @@ class TestVisitDateValidator(TestCase):
             with self.subTest(days=days):
                 try:
                     MyCrfDateValidator(
-                        report_datetime=visit_report_datetime + relativedelta(days=days),
+                        report_datetime=visit_report_datetime
+                        + relativedelta(days=days),
                         visit_report_datetime=visit_report_datetime,
                     )
                 except CrfReportDateAllowanceError as e:
-                    self.fail(f"VisitReportDateAllowanceError unexpectedly raised. Got {e}")
+                    self.fail(
+                        f"VisitReportDateAllowanceError unexpectedly raised. Got {e}"
+                    )
 
     def test_raises_if_report_datetime(self):
         class MyCrfDateValidator(CrfDateValidator):

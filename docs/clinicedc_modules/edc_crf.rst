@@ -75,7 +75,7 @@ to catch these exceptions on the form where the user can respond.
             verbose_name_plural = "My CRFs"
 
 
-.. _edc_consent: https://github.com/clinicedc/clinicedc/tree/develop/src/edc-consent
-.. _edc_visit_schedule: https://github.com/clinicedc/clinicedc/tree/develop/src/edc-visit-schedule
-.. _edc_visit_tracking: https://github.com/clinicedc/clinicedc/tree/develop/src/edc-visit-tracking
-.. _edc_offstudy: https://github.com/clinicedc/clinicedc/tree/develop/src/edc-offstudy
+.. _edc_consent: https://github.com/clinicedc/clinicedc/tree/develop/src/edc_consent
+.. _edc_visit_schedule: https://github.com/clinicedc/clinicedc/tree/develop/src/edc_visit_schedule
+.. _edc_visit_tracking: https://github.com/clinicedc/clinicedc/tree/develop/src/edc_visit_tracking
+.. _edc_offstudy: https://github.com/clinicedc/clinicedc/tree/develop/src/edc_offstudy

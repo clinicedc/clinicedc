@@ -23,12 +23,10 @@ from tests.models import (
 
 
 class TestScreening(TestCase):
-    @override_settings(SUBJECT_SCREENING_MODEL="screening_app.subjectscreening")
+    @override_settings(SUBJECT_SCREENING_MODEL="tests.subjectscreening")
     def test_model_funcs(self):
-        self.assertEqual(
-            get_subject_screening_model(), "screening_app.subjectscreening"
-        )
-        self.assertEqual(get_subject_screening_app_label(), "screening_app")
+        self.assertEqual(get_subject_screening_model(), "tests.subjectscreening")
+        self.assertEqual(get_subject_screening_app_label(), "tests")
         self.assertEqual(get_subject_screening_model_cls(), SubjectScreening)
 
     def test_format_reasons_ineligible(self):

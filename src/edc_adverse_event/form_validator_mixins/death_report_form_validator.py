@@ -80,7 +80,9 @@ class DeathReportFormValidatorMixin:
             randomization_datetime = registered_subject_model_cls.objects.get(
                 subject_identifier=subject_identifier
             ).randomization_datetime
-            days_on_study = (self.death_report_date - randomization_datetime.date()).days
+            days_on_study = (
+                self.death_report_date - randomization_datetime.date()
+            ).days
             if study_day - 1 != days_on_study:
                 formatted_date = randomization_datetime.astimezone(
                     ZoneInfo(settings.TIME_ZONE)

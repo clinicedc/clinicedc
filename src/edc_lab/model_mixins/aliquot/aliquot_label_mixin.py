@@ -7,7 +7,9 @@ class AliquotLabelMixin:
     @property
     def requisition(self: Any):
         model = django_apps.get_model(*self.receive.requisition_model_name)
-        return model.objects.get(requisition_identifier=self.receive.requisition_identifier)
+        return model.objects.get(
+            requisition_identifier=self.receive.requisition_identifier
+        )
 
     def label_context(self: Any, extra_context=None):
         label_context = {}

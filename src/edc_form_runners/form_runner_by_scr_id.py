@@ -30,5 +30,7 @@ class BaseFormRunnerBySrcId:
 
 
 class FormRunnerBySrcId(BaseFormRunnerBySrcId, FormRunner):
-    def __init__(self, src_id: uuid.UUID, model_name: str | None, verbose: bool | None = None):
+    def __init__(
+        self, src_id: uuid.UUID, model_name: str | None, verbose: bool | None = None
+    ):
         super().__init__(src_id=src_id, model_name=model_name, verbose=verbose)

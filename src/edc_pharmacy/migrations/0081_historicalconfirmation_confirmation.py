@@ -42,13 +42,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -90,7 +92,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -141,11 +145,17 @@ class Migration(migrations.Migration):
                     "confirmed_datetime",
                     models.DateTimeField(default=edc_utils.date.get_utcnow),
                 ),
-                ("confirmed_by", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "confirmed_by",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -214,13 +224,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -262,7 +274,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -314,7 +328,10 @@ class Migration(migrations.Migration):
                     "confirmed_datetime",
                     models.DateTimeField(default=edc_utils.date.get_utcnow),
                 ),
-                ("confirmed_by", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "confirmed_by",
+                    models.CharField(blank=True, max_length=100, null=True),
+                ),
                 (
                     "site",
                     models.ForeignKey(
@@ -337,11 +354,19 @@ class Migration(migrations.Migration):
                 "verbose_name": "Stock Confirmation",
                 "verbose_name_plural": "Stock Confirmations",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
                 "indexes": [
                     models.Index(
-                        fields=["modified", "created"], name="edc_pharmac_modifie_447a22_idx"
+                        fields=["modified", "created"],
+                        name="edc_pharmac_modifie_447a22_idx",
                     ),
                     models.Index(
                         fields=["user_modified", "user_created"],

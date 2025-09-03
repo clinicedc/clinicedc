@@ -33,7 +33,10 @@ class AgeEvaluator(Evaluator):
         return super().description(value=value, **kwargs)
 
     def in_bounds_or_raise(
-        self, dob: date = None, report_datetime: datetime = None, age_units: str | None = None
+        self,
+        dob: date = None,
+        report_datetime: datetime = None,
+        age_units: str | None = None,
     ) -> bool:
         report_datetime = report_datetime or get_utcnow()
         age_units = age_units or "years"

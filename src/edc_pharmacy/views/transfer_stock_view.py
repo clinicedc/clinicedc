@@ -16,7 +16,9 @@ from ..utils import transfer_stock
 
 
 @method_decorator(login_required, name="dispatch")
-class TransferStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
+class TransferStockView(
+    EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+):
     """A view for transferring stock from central to a site.
 
     Creates a StockTransferItem instance per stock instance.

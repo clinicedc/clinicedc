@@ -42,7 +42,9 @@ class PdfIntermediateView(EdcViewMixin, EdcProtocolViewMixin, TemplateView):
     def get(self, request: WSGIRequest, *args, **kwargs):
         if not self.model_pks:
             self.model_pks = [kwargs.get("pk")]
-        request.session[self.session_key] = json.dumps([str(pk) for pk in self.model_pks])
+        request.session[self.session_key] = json.dumps(
+            [str(pk) for pk in self.model_pks]
+        )
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, app_label: str = None, model_name: str = None, **kwargs):

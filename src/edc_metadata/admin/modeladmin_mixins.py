@@ -134,7 +134,11 @@ class MetadataModelAdminMixin(
     )
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
-        return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]
+        return [
+            s.id
+            for s in request.user.userprofile.sites.all()
+            if s.id != request.site.id
+        ]
 
     @admin.display(description="Due", ordering="due_datetime")
     def due(self, obj):
@@ -175,7 +179,9 @@ class MetadataModelAdminMixin(
     def dashboard(self, obj=None, label=None) -> str:
         url = self.get_subject_dashboard_url(obj=obj)
         context = dict(title="Go to subject's dashboard", url=url, label=label)
-        return render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)
+        return render_to_string(
+            "edc_subject_dashboard/dashboard_button.html", context=context
+        )
 
     @staticmethod
     def seq(obj=None):

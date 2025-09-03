@@ -28,12 +28,18 @@ class AeFollowupModelMixin(
     on_site = ActionIdentifierSiteManager()
 
     class Meta(
-        SiteModelMixin.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta, ActionModelMixin.Meta
+        SiteModelMixin.Meta,
+        NonUniqueSubjectIdentifierFieldMixin.Meta,
+        ActionModelMixin.Meta,
     ):
         abstract = True
         verbose_name = "AE Follow-up Report"
         indexes = (
             NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
             + ActionModelMixin.Meta.indexes
-            + [models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])]
+            + [
+                models.Index(
+                    fields=["subject_identifier", "action_identifier", "site", "id"]
+                )
+            ]
         )

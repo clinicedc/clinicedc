@@ -43,7 +43,9 @@ class TestEvaluators(TestCase):
         self.assertTrue(ref.in_bounds_or_raise(0.1, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(99.9, units="mg/dL"))
         self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 100, units="mg/dL")
-        self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 10000, units="mg/dL")
+        self.assertRaises(
+            ValueBoundryError, ref.in_bounds_or_raise, 10000, units="mg/dL"
+        )
 
     @tag("1")
     def test_evaluator_upper_none(self):
@@ -122,8 +124,12 @@ class TestEvaluators(TestCase):
 
         ref = Evaluator(lower=None, upper=100, units="mg/dL")
         self.assertEqual(ref.description(), "x<100.0 mg/dL")
-        self.assertRaises(InvalidLowerBound, Evaluator, lower="ERIK", upper=100, units="mg/dL")
-        self.assertRaises(InvalidUpperBound, Evaluator, lower=10, upper="ERIK", units="mg/dL")
+        self.assertRaises(
+            InvalidLowerBound, Evaluator, lower="ERIK", upper=100, units="mg/dL"
+        )
+        self.assertRaises(
+            InvalidUpperBound, Evaluator, lower=10, upper="ERIK", units="mg/dL"
+        )
         ref = Evaluator(lower=10, upper=None, units="mg/dL")
         self.assertEqual(ref.description(), "10.0<x mg/dL")
 
@@ -141,8 +147,12 @@ class TestEvaluators(TestCase):
                 except InvalidUpperBound:
                     self.fail("InvalidUpperBound unexpectedly raised")
 
-        self.assertRaises(InvalidCombination, Evaluator, lower=10, upper=10, units="mg/dL")
-        self.assertRaises(InvalidCombination, Evaluator, lower=11, upper=10, units="mg/dL")
+        self.assertRaises(
+            InvalidCombination, Evaluator, lower=10, upper=10, units="mg/dL"
+        )
+        self.assertRaises(
+            InvalidCombination, Evaluator, lower=11, upper=10, units="mg/dL"
+        )
 
     @tag("1")
     def test_age_evaluator(self):
@@ -169,9 +179,13 @@ class TestEvaluators(TestCase):
         self.assertEqual(age_eval.description(), "18<AGE years")
 
         age_eval = AgeEvaluator(age_lower=25, age_upper=26)
-        self.assertRaises(ValueBoundryError, age_eval.in_bounds_or_raise, dob, report_datetime)
+        self.assertRaises(
+            ValueBoundryError, age_eval.in_bounds_or_raise, dob, report_datetime
+        )
         self.assertEqual(age_eval.description(), "25<AGE<26 years")
 
         age_eval = AgeEvaluator(age_lower=24, age_upper=25)
-        self.assertRaises(ValueBoundryError, age_eval.in_bounds_or_raise, dob, report_datetime)
+        self.assertRaises(
+            ValueBoundryError, age_eval.in_bounds_or_raise, dob, report_datetime
+        )
         self.assertEqual(age_eval.description(), "24<AGE<25 years")

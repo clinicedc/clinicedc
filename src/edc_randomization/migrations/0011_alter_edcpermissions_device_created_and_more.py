@@ -14,12 +14,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="edcpermissions",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="edcpermissions",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="edcpermissions",
@@ -45,12 +49,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalrandomizationlist",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalrandomizationlist",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="historicalrandomizationlist",
@@ -76,12 +84,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="randomizationlist",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="randomizationlist",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="randomizationlist",

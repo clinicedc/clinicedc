@@ -73,7 +73,9 @@ class CrfTestHelper:
                 subject_identifier=subject_identifier,
             ):
                 options = self.baker_options(visit.report_datetime).get(crf.model, {})
-                options.update({visit_attr: visit, "report_datetime": visit.report_datetime})
+                options.update(
+                    {visit_attr: visit, "report_datetime": visit.report_datetime}
+                )
                 completed_crfs.append(baker.make_recipe(crf.model, **options))
             if not self.get_crfs_by_entry_status(
                 visit_code=visit_code,

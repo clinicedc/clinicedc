@@ -13,11 +13,15 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="registeredsubject",
             name="created",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+            field=models.DateTimeField(
+                default=edc_utils.date.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
             model_name="registeredsubject",
             name="modified",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+            field=models.DateTimeField(
+                default=edc_utils.date.get_utcnow, editable=False
+            ),
         ),
     ]

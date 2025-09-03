@@ -92,7 +92,9 @@ class Migration(migrations.Migration):
                 ("decrypt", models.BooleanField(default=False)),
                 (
                     "export_format",
-                    models.CharField(choices=[("CSV", "CSV")], default="CSV", max_length=25),
+                    models.CharField(
+                        choices=[("CSV", "CSV")], default="CSV", max_length=25
+                    ),
                 ),
                 (
                     "models",
@@ -263,7 +265,9 @@ class Migration(migrations.Migration):
                 ("decrypt", models.BooleanField(default=False)),
                 (
                     "export_format",
-                    models.CharField(choices=[("CSV", "CSV")], default="CSV", max_length=25),
+                    models.CharField(
+                        choices=[("CSV", "CSV")], default="CSV", max_length=25
+                    ),
                 ),
                 (
                     "models",

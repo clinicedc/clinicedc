@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.models import Appointment
 from edc_appointment.utils import (
@@ -32,24 +32,22 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
         import_holidays()
 
     def setUp(self):
-        self.subject_identifier = "12345"
         self.visit_schedule4 = get_visit_schedule4()
         self.schedule4 = self.visit_schedule4.schedules.get("three_monthly_schedule")
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule4)
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
             now=get_utcnow() - relativedelta(years=2),
         )
 
     @override_settings(EDC_VISIT_SCHEDULE_DEFAULT_MAX_VISIT_GAP_ALLOWED=0)
     def test_suggested_date_in_window_period_gap_raises(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule4.name,
             schedule_name=self.schedule4.name,
         )
         appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
+            subject_identifier=subject_consent.subject_identifier
         ).order_by("appt_datetime")
         self.assertEqual(appointments.count(), 5)
         appointment_1000 = appointments[0]
@@ -79,12 +77,12 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
 
     @override_settings(EDC_VISIT_SCHEDULE_DEFAULT_MAX_VISIT_GAP_ALLOWED=7)
     def test_match_window_period_gap_adjusted(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule4.name,
             schedule_name=self.schedule4.name,
         )
         appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
+            subject_identifier=subject_consent.subject_identifier
         ).order_by("appt_datetime")
         self.assertEqual(appointments.count(), 5)
         appointment_1000 = appointments[0]
@@ -124,12 +122,12 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
                     self.assertEqual("1060", appointment.visit_code)
 
     def test_past_last_visit(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule4.name,
             schedule_name=self.schedule4.name,
         )
         appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
+            subject_identifier=subject_consent.subject_identifier
         ).order_by("appt_datetime")
         self.assertEqual(appointments.count(), 5)
         appointment_1000 = appointments[0]
@@ -159,12 +157,12 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
         self.assertIsNone(appointment)
 
     def test_window_gap_days(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule4.name,
             schedule_name=self.schedule4.name,
         )
         appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
+            subject_identifier=subject_consent.subject_identifier
         ).order_by("appt_datetime")
         appointment_1030 = appointments[1]
         gap_days = get_window_gap_days(appointment_1030)

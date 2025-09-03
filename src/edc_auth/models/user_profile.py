@@ -34,7 +34,9 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
 
     job_title = models.CharField(max_length=100, null=True, blank=True)
 
-    alternate_email = models.EmailField(_("Alternate email address"), blank=True, null=True)
+    alternate_email = models.EmailField(
+        _("Alternate email address"), blank=True, null=True
+    )
 
     mobile = models.CharField(
         max_length=25,

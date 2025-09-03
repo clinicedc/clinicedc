@@ -9,15 +9,15 @@ from django.db.models.deletion import ProtectedError
 
 from edc_facility.exceptions import FacilityError
 from edc_facility.utils import get_facility
-
-from ..exceptions import CreateAppointmentError
 from .appointment_creator import AppointmentCreator
+from ..exceptions import CreateAppointmentError
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
     from edc_visit_schedule.schedule import Schedule
     from edc_visit_schedule.visit_schedule import VisitSchedule
+    from edc_consent.consent_definition import ConsentDefinition
 
     from ..models import Appointment
 
@@ -59,6 +59,7 @@ class AppointmentsCreator:
         base_appt_datetime=None,
         taken_datetimes=None,
         skip_get_current_site: bool | None = None,
+        consent_definition: ConsentDefinition | None = None,
     ) -> QuerySet[Appointment]:
         """Creates appointments when called by post_save signal.
 
@@ -74,6 +75,7 @@ class AppointmentsCreator:
             subject_identifier=self.subject_identifier,
             report_datetime=base_appt_datetime,
             site_id=self.site_id,
+            consent_definition=consent_definition,
         ).timepoint_dates(dt=base_appt_datetime)
 
         for visit, timepoint_datetime in timepoint_dates.items():

@@ -1,44 +1,52 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
-from edc_visit_schedule_app.consents import consent_v1
-from edc_visit_schedule_app.forms import OffScheduleForm
-from edc_visit_schedule_app.models import OnSchedule, SubjectConsent
-from edc_visit_schedule_app.visit_schedule import visit_schedule
+from django.test import TestCase, tag
 
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
+from edc_visit_schedule.models import OnSchedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.forms import OffScheduleForm
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule import get_visit_schedule
+
+utc_tz = ZoneInfo("UTC")
 
 
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
-    SITE_ID=30,
-)
+@tag("visit_schedule")
+@time_machine.travel(datetime(2025, 7, 12, 8, 00, tzinfo=utc_tz))
 class TestModels(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-
-    def setUp(self):
-        site_visit_schedules.loaded = False
-        site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule)
-        self.subject_identifier = "1234"
         site_consents.registry = {}
         site_consents.register(consent_v1)
+        site_visit_schedules.loaded = False
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
+
+    def setUp(self):
+        helper = Helper()
+        self.consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            report_datetime=get_utcnow(),
+        )
 
     def test_offschedule_ok(self):
-        SubjectConsent.objects.create(subject_identifier=self.subject_identifier)
-        OnSchedule.objects.put_on_schedule(
-            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
+        onschedule = OnSchedule.objects.get(
+            subject_identifier=self.consent.subject_identifier
         )
-        onschedule = OnSchedule.objects.get(subject_identifier=self.subject_identifier)
         data = dict(
-            subject_identifier=self.subject_identifier,
-            offschedule_datetime=onschedule.onschedule_datetime + relativedelta(months=1),
+            subject_identifier=self.consent.subject_identifier,
+            offschedule_datetime=onschedule.onschedule_datetime
+            + relativedelta(months=1),
         )
         form = OffScheduleForm(data=data)
         form.is_valid()

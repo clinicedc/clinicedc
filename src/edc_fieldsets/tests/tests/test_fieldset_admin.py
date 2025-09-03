@@ -4,8 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.contrib import admin
 from django.contrib.auth.models import Permission, User
-from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
@@ -16,27 +15,26 @@ from edc_constants.constants import FEMALE, MALE
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.single_site import SingleSite
 from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
-from edc_visit_schedule.models import OnSchedule
+from edc_visit_schedule.constants import DAY01
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.visit import Crf, CrfCollection
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
+from tests.helper import Helper
+from tests.models import TestModel4, TestModel6
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
-from ..admin import VISIT_ONE, VISIT_TWO
-from ..models import MyModel, MyModel2, SubjectConsentV1
-from ..visit_schedule import get_visit_schedule
+utc_tz = ZoneInfo("UTC")
 
 
-@override_settings(
-    SITE_ID=10,
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2018, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2027, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")),
-)
+@tag("fieldsets")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestFieldsetAdmin(TestCase):
     @classmethod
     def setUpTestData(cls):
-        Site.objects.create(id=10, name="site_ten", domain="clinicedc.org")
-
         fqdn = "clinicedc.org"
         language_codes = ["en"]
         site10 = SingleSite(
@@ -48,10 +46,13 @@ class TestFieldsetAdmin(TestCase):
             language_codes=language_codes,
             domain=f"mochudi.bw.{fqdn}",
         )
+        site_sites._registry = {}
         site_sites.register(site10)
+        add_or_update_django_sites(verbose=True)
 
+        site_consents.registry = {}
         consent_v1 = ConsentDefinition(
-            "edc_fieldsets.subjectconsentv1",
+            "tests.subjectconsentv1",
             version="1",
             start=ResearchProtocolConfig().study_open_datetime,
             end=ResearchProtocolConfig().study_close_datetime,
@@ -62,32 +63,30 @@ class TestFieldsetAdmin(TestCase):
             site_ids=[10],
         )
         site_consents.register(consent_v1)
-        visit_schedule = get_visit_schedule(consent_v1)
+
+        crfs = CrfCollection(
+            Crf(show_order=1, model="tests.testmodel3", required=True),
+            Crf(show_order=2, model="tests.testmodel4", required=True),
+            Crf(show_order=3, model="tests.testmodel5", required=True),
+        )
+
+        visit_schedule = get_visit_schedule(consent_v1, crfs=crfs)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
 
+        helper = Helper()
+        helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule.name,
+            schedule_name="schedule",
+            age_in_years=25,
+        )
+
     def setUp(self):
-        test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
-        traveller = time_machine.travel(test_datetime)
-        traveller.start()
-
-        self.user = User.objects.create(username="erikvw", is_staff=True, is_active=True)
-        for permission in Permission.objects.filter(content_type__app_label="edc_fieldsets"):
+        self.user = User.objects.create(
+            username="erikvw", is_staff=True, is_active=True
+        )
+        for permission in Permission.objects.filter(content_type__app_label="tests"):
             self.user.user_permissions.add(permission)
-
-        self.subject_identifier = "1234"
-        SubjectConsentV1.objects.create(
-            subject_identifier="1234",
-            consent_datetime=get_utcnow(),
-            site_id=10,
-        )
-
-        OnSchedule.objects.put_on_schedule(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow(),
-            skip_get_current_site=True,
-        )
-        traveller.stop()
 
     def test_fieldset_excluded(self):
         """Asserts the conditional fieldset is not added
@@ -95,22 +94,22 @@ class TestFieldsetAdmin(TestCase):
 
         VISIT_ONE
         """
-        appointment = Appointment.objects.get(visit_code=VISIT_ONE)
+        appointment = Appointment.objects.get(visit_code=DAY01)
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             reason=SCHEDULED,
         )
 
         for model, model_admin in admin.site._registry.items():
-            if model == MyModel:
-                my_model_admin = model_admin.admin_site._registry.get(MyModel)
+            if model == TestModel6:
+                my_test_model_6_admin = model_admin.admin_site._registry.get(TestModel6)
         rf = RequestFactory()
 
         request = rf.get(f"/?appointment={str(appointment.id)}")
 
         request.user = self.user
 
-        rendered_change_form = my_model_admin.changeform_view(
+        rendered_change_form = my_test_model_6_admin.changeform_view(
             request, None, "", {"subject_visit": subject_visit}
         )
 
@@ -126,24 +125,24 @@ class TestFieldsetAdmin(TestCase):
 
         VISIT_TWO
         """
-        appointment = Appointment.objects.get(visit_code=VISIT_ONE)
+        appointment = Appointment.objects.get(visit_code=DAY01)
         SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
-        appointment = Appointment.objects.get(visit_code=VISIT_TWO)
+        appointment = Appointment.objects.get(visit_code="2000")
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             reason=SCHEDULED,
         )
 
         for model, model_admin in admin.site._registry.items():
-            if model == MyModel:
-                my_model_admin = model_admin.admin_site._registry.get(MyModel)
+            if model == TestModel6:
+                my_test_model_6_admin = model_admin.admin_site._registry.get(TestModel6)
 
         rf = RequestFactory()
 
         request = rf.get(f"/?appointment={str(appointment.id)}")
         request.user = self.user
 
-        rendered_change_form = my_model_admin.changeform_view(
+        rendered_change_form = my_test_model_6_admin.changeform_view(
             request, None, "", {"subject_visit": subject_visit}
         )
 
@@ -160,41 +159,45 @@ class TestFieldsetAdmin(TestCase):
 
         VISIT_TWO
         """
-        test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
+        test_datetime = datetime(2025, 6, 11, 8, 30, tzinfo=ZoneInfo("UTC"))
         traveller = time_machine.travel(test_datetime)
         traveller.start()
-        appointment = Appointment.objects.get(visit_code=VISIT_ONE)
+        appointment = Appointment.objects.get(visit_code=DAY01)
         appointment.appt_status = IN_PROGRESS_APPT
         appointment.save()
         appointment.refresh_from_db()
 
-        SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        SubjectVisit.objects.create(
+            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+        )
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
         appointment.refresh_from_db()
 
         traveller.stop()
-        test_datetime = datetime(2019, 6, 12, 8, 00, tzinfo=ZoneInfo("UTC"))
+        test_datetime = datetime(2025, 6, 12, 8, 00, tzinfo=ZoneInfo("UTC"))
         traveller = time_machine.travel(test_datetime)
         traveller.start()
 
-        appointment = Appointment.objects.get(visit_code=VISIT_TWO)
+        appointment = Appointment.objects.get(visit_code="2000")
         appointment.appt_status = IN_PROGRESS_APPT
         appointment.save()
         appointment.refresh_from_db()
 
-        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
+        subject_visit = SubjectVisit.objects.create(
+            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+        )
 
         for model, model_admin in admin.site._registry.items():
-            if model == MyModel2:
-                my_model_admin = model_admin.admin_site._registry.get(MyModel2)
+            if model == TestModel4:
+                my_test_model_4_admin = model_admin.admin_site._registry.get(TestModel4)
 
         rf = RequestFactory()
 
         request = rf.get(f"/?appointment={str(appointment.id)}")
         request.user = self.user
 
-        rendered_change_form = my_model_admin.changeform_view(
+        rendered_change_form = my_test_model_4_admin.changeform_view(
             request, None, "", {"subject_visit": subject_visit}
         )
 

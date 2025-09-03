@@ -33,7 +33,9 @@ def write_queryset_to_secure_pdf(
     """
     merger = PdfWriter()
     for model_obj in queryset:
-        buffer = write_model_to_insecure_pdf(model_obj, request=request, **extra_context)
+        buffer = write_model_to_insecure_pdf(
+            model_obj, request=request, **extra_context
+        )
         merger.append(fileobj=buffer)
         buffer.close()
     merged_buffer = BytesIO()

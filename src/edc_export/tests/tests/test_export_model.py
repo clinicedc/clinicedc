@@ -7,32 +7,38 @@ from unittest.case import skip
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
-from export_app.models import Crf, CrfEncrypted, ListModel, SubjectVisit
-from export_app.visit_schedule import visit_schedule1
 
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_export.constants import EXPORTED, INSERT, UPDATE
 from edc_export.model_exporter import ModelExporter, ValueGetterInvalidLookup
 from edc_export.models import FileHistory, ObjectHistory
-from edc_facility import import_holidays
+from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import Crf, CrfEncrypted, ListModel, SubjectVisit
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
-from ..helper import Helper
 
-
-@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
+@override_settings(
+    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp()
+)
 class TestExportModel(TestCase):
     helper_cls = Helper
 
     def setUp(self):
         import_holidays()
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule1)
+        viist_schedule = get_visit_schedule(consent_v1)
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
         for i in range(0, 7):
-            helper = self.helper_cls(subject_identifier=f"subject-{i}")
+            helper = self.helper_cls()
             helper.consent_and_put_on_schedule(
-                visit_schedule_name=visit_schedule1.name,
+                visit_schedule_name=viist_schedule.name,
                 schedule_name="schedule1",
                 report_datetime=get_utcnow(),
             )
@@ -45,8 +51,12 @@ class TestExportModel(TestCase):
                 report_datetime=get_utcnow(),
             )
         self.subject_visit = SubjectVisit.objects.all()[0]
-        self.thing_one = ListModel.objects.create(display_name="thing_one", name="thing_one")
-        self.thing_two = ListModel.objects.create(display_name="thing_two", name="thing_two")
+        self.thing_one = ListModel.objects.create(
+            display_name="thing_one", name="thing_one"
+        )
+        self.thing_two = ListModel.objects.create(
+            display_name="thing_two", name="thing_two"
+        )
         self.crf = Crf.objects.create(
             subject_visit=self.subject_visit,
             char1="char",
@@ -293,7 +303,9 @@ class TestExportModel(TestCase):
         model_exporter.export()
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
-        tx_qs = ObjectHistory.objects.filter(tx_pk=self.crf.pk).order_by("exported_datetime")
+        tx_qs = ObjectHistory.objects.filter(tx_pk=self.crf.pk).order_by(
+            "exported_datetime"
+        )
         self.assertEqual(tx_qs[0].export_change_type, INSERT)
 
     @skip("check insert/update flags?")
@@ -312,7 +324,9 @@ class TestExportModel(TestCase):
         sleep(1)
         model_exporter = ModelExporter(queryset=queryset)
         model_exporter.export()
-        tx_qs = ObjectHistory.objects.filter(tx_pk=self.crf.pk).order_by("exported_datetime")
+        tx_qs = ObjectHistory.objects.filter(tx_pk=self.crf.pk).order_by(
+            "exported_datetime"
+        )
         self.assertEqual(tx_qs[0].export_change_type, INSERT)
         self.assertEqual(tx_qs[1].export_change_type, UPDATE)
 

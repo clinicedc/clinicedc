@@ -28,7 +28,9 @@ if TYPE_CHECKING:
 
 @dataclass
 class TmgButton(ModelButton):
-    model_obj: DeathReportTmgModel | DeathReportModel | AeFollowupModel | AeInitialModel = None
+    model_obj: (
+        DeathReportTmgModel | DeathReportModel | AeFollowupModel | AeInitialModel
+    ) = None
     next_url_name: str | None = field(default="open_tmg_ae_listboard_url")
     only_user_created_may_access: bool | None = None
     forloop_counter: int | None = None
@@ -71,7 +73,9 @@ class TmgButton(ModelButton):
             and self.only_user_created_may_access
             and self.model_obj.user_created != self.user.username
         ):
-            title = _("May only be edited by %(user)s") % {"user": self.model_obj.user_created}
+            title = _("May only be edited by %(user)s") % {
+                "user": self.model_obj.user_created
+            }
             if self.model_obj.site.id != self.request.site.id:
                 title = _("%(title)s when logged into site %(site)s") % {
                     "title": title,

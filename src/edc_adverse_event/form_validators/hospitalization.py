@@ -7,7 +7,9 @@ class HospitalizationFormValidator(FormValidator):
     def clean(self):
         self.validate_discharged_date()
 
-        self.required_if(YES, field="have_details", field_required="narrative", inverse=False)
+        self.required_if(
+            YES, field="have_details", field_required="narrative", inverse=False
+        )
 
     def validate_discharged_date(self):
         self.required_if(YES, field="discharged", field_required="discharged_date")

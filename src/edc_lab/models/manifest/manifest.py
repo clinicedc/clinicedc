@@ -17,7 +17,9 @@ class Manager(ManifestManager, SearchSlugManager):
     pass
 
 
-class Manifest(ManifestModelMixin, PdfReportModelMixin, SearchSlugModelMixin, BaseUuidModel):
+class Manifest(
+    ManifestModelMixin, PdfReportModelMixin, SearchSlugModelMixin, BaseUuidModel
+):
     pdf_report_cls = ManifestPdfReport
 
     def get_search_slug_fields(self):
@@ -28,9 +30,13 @@ class Manifest(ManifestModelMixin, PdfReportModelMixin, SearchSlugModelMixin, Ba
             "consignee.name",
         ]
 
-    consignee = models.ForeignKey(Consignee, verbose_name="Consignee", on_delete=PROTECT)
+    consignee = models.ForeignKey(
+        Consignee, verbose_name="Consignee", on_delete=PROTECT
+    )
 
-    shipper = models.ForeignKey(Shipper, verbose_name="Shipper/Exporter", on_delete=PROTECT)
+    shipper = models.ForeignKey(
+        Shipper, verbose_name="Shipper/Exporter", on_delete=PROTECT
+    )
 
     objects = Manager()
 

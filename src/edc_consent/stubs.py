@@ -15,5 +15,8 @@ class ConsentModelStub(Protocol):
 
 
 class ConsentLikeModel(
-    SiteModelMixin, ConsentModelMixin, NonUniqueSubjectIdentifierModelMixin, BaseUuidModel
+    SiteModelMixin,
+    ConsentModelMixin,
+    NonUniqueSubjectIdentifierModelMixin,
+    BaseUuidModel,
 ): ...  # noqa

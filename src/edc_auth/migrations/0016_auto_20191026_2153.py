@@ -7,7 +7,9 @@ class Migration(migrations.Migration):
     dependencies = [("edc_auth", "0015_auto_20191026_2149")]
 
     operations = [
-        migrations.RenameField(model_name="role", old_name="short_name", new_name="name"),
+        migrations.RenameField(
+            model_name="role", old_name="short_name", new_name="name"
+        ),
         migrations.AlterField(
             model_name="role",
             name="display_name",

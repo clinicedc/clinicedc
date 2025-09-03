@@ -19,7 +19,9 @@ if TYPE_CHECKING:
 
     from .models import Issue
 
-    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel):
+    class RelatedVisitModel(
+        SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel
+    ):
         pass
 
 

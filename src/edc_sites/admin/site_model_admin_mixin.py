@@ -42,7 +42,9 @@ class SiteModelAdminMixin:
         """
         if self.has_viewallsites_permission(request):
             return [
-                s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id
+                s.id
+                for s in request.user.userprofile.sites.all()
+                if s.id != request.site.id
             ]
         return sites.get_view_only_site_ids_for_user(request=request)
 
@@ -106,7 +108,9 @@ class SiteModelAdminMixin:
     def get_queryset(self, request) -> QuerySet:
         """Limit modeladmin queryset for the current site only"""
         qs = super().get_queryset(request)
-        site_ids = [request.site.id] + self.get_view_only_site_ids_for_user(request=request)
+        site_ids = [request.site.id] + self.get_view_only_site_ids_for_user(
+            request=request
+        )
         try:
             qs = qs.select_related("site").filter(site_id__in=site_ids)
         except FieldError:
@@ -127,7 +131,9 @@ class SiteModelAdminMixin:
         """Use site id to select languages to show in choices."""
         if db_field.name == self.language_db_field_name:
             try:
-                language_choices = sites.get_language_choices_tuple(request.site, other=True)
+                language_choices = sites.get_language_choices_tuple(
+                    request.site, other=True
+                )
             except AttributeError as e:
                 if "WSGIRequest" not in str(e):
                     raise
@@ -204,7 +210,9 @@ class SiteModelAdminMixin:
         orig = []
         for field_list in field_lists:
             orig.extend(field_list or [])
-        if dups := [item for item, count in collections.Counter(orig).items() if count > 1]:
+        if dups := [
+            item for item, count in collections.Counter(orig).items() if count > 1
+        ]:
             raise SiteModeAdminMixinError(
                 f"Related field appears in more than one list. Got {dups}."
             )

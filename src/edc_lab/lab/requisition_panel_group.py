@@ -26,7 +26,8 @@ class RequisitionPanelGroup(RequisitionPanel):
             utest_ids.extend(panel.utest_ids)
             if (
                 panel.reference_range_collection_name
-                and reference_range_collection_name != panel.reference_range_collection_name
+                and reference_range_collection_name
+                != panel.reference_range_collection_name
             ):
                 raise RequisitionPanelGroupError(
                     "Panels in a panel group must use the same reference range "
@@ -35,7 +36,10 @@ class RequisitionPanelGroup(RequisitionPanel):
                     f"{panel.reference_range_collection_name}. "
                     f"See {self}."
                 )
-            if panel.aliquot_type and panel.aliquot_type != processing_profile.aliquot_type:
+            if (
+                panel.aliquot_type
+                and panel.aliquot_type != processing_profile.aliquot_type
+            ):
                 raise RequisitionPanelGroupError(
                     "Panels in a panel group must use the same aliquot_type "
                     f"Got {panel.aliquot_type} != "

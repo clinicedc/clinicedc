@@ -1,6 +1,9 @@
+from datetime import datetime
 from importlib import import_module
+from zoneinfo import ZoneInfo
 
-from django.test import TestCase, override_settings
+import time_machine
+from django.test import TestCase, override_settings, tag
 
 from edc_adverse_event.constants import TMG_ROLE
 from edc_auth.auth_updater import AuthUpdater
@@ -8,7 +11,11 @@ from edc_auth.site_auths import site_auths
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE, SITE_DATA_MANAGER_ROLE
 from edc_export.constants import EXPORT
 
+utc_tz = ZoneInfo("UTC")
 
+
+@tag("action_item")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAuths(TestCase):
     @override_settings(
         EDC_AUTH_SKIP_SITE_AUTHS=True,

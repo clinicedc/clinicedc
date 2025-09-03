@@ -42,7 +42,9 @@ class VerifyBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
             message = "Unable to verify. Box has already been shipped."
             messages.error(self.request, message)
         else:
-            box_item_in_position = self.get_box_item(position=self.kwargs.get("position"))
+            box_item_in_position = self.get_box_item(
+                position=self.kwargs.get("position")
+            )
             self.redirect_querystring.update(alert=1)
             if box_item_in_position:
                 if self.box_item:

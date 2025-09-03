@@ -67,7 +67,9 @@ class Manifest:
                             "manifest_identifier": manifest_item.manifest.manifest_identifier
                         },
                     )
-                    manifest_identifier = manifest_item.manifest.human_readable_identifier
+                    manifest_identifier = (
+                        manifest_item.manifest.human_readable_identifier
+                    )
                     message = format_html(
                         "Item is already in a manifest. See "
                         '<a href="{}" class="alert-link">'
@@ -96,7 +98,9 @@ class Manifest:
     def validate_box_verified(self, box=None):
         """Returns True if box status is verified."""
         if box.status != VERIFIED:
-            message = "Box is not verified. Got {}.".format(box.human_readable_identifier)
+            message = "Box is not verified. Got {}.".format(
+                box.human_readable_identifier
+            )
             messages.error(self.request, message)
             return False
         return True

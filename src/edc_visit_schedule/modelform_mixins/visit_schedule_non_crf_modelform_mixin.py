@@ -45,7 +45,8 @@ class VisitScheduleNonCrfModelFormMixin:
         if not visit_schedule:
             if self.get_by_model_attr:
                 visit_schedule, _ = site_visit_schedules.get_by_model(
-                    attr=self.get_by_model_attr, model=self._meta.model._meta.label_lower
+                    attr=self.get_by_model_attr,
+                    model=self._meta.model._meta.label_lower,
                 )
             else:
                 raise VisitScheduleNonCrfModelFormMixinError(

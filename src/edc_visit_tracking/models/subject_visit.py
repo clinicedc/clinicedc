@@ -14,18 +14,21 @@ from edc_visit_tracking.choices import (
     VISIT_REASON_MISSED,
 )
 from edc_visit_tracking.managers import VisitModelManager
-from edc_visit_tracking.model_mixins import VisitModelMixin
+from edc_visit_tracking.model_mixins import PreviousVisitModelMixin, VisitModelMixin
 
 
 class SubjectVisit(
     VisitModelMixin,
+    PreviousVisitModelMixin,
     RequiresConsentFieldsModelMixin,
     CreatesMetadataModelMixin,
     SiteModelMixin,
     BaseUuidModel,
 ):
     appointment = models.OneToOneField(
-        get_appointment_model_name(), on_delete=PROTECT, related_name="default_subjectvisit"
+        get_appointment_model_name(),
+        on_delete=PROTECT,
+        related_name="default_subjectvisit",
     )
 
     reason = models.CharField(max_length=25, choices=VISIT_REASON)

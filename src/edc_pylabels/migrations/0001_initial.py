@@ -37,7 +37,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "plural_name",
-                    models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+                    models.CharField(
+                        max_length=250, null=True, verbose_name="Plural name"
+                    ),
                 ),
                 (
                     "display_name",

@@ -35,8 +35,12 @@ def update_grading_data(
         ).delete()
     for label, formulas in grading_data.items():
         for formula in formulas:
-            if get_reportable_grades(reference_range_collection, label, reportable_grades):
-                formula_opts = {k: v for k, v in formula.__dict__.items() if k != "gender"}
+            if get_reportable_grades(
+                reference_range_collection, label, reportable_grades
+            ):
+                formula_opts = {
+                    k: v for k, v in formula.__dict__.items() if k != "gender"
+                }
                 age_opts = {k: v for k, v in formula_opts.items() if "age" in k}
                 for gender in formula.__dict__.get("gender"):
                     grading_data_model_cls().objects.create(

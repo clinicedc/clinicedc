@@ -120,7 +120,9 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.stock.code}"
         context = dict(url=url, label=obj.stock.code, title="Go to stock")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     @admin.display(
         description="Allocation",
@@ -131,16 +133,24 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
         url = f"{url}?q={subject_identifier}"
         context = dict(url=url, label=subject_identifier, title="Go to allocation")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
-    @admin.display(description="Transfer #", ordering="stock_transfer__transfer_identifier")
+    @admin.display(
+        description="Transfer #", ordering="stock_transfer__transfer_identifier"
+    )
     def stock_transfer_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransfer_changelist")
         url = f"{url}?q={obj.stock_transfer.id}"
         context = dict(
-            url=url, label=obj.stock_transfer.transfer_identifier, title="Go to stock transfer"
+            url=url,
+            label=obj.stock_transfer.transfer_identifier,
+            title="Go to stock transfer",
         )
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     @admin.display(
         description="Site Confirmation #",
@@ -157,11 +167,15 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 title="Go to stock transfer site confirmation",
             )
         else:
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_confirmationatsiteitem_changelist")
+            url = reverse(
+                "edc_pharmacy_admin:edc_pharmacy_confirmationatsiteitem_changelist"
+            )
             url = f"{url}?q={transfer_confirmation_item.pk}"
             context = dict(
                 url=url,
                 label=transfer_confirmation_item.transfer_confirmation_item_identifier,
                 title="Go to stock transfer confirmation item",
             )
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )

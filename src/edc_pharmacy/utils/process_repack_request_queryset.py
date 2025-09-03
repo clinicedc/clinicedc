@@ -16,7 +16,9 @@ def process_repack_request_queryset(
     if not celery_is_active():
         repack_request_pks = repack_request_pks[:1]
     for pk in repack_request_pks:
-        run_task_sync_or_async(process_repack_request, repack_request_id=pk, username=username)
+        run_task_sync_or_async(
+            process_repack_request, repack_request_id=pk, username=username
+        )
 
     return None
 

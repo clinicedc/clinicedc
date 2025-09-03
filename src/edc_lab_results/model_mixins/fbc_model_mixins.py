@@ -15,7 +15,6 @@ from edc_lab_panel.constants import (
     RBC,
     WBC,
 )
-from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_reportable import GRAMS_PER_DECILITER, PERCENT
 from edc_reportable.units import (
     CELLS_PER_MILLIMETER_CUBED,
@@ -24,6 +23,8 @@ from edc_reportable.units import (
     PICOGRAMS_PER_CELL,
     TEN_X_9_PER_LITER,
 )
+
+from ..model_mixin_factory import reportable_result_model_mixin_factory
 
 
 class HaemoglobinModelMixin(

@@ -99,7 +99,9 @@ class ActionItemAdmin(
     additional_instructions = format_html(
         "{}",
         mark_safe(  # nosec #B703 # B308
-            render_to_string("edc_action_item/action_item_admin_additional_instructions.html")
+            render_to_string(
+                "edc_action_item/action_item_admin_additional_instructions.html"
+            )
         ),
     )
 
@@ -149,5 +151,7 @@ class ActionItemAdmin(
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "action_type":
-            kwargs["queryset"] = db_field.related_model.objects.filter(create_by_user=True)
+            kwargs["queryset"] = db_field.related_model.objects.filter(
+                create_by_user=True
+            )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)

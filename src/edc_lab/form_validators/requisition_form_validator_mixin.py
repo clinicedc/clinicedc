@@ -23,7 +23,9 @@ class RequisitionFormValidatorMixin:
     def clean(self) -> None:
         if self.instance:
             if self.cleaned_data.get("packed") != self.instance.packed:
-                raise forms.ValidationError({"packed": "Value may not be changed here."})
+                raise forms.ValidationError(
+                    {"packed": "Value may not be changed here."}
+                )
             elif self.cleaned_data.get("processed") != self.instance.processed:
                 if self.aliqout_model_cls.objects.filter(
                     requisition_identifier=self.instance.requisition_identifier

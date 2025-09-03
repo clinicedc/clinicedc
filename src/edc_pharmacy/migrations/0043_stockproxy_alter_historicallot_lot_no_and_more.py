@@ -7,7 +7,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("edc_pharmacy", "0042_remove_historicaldispensinghistory_history_user_and_more"),
+        (
+            "edc_pharmacy",
+            "0042_remove_historicaldispensinghistory_history_user_and_more",
+        ),
     ]
 
     operations = [

@@ -9,7 +9,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     dependencies = [
         ("sites", "0002_alter_domain_unique"),
-        ("edc_visit_schedule", "0011_alter_historicalvisitschedule_device_created_and_more"),
+        (
+            "edc_visit_schedule",
+            "0011_alter_historicalvisitschedule_device_created_and_more",
+        ),
     ]
 
     operations = [

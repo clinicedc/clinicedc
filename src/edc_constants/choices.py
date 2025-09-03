@@ -151,7 +151,10 @@ ARV_MODIFICATION_REASON = (
         "Confirmed infant HIV infection, ending study drug",
         _("Confirmed infant HIV infection, ending study drug"),
     ),
-    ("completed protocol", _("Completion of protocol-required period of study treatment")),
+    (
+        "completed protocol",
+        _("Completion of protocol-required period of study treatment"),
+    ),
     ("HAART not available", _("HAART not available")),
     ("Anemia", _("Anemia")),
     ("Bleeding", _("Bleeding")),
@@ -217,7 +220,10 @@ ARV_STATUS_WITH_NEVER = (
         "no_mod",
         _("1. No modifications made since the last attended scheduled visit or today"),
     ),
-    ("start", _("2. Starting today or has started since last attended scheduled visit")),
+    (
+        "start",
+        _("2. Starting today or has started since last attended scheduled visit"),
+    ),
     (
         "discontinued",
         _("3. Permanently discontinued at or before the last attended scheduled visit"),

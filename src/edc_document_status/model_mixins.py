@@ -26,7 +26,9 @@ class DocumentStatusModelMixin(models.Model):
         self.update_document_status_on_save(kwargs.get("update_fields"))
         super().save(*args, **kwargs)
 
-    def update_document_status_on_save(self, update_fields: Optional[list] = None) -> None:
+    def update_document_status_on_save(
+        self, update_fields: Optional[list] = None
+    ) -> None:
         """Updates `document_status` as complete unless field is listed
         in update_fields.
 

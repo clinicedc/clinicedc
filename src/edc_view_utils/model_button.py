@@ -45,7 +45,9 @@ class ModelButton:
     request: WSGIRequestObject | None = None
     fixed_label: str | None = None
     labels: tuple[str, str, str] = field(default=("Add", "Change", "View"))
-    fa_icons: tuple[str, str, str] = field(default=("fas fa-plus", "fas fa-pen", "fas fa-eye"))
+    fa_icons: tuple[str, str, str] = field(
+        default=("fas fa-plus", "fas fa-pen", "fas fa-eye")
+    )
     fixed_color: str | None = None
     colors: tuple[str, str, str] = field(default=("warning", "success", "default"))
     titles: tuple[str, str, str] = field(default=("Add", "Change", "View only"))
@@ -57,7 +59,9 @@ class ModelButton:
         if self.model_obj:
             self.model_cls = self.model_obj._meta.model
         if not self.model_cls:
-            raise ModelButtonError(f"Model class is required if instance=None. See {self}.")
+            raise ModelButtonError(
+                f"Model class is required if instance=None. See {self}."
+            )
 
     @property
     def fa_icon(self) -> str:
@@ -116,7 +120,8 @@ class ModelButton:
         btn_id = f"{self.model_cls._meta.label_lower.split('.')[1]}-{uuid4().hex}"
         if self.model_obj:
             btn_id = (
-                f"{self.model_cls._meta.label_lower.split('.')[1]}-" f"{self.model_obj.id.hex}"
+                f"{self.model_cls._meta.label_lower.split('.')[1]}-"
+                f"{self.model_obj.id.hex}"
             )
         return btn_id
 
@@ -125,7 +130,9 @@ class ModelButton:
         """If model_obj is None, then Site should come from the
         request object (if add).
         """
-        return getattr(self.model_obj, "site", None) or getattr(self.request, "site", None)
+        return getattr(self.model_obj, "site", None) or getattr(
+            self.request, "site", None
+        )
 
     @property
     def url(self) -> str:
@@ -147,7 +154,8 @@ class ModelButton:
     @property
     def reverse_kwargs(self) -> dict[str, str]:
         return dict(
-            subject_identifier=self.subject_identifier or self.model_obj.subject_identifier,
+            subject_identifier=self.subject_identifier
+            or self.model_obj.subject_identifier,
         )
 
     @property

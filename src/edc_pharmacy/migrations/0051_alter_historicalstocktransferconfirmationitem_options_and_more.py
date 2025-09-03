@@ -24,7 +24,14 @@ class Migration(migrations.Migration):
             name="stocktransferconfirmationitem",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Stock Transfer Confirmation Item",
                 "verbose_name_plural": "Stock Transfer Confirmation Items",
             },

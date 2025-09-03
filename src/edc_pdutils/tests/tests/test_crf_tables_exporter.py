@@ -6,12 +6,13 @@ from django.test import TransactionTestCase, override_settings
 
 from edc_appointment import list_data as appointment_list_data
 from edc_list_data import site_list_data
+from edc_pdutils.df_exporters import CsvCrfInlineTablesExporter, CsvCrfTablesExporter
+from edc_pdutils.df_handlers import CrfDfHandler
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from ...df_exporters import CsvCrfInlineTablesExporter, CsvCrfTablesExporter
-from ...df_handlers import CrfDfHandler
-from ..helper import Helper
-from ..visit_schedule import get_visit_schedule
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule_pdutils.visit_schedule import (
+    get_visit_schedule,
+)
 
 app_config = django_apps.get_app_config("edc_pdutils")
 

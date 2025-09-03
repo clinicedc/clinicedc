@@ -44,7 +44,9 @@ def draw_bulk_stock_label_code128(
             fontSize=10,
         )
     )
-    label.add(String(15, height - 66, f"Expires: {obj.lot.expiration_date}", fontSize=10))
+    label.add(
+        String(15, height - 66, f"Expires: {obj.lot.expiration_date}", fontSize=10)
+    )
 
     formulation = obj.product.formulation
     text = (

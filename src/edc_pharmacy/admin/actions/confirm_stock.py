@@ -12,7 +12,9 @@ from ...models import Receive, RepackRequest, Stock
 
 
 @admin.display(description="Confirm repacked and labeled stock")
-def confirm_repacked_stock_action(modeladmin, request, queryset: QuerySet[RepackRequest]):
+def confirm_repacked_stock_action(
+    modeladmin, request, queryset: QuerySet[RepackRequest]
+):
     if queryset.count() > 1 or queryset.count() == 0:
         messages.add_message(
             request,
@@ -25,7 +27,9 @@ def confirm_repacked_stock_action(modeladmin, request, queryset: QuerySet[Repack
 
 
 @admin.display(description="Confirm received and labeled stock")
-def confirm_received_stock_action(modeladmin, request, queryset: QuerySet[RepackRequest]):
+def confirm_received_stock_action(
+    modeladmin, request, queryset: QuerySet[RepackRequest]
+):
     if queryset.count() > 1 or queryset.count() == 0:
         messages.add_message(
             request,

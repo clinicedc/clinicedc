@@ -21,7 +21,14 @@ class Migration(migrations.Migration):
             name="label",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Label",
                 "verbose_name_plural": "Labels",
             },
@@ -36,12 +43,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="label",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AddField(
             model_name="label",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AddField(
             model_name="label",
@@ -145,7 +156,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="label",
             index=models.Index(
-                fields=["user_modified", "user_created"], name="edc_pylabel_user_mo_cf698a_idx"
+                fields=["user_modified", "user_created"],
+                name="edc_pylabel_user_mo_cf698a_idx",
             ),
         ),
     ]

@@ -42,7 +42,9 @@ class RequisitionReport(Report):
         try:
             shipper = Shipper.objects.all()[0]
         except IndexError:
-            messages.error(self.request, "Unable to print report. Please define the shipper.")
+            messages.error(
+                self.request, "Unable to print report. Please define the shipper."
+            )
             shipper = Shipper()
         return shipper
 
@@ -60,7 +62,9 @@ class RequisitionReport(Report):
                 Paragraph("REFERENCE", self.styles["line_label"]),
             ],
             [
-                Paragraph(get_utcnow().strftime("%Y-%m-%d"), self.styles["line_data_largest"]),
+                Paragraph(
+                    get_utcnow().strftime("%Y-%m-%d"), self.styles["line_data_largest"]
+                ),
                 Paragraph(
                     convert_to_human_readable(self.timestamp),
                     self.styles["line_data_largest"],
@@ -82,8 +86,12 @@ class RequisitionReport(Report):
 
         data = [
             [
-                Paragraph("FROM (complete name and address)", self.styles["line_label"]),
-                Paragraph("DELIVER TO (complete name and address)", self.styles["line_label"]),
+                Paragraph(
+                    "FROM (complete name and address)", self.styles["line_label"]
+                ),
+                Paragraph(
+                    "DELIVER TO (complete name and address)", self.styles["line_label"]
+                ),
             ],
             [
                 Paragraph(
@@ -178,7 +186,9 @@ class RequisitionReport(Report):
                 ),
             ],
             [
-                Paragraph("SIGNATURE (sign next to your name.)", self.styles["line_label"]),
+                Paragraph(
+                    "SIGNATURE (sign next to your name.)", self.styles["line_label"]
+                ),
                 "",
                 Paragraph("DATE", self.styles["line_label"]),
             ],

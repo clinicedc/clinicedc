@@ -16,7 +16,10 @@ def get_visit_schedule(
     consent_definition: ConsentDefinition | list[ConsentDefinition],
     extend: bool | None = None,
 ) -> VisitSchedule:
-    crfs = CrfCollection(Crf(show_order=1, model="tests.crfone", required=True))
+    crfs = CrfCollection(
+        Crf(show_order=10, model="tests.crfone", required=True),
+        Crf(show_order=20, model="tests.crfeight", required=True),
+    )
 
     visit = Visit(
         code="1000",
@@ -60,6 +63,34 @@ def get_visit_schedule(
         facility_name="5-day-clinic",
     )
 
+    visit1030 = Visit(
+        code="1030",
+        timepoint=3,
+        rbase=relativedelta(months=3),
+        rlower=relativedelta(days=0),
+        rupper=relativedelta(days=6),
+        requisitions=None,
+        crfs=crfs,
+        requisitions_unscheduled=None,
+        crfs_unscheduled=None,
+        allow_unscheduled=False,
+        facility_name="5-day-clinic",
+    )
+
+    visit1040 = Visit(
+        code="1040",
+        timepoint=4,
+        rbase=relativedelta(months=4),
+        rlower=relativedelta(days=0),
+        rupper=relativedelta(days=6),
+        requisitions=None,
+        crfs=crfs,
+        requisitions_unscheduled=None,
+        crfs_unscheduled=None,
+        allow_unscheduled=False,
+        facility_name="5-day-clinic",
+    )
+
     schedule = Schedule(
         name="schedule1",
         onschedule_model="tests.onscheduleone",
@@ -79,6 +110,8 @@ def get_visit_schedule(
     if extend:
         schedule.add_visit(visit1010)
         schedule.add_visit(visit1020)
+        schedule.add_visit(visit1030)
+        schedule.add_visit(visit1040)
 
     visit_schedule.add_schedule(schedule)
     return visit_schedule

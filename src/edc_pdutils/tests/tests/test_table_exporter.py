@@ -3,12 +3,15 @@ from tempfile import mkdtemp
 
 from django.test import TestCase, override_settings
 
-from edc_facility import import_holidays
+from edc_consent import site_consents
+from edc_facility.import_holidays import import_holidays
+from edc_pdutils.df_exporters import TablesExporter
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from ...df_exporters import TablesExporter
-from ..helper import Helper
-from ..visit_schedule import get_visit_schedule
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule_pdutils.visit_schedule import (
+    get_visit_schedule,
+)
 
 
 @override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp())
@@ -20,10 +23,18 @@ class TestExport(TestCase):
         import_holidays()
 
     def setUp(self):
+        helper = Helper()
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(get_visit_schedule(5))
+        site_visit_schedules.register(get_visit_schedule(consent_v1, 5))
+
         for i in range(0, 5):
-            self.helper.create_crf(i)
+            helper.consent_and_put_on_schedule(
+                visit_schedule_name="visit_schedule", schedule_name="schedule"
+            )
+            self.helper.create_crfs()
 
     def test_tables_to_csv_lower_columns(self):
         tables_exporter = TablesExporter(app_label="edc_pdutils")

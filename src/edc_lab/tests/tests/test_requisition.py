@@ -1,7 +1,7 @@
 import re
 
 from django.conf import settings
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_lab.identifiers import RequisitionIdentifier
 from edc_lab.lab import (
@@ -16,6 +16,7 @@ from edc_sites.single_site import SingleSite
 from edc_sites.utils import add_or_update_django_sites
 
 
+@tag("lab")
 @override_settings(SITE_ID=10)
 class TestRequisition(TestCase):
     def test_requisition_identifier(self):
@@ -27,6 +28,7 @@ class TestRequisition(TestCase):
         self.assertTrue(pattern.match(str(identifier)))
 
 
+@tag("lab")
 class TestRequisitionModel(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -51,8 +53,12 @@ class TestRequisitionModel(TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
-        self.lab_profile = LabProfile(name="profile", requisition_model=self.requisition_model)
+        panel = RequisitionPanel(
+            name="Viral Load", processing_profile=processing_profile
+        )
+        self.lab_profile = LabProfile(
+            name="profile", requisition_model=self.requisition_model
+        )
         self.lab_profile.add_panel(panel)
         site_labs._registry = {}
         site_labs.loaded = False

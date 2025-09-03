@@ -45,6 +45,7 @@ class CrfScheduleModelMixin(models.Model):
         return self.related_visit.schedule
 
     def is_onschedule_or_raise(self) -> None:
+        cdefs = self.schedule.consent_definitions
         subject_schedule = SubjectSchedule(
             self.subject_identifier,
             visit_schedule=self.visit_schedule,

@@ -27,7 +27,9 @@ class RequisitionVerifier:
             self.requisition.is_drawn = self.requisition.is_drawn or YES
             self.requisition.item_count = self.requisition.item_count or 1
             self.requisition.item_type = self.requisition.item_type or TUBE
-            self.requisition.drawn_datetime = self.requisition.drawn_datetime or get_utcnow()
+            self.requisition.drawn_datetime = (
+                self.requisition.drawn_datetime or get_utcnow()
+            )
             self.requisition.save()
             self.verified = self.requisition.clinic_verified
 
@@ -35,7 +37,10 @@ class RequisitionVerifier:
         return f"{self.requisition_identifier} {self.verified}"
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}(" "{self.requisition_identifier}) {self.verified}>"
+        return (
+            f"<{self.__class__.__name__}("
+            "{self.requisition_identifier}) {self.verified}>"
+        )
 
     @property
     def requisition(self):

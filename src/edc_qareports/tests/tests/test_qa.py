@@ -2,29 +2,44 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.db import OperationalError, connection
-from django.test import TestCase, override_settings
-from edc_appointment_app.models import CrfOne, Panel, SubjectRequisition, SubjectVisit
-from edc_appointment_app.tests import AppointmentAppTestCaseMixin
+from django.db import connection, OperationalError
+from django.test import override_settings, TestCase
 
 from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper
 from edc_auth.get_app_codenames import get_app_codenames
+from edc_consent import site_consents
 from edc_constants.constants import YES
+from edc_lab.models import Panel
 from edc_lab_panel.constants import FBC
 from edc_qareports.sql_generator import CrfCase, CrfCaseError, RequisitionCase
 from edc_qareports.sql_generator.crf_subquery import CrfSubqueryError
 from edc_reportable import TEN_X_9_PER_LITER
-
-from ..models import BloodResultsFbc
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import BloodResultsFbc, CrfOne, SubjectRequisition, SubjectVisit
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 
 
 @override_settings(SITE_ID=10)
-@time_machine.travel(dt.datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
-class TestQA(AppointmentAppTestCaseMixin, TestCase):
-    helper_cls = Helper
+@time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+class TestQA(TestCase):
+
+    def setUp(self):
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+
+        visit_schedule = get_visit_schedule(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+
+        helper = Helper()
+        consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule", schedule_name="schedule"
+        )
+        self.subject_identifier = consent.subject_identifier
 
     def create_unscheduled_appointments(self, appointment):
         pass
@@ -37,16 +52,16 @@ class TestQA(AppointmentAppTestCaseMixin, TestCase):
         codenames = get_app_codenames("edc_qareports")
         codenames.sort()
         expected_codenames = [
-            "edc_qareports.add_bloodresultsfbc",
+            "tests.add_bloodresultsfbc",
             "edc_qareports.add_edcpermissions",
             "edc_qareports.add_note",
-            "edc_qareports.change_bloodresultsfbc",
+            "tests.change_bloodresultsfbc",
             "edc_qareports.change_edcpermissions",
             "edc_qareports.change_note",
-            "edc_qareports.delete_bloodresultsfbc",
+            "tests.delete_bloodresultsfbc",
             "edc_qareports.delete_edcpermissions",
             "edc_qareports.delete_note",
-            "edc_qareports.view_bloodresultsfbc",
+            "tests.view_bloodresultsfbc",
             "edc_qareports.view_edcpermissions",
             "edc_qareports.view_note",
             "edc_qareports.view_qareportlog",
@@ -64,8 +79,8 @@ class TestQA(AppointmentAppTestCaseMixin, TestCase):
         # raise for bad fld_name
         crf_case = CrfCase(
             label="F1 is missing",
-            dbtable="edc_appointment_app_crfone",
-            label_lower="edc_appointment_app.crfone",
+            dbtable="tests_crfthree",
+            label_lower="tests.crfthree",
             fld_name="bad_fld_name",
         )
 
@@ -80,8 +95,8 @@ class TestQA(AppointmentAppTestCaseMixin, TestCase):
         # ok
         crf_case = CrfCase(
             label="F1 is missing",
-            dbtable="edc_appointment_app_crfone",
-            label_lower="edc_appointment_app.crfone",
+            dbtable="tests_crfthree",
+            label_lower="tests.crfthree",
             fld_name="f1",
         )
         try:
@@ -95,8 +110,8 @@ class TestQA(AppointmentAppTestCaseMixin, TestCase):
         # raise for bad fld_name
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
-            dbtable="edc_appointment_app_crfone",
-            label_lower="edc_appointment_app.crfone",
+            dbtable="tests_crfthree",
+            label_lower="tests.crfthree",
             where="bad_fld_name is null and f2='Yes'",
         )
 
@@ -111,8 +126,8 @@ class TestQA(AppointmentAppTestCaseMixin, TestCase):
         # ok
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
-            dbtable="edc_appointment_app_crfone",
-            label_lower="edc_appointment_app.crfone",
+            dbtable="tests_crfthree",
+            label_lower="tests.crfthree",
             where="f1 is null and f2='Yes'",
         )
         try:
@@ -124,8 +139,8 @@ class TestQA(AppointmentAppTestCaseMixin, TestCase):
     def test_subquery_crfcase(self):
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
-            dbtable="edc_appointment_app_crfone",
-            label_lower="edc_appointment_app.crfone",
+            dbtable="tests_crfthree",
+            label_lower="tests.crfthree",
             where="f1 is null and f2='Yes'",
         )
         try:
@@ -139,8 +154,8 @@ class TestQA(AppointmentAppTestCaseMixin, TestCase):
         CrfOne.objects.create(subject_visit=subject_visit, f1=None, f2=YES)
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
-            dbtable="edc_appointment_app_crfone",
-            label_lower="edc_appointment_app.crfone",
+            dbtable="tests_crfthree",
+            label_lower="tests.crfthree",
             where="f1 is null and f2='Yes'",
         )
         try:
@@ -161,12 +176,12 @@ class TestQA(AppointmentAppTestCaseMixin, TestCase):
         # subject_requisition. Normally the defaults are correct.
         requisition_case = RequisitionCase(
             label="FBC Requisition, no results",
-            dbtable="edc_qareports_bloodresultsfbc",
-            label_lower="edc_qareports.bloodresultsfbc",
+            dbtable="tests_crfthree",
+            label_lower="tests.crfthree",
             panel=FBC,
-            subjectvisit_dbtable="edc_appointment_app_subjectvisit",
-            subjectrequisition_dbtable="edc_appointment_app_subjectrequisition",
-            panel_dbtable="edc_appointment_app_panel",
+            subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
+            subjectrequisition_dbtable="tests_subjectrequisition",
+            panel_dbtable="edc_lab_panel",
         )
         try:
             rows = requisition_case.fetchall()

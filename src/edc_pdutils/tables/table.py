@@ -9,7 +9,13 @@ class Table:
     table_to_dataframe_cls = TableToDataframe
 
     def __init__(
-        self, table_name=None, columns=None, filename=None, local_tz=None, limit=None, **kwargs
+        self,
+        table_name=None,
+        columns=None,
+        filename=None,
+        local_tz=None,
+        limit=None,
+        **kwargs,
     ):
         self.dataframe = None
         self.helper = self.helper_cls(local_tz=local_tz)

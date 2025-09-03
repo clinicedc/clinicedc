@@ -16,7 +16,8 @@ def print_transfer_stock_manifest_action(modeladmin, request, queryset):
         )
     else:
         url = reverse(
-            "edc_pharmacy:generate_manifest", kwargs={"stock_transfer": queryset.first().pk}
+            "edc_pharmacy:generate_manifest",
+            kwargs={"stock_transfer": queryset.first().pk},
         )
         return HttpResponseRedirect(url)
     return None

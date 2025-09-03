@@ -1,9 +1,10 @@
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 
 from edc_visit_schedule.visit import Crf, FormsCollection, FormsCollectionError
 
 
+@tag("visit_schedule")
 class TestFormsCollection(TestCase):
     def test_forms_collection_empty(self):
         crfs = []

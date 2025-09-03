@@ -3,7 +3,7 @@ import os
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 from multisite import SiteID
 
 from edc_facility.import_holidays import import_holidays
@@ -13,6 +13,7 @@ from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 
 
+@tag("facility")
 class TestSystemChecks(SiteTestCaseMixin, TestCase):
     def setUp(self):
         sites.initialize()
@@ -35,7 +36,9 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
         self.assertIn("edc_facility.E001", [error.id for error in errors])
 
     @override_settings(
-        HOLIDAY_FILE=os.path.join(settings.BASE_DIR, "edc_facility", "tests", "blah.csv"),
+        HOLIDAY_FILE=os.path.join(
+            settings.BASE_DIR, "edc_facility", "tests", "blah.csv"
+        ),
         SITE_ID=SiteID(default=10),
     )
     def test_bad_path(self):
@@ -44,7 +47,9 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
         self.assertIn("edc_facility.W001", [error.id for error in errors])
 
     @override_settings(
-        HOLIDAY_FILE=os.path.join(settings.BASE_DIR, "edc_facility", "tests", "holidays.csv"),
+        HOLIDAY_FILE=os.path.join(
+            settings.BASE_DIR, "edc_facility", "tests", "holidays.csv"
+        ),
         SITE_ID=SiteID(default=60),
     )
     def test_unknown_country(self):

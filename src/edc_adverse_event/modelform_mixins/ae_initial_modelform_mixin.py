@@ -58,7 +58,10 @@ class AeInitialModelFormMixin(AeModelFormMixin):
             )
 
     class Meta:
-        help_texts = {"subject_identifier": "(read-only)", "action_identifier": "(read-only)"}
+        help_texts = {
+            "subject_identifier": "(read-only)",
+            "action_identifier": "(read-only)",
+        }
         widgets = {
             "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
             "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),

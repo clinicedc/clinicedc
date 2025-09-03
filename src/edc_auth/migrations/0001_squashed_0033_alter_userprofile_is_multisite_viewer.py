@@ -77,13 +77,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -172,7 +174,10 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("version", models.CharField(default="1.0", editable=False, max_length=35)),
+                (
+                    "version",
+                    models.CharField(default="1.0", editable=False, max_length=35),
+                ),
                 ("groups", models.ManyToManyField(to="auth.group")),
             ],
             options={
@@ -186,7 +191,10 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.AutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
                 (
@@ -241,7 +249,9 @@ class Migration(migrations.Migration):
                         help_text="e.g. +1234567890",
                         max_length=25,
                         null=True,
-                        validators=[django.core.validators.RegexValidator(regex="^\\+\\d+")],
+                        validators=[
+                            django.core.validators.RegexValidator(regex="^\\+\\d+")
+                        ],
                     ),
                 ),
                 (
@@ -364,7 +374,14 @@ class Migration(migrations.Migration):
             name="role",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "get_latest_by": "modified",
                 "ordering": ["display_index", "display_name"],
             },
@@ -386,13 +403,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -434,7 +453,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -462,12 +483,16 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="role",
             name="device_created",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device created"
+            ),
         ),
         migrations.AlterField(
             model_name="role",
             name="device_modified",
-            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
+            field=models.CharField(
+                blank=True, max_length=10, verbose_name="Device modified"
+            ),
         ),
         migrations.AlterField(
             model_name="role",
@@ -494,7 +519,14 @@ class Migration(migrations.Migration):
             name="role",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.RemoveIndex(
@@ -548,21 +580,32 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="role",
             index=models.Index(
-                fields=["display_name", "display_index"], name="edc_auth_ro_display_0b19e6_idx"
+                fields=["display_name", "display_index"],
+                name="edc_auth_ro_display_0b19e6_idx",
             ),
         ),
         migrations.AlterModelOptions(
             name="edcpermissions",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Edc Permissions",
                 "verbose_name_plural": "Edc Permissions",
             },
         ),
         migrations.AlterModelOptions(
             name="userprofile",
-            options={"verbose_name": "User profile", "verbose_name_plural": "User profiles"},
+            options={
+                "verbose_name": "User profile",
+                "verbose_name_plural": "User profiles",
+            },
         ),
         migrations.AddIndex(
             model_name="edcpermissions",
@@ -573,7 +616,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="edcpermissions",
             index=models.Index(
-                fields=["user_modified", "user_created"], name="edc_auth_ed_user_mo_817789_idx"
+                fields=["user_modified", "user_created"],
+                name="edc_auth_ed_user_mo_817789_idx",
             ),
         ),
         migrations.AddIndex(
@@ -585,7 +629,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="role",
             index=models.Index(
-                fields=["user_modified", "user_created"], name="edc_auth_ro_user_mo_dc165e_idx"
+                fields=["user_modified", "user_created"],
+                name="edc_auth_ro_user_mo_dc165e_idx",
             ),
         ),
         migrations.AddField(

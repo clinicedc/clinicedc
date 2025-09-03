@@ -1,7 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
-from django.test import TestCase
-from edc_visit_schedule_app.consents import consent_v1
+from django.test import TestCase, tag
 
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -12,22 +11,24 @@ from edc_visit_schedule.system_checks import (
 from edc_visit_schedule.visit import CrfCollection, FormsCollectionError, Visit
 from edc_visit_schedule.visit.crf import Crf
 from edc_visit_schedule.visit_schedule import VisitSchedule
+from tests.consents import consent_v1
 
 
+@tag("visit_schedule")
 class TestSystemChecks(TestCase):
     def setUp(self):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_visit_schedule_app.subjectoffstudy",
-            death_report_model="edc_visit_schedule_app.deathreport",
+            offstudy_model="edc_offstudy.subjectoffstudy",
+            death_report_model="tests.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
 
         self.schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule_app.onschedule",
-            offschedule_model="edc_visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[consent_v1],
             base_timepoint=1,
@@ -54,13 +55,13 @@ class TestSystemChecks(TestCase):
             name="visit_schedule",
             verbose_name="Visit Schedule",
             offstudy_model="blah.subjectoffstudy",
-            death_report_model="edc_visit_schedule_app.deathreport",
+            death_report_model="tests.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule_app.onschedule",
-            offschedule_model="edc_visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[consent_v1],
             base_timepoint=1,
@@ -76,14 +77,14 @@ class TestSystemChecks(TestCase):
         visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_visit_schedule_app.subjectoffstudy",
-            death_report_model="edc_visit_schedule_app.deathreport",
+            offstudy_model="edc_offstudy.subjectoffstudy",
+            death_report_model="tests.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_visit_schedule_app.onschedule",
-            offschedule_model="edc_visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             appointment_model="blah.appointment",
             consent_definitions=[consent_v1],
             base_timepoint=1,
@@ -99,14 +100,14 @@ class TestSystemChecks(TestCase):
         visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="edc_visit_schedule_app.subjectoffstudy",
-            death_report_model="edc_visit_schedule_app.deathreport",
+            offstudy_model="edc_offstudy.subjectoffstudy",
+            death_report_model="tests.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
         schedule = Schedule(
             name="schedule",
-            onschedule_model="visit_schedule_app.onschedule",
-            offschedule_model="visit_schedule_app.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[consent_v1],
             base_timepoint=1,
@@ -137,20 +138,20 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne"),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
-            Crf(show_order=30, model="visit_schedule_app.CrfThree"),
+            Crf(show_order=10, model="tests.CrfOne"),
+            Crf(show_order=20, model="tests.CrfTwo"),
+            Crf(show_order=30, model="tests.CrfThree"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.PrnOne"),
-            Crf(show_order=25, model="visit_schedule_app.PrnTwo"),
-            Crf(show_order=35, model="visit_schedule_app.PrnThree"),
+            Crf(show_order=15, model="tests.PrnOne"),
+            Crf(show_order=25, model="tests.PrnTwo"),
+            Crf(show_order=35, model="tests.PrnThree"),
         )
         unscheduled_crfs = CrfCollection(
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
-            Crf(show_order=30, model="visit_schedule_app.CrfThree"),
+            Crf(show_order=20, model="tests.CrfTwo"),
+            Crf(show_order=30, model="tests.CrfThree"),
         )
-        missed_crfs = CrfCollection(Crf(show_order=30, model="visit_schedule_app.CrfThree"))
+        missed_crfs = CrfCollection(Crf(show_order=30, model="tests.CrfThree"))
 
         visit = Visit(
             code="1000",
@@ -179,12 +180,12 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne", required=False),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
-            Crf(show_order=30, model="visit_schedule_app.CrfThree"),
+            Crf(show_order=10, model="tests.CrfOne", required=False),
+            Crf(show_order=20, model="tests.CrfTwo"),
+            Crf(show_order=30, model="tests.CrfThree"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOne"),
+            Crf(show_order=15, model="tests.CrfOne"),
         )
         visit = Visit(
             code="1000",
@@ -213,10 +214,10 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=20, model="visit_schedule_app.CrfTwoProxyOne", required=False),
+            Crf(show_order=20, model="tests.CrfTwoProxyOne", required=False),
         )
         prns = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfTwoProxyOne"),
+            Crf(show_order=10, model="tests.CrfTwoProxyOne"),
         )
         visit = Visit(
             code="1000",
@@ -238,18 +239,18 @@ class TestSystemChecks(TestCase):
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertListEqual(fc_errors, [])
 
-    def test_proxy_crf_not_required_without_shared_proxy_root_and_differing_proxy_prn_raises(
+    def test_proxy_crf_not_req_without_shared_proxy_root_and_differing_proxy_prn_raises(
         self,
     ):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=20, model="visit_schedule_app.CrfTwoProxyOne", required=False),
+            Crf(show_order=20, model="tests.CrfTwoProxyOne", required=False),
         )
         prns = CrfCollection(
-            Crf(show_order=25, model="visit_schedule_app.CrfTwoProxyOne"),
-            Crf(show_order=15, model="visit_schedule_app.CrfTwoProxyTwo"),
+            Crf(show_order=25, model="tests.CrfTwoProxyOne"),
+            Crf(show_order=15, model="tests.CrfTwoProxyTwo"),
         )
         visit = Visit(
             code="1000",
@@ -279,10 +280,10 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crftwo": [
-                        "visit_schedule_app.crftwoproxyone",
-                        "visit_schedule_app.crftwoproxyone",
-                        "visit_schedule_app.crftwoproxytwo",
+                    "tests.crftwo": [
+                        "tests.crftwoproxyone",
+                        "tests.crftwoproxyone",
+                        "tests.crftwoproxytwo",
                     ]
                 }
             ),
@@ -295,9 +296,9 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crftwo": [
-                        "visit_schedule_app.crftwoproxyone",
-                        "visit_schedule_app.crftwoproxytwo",
+                    "tests.crftwo": [
+                        "tests.crftwoproxyone",
+                        "tests.crftwoproxytwo",
                     ]
                 }
             ),
@@ -308,23 +309,25 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crftwo": [
-                        "visit_schedule_app.crftwoproxyone",
-                        "visit_schedule_app.crftwoproxytwo",
+                    "tests.crftwo": [
+                        "tests.crftwoproxyone",
+                        "tests.crftwoproxytwo",
                     ]
                 }
             ),
             fc_errors[2].msg,
         )
 
-    def test_proxy_crf_not_required_with_shared_proxy_root_and_matching_proxy_prn_ok(self):
+    def test_proxy_crf_not_required_with_shared_proxy_root_and_matching_proxy_prn_ok(
+        self,
+    ):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
             Crf(
                 show_order=20,
-                model="visit_schedule_app.CrfTwoProxyOne",
+                model="tests.CrfTwoProxyOne",
                 required=False,
                 shares_proxy_root=True,
             ),
@@ -332,7 +335,7 @@ class TestSystemChecks(TestCase):
         prns = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfTwoProxyOne",
+                model="tests.CrfTwoProxyOne",
                 shares_proxy_root=True,
             ),
         )
@@ -361,48 +364,48 @@ class TestSystemChecks(TestCase):
         # CRFs
         with self.assertRaises(FormsCollectionError) as cm:
             CrfCollection(
-                Crf(show_order=10, model="visit_schedule_app.CrfOne"),
-                Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
-                Crf(show_order=30, model="visit_schedule_app.CrfTwo"),
+                Crf(show_order=10, model="tests.CrfOne"),
+                Crf(show_order=20, model="tests.CrfTwo"),
+                Crf(show_order=30, model="tests.CrfTwo"),
             )
         self.assertIn(
             "Expected to be a unique sequence of crf/models.",
             str(cm.exception),
         )
         self.assertIn(
-            "Duplicates ['visit_schedule_app.crftwo'].",
+            "Duplicates ['tests.crftwo'].",
             str(cm.exception),
         )
 
         # Proxy models
         with self.assertRaises(FormsCollectionError) as cm:
             CrfCollection(
-                Crf(show_order=10, model="visit_schedule_app.CrfOne"),
-                Crf(show_order=20, model="visit_schedule_app.CrfTwoProxyOne"),
-                Crf(show_order=30, model="visit_schedule_app.CrfTwoProxyOne"),
+                Crf(show_order=10, model="tests.CrfOne"),
+                Crf(show_order=20, model="tests.CrfTwoProxyOne"),
+                Crf(show_order=30, model="tests.CrfTwoProxyOne"),
             )
         self.assertIn(
             "Expected to be a unique sequence of crf/models.",
             str(cm.exception),
         )
         self.assertIn(
-            "Duplicates ['visit_schedule_app.crftwoproxyone'].",
+            "Duplicates ['tests.crftwoproxyone'].",
             str(cm.exception),
         )
 
         # PRNs
         with self.assertRaises(FormsCollectionError) as cm:
             CrfCollection(
-                Crf(show_order=15, model="visit_schedule_app.PrnOne"),
-                Crf(show_order=25, model="visit_schedule_app.PrnTwo"),
-                Crf(show_order=35, model="visit_schedule_app.PrnTwo"),
+                Crf(show_order=15, model="tests.PrnOne"),
+                Crf(show_order=25, model="tests.PrnTwo"),
+                Crf(show_order=35, model="tests.PrnTwo"),
             )
         self.assertIn(
             "Expected to be a unique sequence of crf/models.",
             str(cm.exception),
         )
         self.assertIn(
-            "Duplicates ['visit_schedule_app.prntwo'].",
+            "Duplicates ['tests.prntwo'].",
             str(cm.exception),
         )
 
@@ -411,14 +414,14 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne", required=True),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
-            Crf(show_order=30, model="visit_schedule_app.CrfThree"),
+            Crf(show_order=10, model="tests.CrfOne", required=True),
+            Crf(show_order=20, model="tests.CrfTwo"),
+            Crf(show_order=30, model="tests.CrfThree"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOne"),
-            Crf(show_order=25, model="visit_schedule_app.PrnOne"),
-            Crf(show_order=35, model="visit_schedule_app.PrnTwo"),
+            Crf(show_order=15, model="tests.CrfOne"),
+            Crf(show_order=25, model="tests.PrnOne"),
+            Crf(show_order=35, model="tests.PrnTwo"),
         )
 
         visit = Visit(
@@ -448,19 +451,19 @@ class TestSystemChecks(TestCase):
         crfs = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 required=True,
                 shares_proxy_root=True,
             ),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
+            Crf(show_order=20, model="tests.CrfTwo"),
         )
         prns = CrfCollection(
             Crf(
                 show_order=15,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             ),
-            Crf(show_order=25, model="visit_schedule_app.PrnOne"),
+            Crf(show_order=25, model="tests.PrnOne"),
         )
 
         visit = Visit(
@@ -491,10 +494,10 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne", required=True),
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne", required=True),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
-            Crf(show_order=30, model="visit_schedule_app.CrfThree"),
+            Crf(show_order=10, model="tests.CrfOne", required=True),
+            Crf(show_order=15, model="tests.CrfOneProxyOne", required=True),
+            Crf(show_order=20, model="tests.CrfTwo"),
+            Crf(show_order=30, model="tests.CrfThree"),
         )
 
         visit = Visit(
@@ -517,21 +520,22 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside associated child proxy for a visit.",
+            "Proxy root model class appears alongside "
+            "associated child proxy for a visit.",
             fc_errors[0].msg,
         )
-        self.assertIn("proxy_root_model=visit_schedule_app.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=visit_schedule_app.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_required_proxy_root_crf_with_not_required_child_proxy_crf_raises(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne", required=True),
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne", required=False),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
-            Crf(show_order=30, model="visit_schedule_app.CrfThree"),
+            Crf(show_order=10, model="tests.CrfOne", required=True),
+            Crf(show_order=15, model="tests.CrfOneProxyOne", required=False),
+            Crf(show_order=20, model="tests.CrfTwo"),
+            Crf(show_order=30, model="tests.CrfThree"),
         )
 
         visit = Visit(
@@ -554,23 +558,24 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside associated child proxy for a visit.",
+            "Proxy root model class appears alongside "
+            "associated child proxy for a visit.",
             fc_errors[0].msg,
         )
-        self.assertIn("proxy_root_model=visit_schedule_app.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=visit_schedule_app.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_required_proxy_root_crf_with_child_proxy_prn_raises(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne", required=True),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
+            Crf(show_order=10, model="tests.CrfOne", required=True),
+            Crf(show_order=20, model="tests.CrfTwo"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"),
-            Crf(show_order=25, model="visit_schedule_app.PrnOne"),
+            Crf(show_order=15, model="tests.CrfOneProxyOne"),
+            Crf(show_order=25, model="tests.PrnOne"),
         )
 
         visit = Visit(
@@ -594,23 +599,24 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside associated child proxy for a visit.",
+            "Proxy root model class appears alongside "
+            "associated child proxy for a visit.",
             fc_errors[0].msg,
         )
-        self.assertIn("proxy_root_model=visit_schedule_app.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=visit_schedule_app.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_required_proxy_child_crf_with_proxy_root_prn_raises(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne", required=True),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
+            Crf(show_order=10, model="tests.CrfOneProxyOne", required=True),
+            Crf(show_order=20, model="tests.CrfTwo"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOne"),
-            Crf(show_order=25, model="visit_schedule_app.PrnOne"),
+            Crf(show_order=15, model="tests.CrfOne"),
+            Crf(show_order=25, model="tests.PrnOne"),
         )
 
         visit = Visit(
@@ -634,11 +640,12 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside associated child proxy for a visit.",
+            "Proxy root model class appears alongside "
+            "associated child proxy for a visit.",
             fc_errors[0].msg,
         )
-        self.assertIn("proxy_root_model=visit_schedule_app.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=visit_schedule_app.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_not_required_crf_also_in_prns_ok(self):
         """e.g. CRF not required (toggled by metadata rule) but
@@ -648,12 +655,12 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne", required=False),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
+            Crf(show_order=10, model="tests.CrfOne", required=False),
+            Crf(show_order=20, model="tests.CrfTwo"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOne"),
-            Crf(show_order=25, model="visit_schedule_app.PrnOne"),
+            Crf(show_order=15, model="tests.CrfOne"),
+            Crf(show_order=25, model="tests.PrnOne"),
         )
 
         visit = Visit(
@@ -686,19 +693,19 @@ class TestSystemChecks(TestCase):
         crfs = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 required=False,
                 shares_proxy_root=True,
             ),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
+            Crf(show_order=20, model="tests.CrfTwo"),
         )
         prns = CrfCollection(
             Crf(
                 show_order=15,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             ),
-            Crf(show_order=25, model="visit_schedule_app.PrnOne"),
+            Crf(show_order=25, model="tests.PrnOne"),
         )
 
         visit = Visit(
@@ -728,17 +735,17 @@ class TestSystemChecks(TestCase):
         crfs = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             ),
             Crf(
                 show_order=20,
-                model="visit_schedule_app.CrfOneProxyTwo",
+                model="tests.CrfOneProxyTwo",
                 shares_proxy_root=True,
             ),
             Crf(
                 show_order=30,
-                model="visit_schedule_app.CrfOneProxyThree",
+                model="tests.CrfOneProxyThree",
                 shares_proxy_root=True,
             ),
         )
@@ -768,13 +775,13 @@ class TestSystemChecks(TestCase):
         crfs = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 required=False,
                 shares_proxy_root=True,
             ),
             Crf(
                 show_order=20,
-                model="visit_schedule_app.CrfOneProxyTwo",
+                model="tests.CrfOneProxyTwo",
                 required=False,
                 shares_proxy_root=True,
             ),
@@ -782,10 +789,10 @@ class TestSystemChecks(TestCase):
         prns = CrfCollection(
             Crf(
                 show_order=35,
-                model="visit_schedule_app.CrfOneProxyThree",
+                model="tests.CrfOneProxyThree",
                 shares_proxy_root=True,
             ),
-            Crf(show_order=25, model="visit_schedule_app.PrnOne"),
+            Crf(show_order=25, model="tests.PrnOne"),
         )
 
         visit = Visit(
@@ -815,12 +822,12 @@ class TestSystemChecks(TestCase):
         crfs = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             ),
         )
         prns = CrfCollection(
-            Crf(show_order=35, model="visit_schedule_app.CrfOneProxyThree"),
+            Crf(show_order=35, model="tests.CrfOneProxyThree"),
         )
 
         visit = Visit(
@@ -850,9 +857,9 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -866,18 +873,18 @@ class TestSystemChecks(TestCase):
         crfs = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             ),
             Crf(
                 show_order=20,
-                model="visit_schedule_app.CrfOneProxyTwo",
+                model="tests.CrfOneProxyTwo",
             ),
         )
         prns = CrfCollection(
             Crf(
                 show_order=35,
-                model="visit_schedule_app.CrfOneProxyThree",
+                model="tests.CrfOneProxyThree",
                 shares_proxy_root=True,
             ),
         )
@@ -909,10 +916,10 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
-                        "visit_schedule_app.crfoneproxytwo",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
+                        "tests.crfoneproxytwo",
                     ]
                 }
             ),
@@ -924,13 +931,13 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"),
-            Crf(show_order=20, model="visit_schedule_app.CrfOneProxyTwo"),
+            Crf(show_order=10, model="tests.CrfOneProxyOne"),
+            Crf(show_order=20, model="tests.CrfOneProxyTwo"),
         )
         prns = CrfCollection(
             Crf(
                 show_order=35,
-                model="visit_schedule_app.CrfOneProxyThree",
+                model="tests.CrfOneProxyThree",
                 shares_proxy_root=True,
             ),
         )
@@ -962,10 +969,10 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
-                        "visit_schedule_app.crfoneproxytwo",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
+                        "tests.crfoneproxytwo",
                     ]
                 }
             ),
@@ -977,13 +984,13 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"),
-            Crf(show_order=12, model="visit_schedule_app.CrfOneProxyTwo"),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwoProxyOne"),
+            Crf(show_order=10, model="tests.CrfOneProxyOne"),
+            Crf(show_order=12, model="tests.CrfOneProxyTwo"),
+            Crf(show_order=20, model="tests.CrfTwoProxyOne"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"),
-            Crf(show_order=25, model="visit_schedule_app.CrfTwoProxyTwo"),
+            Crf(show_order=15, model="tests.CrfOneProxyOne"),
+            Crf(show_order=25, model="tests.CrfTwoProxyTwo"),
         )
 
         visit = Visit(
@@ -1009,14 +1016,14 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxytwo",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxytwo",
                     ],
-                    "visit_schedule_app.crftwo": [
-                        "visit_schedule_app.crftwoproxyone",
-                        "visit_schedule_app.crftwoproxytwo",
+                    "tests.crftwo": [
+                        "tests.crftwoproxyone",
+                        "tests.crftwoproxytwo",
                     ],
                 }
             ),
@@ -1028,13 +1035,13 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"),
-            Crf(show_order=12, model="visit_schedule_app.CrfOneProxyTwo"),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwoProxyOne"),
+            Crf(show_order=10, model="tests.CrfOneProxyOne"),
+            Crf(show_order=12, model="tests.CrfOneProxyTwo"),
+            Crf(show_order=20, model="tests.CrfTwoProxyOne"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"),
-            Crf(show_order=25, model="visit_schedule_app.CrfTwoProxyOne"),
+            Crf(show_order=15, model="tests.CrfOneProxyOne"),
+            Crf(show_order=25, model="tests.CrfTwoProxyOne"),
         )
 
         visit = Visit(
@@ -1060,10 +1067,10 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxytwo",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxytwo",
                     ]
                 }
             ),
@@ -1075,10 +1082,10 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"),
-            Crf(show_order=25, model="visit_schedule_app.CrfOneProxyTwo"),
+            Crf(show_order=10, model="tests.CrfOneProxyOne"),
+            Crf(show_order=25, model="tests.CrfOneProxyTwo"),
         )
-        prns = CrfCollection(Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"))
+        prns = CrfCollection(Crf(show_order=15, model="tests.CrfOneProxyOne"))
 
         visit = Visit(
             code="1000",
@@ -1103,10 +1110,10 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxytwo",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxytwo",
                     ]
                 }
             ),
@@ -1118,12 +1125,12 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne"),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwoProxyOne"),
+            Crf(show_order=10, model="tests.CrfOne"),
+            Crf(show_order=20, model="tests.CrfTwoProxyOne"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"),
-            Crf(show_order=25, model="visit_schedule_app.CrfTwo"),
+            Crf(show_order=15, model="tests.CrfOneProxyOne"),
+            Crf(show_order=25, model="tests.CrfTwo"),
         )
 
         visit = Visit(
@@ -1146,22 +1153,22 @@ class TestSystemChecks(TestCase):
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
-        self.assertIn("visit_schedule_app.crfone", fc_errors[0].msg)
-        self.assertIn("visit_schedule_app.crftwo", fc_errors[0].msg)
-        self.assertIn("visit_schedule_app.crfoneproxyone", fc_errors[0].msg)
-        self.assertIn("visit_schedule_app.crftwoproxyone", fc_errors[0].msg)
+        self.assertIn("tests.crfone", fc_errors[0].msg)
+        self.assertIn("tests.crftwo", fc_errors[0].msg)
+        self.assertIn("tests.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("tests.crftwoproxyone", fc_errors[0].msg)
 
     def test_two_shared_proxy_root_pairs_raises(self):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwoProxyOne"),
+            Crf(show_order=10, model="tests.CrfOneProxyOne"),
+            Crf(show_order=20, model="tests.CrfTwoProxyOne"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyTwo"),
-            Crf(show_order=25, model="visit_schedule_app.CrfTwoProxyTwo"),
+            Crf(show_order=15, model="tests.CrfOneProxyTwo"),
+            Crf(show_order=25, model="tests.CrfTwoProxyTwo"),
         )
 
         visit = Visit(
@@ -1187,13 +1194,13 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxytwo",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxytwo",
                     ],
-                    "visit_schedule_app.crftwo": [
-                        "visit_schedule_app.crftwoproxyone",
-                        "visit_schedule_app.crftwoproxytwo",
+                    "tests.crftwo": [
+                        "tests.crftwoproxyone",
+                        "tests.crftwoproxytwo",
                     ],
                 }
             ),
@@ -1205,14 +1212,14 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs_unscheduled = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne", required=True),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
-            Crf(show_order=30, model="visit_schedule_app.CrfThree"),
+            Crf(show_order=10, model="tests.CrfOne", required=True),
+            Crf(show_order=20, model="tests.CrfTwo"),
+            Crf(show_order=30, model="tests.CrfThree"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOne"),
-            Crf(show_order=25, model="visit_schedule_app.PrnOne"),
-            Crf(show_order=35, model="visit_schedule_app.PrnTwo"),
+            Crf(show_order=15, model="tests.CrfOne"),
+            Crf(show_order=25, model="tests.PrnOne"),
+            Crf(show_order=35, model="tests.PrnTwo"),
         )
 
         visit = Visit(
@@ -1235,17 +1242,19 @@ class TestSystemChecks(TestCase):
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertListEqual(fc_errors, [])
 
-    def test_unscheduled_visit_required_proxy_root_crf_with_child_proxy_prn_raises(self):
+    def test_unscheduled_visit_required_proxy_root_crf_with_child_proxy_prn_raises(
+        self,
+    ):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs_unscheduled = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne", required=True),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
+            Crf(show_order=10, model="tests.CrfOne", required=True),
+            Crf(show_order=20, model="tests.CrfTwo"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"),
-            Crf(show_order=25, model="visit_schedule_app.PrnOne"),
+            Crf(show_order=15, model="tests.CrfOneProxyOne"),
+            Crf(show_order=25, model="tests.PrnOne"),
         )
 
         visit = Visit(
@@ -1269,11 +1278,12 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside associated child proxy for a visit.",
+            "Proxy root model class appears alongside "
+            "associated child proxy for a visit.",
             fc_errors[0].msg,
         )
-        self.assertIn("proxy_root_model=visit_schedule_app.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=visit_schedule_app.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_unscheduled_visit_crf_proxy_shares_root_true_with_proxy_not_defined_raises(
         self,
@@ -1284,12 +1294,12 @@ class TestSystemChecks(TestCase):
         crfs_unscheduled = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             ),
         )
         prns = CrfCollection(
-            Crf(show_order=35, model="visit_schedule_app.CrfOneProxyThree"),
+            Crf(show_order=35, model="tests.CrfOneProxyThree"),
         )
 
         visit = Visit(
@@ -1315,9 +1325,9 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -1329,14 +1339,14 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs_missed = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne", required=True),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
-            Crf(show_order=30, model="visit_schedule_app.CrfThree"),
+            Crf(show_order=10, model="tests.CrfOne", required=True),
+            Crf(show_order=20, model="tests.CrfTwo"),
+            Crf(show_order=30, model="tests.CrfThree"),
         )
         prns = CrfCollection(
-            Crf(show_order=15, model="visit_schedule_app.CrfOne"),
-            Crf(show_order=25, model="visit_schedule_app.PrnOne"),
-            Crf(show_order=35, model="visit_schedule_app.PrnTwo"),
+            Crf(show_order=15, model="tests.CrfOne"),
+            Crf(show_order=25, model="tests.PrnOne"),
+            Crf(show_order=35, model="tests.PrnTwo"),
         )
 
         visit = Visit(
@@ -1366,10 +1376,10 @@ class TestSystemChecks(TestCase):
         visit_schedule = self.visit_schedule
         schedule = self.schedule
         crfs_missed = CrfCollection(
-            Crf(show_order=10, model="visit_schedule_app.CrfOne", required=True),
-            Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne", required=True),
-            Crf(show_order=20, model="visit_schedule_app.CrfTwo"),
-            Crf(show_order=30, model="visit_schedule_app.CrfThree"),
+            Crf(show_order=10, model="tests.CrfOne", required=True),
+            Crf(show_order=15, model="tests.CrfOneProxyOne", required=True),
+            Crf(show_order=20, model="tests.CrfTwo"),
+            Crf(show_order=30, model="tests.CrfThree"),
         )
 
         visit = Visit(
@@ -1391,8 +1401,8 @@ class TestSystemChecks(TestCase):
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
-        self.assertIn("proxy_root_model=visit_schedule_app.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=visit_schedule_app.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_missed_visit_crf_proxy_shares_root_true_with_proxy_not_defined_raises(
         self,
@@ -1403,11 +1413,11 @@ class TestSystemChecks(TestCase):
         crfs_missed = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             )
         )
-        prns = CrfCollection(Crf(show_order=35, model="visit_schedule_app.CrfOneProxyThree"))
+        prns = CrfCollection(Crf(show_order=35, model="tests.CrfOneProxyThree"))
 
         visit = Visit(
             code="1000",
@@ -1432,9 +1442,9 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -1445,8 +1455,8 @@ class TestSystemChecks(TestCase):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
-        crfs = CrfCollection(Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"))
-        prns = CrfCollection(Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"))
+        crfs = CrfCollection(Crf(show_order=10, model="tests.CrfOneProxyOne"))
+        prns = CrfCollection(Crf(show_order=15, model="tests.CrfOneProxyOne"))
 
         visit = Visit(
             code="1000",
@@ -1468,7 +1478,7 @@ class TestSystemChecks(TestCase):
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertListEqual(fc_errors, [])
 
-    def test_proxy_shares_root_true_crf_with_identical_proxy_not_sharing_root_in_prns_ok(
+    def test_prxy_shares_root_true_crf_with_identical_prxy_not_sharing_root_in_prns_ok(
         self,
     ):
         site_visit_schedules._registry = {}
@@ -1477,11 +1487,11 @@ class TestSystemChecks(TestCase):
         crfs = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             )
         )
-        prns = CrfCollection(Crf(show_order=15, model="visit_schedule_app.CrfOneProxyOne"))
+        prns = CrfCollection(Crf(show_order=15, model="tests.CrfOneProxyOne"))
 
         visit = Visit(
             code="1000",
@@ -1503,17 +1513,17 @@ class TestSystemChecks(TestCase):
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertListEqual(fc_errors, [])
 
-    def test_proxy_crf_not_sharing_root_with_identical_proxy_shares_root_true_in_prns_ok(
+    def test_prxy_crf_not_sharing_root_with_identical_prxy_shares_root_true_in_prns_ok(
         self,
     ):
         site_visit_schedules._registry = {}
         visit_schedule = self.visit_schedule
         schedule = self.schedule
-        crfs = CrfCollection(Crf(show_order=10, model="visit_schedule_app.CrfOneProxyOne"))
+        crfs = CrfCollection(Crf(show_order=10, model="tests.CrfOneProxyOne"))
         prns = CrfCollection(
             Crf(
                 show_order=15,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             )
         )
@@ -1547,17 +1557,17 @@ class TestSystemChecks(TestCase):
         crfs = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             )
         )
         prns = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             ),
-            Crf(show_order=35, model="visit_schedule_app.CrfOneProxyThree"),
+            Crf(show_order=35, model="tests.CrfOneProxyThree"),
         )
 
         visit = Visit(
@@ -1583,10 +1593,10 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -1595,9 +1605,9 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -1606,9 +1616,9 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -1624,22 +1634,22 @@ class TestSystemChecks(TestCase):
         crfs = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             ),
             Crf(
                 show_order=35,
-                model="visit_schedule_app.CrfOneProxyThree",
+                model="tests.CrfOneProxyThree",
             ),
         )
         prns = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
             ),
             Crf(
                 show_order=35,
-                model="visit_schedule_app.CrfOneProxyThree",
+                model="tests.CrfOneProxyThree",
                 shares_proxy_root=True,
             ),
         )
@@ -1667,11 +1677,11 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -1680,9 +1690,9 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -1691,9 +1701,9 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -1709,23 +1719,23 @@ class TestSystemChecks(TestCase):
         crfs = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
                 shares_proxy_root=True,
             ),
             Crf(
                 show_order=35,
-                model="visit_schedule_app.CrfOneProxyThree",
+                model="tests.CrfOneProxyThree",
                 shares_proxy_root=True,
             ),
         )
         prns = CrfCollection(
             Crf(
                 show_order=10,
-                model="visit_schedule_app.CrfOneProxyOne",
+                model="tests.CrfOneProxyOne",
             ),
             Crf(
                 show_order=35,
-                model="visit_schedule_app.CrfOneProxyThree",
+                model="tests.CrfOneProxyThree",
             ),
         )
 
@@ -1752,11 +1762,11 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -1765,9 +1775,9 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),
@@ -1776,9 +1786,9 @@ class TestSystemChecks(TestCase):
         self.assertIn(
             str(
                 {
-                    "visit_schedule_app.crfone": [
-                        "visit_schedule_app.crfoneproxyone",
-                        "visit_schedule_app.crfoneproxythree",
+                    "tests.crfone": [
+                        "tests.crfoneproxyone",
+                        "tests.crfoneproxythree",
                     ]
                 }
             ),

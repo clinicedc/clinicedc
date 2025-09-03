@@ -44,7 +44,9 @@ class TestNotification(TestCase):
             class NotANotification:
                 pass
 
-        self.assertIn("Wrapped class must be a 'Notification' class.", str(cm.exception))
+        self.assertIn(
+            "Wrapped class must be a 'Notification' class.", str(cm.exception)
+        )
 
         class G4EventNotification(GradedEventNotification):
             name = "g4_event"
@@ -605,7 +607,9 @@ class TestNotification(TestCase):
 
         site_notifications.update_notification_list()
 
-        G3EventNotification().send_test_sms(sms_recipient=settings.TWILIO_TEST_RECIPIENT)
+        G3EventNotification().send_test_sms(
+            sms_recipient=settings.TWILIO_TEST_RECIPIENT
+        )
 
     def test_graded_event_grade3_as_test_sms_message_to_subscribed_user(self, *args):
         user = User.objects.create(username="erikvw", is_active=True, is_staff=True)
@@ -624,13 +628,17 @@ class TestNotification(TestCase):
         user.userprofile.mobile = settings.TWILIO_TEST_RECIPIENT
         user.userprofile.save()
 
-        self.assertIn(settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients)
+        self.assertIn(
+            settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients
+        )
 
         AE.objects.create(subject_identifier="1", ae_grade=3)
 
         user.userprofile.sms_notifications.remove(notification)
 
-        self.assertNotIn(settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients)
+        self.assertNotIn(
+            settings.TWILIO_TEST_RECIPIENT, G3EventNotification().sms_recipients
+        )
 
     def test_notification_model_instance_deletes_for_unregistered(self):
         User.objects.create(username="erikvw", is_active=True, is_staff=True)
@@ -652,7 +660,9 @@ class TestNotification(TestCase):
         try:
             NotificationModel.objects.get(name=G3EventNotification.name)
         except ObjectDoesNotExist as e:
-            self.fail(f"Notification model instance unexpectedly does not exist. Got {e}")
+            self.fail(
+                f"Notification model instance unexpectedly does not exist. Got {e}"
+            )
 
         site_notifications._registry = {}
         site_notifications.update_notification_list()

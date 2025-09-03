@@ -39,7 +39,10 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 blank=True,
                 db_constraint=False,
-                limit_choices_to={"confirmed_at_site": True, "dispenseitem__isnull": True},
+                limit_choices_to={
+                    "confirmed_at_site": True,
+                    "dispenseitem__isnull": True,
+                },
                 null=True,
                 on_delete=django.db.models.deletion.DO_NOTHING,
                 related_name="+",
@@ -50,7 +53,10 @@ class Migration(migrations.Migration):
             model_name="storagebinitem",
             name="stock",
             field=models.ForeignKey(
-                limit_choices_to={"confirmed_at_site": True, "dispenseitem__isnull": True},
+                limit_choices_to={
+                    "confirmed_at_site": True,
+                    "dispenseitem__isnull": True,
+                },
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
                 to="edc_pharmacy.stock",

@@ -23,12 +23,18 @@ def draw_bulk_stock_label_code39(
     br.x = width - 100
     br.y = height - 40
     label.add(br)
-    label.add(String(15, height - 20, ResearchProtocolConfig().protocol_name, fontSize=10))
+    label.add(
+        String(15, height - 20, ResearchProtocolConfig().protocol_name, fontSize=10)
+    )
     qty = format_qty(obj.container.qty, obj.container)
 
     label.add(String(15, height - 40, f"{qty} tabs", fontSize=10))
     label.add(String(15, height - 60, f"Lot: {obj.lot.lot_no}", fontSize=10))
-    label.add(String(15, height - 80, f"Expires: {obj.lot.expiration_date}", fontSize=10))
-    product = obj.product.formulation.get_description_with_assignment(obj.product.assignment)
+    label.add(
+        String(15, height - 80, f"Expires: {obj.lot.expiration_date}", fontSize=10)
+    )
+    product = obj.product.formulation.get_description_with_assignment(
+        obj.product.assignment
+    )
     label.add(String(15, height - 100, f"{product}", fontSize=10))
     return label

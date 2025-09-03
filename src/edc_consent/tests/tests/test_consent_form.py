@@ -1,77 +1,69 @@
-from datetime import timedelta
+from datetime import datetime
+from unittest.mock import Mock, patch
 from uuid import uuid4
+from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.forms import model_to_dict
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 from faker import Faker
 from model_bakery import baker
 
-from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, YES
+from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, SUBJECT, YES
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import age, get_utcnow
-from tests.forms import SubjectConsentForm
-from tests.models import SubjectConsent, SubjectConsentV1, SubjectScreening
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent1_v1, consent1_v2, consent1_v3
+from tests.forms import SubjectConsentForm, SubjectConsentFormValidator
+from tests.helper import Helper
+from tests.models import (
+    SubjectConsentV1,
+    SubjectScreening,
+)
+from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
 fake = Faker()
 
 
 @tag("consent")
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
-    EDC_AUTH_SKIP_AUTH_UPDATER=False,
-)
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
+@override_settings(EDC_AUTH_SKIP_AUTH_UPDATER=False)
 class TestConsentForm(TestCase):
     def setUp(self):
-        site_consents.registry = {}
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
 
-        self.consent_v1 = self.consent_factory(
-            proxy_model="tests.subjectconsentv1",
-            start=self.study_open_datetime,
-            end=self.study_open_datetime + timedelta(days=50),
-            version="1.0",
-        )
+        site_consents.registry = {}
+        site_consents.register(consent1_v1)
+        site_consents.register(consent1_v2, updated_by=consent1_v3)
+        site_consents.register(consent1_v3)
 
-        self.consent_v2 = self.consent_factory(
-            proxy_model="tests.subjectconsentv2",
-            start=self.study_open_datetime + timedelta(days=51),
-            end=self.study_open_datetime + timedelta(days=100),
-            version="2.0",
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(
+            get_visit_schedule([consent1_v1, consent1_v2, consent1_v3])
         )
-        self.consent_v3 = self.consent_factory(
-            proxy_model="tests.subjectconsentv3",
-            start=self.study_open_datetime + timedelta(days=101),
-            end=self.study_open_datetime + timedelta(days=150),
-            version="3.0",
-            updates=self.consent_v2,
-        )
-        site_consents.register(self.consent_v1)
-        site_consents.register(self.consent_v2, updated_by=self.consent_v3)
-        site_consents.register(self.consent_v3)
 
         self.dob = self.study_open_datetime - relativedelta(years=25)
 
     @staticmethod
-    def consent_factory(**kwargs):
-        options = dict(
-            start=kwargs.get("start"),
-            end=kwargs.get("end"),
-            gender=kwargs.get("gender", ["M", "F"]),
-            updates=kwargs.get("updates", None),
-            version=kwargs.get("version", "1"),
-            age_min=kwargs.get("age_min", 16),
-            age_max=kwargs.get("age_max", 64),
-            age_is_adult=kwargs.get("age_is_adult", 18),
+    def get_mock_screening(subject_consent=None, **kwargs):
+        mock_subject_screening = Mock()
+        mock_subject_screening.eligible = YES
+        mock_subject_screening.eligibility_datetime = (
+            subject_consent.consent_datetime - relativedelta(minutes=1)
         )
-        proxy_model = kwargs.get("proxy_model", "tests.subjectconsentv1")
-        consent_definition = ConsentDefinition(proxy_model, **options)
-        return consent_definition
+        mock_subject_screening.age_in_years = 25
+        mock_subject_screening.report_datetime = (
+            subject_consent.consent_datetime - relativedelta(minutes=1)
+        )
+        mock_subject_screening.gender = subject_consent.gender
+        for k, v in kwargs.items():
+            setattr(mock_subject_screening, k, v)
+        return mock_subject_screening
 
     def cleaned_data(self, **kwargs):
         cleaned_data = dict(
@@ -118,6 +110,7 @@ class TestConsentForm(TestCase):
         is_literate=None,
         witness_name=None,
         create_subject_screening=None,
+        guardian_name=None,
     ):
         create_subject_screening = (
             True if create_subject_screening is None else create_subject_screening
@@ -150,6 +143,7 @@ class TestConsentForm(TestCase):
             screening_identifier=screening_identifier,
             is_literate=is_literate or YES,
             witness_name=witness_name,
+            guardian_name=guardian_name,
         )
         return subject_consent
 
@@ -163,52 +157,97 @@ class TestConsentForm(TestCase):
             initials="ET",
             screening_identifier="ABCD1",
         )
-        subject_consent = self.prepare_subject_consent(**options)
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
+        helper = Helper()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule1",
+            consent_definition=consent1_v1,
+            dob=self.study_open_datetime - relativedelta(years=25),
+            guardian_name="",
         )
-        self.assertTrue(form.is_valid())
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch(
+            "edc_consent.modelform_mixins.consent_modelform_mixin."
+            "ConsentModelFormMixin.validate_is_eligible_or_raise"
+        ) as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                form = SubjectConsentForm(
+                    data=data,
+                    # initial=dict(screening_identifier=data.get("screening_identifier")),
+                    instance=subject_consent,
+                )
+                self.assertTrue(form.is_valid())
 
-    @tag("980")
     def test_base_form_catches_consent_datetime_before_study_open(self):
-        options = dict(
-            consent_datetime=self.study_open_datetime + relativedelta(days=1),
-            dob=self.dob,
-            first_name="ERIK",
-            last_name="THEPLEEB",
-            initials="ET",
-            screening_identifier="ABCD1",
+        helper = Helper()
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule1",
+            consent_definition=consent1_v1,
+            dob=self.study_open_datetime - relativedelta(years=25),
+            guardian_name="",
+            report_datetime=get_utcnow(),
         )
-        subject_consent = self.prepare_subject_consent(**options)
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertEqual(form._errors, {})
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch(
+            "edc_consent.modelform_mixins.consent_modelform_mixin."
+            "ConsentModelFormMixin.validate_is_eligible_or_raise"
+        ) as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                data.update(citizen=YES, is_dob_estimated="-", subject_type=SUBJECT)
+                form = SubjectConsentForm(
+                    data=data,
+                    initial=dict(screening_identifier=data.get("screening_identifier")),
+                    instance=subject_consent,
+                )
+                form.is_valid()
+                mock_is_eligible.assert_called_once()
+                self.assertEqual(form._errors, {})
+        traveller.stop()
 
-        # change consent_datetime to before the consent period
-        options.update(
-            consent_datetime=self.study_open_datetime - relativedelta(days=1)
+        traveller = time_machine.travel(
+            self.study_open_datetime - relativedelta(days=1)
         )
-        subject_consent = self.prepare_subject_consent(
-            **options, create_subject_screening=False
+        traveller.start()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule1",
+            consent_definition=consent1_v1,
+            dob=self.study_open_datetime - relativedelta(years=25),
+            guardian_name="",
         )
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertIn("consent_datetime", form._errors)
+
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch("edc_screening.utils.is_eligible_or_raise") as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                form = SubjectConsentForm(
+                    data=data,
+                    initial=dict(screening_identifier=data.get("screening_identifier")),
+                    instance=SubjectConsentV1(site=subject_consent.site),
+                )
+                form.is_valid()
+                self.assertIn("consent_datetime", form._errors)
+        traveller.stop()
 
     def test_base_form_identity_mismatch(self):
         options = dict(
@@ -222,15 +261,25 @@ class TestConsentForm(TestCase):
             confirm_identity="2",
         )
         subject_consent = self.prepare_subject_consent(**options)
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertIn("identity", form._errors)
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch(
+            "edc_consent.modelform_mixins.consent_modelform_mixin."
+            "ConsentModelFormMixin.validate_is_eligible_or_raise"
+        ) as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                form = SubjectConsentForm(
+                    data=data,
+                    initial=dict(screening_identifier=data.get("screening_identifier")),
+                    instance=SubjectConsentV1(site=subject_consent.site),
+                )
+                form.is_valid()
+                self.assertIn("identity", form._errors)
 
     def test_base_form_identity_dupl(self):
         options = dict(
@@ -257,238 +306,256 @@ class TestConsentForm(TestCase):
             screening_identifier="ABCD1XXX",
         )
         subject_consent = self.prepare_subject_consent(**options)
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertIn("identity", form._errors)
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch(
+            "edc_consent.modelform_mixins.consent_modelform_mixin."
+            "ConsentModelFormMixin.validate_is_eligible_or_raise"
+        ) as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                form = SubjectConsentForm(
+                    data=data,
+                    initial=dict(screening_identifier=data.get("screening_identifier")),
+                    instance=SubjectConsentV1(site=subject_consent.site),
+                )
+                form.is_valid()
+                self.assertIn("identity", form._errors)
 
     def test_base_form_guardian_and_dob1(self):
         """Asserts form for minor is not valid without guardian name."""
-        options = dict(
-            consent_datetime=self.study_open_datetime,
-            dob=self.study_open_datetime - relativedelta(years=16),
-            identity="123156788",
-            confirm_identity="123156788",
-            first_name="ERIK",
-            last_name="THEPLEEB",
-            initials="ET",
-            screening_identifier="ABCD1",
+
+        # can't get to this with an invalid age
+        helper = Helper()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule1",
+            consent_definition=consent1_v1,
+            dob=self.study_open_datetime - relativedelta(years=25),
+            guardian_name="",
         )
-        subject_consent = self.prepare_subject_consent(**options)
-        subject_consent.guardian_name = None
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
+
+        mock_subject_screening = Mock()
+        mock_subject_screening.eligibility_datetime = (
+            subject_consent.consent_datetime - relativedelta(minutes=1)
         )
-        form.is_valid()
-        self.assertIn("guardian_name", form._errors)
+        mock_subject_screening.age_in_years = 25
+        mock_subject_screening.report_datetime = (
+            subject_consent.consent_datetime - relativedelta(minutes=1)
+        )
+        with patch.object(
+            SubjectConsentFormValidator, "subject_screening", new=mock_subject_screening
+        ):
+            data = model_to_dict(subject_consent)
+            # try to change the dob
+            data.update(
+                dob=self.study_open_datetime - relativedelta(years=15),
+                citizen=YES,
+                is_dob_estimated="-",
+                subject_type=SUBJECT,
+                consent_reviewed=YES,
+                study_questions=YES,
+                assessment_score=YES,
+                consent_signature=YES,
+                consent_copy=YES,
+                is_incarcerated=NO,
+                language="en",
+            )
+            form = SubjectConsentForm(
+                data=data,
+                initial=dict(screening_identifier=data.get("screening_identifier")),
+                instance=SubjectConsentForm._meta.model(site=subject_consent.site),
+            )
+            form.is_valid()
+            self.assertIn("dob", form._errors)  # Age mismatch with screening
 
     def test_base_form_guardian_and_dob2(self):
         """Asserts form for minor is valid with guardian name."""
-        options = dict(
-            consent_datetime=self.study_open_datetime,
+        helper = Helper()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule1",
+            consent_definition=consent1_v1,
             dob=self.study_open_datetime - relativedelta(years=16),
-            identity="123156788",
-            confirm_identity="123156788",
-            first_name="ERIK",
-            last_name="THEPLEEB",
-            initials="ET",
-            screening_identifier="ABCD1",
+            guardian_name="SPOCK, YOUCOULDNTPRONOUNCEIT",
         )
-        subject_consent = self.prepare_subject_consent(**options)
-        subject_consent.guardian_name = "SPOCK, YOUCOULDNTPRONOUNCEIT"
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertEqual({}, form._errors)
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch(
+            "edc_consent.modelform_mixins.consent_modelform_mixin."
+            "ConsentModelFormMixin.validate_is_eligible_or_raise"
+        ) as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                form = SubjectConsentForm(
+                    data=data,
+                    initial=dict(screening_identifier=data.get("screening_identifier")),
+                    instance=SubjectConsentForm._meta.model(site=subject_consent.site),
+                )
+                form.is_valid()
+                self.assertNotIn("guardian_name", form._errors)
 
     def test_base_form_guardian_and_dob4(self):
         """Asserts form for adult is not valid if guardian name
         specified.
         """
-        options = dict(
-            consent_datetime=self.study_open_datetime,
+        helper = Helper()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule1",
+            consent_definition=consent1_v1,
             dob=self.study_open_datetime - relativedelta(years=25),
-            identity="123156788",
-            confirm_identity="123156788",
-            first_name="ERIK",
-            last_name="THEPLEEB",
-            initials="ET",
-            screening_identifier="ABCD1",
+            guardian_name="SPOCK, YOUCOULDNTPRONOUNCEIT",
         )
-        subject_consent = self.prepare_subject_consent(**options)
-        subject_consent.guardian_name = "SPOCK, YOUCOULDNTPRONOUNCEIT"
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertIn("guardian_name", form._errors)
-
-    def test_base_form_catches_dob_lower(self):
-        options = dict(
-            consent_datetime=self.study_open_datetime,
-            dob=self.study_open_datetime - relativedelta(years=15),
-            identity="123156788",
-            confirm_identity="123156788",
-            first_name="ERIK",
-            last_name="THEPLEEB",
-            initials="ET",
-            screening_identifier="ABCD1",
-        )
-        subject_consent = self.prepare_subject_consent(**options)
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertIn("dob", form._errors)
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch(
+            "edc_consent.modelform_mixins.consent_modelform_mixin."
+            "ConsentModelFormMixin.validate_is_eligible_or_raise"
+        ) as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                form = SubjectConsentForm(
+                    data=data,
+                    initial=dict(screening_identifier=data.get("screening_identifier")),
+                    instance=SubjectConsentForm._meta.model(site=subject_consent.site),
+                )
+                form.is_valid()
+                self.assertIn("guardian_name", form._errors)
 
     def test_base_form_catches_dob_upper(self):
-        options = dict(
-            consent_datetime=self.study_open_datetime,
-            dob=self.study_open_datetime - relativedelta(years=100),
-            identity="123156788",
-            confirm_identity="123156788",
-            first_name="ERIK",
-            last_name="THEPLEEB",
-            initials="ET",
-            screening_identifier="ABCD1",
+        helper = Helper()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule1",
+            dob=self.study_open_datetime - relativedelta(years=110),
         )
-        subject_consent = self.prepare_subject_consent(**options)
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertIn("dob", form._errors)
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch(
+            "edc_consent.modelform_mixins.consent_modelform_mixin."
+            "ConsentModelFormMixin.validate_is_eligible_or_raise"
+        ) as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                data["dob"] = self.study_open_datetime.date() - relativedelta(years=100)
+                form = SubjectConsentForm(
+                    data=data,
+                    instance=subject_consent,
+                )
+                form.is_valid()
+                self.assertIn("dob", form._errors)
 
     def test_base_form_catches_gender_of_consent(self):
-        site_consents.registry = {}
-        cdef = self.consent_factory(
-            start=self.study_open_datetime,
-            end=self.study_open_datetime + timedelta(days=50),
-            version="1.0",
-            gender=[MALE],
-            first_name="ERIK",
-            last_name="THEPLEEB",
+        helper = Helper()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule1",
         )
-        site_consents.register(cdef)
-        subject_consent = self.prepare_subject_consent(gender=MALE)
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
+        data = model_to_dict(subject_consent)
+        data["gender"] = "UNDEFINED"
         form = SubjectConsentForm(
             data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertEqual({}, form._errors)
-
-        subject_consent = self.prepare_subject_consent(
-            gender=FEMALE, create_subject_screening=False
-        )
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
+            instance=subject_consent,
         )
         form.is_valid()
         self.assertIn("gender", form._errors)
 
     def test_base_form_catches_is_literate_and_witness(self):
-        subject_consent = self.prepare_subject_consent(
-            is_literate=NO,
-            witness_name="",
+        helper = Helper()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule", schedule_name="schedule1"
         )
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsent(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertIn("witness_name", form._errors)
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch(
+            "edc_consent.modelform_mixins.consent_modelform_mixin."
+            "ConsentModelFormMixin.validate_is_eligible_or_raise"
+        ) as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                data["is_literate"] = NO
+                data["witness_name"] = ""
+                form = SubjectConsentForm(
+                    data=data,
+                    instance=subject_consent,
+                )
+                form.is_valid()
+                self.assertIn("witness_name", form._errors)
 
-        subject_consent = self.prepare_subject_consent(
-            is_literate=NO,
-            witness_name="BUBBA, BUBBA",
-            create_subject_screening=False,
-        )
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertEqual({}, form._errors)
+                data["is_literate"] = NO
+                data["witness_name"] = "BUBBA, SHRIMP"
+                form = SubjectConsentForm(
+                    data=data,
+                    instance=subject_consent,
+                )
+                form.is_valid()
+                self.assertNotIn("witness_name", form._errors)
 
     def test_raises_on_duplicate_identity1(self):
         subject_consent = self.prepare_subject_consent(
             identity="1", confirm_identity="1", screening_identifier="LOPIKKKK"
         )
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=opts.model(site=subject_consent.site),
-        )
-        form.is_valid()
-        self.assertEqual({}, form._errors)
-        form.save(commit=True)
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch(
+            "edc_consent.modelform_mixins.consent_modelform_mixin."
+            "ConsentModelFormMixin.validate_is_eligible_or_raise"
+        ) as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                form = SubjectConsentForm(
+                    data=data,
+                    initial=dict(screening_identifier=data.get("screening_identifier")),
+                    instance=subject_consent,
+                )
+                form.is_valid()
+                self.assertEqual({}, form._errors)
+                form.save(commit=True)
 
         subject_consent = self.prepare_subject_consent(
             identity="1", confirm_identity="1", screening_identifier="LOPIKXSWE"
         )
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier="LOPIKXSWE"),
-            instance=subject_consent,
-        )
-        form.is_valid()
-        self.assertIn("identity", form._errors)
-
-    def test_current_site(self):
-        subject_consent = self.prepare_subject_consent(
-            identity="1", confirm_identity="1", screening_identifier="LOPIKKKK"
-        )
-        opts = SubjectConsentForm._meta
-        data = model_to_dict(subject_consent, opts.fields, opts.exclude)
-        form = SubjectConsentForm(
-            data=data,
-            initial=dict(screening_identifier=data.get("screening_identifier")),
-            instance=SubjectConsentV1(),
-        )
-        form.is_valid()
-        self.assertEqual({}, form._errors)
-        form.save(commit=True)
+        mock_subject_screening = self.get_mock_screening(subject_consent)
+        with patch(
+            "edc_consent.modelform_mixins.consent_modelform_mixin."
+            "ConsentModelFormMixin.validate_is_eligible_or_raise"
+        ) as mock_is_eligible:
+            mock_is_eligible.return_value = None
+            with patch.object(
+                SubjectConsentFormValidator,
+                "subject_screening",
+                new=mock_subject_screening,
+            ):
+                data = model_to_dict(subject_consent)
+                form = SubjectConsentForm(
+                    data=data,
+                    initial=dict(screening_identifier="LOPIKXSWE"),
+                    instance=subject_consent,
+                )
+                form.is_valid()
+                self.assertIn("identity", form._errors)

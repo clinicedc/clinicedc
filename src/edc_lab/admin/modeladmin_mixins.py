@@ -49,7 +49,9 @@ class RequisitionAdminMixin:
             )
         return format_html(
             "{html}",
-            html=mark_safe('<span style="color:red;">not drawn</span>'),  # nosec B703, B308
+            html=mark_safe(
+                '<span style="color:red;">not drawn</span>'
+            ),  # nosec B703, B308
         )
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -83,7 +85,11 @@ class RequisitionAdminMixin:
     def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
         return tuple(
-            set(readonly_fields + requisition_identifier_fields + requisition_verify_fields)
+            set(
+                readonly_fields
+                + requisition_identifier_fields
+                + requisition_verify_fields
+            )
         )
 
     def get_changeform_initial_data(self, request) -> dict:

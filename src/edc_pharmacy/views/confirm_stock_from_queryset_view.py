@@ -67,7 +67,10 @@ class ConfirmStockFromQuerySetView(
                 ]
             )
             last_stock_codes.extend(
-                [[x, INVALID, _("invalid")] for x in session_obj.get("invalid_codes") or []]
+                [
+                    [x, INVALID, _("invalid")]
+                    for x in session_obj.get("invalid_codes") or []
+                ]
             )
             session_data = dict(
                 transaction_word=session_obj.get("transaction_word"),
@@ -181,7 +184,9 @@ class ConfirmStockFromQuerySetView(
                     source_model_name=self.session_data.get("source_model_name"),
                     stock_codes=self.session_data.get("stock_codes"),
                 )
-                url = reverse("edc_pharmacy:confirm_stock_from_queryset_url", kwargs=kwargs)
+                url = reverse(
+                    "edc_pharmacy:confirm_stock_from_queryset_url", kwargs=kwargs
+                )
             else:
                 self.request.session[self.kwargs.get("session_uuid")] = None
                 url = f"{self.source_changelist_url}?q="

@@ -17,7 +17,6 @@ from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.models import MedicationAdherence
 from tests.visit_schedules import visit_schedule_adherence
-
 from ..forms import MedicationAdherenceForm
 
 
@@ -36,14 +35,13 @@ class TestAdherence(TestCase):
         site_list_data.load_data()
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule_adherence)
-        self.subject_identifier = "101-123400-0"
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
-        )
-        self.helper.consent_and_put_on_schedule(
+        self.helper = self.helper_cls()
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule_adherence",
             schedule_name="schedule_adherence",
+            consent_definition=consent_v1,
         )
+        self.subject_identifier = subject_consent.subject_identifier
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
         )

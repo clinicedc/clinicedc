@@ -70,5 +70,7 @@ class SubjectRefusalAdmin(
             if callable(super().view_on_site):
                 url = super().view_on_site(obj)
             else:
-                raise NoReverseMatch(f"{e}. See subject_dashboard_url_name for {repr(self)}.")
+                raise NoReverseMatch(
+                    f"{e}. See subject_dashboard_url_name for {repr(self)}."
+                )
         return url

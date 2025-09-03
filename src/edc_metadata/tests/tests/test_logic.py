@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from ...constants import NOT_REQUIRED, REQUIRED
-from ...metadata_rules import Logic, RuleLogicError
+from edc_metadata.constants import NOT_REQUIRED, REQUIRED
+from edc_metadata.metadata_rules import Logic, RuleLogicError
 
 
 class MetadataRulesTests(TestCase):

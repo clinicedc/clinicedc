@@ -22,7 +22,8 @@ class DeathReportExtraFieldsModelMixin(models.Model):
 
     hospital_death = models.CharField(
         verbose_name=(
-            "Did the participant die in hospital, or die just after " "visiting a hospital?"
+            "Did the participant die in hospital, or die just after "
+            "visiting a hospital?"
         ),
         max_length=50,
         choices=YES_NO,

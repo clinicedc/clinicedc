@@ -27,7 +27,9 @@ class OrderItem(BaseUuidModel):
 
     order = models.ForeignKey(Order, on_delete=models.PROTECT, null=True, blank=False)
 
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, null=True, blank=False)
+    product = models.ForeignKey(
+        Product, on_delete=models.PROTECT, null=True, blank=False
+    )
 
     container = models.ForeignKey(
         Container,
@@ -51,7 +53,10 @@ class OrderItem(BaseUuidModel):
     unit_qty_received = models.DecimalField(decimal_places=2, max_digits=20, null=True)
 
     status = models.CharField(
-        max_length=25, choices=ORDER_CHOICES, default=NEW, help_text="Updates in the signal"
+        max_length=25,
+        choices=ORDER_CHOICES,
+        default=NEW,
+        help_text="Updates in the signal",
     )
 
     objects = Manager()
@@ -59,7 +64,9 @@ class OrderItem(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.order_item_identifier}:{self.product.name} | {self.container.name}"
+        return (
+            f"{self.order_item_identifier}:{self.product.name} | {self.container.name}"
+        )
 
     def save(self, *args, **kwargs):
         if not self.id:

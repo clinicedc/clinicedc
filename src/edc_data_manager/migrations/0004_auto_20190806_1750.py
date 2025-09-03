@@ -9,6 +9,8 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterUniqueTogether(
             name="dataquery",
-            unique_together={("registered_subject", "rule_reference", "visit_schedule")},
+            unique_together={
+                ("registered_subject", "rule_reference", "visit_schedule")
+            },
         )
     ]

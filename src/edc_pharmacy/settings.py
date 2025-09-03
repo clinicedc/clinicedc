@@ -15,7 +15,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-+#-*m&byi1w8=#e5nr))^kollb=k1b#rvjffo#+teji^qpm14o"  # nosec B105
+SECRET_KEY = (
+    "django-insecure-+#-*m&byi1w8=#e5nr))^kollb=k1b#rvjffo#+teji^qpm14o"  # nosec B105
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -27,8 +29,12 @@ AUTO_CREATE_KEYS = True
 APP_NAME = "edc_pharmacy"
 
 SUBJECT_VISIT_MODEL = "edc_visit_tracking.subjectvisit"
-EDC_PROTOCOL_STUDY_OPEN_DATETIME = datetime(2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone"))
-EDC_PROTOCOL_STUDY_CLOSE_DATETIME = datetime(2033, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone"))
+EDC_PROTOCOL_STUDY_OPEN_DATETIME = datetime(
+    2013, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone")
+)
+EDC_PROTOCOL_STUDY_CLOSE_DATETIME = datetime(
+    2033, 10, 15, tzinfo=ZoneInfo("Africa/Gaborone")
+)
 EDC_ADVERSE_EVENT_APP_LABEL = "edc_adverse_event"
 # Application definition
 

@@ -1,7 +1,8 @@
 from django.db import models
 
-from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_reportable.units import PLUS
+
+from ..model_mixin_factory import reportable_result_model_mixin_factory
 
 
 class ProteinuriaModelMixin(

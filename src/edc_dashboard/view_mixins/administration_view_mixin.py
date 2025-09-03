@@ -105,7 +105,9 @@ class AdministrationViewMixin(ContextMixin):
         edc_keys.sort()
 
         other_sections = {
-            k: v for k, v in sections.items() if not k.startswith(self.edc_module_prefix)
+            k: v
+            for k, v in sections.items()
+            if not k.startswith(self.edc_module_prefix)
         }
         other_keys = list(other_sections.keys())
         other_keys.sort()

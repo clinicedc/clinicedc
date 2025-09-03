@@ -30,7 +30,9 @@ class PreviousVisitModelMixin(models.Model):
         self.validate_visit_sequence()
         super().save(*args, **kwargs)
 
-    def validate_visit_sequence(self: Appointment | RelatedVisitProtocol | Self) -> None:
+    def validate_visit_sequence(
+        self: Appointment | RelatedVisitProtocol | Self,
+    ) -> None:
         try:
             appointment = self.related_visit.appointment
         except AttributeError as e:

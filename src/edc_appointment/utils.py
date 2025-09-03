@@ -291,7 +291,9 @@ def reset_visit_code_sequence_or_pass(
                 f"{subject_identifier} {visit_code}: {actual=} {expected=} ...\n"
             )
         # reset visit code sequence for this visit code
-        get_crf_metadata_model_cls().objects.filter(visit_code_sequence__gt=0, **opts).delete()
+        get_crf_metadata_model_cls().objects.filter(
+            visit_code_sequence__gt=0, **opts
+        ).delete()
         get_requisition_metadata_model_cls().objects.filter(
             visit_code_sequence__gt=0, **opts
         ).delete()
@@ -307,7 +309,9 @@ def reset_visit_code_sequence_or_pass(
                     obj.save_base(update_fields=["visit_code_sequence"])
                     if getattr(obj, "related_visit", None):
                         obj.related_visit.visit_code_sequence = obj.visit_code_sequence
-                        obj.related_visit.save_base(update_fields=["visit_code_sequence"])
+                        obj.related_visit.save_base(
+                            update_fields=["visit_code_sequence"]
+                        )
                         obj.related_visit.metadata_create()
 
                 # reset sequence order by appt_datetime
@@ -321,7 +325,9 @@ def reset_visit_code_sequence_or_pass(
                     obj.save_base(update_fields=["visit_code_sequence"])
                     if getattr(obj, "related_visit", None):
                         obj.related_visit.visit_code_sequence = index
-                        obj.related_visit.save_base(update_fields=["visit_code_sequence"])
+                        obj.related_visit.save_base(
+                            update_fields=["visit_code_sequence"]
+                        )
                         obj.related_visit.metadata_create()
 
         except IntegrityError:
@@ -379,7 +385,10 @@ def update_appt_status(appointment: Appointment, save: bool | None = None):
     relative to the visit tracking model and CRFs and
     requisitions
     """
-    if appointment.appt_status == CANCELLED_APPT or appointment.appt_status == SKIPPED_APPT:
+    if (
+        appointment.appt_status == CANCELLED_APPT
+        or appointment.appt_status == SKIPPED_APPT
+    ):
         pass
     elif not appointment.related_visit:
         appointment.appt_status = NEW_APPT
@@ -442,7 +451,9 @@ def get_previous_appointment(
     return previous_appt
 
 
-def get_next_appointment(appointment: Appointment, include_interim=None) -> Appointment | None:
+def get_next_appointment(
+    appointment: Appointment, include_interim=None
+) -> Appointment | None:
     """Returns the next appointment model instance,
     or None, in this schedule.
 
@@ -500,7 +511,9 @@ def raise_on_appt_datetime_not_in_window(
     appt_datetime: datetime | None = None,
     baseline_timepoint_datetime: datetime | None = None,
 ) -> None:
-    if appointment.appt_status != CANCELLED_APPT and not is_baseline(instance=appointment):
+    if appointment.appt_status != CANCELLED_APPT and not is_baseline(
+        instance=appointment
+    ):
         baseline_timepoint_datetime = baseline_timepoint_datetime or (
             appointment.__class__.objects.first_appointment(
                 subject_identifier=appointment.subject_identifier,
@@ -542,7 +555,9 @@ def get_window_gap_days(appointment) -> int:
     return gap_days
 
 
-def appt_datetime_in_gap(appointment: Appointment, suggested_appt_datetime: datetime) -> bool:
+def appt_datetime_in_gap(
+    appointment: Appointment, suggested_appt_datetime: datetime
+) -> bool:
     """Return True if datetime falls in a gap between this and the
     next appointment window.
     """
@@ -560,7 +575,8 @@ def appt_datetime_in_gap(appointment: Appointment, suggested_appt_datetime: date
 def get_max_window_gap_to_lower(appointment) -> int:
     if (
         appointment.visit.max_window_gap_to_lower is not None
-        and appointment.visit.max_window_gap_to_lower < get_default_max_visit_window_gap()
+        and appointment.visit.max_window_gap_to_lower
+        < get_default_max_visit_window_gap()
     ):
         max_gap = appointment.visit.max_window_gap_to_lower
     else:
@@ -743,14 +759,18 @@ def update_appt_status_for_timepoint(related_visit: RelatedVisitModel) -> None:
     if related_visit.appointment.appt_status == COMPLETE_APPT:
         if (
             related_visit.metadata[CRF].filter(entry_status=REQUIRED).exists()
-            or related_visit.metadata[REQUISITION].filter(entry_status=REQUIRED).exists()
+            or related_visit.metadata[REQUISITION]
+            .filter(entry_status=REQUIRED)
+            .exists()
         ):
             related_visit.appointment.appt_status = INCOMPLETE_APPT
             related_visit.appointment.save_base(update_fields=["appt_status"])
     elif related_visit.appointment.appt_status == INCOMPLETE_APPT:
         if (
             not related_visit.metadata[CRF].filter(entry_status=REQUIRED).exists()
-            and not related_visit.metadata[REQUISITION].filter(entry_status=REQUIRED).exists()
+            and not related_visit.metadata[REQUISITION]
+            .filter(entry_status=REQUIRED)
+            .exists()
         ):
             related_visit.appointment.appt_status = COMPLETE_APPT
             related_visit.appointment.save_base(update_fields=["appt_status"])
@@ -834,7 +854,9 @@ def validate_date_is_on_clinic_day(
                         "mon": day_abbr[calendar.MONDAY],
                         "fri": day_abbr[calendar.FRIDAY],
                         "day": day_abbr[
-                            calendar.weekday(appt_date.year, appt_date.month, appt_date.day)
+                            calendar.weekday(
+                                appt_date.year, appt_date.month, appt_date.day
+                            )
                         ],
                     }
                 },

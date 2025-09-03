@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import override_settings, TestCase
 from faker import Faker
 
 from edc_appointment.models import Appointment
@@ -26,9 +26,10 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from ..models import CrfOne, SubjectConsentV1, SubjectRequisition
-from ..visit_schedule import get_visit_schedule
+from tests.models import CrfOne, SubjectConsentV1, SubjectRequisition
+from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
+    get_visit_schedule,
+)
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
@@ -178,7 +179,7 @@ class TestRequisitionRuleGroup(TestCase):
         site_visit_schedules.register(get_visit_schedule(consent_v1))
 
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_metadata.onschedule"
+            "edc_visit_schedule.onschedule"
         )
         site_metadata_rules.registry = {}
 
@@ -215,10 +216,12 @@ class TestRequisitionRuleGroup(TestCase):
     @time_machine.travel(test_datetime)
     def test_rule_male(self):
         subject_visit = self.enroll(gender=MALE)
-        rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(related_visit=subject_visit)
+        rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(
+            related_visit=subject_visit
+        )
         for panel in [self.panel_one, self.panel_two]:
             with self.subTest(panel=panel):
-                key = "edc_metadata.subjectrequisition"
+                key = "tests.subjectrequisition"
                 for rule_result in rule_results["MyRequisitionRuleGroup.male"][key]:
                     self.assertEqual(rule_result.entry_status, REQUIRED)
                 for rule_result in rule_results["MyRequisitionRuleGroup.female"][key]:
@@ -227,11 +230,15 @@ class TestRequisitionRuleGroup(TestCase):
     @time_machine.travel(test_datetime)
     def test_rule_female(self):
         subject_visit = self.enroll(gender=FEMALE)
-        rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(related_visit=subject_visit)
+        rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(
+            related_visit=subject_visit
+        )
         for panel in [self.panel_one, self.panel_two]:
             with self.subTest(panel=panel):
-                key = "edc_metadata.subjectrequisition"
-                for rule_result in rule_results["MyRequisitionRuleGroup.female"].get(key):
+                key = "tests.subjectrequisition"
+                for rule_result in rule_results["MyRequisitionRuleGroup.female"].get(
+                    key
+                ):
                     self.assertEqual(rule_result.entry_status, REQUIRED)
                 for rule_result in rule_results["MyRequisitionRuleGroup.male"].get(key):
                     self.assertEqual(rule_result.entry_status, NOT_REQUIRED)
@@ -291,10 +298,12 @@ class TestRequisitionRuleGroup(TestCase):
     @time_machine.travel(test_datetime)
     def test_rule_male_with_source_model_as_requisition(self):
         subject_visit = self.enroll(gender=MALE)
-        rule_results, _ = RequisitionRuleGroup2().evaluate_rules(related_visit=subject_visit)
+        rule_results, _ = RequisitionRuleGroup2().evaluate_rules(
+            related_visit=subject_visit
+        )
         for panel_name in ["one", "two"]:
             with self.subTest(panel_name=panel_name):
-                key = "edc_metadata.subjectrequisition"
+                key = "tests.subjectrequisition"
                 for rule_result in rule_results["RequisitionRuleGroup2.male"][key]:
                     self.assertEqual(rule_result.entry_status, REQUIRED)
                 for rule_result in rule_results["RequisitionRuleGroup2.female"][key]:
@@ -306,11 +315,13 @@ class TestRequisitionRuleGroup(TestCase):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
         subject_visit = self.enroll(gender=MALE)
-        SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit, panel=self.panel_five
+        )
         for panel_name in ["one", "two"]:
             with self.subTest(panel_name=panel_name):
                 obj = RequisitionMetadata.objects.get(
-                    model="edc_metadata.subjectrequisition",
+                    model="tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel_name,
@@ -322,11 +333,13 @@ class TestRequisitionRuleGroup(TestCase):
         subject_visit = self.enroll(gender=MALE)
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
-        SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit, panel=self.panel_five
+        )
         for panel_name in ["three", "four"]:
             with self.subTest(panel_name=panel_name):
                 obj = RequisitionMetadata.objects.get(
-                    model="edc_metadata.subjectrequisition",
+                    model="tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel_name,
@@ -338,11 +351,13 @@ class TestRequisitionRuleGroup(TestCase):
         subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
-        SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit, panel=self.panel_five
+        )
         for panel in [self.panel_three, self.panel_four]:
             with self.subTest(panel=panel):
                 obj = RequisitionMetadata.objects.get(
-                    model="edc_metadata.subjectrequisition",
+                    model="tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel.name,
@@ -354,11 +369,13 @@ class TestRequisitionRuleGroup(TestCase):
         subject_visit = self.enroll(gender=FEMALE)
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
-        SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit, panel=self.panel_five
+        )
         for panel in [self.panel_one, self.panel_two]:
             with self.subTest(panel=panel):
                 obj = RequisitionMetadata.objects.get(
-                    model="edc_metadata.subjectrequisition",
+                    model="tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel.name,
@@ -384,7 +401,7 @@ class TestRequisitionRuleGroup(TestCase):
         ]:
             with self.subTest(panel=panel):
                 obj = RequisitionMetadata.objects.get(
-                    model="edc_metadata.subjectrequisition",
+                    model="tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel.name,
@@ -405,7 +422,7 @@ class TestRequisitionRuleGroup(TestCase):
         ]:
             with self.subTest(panel=panel):
                 obj = RequisitionMetadata.objects.get(
-                    model="edc_metadata.subjectrequisition",
+                    model="tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel.name,
@@ -423,7 +440,7 @@ class TestRequisitionRuleGroup(TestCase):
 
         # check default entry status
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -433,7 +450,7 @@ class TestRequisitionRuleGroup(TestCase):
         # create CRF that triggers rule to REQUIRED
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="hello")
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -444,7 +461,7 @@ class TestRequisitionRuleGroup(TestCase):
         crf_one.f1 = "goodbye"
         crf_one.save()
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -455,7 +472,7 @@ class TestRequisitionRuleGroup(TestCase):
         crf_one.f1 = "hello"
         crf_one.save()
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -463,9 +480,11 @@ class TestRequisitionRuleGroup(TestCase):
         self.assertEqual(metadata_obj.entry_status, REQUIRED)
 
         # KEY requisition
-        SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_six)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit, panel=self.panel_six
+        )
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -478,7 +497,7 @@ class TestRequisitionRuleGroup(TestCase):
 
         # assert KEYED value was not changed, rule was ignored
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -494,7 +513,7 @@ class TestRequisitionRuleGroup(TestCase):
         # create CRF that triggers rule to REQUIRED
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="hello")
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -502,9 +521,11 @@ class TestRequisitionRuleGroup(TestCase):
         self.assertEqual(metadata_obj.entry_status, REQUIRED)
 
         # KEY requisition
-        SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_six)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit, panel=self.panel_six
+        )
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -520,7 +541,7 @@ class TestRequisitionRuleGroup(TestCase):
 
         # assert KEYED value was not changed, rule was ignored
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -534,7 +555,7 @@ class TestRequisitionRuleGroup(TestCase):
         subject_visit = self.enroll(gender=FEMALE)
         try:
             RequisitionMetadata.objects.get(
-                model="edc_metadata.subjectrequisition",
+                model="tests.subjectrequisition",
                 subject_identifier=subject_visit.subject_identifier,
                 visit_code=subject_visit.visit_code,
                 panel_name=self.panel_six.name,
@@ -546,7 +567,7 @@ class TestRequisitionRuleGroup(TestCase):
         # create CRF that triggers rule to panel_six = REQUIRED
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="hello")
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -554,9 +575,11 @@ class TestRequisitionRuleGroup(TestCase):
         self.assertEqual(metadata_obj.entry_status, REQUIRED)
 
         # KEY requisition
-        SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_six)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit, panel=self.panel_six
+        )
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -571,7 +594,7 @@ class TestRequisitionRuleGroup(TestCase):
 
         # assert KEYED value was not changed, rule was ignored
         metadata_obj = RequisitionMetadata.objects.get(
-            model="edc_metadata.subjectrequisition",
+            model="tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,

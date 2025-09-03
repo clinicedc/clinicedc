@@ -68,7 +68,9 @@ class TestRoles(EdcAuthTestCase):
         self.assertGreater(user.groups.all().count(), 0)
         # see groups_by_role_name for expected group counts
         # note, count is the unique list count
-        self.assertEqual(user.groups.all().count(), len(site_auths.roles.get(CLINICIAN_ROLE)))
+        self.assertEqual(
+            user.groups.all().count(), len(site_auths.roles.get(CLINICIAN_ROLE))
+        )
 
     def test_remove_roles_to_user(self):
         AuthUpdater(verbose=False)

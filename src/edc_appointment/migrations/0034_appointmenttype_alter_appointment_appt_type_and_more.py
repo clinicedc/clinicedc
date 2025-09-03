@@ -25,7 +25,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "plural_name",
-                    models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+                    models.CharField(
+                        max_length=250, null=True, verbose_name="Plural name"
+                    ),
                 ),
                 (
                     "display_name",
@@ -56,7 +58,10 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("version", models.CharField(default="1.0", editable=False, max_length=35)),
+                (
+                    "version",
+                    models.CharField(default="1.0", editable=False, max_length=35),
+                ),
                 ("id", models.AutoField(primary_key=True, serialize=False)),
             ],
             options={

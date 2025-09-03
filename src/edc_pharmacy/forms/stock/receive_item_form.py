@@ -23,12 +23,16 @@ class ReceiveItemForm(forms.ModelForm):
                 cleaned_data.get("order_item").product.assignment
                 != cleaned_data.get("lot").assignment
             ):
-                raise forms.ValidationError({"lot": "Lot assignment does not match product"})
+                raise forms.ValidationError(
+                    {"lot": "Lot assignment does not match product"}
+                )
 
         # in unit_qty's
         if cleaned_data.get("qty"):
             # TODO: clean this up
-            qty_ordered = self.order_item.unit_qty + (self.order_item.unit_qty_received or 0)
+            qty_ordered = self.order_item.unit_qty + (
+                self.order_item.unit_qty_received or 0
+            )
             qty_already_received = self._meta.model.objects.filter(
                 order_item=self.order_item
             ).aggregate(unit_qty=Sum("unit_qty"))["unit_qty"] or Decimal(0)

@@ -40,13 +40,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -95,11 +97,15 @@ class Migration(migrations.Migration):
                         help_text="System auto field. UUID primary key.",
                     ),
                 ),
-                ("screening_identifier", models.CharField(db_index=True, max_length=50)),
+                (
+                    "screening_identifier",
+                    models.CharField(db_index=True, max_length=50),
+                ),
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Report Date and Time"
+                        default=edc_utils.date.get_utcnow,
+                        verbose_name="Report Date and Time",
                     ),
                 ),
                 (
@@ -120,7 +126,10 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField()),

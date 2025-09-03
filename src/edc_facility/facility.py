@@ -44,7 +44,9 @@ class Facility:
         if not name:
             raise FacilityError(f"Name cannot be None. See {repr(self)}")
         self.best_effort_available_datetime = (
-            True if best_effort_available_datetime is None else best_effort_available_datetime
+            True
+            if best_effort_available_datetime is None
+            else best_effort_available_datetime
         )
         for day in days:
             try:
@@ -61,7 +63,10 @@ class Facility:
 
     def __str__(self):
         description = ", ".join(
-            [str(day) + "(" + str(slot) + " slots)" for day, slot in self.config.items()]
+            [
+                str(day) + "(" + str(slot) + " slots)"
+                for day, slot in self.config.items()
+            ]
         )
         return f"{self.name.title()} {description}"
 
@@ -106,7 +111,10 @@ class Facility:
         max_arr = Arrow.fromdate(
             suggested_arr.datetime + forward_delta, tzinfo=ZoneInfo("UTC")
         )
-        span = [arw[0] for arw in Arrow.span_range("day", min_arr.datetime, max_arr.datetime)]
+        span = [
+            arw[0]
+            for arw in Arrow.span_range("day", min_arr.datetime, max_arr.datetime)
+        ]
         span_lt = [arw for arw in span if arw.date() < suggested_arr.date()]
         span_lt = sorted(span_lt, key=methodcaller("date"), reverse=True)
         span_gt = [arw for arw in span if arw.date() > suggested_arr.date()]
@@ -164,7 +172,9 @@ class Facility:
             if arr.date().weekday() in self.weekdays and (
                 min_arr.date() <= arr.date() < max_arr.date()
             ):
-                is_holiday = False if schedule_on_holidays else self.is_holiday(arr.datetime)
+                is_holiday = (
+                    False if schedule_on_holidays else self.is_holiday(arr.datetime)
+                )
                 if (
                     not is_holiday
                     and arr.date() not in [a.date() for a in taken_arr]

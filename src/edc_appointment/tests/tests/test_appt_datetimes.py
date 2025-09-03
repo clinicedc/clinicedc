@@ -56,7 +56,7 @@ class TestApptDatetimes(TestCase):
     def get_appt_datetimes(self, base_appt_datetime=None, subject_identifier=None):
         self.assertIsNotNone(base_appt_datetime)
         now = base_appt_datetime.astimezone(ZoneInfo("UTC"))
-        self.helper = self.helper_cls(subject_identifier=subject_identifier, now=now)
+        self.helper = self.helper_cls(now=now)
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
@@ -72,17 +72,14 @@ class TestApptDatetimes(TestCase):
         """
         self.register_visit_schedule(facility_name="7-day-clinic")
         for i in range(0, 7, 7):
-            subject_identifier = f"12345{i}"
             dte = datetime(2025, 1, 7) + relativedelta(days=i)
             now = dte.astimezone(ZoneInfo("UTC"))
-            self.helper = self.helper_cls(
-                subject_identifier=subject_identifier, now=now
-            )
-            self.helper.consent_and_put_on_schedule(
+            self.helper = self.helper_cls(now=now)
+            subject_consent = self.helper.consent_and_put_on_schedule(
                 visit_schedule_name="visit_schedule1", schedule_name="schedule1"
             )
             appointments = Appointment.objects.filter(
-                subject_identifier=subject_identifier
+                subject_identifier=subject_consent.subject_identifier
             )
             appt_datetimes = [obj.appt_datetime for obj in appointments]
             base_appt_datetime = appt_datetimes[0]

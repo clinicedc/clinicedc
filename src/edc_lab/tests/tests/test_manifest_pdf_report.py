@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 from multisite import SiteID
 from pypdf import PdfReader
@@ -23,6 +23,7 @@ from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 
 
+@tag("lab")
 @override_settings(SITE_ID=10)
 class TestManifest(SiteTestCaseMixin, TestCase):
     def test_manifest(self):
@@ -93,7 +94,10 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
             )
         self.assertEqual(self.manifest.site.name, "mochudi")
         self.assertRaises(
-            ManifestPdfReportError, write_model_to_insecure_pdf, self.manifest, user=self.user
+            ManifestPdfReportError,
+            write_model_to_insecure_pdf,
+            self.manifest,
+            user=self.user,
         )
 
         try:
@@ -122,10 +126,15 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
         # add box items with invalid aliquot identifiers
         for i in range(0, 3):
             BoxItem.objects.create(box=box, identifier=f"{i}", position=i)
-        ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
+        ManifestItem.objects.create(
+            manifest=self.manifest, identifier=box.box_identifier
+        )
         self.assertEqual(self.manifest.site.name, "mochudi")
         self.assertRaises(
-            ManifestPdfReportError, write_model_to_insecure_pdf, self.manifest, user=self.user
+            ManifestPdfReportError,
+            write_model_to_insecure_pdf,
+            self.manifest,
+            user=self.user,
         )
         try:
             write_model_to_insecure_pdf(self.manifest, user=self.user)
@@ -146,10 +155,15 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
             BoxItem.objects.create(
                 box=box, identifier=aliquot.aliquot_identifier, position=index
             )
-        ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
+        ManifestItem.objects.create(
+            manifest=self.manifest, identifier=box.box_identifier
+        )
         self.assertEqual(self.manifest.site.name, "mochudi")
         self.assertRaises(
-            ManifestPdfReportError, write_model_to_insecure_pdf, self.manifest, user=self.user
+            ManifestPdfReportError,
+            write_model_to_insecure_pdf,
+            self.manifest,
+            user=self.user,
         )
         try:
             write_model_to_insecure_pdf(self.manifest, user=self.user)

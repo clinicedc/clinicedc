@@ -45,7 +45,8 @@ class Baseline:
                 raise VisitScheduleBaselineError("timepoint may not be None")
         if not any([x == self.timepoint for x in self.timepoints.values()]):
             raise VisitScheduleBaselineError(
-                f"Unknown timepoint. For schedule {self.visit_schedule}.{self.schedule}. "
+                f"Unknown timepoint. For schedule "
+                f"{self.visit_schedule}.{self.schedule}. "
                 f"Got {self.timepoint} not in {self.timepoints}"
             )
         self.value: bool = (
@@ -56,7 +57,9 @@ class Baseline:
     def visit_schedule(self) -> VisitSchedule:
         self.have_required_attrs_or_raise()
         try:
-            visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+            visit_schedule = site_visit_schedules.get_visit_schedule(
+                self.visit_schedule_name
+            )
         except SiteVisitScheduleError as e:
             raise VisitScheduleBaselineError(str(e))
         return visit_schedule

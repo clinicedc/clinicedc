@@ -18,7 +18,9 @@ class RegisteredSubjectDfHandler(DfHandler):
     def __init__(self, exclude_system_columns=None, **kwargs):
         self._df_registered_subject = pd.DataFrame()
         self.rs_dialect = self.rs_dialect_cls(self)
-        self.exclude_system_columns = exclude_system_columns or self.exclude_system_columns
+        self.exclude_system_columns = (
+            exclude_system_columns or self.exclude_system_columns
+        )
         super().__init__(**kwargs)
 
     def prepare_dataframe(self, **kwargs):

@@ -87,7 +87,9 @@ class ModelToDataframe:
         self._encrypted_columns = None
         self._site_columns = None
         self._dataframe = pd.DataFrame()
-        self.read_frame_verbose = False if read_frame_verbose is None else read_frame_verbose
+        self.read_frame_verbose = (
+            False if read_frame_verbose is None else read_frame_verbose
+        )
         self.sites = sites
         self.drop_sys_columns = True if drop_sys_columns is None else drop_sys_columns
         self.drop_action_item_columns = (
@@ -157,8 +159,12 @@ class ModelToDataframe:
 
             # remove timezone if asked
             if self.remove_timezone:
-                for column in list(dataframe.select_dtypes(include=["datetimetz"]).columns):
-                    dataframe[column] = pd.to_datetime(dataframe[column]).dt.tz_localize(None)
+                for column in list(
+                    dataframe.select_dtypes(include=["datetimetz"]).columns
+                ):
+                    dataframe[column] = pd.to_datetime(
+                        dataframe[column]
+                    ).dt.tz_localize(None)
 
             # convert bool to int64
             for column in list(dataframe.select_dtypes(include=["bool"]).columns):
@@ -172,7 +178,9 @@ class ModelToDataframe:
                 dataframe[column] = dataframe[column].astype(str)
 
             # convert timedeltas to secs
-            for column in list(dataframe.select_dtypes(include=["timedelta64"]).columns):
+            for column in list(
+                dataframe.select_dtypes(include=["timedelta64"]).columns
+            ):
                 dataframe[column] = dataframe[column].dt.total_seconds()
 
             # fillna
@@ -231,7 +239,9 @@ class ModelToDataframe:
                 .values("id", m2m_field_name)
             )
             df_m2m = df_m2m.groupby("id")[m2m_field_name].apply(",".join).reset_index()
-            df_m2m = df_m2m.rename(columns={m2m_field_name: m2m_field_name.split("__")[0]})
+            df_m2m = df_m2m.rename(
+                columns={m2m_field_name: m2m_field_name.split("__")[0]}
+            )
             dataframe = dataframe.merge(df_m2m, on="id", how="left")
         return dataframe
 
@@ -251,17 +261,24 @@ class ModelToDataframe:
 
     def move_sys_columns_to_end(self, columns: dict[str, str]) -> dict[str, str]:
         system_columns = [
-            f.name for f in self.model_cls._meta.get_fields() if f.name in SYSTEM_COLUMNS
+            f.name
+            for f in self.model_cls._meta.get_fields()
+            if f.name in SYSTEM_COLUMNS
         ]
         new_columns = {k: v for k, v in columns.items() if k not in system_columns}
         if system_columns:
-            if len(new_columns.keys()) != len(columns.keys()) and not self.drop_sys_columns:
+            if (
+                len(new_columns.keys()) != len(columns.keys())
+                and not self.drop_sys_columns
+            ):
                 new_columns.update({k: k for k in system_columns})
         return new_columns
 
     def move_action_item_columns(self, columns: dict[str, str]) -> dict[str, str]:
         action_item_columns = [
-            f.name for f in self.model_cls._meta.get_fields() if f.name in ACTION_ITEM_COLUMNS
+            f.name
+            for f in self.model_cls._meta.get_fields()
+            if f.name in ACTION_ITEM_COLUMNS
         ]
         new_columns = {k: v for k, v in columns.items() if k not in ACTION_ITEM_COLUMNS}
         if action_item_columns:
@@ -305,7 +322,9 @@ class ModelToDataframe:
             columns = self.move_sys_columns_to_end(columns)
             # ensure no encrypted fields were added
             if not self.decrypt:
-                columns = {k: v for k, v in columns.items() if k not in self.encrypted_columns}
+                columns = {
+                    k: v for k, v in columns.items() if k not in self.encrypted_columns
+                }
             self._columns = columns
         return self._columns
 
@@ -323,7 +342,9 @@ class ModelToDataframe:
             except ValueError:
                 pass
         if not self.decrypt:
-            columns_list = [col for col in columns_list if col not in self.encrypted_columns]
+            columns_list = [
+                col for col in columns_list if col not in self.encrypted_columns
+            ]
         return columns_list
 
     @property
@@ -348,7 +369,9 @@ class ModelToDataframe:
                 if (
                     hasattr(fld_cls, "related_model")
                     and fld_cls.related_model
-                    and issubclass(fld_cls.related_model, (ListModelMixin, ListUuidModelMixin))
+                    and issubclass(
+                        fld_cls.related_model, (ListModelMixin, ListUuidModelMixin)
+                    )
                 ):
                     list_columns.append(fld_cls.attname)
             self._list_columns = list(set(list_columns))
@@ -394,7 +417,9 @@ class ModelToDataframe:
     def add_subject_identifier_column(self, columns: dict[str, str]) -> dict[str, str]:
         if "subject_identifier" not in [v for v in columns.values()]:
             subject_identifier_column = None
-            id_columns = [col.replace("_id", "") for col in columns if col.endswith("_id")]
+            id_columns = [
+                col.replace("_id", "") for col in columns if col.endswith("_id")
+            ]
             for col in id_columns:
                 field = getattr(self.model_cls, col, None)
                 if field and [
@@ -414,9 +439,13 @@ class ModelToDataframe:
     ) -> dict[str, str]:
         if "subject_identifier" not in [v for v in columns.values()]:
             columns.update(
-                {f"{column_name}__appointment__subject_identifier": "subject_identifier"}
+                {
+                    f"{column_name}__appointment__subject_identifier": "subject_identifier"
+                }
             )
-        columns.update({f"{column_name}__appointment__appt_datetime": "appointment_datetime"})
+        columns.update(
+            {f"{column_name}__appointment__appt_datetime": "appointment_datetime"}
+        )
         columns.update({f"{column_name}__appointment__visit_code": "visit_code"})
         columns.update(
             {f"{column_name}__appointment__visit_code_sequence": "visit_code_sequence"}
@@ -426,7 +455,9 @@ class ModelToDataframe:
         return columns
 
     @staticmethod
-    def add_columns_for_subject_requisitions(columns: dict[str, str] = None) -> dict[str, str]:
+    def add_columns_for_subject_requisitions(
+        columns: dict[str, str] = None,
+    ) -> dict[str, str]:
         for col in copy(columns):
             if col.endswith("_requisition_id"):
                 col_prefix = col.split("_")[0]
@@ -451,7 +482,9 @@ class ModelToDataframe:
                 columns.update({f"{col_prefix}__name": f"{col_prefix}_name"})
         return columns
 
-    def add_list_model_name_columns(self, columns: dict[str, str] = None) -> dict[str, str]:
+    def add_list_model_name_columns(
+        self, columns: dict[str, str] = None
+    ) -> dict[str, str]:
         for col in copy(columns):
             if col in self.list_columns:
                 column_name = col.split("_id")[0]

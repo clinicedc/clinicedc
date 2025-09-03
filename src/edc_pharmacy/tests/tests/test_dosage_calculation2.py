@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import tag, TestCase
 
 from edc_list_data import site_list_data
 from edc_pharmacy.dosage_calculator import DosageCalculator
@@ -13,6 +13,7 @@ from edc_pharmacy.models import (
 )
 
 
+@tag("pharmacy")
 class TestDoseCalculator(TestCase):
     def setUp(self):
         site_list_data.initialize()
@@ -50,7 +51,8 @@ class TestDoseCalculator(TestCase):
         """2 tabs / day = 1000mg"""
         self.assertEqual(
             DosageCalculator(
-                dosage_guideline=self.dosage_guideline_baseline, formulation=self.formulation
+                dosage_guideline=self.dosage_guideline_baseline,
+                formulation=self.formulation,
             ).dosage,
             2.0,
         )

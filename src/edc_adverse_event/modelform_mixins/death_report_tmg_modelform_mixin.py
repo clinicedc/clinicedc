@@ -12,7 +12,10 @@ class DeathReportTmgModelFormMixin(AeModelFormMixin):
         pass
 
     class Meta:
-        help_text = {"subject_identifier": "(read-only)", "action_identifier": "(read-only)"}
+        help_text = {
+            "subject_identifier": "(read-only)",
+            "action_identifier": "(read-only)",
+        }
         widgets = {
             "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
             "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),

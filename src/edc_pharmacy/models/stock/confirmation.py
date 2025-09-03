@@ -45,7 +45,9 @@ class Confirmation(BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.confirmation_identifier:
-            self.confirmation_identifier = f"{get_next_value(self._meta.label_lower):06d}"
+            self.confirmation_identifier = (
+                f"{get_next_value(self._meta.label_lower):06d}"
+            )
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

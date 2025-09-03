@@ -202,7 +202,9 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="actionitem",
-            unique_together={("subject_identifier", "action_type", "action_identifier")},
+            unique_together={
+                ("subject_identifier", "action_type", "action_identifier")
+            },
         ),
         migrations.AddField(
             model_name="action",

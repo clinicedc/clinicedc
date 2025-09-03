@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from ...df_handlers import DfHandler
-from ...site import (
+from edc_pdutils.df_handlers import DfHandler
+from edc_pdutils.site import (
     AlreadyRegistered,
     SiteDataframeHandlerNotFound,
     site_dataframe_handlers,

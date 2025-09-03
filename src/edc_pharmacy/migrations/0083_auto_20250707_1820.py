@@ -24,7 +24,10 @@ def update_confirm(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("edc_pharmacy", "0082_alter_confirmation_managers_remove_confirmation_site_and_more"),
+        (
+            "edc_pharmacy",
+            "0082_alter_confirmation_managers_remove_confirmation_site_and_more",
+        ),
     ]
 
     operations = [migrations.RunPython(update_confirm)]

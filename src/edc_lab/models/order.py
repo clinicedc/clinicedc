@@ -25,7 +25,9 @@ class Order(SiteModelMixin, BaseUuidModel):
 
     order_identifier = models.CharField(max_length=25, editable=False, unique=True)
 
-    order_datetime = models.DateTimeField(default=get_utcnow, validators=[datetime_not_future])
+    order_datetime = models.DateTimeField(
+        default=get_utcnow, validators=[datetime_not_future]
+    )
 
     panel_name = models.CharField(max_length=25)
 

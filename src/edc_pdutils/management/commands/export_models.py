@@ -201,14 +201,18 @@ class Command(BaseCommand):
                     if not export_format or export_format == "csv":
                         exporter.to_csv(dataframe=m.dataframe)
                     elif export_format == "stata":
-                        exporter.to_stata(dataframe=m.dataframe, dta_version=stata_dta_version)
+                        exporter.to_stata(
+                            dataframe=m.dataframe, dta_version=stata_dta_version
+                        )
                     print(f" * {model_name}")
 
     def validate_user_perms_or_raise(self) -> None:
         username = input("Username:")
         passwd = getpass.getpass("Password for " + username + ":")
         try:
-            user = User.objects.get(username=username, is_superuser=False, is_active=True)
+            user = User.objects.get(
+                username=username, is_superuser=False, is_active=True
+            )
         except ObjectDoesNotExist:
             raise CommandError("Invalid username or password.")
         if not user.check_password(passwd):
@@ -251,7 +255,8 @@ class Command(BaseCommand):
                 models.update(
                     {
                         app_label: get_model_names(
-                            app_label=app_label, exclude_historical=self.exclude_historical
+                            app_label=app_label,
+                            exclude_historical=self.exclude_historical,
                         )
                     }
                 )

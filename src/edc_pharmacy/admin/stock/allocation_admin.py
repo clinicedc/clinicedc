@@ -197,22 +197,30 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             label=f"{obj.stock_request_item.stock_request.request_identifier}",
             title="Go to stock request",
         )
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     @admin.display(description="Stock #")
     def stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.stock.code}"
         context = dict(url=url, label=f"{obj.stock.code}", title="Go to stock")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
-    @admin.display(description="Subject #", ordering="registered_subject__subject_identifier")
+    @admin.display(
+        description="Subject #", ordering="registered_subject__subject_identifier"
+    )
     def dashboard(self, obj=None, label=None):
         context = {}
         try:
             url = reverse(
                 self.get_subject_dashboard_url_name(),
-                kwargs={"subject_identifier": obj.registered_subject.subject_identifier},
+                kwargs={
+                    "subject_identifier": obj.registered_subject.subject_identifier
+                },
             )
         except NoReverseMatch:
             url = None
@@ -223,5 +231,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 label=obj.registered_subject.subject_identifier,
             )
         if url:
-            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+            return render_to_string(
+                "edc_pharmacy/stock/items_as_link.html", context=context
+            )
         return None

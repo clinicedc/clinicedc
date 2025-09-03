@@ -24,6 +24,8 @@ def manifest_item_on_post_delete(sender, instance, using, **kwargs):
         box.save()
 
 
-@receiver(post_delete, weak=False, sender=BoxItem, dispatch_uid="box_item_on_post_delete")
+@receiver(
+    post_delete, weak=False, sender=BoxItem, dispatch_uid="box_item_on_post_delete"
+)
 def box_item_on_post_delete(sender, instance, using, **kwargs):
     instance.box.save()

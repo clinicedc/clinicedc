@@ -51,7 +51,10 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("version", models.CharField(default="1.0", editable=False, max_length=35)),
+                (
+                    "version",
+                    models.CharField(default="1.0", editable=False, max_length=35),
+                ),
                 ("id", models.AutoField(primary_key=True, serialize=False)),
             ],
             options={
@@ -59,7 +62,14 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Non-Adherence Reasons",
                 "ordering": ["display_index", "display_name"],
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.AddIndex(

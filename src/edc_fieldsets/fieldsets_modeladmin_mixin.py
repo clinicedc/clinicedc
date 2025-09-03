@@ -71,7 +71,9 @@ class FieldsetsModelAdminMixin:
             except AttributeError:
                 pass
             try:
-                fieldsets.remove_fields(*fieldlist.remove_fields, section=fieldlist.section)
+                fieldsets.remove_fields(
+                    *fieldlist.remove_fields, section=fieldlist.section
+                )
             except AttributeError:
                 pass
         fieldsets.move_to_end(self.fieldsets_move_to_end)

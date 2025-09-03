@@ -22,7 +22,8 @@ class ListFieldWithOtherListFilter(SimpleListFilter):
                 )
                 .order_by(f"{self.parameter_name}__name")
                 .values_list(
-                    f"{self.parameter_name}__name", f"{self.parameter_name}__display_name"
+                    f"{self.parameter_name}__name",
+                    f"{self.parameter_name}__display_name",
                 )
                 .annotate(count=Count(f"{self.parameter_name}__name"))
             )

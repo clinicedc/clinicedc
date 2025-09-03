@@ -65,7 +65,9 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):  # noq
                 _namespace = p.namespace or namespace
             pattern = describe_pattern(p)
             views.extend(
-                extract_views_from_urlpatterns(patterns, base + pattern, namespace=_namespace)
+                extract_views_from_urlpatterns(
+                    patterns, base + pattern, namespace=_namespace
+                )
             )
         elif hasattr(p, "_get_callback"):
             try:

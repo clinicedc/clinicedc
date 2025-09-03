@@ -5,7 +5,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("edc_metadata", "0026_rename_model_verbose_name_crfmetadata_document_name_and_more"),
+        (
+            "edc_metadata",
+            "0026_rename_model_verbose_name_crfmetadata_document_name_and_more",
+        ),
     ]
 
     operations = [
@@ -13,7 +16,14 @@ class Migration(migrations.Migration):
             name="crfmetadata",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Crf collection status",
                 "verbose_name_plural": "Crf collection status",
             },
@@ -22,7 +32,14 @@ class Migration(migrations.Migration):
             name="requisitionmetadata",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Requisition collection status",
                 "verbose_name_plural": "Requisition collection status",
             },

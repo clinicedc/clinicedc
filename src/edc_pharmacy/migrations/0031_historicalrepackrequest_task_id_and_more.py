@@ -26,7 +26,10 @@ class Migration(migrations.Migration):
             model_name="historicalrepackrequest",
             name="processed_qty",
             field=models.DecimalField(
-                decimal_places=2, max_digits=20, null=True, verbose_name="Containers processed"
+                decimal_places=2,
+                max_digits=20,
+                null=True,
+                verbose_name="Containers processed",
             ),
         ),
         migrations.AlterField(
@@ -44,7 +47,10 @@ class Migration(migrations.Migration):
             model_name="repackrequest",
             name="processed_qty",
             field=models.DecimalField(
-                decimal_places=2, max_digits=20, null=True, verbose_name="Containers processed"
+                decimal_places=2,
+                max_digits=20,
+                null=True,
+                verbose_name="Containers processed",
             ),
         ),
         migrations.AlterField(

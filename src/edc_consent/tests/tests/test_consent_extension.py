@@ -3,25 +3,23 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
-from django.test import TestCase, override_settings, tag
-from model_bakery import baker
+from django.test import override_settings, tag, TestCase
 
+from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_consent.consent_definition_extension import ConsentDefinitionExtension
 from edc_consent.tests.consent_test_utils import consent_factory
+from edc_constants.constants import NO, YES
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.helper import Helper
+from tests.models import SubjectConsentV1Ext
+from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
 
 @tag("consent")
 @time_machine.travel(datetime(2025, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
-    EDC_AUTH_SKIP_SITE_AUTHS=True,
-    EDC_AUTH_SKIP_AUTH_UPDATER=False,
-)
+@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False)
 class TestConsentExtension(TestCase):
     def setUp(self):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
@@ -33,38 +31,39 @@ class TestConsentExtension(TestCase):
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
-        self.consent_v1_ext = ConsentDefinitionExtension(
-            "tests.subjectconsentv11",
+        consent_v1_ext = ConsentDefinitionExtension(
+            "tests.subjectconsentv1ext",
             version="1.1",
-            start=datetime(2024, 12, 16, tzinfo=ZoneInfo("UTC")),
+            start=self.study_open_datetime,
             extends=self.consent_v1,
-            timepoints=list(range(15, 18 + 1)),
+            timepoints=[3, 4],
         )
-        site_consents.register(self.consent_v1, extended_by=self.consent_v1_ext)
+        site_consents.register(self.consent_v1, extended_by=consent_v1_ext)
+
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(
+            get_visit_schedule([self.consent_v1], extend=True)
+        )
+
         self.dob = self.study_open_datetime - relativedelta(years=25)
 
     def test_consent_version_extension(self):
-        subject_identifier = "123456789"
-        identity = "987654321"
-        baker.make_recipe(
-            "tests.subjectconsentv1",
-            subject_identifier=subject_identifier,
-            identity=identity,
-            confirm_identity=identity,
-            consent_datetime=self.study_open_datetime + timedelta(days=1),
-            dob=get_utcnow() - relativedelta(years=25),
-        )
-        subject_consent = site_consents.get_consent_or_raise(
-            subject_identifier="123456789",
+        helper = Helper()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule1",
+            consent_definition=self.consent_v1,
             report_datetime=self.study_open_datetime + timedelta(days=1),
-            site_id=settings.SITE_ID,
         )
         self.assertEqual(subject_consent.version, "1.0")
-        baker.make_recipe(
-            "tests.subjectconsentv1ext",
-            subject_identifier=subject_identifier,
-            identity=identity,
-            confirm_identity=identity,
-            consent_datetime=self.study_open_datetime + timedelta(days=1),
-            dob=get_utcnow() - relativedelta(years=25),
+        self.assertEqual(Appointment.objects.all().count(), 3)
+
+        consent_ext = SubjectConsentV1Ext.objects.create(
+            subject_consent=subject_consent,
+            agrees_to_extension=YES,
         )
+        self.assertEqual(Appointment.objects.all().count(), 5)
+        consent_ext.agrees_to_extension = NO
+        consent_ext.save()
+        self.assertEqual(Appointment.objects.all().count(), 3)

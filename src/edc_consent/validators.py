@@ -14,7 +14,8 @@ class SubjectTypeValidator:
     def __call__(self, value):
         if value not in self.subject_types:
             raise ValidationError(
-                "Undefined subject type. Expected one of '{subject_types}'. " "Got '{value}'.",
+                "Undefined subject type. Expected one of '{subject_types}'. "
+                "Got '{value}'.",
                 params={
                     "subject_types": "' or '".join(self.subject_types),
                     "value": value,

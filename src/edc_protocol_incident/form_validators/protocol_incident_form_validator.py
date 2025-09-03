@@ -10,7 +10,9 @@ class ProtocolIncidentFormValidator(
     IncidentFormvalidatorMixin, PrnFormValidatorMixin, FormValidator
 ):
     def clean(self):
-        self.required_if(YES, field="safety_impact", field_required="safety_impact_details")
+        self.required_if(
+            YES, field="safety_impact", field_required="safety_impact_details"
+        )
 
         self.required_if(
             YES,
@@ -20,13 +22,16 @@ class ProtocolIncidentFormValidator(
         if (
             self.cleaned_data.get("incident_datetime")
             and self.report_datetime
-            and self.cleaned_data.get("incident_datetime") > to_local(self.report_datetime)
+            and self.cleaned_data.get("incident_datetime")
+            > to_local(self.report_datetime)
         ):
             self.raise_validation_error(
                 {"incident_datetime": "May not be after report date/time"},
                 error_code=INVALID_ERROR,
             )
-        self.validate_other_specify(field="incident", other_specify_field="incident_other")
+        self.validate_other_specify(
+            field="incident", other_specify_field="incident_other"
+        )
 
         self.required_if_not_none(
             field="corrective_action_datetime", field_required="corrective_action"

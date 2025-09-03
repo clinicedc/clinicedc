@@ -1,16 +1,17 @@
 import uuid
 
-from export_app.models import Crf, CrfOne, CrfThree, CrfTwo, ListModel, SubjectVisit
-
 from edc_appointment.models import Appointment
 from edc_utils import get_utcnow
+from tests.models import CrfFour, CrfOne, CrfThree, CrfTwo, ListModel, SubjectVisit
 
 from .create_crfs_with_inlines import create_crf_with_inlines
 
 
 def create_crfs(i) -> None:
     j = 0
-    for appointment in Appointment.objects.all().order_by("timepoint", "visit_code_sequence"):
+    for appointment in Appointment.objects.all().order_by(
+        "timepoint", "visit_code_sequence"
+    ):
         j += 1
         if j == i:
             break
@@ -46,7 +47,7 @@ def create_crfs(i) -> None:
                 f"{subject_visit.appointment.visit_code}"
             ),
         )
-        Crf.objects.create(
+        CrfFour.objects.create(
             subject_visit=subject_visit,
             char1=f"char{subject_visit.appointment.visit_code}",
             date1=get_utcnow(),

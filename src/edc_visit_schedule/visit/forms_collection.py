@@ -42,8 +42,8 @@ class FormsCollection:
             if duplicates := get_duplicates(list_items=seq):
                 raise FormsCollectionError(
                     f'{self.__class__.__name__} "show order" must be a '
-                    f"unique sequence. Got {sorted(seq)}.  Duplicates {sorted(duplicates)}. "
-                    f"See {self}."
+                    f"unique sequence. Got {sorted(seq)}. "
+                    f"Duplicates {sorted(duplicates)}. See {self}."
                 )
 
         # convert to tuple

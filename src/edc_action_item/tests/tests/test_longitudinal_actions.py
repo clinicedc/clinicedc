@@ -2,29 +2,28 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
-from django.test import TestCase, override_settings
+from django.test import tag, TestCase
 
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
 from edc_appointment.models import Appointment
-from edc_consent.consent_definition import ConsentDefinition
-from edc_constants.constants import FEMALE, MALE
+from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from tests.action_items import CrfLongitudinalOneAction, CrfLongitudinalTwoAction
+from tests.consents import consent_v1
+from tests.helper import Helper
 from tests.models import CrfLongitudinalOne
-
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 from ..test_case_mixin import TestCaseMixin
 
-test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
+utc_tz = ZoneInfo("UTC")
 
 
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
-)
+@tag("action_item")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestLongitudinal(TestCaseMixin, TestCase):
     @classmethod
     def setUpClass(cls):
@@ -32,21 +31,18 @@ class TestLongitudinal(TestCaseMixin, TestCase):
         return super().setUpClass()
 
     def setUp(self):
+        helper = Helper()
         site_action_items.registry = {}
         site_action_items.register(CrfLongitudinalOneAction)
         site_action_items.register(CrfLongitudinalTwoAction)
-        consent_v1 = ConsentDefinition(
-            "tests.subjectconsentv1",
-            version="1",
-            start=test_datetime,
-            end=test_datetime + relativedelta(years=3),
-            age_min=18,
-            age_is_adult=18,
-            age_max=64,
-            gender=[MALE, FEMALE],
-        )
-        self.subject_identifier = self.enroll(
-            consent_datetime=test_datetime, cdef=consent_v1
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
+
+        self.subject_identifier = helper.consent_and_put_on_schedule(
+            consent_definition=consent_v1
         )
 
     def test_(self):

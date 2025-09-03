@@ -16,7 +16,8 @@ def transfer_stock_action(modeladmin, request, queryset):
         )
     else:
         url = reverse(
-            "edc_pharmacy:transfer_stock_url", kwargs={"stock_transfer": queryset.first().pk}
+            "edc_pharmacy:transfer_stock_url",
+            kwargs={"stock_transfer": queryset.first().pk},
         )
         return HttpResponseRedirect(url)
     return None

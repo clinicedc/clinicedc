@@ -34,7 +34,9 @@ class LossToFollowupFormValidator(FormValidator):
         last_obj = (
             get_related_visit_model_cls()
             .objects.filter(
-                appointment__subject_identifier=self.cleaned_data.get("subject_identifier"),
+                appointment__subject_identifier=self.cleaned_data.get(
+                    "subject_identifier"
+                ),
             )
             .last()
         )
@@ -60,9 +62,12 @@ class RequiresLtfuFormValidatorMixin:
         return django_apps.get_model(self.ltfu_model)
 
     def validate_ltfu(self):
-        if self.ltfu_model and (self.cleaned_data.get("subject_identifier") or self.instance):
+        if self.ltfu_model and (
+            self.cleaned_data.get("subject_identifier") or self.instance
+        ):
             subject_identifier = (
-                self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
+                self.cleaned_data.get("subject_identifier")
+                or self.instance.subject_identifier
             )
 
             try:

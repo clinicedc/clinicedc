@@ -18,6 +18,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="historicalcontainer",
             name="display_name",
-            field=models.CharField(blank=True, db_index=True, max_length=100, null=True),
+            field=models.CharField(
+                blank=True, db_index=True, max_length=100, null=True
+            ),
         ),
     ]

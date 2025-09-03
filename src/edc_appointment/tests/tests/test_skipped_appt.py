@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import (
     COMPLETE_APPT,
@@ -21,7 +21,6 @@ from edc_appointment.skip_appointments import (
     SkipAppointmentsFieldError,
     SkipAppointmentsValueError,
 )
-from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
 from edc_appointment.utils import get_allow_skipped_appt_using
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -46,7 +45,7 @@ utc = ZoneInfo("UTC")
 @tag("appointment")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc))
-class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
+class TestSkippedAppt(TestCase):
     helper_cls = Helper
 
     @classmethod
@@ -55,14 +54,13 @@ class TestSkippedAppt(AppointmentTestCaseMixin, TestCase):
 
     def setUp(self):
         self.subject_identifier = "12345"
-        site_visit_schedules._registry = {}
-        site_visit_schedules.register(get_visit_schedule1())
-        site_visit_schedules.register(get_visit_schedule2())
-        site_visit_schedules.register(get_visit_schedule5())
         site_consents.registry = {}
         site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(get_visit_schedule1(consent_v1))
+        site_visit_schedules.register(get_visit_schedule2(consent_v1))
+        site_visit_schedules.register(get_visit_schedule5(consent_v1))
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
             now=get_utcnow(),
         )
         populate_visit_schedule()

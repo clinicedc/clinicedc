@@ -7,14 +7,19 @@ Add classes for the Informed Consent form and process.
 Concepts
 ++++++++
 
-In the EDC, the ICF is a model to be completed by each participant that is to follow the data collection schedule linked to the consent.
+In `Clinic EDC <https://github.com/clinicedc>`_ projects, the Informed Consent Form (ICF) is represented by an online document to be completed by each participant before data may be captured. The ICF is linked to a longitudinal data collection schedule or ``visit schedule``. By consenting, the participant consents for data in this ``visit schedule`` to be captured. The `Clinic EDC <https://github.com/clinicedc>`_ will allow the data values referred to in this ``visit schedule`` to be captured for the term of schedule or until the approved consent expires, whichever comes first.
 
-* Version:
-    consents have a version number. A version has a start and end date and link to a data collection schedule (visit schedule.schedule)
-* Extend existing version:
-    an existing consent version's data collection schedule may be extended, e.g. from 12 to 24 months for participants that have completed the model defined for the extension (cdef.extended_by).
-* Version updates previous version:
-    For changes to the protocol that affect the data collection schedule, the consent version can be bumped up. For example, bump v1 to v2. Once participants reach a report data after the v1 end data, data collection will be blocked unless v2 is completed.
+Consents are versioned
+~~~~~~~~~~~~~~~~~~~~~~
+consents have a version number. A consent version has a start and end date and determines the timing of capturing data in the data collection schedule (See edc_visit_schedule.visit_schedule and edc_visit_schedule.schedule)
+
+A consent version may be extended
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+an existing consent may be extended, e.g. from 12 to 24 months for participants that have completed the consent extension. A consent extension is indicated on the original consent definition (cdef) using the ``cdef.extended_by`` attribute. COnsent extensions extend the timepoints only.
+
+A new consent version may be added for protocol changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For changes to the protocol that affect the data collection schedule, the consent version, 1.0,  can be bumped up to cover the change. For example, if the protocol has been changed to add an HbA1c test every three months after 12m, a new consent, 2.0, is created and required for these new. Once participants reach a report date after the v1 end date, data collection will be blocked unless v2 is complete.
 
 
 Features
@@ -110,16 +115,6 @@ on the ``start`` date, ``end`` date, ``version`` and ``model`` for now.
     site_consents.register(consent_v1)
 
 
-add to settings:
-
-.. code-block:: bash
-
-    INSTALLED_APPS = [
-        ...
-        'edc_consent.apps.AppConfig',
-        ...
-    ]
-
 On bootup ``site_consents`` will ``autodiscover`` the ``consents.py`` and register the ``ConsentDefinition``.
 
 To create an instance of the consent for a subject, find the ``ConsentDefinitions`` and use
@@ -135,7 +130,7 @@ To create an instance of the consent for a subject, find the ``ConsentDefinition
     assert cdef.version == "1"
     assert cdef.model == "edc_example.subjectconsentv1"
 
-    consent_obj = cdef.model_cls.objects.create(
+    consent_obj = cdef.model_create(
         subject_identifier="123456789",
         consent_datetime=datetime(2013, 10, 16, tzinfo=ZoneInfo("UTC"),
         ...)
@@ -194,7 +189,7 @@ Add a second ``ConsentDefinition`` to ``your consents.py`` for version 2:
     assert cdef.version == "2"
     assert cdef.model == "edc_example.subjectconsentv2"
 
-    consent_obj = cdef.model_cls.objects.create(
+    consent_obj = cdef.model_create(
         subject_identifier="123456789",
         consent_datetime=datetime(2016, 10, 17, tzinfo=ZoneInfo("UTC"),
         ...)
@@ -203,7 +198,7 @@ Add a second ``ConsentDefinition`` to ``your consents.py`` for version 2:
     assert consent_obj.consent_model == "edc_example.subjectconsentv2"
 
 
-``edc_consent`` is coupled with ``edc_visit_schedule``. In fact, a data collection schedule is declared with one or more ``ConsentDefinitions``. CRFs and Requisitions listed in a schedule may only be submitted if the subject has consented.
+:doc:`edc_consent` is coupled with :doc:`edc_visit_schedule`. In fact, a data collection schedule is declared with one or more ``ConsentDefinitions``. CRFs and Requisitions listed in a schedule may only be submitted if the subject has consented.
 
 .. code-block:: python
 
@@ -467,3 +462,6 @@ TODO
 * review verification actions
 * management command to update version on models that require consent (if edc_consent added after instances were created)
 * handle re-consenting issues, for example, if original consent was restricted by age (16-64) but the re-consent is not. May need to open upper bound.
+
+.. _edc_consent: https://github.com/clinicedc/clinicedc/tree/develop/src/edc_consent
+.. _edc_visit_schedule: https://github.com/clinicedc/clinicedc/tree/develop/src/edc_visit_schedule

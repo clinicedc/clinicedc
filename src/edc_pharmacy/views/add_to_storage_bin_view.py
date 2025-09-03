@@ -61,7 +61,9 @@ def update_bin(
 
 
 @method_decorator(login_required, name="dispatch")
-class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
+class AddToStorageBinView(
+    EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+):
     model_pks: list[str] | None = None
     template_name: str = "edc_pharmacy/stock/add_to_storage_bin.html"
     navbar_name = settings.APP_NAME
@@ -168,7 +170,9 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
         return None
 
     def post(self, request, *args, **kwargs):
-        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
+        stock_codes = (
+            request.POST.getlist("codes") if request.POST.get("codes") else None
+        )
         storage_bin = StorageBin.objects.get(id=kwargs.get("storage_bin"))
         items_to_scan = request.POST.get("items_to_scan") or kwargs.get("items_to_scan")
         if items_to_scan:

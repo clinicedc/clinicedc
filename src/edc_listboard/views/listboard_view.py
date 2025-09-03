@@ -43,7 +43,9 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
     show_change_form_button: bool = True
 
     # permissions
-    permissions_warning_message: str = _("You do not have permission to view these data.")
+    permissions_warning_message: str = _(
+        "You do not have permission to view these data."
+    )
     # e.g. "edc_subject_dashboard.view_subject_listboard"
     listboard_view_permission_codename: str | None = None
     # e.g. "edc_subject_dashboard.view_subject_listboard"
@@ -88,7 +90,8 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
             listboard_view_permission_codename=self.listboard_view_permission_codename,
             permissions_warning_message=self.permissions_warning_message,
             **self.add_url_to_context(
-                new_key="paginator_url", existing_key=self.paginator_url or self.listboard_url
+                new_key="paginator_url",
+                existing_key=self.paginator_url or self.listboard_url,
             ),
         )
         return super().get_context_data(**kwargs)
@@ -202,7 +205,9 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
         """Returns True if `request.user` ONLY has permissions to
         view records created by `request.user` on the listboard.
         """
-        return self.request.user.has_perm(self.listboard_view_only_my_permission_codename)
+        return self.request.user.has_perm(
+            self.listboard_view_only_my_permission_codename
+        )
 
     @property
     def has_listboard_model_perms(self):

@@ -121,7 +121,9 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferitem_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(url=url, label=count, title="Go to stock transfer items")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     @admin.display(description="Confirmed at site")
     def stock_transfer_item_confirmed_changelist(self, obj):
@@ -135,7 +137,9 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             label=num_confirmed_at_site,
             title="Items confirmed at site",
         )
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     @admin.display(description="Unconfirmed")
     def stock_transfer_item_unconfirmed_changelist(self, obj):
@@ -152,11 +156,15 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             label=num_transferred - num_confirmed_at_site,
             title="Items not confirmed at site",
         )
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     @admin.display(description="Stock", ordering="stock__code")
     def stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(url=url, label="Stock", title="Go to stock")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )

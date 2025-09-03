@@ -109,7 +109,15 @@ def create_obj_for_new_units_or_raise(
             for k, v in obj.__dict__.items()
             if not k.startswith("_")
             and k
-            not in ["id", "units", "description", "phrase", "lower", "upper", *SYSTEM_COLUMNS]
+            not in [
+                "id",
+                "units",
+                "description",
+                "phrase",
+                "lower",
+                "upper",
+                *SYSTEM_COLUMNS,
+            ]
         }
         opts["lower"] = convert_units(
             label=obj.label,

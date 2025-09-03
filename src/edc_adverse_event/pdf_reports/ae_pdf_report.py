@@ -89,7 +89,9 @@ class AePdfReport(CrfPdfReport):
         susar_reported = ""
         if self.model_obj.susar == YES:
             susar_reported = (
-                ": reported" if self.model_obj.susar_reported == YES else ": not reported"
+                ": reported"
+                if self.model_obj.susar_reported == YES
+                else ": not reported"
             )
         susar_text = f"{self.model_obj.get_susar_display()}{susar_reported}"
 
@@ -174,7 +176,9 @@ class AePdfReport(CrfPdfReport):
         t1 = Table([["Section 2: Follow-up Reports"]], (18 * cm))
         self.set_table_style(t1, bg_cmd=self.bg_cmd)
         total = self.model_obj.ae_follow_ups.count()
-        row_text = f"There {p.plural_verb('is', total)} {p.no('follow-up report', total)}."
+        row_text = (
+            f"There {p.plural_verb('is', total)} {p.no('follow-up report', total)}."
+        )
         t2 = Table([[row_text]], (18 * cm))
         self.set_table_style(t2)
         story.append(KeepTogether([t1, t2]))
@@ -199,7 +203,9 @@ class AePdfReport(CrfPdfReport):
             ],
             (3 * cm, 3 * cm, 3 * cm, 9 * cm),
         )
-        self.set_table_style(t, bg_cmd=("BACKGROUND", (0, 0), (3, -1), colors.lightgrey))
+        self.set_table_style(
+            t, bg_cmd=("BACKGROUND", (0, 0), (3, -1), colors.lightgrey)
+        )
         story.append(t)
 
         followups = self.model_obj.ae_follow_ups.order_by("-created")
@@ -207,7 +213,9 @@ class AePdfReport(CrfPdfReport):
         for followup in followups:
             qs = followup.history.filter(id=followup.id).order_by("-history_date")
             for obj in qs:
-                username = obj.user_created if obj.history_type == "+" else obj.user_modified
+                username = (
+                    obj.user_created if obj.history_type == "+" else obj.user_modified
+                )
                 t = Table(
                     [
                         [
@@ -217,7 +225,9 @@ class AePdfReport(CrfPdfReport):
                             ),
                             Paragraph(username, s),
                             Paragraph(obj.modified.strftime("%Y-%m-%d %H:%M"), s),
-                            Paragraph(fill(self.history_change_message(obj), width=60), s),
+                            Paragraph(
+                                fill(self.history_change_message(obj), width=60), s
+                            ),
                         ]
                     ],
                     (3 * cm, 3 * cm, 3 * cm, 9 * cm),
@@ -231,7 +241,9 @@ class AePdfReport(CrfPdfReport):
             .order_by("-history_date")
         )
         for obj in qs:
-            username = obj.user_created if obj.history_type == "+" else obj.user_modified
+            username = (
+                obj.user_created if obj.history_type == "+" else obj.user_modified
+            )
             t = Table(
                 [
                     [

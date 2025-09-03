@@ -5,13 +5,16 @@ from django.apps import apps as django_apps
 from django.test import TransactionTestCase, override_settings
 
 from edc_appointment import list_data as appointment_list_data
+from edc_consent import site_consents
 from edc_list_data import site_list_data
+from edc_pdutils.df_exporters import CsvNonCrfTablesExporter
+from edc_pdutils.df_handlers import NonCrfDfHandler
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
-from ...df_exporters import CsvNonCrfTablesExporter
-from ...df_handlers import NonCrfDfHandler
-from ..helper import Helper
-from ..visit_schedule import get_visit_schedule
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule_pdutils.visit_schedule import (
+    get_visit_schedule,
+)
 
 app_config = django_apps.get_app_config("edc_pdutils")
 
@@ -25,13 +28,18 @@ class TestNonCrfExporter(TransactionTestCase):
 
     def setup_test_data(self):
         """Setup for each test"""
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(get_visit_schedule(5))
+        site_visit_schedules.register(get_visit_schedule(consent_v1, 5))
+
         site_list_data.initialize()
         site_list_data.register(appointment_list_data, app_name="edc_appointment")
         site_list_data.load_data()
+
         for i in range(0, 5):
-            self.helper.create_crf(i)
+            self.helper.create_crfs()
 
     def test_noncrf_tables_to_csv_from_app_label_with_columns(self):
         class MyDfHandler(NonCrfDfHandler):

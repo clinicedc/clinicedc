@@ -142,8 +142,6 @@ def get_grading_data_instances(
         if qs.count() == 0:
             msg = f"No matching grading data found for {label} {units} {gender}"
         else:
-            msg = (
-                f"No matching grading data found for {label} {units} {gender} given age bounds"
-            )
+            msg = f"No matching grading data found for {label} {units} {gender} given age bounds"
         raise NotEvaluated(f"Value not graded. {msg}")
     return grading_data_objs

@@ -1,6 +1,10 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_action_item.delete_action_item import ActionItemDeleteError, delete_action_item
 from edc_action_item.models import ActionItem
@@ -17,7 +21,11 @@ from tests.models import FormOne, FormTwo
 
 from ..test_case_mixin import TestCaseMixin
 
+utc_tz = ZoneInfo("UTC")
 
+
+@tag("action_item")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAction(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()

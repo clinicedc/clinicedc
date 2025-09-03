@@ -38,5 +38,9 @@ class AeTmgModelMixin(
         indexes = (
             NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
             + ActionModelMixin.Meta.indexes
-            + [models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])]
+            + [
+                models.Index(
+                    fields=["subject_identifier", "action_identifier", "site", "id"]
+                )
+            ]
         )

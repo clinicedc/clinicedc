@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 
 from edc_facility.facility import Facility
 from edc_facility.import_holidays import import_holidays
@@ -14,6 +14,7 @@ from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 
 
+@tag("facility")
 class TestFacility(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -58,7 +59,9 @@ class TestFacility(SiteTestCaseMixin, TestCase):
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
                 available.weekday,
-                facility.available_arr(dt, schedule_on_holidays=True).datetime.weekday(),
+                facility.available_arr(
+                    dt, schedule_on_holidays=True
+                ).datetime.weekday(),
             )
 
     def test_allowed_weekday_limited2(self):
@@ -75,7 +78,9 @@ class TestFacility(SiteTestCaseMixin, TestCase):
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
                 available.weekday,
-                facility.available_arr(dt, schedule_on_holidays=True).datetime.weekday(),
+                facility.available_arr(
+                    dt, schedule_on_holidays=True
+                ).datetime.weekday(),
             )
 
     @override_settings(SITE_ID=20)

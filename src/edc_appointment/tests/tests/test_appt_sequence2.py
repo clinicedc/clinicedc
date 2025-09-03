@@ -5,11 +5,12 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
+from edc_appointment.tests.utils import create_related_visit
 from edc_appointment.utils import reset_visit_code_sequence_or_pass
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -21,7 +22,6 @@ from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule1
 
-from ..test_case_mixins import AppointmentAppTestCaseMixin
 
 utc_tz = ZoneInfo("UTC")
 
@@ -31,7 +31,7 @@ test_datetime = dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz)
 @tag("appointment")
 @override_settings(SITE_ID=10)
 @time_machine.travel(test_datetime)
-class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
+class TestMoveAppointment(TestCase):
     helper_cls = Helper
 
     def setUp(self):
@@ -41,11 +41,10 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
-        self.visit_schedule = get_visit_schedule1()
+        self.visit_schedule = get_visit_schedule1(consent_v1)
         site_visit_schedules.register(self.visit_schedule)
 
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
             now=ResearchProtocolConfig().study_open_datetime,
         )
 
@@ -60,9 +59,9 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         self.assertEqual(appointments.count(), 4)
 
         appointment = Appointment.objects.get(timepoint=0.0)
-        self.create_related_visit(appointment)
+        create_related_visit(appointment)
         appointment = Appointment.objects.get(timepoint=1.0)
-        self.create_related_visit(appointment)
+        create_related_visit(appointment)
 
         self.appt_datetimes = [
             o.appt_datetime for o in Appointment.objects.all().order_by("appt_datetime")
@@ -183,11 +182,11 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
     def test_repair_visit_code_sequences_with_related_visit(self):
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         appt1 = self.create_unscheduled(appointment, days=2)
-        self.create_related_visit(appt1)
+        create_related_visit(appt1)
         appt2 = self.create_unscheduled(appointment, days=4)
-        self.create_related_visit(appt2)
+        create_related_visit(appt2)
         appt3 = self.create_unscheduled(appointment, days=5)
-        self.create_related_visit(appt3)
+        create_related_visit(appt3)
 
         appt2.visit_code_sequence = 3333
         appt2.save_base(update_fields=["visit_code_sequence"])
@@ -232,11 +231,11 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
     def test_repair_visit_code_sequences_with_metadata(self):
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         appt1 = self.create_unscheduled(appointment, days=2)
-        self.create_related_visit(appt1)
+        create_related_visit(appt1)
         appt2 = self.create_unscheduled(appointment, days=4)
-        self.create_related_visit(appt2)
+        create_related_visit(appt2)
         appt3 = self.create_unscheduled(appointment, days=5)
-        self.create_related_visit(appt3)
+        create_related_visit(appt3)
 
         appt2.visit_code_sequence = 3333
         appt2.save_base(update_fields=["visit_code_sequence"])

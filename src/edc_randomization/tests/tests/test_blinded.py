@@ -41,25 +41,34 @@ class TestRandomizer(TestCaseMixin, TestCase):
 
     @override_settings(EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"])
     def test_is_unblinded_user(self):
-        get_user_model().objects.create(username="audrey", is_staff=True, is_active=True)
+        get_user_model().objects.create(
+            username="audrey", is_staff=True, is_active=True
+        )
         self.assertFalse(user_is_blinded("audrey"))
 
     @override_settings(
-        EDC_RANDOMIZATION_BLINDED_TRIAL=False, EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"]
+        EDC_RANDOMIZATION_BLINDED_TRIAL=False,
+        EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"],
     )
     def test_listed_as_unblinded_user_but_trial_is_not_a_blinded_trial(self):
-        get_user_model().objects.create(username="audrey", is_staff=True, is_active=True)
+        get_user_model().objects.create(
+            username="audrey", is_staff=True, is_active=True
+        )
         self.assertFalse(user_is_blinded("audrey"))
 
     @override_settings(
-        EDC_RANDOMIZATION_BLINDED_TRIAL=True, EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"]
+        EDC_RANDOMIZATION_BLINDED_TRIAL=True,
+        EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"],
     )
     def test_is_unblinded_user_in_a_blinded_trial(self):
-        get_user_model().objects.create(username="audrey", is_staff=True, is_active=True)
+        get_user_model().objects.create(
+            username="audrey", is_staff=True, is_active=True
+        )
         self.assertFalse(user_is_blinded("audrey"))
 
     @override_settings(
-        EDC_RANDOMIZATION_BLINDED_TRIAL=True, EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"]
+        EDC_RANDOMIZATION_BLINDED_TRIAL=True,
+        EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"],
     )
     def test_form_validator_for_auth(self):
         user = get_user_model().objects.create(
@@ -75,7 +84,8 @@ class TestRandomizer(TestCaseMixin, TestCase):
             self.fail("forms.ValidationError unexpectedly raised")
 
     @override_settings(
-        EDC_RANDOMIZATION_BLINDED_TRIAL=True, EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"]
+        EDC_RANDOMIZATION_BLINDED_TRIAL=True,
+        EDC_RANDOMIZATION_UNBLINDED_USERS=["audrey"],
     )
     def test_form_validator_for_auth2(self):
         user = get_user_model().objects.create(

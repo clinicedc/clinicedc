@@ -36,7 +36,9 @@ class ModelAdminProtectPiiMixin:
         list_display = super().get_list_display(request)
         if not request.user.groups.filter(name__in=[PII, PII_VIEW]).exists():
             # TODO: search replace from list_display if extra_pii_attr has tuple
-            list_display = [f for f in list_display if f not in self.get_encrypted_fields()]
+            list_display = [
+                f for f in list_display if f not in self.get_encrypted_fields()
+            ]
             list_display = tuple(list_display)
         return list_display
 

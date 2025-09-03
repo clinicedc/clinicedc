@@ -14,7 +14,9 @@ from .auth_objects import (
 )
 from .constants import PROTOCOL_DEVIATION_VIOLATION, PROTOCOL_INCIDENT
 
-incident_type = getattr(settings, "EDC_PROTOCOL_VIOLATION_TYPE", PROTOCOL_DEVIATION_VIOLATION)
+incident_type = getattr(
+    settings, "EDC_PROTOCOL_VIOLATION_TYPE", PROTOCOL_DEVIATION_VIOLATION
+)
 
 site_auths.add_group(*protocol_violation_codenames, name=PROTOCOL_VIOLATION)
 site_auths.add_group(*protocol_violation_view_codenames, name=PROTOCOL_VIOLATION_VIEW)

@@ -38,6 +38,8 @@ class CrfSingletonModelFormMixin:
                 msg_string = _("Invalid. This form has already been submitted. See")
                 visit_code = f"{obj.visit_code}.{obj.visit_code_sequence}"
                 error_msg = format_lazy(
-                    "{msg_string} {visit_code}", msg_string=msg_string, visit_code=visit_code
+                    "{msg_string} {visit_code}",
+                    msg_string=msg_string,
+                    visit_code=visit_code,
                 )
                 raise forms.ValidationError(error_msg)

@@ -7,7 +7,9 @@ class Command(BaseCommand):
     help = "Export users to a CSV file in the current directory"
 
     def add_arguments(self, parser):
-        parser.add_argument("--csvfile", default=None, dest="csvfile", help="CSV filename")
+        parser.add_argument(
+            "--csvfile", default=None, dest="csvfile", help="CSV filename"
+        )
 
         parser.add_argument(
             "--verbose",

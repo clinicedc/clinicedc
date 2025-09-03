@@ -13,7 +13,12 @@ def get_next_appointments(**kwargs):
     df = get_appointments(**kwargs)
     df = (
         df.groupby(
-            by=["subject_identifier", "site_id", "next_visit_code", "next_appt_datetime"]
+            by=[
+                "subject_identifier",
+                "site_id",
+                "next_visit_code",
+                "next_appt_datetime",
+            ]
         )
         .size()
         .to_frame()

@@ -32,7 +32,9 @@ class InlineModelFormMixin:
                     field_values.append(self.data[inline_field])
         return field_values
 
-    def unique_inline_values_or_raise(self, field=None, inline_model=None, field_label=None):
+    def unique_inline_values_or_raise(
+        self, field=None, inline_model=None, field_label=None
+    ):
         self.field_exists_or_raise(field, inline_model)
         inline_set = f"{inline_model.split('.')[1]}_set"
         items = self.get_inline_field_values(field=field, inline_set=inline_set)
@@ -42,7 +44,9 @@ class InlineModelFormMixin:
                 f"{field_label}: The list of values below must be unique"
             )
 
-    def dates_not_after_report_datetime(self, field=None, inline_model=None, field_label=None):
+    def dates_not_after_report_datetime(
+        self, field=None, inline_model=None, field_label=None
+    ):
         self.field_cls_is_date_or_raise(field=field, inline_model=inline_model)
         inline_set = f"{inline_model.split('.')[1]}_set"
         dates_as_str = self.get_inline_field_values(field=field, inline_set=inline_set)
@@ -55,9 +59,9 @@ class InlineModelFormMixin:
                         f"{field_label}: Invalid date or date format. Got {dte_as_str}"
                     )
                 else:
-                    if dte.astimezone(ZoneInfo(settings.TIME_ZONE)) > self.cleaned_data.get(
-                        "report_datetime"
-                    ):
+                    if dte.astimezone(
+                        ZoneInfo(settings.TIME_ZONE)
+                    ) > self.cleaned_data.get("report_datetime"):
                         raise forms.ValidationError(
                             f"{field_label}: Date cannot be after report date/time. "
                             f"Got `{dte_as_str}`."

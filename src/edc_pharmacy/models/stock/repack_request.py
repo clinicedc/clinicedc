@@ -91,7 +91,9 @@ class RepackRequest(BaseUuidModel):
                 "Unconfirmed stock item. Only confirmed stock items may "
                 "be used to repack. Perhaps catch this in the form"
             )
-        self.processed_qty = Decimal(0) if self.processed_qty is None else self.processed_qty
+        self.processed_qty = (
+            Decimal(0) if self.processed_qty is None else self.processed_qty
+        )
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

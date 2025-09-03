@@ -32,7 +32,9 @@ class VisitTrackingCrfModelFormMixin:
     """
 
     crf_date_validator_cls = CrfDateValidator
-    report_datetime_allowance = getattr(settings, "DEFAULT_REPORT_DATETIME_ALLOWANCE", 0)
+    report_datetime_allowance = getattr(
+        settings, "DEFAULT_REPORT_DATETIME_ALLOWANCE", 0
+    )
     visit_sequence_cls = VisitSequence
 
     def clean(self: Any) -> dict:
@@ -56,7 +58,21 @@ class VisitTrackingCrfModelFormMixin:
 
     @property
     def related_visit(self) -> VisitModelMixin | None:
-        return get_related_visit(self, related_visit_model_attr=self.related_visit_model_attr)
+        related_model_cls = getattr(self._meta.model, self.related_visit_model_attr)
+        if not related_model_cls:
+            raise VisitTrackingCrfModelFormMixinError(
+                "Model requires an FK to the related visit model. Is this a CRF? "
+                f"See model {self._meta.model}"
+            )
+        try:
+            related_visit = get_related_visit(
+                self, related_visit_model_attr=self.related_visit_model_attr
+            )
+        except getattr(
+            self._meta.model, self.related_visit_model_attr
+        ).RelatedObjectDoesNotExist:
+            related_visit = None
+        return related_visit
 
     @property
     def related_visit_model_attr(self) -> str:
@@ -83,7 +99,9 @@ class VisitTrackingCrfModelFormMixin:
             try:
                 self.crf_date_validator_cls(
                     report_datetime_allowance=self.report_datetime_allowance,
-                    report_datetime=self.cleaned_data.get(self.report_datetime_field_attr),
+                    report_datetime=self.cleaned_data.get(
+                        self.report_datetime_field_attr
+                    ),
                     visit_report_datetime=self.related_visit.report_datetime,
                 )
             except (
@@ -95,8 +113,11 @@ class VisitTrackingCrfModelFormMixin:
 
     def validate_visits_completed_in_order(self) -> None:
         """Asserts visits are completed in order."""
-        visit_sequence = self.visit_sequence_cls(appointment=self.related_visit.appointment)
-        try:
-            visit_sequence.enforce_sequence(document_type="CRF")
-        except VisitSequenceError as e:
-            raise forms.ValidationError(e, code=INVALID_ERROR)
+        if self.related_visit:
+            visit_sequence = self.visit_sequence_cls(
+                appointment=self.related_visit.appointment
+            )
+            try:
+                visit_sequence.enforce_sequence(document_type="CRF")
+            except VisitSequenceError as e:
+                raise forms.ValidationError(str(e), code=INVALID_ERROR)

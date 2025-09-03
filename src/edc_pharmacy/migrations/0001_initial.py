@@ -1918,7 +1918,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "weight_in_kgs",
-                    models.DecimalField(blank=True, decimal_places=1, max_digits=6, null=True),
+                    models.DecimalField(
+                        blank=True, decimal_places=1, max_digits=6, null=True
+                    ),
                 ),
                 ("clinician_initials", models.CharField(max_length=3, null=True)),
                 (
@@ -2069,7 +2071,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "weight_in_kgs",
-                    models.DecimalField(blank=True, decimal_places=1, max_digits=6, null=True),
+                    models.DecimalField(
+                        blank=True, decimal_places=1, max_digits=6, null=True
+                    ),
                 ),
                 (
                     "refill_date",
@@ -3167,7 +3171,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "weight_in_kgs",
-                    models.DecimalField(blank=True, decimal_places=1, max_digits=6, null=True),
+                    models.DecimalField(
+                        blank=True, decimal_places=1, max_digits=6, null=True
+                    ),
                 ),
                 ("clinician_initials", models.CharField(max_length=3, null=True)),
                 (
@@ -3322,7 +3328,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "weight_in_kgs",
-                    models.DecimalField(blank=True, decimal_places=1, max_digits=6, null=True),
+                    models.DecimalField(
+                        blank=True, decimal_places=1, max_digits=6, null=True
+                    ),
                 ),
                 (
                     "refill_date",

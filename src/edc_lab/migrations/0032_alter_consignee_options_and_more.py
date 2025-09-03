@@ -13,7 +13,14 @@ class Migration(migrations.Migration):
             name="consignee",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Consignee",
             },
         ),
@@ -30,7 +37,8 @@ class Migration(migrations.Migration):
         migrations.AddIndex(
             model_name="consignee",
             index=models.Index(
-                fields=["user_modified", "user_created"], name="edc_lab_con_user_mo_a53323_idx"
+                fields=["user_modified", "user_created"],
+                name="edc_lab_con_user_mo_a53323_idx",
             ),
         ),
     ]

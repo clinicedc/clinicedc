@@ -59,6 +59,7 @@ class ConsentVersionModelMixin(models.Model):
         if not self.id and not site:
             site = site_sites.get_current_site_obj()
         cdef = site_consents.get_consent_definition(
+            model=self._meta.label_lower,
             report_datetime=self.consent_datetime,
             site=site_sites.get(site.id),
         )

@@ -22,15 +22,14 @@ from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import is_baseline
-
-from ..constants import CANCELLED_APPT, IN_PROGRESS_APPT
-from ..exceptions import AppointmentDatetimeError, UnknownVisitCode
-from ..managers import AppointmentManager
-from ..utils import raise_on_appt_may_not_be_missed, update_appt_status
 from .appointment_fields_model_mixin import AppointmentFieldsModelMixin
 from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
 from .missed_appointment_model_mixin import MissedAppointmentModelMixin
 from .window_period_model_mixin import WindowPeriodModelMixin
+from ..constants import CANCELLED_APPT, IN_PROGRESS_APPT
+from ..exceptions import AppointmentDatetimeError, UnknownVisitCode
+from ..managers import AppointmentManager
+from ..utils import raise_on_appt_may_not_be_missed, update_appt_status
 
 if TYPE_CHECKING:
     from edc_visit_schedule.schedule import Schedule
@@ -139,10 +138,16 @@ class AppointmentModelMixin(
                 )
 
     def validate_appt_datetime_not_after_next(self) -> None:
-        if self.appt_status != CANCELLED_APPT and self.appt_datetime and self.relative_next:
+        if (
+            self.appt_status != CANCELLED_APPT
+            and self.appt_datetime
+            and self.relative_next
+        ):
             if self.appt_datetime >= self.relative_next.appt_datetime:
                 appt_datetime = formatted_datetime(self.appt_datetime)
-                next_appt_datetime = formatted_datetime(self.relative_next.appt_datetime)
+                next_appt_datetime = formatted_datetime(
+                    self.relative_next.appt_datetime
+                )
                 raise AppointmentDatetimeError(
                     "Datetime cannot be on or after next appointment datetime. "
                     f"Got {appt_datetime} >= {next_appt_datetime}. "
@@ -199,7 +204,12 @@ class AppointmentModelMixin(
             models.Index(fields=["timepoint", "visit_code_sequence"]),
             models.Index(fields=["subject_identifier", "appt_reason"]),
             models.Index(
-                fields=["site", "subject_identifier", "timepoint", "visit_code_sequence"]
+                fields=[
+                    "site",
+                    "subject_identifier",
+                    "timepoint",
+                    "visit_code_sequence",
+                ]
             ),
             models.Index(
                 fields=[

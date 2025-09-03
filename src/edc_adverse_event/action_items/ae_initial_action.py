@@ -26,7 +26,8 @@ class AeInitialAction(ActionWithNotification):
     @property
     def deceased(self):
         if (self.reference_obj.ae_grade and self.reference_obj.ae_grade == GRADE5) or (
-            self.reference_obj.sae_reason.name and self.reference_obj.sae_reason.name == DEAD
+            self.reference_obj.sae_reason.name
+            and self.reference_obj.sae_reason.name == DEAD
         ):
             return True
         return False
@@ -46,7 +47,8 @@ class AeInitialAction(ActionWithNotification):
             next_actions=next_actions,
             action_name=AE_SUSAR_ACTION,
             required=(
-                self.reference_obj.susar == YES and self.reference_obj.susar_reported == NO
+                self.reference_obj.susar == YES
+                and self.reference_obj.susar_reported == NO
             ),
         )
         return next_actions
@@ -75,7 +77,9 @@ class AeInitialAction(ActionWithNotification):
         next_actions = self.append_to_next_if_required(
             next_actions=next_actions,
             action_name=AE_TMG_ACTION,
-            required=(self.reference_obj.ae_grade == GRADE3 and self.reference_obj.sae == YES),
+            required=(
+                self.reference_obj.ae_grade == GRADE3 and self.reference_obj.sae == YES
+            ),
         )
         return next_actions
 

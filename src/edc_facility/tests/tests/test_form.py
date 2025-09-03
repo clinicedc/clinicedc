@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_facility.form_validators import HealthFacilityFormValidator
 from edc_facility.forms import HealthFacilityForm
@@ -9,6 +9,7 @@ from edc_facility.models import HealthFacility, HealthFacilityTypes
 from edc_utils import get_utcnow
 
 
+@tag("facility")
 class TestForm(TestCase):
     def test_form_validator_ok(self):
         form_validator = HealthFacilityFormValidator(

@@ -3,9 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
-from edc_visit_tracking_app.consents import consent_v1
-from edc_visit_tracking_app.visit_schedule import visit_schedule1, visit_schedule2
+from django.test import tag, TestCase
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.managers import AppointmentDeleteError
@@ -19,98 +17,121 @@ from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
 from edc_visit_tracking.models import SubjectVisit
 from edc_visit_tracking.visit_sequence import VisitSequence, VisitSequenceError
-
-from ..helper import Helper
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule import get_visit_schedule
+from ..crfs import crfs
+from ..requisitions import requisitions
 
 utc_tz = ZoneInfo("UTC")
 
 
-class DisabledVisitSequence(VisitSequence):
-    def enforce_sequence(self, **kwargs) -> None:
-        return None
-
-
-@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SUBJECT_SCREENING_MODEL="edc_visit_tracking_app.subjectscreening")
+@tag("visit_tracking")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestPreviousVisit(TestCase):
     helper_cls = Helper
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-
-    def setUp(self):
         site_consents.registry = {}
         site_consents.register(consent_v1)
-        SubjectVisit.visit_sequence_cls = VisitSequence
-        self.subject_identifier = "12345"
-        self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
+
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule=visit_schedule1)
-        site_visit_schedules.register(visit_schedule=visit_schedule2)
-        self.helper.consent_and_put_on_schedule(
-            visit_schedule_name=visit_schedule1.name, schedule_name="schedule1"
+        visit_schedule1 = get_visit_schedule(
+            consent_v1,
+            crfs=crfs,
+            requisitions=requisitions,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+            onschedule_model="tests.onscheduleone",
+            offschedule_model="tests.offscheduleone",
+            visit_count=4,
+            allow_unscheduled=True,
         )
+        site_visit_schedules.register(visit_schedule=visit_schedule1)
+        visit_schedule2 = get_visit_schedule(
+            consent_v1,
+            crfs=crfs,
+            requisitions=requisitions,
+            visit_schedule_name="visit_schedule2",
+            schedule_name="schedule2",
+            onschedule_model="tests.onscheduletwo",
+            offschedule_model="tests.offscheduletwo",
+            visit_count=4,
+            allow_unscheduled=True,
+        )
+        site_visit_schedules.register(visit_schedule=visit_schedule2)
+
+    def setUp(self):
+        self.helper = self.helper_cls()
+        subject_consent = self.helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+            consent_definition=consent_v1,
+        )
+        self.subject_identifier = subject_consent.subject_identifier
 
     def test_visit_sequence_enforcer_on_first_visit_in_sequence(self):
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
-        SubjectVisit.visit_sequence_cls = DisabledVisitSequence
-        visit = SubjectVisit.objects.create(
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
+        SubjectVisit.objects.create(
             appointment=appointments[0],
-            report_datetime=get_utcnow() - relativedelta(months=10),
+            report_datetime=get_utcnow(),
             reason=SCHEDULED,
         )
-        visit_sequence = VisitSequence(appointment=visit.appointment)
+        visit_sequence = VisitSequence(appointment=appointments[1])
         try:
             visit_sequence.enforce_sequence()
         except VisitSequenceError as e:
             self.fail(f"VisitSequenceError unexpectedly raised. Got '{e}'")
 
     def test_visit_sequence_enforcer_without_first_visit_in_sequence(self):
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
-        SubjectVisit.visit_sequence_cls = DisabledVisitSequence
-        visit = SubjectVisit.objects.create(
-            appointment=appointments[1],
-            report_datetime=get_utcnow() - relativedelta(months=10),
-            reason=SCHEDULED,
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
         )
-        visit_sequence = VisitSequence(appointment=visit.appointment)
+        visit_sequence = VisitSequence(appointment=appointments[1])
         self.assertRaises(VisitSequenceError, visit_sequence.enforce_sequence)
 
     def test_requires_previous_visit_thru_model(self):
         """Asserts requires previous visit to exist on create."""
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         SubjectVisit.objects.create(
             appointment=appointments[0],
-            report_datetime=get_utcnow() - relativedelta(months=10),
+            report_datetime=get_utcnow(),
             reason=SCHEDULED,
         )
         self.assertRaises(
             PreviousVisitError,
             SubjectVisit.objects.create,
             appointment=appointments[2],
-            report_datetime=get_utcnow() - relativedelta(months=8),
+            report_datetime=get_utcnow() + relativedelta(months=2),
             reason=SCHEDULED,
         )
         SubjectVisit.objects.create(
             appointment=appointments[1],
-            report_datetime=get_utcnow() - relativedelta(months=10),
+            report_datetime=get_utcnow() + relativedelta(months=1),
             reason=SCHEDULED,
         )
         self.assertRaises(
             PreviousVisitError,
             SubjectVisit.objects.create,
             appointment=appointments[3],
-            report_datetime=get_utcnow() - relativedelta(months=8),
+            report_datetime=get_utcnow() + relativedelta(months=3),
             reason=SCHEDULED,
         )
 
     def test_requires_previous_visit_thru_model2(self):
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
 
         SubjectVisit.objects.create(
             appointment=appointments[0],
-            report_datetime=get_utcnow() - relativedelta(months=10),
+            report_datetime=get_utcnow(),
             reason=SCHEDULED,
         )
 
@@ -118,11 +139,13 @@ class TestPreviousVisit(TestCase):
             PreviousVisitError,
             SubjectVisit.objects.create,
             appointment=appointments[2],
-            report_datetime=get_utcnow() - relativedelta(months=8),
+            report_datetime=get_utcnow() + relativedelta(months=2),
         )
 
     def test_previous_appointment(self):
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         visit_sequence = VisitSequence(appointment=appointments[0], skip_enforce=True)
         self.assertIsNone(visit_sequence.previous_appointment)
         visit_sequence = VisitSequence(appointment=appointments[1], skip_enforce=True)
@@ -131,25 +154,34 @@ class TestPreviousVisit(TestCase):
         self.assertEqual(visit_sequence.previous_appointment, appointments[1])
 
     def test_previous_appointment_with_unscheduled(self):
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
-                reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
-            )
-            appointment.appt_status = INCOMPLETE_APPT
-            appointment.save()
-            appointment = self.helper.create_unscheduled(appointment)
-            SubjectVisit.objects.create(
-                appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
-                reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
+                report_datetime=get_utcnow() + relativedelta(months=index),
+                reason=SCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT
             appointment.save()
 
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            unscheduled_appointment = self.helper.add_unscheduled_appointment(
+                appointment
+            )
+            SubjectVisit.objects.create(
+                appointment=unscheduled_appointment,
+                report_datetime=get_utcnow()
+                + relativedelta(months=index)
+                + relativedelta(days=1),
+                reason=UNSCHEDULED,
+            )
+            appointment.appt_status = INCOMPLETE_APPT
+            appointment.save()
+
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         visit_sequence = VisitSequence(appointment=appointments[0])
         self.assertIsNone(visit_sequence.previous_appointment)
         for i in range(0, Appointment.objects.all().count() - 1):
@@ -157,38 +189,57 @@ class TestPreviousVisit(TestCase):
             self.assertEqual(visit_sequence.previous_appointment, appointments[i])
 
     def test_previous_appointment_broken_sequence1(self):
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
 
         self.assertRaises(AppointmentDeleteError, appointments[1].delete)
 
     def test_previous_visit_report_broken_sequence2(self):
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
-                reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
-            )
-            appointment.appt_status = INCOMPLETE_APPT
-            appointment.save()
-            appointment = self.helper.create_unscheduled(appointment)
-            SubjectVisit.objects.create(
-                appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
-                reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
-            )
-            appointment.appt_status = INCOMPLETE_APPT
-            appointment.save()
-            appointment = self.helper.create_unscheduled(appointment)
-            SubjectVisit.objects.create(
-                appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
-                reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
+                report_datetime=get_utcnow() + relativedelta(months=index),
+                reason=SCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT
             appointment.save()
 
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+            unscheduled_appointment = self.helper.add_unscheduled_appointment(
+                appointment
+            )
+            SubjectVisit.objects.create(
+                appointment=unscheduled_appointment,
+                report_datetime=get_utcnow()
+                + relativedelta(months=index)
+                + relativedelta(days=1),
+                reason=UNSCHEDULED,
+            )
+            unscheduled_appointment.appt_status = INCOMPLETE_APPT
+            unscheduled_appointment.save()
+
+            unscheduled_appointment = self.helper.add_unscheduled_appointment(
+                appointment,
+                suggested_appt_datetime=get_utcnow()
+                + relativedelta(months=index)
+                + relativedelta(days=2),
+            )
+            SubjectVisit.objects.create(
+                appointment=unscheduled_appointment,
+                report_datetime=get_utcnow()
+                + relativedelta(months=index)
+                + relativedelta(days=2),
+                reason=UNSCHEDULED,
+            )
+            unscheduled_appointment.appt_status = INCOMPLETE_APPT
+            unscheduled_appointment.save()
+
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
 
         visit_sequence = VisitSequence(appointment=appointments[0])  # 1000.0
         self.assertIsNone(visit_sequence.previous_appointment)
@@ -197,49 +248,63 @@ class TestPreviousVisit(TestCase):
 
         appointments[1].related_visit.delete()
 
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         visit_sequence = VisitSequence(appointment=appointments[2])  # 1000.2
         self.assertRaises(VisitSequenceError, visit_sequence.enforce_sequence)
 
         visit_sequence = VisitSequence(appointment=appointments[3])
-        self.assertRaises(VisitSequenceError, getattr, visit_sequence, "previous_appointment")
+        self.assertRaises(
+            VisitSequenceError, getattr, visit_sequence, "previous_appointment"
+        )
 
     def test_previous_visit(self):
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
+                report_datetime=get_utcnow() + relativedelta(months=index),
                 reason=SCHEDULED,
             )
 
     def test_previous_visit_with_inserted_unscheduled(self):
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
-                reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
+                report_datetime=get_utcnow() + relativedelta(months=index),
+                reason=SCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT
             appointment.save()
-            appointment = self.helper.create_unscheduled(appointment)
+            unscheduled_appointment = self.helper.add_unscheduled_appointment(
+                appointment
+            )
             SubjectVisit.objects.create(
-                appointment=appointment,
-                report_datetime=get_utcnow() - relativedelta(months=10 - index),
-                reason=SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED,
+                appointment=unscheduled_appointment,
+                report_datetime=get_utcnow()
+                + relativedelta(months=index)
+                + relativedelta(days=1),
+                reason=UNSCHEDULED,
             )
-            appointment.appt_status = INCOMPLETE_APPT
-            appointment.save()
+            unscheduled_appointment.appt_status = INCOMPLETE_APPT
+            unscheduled_appointment.save()
 
     def test_requires_previous_visit_unless_skipped(self):
         """Asserts does not require previous visit if previous appt
         is skipped.
         """
-        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+        appointments = Appointment.objects.all().order_by(
+            "timepoint", "visit_code_sequence"
+        )
         SubjectVisit.objects.create(
             appointment=appointments[0],
-            report_datetime=get_utcnow() - relativedelta(months=10),
+            report_datetime=get_utcnow(),
             reason=SCHEDULED,
         )
 
@@ -248,7 +313,7 @@ class TestPreviousVisit(TestCase):
         try:
             SubjectVisit.objects.create(
                 appointment=appointments[2],
-                report_datetime=get_utcnow() - relativedelta(months=8),
+                report_datetime=get_utcnow() + relativedelta(months=2),
                 reason=SCHEDULED,
             )
         except PreviousVisitError:
@@ -260,6 +325,6 @@ class TestPreviousVisit(TestCase):
             PreviousVisitError,
             SubjectVisit.objects.create,
             appointment=appointments[2],
-            report_datetime=get_utcnow() - relativedelta(months=8),
+            report_datetime=get_utcnow() + relativedelta(months=2),
             reason=SCHEDULED,
         )

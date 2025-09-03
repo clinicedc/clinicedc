@@ -26,12 +26,15 @@ class StudyMedicationFormValidator(CrfFormValidator):
         self.confirm_has_rx()
 
         if self.related_visit.appointment.relative_next:
-            next_appt_datetime = self.related_visit.appointment.relative_next.appt_datetime
+            next_appt_datetime = (
+                self.related_visit.appointment.relative_next.appt_datetime
+            )
 
         if next_appt_datetime:
             if (
                 self.refill_start_datetime
-                and self.refill_start_datetime.astimezone(ZoneInfo("UTC")) > next_appt_datetime
+                and self.refill_start_datetime.astimezone(ZoneInfo("UTC"))
+                > next_appt_datetime
             ):
                 local_dte = formatted_datetime(next_appt_datetime)
                 error_msg = (
@@ -52,9 +55,14 @@ class StudyMedicationFormValidator(CrfFormValidator):
             inverse=False,
         )
 
-        if not self.next_appointment and self.cleaned_data.get("refill_to_next_visit") == YES:
+        if (
+            not self.next_appointment
+            and self.cleaned_data.get("refill_to_next_visit") == YES
+        ):
             error_msg = "Invalid. Subject does not have a future appointment."
-            self.raise_validation_error({"refill_to_next_visit": error_msg}, INVALID_ERROR)
+            self.raise_validation_error(
+                {"refill_to_next_visit": error_msg}, INVALID_ERROR
+            )
 
         self.validate_refill_dates()
 
@@ -112,7 +120,8 @@ class StudyMedicationFormValidator(CrfFormValidator):
             return self.formulation.medication
         else:
             self.raise_validation_error(
-                {"__all__": "Need the formulation to look up the prescription."}, INVALID_ERROR
+                {"__all__": "Need the formulation to look up the prescription."},
+                INVALID_ERROR,
             )
 
     @property
@@ -129,7 +138,9 @@ class StudyMedicationFormValidator(CrfFormValidator):
                 "Invalid. Cannot be after offschedule datetime. "
                 f"Got {self.offschedule_datetime}."
             )
-            self.raise_validation_error({"refill_start_datetime": error_msg}, INVALID_ERROR)
+            self.raise_validation_error(
+                {"refill_start_datetime": error_msg}, INVALID_ERROR
+            )
 
     def validate_refill_end_date_against_offschedule_date(self):
         if (
@@ -141,7 +152,9 @@ class StudyMedicationFormValidator(CrfFormValidator):
                 "Invalid. Cannot be after offschedule datetime. "
                 f"Got {self.offschedule_datetime}."
             )
-            self.raise_validation_error({"refill_end_datetime": error_msg}, INVALID_ERROR)
+            self.raise_validation_error(
+                {"refill_end_datetime": error_msg}, INVALID_ERROR
+            )
 
     def validate_refill_dates(self):
         if (
@@ -154,9 +167,13 @@ class StudyMedicationFormValidator(CrfFormValidator):
                 "and time must exactly match refill start date and time."
             )
             if not self.refill_end_datetime:
-                self.raise_validation_error({"refill_end_datetime": error_msg}, INVALID_ERROR)
+                self.raise_validation_error(
+                    {"refill_end_datetime": error_msg}, INVALID_ERROR
+                )
             elif self.refill_start_datetime != self.refill_end_datetime:
-                self.raise_validation_error({"refill_end_datetime": error_msg}, INVALID_ERROR)
+                self.raise_validation_error(
+                    {"refill_end_datetime": error_msg}, INVALID_ERROR
+                )
 
         if (
             self.cleaned_data.get("refill")
@@ -176,4 +193,6 @@ class StudyMedicationFormValidator(CrfFormValidator):
                     "Invalid. Refill end date must be after the refill start date and "
                     "before the next visit"
                 )
-            self.raise_validation_error({"refill_end_datetime": error_msg}, INVALID_ERROR)
+            self.raise_validation_error(
+                {"refill_end_datetime": error_msg}, INVALID_ERROR
+            )

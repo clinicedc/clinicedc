@@ -63,7 +63,9 @@ def process_repack_request_action(modeladmin, request, queryset):
             ),
         )
         messages.add_message(
-            request, messages.ERROR, "Task workers not running. Contact data management."
+            request,
+            messages.ERROR,
+            "Task workers not running. Contact data management.",
         )
 
     # redirect to changelist

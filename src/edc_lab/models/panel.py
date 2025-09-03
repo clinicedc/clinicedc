@@ -31,6 +31,7 @@ class Panel(BaseUuidModel):
         verbose_name_plural = "Panels"
         constraints = [
             UniqueConstraint(
-                fields=["name", "lab_profile_name"], name="%(app_label)s_%(class)s_name_uniq"
+                fields=["name", "lab_profile_name"],
+                name="%(app_label)s_%(class)s_name_uniq",
             )
         ]

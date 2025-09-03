@@ -10,5 +10,7 @@ from ..models import AeFollowup
 
 
 @admin.register(AeFollowup, site=demo_ae_admin)
-class AeFollowupAdmin(SiteModelAdminMixin, AeFollowupModelAdminMixin, SimpleHistoryAdmin):
+class AeFollowupAdmin(
+    SiteModelAdminMixin, AeFollowupModelAdminMixin, SimpleHistoryAdmin
+):
     form = AeFollowupForm

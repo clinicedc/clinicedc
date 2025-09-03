@@ -47,7 +47,9 @@ class StockTransferItem(BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.transfer_item_identifier:
-            self.transfer_item_identifier = f"{get_next_value(self._meta.label_lower):06d}"
+            self.transfer_item_identifier = (
+                f"{get_next_value(self._meta.label_lower):06d}"
+            )
             if self.stock.location != self.stock_transfer.from_location:
                 raise StockTransferError(
                     "Location mismatch. Current stock location must match "

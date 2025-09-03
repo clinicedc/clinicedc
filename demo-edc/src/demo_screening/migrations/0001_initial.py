@@ -47,13 +47,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -95,7 +97,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -227,7 +231,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "gender",
-                    models.CharField(choices=[("M", "Male"), ("F", "Female")], max_length=10),
+                    models.CharField(
+                        choices=[("M", "Male"), ("F", "Female")], max_length=10
+                    ),
                 ),
                 (
                     "age_in_years",
@@ -268,7 +274,11 @@ class Migration(migrations.Migration):
                 (
                     "unsuitable_agreed",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="N/A",
                         max_length=5,
                         verbose_name="Does the study coordinator agree that the patient is not suitable for the study?",
@@ -300,7 +310,11 @@ class Migration(migrations.Migration):
                 (
                     "parent_guardian_consent",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="N/A",
                         help_text="( if 'No', STOP )",
                         max_length=25,
@@ -310,7 +324,10 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -368,13 +385,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -416,7 +435,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -549,7 +570,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "gender",
-                    models.CharField(choices=[("M", "Male"), ("F", "Female")], max_length=10),
+                    models.CharField(
+                        choices=[("M", "Male"), ("F", "Female")], max_length=10
+                    ),
                 ),
                 (
                     "age_in_years",
@@ -590,7 +613,11 @@ class Migration(migrations.Migration):
                 (
                     "unsuitable_agreed",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="N/A",
                         max_length=5,
                         verbose_name="Does the study coordinator agree that the patient is not suitable for the study?",
@@ -622,7 +649,11 @@ class Migration(migrations.Migration):
                 (
                     "parent_guardian_consent",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="N/A",
                         help_text="( if 'No', STOP )",
                         max_length=25,
@@ -643,11 +674,19 @@ class Migration(migrations.Migration):
                 "verbose_name": "Subject Screening",
                 "verbose_name_plural": "Subject Screening",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
                 "indexes": [
                     models.Index(
-                        fields=["modified", "created"], name="demo_screen_modifie_9c87c6_idx"
+                        fields=["modified", "created"],
+                        name="demo_screen_modifie_9c87c6_idx",
                     ),
                     models.Index(
                         fields=["user_modified", "user_created"],

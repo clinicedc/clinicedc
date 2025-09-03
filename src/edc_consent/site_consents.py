@@ -11,7 +11,6 @@ from django.utils.module_loading import import_module, module_has_submodule
 
 from edc_sites.site import sites as site_sites
 from edc_utils import ceil_secs, floor_secs, formatted_date, to_utc
-
 from .exceptions import (
     AlreadyRegistered,
     ConsentDefinitionDoesNotExist,
@@ -45,7 +44,9 @@ class SiteConsents:
         cdef.updated_by = updated_by
         cdef.extended_by = extended_by
         if cdef.name in self.registry:
-            raise AlreadyRegistered(f"Consent definition already registered. Got {cdef.name}.")
+            raise AlreadyRegistered(
+                f"Consent definition already registered. Got {cdef.name}."
+            )
         self.validate_period_overlap_or_raise(cdef)
         self.validate_updates_or_raise(cdef)
         self.registry.update({cdef.name: cdef})
@@ -123,6 +124,7 @@ class SiteConsents:
         subject_identifier: str,
         report_datetime: datetime,
         site_id: int | None = None,
+        consent_definition: ConsentDefinition = None,
         raise_if_not_consented: bool | None = None,
     ) -> ConsentLikeModel:
         """Returns a subject consent using this consent_definition's
@@ -143,28 +145,40 @@ class SiteConsents:
 
         single_site = site_sites.get(site_id) if site_id else None
 
-        cdef = self.get_consent_definition(report_datetime=report_datetime, site=single_site)
+        if not consent_definition:
+            consent_definition = self.get_consent_definition(
+                report_datetime=report_datetime, site=single_site
+            )
 
-        consent_obj = cdef.get_consent_for(
+        consent_obj = consent_definition.get_consent_for(
             subject_identifier=subject_identifier,
             raise_if_not_consented=raise_if_not_consented,
         )
 
         if consent_obj and to_utc(report_datetime) < consent_obj.consent_datetime:
-            if not cdef.updates:
+            if not consent_definition.updates:
                 dte = formatted_date(report_datetime)
                 raise ConsentDefinitionNotConfiguredForUpdate(
                     f"Consent not configured to update any previous versions. "
-                    f"Got '{cdef.version}'. "
-                    f"Has subject '{subject_identifier}' completed version '{cdef.version}' "
+                    f"Got '{consent_definition.version}'. "
+                    f"Has subject '{subject_identifier}' completed version "
+                    f"'{consent_definition.version}' "
                     f"of consent on or after report_datetime='{dte}'?"
                 )
-            elif cdef.start <= to_utc(report_datetime) <= cdef.end:
+            elif (
+                consent_definition.start
+                <= to_utc(report_datetime)
+                <= consent_definition.end
+            ):
                 # ensures the higher version is returned if there is overlap
                 pass
-            elif cdef.updates.start <= to_utc(report_datetime) <= cdef.updates.end:
+            elif (
+                consent_definition.updates.start
+                <= to_utc(report_datetime)
+                <= consent_definition.updates.end
+            ):
                 # return the previous version consent (updated_by)
-                consent_obj = cdef.updates.get_consent_for(
+                consent_obj = consent_definition.updates.get_consent_for(
                     subject_identifier, raise_if_not_consented=raise_if_not_consented
                 )
             else:
@@ -233,10 +247,12 @@ class SiteConsents:
             )
         # copy registry
         cdefs: list[ConsentDefinition] = [cdef for cdef in self.registry.values()]
+
         # filter cdefs to try to get just one.
         # by model, report_datetime, version, site
-
-        cdefs, error_msg = self._filter_cdefs_by_model_or_raise(model, cdefs, error_messages)
+        cdefs, error_msg = self._filter_cdefs_by_model_or_raise(
+            model, cdefs, error_messages
+        )
         cdefs, error_msg = self._filter_cdefs_by_report_datetime_or_raise(
             report_datetime, cdefs, error_messages
         )
@@ -312,20 +328,22 @@ class SiteConsents:
         consent_definitions: list[ConsentDefinition],
         errror_messages: list[str] = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
-        cdefs = consent_definitions
+        cdefs = deepcopy(consent_definitions)
         if report_datetime:
             cdefs = [
                 cdef
                 for cdef in cdefs
-                if floor_secs(cdef.start) <= to_utc(report_datetime) <= ceil_secs(cdef.end)
+                if floor_secs(cdef.start)
+                <= to_utc(report_datetime)
+                <= ceil_secs(cdef.end)
             ]
             if not cdefs:
                 date_string = formatted_date(report_datetime)
                 using_msg = "Using " + " and ".join(errror_messages)
                 raise ConsentDefinitionDoesNotExist(
-                    "Date does not fall within the validity period of any consent definition. "
-                    f"Got {date_string}. {using_msg}. Consent definitions are: "
-                    f"{self.get_registry_display()}."
+                    "Date does not fall within the validity period of any "
+                    f"consent definition. Got {date_string}. {using_msg}. "
+                    f"Possible consent definitions are: {consent_definitions}. "
                 )
             else:
                 date_string = formatted_date(report_datetime)
@@ -392,7 +410,9 @@ class SiteConsents:
                 try:
                     before_import_registry = deepcopy(site_consents.registry)
                     import_module(f"{app}.{module_name}")
-                    writer(f" * registered consent definitions '{module_name}' from '{app}'\n")
+                    writer(
+                        f" * registered consent definitions '{module_name}' from '{app}'\n"
+                    )
                 except SiteConsentError as e:
                     writer(f"   - loading {app}.consents ... ")
                     writer(style.ERROR(f"ERROR! {e}\n"))

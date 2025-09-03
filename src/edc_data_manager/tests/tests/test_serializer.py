@@ -1,8 +1,6 @@
-from data_manager_app.lab_profiles import lab_profile
-from data_manager_app.visit_schedules import visit_schedule
 from django.contrib.auth import get_user_model
 from django.core import serializers
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_data_manager.models import CrfDataDictionary, QueryRule, QueryVisitSchedule
 from edc_data_manager.models.requisition_panel import RequisitionPanel
@@ -11,8 +9,14 @@ from edc_lab.site_labs import site_labs
 from edc_visit_schedule.constants import HOURS
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.visit_schedules.visit_schedule_dashboard.lab_profiles import lab_profile
+from tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
+    get_visit_schedule,
+)
 
 
+@tag("data_manager")
 @override_settings(SITE_ID=20)
 class TestSerializer(TestCase):
     def setUp(self):
@@ -26,7 +30,7 @@ class TestSerializer(TestCase):
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
         populate_visit_schedule()
 
     def test_(self):
@@ -68,12 +72,8 @@ class TestSerializer(TestCase):
                 deserialized_object.save()
 
         # create a rule
-        question1 = CrfDataDictionary.objects.get(
-            model="data_manager_app.crfone", field_name="f1"
-        )
-        question2 = CrfDataDictionary.objects.get(
-            model="data_manager_app.crftwo", field_name="f1"
-        )
+        question1 = CrfDataDictionary.objects.get(model="tests.crfone", field_name="f1")
+        question2 = CrfDataDictionary.objects.get(model="tests.crftwo", field_name="f1")
 
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")

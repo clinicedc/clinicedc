@@ -40,7 +40,9 @@ def get_facility(name: str = None) -> Facility:
     facilities = get_facilities()
     facility = facilities.get(name)
     if not facility:
-        raise FacilityError(f"Facility '{name}' does not exist. Expected one of {facilities}.")
+        raise FacilityError(
+            f"Facility '{name}' does not exist. Expected one of {facilities}."
+        )
     return facility
 
 

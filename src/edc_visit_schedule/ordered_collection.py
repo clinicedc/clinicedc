@@ -15,7 +15,9 @@ class OrderedCollection(OrderedDict):
         super().update(*args, **kwargs)
         od = self.copy()
         self.clear()
-        super().update(**{getattr(v, self.key): v for v in sorted(od.values(), key=key_order)})
+        super().update(
+            **{getattr(v, self.key): v for v in sorted(od.values(), key=key_order)}
+        )
 
     @property
     def first(self):

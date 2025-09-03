@@ -10,5 +10,8 @@ DEVIATION_VIOLATION = (
 REPORT_STATUS = (
     (OPEN, "Open. Some information is still pending."),
     (CLOSED, "Closed. This report is complete"),
-    (WITHDRAWN, "Withdrawn. This report has been withdrawn after review with investigators"),
+    (
+        WITHDRAWN,
+        "Withdrawn. This report has been withdrawn after review with investigators",
+    ),
 )

@@ -53,7 +53,12 @@ class VisitScheduleAdmin(SimpleHistoryAdmin):
 
     def get_list_filter(self, request) -> Tuple[str, ...]:
         list_filter = super().get_list_filter(request)
-        return ("active", "visit_schedule_name", "schedule_name", "visit_code") + list_filter
+        return (
+            "active",
+            "visit_schedule_name",
+            "schedule_name",
+            "visit_code",
+        ) + list_filter
 
     @staticmethod
     def populate_visit_schedule(request, queryset) -> None:

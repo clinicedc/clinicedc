@@ -142,7 +142,9 @@ class Sites:
                     single_site = dataclasses.replace(single_site, domain=domain)
 
                 if single_site.site_id in self._registry:
-                    raise AlreadyRegistered(f"Site already registered. Got `{single_site}`.")
+                    raise AlreadyRegistered(
+                        f"Site already registered. Got `{single_site}`."
+                    )
                 elif single_site.name in [s.name for s in self._registry.values()]:
                     raise AlreadyRegisteredName(
                         f"Site with this name is already registered. Got `{single_site}`."
@@ -180,14 +182,18 @@ class Sites:
                 return single_site
         raise SiteDoesNotExist(f"No site exists with `{attrname}`==`{value}`.")
 
-    def all(self, aslist: bool | None = None) -> dict[int, SingleSite] | list[SingleSite]:
+    def all(
+        self, aslist: bool | None = None
+    ) -> dict[int, SingleSite] | list[SingleSite]:
         if aslist:
             return list(self._registry.values())
         return self._registry
 
     @property
     def countries(self) -> list[str]:
-        return list(set([single_site.country for single_site in self._registry.values()]))
+        return list(
+            set([single_site.country for single_site in self._registry.values()])
+        )
 
     def get_by_country(
         self, country: str, aslist: bool | None = None
@@ -251,7 +257,9 @@ class Sites:
                         get_message_text(messages.ERROR),
                     )
             else:
-                site_ids = [s.id for s in user.userprofile.sites.all() if s.id != site_id]
+                site_ids = [
+                    s.id for s in user.userprofile.sites.all() if s.id != site_id
+                ]
                 if request:
                     add_to_messages_once(
                         request, messages.WARNING, get_message_text(messages.WARNING)

@@ -1,6 +1,11 @@
-from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
+import time_machine
+from dateutil.relativedelta import relativedelta
+from django.test import tag, TestCase
+
+from edc_consent import site_consents
 from edc_pharmacy.models import (
     DosageGuideline,
     Formulation,
@@ -12,15 +17,31 @@ from edc_pharmacy.models import (
     Units,
 )
 from edc_pharmacy.refill import RefillCreator
-from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule import get_visit_schedule
+
+utc_tz = ZoneInfo("UTC")
 
 
+@tag("pharmacy")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestDispense(TestCase):
     def setUp(self):
-        self.subject_identifier = "12345"
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
 
-        RegisteredSubject.objects.create(subject_identifier="12345")
+        visit_schedule = get_visit_schedule(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+
+        helper = Helper()
+        consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule", schedule_name="schedule"
+        )
+        self.subject_identifier = consent.subject_identifier
 
         self.medication = Medication.objects.create(
             name="flucytosine",

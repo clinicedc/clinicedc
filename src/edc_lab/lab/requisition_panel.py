@@ -27,7 +27,9 @@ class PanelAttrs:
         title = " ".join(name.split("_")).title()
         alpha_code = alpha_code or ""
         self.abbreviation = f"{name[0:2]}{name[-1:]}".upper()
-        self.verbose_name = f"{title} {alpha_code} {self.abbreviation}".replace("  ", " ")
+        self.verbose_name = f"{title} {alpha_code} {self.abbreviation}".replace(
+            "  ", " "
+        )
 
 
 class RequisitionPanel:

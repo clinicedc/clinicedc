@@ -1,16 +1,19 @@
 from copy import deepcopy
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test.testcases import TestCase
-from protocol_app.action_items import ProtocolIncidentAction
-from protocol_app.visit_schedule import visit_schedule
 
 from edc_action_item.site_action_items import site_action_items
+from edc_consent import site_consents
 from edc_constants.constants import CLOSED, NO, NOT_APPLICABLE, OPEN, OTHER
 from edc_list_data import site_list_data
 from edc_protocol_incident import list_data
+from edc_protocol_incident.action_items import ProtocolIncidentAction
 from edc_protocol_incident.constants import DEVIATION, WITHDRAWN
 from edc_protocol_incident.forms import ProtocolIncidentForm
 from edc_protocol_incident.models import (
@@ -18,24 +21,39 @@ from edc_protocol_incident.models import (
     ProtocolIncident,
     ProtocolViolations,
 )
-from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.visit_schedules.visit_schedule import get_visit_schedule
+
+utc_tz = ZoneInfo("UTC")
 
 
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestProtocolIncident(TestCase):
     def setUp(self):
+
         site_action_items.registry = {}
         action_cls = ProtocolIncidentAction
         site_action_items.register(action_cls)
+
         site_list_data.initialize()
         site_list_data.register(list_data, app_name="edc_protocol_incident")
         site_list_data.load_data()
+
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+
+        visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
 
-        self.subject_identifier = "1234"
-        RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
+        helper = Helper()
+        consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule", schedule_name="schedule"
+        )
+        self.subject_identifier = consent.subject_identifier
 
         action = ProtocolIncidentAction(subject_identifier=self.subject_identifier)
         self.data = dict(
@@ -124,7 +142,9 @@ class TestProtocolIncident(TestCase):
         form.is_valid()
         self.assertIn("preventative_action", form._errors)
 
-        data.update(preventative_action="we took preventative action", report_status=CLOSED)
+        data.update(
+            preventative_action="we took preventative action", report_status=CLOSED
+        )
         form = ProtocolIncidentForm(data=data, instance=ProtocolIncident())
         form.is_valid()
         self.assertIn("action_required", form._errors)

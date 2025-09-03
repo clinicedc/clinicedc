@@ -48,7 +48,9 @@ def age(
     try:
         reference_dt_utc = reference_dt.astimezone(ZoneInfo("UTC"))
     except AttributeError:
-        reference_dt_utc = datetime(*[*reference_dt.timetuple()][0:6], tzinfo=ZoneInfo("UTC"))
+        reference_dt_utc = datetime(
+            *[*reference_dt.timetuple()][0:6], tzinfo=ZoneInfo("UTC")
+        )
     rdelta = relativedelta(reference_dt_utc, born_utc)
     if born_utc > reference_dt_utc:
         raise AgeValueError(

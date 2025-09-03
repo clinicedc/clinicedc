@@ -61,6 +61,8 @@ class SummaryListboardView(
         return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
-        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
+        q_object, options = super().get_queryset_filter_options(
+            request, *args, **kwargs
+        )
         options.update({"action_type__name__in": self.action_type_names})
         return q_object, options

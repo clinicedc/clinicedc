@@ -26,7 +26,9 @@ def in_stock_for_subjects_df(
     stock_cls = django_apps.get_model("edc_pharmacy.stock")
 
     # qs of stock in stock and allocated to a subject_identifier
-    difference = ExpressionWrapper(F("qty_in") - F("qty_out"), output_field=DecimalField())
+    difference = ExpressionWrapper(
+        F("qty_in") - F("qty_out"), output_field=DecimalField()
+    )
     qs = (
         stock_cls.objects.filter(
             allocation__isnull=False,
@@ -64,7 +66,9 @@ def in_stock_for_subjects_df(
     df_sites = read_frame(Site.objects.all(), verbose=False)
     df_sites = df_sites.rename(columns={"id": "site_id"})
     df_location = read_frame(location_cls.objects.all(), verbose=False)
-    df_location = df_location.merge(df_sites[["name", "site_id"]], on="name", how="left")
+    df_location = df_location.merge(
+        df_sites[["name", "site_id"]], on="name", how="left"
+    )
     df_location = df_location.rename(columns={"id": "location"})
     df = df.merge(df_location[["location", "site_id"]], how="left", on="location")
 

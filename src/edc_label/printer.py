@@ -41,7 +41,9 @@ class Printer:
             for k, v in cups_properties.items():
                 k = k.replace("-", "_")
                 setattr(self, k, v)
-        self.printer_state_reasons = [r for r in self.printer_state_reasons if r != "none"]
+        self.printer_state_reasons = [
+            r for r in self.printer_state_reasons if r != "none"
+        ]
         if self.printer_state_reasons:
             self.printer_state_reasons = ", ".join(self.printer_state_reasons)
 
@@ -64,7 +66,9 @@ class Printer:
             cups_connection.writeRequestData(zpl_data, len(zpl_data))
             cups_connection.finishDocument(self.name)
         except cups.IPPError as e:
-            raise PrinterError(f"Failed to print. Tried printing to '{self.name}'. Got '{e}'.")
+            raise PrinterError(
+                f"Failed to print. Tried printing to '{self.name}'. Got '{e}'."
+            )
         return job_id
 
     def print_file(self, zpl_data=None):

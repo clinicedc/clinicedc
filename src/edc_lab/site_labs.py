@@ -53,7 +53,8 @@ class SiteLabs:
     def registry(self):
         if not self.loaded:
             raise RegistryNotLoaded(
-                "Registry not loaded. Is AppConfig for 'edc_lab' " "declared in settings?."
+                "Registry not loaded. Is AppConfig for 'edc_lab' "
+                "declared in settings?."
             )
         return self._registry
 
@@ -83,11 +84,15 @@ class SiteLabs:
                     self.update_panel_model(panel_model_cls=panel_model_cls)
                     self.verify_reference_range_collections(lab_profile)
             else:
-                raise AlreadyRegistered(f"Lab profile {lab_profile} is already registered.")
+                raise AlreadyRegistered(
+                    f"Lab profile {lab_profile} is already registered."
+                )
 
     @property
     def lab_profiles(self):
-        return {lab_profile.name: lab_profile for lab_profile in self._registry.values()}
+        return {
+            lab_profile.name: lab_profile for lab_profile in self._registry.values()
+        }
 
     @property
     def panel_model_cls(self):
@@ -159,7 +164,8 @@ class SiteLabs:
                 .exists()
             ):
                 names = [
-                    obj.name for obj in reference_range_colllection_model_cls().objects.all()
+                    obj.name
+                    for obj in reference_range_colllection_model_cls().objects.all()
                 ]
                 raise SiteLabsLabProfileError(
                     "Unknown reference range collection. "

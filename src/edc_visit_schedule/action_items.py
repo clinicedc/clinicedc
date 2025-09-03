@@ -15,9 +15,9 @@ class OffscheduleAction(ActionWithNotification):
         DEATH_REPORT_ACTION,
         LTFU_ACTION,
     ]
-    reference_model = "intecomm_prn.offschedule"
+    reference_model = "edc_visit_schedule.offschedule"
     show_link_to_changelist = True
-    admin_site_name = "intecomm_prn_admin"
+    admin_site_name = "edc_visit_schedule_admin"
     priority = HIGH_PRIORITY
     singleton = True
 

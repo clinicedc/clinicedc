@@ -22,8 +22,8 @@ def get_summary(obj) -> tuple[list[str], list[str], list[str]]:
             if value := getattr(obj, field_name):
                 opts.update(units=units, label=utest_id)
                 try:
-                    grading_data, grading_eval_phrase = reference_range_collection.get_grade(
-                        value, **opts
+                    grading_data, grading_eval_phrase = (
+                        reference_range_collection.get_grade(value, **opts)
                     )
                 except NotEvaluated as e:
                     errors.append(f"{e}.")
@@ -35,7 +35,9 @@ def get_summary(obj) -> tuple[list[str], list[str], list[str]]:
                     in reference_range_collection.reportable_grades(utest_id)
                 ):
                     setattr(obj, f"{utest_id}_grade", grading_data.grade)
-                    setattr(obj, f"{utest_id}_grade_description", grading_data.description)
+                    setattr(
+                        obj, f"{utest_id}_grade_description", grading_data.description
+                    )
                     reportable.append(f"{grading_eval_phrase}")
                 else:
                     try:

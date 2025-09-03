@@ -36,7 +36,9 @@ def micromoles_per_liter_to(
     elif units_to == MILLIGRAMS_PER_DECILITER:
         return {MILLIGRAMS_PER_DECILITER: (float(value) * get_mw(label)) / 10000.00}
     else:
-        raise ConversionNotHandled(f"Conversion not found. Tried umol/L to {units_to}. ")
+        raise ConversionNotHandled(
+            f"Conversion not found. Tried umol/L to {units_to}. "
+        )
 
 
 def milligrams_per_deciliter_to(
@@ -120,7 +122,9 @@ class UnitsConverter:
     def from_grams_per_liter(self) -> float | int:
         if self.units_to != GRAMS_PER_LITER:
             return milligrams_per_deciliter_to(
-                label=self.label, value=float(self.value) * 100.00, units_to=self.units_to
+                label=self.label,
+                value=float(self.value) * 100.00,
+                units_to=self.units_to,
             )[self.units_to]
         return self.value
         # converted_value = None

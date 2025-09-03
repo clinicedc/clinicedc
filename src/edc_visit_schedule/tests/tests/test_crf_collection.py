@@ -1,8 +1,9 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_visit_schedule.visit import Crf, CrfCollection, FormsCollectionError
 
 
+@tag("visit_schedule")
 class TestCrfCollection(TestCase):
     def test_crf_collection_ok(self):
         crfs = [
@@ -37,5 +38,7 @@ class TestCrfCollection(TestCase):
         ]
         with self.assertRaises(FormsCollectionError) as cm:
             CrfCollection(*crfs)
-        self.assertIn("Expected to be a unique sequence of crf/models.", str(cm.exception)),
+        self.assertIn(
+            "Expected to be a unique sequence of crf/models.", str(cm.exception)
+        ),
         self.assertIn(" Duplicates ['x.one'].", str(cm.exception))

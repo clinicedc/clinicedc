@@ -23,7 +23,9 @@ if TYPE_CHECKING:
 
     from .consent_definition import ConsentDefinition
 
-    class ConsentLikeModel(SiteModelMixin, UniqueSubjectIdentifierModelMixin, BaseUuidModel):
+    class ConsentLikeModel(
+        SiteModelMixin, UniqueSubjectIdentifierModelMixin, BaseUuidModel
+    ):
         _meta: ...
 
     class ConsentExtensionLikeModel(
@@ -57,7 +59,9 @@ class ConsentDefinitionExtension:
 
     model: str = field(compare=False)
     _ = KW_ONLY
-    start: datetime = field(default=ResearchProtocolConfig().study_open_datetime, compare=True)
+    start: datetime = field(
+        default=ResearchProtocolConfig().study_open_datetime, compare=True
+    )
     version: str = field(default="1", compare=False)
     extends: ConsentDefinition = field(default=None, compare=False)
     timepoints: list[int] | None = field(default_factory=list, compare=False)
@@ -71,7 +75,9 @@ class ConsentDefinitionExtension:
         self.name = f"{self.model}-{self.version}"
         self.sort_index = self.name
         if not self.start.tzinfo:
-            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
+            raise ConsentDefinitionError(
+                f"Naive datetime not allowed. Got {self.start}."
+            )
         elif str(self.start.tzinfo) != "UTC":
             raise ConsentDefinitionError(f"Start date must be UTC. Got {self.start}.")
         self.extends.check_date_within_study_period()
@@ -112,7 +118,9 @@ class ConsentDefinitionExtension:
         if self.country:
             sites = site_sites.get_by_country(self.country, aslist=True)
         elif self.site_ids:
-            sites = [s for s in site_sites.all(aslist=True) if s.site_id in self.site_ids]
+            sites = [
+                s for s in site_sites.all(aslist=True) if s.site_id in self.site_ids
+            ]
         else:
             sites = [s for s in site_sites.all(aslist=True)]
         return sites

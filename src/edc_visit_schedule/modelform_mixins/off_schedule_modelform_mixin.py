@@ -22,7 +22,9 @@ class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
                 visit_schedule_name=self.visit_schedule_name,
             )
             try:
-                self.schedule.subject(self.get_subject_identifier()).update_history_or_raise(
+                self.schedule.subject(
+                    self.get_subject_identifier()
+                ).update_history_or_raise(
                     history_obj=history_obj,
                     offschedule_datetime=self.offschedule_datetime,
                     update=False,
@@ -51,7 +53,10 @@ class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
         return True
 
     class Meta:
-        help_text = {"subject_identifier": "(read-only)", "action_identifier": "(read-only)"}
+        help_text = {
+            "subject_identifier": "(read-only)",
+            "action_identifier": "(read-only)",
+        }
         widgets = {
             "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
             "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),

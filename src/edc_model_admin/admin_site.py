@@ -48,7 +48,11 @@ class EdcAdminSite(DjangoAdminSite):
     site_url = "/administration/"
 
     def __init__(
-        self, name="admin", app_label=None, keep_delete_action=None, enable_nav_sidebar=None
+        self,
+        name="admin",
+        app_label=None,
+        keep_delete_action=None,
+        enable_nav_sidebar=None,
     ):
         self.app_label = app_label
         if enable_nav_sidebar is not None:
@@ -102,4 +106,6 @@ class EdcAdminSite(DjangoAdminSite):
             **(extra_context or {}),
         }
         request.current_app = self.name
-        return TemplateResponse(request, self.index_template or "admin/index.html", context)
+        return TemplateResponse(
+            request, self.index_template or "admin/index.html", context
+        )

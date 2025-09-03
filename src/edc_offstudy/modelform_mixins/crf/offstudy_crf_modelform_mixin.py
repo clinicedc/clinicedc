@@ -24,7 +24,9 @@ class OffstudyCrfModelFormMixin:
         the report_datetime.
         """
         if self.get_subject_identifier() and self.report_datetime:
-            visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
+            visit_schedule = site_visit_schedules.get_visit_schedule(
+                self.visit_schedule_name
+            )
             schedule = visit_schedule.schedules.get(self.schedule_name)
             try:
                 offschedule_obj = schedule.offschedule_model_cls.objects.get(
@@ -34,7 +36,9 @@ class OffstudyCrfModelFormMixin:
             except ObjectDoesNotExist:
                 pass
             else:
-                offschedule_datetime = formatted_datetime(offschedule_obj.offschedule_datetime)
+                offschedule_datetime = formatted_datetime(
+                    offschedule_obj.offschedule_datetime
+                )
                 raise forms.ValidationError(
                     f"Subject was taken off schedule before this report datetime. "
                     f"Got subject_identifier='{self.get_subject_identifier()}', "

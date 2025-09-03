@@ -16,7 +16,8 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="holiday",
             constraint=models.UniqueConstraint(
-                fields=("country", "local_date"), name="edc_facility_holiday_country_uniq"
+                fields=("country", "local_date"),
+                name="edc_facility_holiday_country_uniq",
             ),
         ),
     ]

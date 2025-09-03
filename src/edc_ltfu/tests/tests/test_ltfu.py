@@ -4,76 +4,41 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import override_settings, tag, TestCase
 
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
 from edc_adverse_event.constants import DEATH_REPORT_ACTION
-from edc_appointment.tests.test_case_mixins import AppointmentTestCaseMixin
-from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import CLOSED, FEMALE, HOSPITALIZED, MALE, OTHER, YES
+from edc_constants.constants import CLOSED, YES
 from edc_facility.import_holidays import import_holidays
-from edc_list_data import load_list_data
 from edc_ltfu.action_items import LtfuAction
 from edc_ltfu.constants import LTFU_ACTION
 from edc_ltfu.models import Ltfu
-from edc_metadata.tests.models import SubjectConsent
-from edc_metadata.tests.visit_schedule import get_visit_schedule
+from edc_ltfu.utils import get_ltfu_model_cls, get_ltfu_model_name
 from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
 from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.models import SubjectConsent
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
-from ...utils import get_ltfu_model_cls, get_ltfu_model_name
-
-list_data = {
-    "edc_visit_tracking.subjectvisitmissedreasons": [
-        ("forgot", "Forgot / Can't remember being told about appointment"),
-        ("family_emergency", "Family emergency (e.g. funeral) and was away"),
-        ("travelling", "Away travelling/visiting"),
-        ("working_schooling", "Away working/schooling"),
-        ("too_sick", "Too sick or weak to come to the centre"),
-        ("lack_of_transport", "Transportation difficulty"),
-        (HOSPITALIZED, "Hospitalized"),
-        (OTHER, "Other reason (specify below)"),
-    ],
-}
+utc_tz = ZoneInfo("UTC")
 
 
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(
-        2018, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")
-    ),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(
-        2027, 6, 10, 0, 00, tzinfo=ZoneInfo("UTC")
-    ),
-)
-class TestLtfu(AppointmentTestCaseMixin, TestCase):
+@tag("ltfu")
+@override_settings(SITE_ID=10, EDC_SITES_REGISTER_DEFAULT=True)
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+class TestLtfu(TestCase):
     @classmethod
     def setUpTestData(cls):
-
-        consent_v1 = ConsentDefinition(
-            "edc_metadata.subjectconsentv1",
-            version="1",
-            start=ResearchProtocolConfig().study_open_datetime,
-            end=ResearchProtocolConfig().study_close_datetime,
-            age_min=18,
-            age_is_adult=18,
-            age_max=64,
-            gender=[MALE, FEMALE],
-        )
 
         site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(get_visit_schedule(consent_v1))
-        load_list_data(
-            list_data=list_data,
-            model_name="edc_visit_tracking.subjectvisitmissedreasons",
-        )
         import_holidays()
 
     def setUp(self):

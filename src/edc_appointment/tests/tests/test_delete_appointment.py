@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -45,23 +45,22 @@ class TestDeleteAppointment(TestCase):
 
     def setUp(self):
         post_save.disconnect(dispatch_uid="appointments_on_post_delete")
-        self.subject_identifier = "12345"
-        site_visit_schedules._registry = {}
-        self.visit_schedule1 = get_visit_schedule1()
-        self.visit_schedule2 = get_visit_schedule2()
-        site_visit_schedules.register(self.visit_schedule1)
-        site_visit_schedules.register(self.visit_schedule2)
+
         site_consents.registry = {}
         site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        self.visit_schedule1 = get_visit_schedule1(consent_v1)
+        self.visit_schedule2 = get_visit_schedule2(consent_v1)
+        site_visit_schedules.register(self.visit_schedule1)
+        site_visit_schedules.register(self.visit_schedule2)
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
             now=ResearchProtocolConfig().study_open_datetime,
         )
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name, schedule_name="schedule1"
         )
         appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
+            subject_identifier=subject_consent.subject_identifier
         )
         self.assertEqual(appointments.count(), 4)
 
@@ -81,7 +80,7 @@ class TestDeleteAppointment(TestCase):
 
         for i in range(1, 4):
             creator = UnscheduledAppointmentCreator(
-                subject_identifier=self.subject_identifier,
+                subject_identifier=subject_consent.subject_identifier,
                 visit_schedule_name=self.visit_schedule1.name,
                 schedule_name="schedule1",
                 visit_code="1000",

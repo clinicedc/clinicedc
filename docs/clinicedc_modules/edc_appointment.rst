@@ -199,4 +199,3 @@ Set ``settings.EDC_APPOINTMENT_MAX_MONTHS_TO_NEXT_APPT`` to a limit the number o
     @admin.register(NextAppointmentCrf, site=intecomm_subject_admin)
     class NextAppointmentCrfAdmin(NextAppointmenCrftModelAdminMixin, CrfModelAdmin):
         form = NextAppointmentCrfForm
-

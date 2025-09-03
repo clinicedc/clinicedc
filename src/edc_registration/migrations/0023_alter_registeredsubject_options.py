@@ -12,7 +12,14 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name="registeredsubject",
             options={
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "get_latest_by": "modified",
                 "ordering": ["subject_identifier"],
                 "permissions": (

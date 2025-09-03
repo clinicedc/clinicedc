@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 import sys
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
-from dateutil.relativedelta import relativedelta
 from edc_test_settings.default_test_settings import DefaultTestSettings
 
-from edc_utils import get_utcnow
-
-app_name = "edc_pharmacy"
+app_name = "tests"
 base_dir = Path(__file__).absolute().parent.parent
 
 project_settings = DefaultTestSettings(
@@ -21,27 +20,28 @@ project_settings = DefaultTestSettings(
         "edc_navbar.E003",
         "edc_action_item.W001",
         "edc_sites.E001",
+        "edc_consent.E001",
         # "edc_sites.E002",
     ],
     DJANGO_REVISION_IGNORE_WORKING_DIR=True,
     EDC_AUTH_CODENAMES_WARN_ONLY=True,
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=True,
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=(
-        get_utcnow().replace(microsecond=0, second=0, minute=0, hour=0)
-        - relativedelta(years=6)
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(
+        2019, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")
     ),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=(
-        get_utcnow().replace(microsecond=999999, second=59, minute=59, hour=11)
-        + relativedelta(years=6)
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(
+        2029, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")
     ),
     SUBJECT_SCREENING_MODEL="tests.subjectscreening",
     SUBJECT_CONSENT_MODEL="edc_consent.subjectconsent",
     SUBJECT_VISIT_MODEL="edc_visit_tracking.subjectvisit",
     SUBJECT_VISIT_MISSED_MODEL="edc_visit_tracking.subjectvisitmissed",
-    SUBJECT_REQUISITION_MODEL="edc_lab.subjectrequisition",
+    SUBJECT_REQUISITION_MODEL="tests.subjectrequisition",
     SUBJECT_REFUSAL_MODEL="edc_refusal.subjectrefusal",
     # SUBJECT_APP_LABEL=f"{self.app_name}",
+    EDC_LTFU_MODEL_NAME="edc_ltfu.ltfu",
+    LIST_MODEL_APP_LABEL="tests",
     ADVERSE_EVENT_APP_LABEL="tests",
     EMAIL_ENABLED=True,
     EMAIL_CONTACTS={
@@ -80,40 +80,63 @@ project_settings = DefaultTestSettings(
         "edc_dashboard.apps.AppConfig",
         "edc_data_manager.apps.AppConfig",
         "edc_device.apps.AppConfig",
+        "edc_document_status.apps.AppConfig",
+        "edc_export.apps.AppConfig",
         "edc_facility.apps.AppConfig",
+        "edc_fieldsets.apps.AppConfig",
+        "edc_form_describer.apps.AppConfig",
+        "edc_form_label.apps.AppConfig",
         "edc_form_runners.apps.AppConfig",
+        "edc_form_validators.apps.AppConfig",
         "edc_identifier.apps.AppConfig",
         "edc_lab.apps.AppConfig",
         "edc_lab_dashboard.apps.AppConfig",
+        "edc_lab_panel.apps.AppConfig",
+        "edc_lab_results.apps.AppConfig",
+        "edc_label.apps.AppConfig",
         "edc_list_data.apps.AppConfig",
+        "edc_listboard.apps.AppConfig",
         "edc_locator.apps.AppConfig",
+        "edc_ltfu.apps.AppConfig",
         "edc_metadata.apps.AppConfig",
+        "edc_model.apps.AppConfig",
         "edc_model_admin.apps.AppConfig",
+        "edc_model_fields.apps.AppConfig",
+        "edc_model_form.apps.AppConfig",
+        "edc_model_to_dataframe.apps.AppConfig",
         "edc_navbar.apps.AppConfig",
         "edc_notification.apps.AppConfig",
         "edc_offstudy.apps.AppConfig",
+        "edc_pdf_reports.apps.AppConfig",
         "edc_pdutils.apps.AppConfig",
         "edc_pharmacy.apps.AppConfig",
+        "edc_prn.apps.AppConfig",
+        "edc_protocol.apps.AppConfig",
+        "edc_protocol_incident.apps.AppConfig",
         "edc_pylabels.apps.AppConfig",
         "edc_qareports.apps.AppConfig",
         "edc_randomization.apps.AppConfig",
+        "edc_refusal.apps.AppConfig",
         "edc_registration.apps.AppConfig",
+        "edc_reportable.apps.AppConfig",
         "edc_review_dashboard.apps.AppConfig",
         "edc_screening.apps.AppConfig",
+        "edc_search.apps.AppConfig",
         "edc_sites.apps.AppConfig",
         "edc_subject_dashboard.apps.AppConfig",
         "edc_timepoint.apps.AppConfig",
+        "edc_transfer.apps.AppConfig",
+        "edc_unblinding.apps.AppConfig",
+        "edc_utils.apps.AppConfig",
+        "edc_view_utils.apps.AppConfig",
         "edc_visit_schedule.apps.AppConfig",
         "edc_visit_tracking.apps.AppConfig",
-        "edc_visit_schedule_app.apps.AppConfig",
-        # "adverse_event_app.apps.AppConfig",
-        "data_manager_app.apps.AppConfig",
         "tests.apps.AppConfig",
         "edc_appconfig.apps.AppConfig",
     ],
     add_dashboard_middleware=True,
     add_lab_dashboard_middleware=True,
-    use_test_urls=True,
+    # use_test_urls=True,
 ).settings
 
 

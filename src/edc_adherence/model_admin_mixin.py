@@ -6,7 +6,9 @@ from django_audit_fields.admin import audit_fieldset_tuple
 
 
 def get_missed_medications_fieldset_tuple():
-    description = render_to_string("edc_adherence/missed_medication_fieldset_description.html")
+    description = render_to_string(
+        "edc_adherence/missed_medication_fieldset_description.html"
+    )
     return (
         _("Missed Medications"),
         {
@@ -69,6 +71,9 @@ class MedicationAdherenceAdminMixin:
         audit_fieldset_tuple,
     )
 
-    radio_fields = {"pill_count_performed": admin.VERTICAL, "last_missed_pill": admin.VERTICAL}
+    radio_fields = {
+        "pill_count_performed": admin.VERTICAL,
+        "last_missed_pill": admin.VERTICAL,
+    }
 
     filter_horizontal = ("missed_pill_reason",)

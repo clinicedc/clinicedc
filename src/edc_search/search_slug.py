@@ -20,7 +20,9 @@ if TYPE_CHECKING:
 
 
 class SearchSlug:
-    def __init__(self, obj: Model | SearchSlugModelMixin = None, fields: list[str] = None):
+    def __init__(
+        self, obj: Model | SearchSlugModelMixin = None, fields: list[str] = None
+    ):
         self.warning = None
         self.slug = ""
         self.model_cls = None
@@ -47,6 +49,8 @@ class SearchSlug:
         from django_crypto_fields.fields import BaseField
 
         encrypted_fields = [
-            fld.name for fld in self.model_cls._meta.fields if isinstance(fld, BaseField)
+            fld.name
+            for fld in self.model_cls._meta.fields
+            if isinstance(fld, BaseField)
         ]
         return [f for f in fields if f not in encrypted_fields]

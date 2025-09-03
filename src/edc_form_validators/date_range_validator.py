@@ -39,7 +39,9 @@ class DateRangeFieldValidator(BaseFormValidator):
         msg = msg or f"Invalid. Cannot be before {date_field1} "
         if date1 and date2:
             if date1 > date2:
-                raise forms.ValidationError({message_on_field or date_field2: f"{msg}."})
+                raise forms.ValidationError(
+                    {message_on_field or date_field2: f"{msg}."}
+                )
 
     def date_not_after(
         self,
@@ -109,7 +111,9 @@ class DateRangeFieldValidator(BaseFormValidator):
                     {datetime_field1: f"{msg}. Got {formatted_datetime(datetime2)}."}
                 )
 
-    def datetime_not_after(self, datetime_field1: str, datetime_field2: str, msg=None) -> None:
+    def datetime_not_after(
+        self, datetime_field1: str, datetime_field2: str, msg=None
+    ) -> None:
         datetime_field1 = self.cleaned_data.get(datetime_field1)
         datetime_field2 = self.cleaned_data.get(datetime_field2)
         msg = msg or f"Invalid. Cannot be before date of {datetime_field2} "
@@ -119,7 +123,9 @@ class DateRangeFieldValidator(BaseFormValidator):
             if datetime_field1 > datetime_field2:
                 raise forms.ValidationError({datetime_field1: f"{msg}"})
 
-    def datetime_equal(self, datetime_field1: str, datetime_field2: str, msg=None) -> None:
+    def datetime_equal(
+        self, datetime_field1: str, datetime_field2: str, msg=None
+    ) -> None:
         datetime_field1 = self.cleaned_data.get(datetime_field1)
         datetime_field2 = self.cleaned_data.get(datetime_field2)
         msg = msg or f"Invalid. Cannot be before date of {datetime_field2} "
@@ -128,5 +134,7 @@ class DateRangeFieldValidator(BaseFormValidator):
             datetime_field2 = to_utc(datetime_field2)
             if datetime_field1 == datetime_field2:
                 raise forms.ValidationError(
-                    {datetime_field1: f"{msg}. Got {formatted_datetime(datetime_field2)}."}
+                    {
+                        datetime_field1: f"{msg}. Got {formatted_datetime(datetime_field2)}."
+                    }
                 )

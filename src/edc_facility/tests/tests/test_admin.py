@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.test import tag
 from django.urls import reverse
 from django_webtest import WebTest
 from edc_test_utils.webtest import login
@@ -11,6 +12,7 @@ from edc_facility.models import HealthFacility, HealthFacilityTypes
 from edc_utils import get_utcnow
 
 
+@tag("facility")
 class TestAdmin(WebTest):
     def setUp(self) -> None:
         super().setUp()

@@ -1,5 +1,4 @@
 from django.test import TestCase
-from screening_app.models import SubjectScreening
 
 from edc_constants.constants import NO, TBD, YES
 from edc_screening.exceptions import (
@@ -12,6 +11,7 @@ from edc_screening.fc import FC
 from edc_screening.screening_eligibility import (
     ScreeningEligibility as BaseScreeningEligibility,
 )
+from tests.models import SubjectScreening
 
 
 class TestScreening(TestCase):
@@ -85,7 +85,9 @@ class TestScreening(TestCase):
                 return required_fields
 
         self.assertRaises(
-            ScreeningEligibilityModelAttributeError, ScreeningEligibility, model_obj=model_obj
+            ScreeningEligibilityModelAttributeError,
+            ScreeningEligibility,
+            model_obj=model_obj,
         )
 
     def test_with_model_obj(self):
@@ -185,7 +187,10 @@ class TestScreening(TestCase):
                 return required_fields
 
             def assess_eligibility(self) -> None:
-                if self.cleaned_data.get("thing_one") == "maybe" and self.eligible == YES:
+                if (
+                    self.cleaned_data.get("thing_one") == "maybe"
+                    and self.eligible == YES
+                ):
                     self.eligible = "BAD DOG"
                     self.reasons_ineligible.update(thing_one="thing one not sure")
 
@@ -327,13 +332,17 @@ class TestScreening(TestCase):
 
         cleaned_data = dict(thing_one=NO)
         eligibility = ScreeningEligibility(
-            cleaned_data=cleaned_data, eligible_display_label="E", ineligible_display_label="I"
+            cleaned_data=cleaned_data,
+            eligible_display_label="E",
+            ineligible_display_label="I",
         )
         self.assertEqual(eligibility.display_label, "I")
 
         cleaned_data = dict(thing_one=YES)
         eligibility = ScreeningEligibility(
-            cleaned_data=cleaned_data, eligible_display_label="E", ineligible_display_label="I"
+            cleaned_data=cleaned_data,
+            eligible_display_label="E",
+            ineligible_display_label="I",
         )
         self.assertEqual(eligibility.display_label, "E")
 
@@ -360,7 +369,9 @@ class TestScreening(TestCase):
             thing_three=None,
         )
         eligibility = ScreeningEligibility(
-            cleaned_data=cleaned_data, eligible_display_label="E", ineligible_display_label="I"
+            cleaned_data=cleaned_data,
+            eligible_display_label="E",
+            ineligible_display_label="I",
         )
 
         self.assertNotIn("thing_one", eligibility.reasons_ineligible)
@@ -375,7 +386,9 @@ class TestScreening(TestCase):
             thing_three=None,
         )
         eligibility = ScreeningEligibility(
-            cleaned_data=cleaned_data, eligible_display_label="E", ineligible_display_label="I"
+            cleaned_data=cleaned_data,
+            eligible_display_label="E",
+            ineligible_display_label="I",
         )
 
         self.assertIn("thing_one", eligibility.reasons_ineligible)
@@ -403,7 +416,9 @@ class TestScreening(TestCase):
             thing_two=YES,
         )
         eligibility = ScreeningEligibility(
-            cleaned_data=cleaned_data, eligible_display_label="E", ineligible_display_label="I"
+            cleaned_data=cleaned_data,
+            eligible_display_label="E",
+            ineligible_display_label="I",
         )
 
         self.assertNotIn("thing_one", eligibility.reasons_ineligible)

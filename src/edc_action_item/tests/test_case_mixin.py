@@ -39,7 +39,7 @@ class TestCaseMixin(TestCase):
         consent_datetime = consent_datetime or get_utcnow()
         cdef = site_consents.get_consent_definition(report_datetime=consent_datetime)
         identity = str(uuid4())
-        subject_consent = cdef.model_cls.objects.create(
+        subject_consent = cdef.model_create(
             consent_datetime=consent_datetime,
             dob=consent_datetime - relativedelta(years=25),
             site=site,

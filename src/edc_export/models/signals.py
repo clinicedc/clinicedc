@@ -21,7 +21,9 @@ def export_transaction_history_on_post_save(
                 raise AttributeError(e)
 
 
-@receiver(pre_delete, weak=False, dispatch_uid="export_transaction_history_on_pre_delete")
+@receiver(
+    pre_delete, weak=False, dispatch_uid="export_transaction_history_on_pre_delete"
+)
 def export_transaction_history_on_pre_delete(sender, instance, using, **kwargs):
     """Serializes the model instance, before deleting, to export
     history model if manager exists."""

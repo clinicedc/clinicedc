@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Type
+from typing import Type, TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -9,13 +9,13 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 from edc_appointment.creators import AppointmentsCreator
-from edc_consent.exceptions import NotConsentedError
+from edc_consent.consent_definition import ConsentDefinition
+from edc_consent.exceptions import ConsentDefinitionError
 from edc_consent.site_consents import site_consents
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import valid_site_for_subject_or_raise
 from edc_utils import convert_php_dateformat, formatted_datetime, get_utcnow
 from edc_utils.date import to_local
-
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
 from .exceptions import (
     InvalidOffscheduleDate,
@@ -76,7 +76,9 @@ class SubjectSchedule:
         )
 
     def __str__(self):
-        return f"{self.subject_identifier} {self.visit_schedule_name}.{self.schedule_name}"
+        return (
+            f"{self.subject_identifier} {self.visit_schedule_name}.{self.schedule_name}"
+        )
 
     @property
     def onschedule_model_cls(self) -> Type[OnSchedule]:
@@ -100,6 +102,7 @@ class SubjectSchedule:
         first_appt_datetime: datetime | None = None,
         skip_baseline: bool | None = None,
         skip_get_current_site: bool | None = None,
+        consent_definition: ConsentDefinition | None = None,
     ):
         """Puts a subject on-schedule.
 
@@ -111,33 +114,24 @@ class SubjectSchedule:
         appointments_creator_cls.
         """
         onschedule_datetime = onschedule_datetime or get_utcnow()
+        if consent_definition not in self.schedule.consent_definitions:
+            raise ConsentDefinitionError(
+                "Invalid consent definition for schedule. "
+                f"Got schedule={self.schedule}, cdef={consent_definition}. "
+                f"Expected one of {self.schedule.consent_definitions}"
+            )
 
         site = valid_site_for_subject_or_raise(
             self.subject_identifier, skip_get_current_site=skip_get_current_site
         )
+        single_site = site_sites.get(site.id)
+        site_consents.filter_cdefs_by_site_or_raise(
+            site=single_site,
+            consent_definitions=[consent_definition],
+        )
         if not self.onschedule_model_cls.objects.filter(
             subject_identifier=self.subject_identifier
         ).exists():
-            single_site = site_sites.get(site.id)
-
-            # schedule may have more than one consent definition
-            consent_definitions = site_consents.filter_cdefs_by_site_or_raise(
-                site=single_site, consent_definitions=self.schedule.consent_definitions
-            )
-            # which consent def used to get this consent?
-            consent_model_obj = site_consents.get_consent_or_raise(
-                subject_identifier=self.subject_identifier,
-                report_datetime=onschedule_datetime,
-                site_id=single_site.site_id,
-                raise_if_not_consented=False,
-            )
-            if not consent_model_obj:
-                dte = formatted_datetime(onschedule_datetime)
-                raise NotConsentedError(
-                    f"Consent not found. Has subject '{self.subject_identifier}' "
-                    f"completed a consent before {dte}? Possible consent definitions are "
-                    f"{consent_definitions}."
-                )
             # this is how you get on a schedule. Only!
             self.onschedule_model_cls.objects.create(
                 subject_identifier=self.subject_identifier,
@@ -292,7 +286,11 @@ class SubjectSchedule:
                 subject_identifier=self.subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                **{f"{related_visit_model_attr}__report_datetime__gt": offschedule_datetime},
+                **{
+                    f"{related_visit_model_attr}__report_datetime__gt": (
+                        offschedule_datetime
+                    )
+                },
             )
         except ObjectDoesNotExist:
             appointments = None
@@ -301,7 +299,11 @@ class SubjectSchedule:
                 subject_identifier=self.subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                **{f"{related_visit_model_attr}__report_datetime__gt": offschedule_datetime},
+                **{
+                    f"{related_visit_model_attr}__report_datetime__gt": (
+                        offschedule_datetime
+                    )
+                },
             )
         if appointments:
             raise InvalidOffscheduleDate(
@@ -360,7 +362,9 @@ class SubjectSchedule:
         """Raise an exception if subject is not on the schedule during
         the given date.
         """
-        compare_as_datetimes = True if compare_as_datetimes is None else compare_as_datetimes
+        compare_as_datetimes = (
+            True if compare_as_datetimes is None else compare_as_datetimes
+        )
 
         onschedule_obj = self.onschedule_obj
 

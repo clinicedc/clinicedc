@@ -33,7 +33,10 @@ class MedicationAdherenceModelMixin(models.Model):
     )
 
     pill_count_performed = models.CharField(
-        verbose_name="Was a pill count performed", max_length=5, choices=YES_NO, default=YES
+        verbose_name="Was a pill count performed",
+        max_length=5,
+        choices=YES_NO,
+        default=YES,
     )
 
     pill_count_not_performed_reason = models.TextField(

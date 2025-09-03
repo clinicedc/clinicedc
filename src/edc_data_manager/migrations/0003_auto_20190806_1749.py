@@ -40,7 +40,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="dataquery",
             name="resolved_datetime",
-            field=models.DateTimeField(blank=True, null=True, verbose_name="DM resolved on"),
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="DM resolved on"
+            ),
         ),
         migrations.AlterField(
             model_name="dataquery",
@@ -79,7 +81,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicaldataquery",
             name="resolved_datetime",
-            field=models.DateTimeField(blank=True, null=True, verbose_name="DM resolved on"),
+            field=models.DateTimeField(
+                blank=True, null=True, verbose_name="DM resolved on"
+            ),
         ),
         migrations.AlterField(
             model_name="historicaldataquery",

@@ -21,7 +21,9 @@ class Holiday(models.Model):
 
     @property
     def formatted_date(self) -> str:
-        return self.local_date.strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT))
+        return self.local_date.strftime(
+            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+        )
 
     def __str__(self):
         return f"{self.label} on {self.formatted_date}"
@@ -31,7 +33,8 @@ class Holiday(models.Model):
         verbose_name_plural = _("Holidays")
         constraints = [
             UniqueConstraint(
-                fields=["country", "local_date"], name="%(app_label)s_%(class)s_country_uniq"
+                fields=["country", "local_date"],
+                name="%(app_label)s_%(class)s_country_uniq",
             )
         ]
         indexes = [Index(fields=["name", "country", "local_date"])]

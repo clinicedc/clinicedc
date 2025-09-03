@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_visit_schedule.visit_schedule import (
     SchedulesCollection,
@@ -6,6 +6,7 @@ from edc_visit_schedule.visit_schedule import (
 )
 
 
+@tag("visit_schedule")
 class TestSchedulesCollection(TestCase):
     def setUp(self):
         class TestCollection(SchedulesCollection):
@@ -16,8 +17,8 @@ class TestSchedulesCollection(TestCase):
             def __init__(self, key, seq):
                 self.key = key
                 self.seq = seq
-                self.onschedule_model = "app_label.onschedule"
-                self.offschedule_model = "app_label.offschedule"
+                self.onschedule_model = "edc_visit_schedule.onschedule"
+                self.offschedule_model = "edc_visit_schedule.offschedule"
 
             def validate(self, visit_schedule_name=None):
                 return None
@@ -36,11 +37,11 @@ class TestSchedulesCollection(TestCase):
         onschedule_model or offschedule_model
         """
         self.assertEqual(
-            self.test_collection.get_schedule(model="app_label.onschedule"),
+            self.test_collection.get_schedule(model="edc_visit_schedule.onschedule"),
             self.dummy_schedule,
         )
         self.assertEqual(
-            self.test_collection.get_schedule("app_label.onschedule"),
+            self.test_collection.get_schedule("edc_visit_schedule.onschedule"),
             self.dummy_schedule,
         )
 

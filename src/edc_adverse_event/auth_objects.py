@@ -74,8 +74,12 @@ tmg_codenames = [
 
 tmg_view_codenames = [c for c in tmg_codenames if "view_" in c]
 
-ae_dashboard_tuples = (("edc_adverse_event.view_ae_listboard", "Can view AE listboard"),)
+ae_dashboard_tuples = (
+    ("edc_adverse_event.view_ae_listboard", "Can view AE listboard"),
+)
 ae_navbar_tuples = (("edc_adverse_event.nav_ae_section", "Can view AE section"),)
 
-tmg_dashboard_tuples = (("edc_adverse_event.view_tmg_listboard", "Can view TMG Listboard"),)
+tmg_dashboard_tuples = (
+    ("edc_adverse_event.view_tmg_listboard", "Can view TMG Listboard"),
+)
 tmg_navbar_tuples = (("edc_adverse_event.nav_tmg_section", "Can view TMG section"),)

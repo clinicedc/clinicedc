@@ -12,7 +12,8 @@ class AeInitialSusarModelMixin(models.Model):
         choices=YES_NO,
         max_length=5,
         help_text=(
-            "If yes, SUSAR must be reported to Principal " "Investigator and TMG immediately,"
+            "If yes, SUSAR must be reported to Principal "
+            "Investigator and TMG immediately,"
         ),
     )
 

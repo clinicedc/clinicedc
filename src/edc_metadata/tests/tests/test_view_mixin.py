@@ -6,7 +6,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
-from django.test import TestCase, override_settings
+from django.test import override_settings, TestCase
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 
@@ -18,15 +18,16 @@ from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
+from edc_metadata.models import CrfMetadata, RequisitionMetadata
+from edc_metadata.view_mixins import MetadataViewMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from ...models import CrfMetadata, RequisitionMetadata
-from ...view_mixins import MetadataViewMixin
-from ..models import CrfOne, CrfThree, SubjectConsent
-from ..visit_schedule import get_visit_schedule
+from tests.models import CrfOne, CrfThree, SubjectConsent
+from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
+    get_visit_schedule,
+)
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
@@ -69,7 +70,17 @@ class TestViewMixin(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="erik")
 
-        for name in ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]:
+        for name in [
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine",
+        ]:
             Panel.objects.create(name=name)
 
         traveller = time_machine.travel(test_datetime)
@@ -98,7 +109,7 @@ class TestViewMixin(TestCase):
             subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
         )
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_metadata.onschedule"
+            "edc_visit_schedule.onschedule"
         )
         self.schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,

@@ -14,7 +14,14 @@ class Migration(migrations.Migration):
             name="qareportnote",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "QA Report Note",
                 "verbose_name_plural": "QA Report Notes",
             },

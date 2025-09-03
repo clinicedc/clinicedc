@@ -13,7 +13,9 @@ from edc_export.model_options import ModelOptions
 from edc_registration.models import RegisteredSubject
 
 
-@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
+@override_settings(
+    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp()
+)
 class TestExportable(TestCase):
     def setUp(self):
         group = Group.objects.get(name=EXPORT)
@@ -45,7 +47,9 @@ class TestExportable(TestCase):
         json.loads(obj)
 
     def test_exportables(self):
-        registered_subject_opts = ModelOptions(model=RegisteredSubject._meta.label_lower)
+        registered_subject_opts = ModelOptions(
+            model=RegisteredSubject._meta.label_lower
+        )
         appointment_opts = ModelOptions(model=Appointment._meta.label_lower)
         edc_appointment = django_apps.get_app_config("edc_appointment")
         edc_registration = django_apps.get_app_config("edc_registration")
@@ -68,11 +72,17 @@ class TestExportable(TestCase):
 
         self.assertIn(
             "edc_registration.historicalregisteredsubject",
-            [o.label_lower for o in exportables.get("edc_registration").historical_models],
+            [
+                o.label_lower
+                for o in exportables.get("edc_registration").historical_models
+            ],
         )
         self.assertIn(
             "edc_appointment.historicalappointment",
-            [o.label_lower for o in exportables.get("edc_appointment").historical_models],
+            [
+                o.label_lower
+                for o in exportables.get("edc_appointment").historical_models
+            ],
         )
         self.assertIn(
             "edc_appointment.appointmenttype",

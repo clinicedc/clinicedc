@@ -86,7 +86,9 @@ def refresh_metadata_for_timepoint(
             related_visit.run_metadata_rules(allow_create=allow_create)
 
 
-def get_crf_metadata(instance: ScheduledLikeModel | Appointment) -> QuerySet[CrfMetadata]:
+def get_crf_metadata(
+    instance: ScheduledLikeModel | Appointment,
+) -> QuerySet[CrfMetadata]:
     """Returns a queryset of crf metedata."""
     opts = dict(
         subject_identifier=instance.subject_identifier,

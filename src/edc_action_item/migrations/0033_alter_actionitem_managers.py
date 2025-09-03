@@ -6,7 +6,10 @@ import edc_action_item.models.action_item
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("edc_action_item", "0032_alter_actionitem_options_alter_actiontype_options_and_more"),
+        (
+            "edc_action_item",
+            "0032_alter_actionitem_options_alter_actiontype_options_and_more",
+        ),
     ]
 
     operations = [

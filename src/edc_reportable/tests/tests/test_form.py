@@ -1,11 +1,9 @@
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from reportable_app.form_validators import SpecimenResultFormValidator
-from reportable_app.models import SpecimenResult
-from reportable_app.reportables import grading_data, normal_data
 
 from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES
+from edc_form_validators import FormValidator
 from edc_reportable import (
     GRAMS_PER_DECILITER,
     IU_LITER,
@@ -13,9 +11,40 @@ from edc_reportable import (
     MILLIMOLES_PER_LITER,
     TEN_X_9_PER_LITER,
 )
+from edc_reportable.forms import ReportablesFormValidatorMixin
 from edc_reportable.units import MILLIGRAMS_PER_DECILITER
 from edc_reportable.utils import load_reference_ranges
-from edc_utils import get_utcnow
+from edc_utils.date import get_utcnow
+from tests.models import SpecimenResult
+from tests.reportables import grading_data, normal_data
+
+
+class SpecimenResultFormValidator(ReportablesFormValidatorMixin, FormValidator):
+    reference_range_collection_name = "my_reportables"
+
+    def clean(self):
+        self.validate_reportable_fields(self.reference_range_collection_name)
+
+    # def validate_reportable_fields(self, *args, **kwargs):
+    #     reference_range_evaluator = self.reference_range_evaluator_cls(
+    #         self.reference_range_collection_name,
+    #         cleaned_data=copy(self.cleaned_data),
+    #         gender=MALE,
+    #         dob=get_utcnow() - relativedelta(years=25),
+    #         report_datetime=get_utcnow(),
+    #         age_units="years",
+    #     )
+    #     # is the value `reportable` according to the user?
+    #     reference_range_evaluator.validate_reportable_fields()
+    #
+    #     # is the value `abnormal` according to the user?
+    #     reference_range_evaluator.validate_results_abnormal_field()
+    #
+    #     self.applicable_if(
+    #         YES, field="results_abnormal", field_applicable="results_reportable"
+    #     )
+    #
+    #     reference_range_evaluator.validate_results_reportable_field()
 
 
 class TestSpecimenResultForm(TestCase):
@@ -87,7 +116,9 @@ class TestSpecimenResultForm(TestCase):
             self.fail(f"ValidationError unexpectedly raised. Got{e}")
 
     def test_no_creatinine_mg_invalid(self):
-        self.cleaned_data.update(creatinine=0.3, creatinine_units=MILLIGRAMS_PER_DECILITER)
+        self.cleaned_data.update(
+            creatinine=0.3, creatinine_units=MILLIGRAMS_PER_DECILITER
+        )
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -162,7 +193,9 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("magnesium", form_validator._errors)
 
     def test_magnesium(self):
-        self.cleaned_data.update(magnesium=0.35, results_abnormal=YES, results_reportable=YES)
+        self.cleaned_data.update(
+            magnesium=0.35, results_abnormal=YES, results_reportable=YES
+        )
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -178,7 +211,9 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("potassium", form_validator._errors)
 
     def test_potassium_high(self):
-        self.cleaned_data.update(potassium=6.8, results_abnormal=YES, results_reportable=NO)
+        self.cleaned_data.update(
+            potassium=6.8, results_abnormal=YES, results_reportable=NO
+        )
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -186,7 +221,9 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("potassium", form_validator._errors)
 
     def test_potassium_low(self):
-        self.cleaned_data.update(potassium=2.3, results_abnormal=YES, results_reportable=NO)
+        self.cleaned_data.update(
+            potassium=2.3, results_abnormal=YES, results_reportable=NO
+        )
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -212,7 +249,9 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("sodium", form_validator._errors)
 
     def test_sodium_invalid_2(self):
-        self.cleaned_data.update(sodium=119, results_abnormal=YES, results_reportable=NO)
+        self.cleaned_data.update(
+            sodium=119, results_abnormal=YES, results_reportable=NO
+        )
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -286,7 +325,9 @@ class TestSpecimenResultForm(TestCase):
             self.fail(f"ValidationError unexpectedly raised. Got{e}")
 
     def test_results_reportable_invalid(self):
-        self.cleaned_data.update(sodium=1000, results_abnormal=YES, results_reportable=NO)
+        self.cleaned_data.update(
+            sodium=1000, results_abnormal=YES, results_reportable=NO
+        )
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )

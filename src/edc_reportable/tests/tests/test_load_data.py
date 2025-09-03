@@ -1,7 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count
 from django.test import TestCase
-from reportable_app.reportables import grading_data, normal_data
 
 from edc_constants.constants import FEMALE, MALE
 from edc_reportable import (
@@ -20,6 +19,7 @@ from edc_reportable.utils.get_normal_data_or_raise import (
     create_obj_for_new_units_or_raise,
 )
 from edc_utils import get_utcnow
+from tests.reportables import grading_data, normal_data
 
 
 class TestLoadData(TestCase):
@@ -75,7 +75,9 @@ class TestLoadData(TestCase):
         self.assertEqual(
             qs.first().description, "tbil: 1.1*ULN<=x<1.6*ULN mg/dL GRADE1 M 18<=AGE"
         )
-        self.assertEqual(qs.last().description, "tbil: 5.0*ULN<=x mmol/L GRADE4 M 18<=AGE")
+        self.assertEqual(
+            qs.last().description, "tbil: 5.0*ULN<=x mmol/L GRADE4 M 18<=AGE"
+        )
 
     def test_bounds_for_existing_units(self):
 
@@ -214,7 +216,9 @@ class TestLoadData(TestCase):
         )
 
         self.assertTrue(
-            NormalData.objects.filter(label="tbil", units=MILLIGRAMS_PER_DECILITER).exists()
+            NormalData.objects.filter(
+                label="tbil", units=MILLIGRAMS_PER_DECILITER
+            ).exists()
         )
 
         NormalData.objects.filter(label="tbil", units=MILLIGRAMS_PER_DECILITER).delete()
@@ -232,7 +236,9 @@ class TestLoadData(TestCase):
         create_obj_for_new_units_or_raise(**opts)
 
         self.assertTrue(
-            NormalData.objects.filter(label="tbil", units=MILLIGRAMS_PER_DECILITER).exists()
+            NormalData.objects.filter(
+                label="tbil", units=MILLIGRAMS_PER_DECILITER
+            ).exists()
         )
 
     def test_auto_create_new_normal_data2(self):
@@ -313,7 +319,9 @@ class TestLoadData(TestCase):
             age_units="years",
             create_missing_normal=True,
         )
-        self.assertEqual(NormalData.objects.filter(label="tbil").count(), starting_count + 1)
+        self.assertEqual(
+            NormalData.objects.filter(label="tbil").count(), starting_count + 1
+        )
         self.assertEqual(obj.description, "tbil: 0.2923<=x<1.2277 mg/dL M 18<=AGE")
 
         # do again to ensure does not create duplicates
@@ -327,7 +335,9 @@ class TestLoadData(TestCase):
             age_units="years",
             create_missing_normal=True,
         )
-        self.assertEqual(NormalData.objects.filter(label="tbil").count(), starting_count + 1)
+        self.assertEqual(
+            NormalData.objects.filter(label="tbil").count(), starting_count + 1
+        )
 
     def test_normal_data_creates_for_missing_units_and_evaluates(self):
         report_datetime = get_utcnow()

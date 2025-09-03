@@ -94,7 +94,9 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
         """
         with transaction.atomic():
             for key in [CRF, REQUISITION]:
-                if [obj for obj in self.metadata[key] if obj.get_entry_status() == KEYED]:
+                if [
+                    obj for obj in self.metadata[key] if obj.get_entry_status() == KEYED
+                ]:
                     raise DeleteMetadataError(
                         f"Metadata cannot be deleted. {key}s have been "
                         f"keyed. Got {repr(self)}."

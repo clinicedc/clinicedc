@@ -69,6 +69,8 @@ class ActionItemButton(ModelButton):
             priority=self.action_cls.priority,
             subject_identifier=self.get_subject_identifier(),
             appointment=getattr(self.appointment, "id", None),
-            related_action_item_id=getattr(self.model_obj, "related_action_item_id", ""),
+            related_action_item_id=getattr(
+                self.model_obj, "related_action_item_id", ""
+            ),
             parent_action_item_id=getattr(self.model_obj, "parent_action_item_id", ""),
         )

@@ -18,18 +18,19 @@ Clinic EDC is open-source and written in python on top of Django
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Introduction:
 
    features
    overview
    history
+   trials
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Data security and compliance:
+
    compliance
    data_security_and_privacy
-   trials
-   howto
-   backup_recovery_strategies
-   other_technologies
-   articles
 
 .. toctree::
    :maxdepth: 2
@@ -37,9 +38,26 @@ Clinic EDC is open-source and written in python on top of Django
 
    pharmacy/index
 
-
 .. toctree::
    :maxdepth: 2
    :caption: Clinicedc modules:
 
    clinicedc_modules/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Backup and Recovery:
+
+   backup_recovery_strategies
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Howto:
+
+   howto/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Article:
+
+   articles

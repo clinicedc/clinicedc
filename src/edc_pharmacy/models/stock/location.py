@@ -25,7 +25,10 @@ class Location(ListModelMixin, BaseUuidModel):
 
     contact_name = models.CharField(max_length=150, null=True, blank=True)
     contact_tel = models.CharField(
-        max_length=150, validators=[RegexValidator("[0-9]{1,15}")], null=True, blank=True
+        max_length=150,
+        validators=[RegexValidator("[0-9]{1,15}")],
+        null=True,
+        blank=True,
     )
     contact_email = models.EmailField(max_length=150, null=True, blank=True)
 

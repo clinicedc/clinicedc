@@ -51,13 +51,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -99,7 +101,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -118,7 +122,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("subject_identifier", models.CharField(max_length=50)),
-                ("visit_code", models.CharField(editable=False, max_length=25, null=True)),
+                (
+                    "visit_code",
+                    models.CharField(editable=False, max_length=25, null=True),
+                ),
                 (
                     "visit_code_sequence",
                     models.IntegerField(
@@ -154,7 +161,10 @@ class Migration(migrations.Migration):
                     "reason_unscheduled",
                     models.CharField(
                         choices=[
-                            ("patient_unwell_outpatient", "Patient unwell (outpatient)"),
+                            (
+                                "patient_unwell_outpatient",
+                                "Patient unwell (outpatient)",
+                            ),
                             ("patient_hospitalised", "Patient hospitalised"),
                             ("OTHER", "Other"),
                             ("N/A", "Not applicable"),
@@ -268,7 +278,10 @@ class Migration(migrations.Migration):
                         verbose_name="Any comments related to status of this document",
                     ),
                 ),
-                ("consent_model", models.CharField(editable=False, max_length=50, null=True)),
+                (
+                    "consent_model",
+                    models.CharField(editable=False, max_length=50, null=True),
+                ),
                 (
                     "consent_version",
                     models.CharField(editable=False, max_length=10, null=True),
@@ -355,7 +368,14 @@ class Migration(migrations.Migration):
                 ),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
             },
             bases=(
@@ -395,13 +415,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -443,7 +465,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -527,7 +551,11 @@ class Migration(migrations.Migration):
                 (
                     "contact_made",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="N/A",
                         max_length=25,
                         verbose_name="Was contact finally made with the participant?",
@@ -545,7 +573,11 @@ class Migration(migrations.Migration):
                 (
                     "ltfu",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="No",
                         help_text="If 'Yes', complete the Loss to Follow up form",
                         max_length=15,
@@ -560,7 +592,10 @@ class Migration(migrations.Migration):
                         verbose_name="Please provide further details, if any",
                     ),
                 ),
-                ("consent_model", models.CharField(editable=False, max_length=50, null=True)),
+                (
+                    "consent_model",
+                    models.CharField(editable=False, max_length=50, null=True),
+                ),
                 (
                     "consent_version",
                     models.CharField(editable=False, max_length=10, null=True),
@@ -568,7 +603,10 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -638,13 +676,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -686,7 +726,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -704,7 +746,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("subject_identifier", models.CharField(max_length=50)),
-                ("visit_code", models.CharField(editable=False, max_length=25, null=True)),
+                (
+                    "visit_code",
+                    models.CharField(editable=False, max_length=25, null=True),
+                ),
                 (
                     "visit_code_sequence",
                     models.IntegerField(
@@ -740,7 +785,10 @@ class Migration(migrations.Migration):
                     "reason_unscheduled",
                     models.CharField(
                         choices=[
-                            ("patient_unwell_outpatient", "Patient unwell (outpatient)"),
+                            (
+                                "patient_unwell_outpatient",
+                                "Patient unwell (outpatient)",
+                            ),
                             ("patient_hospitalised", "Patient hospitalised"),
                             ("OTHER", "Other"),
                             ("N/A", "Not applicable"),
@@ -854,7 +902,10 @@ class Migration(migrations.Migration):
                         verbose_name="Any comments related to status of this document",
                     ),
                 ),
-                ("consent_model", models.CharField(editable=False, max_length=50, null=True)),
+                (
+                    "consent_model",
+                    models.CharField(editable=False, max_length=50, null=True),
+                ),
                 (
                     "consent_version",
                     models.CharField(editable=False, max_length=10, null=True),
@@ -914,7 +965,10 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -984,13 +1038,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -1032,7 +1088,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
+                    models.CharField(
+                        blank=True, max_length=10, verbose_name="Device created"
+                    ),
                 ),
                 (
                     "device_modified",
@@ -1117,7 +1175,11 @@ class Migration(migrations.Migration):
                 (
                     "contact_made",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="N/A",
                         max_length=25,
                         verbose_name="Was contact finally made with the participant?",
@@ -1135,7 +1197,11 @@ class Migration(migrations.Migration):
                 (
                     "ltfu",
                     models.CharField(
-                        choices=[("Yes", "Yes"), ("No", "No"), ("N/A", "Not applicable")],
+                        choices=[
+                            ("Yes", "Yes"),
+                            ("No", "No"),
+                            ("N/A", "Not applicable"),
+                        ],
                         default="No",
                         help_text="If 'Yes', complete the Loss to Follow up form",
                         max_length=15,
@@ -1150,7 +1216,10 @@ class Migration(migrations.Migration):
                         verbose_name="Please provide further details, if any",
                     ),
                 ),
-                ("consent_model", models.CharField(editable=False, max_length=50, null=True)),
+                (
+                    "consent_model",
+                    models.CharField(editable=False, max_length=50, null=True),
+                ),
                 (
                     "consent_version",
                     models.CharField(editable=False, max_length=10, null=True),
@@ -1188,7 +1257,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "default_manager_name": "objects",
                 "indexes": [
                     models.Index(

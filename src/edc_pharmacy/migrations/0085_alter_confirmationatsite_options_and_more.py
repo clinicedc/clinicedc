@@ -15,7 +15,14 @@ class Migration(migrations.Migration):
             name="confirmationatsite",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Stock Confirmation at Site ",
                 "verbose_name_plural": "Stock Confirmations at Site",
             },
@@ -24,7 +31,14 @@ class Migration(migrations.Migration):
             name="confirmationatsiteitem",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Stock Confirmation at Site Item",
                 "verbose_name_plural": "Stock Confirmation at Site Items",
             },

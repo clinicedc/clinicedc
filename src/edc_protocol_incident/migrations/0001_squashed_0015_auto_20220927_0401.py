@@ -23,7 +23,10 @@ class Migration(migrations.Migration):
         ("edc_protocol_incident", "0002_auto_20210911_2036"),
         ("edc_protocol_incident", "0003_auto_20211104_1456"),
         ("edc_protocol_incident", "0004_alter_protocoldeviationviolation_violation"),
-        ("edc_protocol_incident", "0005_protocolincident_historicalprotocolincident_and_more"),
+        (
+            "edc_protocol_incident",
+            "0005_protocolincident_historicalprotocolincident_and_more",
+        ),
         ("edc_protocol_incident", "0006_protocolincidents_and_more"),
         ("edc_protocol_incident", "0007_auto_20220704_1841"),
         (
@@ -90,7 +93,10 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("version", models.CharField(default="1.0", editable=False, max_length=35)),
+                (
+                    "version",
+                    models.CharField(default="1.0", editable=False, max_length=35),
+                ),
                 ("id", models.AutoField(primary_key=True, serialize=False)),
             ],
             options={
@@ -98,7 +104,14 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Actions Required",
                 "ordering": ["display_index", "display_name"],
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -118,13 +131,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -198,13 +213,17 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Report Date and Time"
+                        default=edc_utils.date.get_utcnow,
+                        verbose_name="Report Date and Time",
                     ),
                 ),
                 (
@@ -374,13 +393,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -455,7 +476,8 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Report Date and Time"
+                        default=edc_utils.date.get_utcnow,
+                        verbose_name="Report Date and Time",
                     ),
                 ),
                 (
@@ -598,7 +620,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
             managers=[
                 ("on_site", edc_action_item.managers.ActionIdentifierSiteManager()),
@@ -647,7 +676,10 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("version", models.CharField(default="1.0", editable=False, max_length=35)),
+                (
+                    "version",
+                    models.CharField(default="1.0", editable=False, max_length=35),
+                ),
                 ("id", models.AutoField(primary_key=True, serialize=False)),
             ],
             options={
@@ -655,7 +687,14 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Protocol Violations",
                 "ordering": ["display_index", "display_name"],
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.AddIndex(
@@ -930,13 +969,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -1011,7 +1052,8 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Report Date and Time"
+                        default=edc_utils.date.get_utcnow,
+                        verbose_name="Report Date and Time",
                     ),
                 ),
                 (
@@ -1090,7 +1132,8 @@ class Migration(migrations.Migration):
                 (
                     "incident_reason",
                     models.TextField(
-                        null=True, verbose_name="Explain the reason why the incident occurred"
+                        null=True,
+                        verbose_name="Explain the reason why the incident occurred",
                     ),
                 ),
                 (
@@ -1209,7 +1252,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
             managers=[
                 ("on_site", edc_action_item.managers.ActionIdentifierSiteManager()),
@@ -1233,13 +1283,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -1313,13 +1365,17 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Report Date and Time"
+                        default=edc_utils.date.get_utcnow,
+                        verbose_name="Report Date and Time",
                     ),
                 ),
                 (
@@ -1398,7 +1454,8 @@ class Migration(migrations.Migration):
                 (
                     "incident_reason",
                     models.TextField(
-                        null=True, verbose_name="Explain the reason why the incident occurred"
+                        null=True,
+                        verbose_name="Explain the reason why the incident occurred",
                     ),
                 ),
                 (
@@ -1594,7 +1651,10 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("version", models.CharField(default="1.0", editable=False, max_length=35)),
+                (
+                    "version",
+                    models.CharField(default="1.0", editable=False, max_length=35),
+                ),
                 ("id", models.AutoField(primary_key=True, serialize=False)),
             ],
             options={
@@ -1602,7 +1662,14 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "Protocol Incidents",
                 "ordering": ["display_index", "display_name"],
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.AddIndex(
@@ -1699,17 +1766,23 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="actionsrequired",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.AddField(
             model_name="protocolincidents",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.AddField(
             model_name="protocolviolations",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.RemoveIndex(
             model_name="actionsrequired",

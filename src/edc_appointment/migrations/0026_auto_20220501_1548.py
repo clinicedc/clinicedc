@@ -43,7 +43,10 @@ class Migration(migrations.Migration):
             model_name="appointment",
             name="appt_reason",
             field=models.CharField(
-                choices=[("scheduled", "Routine / Scheduled"), ("unscheduled", "Unscheduled")],
+                choices=[
+                    ("scheduled", "Routine / Scheduled"),
+                    ("unscheduled", "Unscheduled"),
+                ],
                 help_text="The visit report's `reason for visit` will be validated against this. Refer to the protocol's documentation for the definition of a `scheduled` appointment.",
                 max_length=25,
                 verbose_name="Reason for appointment",
@@ -71,7 +74,10 @@ class Migration(migrations.Migration):
             model_name="historicalappointment",
             name="appt_reason",
             field=models.CharField(
-                choices=[("scheduled", "Routine / Scheduled"), ("unscheduled", "Unscheduled")],
+                choices=[
+                    ("scheduled", "Routine / Scheduled"),
+                    ("unscheduled", "Unscheduled"),
+                ],
                 help_text="The visit report's `reason for visit` will be validated against this. Refer to the protocol's documentation for the definition of a `scheduled` appointment.",
                 max_length=25,
                 verbose_name="Reason for appointment",

@@ -61,7 +61,9 @@ class CrfRequisitionFormValidatorMixin:
         return requisition
 
     def validate_assay_datetime(
-        self, requisition: RequisitionModelMixin, assay_datetime_field: str | None = None
+        self,
+        requisition: RequisitionModelMixin,
+        assay_datetime_field: str | None = None,
     ) -> None:
         assay_datetime_field = assay_datetime_field or self.assay_datetime_field
         assay_datetime = self.cleaned_data.get(assay_datetime_field)

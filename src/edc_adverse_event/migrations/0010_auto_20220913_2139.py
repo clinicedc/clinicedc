@@ -12,21 +12,29 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="aeactionclassification",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.AddField(
             model_name="aeclassification",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.AddField(
             model_name="causeofdeath",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.AddField(
             model_name="saereason",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
     ]

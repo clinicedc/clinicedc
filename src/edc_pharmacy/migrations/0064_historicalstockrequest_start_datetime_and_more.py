@@ -6,7 +6,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("edc_pharmacy", "0063_alter_allocation_managers_remove_allocation_site_and_more"),
+        (
+            "edc_pharmacy",
+            "0063_alter_allocation_managers_remove_allocation_site_and_more",
+        ),
     ]
 
     operations = [

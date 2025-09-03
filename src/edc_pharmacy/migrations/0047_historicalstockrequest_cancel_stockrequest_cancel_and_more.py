@@ -34,7 +34,11 @@ class Migration(migrations.Migration):
             model_name="historicalstockrequest",
             name="status",
             field=models.CharField(
-                choices=[("open", "Open"), ("closed", "Closed"), ("cancelled", "Cancelled")],
+                choices=[
+                    ("open", "Open"),
+                    ("closed", "Closed"),
+                    ("cancelled", "Cancelled"),
+                ],
                 default="open",
                 max_length=25,
             ),
@@ -43,7 +47,11 @@ class Migration(migrations.Migration):
             model_name="stockrequest",
             name="status",
             field=models.CharField(
-                choices=[("open", "Open"), ("closed", "Closed"), ("cancelled", "Cancelled")],
+                choices=[
+                    ("open", "Open"),
+                    ("closed", "Closed"),
+                    ("cancelled", "Cancelled"),
+                ],
                 default="open",
                 max_length=25,
             ),

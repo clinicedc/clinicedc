@@ -72,7 +72,9 @@ class Command(BaseCommand):
         try:
             app_label1, app_label2 = self.app_labe1.split("_")
             error_filename = (
-                "_".join(["error", app_label1, app_label2, self.object_name, self.timestamp])
+                "_".join(
+                    ["error", app_label1, app_label2, self.object_name, self.timestamp]
+                )
                 + "."
                 + self.extension
             )

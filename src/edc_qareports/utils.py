@@ -4,8 +4,7 @@ from warnings import warn
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.db import OperationalError, connection
-
+from django.db import connection, OperationalError
 from edc_auth.get_app_codenames import get_app_codenames
 
 
@@ -20,7 +19,9 @@ def read_unmanaged_model_sql(
         uuid_func = "gen_random_uuid()"
 
     if not fullpath:
-        fullpath = Path(settings.BASE_DIR) / app_name / "models" / "unmanaged" / filename
+        fullpath = (
+            Path(settings.BASE_DIR) / app_name / "models" / "unmanaged" / filename
+        )
     else:
         fullpath = Path(fullpath)
 
@@ -39,7 +40,11 @@ def read_unmanaged_model_sql(
 
 
 def get_qareports_codenames(app_name: str, *note_models: str) -> list[str]:
-    warn("This function has been deprecated. Use get_app_codenames.", DeprecationWarning, 2)
+    warn(
+        "This function has been deprecated. Use get_app_codenames.",
+        DeprecationWarning,
+        2,
+    )
     return get_app_codenames(app_name)
 
 
@@ -49,7 +54,8 @@ def recreate_db_view(model_cls, drop: bool | None = None, verbose: bool | None =
 
     Mostly useful when Django raises an OperationalError with a
     restored DB complaining of 'The user specified as a definer
-    (user@host) does not exist'.
+    (user@host) does not exist' or some variation of OperationalError
+    with 'SELECT command denied to user...'
 
     This does not replace generating a migration with `viewmigration`
     and running the migration.
@@ -79,7 +85,9 @@ def recreate_db_view(model_cls, drop: bool | None = None, verbose: bool | None =
     """
     drop = True if drop is None else drop
     try:
-        sql = model_cls.view_definition.get(settings.DATABASES["default"]["ENGINE"])  # noqa
+        sql = model_cls.view_definition.get(
+            settings.DATABASES["default"]["ENGINE"]
+        )  # noqa
     except AttributeError as e:
         raise AttributeError(
             f"Is this model linked to a view? Declare model with `DBView`. Got {e}"

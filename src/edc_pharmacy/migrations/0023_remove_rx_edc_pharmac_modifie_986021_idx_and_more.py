@@ -7,7 +7,10 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("edc_action_item", "0037_remove_actionitem_reference_model_and_more"),
-        ("edc_pharmacy", "0022_alter_historicalproduct_site_alter_historicalrx_site_and_more"),
+        (
+            "edc_pharmacy",
+            "0022_alter_historicalproduct_site_alter_historicalrx_site_and_more",
+        ),
         ("sites", "0002_alter_domain_unique"),
     ]
 
@@ -22,6 +25,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="rx",
-            index=models.Index(fields=["rando_sid"], name="edc_pharmac_rando_s_0bcc84_idx"),
+            index=models.Index(
+                fields=["rando_sid"], name="edc_pharmac_rando_s_0bcc84_idx"
+            ),
         ),
     ]

@@ -17,7 +17,9 @@ class AliquotType:
     aliquot type, e.g. WB->Plasma, WB->Buffy Coat.
     """
 
-    def __init__(self, name: str = None, alpha_code: str = None, numeric_code: str = None):
+    def __init__(
+        self, name: str = None, alpha_code: str = None, numeric_code: str = None
+    ):
         self.derivatives = []
         self.name = name
         if not alpha_code or not re.match(r"^[A-Z]+$", alpha_code, re.ASCII):
@@ -25,7 +27,9 @@ class AliquotType:
         else:
             self.alpha_code = alpha_code
         if not numeric_code or not re.match(r"^\d+$", numeric_code, re.ASCII):
-            raise AliquotTypeNumericCodeError(f"Invalid numeric code. Got {numeric_code}.")
+            raise AliquotTypeNumericCodeError(
+                f"Invalid numeric code. Got {numeric_code}."
+            )
         else:
             self.numeric_code = numeric_code
 

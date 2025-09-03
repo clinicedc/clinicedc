@@ -20,7 +20,9 @@ class Notification(BaseUuidModel):
 
     display_name = models.CharField(max_length=255, unique=True)
 
-    mailing_list_address = models.EmailField(_("Mailing list address"), blank=True, null=True)
+    mailing_list_address = models.EmailField(
+        _("Mailing list address"), blank=True, null=True
+    )
 
     enabled = models.BooleanField(default=True)
 

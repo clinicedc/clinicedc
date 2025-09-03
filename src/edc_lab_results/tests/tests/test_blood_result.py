@@ -2,21 +2,35 @@ from django.apps import apps as django_apps
 from django.test import TestCase
 
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import GRADE3, NO, NOT_APPLICABLE, YES
 from edc_lab.models import Panel
+from edc_lab_results.get_summary import get_summary
 from edc_reportable import GRAMS_PER_DECILITER, PERCENT, TEN_X_9_PER_LITER
 from edc_utils import get_utcnow
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import BloodResultsFbc
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
-from ...get_summary import get_summary
-from ..models import BloodResultsFbc
-from ..test_case_mixin import TestCaseMixin
 
-
-class TestBloodResult(TestCaseMixin, TestCase):
+class TestBloodResult(TestCase):
     def setUp(self):
-        super().setUp()
-        self.subject_identifier = self.enroll()
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+
+        visit_schedule = get_visit_schedule(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+
+        helper = Helper()
+        consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule", schedule_name="schedule"
+        )
+        self.subject_identifier = consent.subject_identifier
+
         appointment = Appointment.objects.get(
             subject_identifier=self.subject_identifier,
             visit_code="1000",
@@ -29,7 +43,7 @@ class TestBloodResult(TestCaseMixin, TestCase):
             reason=SCHEDULED,
         )
         panel = Panel.objects.get(name="fbc")
-        requisition = django_apps.get_model("edc_metadata.subjectrequisition").objects.create(
+        requisition = django_apps.get_model("tests.subjectrequisition").objects.create(
             subject_visit=subject_visit,
             panel=panel,
             requisition_datetime=subject_visit.report_datetime,
@@ -96,7 +110,8 @@ class TestBloodResult(TestCaseMixin, TestCase):
         obj = BloodResultsFbc.objects.create(**self.data)
         self.assertEqual(obj.missing_count, 5)
         self.assertEqual(
-            "haemoglobin_value,hct_value,rbc_value,wbc_value,platelets_value", obj.missing
+            "haemoglobin_value,hct_value,rbc_value,wbc_value,platelets_value",
+            obj.missing,
         )
 
         obj.haemoglobin_value = 14

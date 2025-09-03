@@ -19,13 +19,19 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
                 ("report_model", models.CharField(max_length=50)),
                 ("created", models.DateTimeField(default=edc_utils.date.get_utcnow)),
                 ("subject_identifier", models.CharField(max_length=50, null=True)),
-                ("visit_code", models.DecimalField(decimal_places=1, max_digits=8, null=True)),
+                (
+                    "visit_code",
+                    models.DecimalField(decimal_places=1, max_digits=8, null=True),
+                ),
                 ("appt_date", models.DateField(null=True)),
                 ("baseline_date", models.DateField(null=True)),
                 ("relative_days", models.IntegerField(null=True)),

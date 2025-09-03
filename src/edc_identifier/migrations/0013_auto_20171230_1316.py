@@ -13,9 +13,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="historicalidentifierhistory", name="history_user"),
-        migrations.RemoveField(model_name="historicalidentifiertracker", name="history_user"),
-        migrations.RemoveField(model_name="historicalsubjectidentifier", name="history_user"),
+        migrations.RemoveField(
+            model_name="historicalidentifierhistory", name="history_user"
+        ),
+        migrations.RemoveField(
+            model_name="historicalidentifiertracker", name="history_user"
+        ),
+        migrations.RemoveField(
+            model_name="historicalsubjectidentifier", name="history_user"
+        ),
         migrations.DeleteModel(name="IdentifierHistory"),
         migrations.DeleteModel(name="IdentifierTracker"),
         migrations.DeleteModel(name="Sequence"),

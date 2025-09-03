@@ -17,7 +17,9 @@ class Migration(migrations.Migration):
                 "verbose_name": "historical ",
             },
         ),
-        migrations.RemoveField(model_name="historicalappointment", name="visit_instance"),
+        migrations.RemoveField(
+            model_name="historicalappointment", name="visit_instance"
+        ),
         migrations.AddField(
             model_name="appointment",
             name="device_created",

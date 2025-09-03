@@ -23,7 +23,9 @@ if TYPE_CHECKING:
     from ..model_mixins.creates import CreatesMetadataModelMixin
     from ..models import CrfMetadata, RequisitionMetadata
 
-    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel):
+    class RelatedVisitModel(
+        SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel
+    ):
         pass
 
 
@@ -97,7 +99,9 @@ class CrfCreator(SourceModelMetadataMixin):
                 if registered:
                     with transaction.atomic():
                         opts = dict(
-                            entry_status=REQUIRED if self.crf.required else NOT_REQUIRED,
+                            entry_status=(
+                                REQUIRED if self.crf.required else NOT_REQUIRED
+                            ),
                             show_order=self.crf.show_order,
                             site=self.related_visit.site,
                             due_datetime=self.due_datetime,
@@ -107,16 +111,22 @@ class CrfCreator(SourceModelMetadataMixin):
                         )
                         opts.update(**self.query_options)
                         try:
-                            metadata_obj = self.metadata_model_cls.objects.create(**opts)
+                            metadata_obj = self.metadata_model_cls.objects.create(
+                                **opts
+                            )
                         except IntegrityError as e:
-                            msg = f"Integrity error creating. Tried with {opts}. Got {e}."
+                            msg = (
+                                f"Integrity error creating. Tried with {opts}. Got {e}."
+                            )
                             raise CreatesMetadataError(msg)
             else:
                 if not registered:
                     metadata_obj.delete()
                     metadata_obj = None
             if metadata_obj:
-                metadata_obj = self.update_entry_status_to_default_or_keyed(metadata_obj)
+                metadata_obj = self.update_entry_status_to_default_or_keyed(
+                    metadata_obj
+                )
             self._metadata_obj = metadata_obj
         return self._metadata_obj
 
@@ -183,7 +193,9 @@ class RequisitionCreator(CrfCreator):
     @property
     def source_model_options(self) -> dict:
         """Source model query options"""
-        return dict(subject_visit=self.related_visit, panel__name=self.requisition.panel.name)
+        return dict(
+            subject_visit=self.related_visit, panel__name=self.requisition.panel.name
+        )
 
 
 class Creator:
@@ -225,8 +237,15 @@ class Creator:
         if self.related_visit.visit_code_sequence != 0:
             # unscheduled + prn requisitions only
             names = [f.name for f in self.related_visit.visit.requisitions_unscheduled]
-            requisitions = self.related_visit.visit.requisitions_unscheduled.forms + tuple(
-                [f for f in self.related_visit.visit.requisitions_prn if f.name not in names]
+            requisitions = (
+                self.related_visit.visit.requisitions_unscheduled.forms
+                + tuple(
+                    [
+                        f
+                        for f in self.related_visit.visit.requisitions_prn
+                        if f.name not in names
+                    ]
+                )
             )
         elif self.related_visit.reason == MISSED_VISIT:
             # missed visit requisition only -- none
@@ -235,7 +254,11 @@ class Creator:
             # scheduled + prn requisitions only
             names = [f.name for f in self.related_visit.visit.requisitions]
             requisitions = self.related_visit.visit.requisitions.forms + tuple(
-                [f for f in self.related_visit.visit.requisitions_prn if f.name not in names]
+                [
+                    f
+                    for f in self.related_visit.visit.requisitions_prn
+                    if f.name not in names
+                ]
             )
         return RequisitionCollection(*requisitions, name="requisitions")
 
@@ -267,7 +290,9 @@ class Destroyer:
     metadata_crf_model = "edc_metadata.crfmetadata"
     metadata_requisition_model = "edc_metadata.requisitionmetadata"
 
-    def __init__(self, related_visit: RelatedVisitModel | CreatesMetadataModelMixin) -> None:
+    def __init__(
+        self, related_visit: RelatedVisitModel | CreatesMetadataModelMixin
+    ) -> None:
         self.related_visit = related_visit
 
     @property
@@ -309,7 +334,9 @@ class Metadata:
         self._reason = None
         self._reason_field = "reason"
         self.related_visit = related_visit
-        self.creator = self.creator_cls(related_visit=related_visit, update_keyed=update_keyed)
+        self.creator = self.creator_cls(
+            related_visit=related_visit, update_keyed=update_keyed
+        )
         self.destroyer = self.destroyer_cls(related_visit=related_visit)
 
     def prepare(self) -> bool:
@@ -319,7 +346,9 @@ class Metadata:
         metadata_exists = False
         if self.reason in self.related_visit.visit_schedule.delete_metadata_on_reasons:
             self.destroyer.delete()
-        elif self.reason in self.related_visit.visit_schedule.create_metadata_on_reasons:
+        elif (
+            self.reason in self.related_visit.visit_schedule.create_metadata_on_reasons
+        ):
             if self.reason == MISSED_VISIT:
                 self.destroyer.delete(entry_status_not_in=[KEYED])
             else:

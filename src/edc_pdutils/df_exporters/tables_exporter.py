@@ -80,7 +80,10 @@ class TablesExporter:
         return f"{self.__class__.__name__}(app_label='{self.app_label}')"
 
     def to_csv(
-        self, table_names: list[str] | None = None, export_folder: str | None = None, **kwargs
+        self,
+        table_names: list[str] | None = None,
+        export_folder: str | None = None,
+        **kwargs,
     ):
         """Exports all tables to CSV as raw tables.
 

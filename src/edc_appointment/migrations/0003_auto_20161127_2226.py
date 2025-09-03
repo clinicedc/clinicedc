@@ -11,26 +11,36 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(name="appointment", options={}),
-        migrations.RemoveField(model_name="historicalappointment", name="consent_version"),
+        migrations.RemoveField(
+            model_name="historicalappointment", name="consent_version"
+        ),
         migrations.AlterField(
             model_name="appointment",
             name="created",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+            field=models.DateTimeField(
+                default=edc_utils.date.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
             model_name="appointment",
             name="modified",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+            field=models.DateTimeField(
+                default=edc_utils.date.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
             model_name="historicalappointment",
             name="created",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+            field=models.DateTimeField(
+                default=edc_utils.date.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterField(
             model_name="historicalappointment",
             name="modified",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+            field=models.DateTimeField(
+                default=edc_utils.date.get_utcnow, editable=False
+            ),
         ),
         migrations.AlterUniqueTogether(name="appointment", unique_together=set([])),
         migrations.RemoveField(model_name="appointment", name="consent_version"),

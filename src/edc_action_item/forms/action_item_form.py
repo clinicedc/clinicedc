@@ -33,7 +33,9 @@ class ActionItemForm(BaseModelFormMixin, forms.ModelForm):
             .objects.filter(action_identifier=self.instance.action_identifier)
             .exists()
         ):
-            raise forms.ValidationError({"status": "Invalid. This action cannot be cancelled"})
+            raise forms.ValidationError(
+                {"status": "Invalid. This action cannot be cancelled"}
+            )
 
     class Meta:
         model = ActionItem

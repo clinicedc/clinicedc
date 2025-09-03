@@ -193,7 +193,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "sid",
-                    models.CharField(blank=True, max_length=15, null=True, verbose_name="SID"),
+                    models.CharField(
+                        blank=True, max_length=15, null=True, verbose_name="SID"
+                    ),
                 ),
                 (
                     "subject_type",

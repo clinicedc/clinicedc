@@ -46,7 +46,9 @@ class AuthUpdater:
             self.verbose = verbose
             self.apps = apps
             if self.verbose:
-                sys.stdout.write(style.MIGRATE_HEADING("Updating groups and permissions:\n"))
+                sys.stdout.write(
+                    style.MIGRATE_HEADING("Updating groups and permissions:\n")
+                )
             self.group_updater = self.group_updater_cls(
                 groups=groups,
                 pii_models=pii_models,

@@ -1,41 +1,45 @@
 from copy import deepcopy
 
-from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase
 
 from edc_action_item.site_action_items import site_action_items
-from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import GRADE3, GRADE4, NO, NOT_APPLICABLE, YES
+from edc_lab import site_labs
 from edc_lab.models import Panel
 from edc_lab_results.action_items import register_actions
 from edc_reportable import GRAMS_PER_DECILITER, PERCENT
-from edc_utils import get_utcnow
-from edc_visit_tracking.constants import SCHEDULED
-
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import SubjectRequisition
+from tests.visit_schedules.visit_schedule_lab_results.lab_profiles import lab_profile
+from tests.visit_schedules.visit_schedule_lab_results.visit_schedule import (
+    get_visit_schedule,
+)
 from ..forms import BloodResultsFbcForm, BloodResultsHba1cForm
-from ..test_case_mixin import TestCaseMixin
 
 
-class TestBloodResultForm(TestCaseMixin, TestCase):
+class TestBloodResultForm(TestCase):
     def setUp(self):
+        helper = Helper()
+        site_labs.register(lab_profile=lab_profile)
+
         site_action_items.registry = {}
         register_actions()
-        self.subject_identifier = self.enroll()
-        appointment = Appointment.objects.get(
-            subject_identifier=self.subject_identifier,
-            visit_code="1000",
-        )
-        self.subject_visit = django_apps.get_model(
-            "edc_visit_tracking.subjectvisit"
-        ).objects.create(
-            report_datetime=get_utcnow(),
-            appointment=appointment,
-            reason=SCHEDULED,
-        )
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
+
+        self.subject_visit = helper.enroll_to_baseline(consent_definition=consent_v1)
+        self.subject_identifier = self.subject_visit.subject_identifier
+
         fbc_panel = Panel.objects.get(name="fbc")
-        requisition = django_apps.get_model("edc_metadata.subjectrequisition").objects.create(
+        requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             panel=fbc_panel,
             requisition_datetime=self.subject_visit.report_datetime,
@@ -137,23 +141,20 @@ class TestBloodResultForm(TestCaseMixin, TestCase):
         self.assertEqual({}, form._errors)
 
 
-class TestBloodResultFormForPoc(TestCaseMixin, TestCase):
+class TestBloodResultFormForPoc(TestCase):
     def setUp(self):
-        super().setUp()
+        helper = Helper()
         site_action_items.registry = {}
         register_actions()
-        self.subject_identifier = self.enroll()
-        appointment = Appointment.objects.get(
-            subject_identifier=self.subject_identifier,
-            visit_code="1000",
-        )
-        self.subject_visit = django_apps.get_model(
-            "edc_visit_tracking.subjectvisit"
-        ).objects.create(
-            report_datetime=get_utcnow(),
-            appointment=appointment,
-            reason=SCHEDULED,
-        )
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
+
+        self.subject_visit = helper.enroll_to_baseline(consent_definition=consent_v1)
+        self.subject_identifier = self.subject_visit.subject_identifier
+
         self.data = dict(
             report_datetime=self.subject_visit.report_datetime,
             subject_visit=self.subject_visit,
@@ -187,7 +188,7 @@ class TestBloodResultFormForPoc(TestCaseMixin, TestCase):
         self.assertIn("HBA1C is abnormal", str(form._errors.get("hba1c_value")))
 
         hba1c_panel = Panel.objects.get(name="hba1c")
-        requisition = django_apps.get_model("edc_metadata.subjectrequisition").objects.create(
+        requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             panel=hba1c_panel,
             requisition_datetime=self.subject_visit.report_datetime,
@@ -196,7 +197,9 @@ class TestBloodResultFormForPoc(TestCaseMixin, TestCase):
         data.update(requisition=requisition, hba1c_value=5.0)
         form = BloodResultsHba1cForm(data=data)
         form.is_valid()
-        self.assertIn("This field is not required", str(form._errors.get("requisition")))
+        self.assertIn(
+            "This field is not required", str(form._errors.get("subject_requisition"))
+        )
 
     def test_not_poc_requires_requisition(self):
         data = deepcopy(self.data)
@@ -204,10 +207,12 @@ class TestBloodResultFormForPoc(TestCaseMixin, TestCase):
         data.update(is_poc=NO)
         form = BloodResultsHba1cForm(data=data)
         form.is_valid()
-        self.assertIn("This field is required", str(form._errors.get("requisition")))
+        self.assertIn(
+            "This field is required", str(form._errors.get("subject_requisition"))
+        )
 
         hba1c_panel = Panel.objects.get(name="hba1c")
-        requisition = django_apps.get_model("edc_metadata.subjectrequisition").objects.create(
+        requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             panel=hba1c_panel,
             requisition_datetime=self.subject_visit.report_datetime,

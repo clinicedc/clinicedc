@@ -39,8 +39,11 @@ class PrepareAndReviewStockRequestView(
         # get unallocated stock that appears in a stock request for this location
         df_unallocated_request_items = read_frame(
             StockRequestItem.objects.values(
-                "stock_request__request_identifier", "registered_subject__subject_identifier"
-            ).filter(stock_request__location=stock_request.location, allocation__isnull=True)
+                "stock_request__request_identifier",
+                "registered_subject__subject_identifier",
+            ).filter(
+                stock_request__location=stock_request.location, allocation__isnull=True
+            )
         )
         df_unallocated_request_items.rename(
             columns={
@@ -64,7 +67,9 @@ class PrepareAndReviewStockRequestView(
         )
 
         # exclude unallocated subjects from appts
-        df = df[~df.subject_identifier.isin(df_unallocated_request_items.subject_identifier)]
+        df = df[
+            ~df.subject_identifier.isin(df_unallocated_request_items.subject_identifier)
+        ]
         df.reset_index(drop=True, inplace=True)
 
         kwargs.update(
@@ -108,7 +113,9 @@ class PrepareAndReviewStockRequestView(
             nostock_dict["stock_qty"] = 0.0
             self.request.session[session_uuid] = nostock_dict
 
-            stock_request_items_exist = stock_request.stockrequestitem_set.all().exists()
+            stock_request_items_exist = (
+                stock_request.stockrequestitem_set.all().exists()
+            )
             if stock_request_items_exist:
                 messages.add_message(
                     self.request,

@@ -1,31 +1,30 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from django.test import TestCase, override_settings
 from django.views.generic.base import ContextMixin
 from edc_test_utils.get_httprequest_for_tests import get_request_object_for_tests
-from subject_dashboard_app.consents import consent_v1
-from subject_dashboard_app.models import (
-    Appointment,
-    BadSubjectVisit,
-    SubjectConsent,
-    TestModel,
-)
+from edc_test_utils.get_user_for_tests import get_user_for_tests
 
+from edc_appointment.models import Appointment
 from edc_appointment.view_mixins import AppointmentViewMixin
 from edc_consent import site_consents
 from edc_locator.exceptions import SubjectLocatorViewMixinError
 from edc_locator.view_mixins import SubjectLocatorViewMixin
-from edc_sites.utils import get_site_model_cls
 from edc_sites.view_mixins import SiteViewMixin
 from edc_subject_dashboard.view_mixins import (
     RegisteredSubjectViewMixin,
     SubjectVisitViewMixin,
     SubjectVisitViewMixinError,
 )
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from .test_case_mixin import TestCaseMixin
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import TestModel
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class DummyModelWrapper:
@@ -33,36 +32,33 @@ class DummyModelWrapper:
         pass
 
 
-@override_settings(SITE_ID=110)
-class TestViewMixins(TestCaseMixin, TestCase):
+utc_tz = ZoneInfo("UTC")
+
+
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=10)
+class TestViewMixins(TestCase):
     def setUp(self):
+
+        self.user = get_user_for_tests()
+
         site_consents.registry = {}
         site_consents.register(consent_v1)
-        self.subject_identifier = "101-108987-0"
-        self.current_site = get_site_model_cls().objects.get_current()
-        self.subject_identifier = "101-1234567-0"
-        subject_consent = SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
+
+        visit_schedule = get_visit_schedule(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(visit_schedule)
+
+        helper = Helper()
+        consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule", schedule_name="schedule"
         )
-        _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            "subject_dashboard_app.onschedule"
-        )
-        self.schedule.put_on_schedule(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
-        )
+        self.subject_identifier = consent.subject_identifier
 
         self.appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
             appointment=self.appointment,
-            subject_identifier=self.subject_identifier,
-            visit_schedule_name="visit_schedule1",
-            schedule_name="schedule1",
-            visit_code="1000",
             reason=SCHEDULED,
-        )
-        self.bad_subject_visit = BadSubjectVisit.objects.create(
-            appointment=self.appointment, subject_identifier=self.subject_identifier
         )
         self.test_model = TestModel.objects.create(subject_visit=self.subject_visit)
 

@@ -60,8 +60,12 @@ class Formula:
         self.lower, self.lower_inclusive, self.lln = self.parse_fragment(lower_str)
         self.upper, self.upper_inclusive, self.uln = self.parse_fragment(upper_str)
         self.gender = [self.gender] if isinstance(self.gender, str) else self.gender
-        self.lower_operator = "" if not self.lower else "<=" if self.lower_inclusive else "<"
-        self.upper_operator = "" if not self.upper else "<=" if self.upper_inclusive else "<"
+        self.lower_operator = (
+            "" if not self.lower else "<=" if self.lower_inclusive else "<"
+        )
+        self.upper_operator = (
+            "" if not self.upper else "<=" if self.upper_inclusive else "<"
+        )
         self.age_lower_operator = (
             "" if not self.age_lower else "<=" if self.age_lower_inclusive else "<"
         )

@@ -27,18 +27,28 @@ class Order(BaseUuidModel):
     item_count = models.IntegerField(verbose_name="Item count", null=True)
 
     title = models.CharField(
-        max_length=50, null=True, blank=False, help_text="A short description of this order"
+        max_length=50,
+        null=True,
+        blank=False,
+        help_text="A short description of this order",
     )
 
     supplier = models.ForeignKey(
-        Supplier, on_delete=models.PROTECT, verbose_name="Supplier", null=True, blank=False
+        Supplier,
+        on_delete=models.PROTECT,
+        verbose_name="Supplier",
+        null=True,
+        blank=False,
     )
     comment = models.TextField(null=True, blank=True)
 
     sent = models.BooleanField(default=False)
 
     status = models.CharField(
-        max_length=25, choices=ORDER_CHOICES, default=NEW, help_text="Updates in the signal"
+        max_length=25,
+        choices=ORDER_CHOICES,
+        default=NEW,
+        help_text="Updates in the signal",
     )
 
     objects = Manager()

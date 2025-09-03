@@ -12,6 +12,7 @@ from edc_adverse_event.action_items import (
 )
 from edc_adverse_event.constants import AE_FOLLOWUP_ACTION, DEATH_REPORT_ACTION
 from edc_constants.constants import HIGH_PRIORITY, NO
+from edc_pharmacy.action_items import PrescriptionAction
 from edc_visit_schedule.constants import OFFSCHEDULE_ACTION
 
 
@@ -204,6 +205,9 @@ def register_actions():
     site_action_items.register(DeathReportTmgAction)
     site_action_items.register(DeathReportTmgSecondAction)
     site_action_items.register(OffscheduleAction)
+
+    # edc-pharmacy
+    site_action_items.register(PrescriptionAction)
 
 
 register_actions()

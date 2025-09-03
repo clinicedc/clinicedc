@@ -5,24 +5,24 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
-from form_runners_app.consents import consent_v1
-from form_runners_app.models import Member, Team, TeamWithDifferentFields, Venue
-from form_runners_app.visit_schedules import visit_schedule
 
 from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper
 from edc_consent.site_consents import site_consents
-from edc_facility import import_holidays
+from edc_facility.import_holidays import import_holidays
 from edc_form_runners.exceptions import FormRunnerModelFormNotFound
 from edc_form_runners.form_runner import FormRunner
 from edc_form_runners.models import Issue
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import Member, Team, TeamWithDifferentFields, Venue
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 @override_settings(SITE_ID=10)
-@time_machine.travel(datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestRunners(TestCase):
 
     helper_cls = Helper
@@ -39,16 +39,17 @@ class TestRunners(TestCase):
         site_visit_schedules._registry = {}
 
         site_visit_schedules.loaded = False
+        visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules.register(visit_schedule)
 
-        self.subject_identifier = "1235"
-        self.helper = self.helper_cls(subject_identifier=self.subject_identifier)
+        self.helper = self.helper_cls()
         self.visit_schedule_name = "visit_schedule"
         self.schedule_name = "schedule"
 
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule", schedule_name="schedule"
         )
+        self.subject_identifier = subject_consent.subject_identifier
 
     def test_appointment(self):
         form_runner = FormRunner(model_name="edc_appointment.appointment")
@@ -70,17 +71,17 @@ class TestRunners(TestCase):
 
         # raise on VenueModelAdmin has no custom ModelForm
         self.assertRaises(
-            FormRunnerModelFormNotFound, FormRunner, model_name="form_runners_app.venue"
+            FormRunnerModelFormNotFound, FormRunner, model_name="tests.venue"
         )
 
         # run to find name field may not be a UUID
         # see form validator
-        form_runner = FormRunner(model_name="form_runners_app.team")
+        form_runner = FormRunner(model_name="tests.team")
         form_runner.run_all()
         self.assertEqual(Issue.objects.all().count(), 1)
         try:
             Issue.objects.get(
-                label_lower="form_runners_app.team",
+                label_lower="tests.team",
                 visit_code="1000",
                 visit_code_sequence=0,
                 field_name="name",
@@ -91,11 +92,11 @@ class TestRunners(TestCase):
 
         # run to find player_name field may not be a UUID
         # see form validator
-        form_runner = FormRunner(model_name="form_runners_app.member")
+        form_runner = FormRunner(model_name="tests.member")
         form_runner.run_all()
         try:
             Issue.objects.get(
-                label_lower="form_runners_app.member",
+                label_lower="tests.member",
                 visit_code="1000",
                 visit_code_sequence=0,
                 field_name="player_name",
@@ -106,11 +107,11 @@ class TestRunners(TestCase):
 
         # run to assert ignores `name` field because it IS NOT IN admin fieldsets
         # even though the model instance field class has blank=False.
-        form_runner = FormRunner(model_name="form_runners_app.teamwithdifferentfields")
+        form_runner = FormRunner(model_name="tests.teamwithdifferentfields")
         form_runner.run_all()
         try:
             Issue.objects.get(
-                label_lower="form_runners_app.teamwithdifferentfields",
+                label_lower="tests.teamwithdifferentfields",
                 field_name="name",
             )
         except ObjectDoesNotExist:
@@ -121,7 +122,7 @@ class TestRunners(TestCase):
         # and the model instance field class has blank=False.
         try:
             Issue.objects.get(
-                label_lower="form_runners_app.teamwithdifferentfields",
+                label_lower="tests.teamwithdifferentfields",
                 field_name="color",
             )
         except ObjectDoesNotExist:

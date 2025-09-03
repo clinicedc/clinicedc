@@ -21,7 +21,14 @@ class Migration(migrations.Migration):
             name="dataquery",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Data Query",
                 "verbose_name_plural": "Data Queries",
             },
@@ -30,7 +37,14 @@ class Migration(migrations.Migration):
             name="queryrule",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Query Rule",
                 "verbose_name_plural": "Query Rules",
             },

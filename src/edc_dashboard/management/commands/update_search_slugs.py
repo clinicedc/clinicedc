@@ -42,7 +42,9 @@ class Command(BaseCommand):
                         if "update_search_slugs" in str(e):
                             raise CommandError(
                                 "Missing manager method 'update_search_slugs'. "
-                                "See model {}. Got {}".format(model._meta.label_lower, str(e))
+                                "See model {}. Got {}".format(
+                                    model._meta.label_lower, str(e)
+                                )
                             )
                         else:
                             raise CommandError(e)

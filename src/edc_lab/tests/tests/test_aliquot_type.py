@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_lab.lab import (
     AliquotType,
@@ -7,6 +7,7 @@ from edc_lab.lab import (
 )
 
 
+@tag("lab")
 class TestAliquotType(TestCase):
     def setUp(self):
         self.wb = AliquotType(name="whole_blood", numeric_code="02", alpha_code="WB")

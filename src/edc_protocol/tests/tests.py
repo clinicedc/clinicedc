@@ -14,5 +14,9 @@ class TestProtocol(TestCase):
         EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
     )
     def test_protocol(self):
-        self.assertEqual(ResearchProtocolConfig().study_open_datetime.date(), opendte.date())
-        self.assertEqual(ResearchProtocolConfig().study_close_datetime.date(), closedte.date())
+        self.assertEqual(
+            ResearchProtocolConfig().study_open_datetime.date(), opendte.date()
+        )
+        self.assertEqual(
+            ResearchProtocolConfig().study_close_datetime.date(), closedte.date()
+        )

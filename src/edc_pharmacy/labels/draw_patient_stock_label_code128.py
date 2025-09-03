@@ -38,7 +38,9 @@ def draw_patient_stock_label_code128(
         f"{formulation.medication} {int(formulation.strength)}"
         f"{formulation.get_units_display()} "
     )
-    label.add(String(15, height - 72, ResearchProtocolConfig().protocol_name, fontSize=10))
+    label.add(
+        String(15, height - 72, ResearchProtocolConfig().protocol_name, fontSize=10)
+    )
     label.add(String(15, height - 84, f"{product}", fontSize=10))
     label.add(String(15, height - 96, f"{qty} tabs", fontSize=10))
     return label

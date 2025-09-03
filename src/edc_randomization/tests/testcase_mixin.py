@@ -1,11 +1,9 @@
-from django.contrib.sites.models import Site
-
 from edc_randomization.randomizer import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
-from edc_randomization.tests.make_test_list import make_test_list
 from edc_sites.single_site import SingleSite
 from edc_sites.site import sites
 from edc_sites.utils import add_or_update_django_sites
+from .utils import populate_randomization_list_for_tests
 
 suffix = "example.clinicedc.org"
 all_sites = (
@@ -70,13 +68,10 @@ class TestCaseMixin:
     def populate_list(
         self, randomizer_name=None, site_names=None, per_site=None, overwrite_site=None
     ):
-        randomizer = site_randomizers.get(randomizer_name)
-        make_test_list(
-            full_path=randomizer.get_randomizationlist_path(),
-            site_names=site_names or self.site_names,
+        site_names = site_names or self.site_names
+        populate_randomization_list_for_tests(
+            randomizer_name=randomizer_name,
+            site_names=site_names,
             per_site=per_site,
+            overwrite_site=overwrite_site,
         )
-        randomizer.import_list(overwrite=True)
-        if overwrite_site:
-            site = Site.objects.get_current()
-            randomizer.model_cls().objects.update(site_name=site.name)

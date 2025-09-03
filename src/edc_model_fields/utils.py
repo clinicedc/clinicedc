@@ -10,7 +10,9 @@ class Choices:
     DISPLAY = 1
 
     def __init__(
-        self, *args: tuple[str, str] | tuple[str, str, str | int], fillmeta: bool | None = None
+        self,
+        *args: tuple[str, str] | tuple[str, str, str | int],
+        fillmeta: bool | None = None,
     ):
         meta_seen = []
         self.choices = []

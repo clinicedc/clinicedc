@@ -124,7 +124,8 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         return to_local(obj.repack_datetime).date()
 
     @admin.display(
-        description="Assignment", ordering="from_stock__product__assignment__display_name"
+        description="Assignment",
+        ordering="from_stock__product__assignment__display_name",
     )
     def assignment(self, obj):
         return obj.from_stock.product.assignment.display_name
@@ -134,14 +135,18 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(url=url, label="Stock", title="Go to stock")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     @admin.display(description="From stock", ordering="from_stock__code")
     def from_stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.from_stock.code}&decanted=No"
         context = dict(url=url, label=obj.from_stock.code, title="Go to stock")
-        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return render_to_string(
+            "edc_pharmacy/stock/items_as_link.html", context=context
+        )
 
     @admin.display(description="REPACK #", ordering="-repack_identifier")
     def identifier(self, obj):

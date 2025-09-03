@@ -33,7 +33,14 @@ class Migration(migrations.Migration):
             name="stocktransferconfirmation",
             options={
                 "default_manager_name": "objects",
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "verbose_name": "Stock Transfer Site Confirmation",
                 "verbose_name_plural": "Stock Transfer Site Confirmations",
             },

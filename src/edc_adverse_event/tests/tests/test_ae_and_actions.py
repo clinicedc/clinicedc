@@ -1,7 +1,7 @@
-from unittest.mock import PropertyMock, patch
+from unittest.mock import patch, PropertyMock
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 from model_bakery import baker
 
 from edc_action_item.get_action_type import get_action_type
@@ -37,14 +37,13 @@ class TestAeAndActions(TestCase):
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(get_visit_schedule(consent_v1))
-        self.subject_identifier = "101-123400-0"
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
-        )
-        self.helper.consent_and_put_on_schedule(
+        self.helper = self.helper_cls()
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
+            consent_definition=consent_v1,
         )
+        self.subject_identifier = subject_consent.subject_identifier
 
     def tearDown(self):
         RegisteredSubject.objects.all().delete()

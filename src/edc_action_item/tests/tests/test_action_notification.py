@@ -1,7 +1,10 @@
+from datetime import datetime
 from unittest.case import skip
+from zoneinfo import ZoneInfo
 
+import time_machine
 from django.core import mail
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_action_item.action_item_notification import (
     NOTIFY_ON_CHANGED_REFERENCE_OBJ,
@@ -16,7 +19,11 @@ from tests.models import FormZero
 
 from ..test_case_mixin import TestCaseMixin
 
+utc_tz = ZoneInfo("UTC")
 
+
+@tag("action_item")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestActionNotification(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()

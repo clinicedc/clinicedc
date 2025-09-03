@@ -6,7 +6,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 from tqdm import tqdm
 
 from edc_appointment.constants import (
@@ -53,7 +53,6 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(get_visit_schedule3())
         self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
             now=get_utcnow()
             - relativedelta(years=2),  # ResearchProtocolConfig().study_open_datetime,
         )

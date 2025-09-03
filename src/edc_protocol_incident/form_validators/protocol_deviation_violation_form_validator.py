@@ -5,21 +5,33 @@ from ..constants import VIOLATION
 from .mixins import IncidentFormvalidatorMixin
 
 
-class ProtocolDeviationViolationFormValidator(IncidentFormvalidatorMixin, FormValidator):
+class ProtocolDeviationViolationFormValidator(
+    IncidentFormvalidatorMixin, FormValidator
+):
     def clean(self):
-        self.applicable_if(VIOLATION, field="report_type", field_applicable="safety_impact")
-        self.required_if(YES, field="safety_impact", field_required="safety_impact_details")
+        self.applicable_if(
+            VIOLATION, field="report_type", field_applicable="safety_impact"
+        )
+        self.required_if(
+            YES, field="safety_impact", field_required="safety_impact_details"
+        )
         self.applicable_if(
             VIOLATION, field="report_type", field_applicable="study_outcomes_impact"
         )
         self.required_if(
-            YES, field="study_outcomes_impact", field_required="study_outcomes_impact_details"
+            YES,
+            field="study_outcomes_impact",
+            field_required="study_outcomes_impact_details",
         )
 
-        self.required_if(VIOLATION, field="report_type", field_required="violation_datetime")
+        self.required_if(
+            VIOLATION, field="report_type", field_required="violation_datetime"
+        )
 
         if "violation_type" in self.cleaned_data:
-            self.required_if(VIOLATION, field="report_type", field_required="violation_type")
+            self.required_if(
+                VIOLATION, field="report_type", field_required="violation_type"
+            )
             self.validate_other_specify(
                 field="violation_type",
                 other_specify_field="violation_type_other",
@@ -34,6 +46,8 @@ class ProtocolDeviationViolationFormValidator(IncidentFormvalidatorMixin, FormVa
         self.required_if(
             VIOLATION, field="report_type", field_required="violation_description"
         )
-        self.required_if(VIOLATION, field="report_type", field_required="violation_reason")
+        self.required_if(
+            VIOLATION, field="report_type", field_required="violation_reason"
+        )
 
         self.validate_close_report()

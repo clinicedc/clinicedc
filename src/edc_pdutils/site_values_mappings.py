@@ -51,7 +51,9 @@ class SiteValuesMappings:
         self.loaded = True
 
     @staticmethod
-    def generate_values_mapping(choices: tuple[tuple[str, Any]]) -> tuple[tuple[int, str]]:
+    def generate_values_mapping(
+        choices: tuple[tuple[str, Any]],
+    ) -> tuple[tuple[int, str]]:
         values_mapping = []
         for index, choice in enumerate(choices):
             try:
@@ -60,7 +62,9 @@ class SiteValuesMappings:
                 raise IndexError(f"{str(e)} Got {choice[1]}")
         return tuple(values_mapping)
 
-    def get_by_choices(self, tpl: tuple[tuple[str, Any]]) -> tuple[tuple[int, str]] | None:
+    def get_by_choices(
+        self, tpl: tuple[tuple[str, Any]]
+    ) -> tuple[tuple[int, str]] | None:
         for data in self.registry.values():
             if data[0] == tpl:
                 return data[1]
@@ -81,11 +85,15 @@ class SiteValuesMappings:
                 try:
                     before_import_registry = deepcopy(site_values_mappings.registry)
                     import_module(f"{app}.{module_name}")
-                    writer(f"   - registered values mapping '{module_name}' from '{app}'\n")
+                    writer(
+                        f"   - registered values mapping '{module_name}' from '{app}'\n"
+                    )
                 except ImportError as e:
                     site_values_mappings.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SiteValuesMappingError(f"{str(e)}. See {app}.{module_name}")
+                        raise SiteValuesMappingError(
+                            f"{str(e)}. See {app}.{module_name}"
+                        )
             except ImportError:
                 pass
 

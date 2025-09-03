@@ -26,7 +26,10 @@ class Migration(migrations.Migration):
             model_name="appointment",
             name="appt_timing",
             field=models.CharField(
-                choices=[("ontime", "On time (within window period)"), ("missed", "Missed")],
+                choices=[
+                    ("ontime", "On time (within window period)"),
+                    ("missed", "Missed"),
+                ],
                 default="ontime",
                 help_text="If late, you may also be required to complete a protocol incident report. Refer to the protocol documentation for the allowed window periods of scheduled appointments.",
                 max_length=25,
@@ -50,7 +53,10 @@ class Migration(migrations.Migration):
             model_name="historicalappointment",
             name="appt_timing",
             field=models.CharField(
-                choices=[("ontime", "On time (within window period)"), ("missed", "Missed")],
+                choices=[
+                    ("ontime", "On time (within window period)"),
+                    ("missed", "Missed"),
+                ],
                 default="ontime",
                 help_text="If late, you may also be required to complete a protocol incident report. Refer to the protocol documentation for the allowed window periods of scheduled appointments.",
                 max_length=25,

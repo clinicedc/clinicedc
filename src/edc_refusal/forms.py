@@ -21,7 +21,8 @@ class ScreeningFormMixin:
     def clean(self):
         cleaned_data = super().clean()
         screening_identifier = (
-            cleaned_data.get("screening_identifier") or self.instance.screening_identifier
+            cleaned_data.get("screening_identifier")
+            or self.instance.screening_identifier
         )
         if screening_identifier:
             subject_screening = get_subject_screening_model_cls().objects.get(

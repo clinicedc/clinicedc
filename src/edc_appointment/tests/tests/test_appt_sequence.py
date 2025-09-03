@@ -6,11 +6,12 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import INCOMPLETE_APPT, NEW_APPT
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
+from edc_appointment.tests.utils import create_related_visit, get_visit_codes
 from edc_appointment.utils import delete_appointment_in_sequence, get_next_appointment
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.models import CrfMetadata
@@ -18,7 +19,6 @@ from edc_visit_tracking.models import SubjectVisit
 from tests.helper import Helper
 from tests.models import CrfSix
 
-from ..test_case_mixins import AppointmentAppTestCaseMixin
 
 utc_tz = ZoneInfo("UTC")
 
@@ -26,7 +26,7 @@ utc_tz = ZoneInfo("UTC")
 @tag("appointment")
 @override_settings(SITE_ID=10)
 @time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
+class TestMoveAppointment(TestCase):
     helper_cls = Helper
 
     @classmethod
@@ -36,13 +36,13 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
     def test_appointments_resequence_after_delete(self):
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(Appointment, order_by="appt_datetime"),
+            get_visit_codes(Appointment, order_by="appt_datetime"),
         )
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=1)
         appointment.delete()
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(Appointment, order_by="appt_datetime"),
+            get_visit_codes(Appointment, order_by="appt_datetime"),
         )
 
     def test_resequence_appointment_correctly2(self):
@@ -181,14 +181,14 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         self,
     ):
         for appointment in Appointment.objects.all().order_by("timepoint_datetime"):
-            self.create_related_visit(appointment)
+            create_related_visit(appointment)
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(Appointment, order_by="appt_datetime"),
+            get_visit_codes(Appointment, order_by="appt_datetime"),
         )
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(SubjectVisit, order_by="report_datetime"),
+            get_visit_codes(SubjectVisit, order_by="report_datetime"),
         )
         appointment_10001 = Appointment.objects.get(
             visit_code="1000", visit_code_sequence=1
@@ -197,21 +197,21 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
         appointment_10001.delete()
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(Appointment, order_by="appt_datetime"),
+            get_visit_codes(Appointment, order_by="appt_datetime"),
         )
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(SubjectVisit, order_by="report_datetime"),
+            get_visit_codes(SubjectVisit, order_by="report_datetime"),
         )
 
     def test_related_visit_resequences_after_appointment_is_deleted_with_crfs_submitted(
         self,
     ):
         for appointment in Appointment.objects.all().order_by("timepoint_datetime"):
-            self.create_related_visit(appointment)
+            create_related_visit(appointment)
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(Appointment, order_by="appt_datetime"),
+            get_visit_codes(Appointment, order_by="appt_datetime"),
         )
         # enter CRF on 1000.2
         appointment_10002 = Appointment.objects.get(
@@ -235,10 +235,10 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
 
     def test_metadata_resequences_after_appointment_is_deleted(self):
         for appointment in Appointment.objects.all().order_by("timepoint_datetime"):
-            self.create_related_visit(appointment)
+            create_related_visit(appointment)
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
-            self.get_visit_codes(Appointment, order_by="appt_datetime"),
+            get_visit_codes(Appointment, order_by="appt_datetime"),
         )
         self.assertGreater(
             CrfMetadata.objects.filter(
@@ -286,7 +286,7 @@ class TestMoveAppointment(AppointmentAppTestCaseMixin, TestCase):
 
     def test_appt_status_correct_after_appointment_is_deleted(self):
         for appointment in Appointment.objects.all().order_by("timepoint_datetime"):
-            self.create_related_visit(appointment)
+            create_related_visit(appointment)
             appointment.refresh_from_db()
             self.assertEqual(appointment.appt_status, INCOMPLETE_APPT)
 

@@ -106,7 +106,10 @@ class AdverseEventModelAdminMixin:
         else:
             column_items.append(
                 ColumnItem(
-                    self, death_report, death_report.subject_identifier, "death_datetime"
+                    self,
+                    death_report,
+                    death_report.subject_identifier,
+                    "death_datetime",
                 )
             )
         for ae_followup in ae_followup_model_cls.objects.filter(

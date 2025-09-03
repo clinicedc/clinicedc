@@ -1,9 +1,7 @@
 from importlib import import_module
 
-from data_manager_app.lab_profiles import lab_profile
-from data_manager_app.visit_schedules import visit_schedule
 from django.contrib.auth import get_user_model
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from edc_test_utils.webtest import login
@@ -23,10 +21,16 @@ from edc_data_manager.populate_data_dictionary import (
 from edc_lab.site_labs import site_labs
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.consents import consent_v1
+from tests.visit_schedules.visit_schedule_dashboard.lab_profiles import lab_profile
+from tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
+    get_visit_schedule,
+)
 
 User = get_user_model()
 
 
+@tag("data_manager")
 @override_settings(
     EDC_AUTH_SKIP_SITE_AUTHS=False, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=20
 )
@@ -60,12 +64,12 @@ class AdminSiteTest(WebTest):
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(visit_schedule)
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
 
     def test_default_rule_handler_names(self):
         """Assert default rule handler names on queryrule ADD form"""
         login(self, superuser=False, redirect_url="admin:index")
-        url = reverse("data_manager_app:home_url")
+        url = reverse("edc_data_manager:home_url")
         response = self.app.get(url, user=self.user, status=200)
         self.assertIn("You are home", response)
 
@@ -83,13 +87,14 @@ class AdminSiteTest(WebTest):
             sender=DataManagerUser.objects.get(username=self.user.username),
         )
 
-        crf = CrfDataDictionary.objects.filter(model="data_manager_app.crffive")[0]
+        crf = CrfDataDictionary.objects.filter(model="tests.crffive")[0]
         query_rule.data_dictionaries.add(crf)
-        crf = CrfDataDictionary.objects.filter(model="data_manager_app.crffour")[0]
+        crf = CrfDataDictionary.objects.filter(model="tests.crffour")[0]
         query_rule.data_dictionaries.add(crf)
 
         url = reverse(
-            "edc_data_manager_admin:edc_data_manager_queryrule_change", args=(query_rule.pk,)
+            "edc_data_manager_admin:edc_data_manager_queryrule_change",
+            args=(query_rule.pk,),
         )
         form = self.app.get(url, user=self.user).forms[1]
         response = form.submit()
@@ -112,7 +117,8 @@ class AdminSiteTest(WebTest):
         data_query.data_dictionaries.add(crf)
 
         url = reverse(
-            "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
+            "edc_data_manager_admin:edc_data_manager_dataquery_change",
+            args=(data_query.pk,),
         )
         try:
             form = self.app.get(url, user=self.user).form
@@ -129,7 +135,8 @@ class AdminSiteTest(WebTest):
         )
 
         url = reverse(
-            "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
+            "edc_data_manager_admin:edc_data_manager_dataquery_change",
+            args=(data_query.pk,),
         )
         try:
             form = self.app.get(url, user=self.user).form
@@ -167,7 +174,8 @@ class AdminSiteTest(WebTest):
 
         data_query = DataQuery.objects.get(title="My first query")
         url = reverse(
-            "edc_data_manager_admin:edc_data_manager_dataquery_change", args=(data_query.pk,)
+            "edc_data_manager_admin:edc_data_manager_dataquery_change",
+            args=(data_query.pk,),
         )
         try:
             form = self.app.get(url, user=self.user).form

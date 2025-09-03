@@ -44,7 +44,9 @@ if TYPE_CHECKING:
 
     class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel): ...  # noqa
 
-    class DeathReportTmgSecondModel(DeathReportTmgModelMixin, BaseUuidModel): ...  # noqa
+    class DeathReportTmgSecondModel(
+        DeathReportTmgModelMixin, BaseUuidModel
+    ): ...  # noqa
 
     class AeInitialModel(AeInitialModelMixin, BaseUuidModel): ...  # noqa
 
@@ -117,7 +119,9 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
         context["sae_reason"] = format_html(
             "{}",
             mark_safe(
-                wrapx(escape_braces(ae_followup.ae_initial.sae_reason.name), wrap_length)
+                wrapx(
+                    escape_braces(ae_followup.ae_initial.sae_reason.name), wrap_length
+                )
             ),  # nosec B703, B308
         )
     except AttributeError:
@@ -149,7 +153,10 @@ def format_ae_susar_description(context, ae_susar, wrap_length):
         "{}",
         mark_safe(
             "<BR>".join(
-                wrap(escape_braces(ae_susar.ae_initial.sae_reason.name), wrap_length or 35)
+                wrap(
+                    escape_braces(ae_susar.ae_initial.sae_reason.name),
+                    wrap_length or 35,
+                )
             )
         ),  # nosec B703, B308
     )
@@ -188,8 +195,12 @@ def ae_tmg_queryset(subject_identifier: str = None) -> QuerySet[DeathReportTmgMo
 
 
 @register.simple_tag
-def death_report_tmg_queryset(subject_identifier: str = None) -> QuerySet[DeathReportTmgModel]:
-    return get_ae_model("deathreporttmg").objects.filter(subject_identifier=subject_identifier)
+def death_report_tmg_queryset(
+    subject_identifier: str = None,
+) -> QuerySet[DeathReportTmgModel]:
+    return get_ae_model("deathreporttmg").objects.filter(
+        subject_identifier=subject_identifier
+    )
 
 
 @register.simple_tag
@@ -205,7 +216,9 @@ def death_report_tmg2_queryset(
 def death_report_queryset(
     subject_identifier: str = None,
 ) -> QuerySet[DeathReportTmgSecondModel]:
-    return get_ae_model("deathreport").objects.filter(subject_identifier=subject_identifier)
+    return get_ae_model("deathreport").objects.filter(
+        subject_identifier=subject_identifier
+    )
 
 
 @register.simple_tag
@@ -232,7 +245,8 @@ def ae_tmg_action_item(subject_identifier: str = None) -> ActionItem:
 def death_report_tmg_action_item(subject_identifier: str = None) -> ActionItem:
     try:
         obj = django_apps.get_model("edc_action_item.actionitem").objects.get(
-            subject_identifier=subject_identifier, action_type__name=DEATH_REPORT_TMG_ACTION
+            subject_identifier=subject_identifier,
+            action_type__name=DEATH_REPORT_TMG_ACTION,
         )
     except ObjectDoesNotExist:
         obj = None
@@ -292,7 +306,9 @@ def render_tmg_panel(
         else:
             panel_color = "success"
         # panel_label
-        display_name = action_item.display_name.replace("Submit", "").replace("pending", "")
+        display_name = action_item.display_name.replace("Submit", "").replace(
+            "pending", ""
+        )
         identifier = action_item.identifier or "New"
         panel_label = _(f"{display_name} {identifier}")
         return dict(

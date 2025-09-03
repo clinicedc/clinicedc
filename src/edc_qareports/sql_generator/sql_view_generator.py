@@ -25,7 +25,9 @@ class SqlViewGenerator:
     )
 
     def __post_init__(self):
-        ordering = [f"{fld[1:]} desc" if fld.startswith("~") else fld for fld in self.ordering]
+        ordering = [
+            f"{fld[1:]} desc" if fld.startswith("~") else fld for fld in self.ordering
+        ]
         self.order_by = ", ".join(ordering) or "subject_identifier"
         self.footer = f") as A ORDER BY {self.order_by}"
 

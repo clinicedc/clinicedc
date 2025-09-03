@@ -1,36 +1,44 @@
 from tempfile import mkdtemp
 
 from django.apps import apps as django_apps
-from django.test import TestCase, override_settings
-from model_to_dataframe_app.models import Crf, CrfEncrypted, SubjectVisit
-from model_to_dataframe_app.visit_schedule import visit_schedule1
-
+from django.test import override_settings, TestCase
+from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_model_to_dataframe import ModelToDataframe
+from edc_model_to_dataframe.constants import SYSTEM_COLUMNS
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ...constants import SYSTEM_COLUMNS
-from ..create_crfs import create_crfs
-from ..helper import Helper
+from tests.consents import consent_v1
+from tests.helper import Helper
+from tests.models import Crf, CrfEncrypted, SubjectVisit
+from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule1
 
 
-@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
+@override_settings(
+    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp()
+)
 class TestExport(TestCase):
     helper_cls = Helper
 
     def setUp(self):
         import_holidays()
+
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+
+        visit_schedule1 = get_visit_schedule1(consent_v1)
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule1)
+        site_visit_schedules.register(get_visit_schedule1(consent_v1))
+
+        helper = self.helper_cls()
         for i in range(0, 7):
-            helper = self.helper_cls(subject_identifier=f"subject-{i}")
             helper.consent_and_put_on_schedule(
                 visit_schedule_name=visit_schedule1.name,
                 schedule_name="schedule1",
                 report_datetime=get_utcnow(),
             )
-        create_crfs(5)
+            helper.create_crfs()
         self.subject_visit = SubjectVisit.objects.all()[0]
 
     def test_none(self):
@@ -99,12 +107,16 @@ class TestExport(TestCase):
         self.assertEqual(len(m.dataframe.index), 0)
 
     def test_encrypted_records(self):
-        CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
+        CrfEncrypted.objects.create(
+            subject_visit=self.subject_visit, encrypted1="encrypted1"
+        )
         model = "model_to_dataframe_app.crfencrypted"
         m = ModelToDataframe(model=model)
         self.assertEqual(len(m.dataframe.index), 1)
 
     def test_encrypted_records_as_qs(self):
-        CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
+        CrfEncrypted.objects.create(
+            subject_visit=self.subject_visit, encrypted1="encrypted1"
+        )
         m = ModelToDataframe(queryset=CrfEncrypted.objects.all())
         self.assertEqual(len(m.dataframe.index), 1)

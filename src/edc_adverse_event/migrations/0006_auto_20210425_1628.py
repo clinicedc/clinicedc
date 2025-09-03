@@ -12,7 +12,14 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name="aeclassification",
             options={
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "get_latest_by": "modified",
                 "ordering": ["display_index", "display_name"],
             },
@@ -20,7 +27,14 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name="causeofdeath",
             options={
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
                 "get_latest_by": "modified",
                 "ordering": ["display_index", "display_name"],
             },

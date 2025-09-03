@@ -1,14 +1,16 @@
 from dateutil.relativedelta import relativedelta
 
+from edc_consent.consent_definition import ConsentDefinition
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
-
-from ...consents import consent_v1
 from .crfs import crfs, crfs_missed
+from ...consents import consent_v1
 
 
-def get_visit_schedule5() -> VisitSchedule:
+def get_visit_schedule5(
+    consent_definition: ConsentDefinition | None = None,
+) -> VisitSchedule:
     visit_schedule5 = VisitSchedule(
         name="visit_schedule5",
         offstudy_model="edc_offstudy.subjectoffstudy",
@@ -20,7 +22,7 @@ def get_visit_schedule5() -> VisitSchedule:
         onschedule_model="tests.onschedulethree",
         offschedule_model="tests.offschedulethree",
         appointment_model="edc_appointment.appointment",
-        consent_definitions=[consent_v1],
+        consent_definitions=[consent_definition or consent_v1],
     )
 
     visits = [

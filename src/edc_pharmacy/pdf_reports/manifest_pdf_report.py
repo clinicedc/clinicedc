@@ -32,7 +32,9 @@ class ManifestReport(Report):
         width, height = A4
         canvas.setFontSize(6)
         text_width = stringWidth(self.protocol_name, "Helvetica", 6)
-        canvas.drawRightString(width - text_width, height - 20, self.protocol_name.upper())
+        canvas.drawRightString(
+            width - text_width, height - 20, self.protocol_name.upper()
+        )
         canvas.drawString(
             40,
             height - 30,
@@ -80,7 +82,10 @@ class ManifestReport(Report):
         story.append(Spacer(0.1 * cm, 0.5 * cm))
 
         bold_left_style = ParagraphStyle(
-            name="line_data_medium", alignment=TA_LEFT, fontSize=8, fontName="Helvetica-Bold"
+            name="line_data_medium",
+            alignment=TA_LEFT,
+            fontSize=8,
+            fontName="Helvetica-Bold",
         )
         bold_right_style = ParagraphStyle(
             name="line_data_medium",
@@ -88,8 +93,12 @@ class ManifestReport(Report):
             fontSize=8,
             fontName="Helvetica-Bold",
         )
-        left_style = ParagraphStyle(name="line_data_medium", alignment=TA_LEFT, fontSize=8)
-        right_style = ParagraphStyle(name="line_data_medium", alignment=TA_RIGHT, fontSize=8)
+        left_style = ParagraphStyle(
+            name="line_data_medium", alignment=TA_LEFT, fontSize=8
+        )
+        right_style = ParagraphStyle(
+            name="line_data_medium", alignment=TA_RIGHT, fontSize=8
+        )
         from_location = self.stock_transfer.from_location.display_name
         contact_name = self.stock_transfer.from_location.contact_name or ""
         tel = self.stock_transfer.from_location.contact_tel or ""
@@ -124,7 +133,9 @@ class ManifestReport(Report):
         ]
         text_width1 = stringWidth(_("Reference"), "Helvetica", 10)
         table = Table(
-            data, colWidths=(text_width1 * 1.5, None, None), rowHeights=(10, 10, 10, 10, 10)
+            data,
+            colWidths=(text_width1 * 1.5, None, None),
+            rowHeights=(10, 10, 10, 10, 10),
         )
         story.append(table)
 

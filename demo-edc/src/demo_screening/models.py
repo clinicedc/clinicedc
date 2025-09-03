@@ -23,7 +23,9 @@ class SubjectScreening(ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel
 
     consent_definitions = [consent_v1, consent_v2]
 
-    site = models.ForeignKey(Site, on_delete=models.PROTECT, null=True, related_name="+")
+    site = models.ForeignKey(
+        Site, on_delete=models.PROTECT, null=True, related_name="+"
+    )
 
     screening_consent = models.CharField(
         verbose_name=(

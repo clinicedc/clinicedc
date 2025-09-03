@@ -73,7 +73,11 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
 
         self.validate_visit_reason()
 
-        self.required_if(OTHER, field="info_source", field_required="info_source_other")
+        self.required_if(
+            OTHER,
+            field="info_source",
+            field_required="info_source_other",
+        )
 
     @property
     def subject_identifier(self) -> str:
@@ -87,7 +91,10 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         elif self.instance:
             appointment = self.instance.appointment
         if not appointment:
-            self.raise_validation_error("Appointment is required.", INVALID_ERROR)
+            self.raise_validation_error(
+                "Appointment is required.",
+                INVALID_ERROR,
+            )
         return appointment
 
     @property
@@ -121,7 +128,11 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         See also `edc_visit_schedule`.
         """
         if self.report_datetime:
-            args = [self.appointment, self.report_datetime, self.report_datetime_field_attr]
+            args = [
+                self.appointment,
+                self.report_datetime,
+                self.report_datetime_field_attr,
+            ]
             self.datetime_in_window_or_raise(*args)
 
     def validate_visit_datetime_unique(self: Any) -> None:
@@ -143,8 +154,10 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
             elif qs.count() == 1:
                 raise self.raise_validation_error(
                     {
-                        "report_datetime": "A visit report already exists for this date. "
-                        f"See {qs[0].visit_code}.{qs[0].visit_code_sequence}"
+                        "report_datetime": (
+                            "A visit report already exists for this date. "
+                            f"See {qs[0].visit_code}.{qs[0].visit_code_sequence}"
+                        )
                     },
                     INVALID_ERROR,
                 )
@@ -184,8 +197,8 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                         {
                             "report_datetime": (
                                 "Invalid. Must match appointment date at baseline. "
-                                "If necessary, change the appointment date and try again. "
-                                f"Got appointment date {appt_datetime_str}"
+                                "If necessary, change the appointment date and "
+                                f"try again. Got appointment date {appt_datetime_str}"
                             )
                         },
                         INVALID_ERROR,
@@ -208,7 +221,11 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         if appointment:
             if not appointment.visit_code_sequence and reason == UNSCHEDULED:
                 raise forms.ValidationError(
-                    {"reason": "Invalid. This is not an unscheduled visit. See appointment."},
+                    {
+                        "reason": (
+                            "Invalid. This is not an unscheduled visit. See appointment."
+                        )
+                    },
                     code=INVALID_ERROR,
                 )
             if (
@@ -217,7 +234,11 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                 and EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED is False
             ):
                 raise forms.ValidationError(
-                    {"reason": "Invalid. This is an unscheduled visit. See appointment."},
+                    {
+                        "reason": (
+                            "Invalid. This is an unscheduled visit. See appointment."
+                        )
+                    },
                     code=INVALID_ERROR,
                 )
             # raise if CRF metadata exist
@@ -237,20 +258,27 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
             and self.cleaned_data.get("reason") != MISSED_VISIT
         ):
             self.raise_validation_error(
-                {"reason": "Invalid. This appointment was reported as missed"}, INVALID_ERROR
+                {"reason": "Invalid. This appointment was reported as missed"},
+                INVALID_ERROR,
             )
 
         if self.validate_missed_visit_reason:
-            self.required_if(MISSED_VISIT, field="reason", field_required="reason_missed")
+            self.required_if(
+                MISSED_VISIT, field="reason", field_required="reason_missed"
+            )
 
             self.required_if(
-                OTHER, field="reason_missed", field_required="reason_missed_other"
+                OTHER,
+                field="reason_missed",
+                field_required="reason_missed_other",
             )
 
         if self.validate_unscheduled_visit_reason:
             if "reason_unscheduled" in self.cleaned_data:
                 self.applicable_if(
-                    UNSCHEDULED, field="reason", field_applicable="reason_unscheduled"
+                    UNSCHEDULED,
+                    field="reason",
+                    field_applicable="reason_unscheduled",
                 )
 
                 self.required_if(

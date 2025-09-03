@@ -42,5 +42,10 @@ class ManifestAdmin(BaseModelAdmin, admin.ModelAdmin):
 
     def get_list_display(self, request) -> tuple:
         list_display = super().get_list_display(request)
-        custom_fields = ("manifest_identifier", "manifest_datetime", "shipper", "consignee")
+        custom_fields = (
+            "manifest_identifier",
+            "manifest_datetime",
+            "shipper",
+            "consignee",
+        )
         return tuple(set(custom_fields + list_display))

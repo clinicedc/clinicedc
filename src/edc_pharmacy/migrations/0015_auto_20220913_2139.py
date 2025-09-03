@@ -40,13 +40,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -100,7 +102,10 @@ class Migration(migrations.Migration):
                     "box_identifier",
                     models.CharField(default=uuid.uuid4, max_length=36, unique=True),
                 ),
-                ("box_datetime", models.DateTimeField(default=edc_utils.date.get_utcnow)),
+                (
+                    "box_datetime",
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                ),
                 ("name", models.CharField(max_length=25, unique=True)),
                 ("description", models.TextField(null=True)),
             ],
@@ -110,7 +115,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -128,7 +140,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "plural_name",
-                    models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+                    models.CharField(
+                        max_length=250, null=True, verbose_name="Plural name"
+                    ),
                 ),
                 (
                     "display_name",
@@ -159,13 +173,23 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("version", models.CharField(default="1.0", editable=False, max_length=35)),
+                (
+                    "version",
+                    models.CharField(default="1.0", editable=False, max_length=35),
+                ),
                 ("id", models.AutoField(primary_key=True, serialize=False)),
             ],
             options={
                 "ordering": ["display_index", "display_name"],
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -185,13 +209,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -251,7 +277,10 @@ class Migration(migrations.Migration):
                 ),
                 ("name", models.CharField(max_length=25, unique=True)),
                 ("description", models.TextField(null=True)),
-                ("contains_uniquely_identifiable_items", models.BooleanField(default=True)),
+                (
+                    "contains_uniquely_identifiable_items",
+                    models.BooleanField(default=True),
+                ),
             ],
             options={
                 "verbose_name": "Item",
@@ -259,7 +288,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -279,13 +315,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -335,7 +373,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("subject_identifier", models.CharField(max_length=50)),
-                ("order_datetime", models.DateTimeField(verbose_name="Order date/time")),
+                (
+                    "order_datetime",
+                    models.DateTimeField(verbose_name="Order date/time"),
+                ),
                 (
                     "qty_ordered",
                     models.DecimalField(decimal_places=2, max_digits=10, null=True),
@@ -347,7 +388,10 @@ class Migration(migrations.Migration):
                 (
                     "history_id",
                     models.UUIDField(
-                        default=uuid.uuid4, editable=False, primary_key=True, serialize=False
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
                     ),
                 ),
                 ("history_date", models.DateTimeField(db_index=True)),
@@ -385,13 +429,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -445,7 +491,10 @@ class Migration(migrations.Migration):
                     "location_identifier",
                     models.CharField(default=uuid.uuid4, max_length=36, unique=True),
                 ),
-                ("location_datetime", models.DateTimeField(default=edc_utils.date.get_utcnow)),
+                (
+                    "location_datetime",
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                ),
                 ("name", models.CharField(max_length=25, unique=True)),
                 ("description", models.TextField(null=True)),
             ],
@@ -455,7 +504,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -475,13 +531,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -532,7 +590,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("subject_identifier", models.CharField(max_length=50)),
-                ("order_datetime", models.DateTimeField(verbose_name="Order date/time")),
+                (
+                    "order_datetime",
+                    models.DateTimeField(verbose_name="Order date/time"),
+                ),
                 (
                     "qty_ordered",
                     models.DecimalField(decimal_places=2, max_digits=10, null=True),
@@ -548,7 +609,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
             managers=[
                 ("objects", django.db.models.Manager()),
@@ -571,13 +639,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -637,7 +707,10 @@ class Migration(migrations.Migration):
                 ),
                 ("name", models.CharField(max_length=25, unique=True)),
                 ("description", models.TextField(null=True)),
-                ("contains_uniquely_identifiable_items", models.BooleanField(default=True)),
+                (
+                    "contains_uniquely_identifiable_items",
+                    models.BooleanField(default=True),
+                ),
                 ("max_unit_qty", models.IntegerField(default=0)),
                 ("unit_qty", models.IntegerField(default=0)),
                 ("unit_qty_out", models.IntegerField(default=0)),
@@ -648,7 +721,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -668,13 +748,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -728,7 +810,10 @@ class Migration(migrations.Migration):
                     "room_identifier",
                     models.CharField(default=uuid.uuid4, max_length=36, unique=True),
                 ),
-                ("room_datetime", models.DateTimeField(default=edc_utils.date.get_utcnow)),
+                (
+                    "room_datetime",
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                ),
                 ("name", models.CharField(max_length=25, unique=True)),
                 ("description", models.TextField(null=True)),
             ],
@@ -738,7 +823,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -758,13 +850,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -818,7 +912,10 @@ class Migration(migrations.Migration):
                     "shelf_identifier",
                     models.CharField(default=uuid.uuid4, max_length=36, unique=True),
                 ),
-                ("shelf_datetime", models.DateTimeField(default=edc_utils.date.get_utcnow)),
+                (
+                    "shelf_datetime",
+                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                ),
                 ("name", models.CharField(max_length=25, unique=True)),
                 ("description", models.TextField(null=True)),
             ],
@@ -828,7 +925,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -848,13 +952,15 @@ class Migration(migrations.Migration):
                 (
                     "created",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
-                        blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
+                        blank=True,
+                        default=django_audit_fields.models.audit_model_mixin.utcnow,
                     ),
                 ),
                 (
@@ -914,7 +1020,10 @@ class Migration(migrations.Migration):
                 ),
                 ("name", models.CharField(max_length=25, unique=True)),
                 ("description", models.TextField(null=True)),
-                ("contains_uniquely_identifiable_items", models.BooleanField(default=True)),
+                (
+                    "contains_uniquely_identifiable_items",
+                    models.BooleanField(default=True),
+                ),
                 ("max_unit_qty", models.IntegerField(default=0)),
                 ("unit_qty", models.IntegerField(default=0)),
                 ("unit_qty_out", models.IntegerField(default=0)),
@@ -927,7 +1036,14 @@ class Migration(migrations.Migration):
                 "ordering": ("-modified", "-created"),
                 "get_latest_by": "modified",
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.CreateModel(
@@ -945,7 +1061,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "plural_name",
-                    models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+                    models.CharField(
+                        max_length=250, null=True, verbose_name="Plural name"
+                    ),
                 ),
                 (
                     "display_name",
@@ -976,13 +1094,23 @@ class Migration(migrations.Migration):
                         null=True,
                     ),
                 ),
-                ("version", models.CharField(default="1.0", editable=False, max_length=35)),
+                (
+                    "version",
+                    models.CharField(default="1.0", editable=False, max_length=35),
+                ),
                 ("id", models.AutoField(primary_key=True, serialize=False)),
             ],
             options={
                 "ordering": ["display_index", "display_name"],
                 "abstract": False,
-                "default_permissions": ("add", "change", "delete", "view", "export", "import"),
+                "default_permissions": (
+                    "add",
+                    "change",
+                    "delete",
+                    "view",
+                    "export",
+                    "import",
+                ),
             },
         ),
         migrations.DeleteModel(
@@ -1001,41 +1129,57 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="container",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.AddField(
             model_name="formulationtype",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.AddField(
             model_name="frequencyunits",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.AddField(
             model_name="historicalmedicationlot",
             name="assignment",
             field=django_crypto_fields.fields.encrypted_char_field.EncryptedCharField(
-                blank=True, help_text=" (Encryption: RSA local)", max_length=71, null=True
+                blank=True,
+                help_text=" (Encryption: RSA local)",
+                max_length=71,
+                null=True,
             ),
         ),
         migrations.AddField(
             model_name="medicationlot",
             name="assignment",
             field=django_crypto_fields.fields.encrypted_char_field.EncryptedCharField(
-                blank=True, help_text=" (Encryption: RSA local)", max_length=71, null=True
+                blank=True,
+                help_text=" (Encryption: RSA local)",
+                max_length=71,
+                null=True,
             ),
         ),
         migrations.AddField(
             model_name="route",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.AddField(
             model_name="units",
             name="plural_name",
-            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
+            field=models.CharField(
+                max_length=250, null=True, verbose_name="Plural name"
+            ),
         ),
         migrations.AddIndex(
             model_name="unittype",
@@ -1048,14 +1192,17 @@ class Migration(migrations.Migration):
             model_name="subjectpillbottle",
             name="box",
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.PROTECT, to="edc_pharmacy.box"
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="edc_pharmacy.box",
             ),
         ),
         migrations.AddField(
             model_name="subjectpillbottle",
             name="container_type",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.PROTECT, to="edc_pharmacy.containertype"
+                on_delete=django.db.models.deletion.PROTECT,
+                to="edc_pharmacy.containertype",
             ),
         ),
         migrations.AddField(
@@ -1071,7 +1218,8 @@ class Migration(migrations.Migration):
             model_name="subjectpillbottle",
             name="medication_lot",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.PROTECT, to="edc_pharmacy.medicationlot"
+                on_delete=django.db.models.deletion.PROTECT,
+                to="edc_pharmacy.medicationlot",
             ),
         ),
         migrations.AddField(
@@ -1102,14 +1250,17 @@ class Migration(migrations.Migration):
             model_name="pillbottle",
             name="box",
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.PROTECT, to="edc_pharmacy.box"
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="edc_pharmacy.box",
             ),
         ),
         migrations.AddField(
             model_name="pillbottle",
             name="container_type",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.PROTECT, to="edc_pharmacy.containertype"
+                on_delete=django.db.models.deletion.PROTECT,
+                to="edc_pharmacy.containertype",
             ),
         ),
         migrations.AddField(
@@ -1125,7 +1276,8 @@ class Migration(migrations.Migration):
             model_name="pillbottle",
             name="medication_lot",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.PROTECT, to="edc_pharmacy.medicationlot"
+                on_delete=django.db.models.deletion.PROTECT,
+                to="edc_pharmacy.medicationlot",
             ),
         ),
         migrations.AddField(
@@ -1171,14 +1323,17 @@ class Migration(migrations.Migration):
             model_name="genericcontainer",
             name="box",
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.PROTECT, to="edc_pharmacy.box"
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="edc_pharmacy.box",
             ),
         ),
         migrations.AddField(
             model_name="genericcontainer",
             name="container_type",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.PROTECT, to="edc_pharmacy.containertype"
+                on_delete=django.db.models.deletion.PROTECT,
+                to="edc_pharmacy.containertype",
             ),
         ),
         migrations.AddIndex(
@@ -1192,7 +1347,9 @@ class Migration(migrations.Migration):
             model_name="box",
             name="shelf",
             field=models.ForeignKey(
-                null=True, on_delete=django.db.models.deletion.PROTECT, to="edc_pharmacy.shelf"
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="edc_pharmacy.shelf",
             ),
         ),
     ]

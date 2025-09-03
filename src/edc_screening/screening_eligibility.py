@@ -6,7 +6,6 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from edc_constants.constants import NO, PENDING, TBD, YES
-
 from .exceptions import (
     ScreeningEligibilityAttributeError,
     ScreeningEligibilityError,
@@ -190,7 +189,8 @@ class ScreeningEligibility:
                 getattr(self, fldattr)
             except AttributeError as e:
                 raise ScreeningEligibilityAttributeError(
-                    "Attribute refered to in `required_fields` does not exist on class. "
+                    "Attribute refered to in `required_fields` "
+                    "does not exist on class. "
                     f"See {self.__class__.__name__}. "
                     f"Got {e}"
                 )

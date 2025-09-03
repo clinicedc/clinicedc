@@ -23,6 +23,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from tests.helper import Helper
+from tests.models import SubjectConsent
 
 utc_tz = ZoneInfo("UTC")
 
@@ -116,15 +117,14 @@ class AppointmentCreatorTestCase(TestCase):
         self.model_obj = DummyAppointmentObj()
 
     def put_on_schedule(self, dt, consent_definition: ConsentDefinition | None = None):
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier, now=dt
-        )
-        self.helper.consent_and_put_on_schedule(
+        self.helper = self.helper_cls(now=dt)
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             report_datetime=dt,
             consent_definition=consent_definition,
         )
+        return subject_consent
 
 
 class TestAppointmentCreator(AppointmentCreatorTestCase):

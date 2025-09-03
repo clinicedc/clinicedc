@@ -42,7 +42,9 @@ class UploadExportReceiptFile(BaseUuidModel):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.file_name = self.export_receipt_file.name.replace("\\", "/").split("/")[-1]
+            self.file_name = self.export_receipt_file.name.replace("\\", "/").split(
+                "/"
+            )[-1]
             self.update_file_history()
         super(UploadExportReceiptFile, self).save(*args, **kwargs)
 

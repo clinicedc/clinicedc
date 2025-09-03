@@ -1,5 +1,4 @@
-from django.test import TestCase
-from lab_app.models import SubjectRequisition
+from django.test import TestCase, tag
 
 from edc_lab.lab import (
     AliquotType,
@@ -10,21 +9,23 @@ from edc_lab.lab import (
     ProcessingProfileInvalidDerivative,
     RequisitionPanel,
 )
+from tests.models import SubjectRequisition
 
 from .edc_lab_test_mixin import EdcLabTestMixin
 
 
+@tag("lab")
 class TestBuildProfile(EdcLabTestMixin, TestCase):
     def setUp(self):
         self.wb = AliquotType(name="whole_blood", numeric_code="02", alpha_code="WB")
         self.bc = AliquotType(name="buffy_coat", numeric_code="12", alpha_code="BC")
 
     def test_repr(self):
-        obj = LabProfile(name="profile", requisition_model="lab_app.subjectrequisition")
+        obj = LabProfile(name="profile", requisition_model="tests.subjectrequisition")
         self.assertTrue(repr(obj))
 
     def test_str(self):
-        obj = LabProfile(name="profile", requisition_model="lab_app.subjectrequisition")
+        obj = LabProfile(name="profile", requisition_model="tests.subjectrequisition")
         self.assertTrue(str(obj))
 
     def test_processing_bad(self):
@@ -62,9 +63,11 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(name="some panel", processing_profile=processing_profile)
+        panel = RequisitionPanel(
+            name="some panel", processing_profile=processing_profile
+        )
         lab_profile = LabProfile(
-            name="profile", requisition_model="lab_app.subjectrequisition"
+            name="profile", requisition_model="tests.subjectrequisition"
         )
         lab_profile.add_panel(panel)
         self.assertEqual(panel, lab_profile.panels.get(panel.name))
@@ -76,9 +79,11 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
+        panel = RequisitionPanel(
+            name="Viral Load", processing_profile=processing_profile
+        )
         lab_profile = LabProfile(
-            name="profile", requisition_model="lab_app.subjectrequisition"
+            name="profile", requisition_model="tests.subjectrequisition"
         )
         lab_profile.add_panel(panel)
 
@@ -90,9 +95,11 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
+        panel = RequisitionPanel(
+            name="Viral Load", processing_profile=processing_profile
+        )
         lab_profile = LabProfile(
-            name="profile", requisition_model="lab_app.subjectrequisition"
+            name="profile", requisition_model="tests.subjectrequisition"
         )
         lab_profile.add_panel(panel)
         self.assertRaises(PanelAlreadyRegistered, lab_profile.add_panel, panel)
@@ -105,20 +112,22 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
+        panel = RequisitionPanel(
+            name="Viral Load", processing_profile=processing_profile
+        )
         lab_profile = LabProfile(
-            name="profile", requisition_model="lab_app.subjectrequisition"
+            name="profile", requisition_model="tests.subjectrequisition"
         )
         lab_profile.add_panel(panel)
         panel = lab_profile.panels.get("Viral Load")
-        self.assertEqual(panel.requisition_model, "lab_app.subjectrequisition")
+        self.assertEqual(panel.requisition_model, "tests.subjectrequisition")
         self.assertEqual(panel.requisition_model_cls, SubjectRequisition)
 
     def test_add_panel_group(self):
         panel_group = self.get_panel_group()
         lab_profile = LabProfile(
             name="profile",
-            requisition_model="lab_app.subjectrequisition",
+            requisition_model="tests.subjectrequisition",
         )
         lab_profile.add_panel(panel_group)
         panel = lab_profile.panels.get(panel_group.name)
@@ -130,9 +139,9 @@ class TestBuildProfile(EdcLabTestMixin, TestCase):
         """Assert same panel cannot be added twice."""
         panel_group = self.get_panel_group()
         lab_profile = LabProfile(
-            name="profile", requisition_model="lab_app.subjectrequisition"
+            name="profile", requisition_model="tests.subjectrequisition"
         )
         lab_profile.add_panel(panel_group)
         panel = lab_profile.panels.get(panel_group.name)
-        self.assertEqual(panel.requisition_model, "lab_app.subjectrequisition")
+        self.assertEqual(panel.requisition_model, "tests.subjectrequisition")
         self.assertEqual(panel.requisition_model_cls, SubjectRequisition)
