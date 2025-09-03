@@ -173,7 +173,7 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 "containers_per_subject",
                 "item_count",
                 "subject_identifiers",
-                # "excluded_subject_identifiers",
+                "excluded_subject_identifiers",
             )
         return fields
 
