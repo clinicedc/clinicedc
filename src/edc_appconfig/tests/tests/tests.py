@@ -1,5 +1,5 @@
 from django.apps import apps as django_apps
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_action_item.system_checks import edc_action_item_checks
 from edc_consent.system_checks import check_consents
