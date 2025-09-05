@@ -64,7 +64,7 @@ class TestMetadataRulesWithGender(TestCase):
 
     def test_rules_with_source_model(self):
         for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
-            self.assertEqual(rule.source_model, "tests.crfthree")
+            self.assertEqual(rule.source_model, "tests.crfone")
 
     def test_rules_without_source_model(self):
         for rule in CrfRuleGroupWithoutSourceModel._meta.options.get("rules"):
