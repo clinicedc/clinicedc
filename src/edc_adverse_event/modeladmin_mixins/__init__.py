@@ -6,6 +6,7 @@ from .ae_initial_admin_mixin import (
     fieldset_part_one,
     fieldset_part_three,
 )
+from .ae_susar_admin_mixin import AeSusarModelAdminMixin
 from .ae_tmg_admin_mixin import AeTmgModelAdminMixin
 from .death_report_admin_mixin import DeathReportModelAdminMixin
 from .death_report_tmg_admin_mixin import DeathReportTmgModelAdminMixin
