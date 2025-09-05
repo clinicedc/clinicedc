@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.checks import Error, Warning
 from django.core.management import color_style
 
-from edc_sites.site import sites
+from edc_sites.site import sites as site_sites
 
 style = color_style()
 
@@ -34,16 +34,16 @@ def holiday_path_check(app_configs, **kwargs):
 def holiday_country_check(app_configs, **kwargs):
     errors = []
     holiday_path = Path(settings.HOLIDAY_FILE).expanduser()
-    if sites.all():
+    if site_sites.all():
         with holiday_path.open(mode="r") as f:
             reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
             next(reader, None)
             for row in reader:
-                if row["country"] not in sites.countries:
+                if row["country"] not in site_sites.countries:
                     errors.append(
                         Warning(
                             "Holiday file has no records for country! Sites are registered "
-                            f"for these countries: `{'`, `'.join(sites.countries)}`. Got "
+                            f"for these countries: `{'`, `'.join(site_sites.countries)}`. Got "
                             f"`{row['country']}`\n",
                             id="edc_facility.W002",
                         )
