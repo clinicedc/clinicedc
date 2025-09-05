@@ -296,7 +296,6 @@ class TestMedicationCrf(TestCase):
         self.assertEqual(obj0.next.id, obj1.id)
         self.assertEqual(obj0.id, obj1.previous.id)
 
-    @tag("2001")
     def test_insert_unscheduled_appt_refill(self):
         for appointment in Appointment.objects.all().order_by(
             "timepoint", "visit_code_sequence"
