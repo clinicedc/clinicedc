@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_adverse_event.constants import AE_WITHDRAWN
 from edc_adverse_event.form_validators import (
@@ -12,11 +12,16 @@ from edc_adverse_event.models import AeClassification, SaeReason
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_form_validators import NOT_REQUIRED_ERROR
 from edc_sites.tests import SiteTestCaseMixin
+from tests.action_items import register_actions
 
 
-@tag("ae")
+@tag("adverse_event")
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
 class TestFormValidators(SiteTestCaseMixin, TestCase):
+
+    def setUp(self):
+        register_actions()
+        super().setUp()
 
     def test_ae_cause_yes(self):
         options = {"ae_cause": YES, "ae_cause_other": None}

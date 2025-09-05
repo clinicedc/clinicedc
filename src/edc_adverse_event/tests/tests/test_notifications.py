@@ -1,5 +1,5 @@
 from django.core import mail
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 from model_bakery import baker
 
 from edc_adverse_event.notifications import (
@@ -8,7 +8,7 @@ from edc_adverse_event.notifications import (
 )
 from edc_constants.constants import GRADE3, GRADE4, GRADE5, NO, YES
 from edc_facility.import_holidays import import_holidays
-
+from .mixins import DeathReportTestMixin
 from ...action_items import (
     AeFollowupAction,
     AeInitialAction,
@@ -17,12 +17,12 @@ from ...action_items import (
     DeathReportAction,
     DeathReportTmgAction,
 )
-from .mixins import DeathReportTestMixin
 
 
-@tag("ae")
+@tag("adverse_event")
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
 class TestNotifications(DeathReportTestMixin, TestCase):
+
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -213,7 +213,22 @@ class TestNotifications(DeathReportTestMixin, TestCase):
     def test_notifies_initial_ae_death_with_tmg(self):
         self.get_death_report()
 
-        self.assertEqual(len(mail.outbox), 7)
+        self.assertIn(
+            f"TEST/UAT --EDC TEST PROJECT: Death Report for {self.subject_identifier}",
+            [m.subject for m in mail.outbox],
+        )
+        self.assertIn(
+            "TEST/UAT --EDC TEST PROJECT: "
+            f"TMG Death Report (1st) for {self.subject_identifier}",
+            [m.subject for m in mail.outbox],
+        )
+        self.assertIn(
+            "TEST/UAT --EDC TEST PROJECT:  "
+            f"a death has been reported for {self.subject_identifier}",
+            [m.subject for m in mail.outbox],
+        )
+
+        self.assertEqual(len(mail.outbox), 6)
 
         # AeInitial Action notification
         self.assertEqual(

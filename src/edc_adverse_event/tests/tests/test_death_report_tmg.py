@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 from model_bakery import baker
 
 from edc_action_item.models.action_item import ActionItem
@@ -7,17 +7,16 @@ from edc_adverse_event.constants import DEATH_REPORT_TMG_SECOND_ACTION
 from edc_adverse_event.models import CauseOfDeath
 from edc_constants.constants import CLOSED, NEW, NO, OTHER, YES
 from edc_facility.import_holidays import import_holidays
-
 from .mixins import DeathReportTestMixin
 
 
-@tag("ae")
+@tag("adverse_event")
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
 class TestDeathReportTmg(DeathReportTestMixin, TestCase):
+
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
-        super().setUpClass()
 
     def test_death(self):
         # create ae initial

@@ -16,23 +16,25 @@ from edc_registration.utils import RegisteredSubjectDoesNotExist
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import OnScheduleError
-from tests.action_items import AeFollowupAction, AeInitialAction, OffscheduleAction
+from tests.action_items import (
+    AeFollowupAction,
+    AeInitialAction,
+    OffscheduleAction,
+    register_actions,
+)
 from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.models import AeFollowup, AeInitial, AeSusar, AeTmg
 from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
-@tag("ae")
+@tag("adverse_event")
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
 class TestAeAndActions(TestCase):
     helper_cls = Helper
 
-    @classmethod
-    def tearDownClass(cls):
-        super().tearDownClass()
-
     def setUp(self):
+        register_actions()
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}

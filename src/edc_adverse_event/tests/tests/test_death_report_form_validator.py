@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase, tag
+from django.test import tag, TestCase
 
 from edc_adverse_event.form_validators import DeathReportFormValidator as Base
 from edc_constants.constants import OTHER, UNKNOWN
@@ -8,14 +8,19 @@ from edc_constants.disease_constants import BACTERAEMIA
 from edc_form_validators import FormValidatorTestCaseMixin
 from edc_form_validators.tests.mixins import FormValidatorTestMixin
 from edc_utils import get_utcnow
+from tests.action_items import register_actions
 
 
 class DeathReportFormValidator(FormValidatorTestMixin, Base):
     pass
 
 
-@tag("ae")
+@tag("adverse_event")
 class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
+    def setUp(self):
+        register_actions()
+        super().setUp()
+
     @staticmethod
     def get_cleaned_data() -> dict:
         report_datetime = get_utcnow()

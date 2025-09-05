@@ -9,6 +9,7 @@ from edc_adverse_event.models import CauseOfDeath
 from edc_consent import site_consents
 from edc_constants.constants import OTHER, YES
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.action_items import register_actions
 from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.visit_schedules.visit_schedule import get_visit_schedule
@@ -18,6 +19,7 @@ class DeathReportTestMixin:
     helper_cls = Helper
 
     def setUp(self):
+        register_actions()
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}

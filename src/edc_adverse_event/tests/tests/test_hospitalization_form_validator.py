@@ -1,22 +1,27 @@
 from datetime import timedelta
 
 from django import forms
-from django.test import TestCase, tag
+from django.test import tag, TestCase
 
 from edc_adverse_event.form_validators import HospitalizationFormValidator as Base
 from edc_constants.constants import NO, NOT_APPLICABLE, UNKNOWN, YES
 from edc_form_validators import FormValidatorTestCaseMixin
 from edc_form_validators.tests.mixins import FormValidatorTestMixin
 from edc_utils import get_utcnow, get_utcnow_as_date
+from tests.action_items import register_actions
 
 
 class HospitalizationFormValidator(FormValidatorTestMixin, Base):
     pass
 
 
-@tag("ae")
+@tag("adverse_event")
 class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
     form_validator_cls = HospitalizationFormValidator
+
+    def setUp(self):
+        register_actions()
+        super().setUp()
 
     @staticmethod
     def get_cleaned_data() -> dict:

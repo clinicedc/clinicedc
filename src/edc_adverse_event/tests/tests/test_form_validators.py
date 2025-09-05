@@ -2,7 +2,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase, tag
+from django.test import tag, TestCase
 
 from edc_adverse_event.form_validator_mixins import (
     RequiresDeathReportFormValidatorMixin,
@@ -10,16 +10,15 @@ from edc_adverse_event.form_validator_mixins import (
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidator
 from tests.models import DeathReportTmg
-
 from .mixins import DeathReportTestMixin
 
 
-@tag("ae")
+@tag("adverse_event")
 class TestFormValidators(DeathReportTestMixin, TestCase):
+
     @classmethod
     def setUpClass(cls):
         import_holidays()
-        super().setUpClass()
 
     def test_death_report_not_found(self):
         class TestFormValidator(RequiresDeathReportFormValidatorMixin, FormValidator):
