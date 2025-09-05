@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import tag, TestCase
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -36,6 +36,7 @@ from edc_visit_tracking.models import SubjectVisit
 from tests.models import OnScheduleThree, SubjectConsent
 
 
+@tag("visit_schedule")
 @time_machine.travel(datetime(2025, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
     @classmethod
