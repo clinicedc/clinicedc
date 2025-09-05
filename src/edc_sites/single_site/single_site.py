@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import KW_ONLY, dataclass, field
+from dataclasses import dataclass, field, KW_ONLY
 
 from .get_languages import get_languages
 
@@ -19,9 +19,9 @@ class SingleSite:
     name: str
     domain: str
     _: KW_ONLY
+    country: str = None
+    country_code: str = field(default=None, repr=False)
     language_codes: list[str] = field(default_factory=list, repr=False)
-    country: str | None = None
-    country_code: str | None = field(default=None, repr=False)
     title: str | None = field(default=None, repr=False)
     languages: dict[str, str] = field(init=False, repr=False)
     description: str = field(init=False)
