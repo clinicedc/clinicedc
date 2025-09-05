@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionItem, ActionType
@@ -19,11 +19,10 @@ from tests.action_items import (
     FormThreeAction,
     FormTwoAction,
     FormZeroAction,
-    SingletonAction,
     register_actions,
+    SingletonAction,
 )
 from tests.models import FormFour, FormOne, FormThree, FormTwo, FormZero
-
 from ..test_case_mixin import TestCaseMixin
 
 utc_tz = ZoneInfo("UTC")
@@ -496,7 +495,10 @@ class TestAction(TestCaseMixin, TestCase):
 
         site_sites.register(
             SingleSite(
-                site_id=new_site.id, name="another_site", domain="another_site.com"
+                site_id=new_site.id,
+                name="another_site",
+                domain="another_site.com",
+                country="another_country",
             )
         )
         subject_identifier = self.enroll(site_id=new_site.id)

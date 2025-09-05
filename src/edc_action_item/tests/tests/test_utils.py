@@ -29,15 +29,20 @@ class TestHelpers(TestCase):
 
         site_consents.registry = {}
         site_consents.register(consent_v1)
-        site_visit_schedules._registry = {}
-        site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule(consent_v1))
 
         register_actions()
+
+        visit_schedule = get_visit_schedule(consent_v1)
+        schedule = visit_schedule.schedules.get("schedule_action_item")
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(visit_schedule)
+
         self.subject_visit = self.helper.enroll_to_baseline(
-            consent_definition=consent_v1
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+            consent_definition=consent_v1,
         )
-        # self.subject_identifier = self.fake_enroll()
         self.subject_identifier = self.subject_visit.subject_identifier
         self.form_one = FormOne.objects.create(
             subject_identifier=self.subject_identifier

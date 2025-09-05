@@ -16,7 +16,7 @@ from tests.action_items import CrfLongitudinalOneAction, CrfLongitudinalTwoActio
 from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.models import CrfLongitudinalOne
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from tests.visit_schedules.visit_schedule_action_item import get_visit_schedule
 from ..test_case_mixin import TestCaseMixin
 
 utc_tz = ZoneInfo("UTC")
@@ -37,13 +37,19 @@ class TestLongitudinal(TestCaseMixin, TestCase):
         site_action_items.register(CrfLongitudinalTwoAction)
         site_consents.registry = {}
         site_consents.register(consent_v1)
+
+        visit_schedule = get_visit_schedule(consent_v1)
+        schedule = visit_schedule.schedules.get("schedule_action_item")
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule(consent_v1))
+        site_visit_schedules.register(visit_schedule)
 
-        self.subject_identifier = helper.consent_and_put_on_schedule(
-            consent_definition=consent_v1
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+            consent_definition=consent_v1,
         )
+        self.subject_identifier = subject_consent.subject_identifier
 
     def test_(self):
         appointment = Appointment.objects.get(

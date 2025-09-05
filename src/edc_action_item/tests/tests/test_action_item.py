@@ -39,13 +39,20 @@ class TestActionItem(TestCaseMixin, TestCase):
         helper = Helper()
         site_consents.registry = {}
         site_consents.register(consent_v1)
+
+        visit_schedule = get_visit_schedule(consent_v1)
+        schedule = visit_schedule.schedules.get("schedule_action_item")
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule(consent_v1))
+        site_visit_schedules.register(visit_schedule)
 
-        self.subject_identifier = helper.consent_and_put_on_schedule(
-            consent_definition=consent_v1
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+            consent_definition=consent_v1,
         )
+        self.subject_identifier = subject_consent.subject_identifier
+
         site_action_items.registry = {}
         site_action_items.register(FormZeroAction)
         get_action_type(FormZeroAction)
