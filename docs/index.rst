@@ -34,6 +34,12 @@ Clinic EDC is open-source and written in python on top of Django
 
 .. toctree::
    :maxdepth: 2
+   :caption: Lab:
+
+   lab/index
+
+.. toctree::
+   :maxdepth: 2
    :caption: Pharmacy:
 
    pharmacy/index
