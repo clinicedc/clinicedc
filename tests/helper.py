@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
-from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from dateutil.relativedelta import relativedelta
@@ -12,6 +11,7 @@ from django.db import transaction
 from faker import Faker
 
 from edc_appointment.creators import UnscheduledAppointmentCreator
+from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, NO, SUBJECT, YES
 from edc_utils import get_utcnow
@@ -20,9 +20,6 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from tests.consents import consent_v1
 from tests.models import Alphabet, CrfFive, CrfFour, CrfSix, CrfThree, CrfWithInline2
-
-if TYPE_CHECKING:
-    from edc_appointment.models import Appointment
 
 fake = Faker()
 

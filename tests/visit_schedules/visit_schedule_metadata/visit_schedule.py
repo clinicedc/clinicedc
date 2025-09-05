@@ -48,7 +48,7 @@ def get_visit_schedule(cdef):
     crfs1 = CrfCollection(
         Crf(show_order=1, model=f"{app_label}.crfsix", required=True),
         Crf(show_order=2, model=f"{app_label}.crfseven", required=True),
-        Crf(show_order=3, model=f"{app_label}.crfsix", required=True),
+        Crf(show_order=3, model=f"{app_label}.crfeight", required=True),
     )
 
     crfs2 = CrfCollection(

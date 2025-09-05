@@ -5,8 +5,8 @@ from uuid import uuid4
 from django.db import models
 from django.db.models import Manager
 from django.db.models.deletion import CASCADE, PROTECT
-from django_crypto_fields.fields import EncryptedCharField
 
+from django_crypto_fields.fields import EncryptedCharField
 from edc_action_item.models import ActionModelMixin
 from edc_adherence.model_mixins import MedicationAdherenceModelMixin
 from edc_adverse_event.model_mixins import (
@@ -1276,7 +1276,7 @@ class CrfMissingManager(BaseUuidModel):
     f1 = models.CharField(max_length=50, null=True)
 
 
-class SpecimenResult(BaseUuidModel):
+class SpecimenResult(CrfModelMixin, BaseUuidModel):
     subject_visit = models.ForeignKey(SubjectVisit, on_delete=CASCADE)
 
     report_datetime = models.DateTimeField(default=get_utcnow)
@@ -1373,26 +1373,6 @@ class BloodResultsFbc(
     class Meta(CrfWithActionModelMixin.Meta, edc_models.BaseUuidModel.Meta):
         verbose_name = "Blood Result: FBC"
         verbose_name_plural = "Blood Results: FBC"
-
-
-# class AbcModelMixin(
-#     reportable_result_model_mixin_factory(
-#         "hct", ((GRAMS_PER_DECILITER, GRAMS_PER_DECILITER),)
-#     ),
-#     models.Model,
-# ):
-#     # HCT
-#     hct_value = models.DecimalField(
-#         validators=[MinValueValidator(1.00), MaxValueValidator(999.00)],
-#         verbose_name="Hematocrit",
-#         decimal_places=2,
-#         max_digits=6,
-#         null=True,
-#         blank=True,
-#     )
-#
-#     class Meta:
-#         abstract = True
 
 
 # this model does not include the requisition and action item mixins

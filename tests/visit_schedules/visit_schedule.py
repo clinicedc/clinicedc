@@ -1,7 +1,7 @@
 from dateutil.relativedelta import relativedelta
 
 from edc_consent.consent_definition import ConsentDefinition
-from edc_lab_panel.panels import fbc_panel
+from edc_lab_panel.panels import fbc_panel, lft_panel, rft_panel
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import (
     Crf,
@@ -27,10 +27,18 @@ def get_visit_schedule(
     crfs = crfs or CrfCollection(
         Crf(show_order=1, model="tests.crflongitudinalone", required=True),
         Crf(show_order=2, model="tests.crflongitudinaltwo", required=True),
+        Crf(show_order=3, model="tests.crfthree", required=True),
+        Crf(show_order=4, model="tests.crffour", required=True),
+        Crf(show_order=5, model="tests.crffive", required=True),
+        Crf(show_order=6, model="tests.crfsix", required=True),
+        Crf(show_order=7, model="tests.crfseven", required=True),
+        Crf(show_order=8, model="tests.bloodresultsfbc", required=True),
     )
 
     requisitions = requisitions or RequisitionCollection(
-        Requisition(show_order=30, panel=fbc_panel, required=True, additional=False)
+        Requisition(show_order=30, panel=fbc_panel, required=True, additional=False),
+        Requisition(show_order=40, panel=lft_panel, required=True, additional=False),
+        Requisition(show_order=50, panel=rft_panel, required=True, additional=False),
     )
     visit_schedule_name = visit_schedule_name or "visit_schedule"
     schedule_name = schedule_name or "schedule"
