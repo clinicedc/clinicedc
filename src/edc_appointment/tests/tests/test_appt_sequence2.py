@@ -35,8 +35,6 @@ class TestMoveAppointment(TestCase):
     helper_cls = Helper
 
     def setUp(self):
-        self.subject_identifier = "12345"
-
         site_consents.registry = {}
         site_consents.register(consent_v1)
 
@@ -48,11 +46,12 @@ class TestMoveAppointment(TestCase):
             now=ResearchProtocolConfig().study_open_datetime,
         )
 
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule.name,
             schedule_name="schedule1",
             report_datetime=get_utcnow(),
         )
+        self.subject_identifier = subject_consent.subject_identifier
         appointments = Appointment.objects.filter(
             subject_identifier=self.subject_identifier
         )

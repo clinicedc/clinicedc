@@ -49,7 +49,6 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         import_holidays()
 
     def setUp(self):
-        self.subject_identifier = "12345"
         site_visit_schedules._registry = {}
         site_visit_schedules.register(get_visit_schedule3())
         self.helper = self.helper_cls(
@@ -105,13 +104,13 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         appointment.refresh_from_db()
 
     def create_1030_and_1060(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule3",
             schedule_name="three_monthly_schedule",
         )
 
         appointment_1000 = Appointment.objects.get(
-            subject_identifier=self.subject_identifier, visit_code="1000"
+            subject_identifier=subject_consent.subject_identifier, visit_code="1000"
         )
         SubjectVisit.objects.create(
             appointment=appointment_1000,
@@ -123,7 +122,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         appointment_1000.refresh_from_db()
 
         appointment_1030 = Appointment.objects.get(
-            subject_identifier=self.subject_identifier, visit_code="1030"
+            subject_identifier=subject_consent.subject_identifier, visit_code="1030"
         )
         SubjectVisit.objects.create(
             appointment=appointment_1030,
@@ -136,25 +135,25 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         return (
             appointment_1030,
             Appointment.objects.get(
-                subject_identifier=self.subject_identifier, visit_code="1060"
+                subject_identifier=subject_consent.subject_identifier, visit_code="1060"
             ),
         )
 
     def test_appointments_window_period(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule3",
             schedule_name="three_monthly_schedule",
         )
         appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
+            subject_identifier=subject_consent.subject_identifier
         )
         self.assertEqual(appointments.count(), 5)
 
         appointment_1030 = Appointment.objects.get(
-            subject_identifier=self.subject_identifier, visit_code="1030"
+            subject_identifier=subject_consent.subject_identifier, visit_code="1030"
         )
         appointment_1060 = Appointment.objects.get(
-            subject_identifier=self.subject_identifier, visit_code="1060"
+            subject_identifier=subject_consent.subject_identifier, visit_code="1060"
         )
         appointment_1030.appt_datetime = appointment_1060.appt_datetime - relativedelta(
             days=1
@@ -164,15 +163,15 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
     @patch("edc_appointment.form_validators.utils.url_names")
     def test_appointments_window_period_in_form(self, mock_urlnames):
         mock_urlnames.return_value = {"subject_dashboard_url": "subject_dashboard_url"}
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule3",
             schedule_name="three_monthly_schedule",
         )
         appointment_1030 = Appointment.objects.get(
-            subject_identifier=self.subject_identifier, visit_code="1030"
+            subject_identifier=subject_consent.subject_identifier, visit_code="1030"
         )
         appointment_1060 = Appointment.objects.get(
-            subject_identifier=self.subject_identifier, visit_code="1060"
+            subject_identifier=subject_consent.subject_identifier, visit_code="1060"
         )
         form = AppointmentForm(
             data={"appt_datetime": appointment_1060.appt_datetime},
@@ -387,12 +386,12 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         )
 
     def test_match_appt_date_to_visit_code(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule3",
             schedule_name="three_monthly_schedule",
         )
         appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
+            subject_identifier=subject_consent.subject_identifier
         ).order_by("appt_datetime")
         self.assertEqual(appointments.count(), 5)
         appointment_1000 = appointments[0]
@@ -422,12 +421,12 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         self.assertEqual(appointment.visit_code, "1060")
 
     def test_match_appt_date_to_visit_code2(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule3",
             schedule_name="three_monthly_schedule",
         )
         appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
+            subject_identifier=subject_consent.subject_identifier
         ).order_by("appt_datetime")
         self.assertEqual(appointments.count(), 5)
         appointment_1000 = appointments[0]

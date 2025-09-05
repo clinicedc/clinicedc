@@ -11,13 +11,26 @@ from django.test import override_settings, tag, TestCase
 from edc_appointment.constants import INCOMPLETE_APPT, NEW_APPT
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
-from edc_appointment.tests.utils import create_related_visit, get_visit_codes
+from edc_appointment.tests.utils import (
+    create_related_visit,
+    create_unscheduled_appointments,
+    get_visit_codes,
+)
 from edc_appointment.utils import delete_appointment_in_sequence, get_next_appointment
+from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.models import CrfMetadata
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.models import SubjectVisit
+from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.models import CrfSix
+from tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+    get_visit_schedule2,
+    get_visit_schedule3,
+)
 
 
 utc_tz = ZoneInfo("UTC")
@@ -32,6 +45,39 @@ class TestMoveAppointment(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+
+    def setUp(self):
+
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+
+        site_visit_schedules._registry = {}
+        visit_schedule1 = get_visit_schedule1(consent_v1)
+        visit_schedule2 = get_visit_schedule2(consent_v1)
+        visit_schedule3 = get_visit_schedule3(consent_v1)
+        site_visit_schedules.register(visit_schedule1)
+        site_visit_schedules.register(visit_schedule2)
+        site_visit_schedules.register(visit_schedule3)
+        helper = self.helper_cls(
+            now=ResearchProtocolConfig().study_open_datetime,
+        )
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule1.name,
+            schedule_name="schedule1",
+        )
+        self.subject_identifier = subject_consent.subject_identifier
+        appointments = Appointment.objects.filter(
+            subject_identifier=self.subject_identifier
+        )
+        self.assertEqual(appointments.count(), 4)
+
+        appointment = Appointment.objects.get(timepoint=0.0)
+        create_related_visit(appointment)
+        create_unscheduled_appointments(appointment)
+
+        self.appt_datetimes = [
+            o.appt_datetime for o in Appointment.objects.all().order_by("appt_datetime")
+        ]
 
     def test_appointments_resequence_after_delete(self):
         self.assertEqual(

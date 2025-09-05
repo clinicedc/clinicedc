@@ -48,11 +48,11 @@ class TestAdmin(WebTest):
         AuthUpdater.add_empty_roles_for_tests(DATA_MANAGER_ROLE)
         role = Role.objects.get(name=DATA_MANAGER_ROLE)
         self.user.userprofile.roles.add(role)
-        self.visit_schedule1 = get_visit_schedule1()
-        site_visit_schedules._registry = {}
-        site_visit_schedules.register(self.visit_schedule1)
         site_consents.registry = {}
         site_consents.register(consent_v1)
+        self.visit_schedule1 = get_visit_schedule1(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.register(self.visit_schedule1)
         self.helper = self.helper_cls(
             now=ResearchProtocolConfig().study_open_datetime,
         )

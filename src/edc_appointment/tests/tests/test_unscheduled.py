@@ -41,13 +41,19 @@ N = NEW_APPT
 INC = INCOMPLETE_APPT
 
 
-def get_appointment(visit_code: str, visit_code_sequence: int, options=None):
+def get_appointment(
+    visit_code: str,
+    visit_code_sequence: int,
+    subject_identifier=None,
+    visit_schedule_name=None,
+    schedule_name=None,
+):
     return Appointment.objects.get(
-        subject_identifier=options.subject_identifier,
+        subject_identifier=subject_identifier,
         visit_code=visit_code,
         visit_code_sequence=visit_code_sequence,
-        visit_schedule_name=options.visit_schedule1.name,
-        schedule_name=options.schedule1.name,
+        visit_schedule_name=visit_schedule_name,
+        schedule_name=schedule_name,
     )
 
 
@@ -78,10 +84,14 @@ def set_to_incomplete(obj: Appointment) -> Appointment:
     return Appointment.objects.get(id=obj.id)
 
 
-def appt_status() -> list[str]:
-    return [
-        obj.appt_status for obj in Appointment.objects.all().order_by("appt_datetime")
-    ]
+def appt_status(subject_identifier: str | None = None) -> list[str]:
+    if subject_identifier:
+        appointments = Appointment.objects.filter(
+            subject_identifier=subject_identifier
+        ).order_by("appt_datetime")
+    else:
+        appointments = Appointment.objects.all().order_by("appt_datetime")
+    return [obj.appt_status for obj in appointments]
 
 
 def appt_status_detailed() -> list[tuple[str, int, str]]:
@@ -114,28 +124,27 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         import_holidays()
 
     def setUp(self):
-        self.subject_identifier = "12345"
-        self.visit_schedule1 = get_visit_schedule1()
-        self.schedule1 = self.visit_schedule1.schedules.get("schedule1")
-        self.visit_schedule2 = get_visit_schedule2()
-        self.schedule2 = self.visit_schedule2.schedules.get("schedule2")
         site_consents.registry = {}
         site_consents.register(consent_v1)
+        self.visit_schedule1 = get_visit_schedule1(consent_v1)
+        self.schedule1 = self.visit_schedule1.schedules.get("schedule1")
+        self.visit_schedule2 = get_visit_schedule2(consent_v1)
+        self.schedule2 = self.visit_schedule2.schedules.get("schedule2")
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule1)
         site_visit_schedules.register(self.visit_schedule2)
         self.helper = self.helper_cls(
             now=get_utcnow(),
         )
-
-    def test_unscheduled_allowed_but_raises_on_appt_status(self):
-        self.helper.consent_and_put_on_schedule(
+        self.subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
         )
+
+    def test_unscheduled_allowed_but_raises_on_appt_status(self):
         visit = self.visit_schedule1.schedules.get(self.schedule1.name).visits.first
         appointment = Appointment.objects.get(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.subject_consent.subject_identifier,
             visit_code=visit.code,
             visit_code_sequence=0,
         )
@@ -149,7 +158,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
                 self.assertRaises(
                     InvalidParentAppointmentMissingVisitError,
                     UnscheduledAppointmentCreator,
-                    subject_identifier=self.subject_identifier,
+                    subject_identifier=self.subject_consent.subject_identifier,
                     visit_schedule_name=self.visit_schedule1.name,
                     schedule_name=self.schedule1.name,
                     visit_code=visit.code,
@@ -177,7 +186,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
                 self.assertRaises(
                     InvalidParentAppointmentStatusError,
                     UnscheduledAppointmentCreator,
-                    subject_identifier=self.subject_identifier,
+                    subject_identifier=self.subject_consent.subject_identifier,
                     visit_schedule_name=self.visit_schedule1.name,
                     schedule_name=self.schedule1.name,
                     visit_code=visit.code,
@@ -188,7 +197,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         self.assertRaises(
             UnscheduledAppointmentNotAllowed,
             UnscheduledAppointmentCreator,
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule2.name,
             schedule_name=self.schedule2.name,
             visit_code="5000",
@@ -211,7 +220,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             # get parent appointment
             new_appointment = None
             appointment = Appointment.objects.get(
-                subject_identifier=self.subject_identifier,
+                subject_identifier=self.subject_consent.subject_identifier,
                 visit_code=visit.code,
                 visit_code_sequence=0,
                 timepoint=visit.timepoint,
@@ -226,7 +235,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             # fill in subject visit report for this appointment
             subject_visit = SubjectVisit.objects.create(
                 appointment=appointment,
-                subject_identifier=self.subject_identifier,
+                subject_identifier=self.subject_consent.subject_identifier,
                 report_datetime=appointment.appt_datetime,
                 reason=SCHEDULED,
                 visit_code=visit.code,
@@ -256,7 +265,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
 
             # create unscheduled off of this appt
             creator = UnscheduledAppointmentCreator(
-                subject_identifier=self.subject_identifier,
+                subject_identifier=self.subject_consent.subject_identifier,
                 visit_schedule_name=self.visit_schedule1.name,
                 schedule_name=self.schedule1.name,
                 visit_code=visit.code,
@@ -301,38 +310,71 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             self.assertEqual(visit.timepoint, int(new_appointment.timepoint))
             traveller.stop()
 
+    @tag("2004")
     def test_appt_status2(self):
 
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
         )
 
         # 1000
-        self.assertEqual(appt_status(), [N, N, N, N])
-        appointment = get_appointment("1000", 0, options=self)
+        self.assertEqual(appt_status(subject_consent.subject_identifier), [N, N, N, N])
+        appointment = get_appointment(
+            "1000",
+            0,
+            subject_identifier=subject_consent.subject_identifier,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
         appointment = set_to_inprogress(appointment)
-        self.assertEqual(appt_status(), [IN_PROGRESS_APPT, N, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [IN_PROGRESS_APPT, N, N, N],
+        )
         appointment = add_subject_visit(appointment)
-        self.assertEqual(appt_status(), [IN_PROGRESS_APPT, N, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [IN_PROGRESS_APPT, N, N, N],
+        )
         appointment = set_to_incomplete(appointment)
-        self.assertEqual(appt_status(), [INC, N, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier), [INC, N, N, N]
+        )
         unscheduled_appointment = get_unscheduled(appointment)
-        self.assertEqual(appt_status(), [INC, N, N, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, N, N, N, N],
+        )
         unscheduled_appointment = set_to_inprogress(unscheduled_appointment)
-        self.assertEqual(appt_status(), [INC, IN_PROGRESS_APPT, N, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, IN_PROGRESS_APPT, N, N, N],
+        )
         unscheduled_appointment = add_subject_visit(unscheduled_appointment)
-        self.assertEqual(appt_status(), [INC, IN_PROGRESS_APPT, N, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, IN_PROGRESS_APPT, N, N, N],
+        )
         set_to_incomplete(unscheduled_appointment)
-        self.assertEqual(appt_status(), [INC, INC, N, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, N, N, N],
+        )
 
     def test_appt_status3(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
         )
         # 1000
-        appointment = get_appointment("1000", 0, options=self)
+        appointment = get_appointment(
+            "1000",
+            0,
+            subject_identifier=subject_consent.subject_identifier,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
         appointment = set_to_inprogress(appointment)
         appointment = add_subject_visit(appointment)
         appointment = set_to_incomplete(appointment)
@@ -342,30 +384,66 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         set_to_incomplete(unscheduled_appointment)
 
         # 2000
-        self.assertEqual(appt_status(), [INC, INC, N, N, N])
-        appointment = get_appointment("2000", 0, options=self)
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, N, N, N],
+        )
+        appointment = get_appointment(
+            "2000",
+            0,
+            subject_identifier=subject_consent.subject_identifier,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
         appointment = set_to_inprogress(appointment)
-        self.assertEqual(appt_status(), [INC, INC, IN_PROGRESS_APPT, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, IN_PROGRESS_APPT, N, N],
+        )
         appointment = add_subject_visit(appointment)
-        self.assertEqual(appt_status(), [INC, INC, IN_PROGRESS_APPT, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, IN_PROGRESS_APPT, N, N],
+        )
         appointment = set_to_incomplete(appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, N, N],
+        )
         unscheduled_appointment = get_unscheduled(appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, N, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, N, N, N],
+        )
         unscheduled_appointment = set_to_inprogress(unscheduled_appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, IN_PROGRESS_APPT, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, IN_PROGRESS_APPT, N, N],
+        )
         unscheduled_appointment = add_subject_visit(unscheduled_appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, IN_PROGRESS_APPT, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, IN_PROGRESS_APPT, N, N],
+        )
         set_to_incomplete(unscheduled_appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, N, N],
+        )
 
     def test_appt_status4(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
         )
         for visit_code in ["1000", "2000"]:
-            appointment = get_appointment(visit_code, 0, options=self)
+            appointment = get_appointment(
+                visit_code,
+                0,
+                subject_identifier=subject_consent.subject_identifier,
+                visit_schedule_name="visit_schedule1",
+                schedule_name="schedule1",
+            )
             appointment = set_to_inprogress(appointment)
             appointment = add_subject_visit(appointment)
             appointment = set_to_incomplete(appointment)
@@ -375,30 +453,66 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             set_to_incomplete(unscheduled_appointment)
 
         # 3000
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, N, N])
-        appointment = get_appointment("3000", 0, options=self)
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, N, N],
+        )
+        appointment = get_appointment(
+            "3000",
+            0,
+            subject_identifier=subject_consent.subject_identifier,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
         appointment = set_to_inprogress(appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, IN_PROGRESS_APPT, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, IN_PROGRESS_APPT, N],
+        )
         appointment = add_subject_visit(appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, IN_PROGRESS_APPT, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, IN_PROGRESS_APPT, N],
+        )
         appointment = set_to_incomplete(appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, INC, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, N],
+        )
         unscheduled_appointment = get_unscheduled(appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, INC, N, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, N, N],
+        )
         unscheduled_appointment = set_to_inprogress(unscheduled_appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, INC, IN_PROGRESS_APPT, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, IN_PROGRESS_APPT, N],
+        )
         unscheduled_appointment = add_subject_visit(unscheduled_appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, INC, IN_PROGRESS_APPT, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, IN_PROGRESS_APPT, N],
+        )
         set_to_incomplete(unscheduled_appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, INC, INC, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, INC, N],
+        )
 
     def test_appt_status5(self):
-        self.helper.consent_and_put_on_schedule(
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
         )
         for visit_code in ["1000", "2000", "3000"]:
-            appointment = get_appointment(visit_code, 0, options=self)
+            appointment = get_appointment(
+                visit_code,
+                0,
+                subject_identifier=subject_consent.subject_identifier,
+                visit_schedule_name="visit_schedule1",
+                schedule_name="schedule1",
+            )
             appointment = set_to_inprogress(appointment)
             appointment = add_subject_visit(appointment)
             appointment = set_to_incomplete(appointment)
@@ -408,30 +522,52 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             set_to_incomplete(unscheduled_appointment)
 
         # 4000
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, INC, INC, N])
-        appointment = get_appointment("4000", 0, options=self)
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, INC, N],
+        )
+        appointment = get_appointment(
+            "4000",
+            0,
+            subject_identifier=subject_consent.subject_identifier,
+            visit_schedule_name="visit_schedule1",
+            schedule_name="schedule1",
+        )
         appointment = set_to_inprogress(appointment)
         self.assertEqual(
-            appt_status(), [INC, INC, INC, INC, INC, INC, IN_PROGRESS_APPT]
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, INC, IN_PROGRESS_APPT],
         )
         appointment = add_subject_visit(appointment)
         self.assertEqual(
-            appt_status(), [INC, INC, INC, INC, INC, INC, IN_PROGRESS_APPT]
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, INC, IN_PROGRESS_APPT],
         )
         appointment = set_to_incomplete(appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, INC, INC, INC])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, INC, INC],
+        )
         unscheduled_appointment = get_unscheduled(appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, INC, INC, INC, N])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, INC, INC, N],
+        )
         unscheduled_appointment = set_to_inprogress(unscheduled_appointment)
         self.assertEqual(
-            appt_status(), [INC, INC, INC, INC, INC, INC, INC, IN_PROGRESS_APPT]
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, INC, INC, IN_PROGRESS_APPT],
         )
         unscheduled_appointment = add_subject_visit(unscheduled_appointment)
         self.assertEqual(
-            appt_status(), [INC, INC, INC, INC, INC, INC, INC, IN_PROGRESS_APPT]
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, INC, INC, IN_PROGRESS_APPT],
         )
         set_to_incomplete(unscheduled_appointment)
-        self.assertEqual(appt_status(), [INC, INC, INC, INC, INC, INC, INC, INC])
+        self.assertEqual(
+            appt_status(subject_consent.subject_identifier),
+            [INC, INC, INC, INC, INC, INC, INC, INC],
+        )
 
     def test_unscheduled_timepoint_not_incremented(self):
         self.helper.consent_and_put_on_schedule(
@@ -440,7 +576,8 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         )
         visit = self.visit_schedule1.schedules.get(self.schedule1.name).visits.first
         appointment = Appointment.objects.get(
-            subject_identifier=self.subject_identifier, visit_code=visit.code
+            subject_identifier=self.subject_consent.subject_identifier,
+            visit_code=visit.code,
         )
         self.assertEqual(appointment.timepoint, Decimal("0.0"))
         SubjectVisit.objects.create(
@@ -482,7 +619,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             schedule_name=self.schedule1.name,
         )
         appointment = Appointment.objects.first_appointment(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
         )
@@ -514,7 +651,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
 
         next_appointment = Appointment.objects.next_appointment(
             visit_code=appointment.visit_code,
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
         )
@@ -542,7 +679,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             schedule_name=self.schedule1.name,
         )
         appointment = Appointment.objects.first_appointment(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
         )
@@ -556,7 +693,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
 
         next_appointment = Appointment.objects.next_appointment(
             visit_code=appointment.visit_code,
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
         )
@@ -574,7 +711,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             schedule_name=self.schedule1.name,
         )
         appointment = Appointment.objects.first_appointment(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
         )

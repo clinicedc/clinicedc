@@ -54,14 +54,14 @@ class TestAppointment(TestCase):
         import_holidays()
 
     def setUp(self):
-        site_visit_schedules._registry = {}
-        self.visit_schedule1 = get_visit_schedule1()
-        self.schedule1: Schedule = self.visit_schedule1.schedules.get("schedule1")
-        self.visit_schedule2 = get_visit_schedule2()
-        site_visit_schedules.register(self.visit_schedule1)
-        site_visit_schedules.register(self.visit_schedule2)
         site_consents.registry = {}
         site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        self.visit_schedule1 = get_visit_schedule1(consent_v1)
+        self.schedule1: Schedule = self.visit_schedule1.schedules.get("schedule1")
+        self.visit_schedule2 = get_visit_schedule2(consent_v1)
+        site_visit_schedules.register(self.visit_schedule1)
+        site_visit_schedules.register(self.visit_schedule2)
         self.helper = self.helper_cls(
             now=ResearchProtocolConfig().study_open_datetime,
         )

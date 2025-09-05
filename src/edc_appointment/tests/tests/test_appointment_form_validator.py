@@ -20,6 +20,9 @@ from edc_appointment.constants import (
     SKIPPED_APPT,
     UNSCHEDULED_APPT,
 )
+from edc_appointment.creators import (
+    UnscheduledAppointmentCreator,
+)
 from edc_appointment.form_validators import AppointmentFormValidator
 from edc_appointment.form_validators.appointment_form_validator import (
     INVALID_APPT_STATUS,
@@ -405,30 +408,40 @@ class TestAppointmentFormValidator(TestCase):
         subject_identifier = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name, schedule_name=schedule_name
         ).subject_identifier
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
-        self.assertEqual(appointments[0].appt_timing, ONTIME_APPT)
+        appointment = Appointment.objects.get(visit_code=DAY01)
+        self.assertEqual(appointment.appt_timing, ONTIME_APPT)
         # create report for baseline visit
+        appointment.appt_status = IN_PROGRESS_APPT
+        appointment.save()
         SubjectVisit.objects.create(
-            appointment=appointments[0],
-            report_datetime=appointments[0].appt_datetime,
+            appointment=appointment,
+            report_datetime=appointment.appt_datetime,
             reason=SCHEDULED,
         )
-        appointments[0].refresh_from_db()
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+        appointment.refresh_from_db()
 
         # create unscheduled off of baseline appt
-        appointment = self.create_unscheduled_appointment(appointments[0])
-        self.assertEqual(appointment.visit_code, DAY01)
-        self.assertEqual(appointment.visit_code_sequence, 1)
-        self.assertEqual(appointment.timepoint, Decimal("0.0"))
+        unscheduled = UnscheduledAppointmentCreator(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            facility=appointment.facility,
+            suggested_appt_datetime=appointment.appt_datetime + relativedelta(days=1),
+            suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
+        )
+        self.assertEqual(unscheduled.appointment.visit_code, DAY01)
+        self.assertEqual(unscheduled.appointment.visit_code_sequence, 1)
+        self.assertEqual(unscheduled.appointment.timepoint, Decimal("0.0"))
         form_validator = AppointmentFormValidator(
             cleaned_data=dict(
                 subject_identifier=subject_identifier,
                 appt_timing=MISSED_APPT,
                 appt_reason=UNSCHEDULED_APPT,
             ),
-            instance=appointment,
+            instance=unscheduled.appointment,
         )
 
         with self.assertRaises(ValidationError) as cm:
@@ -442,30 +455,40 @@ class TestAppointmentFormValidator(TestCase):
         subject_identifier = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name, schedule_name=schedule_name
         ).subject_identifier
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
-        self.assertEqual(appointments[0].appt_timing, ONTIME_APPT)
+        appointment = Appointment.objects.get(visit_code=DAY01)
+        self.assertEqual(appointment.appt_timing, ONTIME_APPT)
         # create report for baseline visit
+        appointment.appt_status = IN_PROGRESS_APPT
+        appointment.save()
         SubjectVisit.objects.create(
-            appointment=appointments[0],
-            report_datetime=appointments[0].appt_datetime,
+            appointment=appointment,
+            report_datetime=appointment.appt_datetime,
             reason=SCHEDULED,
         )
-        appointments[0].refresh_from_db()
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save()
+        appointment.refresh_from_db()
 
         # create unscheduled off of baseline appt
-        appointment = self.create_unscheduled_appointment(appointments[0])
-        self.assertEqual(appointment.visit_code, DAY01)
-        self.assertEqual(appointment.visit_code_sequence, 1)
-        self.assertEqual(appointment.timepoint, Decimal("0.0"))
+        unscheduled = UnscheduledAppointmentCreator(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            facility=appointment.facility,
+            suggested_appt_datetime=appointment.appt_datetime + relativedelta(days=1),
+            suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
+        )
+        self.assertEqual(unscheduled.appointment.visit_code, DAY01)
+        self.assertEqual(unscheduled.appointment.visit_code_sequence, 1)
+        self.assertEqual(unscheduled.appointment.timepoint, Decimal("0.0"))
         form_validator = AppointmentFormValidator(
             cleaned_data=dict(
                 subject_identifier=subject_identifier,
                 appt_timing=MISSED_APPT,
                 appt_reason=UNSCHEDULED_APPT,
             ),
-            instance=appointment,
+            instance=unscheduled.appointment,
         )
 
         try:

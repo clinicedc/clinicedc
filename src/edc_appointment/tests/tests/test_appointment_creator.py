@@ -15,7 +15,6 @@ from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
-from edc_facility.utils import get_facility
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
 from edc_visit_schedule.schedule import Schedule
@@ -23,7 +22,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from tests.helper import Helper
-from tests.models import SubjectConsent
 
 utc_tz = ZoneInfo("UTC")
 
@@ -55,7 +53,6 @@ class AppointmentCreatorTestCase(TestCase):
         site_consents.register(self.consent_v1)
 
         site_visit_schedules._registry = {}
-        self.subject_identifier = "12345"
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
@@ -104,18 +101,6 @@ class AppointmentCreatorTestCase(TestCase):
 
         site_visit_schedules.register(self.visit_schedule)
 
-        class Meta:
-            label_lower = ""
-
-        class DummyAppointmentObj:
-            subject_identifier = self.subject_identifier
-            visit_schedule = self.visit_schedule
-            schedule = self.schedule
-            facility = get_facility(name="7-day-clinic")
-            _meta = Meta()
-
-        self.model_obj = DummyAppointmentObj()
-
     def put_on_schedule(self, dt, consent_definition: ConsentDefinition | None = None):
         self.helper = self.helper_cls(now=dt)
         subject_consent = self.helper.consent_and_put_on_schedule(
@@ -136,10 +121,10 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     def test_init(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        self.put_on_schedule(get_utcnow())
+        subject_consent = self.put_on_schedule(get_utcnow())
         self.assertTrue(
             AppointmentCreator(
-                subject_identifier=self.subject_identifier,
+                subject_identifier=subject_consent.subject_identifier,
                 visit_schedule_name=self.visit_schedule.name,
                 schedule_name=self.schedule.name,
                 visit=self.visit1000,
@@ -151,23 +136,23 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     def test_str(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        self.put_on_schedule(get_utcnow())
+        subject_consent = self.put_on_schedule(get_utcnow())
         creator = AppointmentCreator(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
             timepoint_datetime=get_utcnow(),
         )
-        self.assertEqual(str(creator), self.subject_identifier)
+        self.assertEqual(str(creator), subject_consent.subject_identifier)
         traveller.stop()
 
     def test_repr(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        self.put_on_schedule(get_utcnow())
+        subject_consent = self.put_on_schedule(get_utcnow())
         creator = AppointmentCreator(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
@@ -181,9 +166,9 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
         appt_datetime = get_utcnow()
-        self.put_on_schedule(appt_datetime)
+        subject_consent = self.put_on_schedule(appt_datetime)
         creator = AppointmentCreator(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
@@ -206,9 +191,9 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
         appt_datetime = get_utcnow()
-        self.put_on_schedule(appt_datetime)
+        subject_consent = self.put_on_schedule(appt_datetime)
         creator = AppointmentCreator(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
@@ -250,12 +235,12 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             gender=[MALE, FEMALE],
         )
         site_consents.register(consent_definition)
-        self.put_on_schedule(get_utcnow(), consent_definition)
+        subject_consent = self.put_on_schedule(get_utcnow(), consent_definition)
 
         appt_datetime = get_utcnow()
         expected_appt_datetime = get_utcnow() + relativedelta(days=1)
         creator = AppointmentCreator(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
@@ -274,7 +259,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
 
         appt_datetime = get_utcnow() + relativedelta(days=2)
         creator = AppointmentCreator(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,

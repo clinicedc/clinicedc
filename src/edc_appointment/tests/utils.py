@@ -4,7 +4,10 @@ from datetime import datetime
 from typing import Type, TYPE_CHECKING
 
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
-from edc_appointment.creators import create_unscheduled_appointment
+from edc_appointment.creators import (
+    create_unscheduled_appointment,
+    UnscheduledAppointmentCreator,
+)
 from edc_appointment.utils import get_appointment_model_cls
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
@@ -86,3 +89,17 @@ def get_timepoint_from_visit_code(
             timepoint = v.timepoint
             break
     return timepoint
+
+
+def create_unscheduled_appointments(appointment):
+    for i in range(0, 3):
+        creator = UnscheduledAppointmentCreator(
+            subject_identifier=appointment.subject_identifier,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
+        )
+        appointment = creator.appointment
+        appointment.appt_status = INCOMPLETE_APPT
+        appointment.save_base(update_fields=["appt_status"])

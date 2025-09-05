@@ -38,14 +38,13 @@ class TestAppointment(TestCase):
         import_holidays()
 
     def setUp(self):
-        self.subject_identifier = "12345"
-        site_visit_schedules._registry = {}
-        self.visit_schedule1 = get_visit_schedule1()
-        self.visit_schedule2 = get_visit_schedule2()
-        site_visit_schedules.register(self.visit_schedule1)
-        site_visit_schedules.register(self.visit_schedule2)
         site_consents.registry = {}
         site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        self.visit_schedule1 = get_visit_schedule1(consent_v1)
+        self.visit_schedule2 = get_visit_schedule2(consent_v1)
+        site_visit_schedules.register(self.visit_schedule1)
+        site_visit_schedules.register(self.visit_schedule2)
         self.helper = self.helper_cls(
             now=ResearchProtocolConfig().study_open_datetime,
         )
@@ -80,7 +79,6 @@ class TestAppointment(TestCase):
                     self.assertGreater(appt_datetime, last)
                     last = appt_datetime
 
-    @tag("4")
     def test_attempt_to_change(self):
         for day in [MO, TU, WE, TH, FR, SA, SU]:
             helper = self.helper_cls(
@@ -167,7 +165,7 @@ class TestAppointment(TestCase):
         schedule.put_on_schedule(subject_consent.subject_identifier, get_utcnow())
 
         first_appointment = get_appointment_model_cls().objects.first_appointment(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name="visit_schedule2",
         )
         self.assertEqual(first_appointment.schedule_name, "schedule2")
@@ -175,7 +173,7 @@ class TestAppointment(TestCase):
         self.assertEqual(
             get_appointment_model_cls()
             .objects.filter(
-                subject_identifier=self.subject_identifier,
+                subject_identifier=subject_consent.subject_identifier,
                 visit_schedule_name="visit_schedule2",
             )
             .order_by("appt_datetime")[0],
