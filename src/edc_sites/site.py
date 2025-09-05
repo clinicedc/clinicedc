@@ -3,7 +3,7 @@ from __future__ import annotations
 import dataclasses
 import sys
 from copy import deepcopy
-from typing import TYPE_CHECKING, Any
+from typing import Any, TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -16,7 +16,6 @@ from django.utils.module_loading import import_module, module_has_submodule
 from edc_auth.utils import user_has_change_perms
 from edc_constants.constants import OTHER
 from edc_model_admin.utils import add_to_messages_once
-
 from .exceptions import InvalidSiteForUser
 from .single_site import SingleSite
 from .utils import (
@@ -191,8 +190,9 @@ class Sites:
 
     @property
     def countries(self) -> list[str]:
-        return list(
-            set([single_site.country for single_site in self._registry.values()])
+        return (
+            list(set([single_site.country for single_site in self._registry.values()]))
+            or []
         )
 
     def get_by_country(
