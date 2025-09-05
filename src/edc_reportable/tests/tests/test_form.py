@@ -1,9 +1,14 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import tag, TestCase
 
+from edc_consent import site_consents
 from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES
-from edc_form_validators import FormValidator
+from edc_crf.crf_form_validator import CrfFormValidator
 from edc_reportable import (
     GRAMS_PER_DECILITER,
     IU_LITER,
@@ -15,86 +20,116 @@ from edc_reportable.forms import ReportablesFormValidatorMixin
 from edc_reportable.units import MILLIGRAMS_PER_DECILITER
 from edc_reportable.utils import load_reference_ranges
 from edc_utils.date import get_utcnow
+from edc_visit_schedule.constants import DAY01
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.models import SubjectVisit
+from tests.consents import consent_v1
+from tests.helper import Helper
 from tests.models import SpecimenResult
 from tests.reportables import grading_data, normal_data
+from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
-class SpecimenResultFormValidator(ReportablesFormValidatorMixin, FormValidator):
+class SpecimenResultFormValidator(ReportablesFormValidatorMixin, CrfFormValidator):
     reference_range_collection_name = "my_reportables"
 
     def clean(self):
         self.validate_reportable_fields(self.reference_range_collection_name)
 
-    # def validate_reportable_fields(self, *args, **kwargs):
-    #     reference_range_evaluator = self.reference_range_evaluator_cls(
-    #         self.reference_range_collection_name,
-    #         cleaned_data=copy(self.cleaned_data),
-    #         gender=MALE,
-    #         dob=get_utcnow() - relativedelta(years=25),
-    #         report_datetime=get_utcnow(),
-    #         age_units="years",
-    #     )
-    #     # is the value `reportable` according to the user?
-    #     reference_range_evaluator.validate_reportable_fields()
-    #
-    #     # is the value `abnormal` according to the user?
-    #     reference_range_evaluator.validate_results_abnormal_field()
-    #
-    #     self.applicable_if(
-    #         YES, field="results_abnormal", field_applicable="results_reportable"
-    #     )
-    #
-    #     reference_range_evaluator.validate_results_reportable_field()
 
-
+@tag("reportable")
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestSpecimenResultForm(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        site_visit_schedules.register(get_visit_schedule(consent_v1))
+
         load_reference_ranges(
             "my_reference_list", normal_data=normal_data, grading_data=grading_data
         )
 
     def setUp(self):
-
-        self.cleaned_data = {
-            "subject_visit": "",
-            "dob": get_utcnow() - relativedelta(years=25),
-            "gender": FEMALE,
-            "haemoglobin": 15,
-            "haemoglobin_units": GRAMS_PER_DECILITER,
-            "haemoglobin_abnormal": NO,
-            "haemoglobin_reportable": NOT_APPLICABLE,
+        helper = Helper()
+        helper.enroll_to_baseline(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
+            consent_definition=consent_v1,
+            dob=get_utcnow() - relativedelta(years=25),
+            guardian_name="",
+            report_datetime=get_utcnow(),
+        )
+        subject_visit = SubjectVisit.objects.get(appointment__visit_code=DAY01)
+        self.alt = {
             "alt": 10,
             "alt_units": IU_LITER,
             "alt_abnormal": NO,
             "alt_reportable": NOT_APPLICABLE,
+        }
+        self.haemoglobin = {
+            "haemoglobin": 15,
+            "haemoglobin_units": GRAMS_PER_DECILITER,
+            "haemoglobin_abnormal": NO,
+            "haemoglobin_reportable": NOT_APPLICABLE,
+        }
+        self.magnesium = {
             "magnesium": 0.8,
             "magnesium_units": MILLIMOLES_PER_LITER,
             "magnesium_abnormal": NO,
             "magnesium_reportable": NOT_APPLICABLE,
+        }
+        self.creatinine = {
             "creatinine": 100,
             "creatinine_units": MICROMOLES_PER_LITER,
             "creatinine_abnormal": NO,
             "creatinine_reportable": NOT_APPLICABLE,
+        }
+        self.neutrophil = {
             "neutrophil": 3,
             "neutrophil_units": TEN_X_9_PER_LITER,
             "neutrophil_abnormal": NO,
             "neutrophil_reportable": NOT_APPLICABLE,
-            "sodium": 135,
+        }
+        self.sodium = {
+            "sodium": 136,
             "sodium_units": MILLIMOLES_PER_LITER,
             "sodium_abnormal": NO,
             "sodium_reportable": NOT_APPLICABLE,
+        }
+        self.potassium = {
             "potassium": 4.0,
             "potassium_units": MILLIMOLES_PER_LITER,
             "potassium_abnormal": NO,
             "potassium_reportable": NOT_APPLICABLE,
+        }
+        self.platelets = {
             "platelets": 450,
             "platelets_units": TEN_X_9_PER_LITER,
             "platelets_abnormal": NO,
             "platelets_reportable": NOT_APPLICABLE,
+        }
+        self.base_data = {
+            "subject_visit": subject_visit,
+            "dob": get_utcnow() - relativedelta(years=25),
+            "gender": FEMALE,
             "results_normal": YES,
             "results_reportable": NOT_APPLICABLE,
+        }
+        self.cleaned_data = {
+            **self.base_data,
+            **self.haemoglobin,
+            **self.alt,
+            **self.magnesium,
+            **self.creatinine,
+            **self.neutrophil,
+            **self.sodium,
+            **self.potassium,
+            **self.platelets,
         }
 
     def test_haemoglobin_units_invalid(self):
@@ -149,7 +184,7 @@ class TestSpecimenResultForm(TestCase):
 
     def test_creatinine_mg(self):
         self.cleaned_data.update(
-            creatinine=1.3,
+            creatinine=0.73,
             creatinine_units=MILLIGRAMS_PER_DECILITER,
             results_abnormal=NO,
             results_reportable=NOT_APPLICABLE,
@@ -260,7 +295,7 @@ class TestSpecimenResultForm(TestCase):
 
     def test_sodium(self):
         self.cleaned_data.update(
-            sodium=135, results_abnormal=NO, results_reportable=NOT_APPLICABLE
+            sodium=137, results_abnormal=NO, results_reportable=NOT_APPLICABLE
         )
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()

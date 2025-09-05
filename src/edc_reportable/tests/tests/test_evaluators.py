@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import tag, TestCase
 
 from edc_reportable.age_evaluator import AgeEvaluator
 from edc_reportable.evaluator import (
@@ -16,6 +16,7 @@ from edc_reportable.evaluator import (
 from edc_utils import age
 
 
+@tag("reportable")
 class TestEvaluators(TestCase):
     @tag("1")
     def test_evaluator_zero(self):

@@ -1,8 +1,9 @@
-from django.test import TestCase
+from django.test import tag, TestCase
 
 from edc_reportable.models import ReferenceRangeCollection
 
 
+@tag("reportable")
 class TestReferenceRangeCollection(TestCase):
     def test_ok(self):
         obj = ReferenceRangeCollection.objects.create(

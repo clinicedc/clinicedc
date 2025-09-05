@@ -1,4 +1,4 @@
-from django.test import TestCase, tag
+from django.test import tag, TestCase
 
 from edc_reportable.units import (
     GRAMS_PER_LITER,
@@ -10,9 +10,9 @@ from edc_reportable.utils import convert_units
 from edc_utils import round_half_away_from_zero as rnd
 
 
+@tag("reportable")
 class TestParser(TestCase):
 
-    @tag("68")
     def test_convert_tbil1(self):
         converted_value = convert_units(
             label="tbil",
@@ -31,7 +31,6 @@ class TestParser(TestCase):
         )
         self.assertEqual(rnd(converted_value, 4), 4.9949)
 
-    @tag("68")
     def test_convert_tbil2(self):
         converted_value = convert_units(
             label="tbil",
@@ -41,7 +40,6 @@ class TestParser(TestCase):
         )
         self.assertEqual(rnd(converted_value, 3), 0.005)
 
-    @tag("68")
     def test_convert_tbil3(self):
         converted_value = convert_units(
             label="tbil",
@@ -51,7 +49,6 @@ class TestParser(TestCase):
         )
         self.assertEqual(rnd(converted_value, 1), 500.0)
 
-    @tag("68")
     def test_convert_glucose(self):
         """mg/dL to mmol/L"""
 
@@ -88,7 +85,6 @@ class TestParser(TestCase):
         )
         self.assertEqual(6.9375, converted_value)
 
-    @tag("68")
     def test_convert_creatinine(self):
         """mg/dL to umol/L"""
 

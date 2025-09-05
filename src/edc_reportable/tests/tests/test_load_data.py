@@ -1,15 +1,16 @@
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count
-from django.test import TestCase
+from django.test import tag, TestCase
 
 from edc_constants.constants import FEMALE, MALE
 from edc_reportable import (
+    ConversionNotHandled,
     MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
-    ConversionNotHandled,
+    MILLIMOLES_PER_LITER,
 )
 from edc_reportable.evaluator import ValueBoundryError
-from edc_reportable.models import GradingData, NormalData
+from edc_reportable.models import GradingData, MolecularWeight, NormalData
 from edc_reportable.utils import (
     get_normal_data_or_raise,
     in_normal_bounds_or_raise,
@@ -22,24 +23,25 @@ from edc_utils import get_utcnow
 from tests.reportables import grading_data, normal_data
 
 
+@tag("reportable")
 class TestLoadData(TestCase):
 
     def test_load_data(self):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
         )
-        self.assertEqual(NormalData.objects.all().count(), 24)
-        self.assertEqual(GradingData.objects.all().count(), 60)
+        self.assertEqual(NormalData.objects.all().count(), 98)
+        self.assertEqual(GradingData.objects.all().count(), 192)
 
     def test_loaded_grades(self):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
         )
         qs = GradingData.objects.values("grade").annotate(count=Count("grade"))
-        self.assertEqual(qs.filter(grade=1)[0].get("count"), 4)
-        self.assertEqual(qs.filter(grade=2)[0].get("count"), 4)
-        self.assertEqual(qs.filter(grade=3)[0].get("count"), 26)
-        self.assertEqual(qs.filter(grade=4)[0].get("count"), 26)
+        self.assertEqual(qs.filter(grade=1)[0].get("count"), 18)
+        self.assertEqual(qs.filter(grade=2)[0].get("count"), 22)
+        self.assertEqual(qs.filter(grade=3)[0].get("count"), 62)
+        self.assertEqual(qs.filter(grade=4)[0].get("count"), 48)
 
     def test_loaded_grades_tbil(self):
         load_reference_ranges(
@@ -50,22 +52,22 @@ class TestLoadData(TestCase):
             .filter(label="tbil")
             .annotate(count=Count("grade"))
         )
-        self.assertEqual(qs.filter(grade=1)[0].get("count"), 4)
-        self.assertEqual(qs.filter(grade=2)[0].get("count"), 4)
-        self.assertEqual(qs.filter(grade=3)[0].get("count"), 4)
-        self.assertEqual(qs.filter(grade=4)[0].get("count"), 4)
+        self.assertEqual(qs.filter(grade=1)[0].get("count"), 6)
+        self.assertEqual(qs.filter(grade=2)[0].get("count"), 6)
+        self.assertEqual(qs.filter(grade=3)[0].get("count"), 6)
+        self.assertEqual(qs.filter(grade=4)[0].get("count"), 6)
 
     def test_loaded_twice_ok(self):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
         )
-        self.assertEqual(NormalData.objects.all().count(), 24)
-        self.assertEqual(GradingData.objects.all().count(), 60)
+        self.assertEqual(NormalData.objects.all().count(), 98)
+        self.assertEqual(GradingData.objects.all().count(), 192)
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
         )
-        self.assertEqual(NormalData.objects.all().count(), 24)
-        self.assertEqual(GradingData.objects.all().count(), 60)
+        self.assertEqual(NormalData.objects.all().count(), 98)
+        self.assertEqual(GradingData.objects.all().count(), 192)
 
     def test_description(self):
         load_reference_ranges(
@@ -73,10 +75,10 @@ class TestLoadData(TestCase):
         )
         qs = GradingData.objects.filter(label="tbil").order_by("units", "grade")
         self.assertEqual(
-            qs.first().description, "tbil: 1.1*ULN<=x<1.6*ULN mg/dL GRADE1 M 18<=AGE"
+            qs.first().description, "tbil: 1.1*ULN<=x<1.6*ULN g/L GRADE1 M 18<=AGE<=120"
         )
         self.assertEqual(
-            qs.last().description, "tbil: 5.0*ULN<=x mmol/L GRADE4 M 18<=AGE"
+            qs.last().description, "tbil: 5.0*ULN<=x umol/L GRADE4 M 18<=AGE<=120"
         )
 
     def test_bounds_for_existing_units(self):
@@ -286,12 +288,22 @@ class TestLoadData(TestCase):
         reference_range_collection = load_reference_ranges(
             "test_ranges", normal_data=normal_data, grading_data=grading_data
         )
+        MolecularWeight.objects.get(label="albumin").delete()
+        self.assertNotIn(
+            MILLIMOLES_PER_LITER,
+            [
+                o.units
+                for o in reference_range_collection.normaldata_set.filter(
+                    label="albumin", units=MILLIMOLES_PER_LITER
+                )
+            ],
+        )
         self.assertRaises(
             ConversionNotHandled,
             get_normal_data_or_raise,
             reference_range_collection=reference_range_collection,
-            label="magnesium",
-            units=MILLIGRAMS_PER_DECILITER,
+            label="albumin",
+            units=MILLIMOLES_PER_LITER,
             gender=MALE,
             dob=dob,
             report_datetime=report_datetime,
@@ -322,7 +334,7 @@ class TestLoadData(TestCase):
         self.assertEqual(
             NormalData.objects.filter(label="tbil").count(), starting_count + 1
         )
-        self.assertEqual(obj.description, "tbil: 0.2923<=x<1.2277 mg/dL M 18<=AGE")
+        self.assertEqual(obj.description, "tbil: 0.292<=x<1.23 mg/dL M 18<=AGE<=120")
 
         # do again to ensure does not create duplicates
         get_normal_data_or_raise(

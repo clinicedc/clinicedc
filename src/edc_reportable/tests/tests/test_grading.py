@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
+from django.test import tag, TestCase
 
 from edc_constants.constants import FEMALE, MALE
 from edc_reportable import Formula
@@ -23,6 +23,7 @@ from edc_reportable.utils import (
 from edc_utils import get_utcnow
 
 
+@tag("reportable")
 class TestGrading(TestCase):
 
     def setUp(self):
