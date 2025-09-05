@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from edc_utils.round_up import round_half_away_from_zero
+from django.core.exceptions import ObjectDoesNotExist
 
-from ..data import molecular_weights
+from edc_utils.round_up import round_half_away_from_zero
+from .molecular_weight_model_cls import molecular_weight_model_cls
 from ..exceptions import ConversionNotHandled
 from ..units import (
     GRAMS_PER_LITER,
@@ -16,17 +17,20 @@ __all__ = ["convert_units"]
 
 
 def get_mw(label):
-    mw = molecular_weights.get(label)
-    if not mw:
+    try:
+        molecular_weight = molecular_weight_model_cls().objects.get(label=label)
+    except ObjectDoesNotExist:
         raise ConversionNotHandled(
             f"Conversion not handled. Molecular weight not found for {label}."
         )
+    else:
+        mw = molecular_weight.mw
     return mw
 
 
 def micromoles_per_liter_to(
     *, label: str = None, value: float | int = None, units_to: str = None
-) -> dict[str:float]:
+) -> dict:
     if units_to == MICROMOLES_PER_LITER:
         return {MICROMOLES_PER_LITER: float(value)}
     elif units_to == MILLIMOLES_PER_LITER:
@@ -86,12 +90,7 @@ class UnitsConverter:
             )
 
     def get_mw(self):
-        mw = molecular_weights.get(self.label)
-        if not mw:
-            raise ConversionNotHandled(
-                f"Conversion not handled. Molecular weight not found for {self.label}."
-            )
-        return mw
+        return get_mw(self.label)
 
     def round_up(self, converted_value):
         try:

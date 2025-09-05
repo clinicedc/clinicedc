@@ -7,6 +7,7 @@ from .grading_data_model_cls import grading_data_model_cls
 from .grading_exception_model_cls import grading_exception_model_cls
 from .in_normal_bounds_or_raise import in_normal_bounds_or_raise
 from .load_data import load_all_reference_ranges, load_reference_ranges
+from .molecular_weight_model_cls import molecular_weight_model_cls
 from .normal_data_model_cls import normal_data_model_cls
 from .reference_range_colllection_model_cls import reference_range_colllection_model_cls
 from .update_grading_data import update_grading_data
