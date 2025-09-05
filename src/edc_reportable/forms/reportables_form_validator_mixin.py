@@ -15,6 +15,10 @@ class ReportablesFormValidatorMixin:
     reference_range_evaluator_cls = ReferenceRangeEvaluator
 
     @property
+    def age_units(self):
+        return "years"
+
+    @property
     def reportables_evaluator_options(self):
         return {"age_units": "years"}
 
@@ -43,6 +47,7 @@ class ReportablesFormValidatorMixin:
             dob=registered_subject.dob,
             report_datetime=self.report_datetime,
             value_field_suffix=self.value_field_suffix,
+            age_units=self.age_units,
             **reportables_evaluator_options,
         )
         try:
