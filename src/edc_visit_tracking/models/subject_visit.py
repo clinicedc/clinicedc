@@ -3,7 +3,6 @@ from django.db.models import PROTECT
 from django.utils.translation import gettext_lazy as _
 
 from edc_appointment.utils import get_appointment_model_name
-from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
 from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.managers import CurrentSiteManager
@@ -14,13 +13,11 @@ from edc_visit_tracking.choices import (
     VISIT_REASON_MISSED,
 )
 from edc_visit_tracking.managers import VisitModelManager
-from edc_visit_tracking.model_mixins import PreviousVisitModelMixin, VisitModelMixin
+from edc_visit_tracking.model_mixins import VisitModelMixin
 
 
 class SubjectVisit(
     VisitModelMixin,
-    PreviousVisitModelMixin,
-    RequiresConsentFieldsModelMixin,
     CreatesMetadataModelMixin,
     SiteModelMixin,
     BaseUuidModel,

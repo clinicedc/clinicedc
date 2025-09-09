@@ -2,26 +2,33 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import NO, YES
 from edc_facility.import_holidays import import_holidays
+from edc_lab import site_labs
 from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
-from edc_lab.lab import AliquotCreator as AliquotCreatorBase
-from edc_lab.lab import Specimen as SpecimenBase
-from edc_lab.lab import SpecimenNotDrawnError, SpecimenProcessor
+from edc_lab.lab import (
+    AliquotCreator as AliquotCreatorBase,
+    Specimen as SpecimenBase,
+    SpecimenNotDrawnError,
+    SpecimenProcessor,
+)
+from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from tests.consents import consent_v1
 from tests.helper import Helper
+from tests.labs import lab_profile, vl_panel
 from tests.models import SubjectRequisition
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
-
-from ..site_labs_test_helper import SiteLabsTestHelper
 
 
 class AliquotIdentifier(AliquotIdentifierBase):
@@ -43,15 +50,21 @@ utc_tz = ZoneInfo("UTC")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestSpecimen(SiteTestCaseMixin, TestCase):
-    lab_helper = SiteLabsTestHelper()
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
-        self.lab_helper.setup_site_labs()
-        self.panel = self.lab_helper.panel
+        site_labs.initialize()
+        site_labs.register(lab_profile=lab_profile)
+
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
@@ -68,6 +81,11 @@ class TestSpecimen(SiteTestCaseMixin, TestCase):
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
+
+        # use the viral load panel from the lap profile for these tests
+        # vl_panel differs from default and has processes added to the ProcessingPanel
+        # note also VL RequisitionPanel is added in the visit_schedule.schedule.requisitions
+        self.panel = vl_panel  # RequisitionPanel
 
     def test_specimen_processor(self):
         SpecimenProcessor(aliquot_creator_cls=AliquotCreator)

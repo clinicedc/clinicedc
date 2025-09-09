@@ -1,9 +1,11 @@
-Lab modules
-===========
+Lab
+===
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   edc_lab
-   edc_lab_results
+   specimen management.rst
+   configuration
+   usage
+   capturing_results

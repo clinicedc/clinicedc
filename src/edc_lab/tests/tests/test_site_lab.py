@@ -1,9 +1,9 @@
 import re
 
-from django.conf import settings
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_facility.import_holidays import import_holidays
 from edc_lab.lab import (
@@ -13,8 +13,8 @@ from edc_lab.lab import (
     ProcessingProfile,
     ProcessingProfileAlreadyAdded,
 )
-from edc_lab.site_labs import SiteLabs, site_labs
-from edc_sites.single_site import SingleSite
+from edc_lab.site_labs import site_labs
+from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -22,79 +22,68 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from tests.consents import consent_v1
 from tests.helper import Helper
+from tests.labs import lab_profile, vl_panel
 from tests.models import SubjectRequisition
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
-
-from ..site_labs_test_helper import SiteLabsTestHelper
-
-
-@tag("lab")
-@override_settings(SITE_ID=10)
-class TestSiteLab(TestCase):
-    def test_site_labs(self):
-        site_lab = SiteLabs()
-        self.assertFalse(site_lab.loaded)
-
-    def test_site_labs_register(self):
-        lab_profile = LabProfile(
-            name="lab_profile", requisition_model="tests.subjectrequisition"
-        )
-        site_lab = SiteLabs()
-        site_lab.register(lab_profile)
-        self.assertTrue(site_lab.loaded)
-
-    def test_site_labs_register_none(self):
-        site_lab = SiteLabs()
-        site_lab.register(None)
-        self.assertFalse(site_lab.loaded)
 
 
 @tag("lab")
 @override_settings(SITE_ID=10)
 class TestSiteLab2(TestCase):
-    lab_helper = SiteLabsTestHelper()
 
     @classmethod
-    def setUpClass(cls):
-        add_or_update_django_sites(
-            single_sites=[
-                SingleSite(
-                    settings.SITE_ID,
-                    "test_site",
-                    country_code="ug",
-                    country="uganda",
-                    domain="bugamba.ug.clinicedc.org",
-                )
-            ]
-        )
+    def setUpTestData(cls):
         import_holidays()
-        return super().setUpClass()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
-        self.lab_helper.setup_site_labs()
-        self.panel = self.lab_helper.panel
-        self.lab_profile = self.lab_helper.lab_profile
+        site_labs.initialize()
+        site_labs.register(lab_profile=lab_profile)
+
+        self.panel = vl_panel  # RequisitionPanel
+
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(get_visit_schedule(consent_v1))
 
         self.helper = Helper()
-
         subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
             age_in_years=25,
         )
+        self.subject_identifier = subject_consent.subject_identifier
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
 
-        self.subject_identifier = subject_consent.subject_identifier
+    def test_site_labs(self):
+        site_labs.initialize()
+        self.assertFalse(site_labs.loaded)
+
+    def test_site_labs_register(self):
+        site_labs.initialize()
+        lp = LabProfile(
+            name="lab_profile", requisition_model="tests.subjectrequisition"
+        )
+        site_labs.register(lp)
+        self.assertTrue(site_labs.loaded)
+
+    def test_site_labs_register_none(self):
+        site_labs.initialize()
+        site_labs.register(None)
+        self.assertFalse(site_labs.loaded)
 
     def test_site_lab_panels(self):
-        self.assertIn(self.panel.name, site_labs.get(self.lab_profile.name).panels)
+        self.assertIn(self.panel.name, site_labs.get(lab_profile.name).panels)
 
     def test_panel_repr(self):
         self.assertTrue(repr(self.panel))

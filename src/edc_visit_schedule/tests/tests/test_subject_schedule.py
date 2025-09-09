@@ -8,7 +8,9 @@ from django.test import override_settings, tag, TestCase
 
 from edc_consent.site_consents import site_consents
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.exceptions import SubjectScheduleError
 from edc_visit_schedule.models import OffSchedule, OnSchedule, SubjectScheduleHistory
@@ -23,6 +25,7 @@ from tests.consents import (
     consent2_v2,
 )
 from tests.helper import Helper
+from tests.sites import all_sites
 
 
 @tag("visit_schedule")
@@ -30,6 +33,10 @@ from tests.helper import Helper
 @override_settings(SITE_ID=30)
 class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
     def setUp(self):
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
 
@@ -100,7 +107,9 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         for onschedule_model, schedule_name, cdef in [
             ("tests.onscheduletwo", "schedule_two", consent1_v1),
         ]:
-            with self.subTest(onschedule_model=onschedule_model, schedule_name=schedule_name):
+            with self.subTest(
+                onschedule_model=onschedule_model, schedule_name=schedule_name
+            ):
                 subject_consent = helper.consent_subject(
                     consent_definition=cdef,
                     subject_screening=subject_screening,
@@ -132,7 +141,9 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         for onschedule_model, schedule_name, cdef in [
             ("tests.onschedulefour", "schedule_four", consent1_v2),
         ]:
-            with self.subTest(onschedule_model=onschedule_model, schedule_name=schedule_name):
+            with self.subTest(
+                onschedule_model=onschedule_model, schedule_name=schedule_name
+            ):
                 subject_consent = helper.consent_subject(
                     consent_definition=cdef,
                     subject_screening=subject_screening,
@@ -209,13 +220,13 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             report_datetime=get_utcnow()
         )
         subject_consent = helper.consent_subject(
-            consent_definition=consent1_v1,
+            consent_definition=consent2_v1,
             subject_screening=subject_screening,
             first_name=first_name,
             last_name=last_name,
         )
         visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
-            "tests.onscheduletwo"
+            "edc_visit_schedule.onschedule"
         )
         subject_schedule = SubjectSchedule(
             subject_consent.subject_identifier,
@@ -251,7 +262,9 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             # consent_definition=subject_consent.consent_definition,
         )
         try:
-            OnSchedule.objects.get(subject_identifier=subject_consent.subject_identifier)
+            OnSchedule.objects.get(
+                subject_identifier=subject_consent.subject_identifier
+            )
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
 
@@ -278,7 +291,9 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         traveller.start()
         schedule.take_off_schedule(subject_consent.subject_identifier, get_utcnow())
         try:
-            OffSchedule.objects.get(subject_identifier=subject_consent.subject_identifier)
+            OffSchedule.objects.get(
+                subject_identifier=subject_consent.subject_identifier
+            )
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
         traveller.stop()

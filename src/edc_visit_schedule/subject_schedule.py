@@ -114,9 +114,16 @@ class SubjectSchedule:
         appointments_creator_cls.
         """
         onschedule_datetime = onschedule_datetime or get_utcnow()
-        if consent_definition not in self.schedule.consent_definitions:
+        if not consent_definition and len(self.schedule.consent_definitions) == 1:
+            consent_definition = self.schedule.consent_definitions[0]
+        elif not consent_definition:
             raise ConsentDefinitionError(
-                "Invalid consent definition for schedule. "
+                "Unable to put on schedule. Consent definition may not be none. "
+                f"Expected one of {self.schedule.consent_definitions}"
+            )
+        elif consent_definition not in self.schedule.consent_definitions:
+            raise ConsentDefinitionError(
+                "Unable to put on schedule. Invalid consent definition for schedule. "
                 f"Got schedule={self.schedule}, cdef={consent_definition}. "
                 f"Expected one of {self.schedule.consent_definitions}"
             )

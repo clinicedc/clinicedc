@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_consent import site_consents
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
@@ -8,11 +8,14 @@ from edc_lab.form_validators.requisition_form_validator import (
     RequisitionFormValidatorMixin,
 )
 from edc_lab.forms import BoxForm, BoxTypeForm, ManifestForm
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.models import SubjectRequisition
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
@@ -23,6 +26,10 @@ class TestForms(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}

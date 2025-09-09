@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.apps import apps as django_apps
 from django.db.models.signals import post_save
-from django.test import TestCase, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_action_item.data_fixers import (
     fix_null_action_item_fk,
@@ -13,7 +13,6 @@ from edc_action_item.data_fixers import (
 from edc_action_item.models import update_or_create_action_item_on_post_save
 from tests.action_items import register_actions
 from tests.models import FormOne, FormTwo
-
 from ..test_case_mixin import TestCaseMixin
 
 utc_tz = ZoneInfo("UTC")
@@ -21,6 +20,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=30)
 class TestUtils(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()

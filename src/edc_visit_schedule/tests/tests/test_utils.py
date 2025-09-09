@@ -4,12 +4,14 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
+from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.baseline import VisitScheduleBaselineError
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -20,14 +22,20 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from tests.consents import consent_v1
 from tests.helper import Helper
+from tests.sites import all_sites
 
 
 @tag("visit_schedule")
 @time_machine.travel(datetime(2025, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
+@override_settings(SITE_ID=10)
 class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         site_consents.registry = {}

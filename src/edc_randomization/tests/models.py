@@ -5,7 +5,6 @@ from edc_randomization.model_mixins import RandomizationListModelMixin
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import get_utcnow
-from .randomizers import MyRandomizer
 
 
 class SubjectConsent(
@@ -21,7 +20,6 @@ class SubjectConsent(
 
 
 class MyRandomizationList(RandomizationListModelMixin, BaseUuidModel):
-    randomizer_cls = MyRandomizer
 
     class Meta(RandomizationListModelMixin.Meta):
         pass

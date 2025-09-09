@@ -5,9 +5,9 @@ import sys
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
-from ..single_site import SingleSite
 from .get_or_create_site_obj import get_or_create_site_obj
 from .get_or_create_site_profile_obj import get_or_create_site_profile_obj
+from ..single_site import SingleSite
 
 
 class UpdateDjangoSitesError(Exception):
@@ -40,7 +40,7 @@ def add_or_update_django_sites(
     apps = apps or django_apps
     site_model_cls = apps.get_model("sites", "Site")
     try:
-        obj = site_model_cls.objects.get(name="example.com")
+        obj = site_model_cls.objects.get(id=1)
     except ObjectDoesNotExist:
         pass
     else:

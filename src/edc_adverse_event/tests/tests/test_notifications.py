@@ -8,6 +8,9 @@ from edc_adverse_event.notifications import (
 )
 from edc_constants.constants import GRADE3, GRADE4, GRADE5, NO, YES
 from edc_facility.import_holidays import import_holidays
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
+from tests.sites import all_sites
 from .mixins import DeathReportTestMixin
 from ...action_items import (
     AeFollowupAction,
@@ -20,12 +23,16 @@ from ...action_items import (
 
 
 @tag("adverse_event")
-@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=30)
 class TestNotifications(DeathReportTestMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def test_notifies_initial_ae_g3_not_sae(self):
         baker.make_recipe(

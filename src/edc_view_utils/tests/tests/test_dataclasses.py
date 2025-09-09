@@ -6,7 +6,7 @@ import time_machine
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission, User
 from django.shortcuts import get_object_or_404
-from django.test import tag, TestCase
+from django.test import override_settings, tag, TestCase
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_appointment.models import Appointment
@@ -32,6 +32,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("view_utils")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=10)
 class TestDataclasses(TestCase):
     def setUp(self):
         self.user = get_user_for_tests(view_only=True)

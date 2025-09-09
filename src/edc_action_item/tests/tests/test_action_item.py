@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from django.test import tag, TestCase
+from django.test import override_settings, tag, TestCase
 
 from edc_action_item.action import Action
 from edc_action_item.create_or_update_action_type import create_or_update_action_type
@@ -33,6 +33,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=30)
 class TestActionItem(TestCaseMixin, TestCase):
 
     def setUp(self):

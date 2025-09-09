@@ -18,12 +18,15 @@ from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from tests.helper import Helper
 from tests.models import CrfEight, SubjectVisitWithoutAppointment
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 from ..consent_test_utils import consent_definition_factory
 
@@ -34,6 +37,7 @@ from ..consent_test_utils import consent_definition_factory
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
+    SITE_ID=10,
 )
 class TestConsent(TestCase):
     helper_cls = Helper
@@ -41,6 +45,10 @@ class TestConsent(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         site_consents.registry = {}

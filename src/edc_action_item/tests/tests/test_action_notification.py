@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.core import mail
-from django.test import TestCase, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_action_item.action_item_notification import (
     NOTIFY_ON_CHANGED_REFERENCE_OBJ,
@@ -16,7 +16,6 @@ from edc_notification.notification import NewModelNotification, UpdatedModelNoti
 from edc_notification.site_notifications import site_notifications
 from tests.action_items import FormZeroAction, register_actions
 from tests.models import FormZero
-
 from ..test_case_mixin import TestCaseMixin
 
 utc_tz = ZoneInfo("UTC")
@@ -24,7 +23,9 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=30)
 class TestActionNotification(TestCaseMixin, TestCase):
+
     def setUp(self):
         register_actions()
         self.subject_identifier = self.fake_enroll()

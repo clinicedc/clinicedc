@@ -10,17 +10,31 @@ from edc_consent import site_consents
 from edc_consent.consent_definition_extension import ConsentDefinitionExtension
 from edc_consent.tests.consent_test_utils import consent_factory
 from edc_constants.constants import NO, YES
+from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from tests.helper import Helper
 from tests.models import SubjectConsentV1Ext
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
 
 @tag("consent")
 @time_machine.travel(datetime(2025, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False)
+@override_settings(
+    EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10
+)
 class TestConsentExtension(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def setUp(self):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
@@ -61,6 +75,7 @@ class TestConsentExtension(TestCase):
 
         consent_ext = SubjectConsentV1Ext.objects.create(
             subject_consent=subject_consent,
+            report_datetime=subject_consent.consent_datetime + timedelta(days=1),
             agrees_to_extension=YES,
         )
         self.assertEqual(Appointment.objects.all().count(), 5)

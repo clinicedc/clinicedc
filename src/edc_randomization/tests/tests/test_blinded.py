@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.test import TestCase, override_settings
+from django.test import override_settings, tag, TestCase
 
 from edc_randomization.auth_objects import RANDO_UNBLINDED
 from edc_randomization.blinding import (
@@ -10,10 +10,9 @@ from edc_randomization.blinding import (
     user_is_blinded,
 )
 
-from ..testcase_mixin import TestCaseMixin
 
-
-class TestRandomizer(TestCaseMixin, TestCase):
+@tag("randomization")
+class TestRandomizer(TestCase):
     @override_settings(EDC_RANDOMIZATION_BLINDED_TRIAL=True)
     def test_trial_is_blinded(self):
         self.assertTrue(trial_is_blinded())

@@ -11,17 +11,23 @@ from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from tests.consents import consent_v1
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule_action_item import get_visit_schedule
 
 
 class TestCaseMixin(TestCase):
+
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-        site_sites.autodiscover()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     @staticmethod
     def enroll(

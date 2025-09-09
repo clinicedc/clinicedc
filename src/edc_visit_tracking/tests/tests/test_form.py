@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.models import Appointment
@@ -22,6 +22,8 @@ from edc_constants.constants import (
 )
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.constants import MISSED
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -36,8 +38,8 @@ from edc_visit_tracking.models import SubjectVisit
 from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.models import BadCrfNoRelatedVisit, CrfOne
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
-
 from ..crfs import crfs
 from ..requisitions import requisitions
 
@@ -53,6 +55,7 @@ class SubjectVisitForm(VisitTrackingModelFormMixin, forms.ModelForm):
 
 
 @tag("visit_tracking")
+@override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestForm(TestCase):
     helper_cls = Helper
@@ -60,6 +63,11 @@ class TestForm(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
         site_consents.registry = {}
         site_consents.register(consent_v1)
 

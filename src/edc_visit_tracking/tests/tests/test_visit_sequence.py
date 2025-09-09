@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import tag, TestCase
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.managers import AppointmentDeleteError
@@ -11,6 +11,8 @@ from edc_appointment.models import Appointment
 from edc_appointment.utils import reset_appointment, skip_appointment
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
@@ -19,6 +21,7 @@ from edc_visit_tracking.models import SubjectVisit
 from edc_visit_tracking.visit_sequence import VisitSequence, VisitSequenceError
 from tests.consents import consent_v1
 from tests.helper import Helper
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
 from ..crfs import crfs
 from ..requisitions import requisitions
@@ -28,12 +31,18 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("visit_tracking")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=10)
 class TestPreviousVisit(TestCase):
     helper_cls = Helper
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
         site_consents.registry = {}
         site_consents.register(consent_v1)
 

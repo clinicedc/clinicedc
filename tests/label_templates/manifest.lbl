@@ -1,0 +1,9 @@
+^XA^PR4
+^FO315,15^A0N,20,15^FD${protocol} Site ${site} MANIFEST^FS
+^FO315,34^BY1^BCN,50,N,N,N,A
+^FD${barcode_value}^FS
+^FO315,92^A0N,20,15^FD${manifest_identifier}^FS
+^FO315,112^A0N,20,15^FD${category}^FS
+^FO315,132^A0N,20,15^FD${site_name}^FS
+^FO315,152^A0N,20,15^FD${manifest_datetime}^FS
+^XZ

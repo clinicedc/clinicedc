@@ -11,6 +11,7 @@ from edc_visit_schedule.visit import (
     Visit,
 )
 from edc_visit_schedule.visit_schedule import VisitSchedule
+from ..labs import vl_panel
 
 
 def get_visit_schedule(
@@ -39,6 +40,7 @@ def get_visit_schedule(
         Requisition(show_order=30, panel=fbc_panel, required=True, additional=False),
         Requisition(show_order=40, panel=lft_panel, required=True, additional=False),
         Requisition(show_order=50, panel=rft_panel, required=True, additional=False),
+        Requisition(show_order=60, panel=vl_panel, required=True, additional=False),
     )
     visit_schedule_name = visit_schedule_name or "visit_schedule"
     schedule_name = schedule_name or "schedule"

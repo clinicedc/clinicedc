@@ -33,6 +33,7 @@ project_settings = DefaultTestSettings(
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(
         2029, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")
     ),
+    LABEL_TEMPLATE_FOLDER=base_dir / "tests" / "label_templates",
     SUBJECT_SCREENING_MODEL="tests.subjectscreening",
     SUBJECT_CONSENT_MODEL="edc_consent.subjectconsent",
     SUBJECT_VISIT_MODEL="edc_visit_tracking.subjectvisit",
@@ -49,7 +50,8 @@ project_settings = DefaultTestSettings(
         "data_manager": "joe@sample.com",
         "tmg": "joe@sample.com",
     },
-    EDC_SITES_REGISTER_DEFAULT=True,
+    EDC_SITES_REGISTER_DEFAULT=False,
+    EDC_SITES_CREATE_DEFAULT=False,
     INSTALLED_APPS=[
         "django.contrib.admin",
         "django.contrib.auth",

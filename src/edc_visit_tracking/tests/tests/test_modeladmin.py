@@ -3,13 +3,15 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.contrib import admin
-from django.test import tag, TestCase
+from django.test import override_settings, tag, TestCase
 from django.test.client import RequestFactory
-from django_audit_fields.admin import audit_fields, ModelAdminAuditFieldsMixin
 
+from django_audit_fields.admin import audit_fields, ModelAdminAuditFieldsMixin
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.fieldsets import visit_schedule_fields
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.admin_site import edc_visit_tracking_admin
@@ -18,7 +20,8 @@ from edc_visit_tracking.modeladmin_mixins import CrfModelAdminMixin
 from edc_visit_tracking.models import SubjectVisit
 from tests.consents import consent_v1
 from tests.helper import Helper
-from tests.models import CrfOne
+from tests.models import CrfOne, CrfThree
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
 from ..crfs import crfs
 from ..requisitions import requisitions
@@ -26,8 +29,8 @@ from ..requisitions import requisitions
 utc_tz = ZoneInfo("UTC")
 
 
-@admin.register(CrfOne, site=edc_visit_tracking_admin)
-class CrfOneModelAdmin(
+@admin.register(CrfThree, site=edc_visit_tracking_admin)
+class CrfThreeModelAdmin(
     CrfModelAdminMixin, ModelAdminAuditFieldsMixin, admin.ModelAdmin
 ):
     def get_field_queryset(self, db, db_field, request):
@@ -36,12 +39,18 @@ class CrfOneModelAdmin(
 
 @tag("visit_tracking")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=10)
 class TestModelAdmin(TestCase):
     helper_cls = Helper
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
         site_consents.registry = {}
         site_consents.register(consent_v1)
 
@@ -75,20 +84,20 @@ class TestModelAdmin(TestCase):
         self.helper = self.helper_cls()
 
     def test_related_visit_model_attr(self):
-        modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
+        modeladmin = edc_visit_tracking_admin._registry.get(CrfThree)
         self.assertTrue("subject_visit", modeladmin.related_visit_model_attr)
 
     def test_adds_to_list_display(self):
         factory = RequestFactory()
         request = factory.get("/")
-        modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
+        modeladmin = edc_visit_tracking_admin._registry.get(CrfThree)
         self.assertIn("subject_identifier", modeladmin.get_list_display(request))
         self.assertIn("report_datetime", modeladmin.get_list_display(request))
 
     def test_extends_list_filter(self):
         factory = RequestFactory()
         request = factory.get("/")
-        modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
+        modeladmin = edc_visit_tracking_admin._registry.get(CrfThree)
         self.assertIn(
             f"{modeladmin.related_visit_model_attr}__report_datetime",
             modeladmin.get_list_filter(request),
@@ -109,7 +118,7 @@ class TestModelAdmin(TestCase):
     def test_extends_search_fields(self):
         factory = RequestFactory()
         request = factory.get("/")
-        modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
+        modeladmin = edc_visit_tracking_admin._registry.get(CrfThree)
         self.assertIn(
             f"{modeladmin.related_visit_model_attr}__appointment__subject_identifier",
             modeladmin.get_search_fields(request),
@@ -121,7 +130,7 @@ class TestModelAdmin(TestCase):
             "/?next=my_url_name,arg1,arg2&arg1=value1&"
             "arg2=value2&arg3=value3&arg4=value4"
         )
-        modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
+        modeladmin = edc_visit_tracking_admin._registry.get(CrfThree)
 
         class Fld:
             name = modeladmin.related_visit_model_attr
@@ -149,9 +158,9 @@ class TestModelAdmin(TestCase):
             f"/?next=my_url_name,arg1,arg2&arg1=value1&arg2=value2&"
             f"subject_visit={str(subject_visit.id)}&arg4=value4"
         )
-        modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
+        modeladmin = edc_visit_tracking_admin._registry.get(CrfThree)
 
-        CrfOne.objects.create(subject_visit=subject_visit)
+        CrfThree.objects.create(subject_visit=subject_visit)
 
         class Fld:
             name = modeladmin.related_visit_model_attr
@@ -200,14 +209,14 @@ class TestModelAdmin(TestCase):
             appointment=appointment, reason=SCHEDULED
         )
 
-        crf_one = CrfOne.objects.create(subject_visit=subject_visit)
+        crf_one = CrfThree.objects.create(subject_visit=subject_visit)
 
         factory = RequestFactory()
         request = factory.get(
             f"/?next=my_url_name,arg1,arg2&arg1=value1&arg2=value2"
             f"&subject_visit={str(subject_visit.id)}"
         )
-        modeladmin = edc_visit_tracking_admin._registry.get(CrfOne)
+        modeladmin = edc_visit_tracking_admin._registry.get(CrfThree)
         for field in audit_fields:
             self.assertIn(field, modeladmin.get_readonly_fields(request, obj=crf_one))
 

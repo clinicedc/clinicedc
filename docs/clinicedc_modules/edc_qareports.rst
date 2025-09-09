@@ -5,30 +5,6 @@ This module helps you represent SQL VIEWS as QA Reports using Django Admin.
 
 In clinicedc/edc projects, QA reports are in the ``<my_app>_reports`` module.
 
-Installation
-------------
-
-Add to settings.INSTALLED_APPS:
-
-.. code-block:: python
-
-    INSTALLED_APPS = [
-        ...
-        "edc_qareports.apps.AppConfig",
-        ...
-        ]
-
-Add to project URLS:
-
-.. code-block:: python
-
-    # urls.py
-    urlpatterns = [
-        ...
-        *paths_for_urlpatterns("edc_qareports"),
-        ...
-        ]
-
 Custom QA / data management reports using SQL VIEWS
 ---------------------------------------------------
 

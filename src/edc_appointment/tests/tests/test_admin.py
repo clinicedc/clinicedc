@@ -19,11 +19,14 @@ from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_export.constants import EXPORT
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
 from tests.consents import consent_v1
 from tests.helper import Helper
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule1
 
 
@@ -40,9 +43,12 @@ class TestAdmin(WebTest):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self) -> None:
-        super().setUp()
         self.user = get_user_for_tests(view_only=True)
         AuthUpdater.add_empty_groups_for_tests(EXPORT)
         AuthUpdater.add_empty_roles_for_tests(DATA_MANAGER_ROLE)
@@ -76,6 +82,7 @@ class TestAdmin(WebTest):
         form["password"] = "pass"  # nosec B105
         return form.submit()
 
+    @tag("2005")
     @patch.object(
         AppointmentAdmin,
         "get_subject_dashboard_url_name",

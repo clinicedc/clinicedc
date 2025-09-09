@@ -3,20 +3,6 @@ edc-visit-schedule
 
 Add longitudinal data collection schedules to your EDC project.
 
-
-Installation
-------------
-
-Add to settings:
-
-.. code-block:: python
-
-    INSTALLED_APPS = [
-        # ...
-        'edc_visit_schedule.apps.AppConfig',
-        # ...
-    ]
-
 Overview
 --------
 

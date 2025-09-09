@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import tag, TestCase
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -13,8 +13,9 @@ from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
-from edc_registration.utils import RegisteredSubjectDoesNotExist
+from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.constants import ON_SCHEDULE
 from edc_visit_schedule.exceptions import (
@@ -26,22 +27,28 @@ from edc_visit_schedule.models import (
     OffSchedule,
     OnSchedule,
     SubjectScheduleHistory,
-    VisitSchedule,
 )
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
+from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from tests.models import OnScheduleThree, SubjectConsent
+from tests.sites import all_sites
 
 
 @tag("visit_schedule")
 @time_machine.travel(datetime(2025, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
+@override_settings(SITE_ID=10)
 class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
@@ -61,8 +68,8 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="tests.subjectoffstudy",
-            death_report_model="tests.deathreport",
+            offstudy_model="edc_offstudy.subjectoffstudy",
+            death_report_model="edc_adverse_event.deathreport",
         )
 
         self.schedule = Schedule(
@@ -262,7 +269,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
         RegisteredSubject.objects.all().delete()
         self.assertRaises(
-            RegisteredSubjectDoesNotExist,
+            RegisteredSubject.DoesNotExist,
             schedule.put_on_schedule,
             subject_identifier=self.subject_identifier,
             onschedule_datetime=onschedule_datetime,

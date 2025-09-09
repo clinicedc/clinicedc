@@ -13,7 +13,10 @@ from model_bakery import baker
 
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, SUBJECT, YES
+from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import age, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from tests.consents import consent1_v1, consent1_v2, consent1_v3
@@ -23,6 +26,7 @@ from tests.models import (
     SubjectConsentV1,
     SubjectScreening,
 )
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
 fake = Faker()
@@ -30,8 +34,16 @@ fake = Faker()
 
 @tag("consent")
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(EDC_AUTH_SKIP_AUTH_UPDATER=False)
+@override_settings(EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10)
 class TestConsentForm(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def setUp(self):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime

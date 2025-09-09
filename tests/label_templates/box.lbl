@@ -1,0 +1,9 @@
+^XA^PR4
+^FO305,15^A0N,20,15^FD${protocol} Site ${site} BOX^FS
+^FO305,34^BY1^BCN,50,N,N,N,A
+^FD${barcode_value}^FS
+^FO305,92^A0N,20,15^FD${box_identifier}^FS
+^FO305,112^A0N,20,15^FD${category} ${specimen_types}^FS
+^FO305,132^A0N,20,15^FD${site_name}^FS
+^FO305,152^A0N,20,15^FD${box_datetime}^FS
+^XZ

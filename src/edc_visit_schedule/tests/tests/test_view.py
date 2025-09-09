@@ -4,11 +4,13 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.test import TestCase
 from django.test.client import RequestFactory
-from django.test.utils import tag
+from django.test.utils import override_settings, tag
 from django.views.generic.base import ContextMixin
 
 from edc_consent.site_consents import site_consents
+from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.models import OnSchedule
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -16,6 +18,7 @@ from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from tests.consents import consent_v1
 from tests.helper import Helper
+from tests.sites import all_sites
 
 
 class MyView(VisitScheduleViewMixin, ContextMixin):
@@ -42,8 +45,13 @@ class MyViewCurrent(VisitScheduleViewMixin, ContextMixin):
 
 @tag("visit_schedule")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
+@override_settings(SITE_ID=10)
 class TestViewMixin(SiteTestCaseMixin, TestCase):
     def setUp(self):
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
         site_consents.registry = {}
         site_consents.register(consent_v1)
         self.visit_schedule = VisitSchedule(

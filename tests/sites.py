@@ -3,7 +3,7 @@ from edc_sites.site import sites
 
 suffix = "clinicedc.org"
 language_codes = ["en"]
-sites.register(
+all_sites = [
     SingleSite(
         10,
         "mochudi",
@@ -85,4 +85,15 @@ sites.register(
         language_codes=language_codes,
         domain=f"blantyre.mw.{suffix}",
     ),
-)
+    SingleSite(
+        95,
+        "south_africa",
+        title="Capetown",
+        country="south africa",
+        country_code="sa",
+        language_codes=language_codes,
+        domain=f"capetown.sa.{suffix}",
+    ),
+]
+
+sites.register(*all_sites)

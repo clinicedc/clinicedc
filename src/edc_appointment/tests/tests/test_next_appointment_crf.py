@@ -17,7 +17,8 @@ from edc_facility.import_holidays import import_holidays
 from edc_facility.models import HealthFacility, HealthFacilityTypes
 from edc_facility.utils import get_health_facility_model_cls
 from edc_metadata.metadata_handler import MetadataHandlerError
-from edc_sites.utils import get_site_model_cls
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites, get_site_model_cls
 from edc_utils import get_utcnow
 from edc_visit_schedule.models import VisitSchedule
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
@@ -27,6 +28,7 @@ from edc_visit_tracking.utils import get_related_visit_model_cls
 from tests.consents import consent_v1
 from tests.forms import NextAppointmentCrfForm, NextAppointmentCrfFormValidator
 from tests.models import NextAppointmentCrf, SubjectConsentV1
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule6
 
 utc = ZoneInfo("UTC")
@@ -34,8 +36,6 @@ tz = ZoneInfo("Africa/Dar_es_Salaam")
 
 
 def update_health_facility_model():
-    from edc_sites.site import sites as site_sites
-
     try:
         clinic = HealthFacilityTypes.objects.get(name=CLINIC)
     except ObjectDoesNotExist:
@@ -58,11 +58,15 @@ def update_health_facility_model():
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=10, EDC_SITES_REGISTER_DEFAULT=False)
 class TestNextAppointmentCrf(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     @time_machine.travel(dt.datetime(2025, 6, 10, 8, 00, tzinfo=utc))
     def setUp(self):

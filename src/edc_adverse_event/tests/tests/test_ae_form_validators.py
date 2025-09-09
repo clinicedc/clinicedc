@@ -10,14 +10,26 @@ from edc_adverse_event.form_validators import (
 )
 from edc_adverse_event.models import AeClassification, SaeReason
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
+from edc_facility.import_holidays import import_holidays
 from edc_form_validators import NOT_REQUIRED_ERROR
+from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
 from tests.action_items import register_actions
+from tests.sites import all_sites
 
 
 @tag("adverse_event")
-@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=30)
 class TestFormValidators(SiteTestCaseMixin, TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         register_actions()

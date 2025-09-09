@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_action_item.site_action_items import AlreadyRegistered, site_action_items
 from edc_auth.site_auths import site_auths
@@ -12,6 +12,7 @@ from edc_unblinding.auth_objects import (
 )
 from edc_unblinding.models import UnblindingRequest, UnblindingRequestorUser
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from tests.action_items import register_actions
 from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.visit_schedules.visit_schedule import get_visit_schedule
@@ -25,6 +26,7 @@ class UnblindingTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        register_actions()
         get_user_model().objects.create(
             username="frazey", is_staff=True, is_active=True
         )

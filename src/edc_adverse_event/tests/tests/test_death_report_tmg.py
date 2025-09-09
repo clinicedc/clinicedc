@@ -7,16 +7,23 @@ from edc_adverse_event.constants import DEATH_REPORT_TMG_SECOND_ACTION
 from edc_adverse_event.models import CauseOfDeath
 from edc_constants.constants import CLOSED, NEW, NO, OTHER, YES
 from edc_facility.import_holidays import import_holidays
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
+from tests.sites import all_sites
 from .mixins import DeathReportTestMixin
 
 
 @tag("adverse_event")
-@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=30)
 class TestDeathReportTmg(DeathReportTestMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def test_death(self):
         # create ae initial

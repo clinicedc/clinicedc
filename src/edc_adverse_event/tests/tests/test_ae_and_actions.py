@@ -10,9 +10,12 @@ from edc_adverse_event.constants import CONTINUING_UPDATE, RECOVERED, RECOVERING
 from edc_adverse_event.models import AeClassification
 from edc_consent import site_consents
 from edc_constants.constants import CLOSED, DEAD, GRADE5, NEW, NO, YES
+from edc_facility.import_holidays import import_holidays
 from edc_ltfu.constants import LOST_TO_FOLLOWUP
 from edc_registration.models import RegisteredSubject
 from edc_registration.utils import RegisteredSubjectDoesNotExist
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import OnScheduleError
@@ -25,13 +28,22 @@ from tests.action_items import (
 from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.models import AeFollowup, AeInitial, AeSusar, AeTmg
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 @tag("adverse_event")
-@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=30)
 class TestAeAndActions(TestCase):
     helper_cls = Helper
+
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         register_actions()
@@ -47,8 +59,8 @@ class TestAeAndActions(TestCase):
         )
         self.subject_identifier = subject_consent.subject_identifier
 
-    def tearDown(self):
-        RegisteredSubject.objects.all().delete()
+    # def tearDown(self):
+    #     RegisteredSubject.objects.all().delete()
 
     def test_subject_identifier(self):
         baker.make_recipe(
@@ -682,6 +694,7 @@ class TestAeAndActions(TestCase):
         ae_initial.refresh_from_db()
         self.assertEqual(ae_initial.susar_reported, YES)
 
+    @tag("2005")
     def test_aeinitial_can_close_action_without_susar_model(self):
         # create ae initial
         ae_initial = baker.make_recipe(

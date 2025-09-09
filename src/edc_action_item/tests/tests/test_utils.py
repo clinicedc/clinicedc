@@ -2,9 +2,10 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.test import tag, TestCase
+from django.test import override_settings, tag, TestCase
 
 from edc_action_item.models import ActionItem
+from edc_action_item.tests.test_case_mixin import TestCaseMixin
 from edc_action_item.utils import (
     get_parent_reference_obj,
     get_reference_obj,
@@ -23,7 +24,8 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-class TestHelpers(TestCase):
+@override_settings(SITE_ID=30)
+class TestHelpers(TestCaseMixin, TestCase):
     def setUp(self):
         self.helper = Helper()
 

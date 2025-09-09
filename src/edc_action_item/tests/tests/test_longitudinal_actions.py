@@ -3,13 +3,12 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.apps import apps as django_apps
-from django.test import tag, TestCase
+from django.test import override_settings, tag, TestCase
 
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from tests.action_items import CrfLongitudinalOneAction, CrfLongitudinalTwoAction
@@ -24,11 +23,8 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=30)
 class TestLongitudinal(TestCaseMixin, TestCase):
-    @classmethod
-    def setUpClass(cls):
-        import_holidays()
-        return super().setUpClass()
 
     def setUp(self):
         helper = Helper()

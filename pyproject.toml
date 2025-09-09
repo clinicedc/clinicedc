@@ -223,6 +223,7 @@ develop = [
     "model-bakery>=1.20.5",
     "faker>=37.5.3",
     "time-machine>=2.17.0",
+    "ipython>=9.5.0",
 ]
 
 [tool.uv.sources]

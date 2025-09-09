@@ -2,23 +2,31 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import tag, TestCase
+from django.test import override_settings, tag, TestCase
 
 from edc_adverse_event.form_validator_mixins import (
     RequiresDeathReportFormValidatorMixin,
 )
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidator
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from tests.models import DeathReportTmg
+from tests.sites import all_sites
 from .mixins import DeathReportTestMixin
 
 
 @tag("adverse_event")
+@override_settings(SITE_ID=30)
 class TestFormValidators(DeathReportTestMixin, TestCase):
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def test_death_report_not_found(self):
         class TestFormValidator(RequiresDeathReportFormValidatorMixin, FormValidator):

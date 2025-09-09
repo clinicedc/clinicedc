@@ -10,7 +10,7 @@ from edc_sites.site import sites as site_sites
 style = color_style()
 
 
-def holiday_path_check(app_configs, **kwargs):
+def holiday_path_check(app_configs, holiday_path: str = None, **kwargs):
     errors = []
     if not getattr(settings, "HOLIDAY_FILE", None):
         errors.append(
@@ -20,7 +20,7 @@ def holiday_path_check(app_configs, **kwargs):
             )
         )
     else:
-        holiday_path = Path(settings.HOLIDAY_FILE).expanduser()
+        holiday_path = Path(holiday_path or settings.HOLIDAY_FILE).expanduser()
         if not holiday_path.exists():
             errors.append(
                 Warning(
@@ -31,9 +31,9 @@ def holiday_path_check(app_configs, **kwargs):
     return errors
 
 
-def holiday_country_check(app_configs, **kwargs):
+def holiday_country_check(app_configs, holiday_path: str = None, **kwargs):
     errors = []
-    holiday_path = Path(settings.HOLIDAY_FILE).expanduser()
+    holiday_path = Path(holiday_path or settings.HOLIDAY_FILE).expanduser()
     if site_sites.all():
         with holiday_path.open(mode="r") as f:
             reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])

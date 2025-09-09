@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import override_settings, tag, TestCase
 
 from edc_appointment.constants import MISSED_APPT, ONTIME_APPT, SCHEDULED_APPT
 from edc_appointment.exceptions import AppointmentBaselineError
@@ -24,6 +24,8 @@ from edc_constants.constants import (
 from edc_facility.import_holidays import import_holidays
 from edc_list_data import load_list_data
 from edc_metadata.models import CrfMetadata
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.constants import DAY1
 from edc_visit_schedule.schedule import Schedule
@@ -36,18 +38,24 @@ from tests.consents import consent_v1
 from tests.forms import SubjectVisitMissedForm
 from tests.helper import Helper
 from tests.list_data import list_data
+from tests.sites import all_sites
 
 utc_tz = ZoneInfo("UTC")
 
 
 @tag("visit_tracking")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=10)
 class TestVisit(TestCase):
     helper_cls = Helper
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         load_list_data(

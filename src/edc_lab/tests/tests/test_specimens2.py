@@ -5,6 +5,7 @@ import time_machine
 from django.test import override_settings, tag, TestCase
 
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
@@ -16,16 +17,19 @@ from edc_lab.lab import (
     Specimen as SpecimenBase,
 )
 from edc_lab.models import Aliquot
-from edc_sites.tests import SiteTestCaseMixin
+from edc_lab.site_labs import site_labs
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from tests.consents import consent_v1
 from tests.helper import Helper
+from tests.labs import lab_profile, vl_panel
 from tests.models import SubjectRequisition
+from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
-from ..site_labs_test_helper import SiteLabsTestHelper
 
 
 class AliquotIdentifier(AliquotIdentifierBase):
@@ -46,17 +50,22 @@ utc_tz = ZoneInfo("UTC")
 @tag("lab")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-class TestSpecimen2(SiteTestCaseMixin, TestCase):
-    lab_helper = SiteLabsTestHelper()
+class TestSpecimen2(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
-        self.lab_helper.setup_site_labs()
-        self.panel = self.lab_helper.panel
-        self.profile_aliquot_count = self.lab_helper.profile_aliquot_count
+        site_labs.initialize()
+        site_labs.register(lab_profile=lab_profile)
+
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
@@ -75,6 +84,12 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
+
+        # use the viral load panel from the lap profile for these tests
+        # vl_panel differs from default and has processes added to the ProcessingPanel
+        # note also VL RequisitionPanel is added in the visit_schedule.schedule.requisitions
+        self.panel = vl_panel  # RequisitionPanel
+
         self.requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
             requisition_datetime=get_utcnow(),
@@ -112,12 +127,12 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
         )
 
     def test_process_repr(self):
-        a = AliquotType(name="aliquot_a", numeric_code="55", alpha_code="AA")
+        a = AliquotType(name="aliquot_a", numeric_code="02", alpha_code="WB")
         process = Process(aliquot_type=a)
         self.assertTrue(repr(process))
 
     def test_process_profile_repr(self):
-        a = AliquotType(name="aliquot_a", numeric_code="55", alpha_code="AA")
+        a = AliquotType(name="aliquot_a", numeric_code="02", alpha_code="WB")
         processing_profile = ProcessingProfile(
             name="processing_profile", aliquot_type=a
         )
@@ -128,18 +143,17 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
         of child aliquots.
         """
         self.assertEqual(self.specimen.aliquots.count(), 1)
-        self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
+        self.specimen.process()  # WB
+        self.assertEqual(self.specimen.aliquots.count(), 1 + 2 + 4)  # WB, PL, BC
 
     def test_specimen_process2(self):
         """Asserts calling process more than once has no effect."""
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(), 1 + 2 + 4)  # WB, PL, BC
         self.specimen.process()
         self.specimen.process()
-        self.assertEqual(self.specimen.aliquots.count(), self.profile_aliquot_count + 1)
+        self.assertEqual(self.specimen.aliquots.count(), 1 + 2 + 4)  # WB, PL, BC
 
-    @tag("8332")
     def test_specimen_process_identifier_prefix(self):
         """Assert all aliquots start with the correct identifier
         prefix.
@@ -165,16 +179,46 @@ class TestSpecimen2(SiteTestCaseMixin, TestCase):
             self.assertEqual(parent_segment, aliquot.aliquot_identifier[-8:-4])
 
     def test_specimen_process_identifier_child_segment(self):
-        """Assert all aliquots have correct 4 chars child_segment."""
+        """Assert all aliquots have correct 4 chars child_segment.
+
+        Last digit maintains a sequential number where 1 is the
+        primary and anything >1 is a derivative of the primary
+
+        In this case, the last buffy coat aliquot ends in 7
+        meaning there are 7 tubes, primary + 6 derivatives or
+        4 plasma and 3 buffy coat as configured in the process
+        (See lap_profile.processing_profile.processes) or
+        the lab_profile from tests.labs
+        """
         self.specimen.process()
 
+        # primary aliquot ending on 1
         aliquot = self.specimen.aliquots.order_by("count")[0]
         self.assertTrue(aliquot.is_primary)
-        self.assertEqual("5501", aliquot.aliquot_identifier[-4:])
+        self.assertEqual("0201", aliquot.aliquot_identifier[-4:])
 
-        for index, aliquot in enumerate(self.specimen.aliquots.order_by("count")[1:]):
-            index += 2
-            self.assertFalse(aliquot.is_primary)
+        # plasma: 4 aliquots where seq fragment start w/ 36
+        # ending in 2,3,4,5
+        pl_aliquots = []
+        for aliquot in self.specimen.aliquots.order_by("-aliquot_identifier"):
+            if aliquot.aliquot_identifier[-4:].startswith("36"):
+                pl_aliquots.append(aliquot)
+        pl_aliquots.reverse()
+        for i in range(0, 3):
+            self.assertFalse(pl_aliquots[i].is_primary)
             self.assertEqual(
-                f"66{str(index).zfill(2)}", aliquot.aliquot_identifier[-4:]
+                f"36{str(i+2).zfill(2)}", pl_aliquots[i].aliquot_identifier[-4:]
+            )
+
+        # buffy coat: 2 aliquots where seq fragment start w/ 12
+        # ending in 6,7
+        bc_aliquots = []
+        for aliquot in self.specimen.aliquots.order_by("-aliquot_identifier"):
+            if aliquot.aliquot_identifier[-4:].startswith("12"):
+                bc_aliquots.append(aliquot)
+        bc_aliquots.reverse()
+        for i in range(0, 2):
+            self.assertFalse(bc_aliquots[i].is_primary)
+            self.assertEqual(
+                f"12{str(i+6).zfill(2)}", bc_aliquots[i].aliquot_identifier[-4:]
             )

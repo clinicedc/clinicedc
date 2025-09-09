@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import tag, TestCase
 
 from edc_lab.lab import (
     AliquotType,
@@ -15,7 +15,8 @@ from edc_lab.site_labs import site_labs
 @tag("lab")
 class TestPanel(TestCase):
     def setUp(self):
-        site_labs._registry = {}
+        site_labs.initialize()
+        Panel.objects.all().delete()
 
     def test_panel(self):
         Panel.objects.create(
@@ -35,12 +36,12 @@ class TestPanel(TestCase):
             processing_profile=whole_blood_processing,
         )
 
-        lab_profile = LabProfile(
-            name="test_profile", requisition_model="edc_lab.subjectrequisition"
+        lp = LabProfile(
+            name="test_profile", requisition_model="tests.subjectrequisition"
         )
-        lab_profile.add_panel(wb_panel)
+        lp.add_panel(wb_panel)
 
-        site_labs.register(lab_profile=lab_profile)
+        site_labs.register(lab_profile=lp)
 
         try:
             Panel.objects.get(name="wb_storage")

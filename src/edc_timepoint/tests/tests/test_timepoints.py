@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
-from django.test import TestCase
+from django.test import override_settings, TestCase
 
 from edc_appointment.constants import COMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -10,13 +10,12 @@ from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-
-from ...constants import CLOSED_TIMEPOINT, OPEN_TIMEPOINT
-from ...model_mixins import UnableToCloseTimepoint
-from ...timepoint import TimepointClosed
 from ..consents import consent_v1
 from ..models import CrfOne, CrfTwo, SubjectConsentV1, SubjectVisit
 from ..visit_schedule import visit_schedule1
+from ...constants import CLOSED_TIMEPOINT, OPEN_TIMEPOINT
+from ...model_mixins import UnableToCloseTimepoint
+from ...timepoint import TimepointClosed
 
 
 class Helper:
@@ -53,6 +52,7 @@ class Helper:
         return creator.appointment
 
 
+@override_settings(SITE_ID=10)
 class TimepointTests(TestCase):
     helper_cls = Helper
 

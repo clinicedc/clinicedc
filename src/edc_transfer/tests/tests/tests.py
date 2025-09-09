@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import override_settings, TestCase
 
 from edc_constants.constants import OTHER
 from edc_metadata.tests.tests.metadata_test_mixin import TestMetadataMixin
@@ -12,6 +12,7 @@ from edc_transfer.forms import SubjectTransferForm
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
+@override_settings(SITE_ID=10)
 class TestTransfer(TestMetadataMixin, TestCase):
     def test_form_ok(self):
         data = dict(subject_identifier=self.appointment.subject_identifier)
