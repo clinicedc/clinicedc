@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, List, Optional, Type
+from typing import List, Optional, Type, TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -14,8 +14,7 @@ from edc_action_item.stubs import ActionItemStub
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_model.constants import DEFAULT_BASE_FIELDS
 from edc_sites.utils import valid_site_for_subject_or_raise
-
-from .create_action_item import SingletonActionItemError, create_action_item
+from .create_action_item import create_action_item, SingletonActionItemError
 from .exceptions import ActionError
 from .get_action_type import get_action_type
 from .site_action_items import site_action_items
@@ -417,14 +416,19 @@ class Action:
         """Returns True if the reference object has changed
         since the last save.
 
+        We get here during a post_save but before history
+
         Reviews the objects "history" (historical) instances.
         """
         changed_message = {}
         try:
+            # should this be index 1 or 0? Was 1, changed to 0, the
+            # most recent saved history. But how could self.reference_obj
+            # be changed??
             history = (
                 self.reference_obj.history.using(self.using)
                 .all()
-                .order_by("-history_date")[1]
+                .order_by("-history_date")[0]
             )
         except IndexError:
             pass
@@ -432,7 +436,6 @@ class Action:
             # suppressed here but is reviewed in system checks
             pass
         else:
-            # TODO: use historical record's diff??
             field_names = [
                 field.name
                 for field in self.reference_obj._meta.get_fields()

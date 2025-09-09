@@ -1,5 +1,5 @@
-edc-lab-results
-===============
+Capturing results
+=================
 
 Simple blood result data collection format for django models
 
