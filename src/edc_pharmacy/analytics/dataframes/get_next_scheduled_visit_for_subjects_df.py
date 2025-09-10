@@ -50,12 +50,16 @@ def get_next_scheduled_visit_for_subjects_df(
             if stock_request.cutoff_datetime:
                 df_appt = df_appt[
                     df_appt.next_appt_datetime
-                    <= pd.Timestamp(stock_request.cutoff_datetime.date()).to_datetime64()
+                    <= pd.Timestamp(
+                        stock_request.cutoff_datetime.date()
+                    ).to_datetime64()
                 ]
                 df_appt = df_appt.reset_index(drop=True)
         # get the first appointment due
         df = (
-            df_appt[(df_appt.appt_status == NEW_APPT) & (df_appt.visit_code_sequence == 0)]
+            df_appt[
+                (df_appt.appt_status == NEW_APPT) & (df_appt.visit_code_sequence == 0)
+            ]
             .sort_values(by=["appt_datetime"])
             .groupby(by=["subject_identifier"])
             .first()
@@ -66,7 +70,9 @@ def get_next_scheduled_visit_for_subjects_df(
 
         # merge with registered_subject
         df_registered_subject = read_frame(
-            get_registered_subject_model_cls().objects.values("id", "subject_identifier"),
+            get_registered_subject_model_cls().objects.values(
+                "id", "subject_identifier"
+            ),
             verbose=False,
         )
         df_registered_subject = df_registered_subject.rename(
