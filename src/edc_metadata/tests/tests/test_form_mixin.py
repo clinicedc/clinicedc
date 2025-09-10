@@ -14,9 +14,9 @@ from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_metadata.metadata_rules import site_metadata_rules
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
 

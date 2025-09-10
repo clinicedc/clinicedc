@@ -9,9 +9,11 @@ from edc_lab.site_labs import site_labs
 from edc_visit_schedule.constants import HOURS
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.visit_schedules.visit_schedule_dashboard.lab_profiles import lab_profile
-from tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.lab_profiles import (
+    lab_profile,
+)
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
     get_visit_schedule,
 )
 
@@ -72,8 +74,12 @@ class TestSerializer(TestCase):
                 deserialized_object.save()
 
         # create a rule
-        question1 = CrfDataDictionary.objects.get(model="tests.crfone", field_name="f1")
-        question2 = CrfDataDictionary.objects.get(model="tests.crftwo", field_name="f1")
+        question1 = CrfDataDictionary.objects.get(
+            model="clinicedc_tests.crfone", field_name="f1"
+        )
+        question2 = CrfDataDictionary.objects.get(
+            model="clinicedc_tests.crftwo", field_name="f1"
+        )
 
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")

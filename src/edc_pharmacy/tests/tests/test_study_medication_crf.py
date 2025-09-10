@@ -30,11 +30,11 @@ from edc_pharmacy.models import (
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
-from tests.consents import consent_v1
-from tests.forms import StudyMedicationForm
-from tests.helper import Helper
-from tests.models import StudyMedication, SubjectVisit
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.forms import StudyMedicationForm
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import StudyMedication, SubjectVisit
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 

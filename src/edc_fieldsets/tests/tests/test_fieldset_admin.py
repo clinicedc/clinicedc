@@ -22,9 +22,9 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Crf, CrfCollection
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.helper import Helper
-from tests.models import TestModel4, TestModel6
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import TestModel4, TestModel6
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 
@@ -52,7 +52,7 @@ class TestFieldsetAdmin(TestCase):
 
         site_consents.registry = {}
         consent_v1 = ConsentDefinition(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             version="1",
             start=ResearchProtocolConfig().study_open_datetime,
             end=ResearchProtocolConfig().study_close_datetime,
@@ -65,9 +65,9 @@ class TestFieldsetAdmin(TestCase):
         site_consents.register(consent_v1)
 
         crfs = CrfCollection(
-            Crf(show_order=1, model="tests.testmodel3", required=True),
-            Crf(show_order=2, model="tests.testmodel4", required=True),
-            Crf(show_order=3, model="tests.testmodel5", required=True),
+            Crf(show_order=1, model="clinicedc_tests.testmodel3", required=True),
+            Crf(show_order=2, model="clinicedc_tests.testmodel4", required=True),
+            Crf(show_order=3, model="clinicedc_tests.testmodel5", required=True),
         )
 
         visit_schedule = get_visit_schedule(consent_v1, crfs=crfs)
@@ -85,7 +85,9 @@ class TestFieldsetAdmin(TestCase):
         self.user = User.objects.create(
             username="erikvw", is_staff=True, is_active=True
         )
-        for permission in Permission.objects.filter(content_type__app_label="tests"):
+        for permission in Permission.objects.filter(
+            content_type__app_label="clinicedc_tests"
+        ):
             self.user.user_permissions.add(permission)
 
     def test_fieldset_excluded(self):

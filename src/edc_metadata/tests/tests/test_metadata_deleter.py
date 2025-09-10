@@ -13,7 +13,7 @@ from edc_metadata.metadata import DeleteMetadataError
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.models import CrfOne, SubjectRequisition
+from clinicedc_tests.models import CrfOne, SubjectRequisition
 
 from .metadata_test_mixin import TestMetadataMixin
 

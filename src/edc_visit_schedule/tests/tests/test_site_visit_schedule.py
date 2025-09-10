@@ -8,7 +8,7 @@ from edc_visit_schedule.site_visit_schedules import (
     site_visit_schedules,
 )
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from tests.consents import consent_v1
+from clinicedc_tests.consents import consent_v1
 
 
 @tag("visit_schedule")
@@ -18,7 +18,7 @@ class TestSiteVisitSchedule(TestCase):
             name="visit_schedule",
             verbose_name="Visit Schedule",
             offstudy_model="test.subjectoffstudy",
-            death_report_model="tests.deathreport",
+            death_report_model="clinicedc_tests.deathreport",
         )
 
     def test_register_no_schedules(self):
@@ -51,8 +51,8 @@ class TestSiteVisitSchedule1(TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="tests.subjectoffstudy",
-            death_report_model="tests.deathreport",
+            offstudy_model="clinicedc_tests.subjectoffstudy",
+            death_report_model="clinicedc_tests.deathreport",
         )
 
         self.schedule = Schedule(
@@ -70,7 +70,7 @@ class TestSiteVisitSchedule1(TestCase):
             name="visit_schedule_two",
             verbose_name="Visit Schedule Two",
             offstudy_model="edc_offstudy.subjectoffstudy",
-            death_report_model="tests.deathreport",
+            death_report_model="clinicedc_tests.deathreport",
         )
 
         self.schedule_two = Schedule(

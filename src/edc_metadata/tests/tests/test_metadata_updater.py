@@ -12,7 +12,7 @@ from edc_metadata.metadata_updater import MetadataUpdater
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.models import CrfOne, CrfThree, CrfTwo, SubjectRequisition
+from clinicedc_tests.models import CrfOne, CrfThree, CrfTwo, SubjectRequisition
 
 from .metadata_test_mixin import TestMetadataMixin
 
@@ -88,7 +88,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=KEYED,
-                model="tests.subjectrequisition",
+                model="clinicedc_tests.subjectrequisition",
                 panel_name=self.panel_one.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -97,7 +97,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
-                model="tests.subjectrequisition",
+                model="clinicedc_tests.subjectrequisition",
                 panel_name=self.panel_two.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -146,7 +146,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
-                model="tests.subjectrequisition",
+                model="clinicedc_tests.subjectrequisition",
                 panel_name=self.panel_one.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -155,7 +155,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
-                model="tests.subjectrequisition",
+                model="clinicedc_tests.subjectrequisition",
                 panel_name=self.panel_two.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -173,7 +173,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
-                model="tests.subjectrequisition",
+                model="clinicedc_tests.subjectrequisition",
                 panel_name=self.panel_one.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
@@ -182,7 +182,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
-                model="tests.subjectrequisition",
+                model="clinicedc_tests.subjectrequisition",
                 panel_name=self.panel_two.name,
                 visit_code=subject_visit.visit_code,
             ).count(),

@@ -13,7 +13,7 @@ from edc_constants.constants import FEMALE
 from edc_utils import get_utcnow, get_utcnow_as_date
 
 if TYPE_CHECKING:
-    from tests.models import SubjectScreening
+    from clinicedc_tests.models import SubjectScreening
 
 
 class ConsentTestCaseMixin:

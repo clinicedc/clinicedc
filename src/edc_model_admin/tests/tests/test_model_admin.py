@@ -5,7 +5,7 @@ from edc_model_admin.mixins import (
     ModelAdminNextUrlRedirectError,
     ModelAdminNextUrlRedirectMixin,
 )
-from tests.models import TestModel
+from clinicedc_tests.models import TestModel
 
 
 class TestModelAdmin(TestCase):

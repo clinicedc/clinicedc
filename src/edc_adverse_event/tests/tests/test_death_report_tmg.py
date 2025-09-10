@@ -9,7 +9,7 @@ from edc_constants.constants import CLOSED, NEW, NO, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from tests.sites import all_sites
+from clinicedc_tests.sites import all_sites
 
 from .mixins import DeathReportTestMixin
 
@@ -29,7 +29,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
     def test_death(self):
         # create ae initial
         ae_initial = baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=YES,
@@ -40,7 +40,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=None,
-            action_type__reference_model="tests.aeinitial",
+            action_type__reference_model="clinicedc_tests.aeinitial",
         )
 
         # confirm death report action item is created
@@ -48,14 +48,14 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             action_item = ActionItem.objects.get(
                 subject_identifier=self.subject_identifier,
                 parent_action_item=ae_initial.action_item,
-                action_type__reference_model="tests.deathreport",
+                action_type__reference_model="clinicedc_tests.deathreport",
             )
         except ObjectDoesNotExist:
             self.fail("deathreport action unexpectedly does not exist")
 
         # create death report
         baker.make_recipe(
-            "tests.deathreport",
+            "clinicedc_tests.deathreport",
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
             user_created="erikvw",
@@ -65,7 +65,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.deathreport",
+            action_type__reference_model="clinicedc_tests.deathreport",
         )
         self.assertEqual(action_item.status, CLOSED)
 
@@ -78,14 +78,14 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
                 subject_identifier=self.subject_identifier,
                 related_action_item=death_report.action_item,
                 parent_action_item=death_report.action_item,
-                action_type__reference_model="tests.deathreporttmg",
+                action_type__reference_model="clinicedc_tests.deathreporttmg",
             )
         except ObjectDoesNotExist:
             self.fail("deathreport action unexpectedly does not exist")
 
         # create death report TMG
         death_report_tmg = baker.make_recipe(
-            "tests.deathreporttmg",
+            "clinicedc_tests.deathreporttmg",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
@@ -109,14 +109,14 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
                 subject_identifier=self.subject_identifier,
                 related_action_item=death_report.action_item,
                 parent_action_item=death_report.action_item,
-                action_type__reference_model="tests.deathreporttmg",
+                action_type__reference_model="clinicedc_tests.deathreporttmg",
             )
         except ObjectDoesNotExist:
             self.fail("deathreport action unexpectedly does not exist")
 
         # create death report TMG
         death_report_tmg = baker.make_recipe(
-            "tests.deathreporttmg",
+            "clinicedc_tests.deathreporttmg",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
@@ -137,7 +137,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            action_type__reference_model="tests.deathreporttmg",
+            action_type__reference_model="clinicedc_tests.deathreporttmg",
         )
 
         # create death report TMG
@@ -145,7 +145,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             name__in=[OTHER, death_report.cause_of_death]
         )
         baker.make_recipe(
-            "tests.deathreporttmg",
+            "clinicedc_tests.deathreporttmg",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
@@ -161,7 +161,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         try:
             action_item = ActionItem.objects.get(
                 subject_identifier=self.subject_identifier,
-                action_type__reference_model="tests.deathreporttmgsecond",
+                action_type__reference_model="clinicedc_tests.deathreporttmgsecond",
             )
         except ObjectDoesNotExist:
             self.fail("deathreporttmgsecond action item unexpectedly does not exist")
@@ -175,7 +175,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            action_type__reference_model="tests.deathreporttmg",
+            action_type__reference_model="clinicedc_tests.deathreporttmg",
         )
 
         # create death report TMG
@@ -183,7 +183,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             name__in=[OTHER, death_report.cause_of_death]
         )
         death_report_tmg = baker.make_recipe(
-            "tests.deathreporttmg",
+            "clinicedc_tests.deathreporttmg",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
@@ -199,13 +199,13 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            action_type__reference_model="tests.deathreporttmgsecond",
+            action_type__reference_model="clinicedc_tests.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
         # create 2nd death report TMG
         death_report_tmg_second = baker.make_recipe(
-            "tests.deathreporttmgsecond",
+            "clinicedc_tests.deathreporttmgsecond",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=second_action_item.action_identifier,
@@ -234,7 +234,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            action_type__reference_model="tests.deathreporttmg",
+            action_type__reference_model="clinicedc_tests.deathreporttmg",
         )
 
         # create death report TMG
@@ -242,7 +242,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             name__in=[OTHER, death_report.cause_of_death]
         )
         death_report_tmg = baker.make_recipe(
-            "tests.deathreporttmg",
+            "clinicedc_tests.deathreporttmg",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
@@ -258,7 +258,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            action_type__reference_model="tests.deathreporttmgsecond",
+            action_type__reference_model="clinicedc_tests.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
@@ -269,7 +269,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            action_type__reference_model="tests.deathreporttmgsecond",
+            action_type__reference_model="clinicedc_tests.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
@@ -282,7 +282,7 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            action_type__reference_model="tests.deathreporttmgsecond",
+            action_type__reference_model="clinicedc_tests.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
@@ -292,14 +292,14 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            action_type__reference_model="tests.deathreporttmg",
+            action_type__reference_model="clinicedc_tests.deathreporttmg",
         )
 
         causes_qs = CauseOfDeath.objects.exclude(
             name__in=[OTHER, death_report.cause_of_death]
         )
         death_report_tmg = baker.make_recipe(
-            "tests.deathreporttmg",
+            "clinicedc_tests.deathreporttmg",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
@@ -324,14 +324,14 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            action_type__reference_model="tests.deathreporttmg",
+            action_type__reference_model="clinicedc_tests.deathreporttmg",
         )
 
         causes_qs = CauseOfDeath.objects.exclude(
             name__in=[OTHER, death_report.cause_of_death]
         )
         death_report_tmg = baker.make_recipe(
-            "tests.deathreporttmg",
+            "clinicedc_tests.deathreporttmg",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
@@ -345,13 +345,13 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            action_type__reference_model="tests.deathreporttmgsecond",
+            action_type__reference_model="clinicedc_tests.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
         # create 2nd death report TMG
         death_report_tmg_second = baker.make_recipe(
-            "tests.deathreporttmgsecond",
+            "clinicedc_tests.deathreporttmgsecond",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=action_item_two.action_identifier,
@@ -376,14 +376,14 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
         action_item_one = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=death_report.action_item,
-            action_type__reference_model="tests.deathreporttmg",
+            action_type__reference_model="clinicedc_tests.deathreporttmg",
         )
 
         causes_qs = CauseOfDeath.objects.exclude(
             name__in=[OTHER, death_report.cause_of_death]
         )
         death_report_tmg = baker.make_recipe(
-            "tests.deathreporttmg",
+            "clinicedc_tests.deathreporttmg",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=action_item_one.action_identifier,
@@ -397,13 +397,13 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            action_type__reference_model="tests.deathreporttmgsecond",
+            action_type__reference_model="clinicedc_tests.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )
 
         # create 2nd death report TMG
         death_report_tmg_second = baker.make_recipe(
-            "tests.deathreporttmgsecond",
+            "clinicedc_tests.deathreporttmgsecond",
             death_report=death_report,
             subject_identifier=self.subject_identifier,
             action_identifier=action_item_two.action_identifier,
@@ -436,6 +436,6 @@ class TestDeathReportTmg(DeathReportTestMixin, TestCase):
             subject_identifier=self.subject_identifier,
             related_action_item=death_report.action_item,
             parent_action_item=death_report_tmg.action_item,
-            action_type__reference_model="tests.deathreporttmgsecond",
+            action_type__reference_model="clinicedc_tests.deathreporttmgsecond",
             action_type__name=DEATH_REPORT_TMG_SECOND_ACTION,
         )

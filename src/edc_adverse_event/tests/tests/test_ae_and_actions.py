@@ -19,17 +19,17 @@ from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import OnScheduleError
-from tests.action_items import (
+from clinicedc_tests.action_items import (
     AeFollowupAction,
     AeInitialAction,
     OffscheduleAction,
     register_actions,
 )
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import AeFollowup, AeInitial, AeSusar, AeTmg
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import AeFollowup, AeInitial, AeSusar, AeTmg
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 @tag("adverse_event")
@@ -64,14 +64,14 @@ class TestAeAndActions(TestCase):
 
     def test_subject_identifier(self):
         baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
         )
 
         self.assertRaises(
             RegisteredSubjectDoesNotExist,
             baker.make_recipe,
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier="blahblah",
         )
 
@@ -80,28 +80,28 @@ class TestAeAndActions(TestCase):
             subject_identifier = f"ABCDEF-{index}"
             RegisteredSubject.objects.create(subject_identifier=subject_identifier)
             ae_initial = baker.make_recipe(
-                "tests.aeinitial", subject_identifier=subject_identifier
+                "clinicedc_tests.aeinitial", subject_identifier=subject_identifier
             )
             baker.make_recipe(
-                "tests.aefollowup",
+                "clinicedc_tests.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,
             )
             baker.make_recipe(
-                "tests.aefollowup",
+                "clinicedc_tests.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,
             )
             baker.make_recipe(
-                "tests.aefollowup",
+                "clinicedc_tests.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERING,
             )
             baker.make_recipe(
-                "tests.aefollowup",
+                "clinicedc_tests.aefollowup",
                 ae_initial=ae_initial,
                 subject_identifier=subject_identifier,
                 outcome=RECOVERED,
@@ -110,28 +110,28 @@ class TestAeAndActions(TestCase):
 
     def test_fk1(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
@@ -139,22 +139,22 @@ class TestAeAndActions(TestCase):
 
     def test_fk2(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERED,
@@ -172,7 +172,7 @@ class TestAeAndActions(TestCase):
         )
         # create ae initial
         ae_initial = baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             action_identifier=action_item.action_identifier,
             subject_identifier=self.subject_identifier,
         )
@@ -216,25 +216,25 @@ class TestAeAndActions(TestCase):
 
     def test_ae_initial_action2(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             action_identifier=ae_initial.action_identifier,
-            action_type__reference_model="tests.aeinitial",
+            action_type__reference_model="clinicedc_tests.aeinitial",
         )
         self.assertEqual(action_item.status, CLOSED)
 
     def test_ae_initial_creates_action(self):
         # create reference model first which creates action_item
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         try:
             ActionItem.objects.get(
                 subject_identifier=self.subject_identifier,
                 action_identifier=ae_initial.action_identifier,
-                action_type__reference_model="tests.aeinitial",
+                action_type__reference_model="clinicedc_tests.aeinitial",
             )
         except ObjectDoesNotExist:
             self.fail("action item unexpectedly does not exist.")
@@ -244,7 +244,7 @@ class TestAeAndActions(TestCase):
             ActionItem.objects.filter(
                 subject_identifier=self.subject_identifier,
                 action_identifier=ae_initial.action_identifier,
-                action_type__reference_model="tests.aeinitial",
+                action_type__reference_model="clinicedc_tests.aeinitial",
             ).count(),
             1,
         )
@@ -253,7 +253,7 @@ class TestAeAndActions(TestCase):
                 subject_identifier=self.subject_identifier,
                 parent_action_item=ae_initial.action_item,
                 related_action_item=ae_initial.action_item,
-                action_type__reference_model="tests.aefollowup",
+                action_type__reference_model="clinicedc_tests.aefollowup",
             ).count(),
             1,
         )
@@ -261,7 +261,7 @@ class TestAeAndActions(TestCase):
     def test_ae_initial_does_not_recreate_action_on_resave(self):
         # create reference model first which creates action_item
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
         ae_initial.save()
@@ -269,7 +269,7 @@ class TestAeAndActions(TestCase):
             ActionItem.objects.filter(
                 subject_identifier=self.subject_identifier,
                 action_identifier=ae_initial.action_identifier,
-                action_type__reference_model="tests.aeinitial",
+                action_type__reference_model="clinicedc_tests.aeinitial",
             ).count(),
             1,
         )
@@ -283,7 +283,7 @@ class TestAeAndActions(TestCase):
 
         # then create reference model
         ae_initial = baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
         )
@@ -296,7 +296,7 @@ class TestAeAndActions(TestCase):
 
     def test_ae_initial_creates_next_action_on_close(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
         self.assertTrue(
@@ -304,7 +304,7 @@ class TestAeAndActions(TestCase):
                 subject_identifier=self.subject_identifier,
                 action_identifier=ae_initial.action_identifier,
                 parent_action_item=None,
-                action_type__reference_model="tests.aeinitial",
+                action_type__reference_model="clinicedc_tests.aeinitial",
                 status=CLOSED,
             )
         )
@@ -313,35 +313,35 @@ class TestAeAndActions(TestCase):
                 subject_identifier=self.subject_identifier,
                 parent_action_item=ae_initial.action_item,
                 related_action_item=ae_initial.action_item,
-                action_type__reference_model="tests.aefollowup",
+                action_type__reference_model="clinicedc_tests.aefollowup",
                 status=NEW,
             )
         )
 
     def test_next_action1(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         # action item has no parent, is updated
         ActionItem.objects.get(
             parent_action_item=None,
             action_identifier=ae_initial.action_identifier,
-            action_type__reference_model="tests.aeinitial",
+            action_type__reference_model="clinicedc_tests.aeinitial",
         )
 
         # action item a parent, is not updated
         ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.aefollowup",
+            action_type__reference_model="clinicedc_tests.aefollowup",
         )
 
     def test_next_action2(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_followup = baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
@@ -352,31 +352,31 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_followup.action_identifier,
-            action_type__reference_model="tests.aefollowup",
+            action_type__reference_model="clinicedc_tests.aefollowup",
             linked_to_reference=True,
             status=CLOSED,
         )
         ActionItem.objects.get(
             parent_action_item=ae_followup.action_item,
             related_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.aefollowup",
+            action_type__reference_model="clinicedc_tests.aefollowup",
             linked_to_reference=False,
             status=NEW,
         )
 
     def test_next_action3(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_followup1 = baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
         )
         ae_followup1 = AeFollowup.objects.get(pk=ae_followup1.pk)
         ae_followup2 = baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
@@ -386,7 +386,7 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_followup1.action_identifier,
-            action_type__reference_model="tests.aefollowup",
+            action_type__reference_model="clinicedc_tests.aefollowup",
             linked_to_reference=True,
             status=CLOSED,
         )
@@ -394,24 +394,24 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_followup1.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_followup2.action_identifier,
-            action_type__reference_model="tests.aefollowup",
+            action_type__reference_model="clinicedc_tests.aefollowup",
             linked_to_reference=True,
             status=CLOSED,
         )
         ActionItem.objects.get(
             parent_action_item=ae_followup2.action_item,
             related_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.aefollowup",
+            action_type__reference_model="clinicedc_tests.aefollowup",
             linked_to_reference=False,
             status=NEW,
         )
 
     def test_next_action4(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_followup1 = baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=CONTINUING_UPDATE,
@@ -420,7 +420,7 @@ class TestAeAndActions(TestCase):
         ae_followup1 = AeFollowup.objects.get(pk=ae_followup1.pk)
         # set followup = NO so next action item is not created
         ae_followup2 = baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERED,
@@ -432,7 +432,7 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_followup1.action_identifier,
-            action_type__reference_model="tests.aefollowup",
+            action_type__reference_model="clinicedc_tests.aefollowup",
             linked_to_reference=True,
             status=CLOSED,
         )
@@ -441,7 +441,7 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_followup1.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_followup2.action_identifier,
-            action_type__reference_model="tests.aefollowup",
+            action_type__reference_model="clinicedc_tests.aefollowup",
             linked_to_reference=True,
             status=CLOSED,
         )
@@ -451,7 +451,7 @@ class TestAeAndActions(TestCase):
             ActionItem.objects.get,
             parent_action_item=ae_followup2.action_item,
             related_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.aefollowup",
+            action_type__reference_model="clinicedc_tests.aefollowup",
             linked_to_reference=False,
             status=NEW,
         )
@@ -459,7 +459,7 @@ class TestAeAndActions(TestCase):
     def test_next_action5(self):
         adverse_rx_reaction = AeClassification.objects.get(name="adr")
         ae_initial = baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_classification=adverse_rx_reaction,
         )
@@ -469,7 +469,7 @@ class TestAeAndActions(TestCase):
             parent_action_item=None,
             related_action_item=None,
             action_identifier=ae_initial.action_identifier,
-            action_type__reference_model="tests.aeinitial",
+            action_type__reference_model="clinicedc_tests.aeinitial",
             linked_to_reference=True,
             status=CLOSED,
         )
@@ -477,14 +477,14 @@ class TestAeAndActions(TestCase):
         ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.aetmg",
+            action_type__reference_model="clinicedc_tests.aetmg",
             linked_to_reference=False,
             status=NEW,
         )
 
         # note: ae_classification matches ae_initial
         ae_tmg = baker.make_recipe(
-            "tests.aetmg",
+            "clinicedc_tests.aetmg",
             subject_identifier=self.subject_identifier,
             ae_initial=ae_initial,
             ae_classification=adverse_rx_reaction.name,
@@ -497,19 +497,19 @@ class TestAeAndActions(TestCase):
             parent_action_item=ae_initial.action_item,
             related_action_item=ae_initial.action_item,
             action_identifier=ae_tmg.action_identifier,
-            action_type__reference_model="tests.aetmg",
+            action_type__reference_model="clinicedc_tests.aetmg",
             linked_to_reference=True,
             status=CLOSED,
         )
 
     def test_ae_followup_multiple_instances(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
         ae_initial = AeInitial.objects.get(pk=ae_initial.pk)
 
         ae_followup = baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
@@ -517,7 +517,7 @@ class TestAeAndActions(TestCase):
         AeFollowup.objects.get(pk=ae_followup.pk)
 
         ae_followup = baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             outcome=RECOVERING,
@@ -532,16 +532,16 @@ class TestAeAndActions(TestCase):
     def test_ae_followup_outcome_ltfu_creates_action(
         self, mock_onschedule_models, mock_offschedule_models, mock_get_by_model
     ):
-        mock_onschedule_models.return_value = ["tests.subjectconsentv1"]
-        mock_offschedule_models.return_value = ["tests.offschedule"]
+        mock_onschedule_models.return_value = ["clinicedc_tests.subjectconsentv1"]
+        mock_offschedule_models.return_value = ["clinicedc_tests.offschedule"]
         mock_get_by_model.return_value = OffscheduleAction
 
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
 
         ae_followup = baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
@@ -550,7 +550,7 @@ class TestAeAndActions(TestCase):
         try:
             ActionItem.objects.get(
                 parent_action_item=ae_followup.action_item,
-                action_type__reference_model="tests.offschedule",
+                action_type__reference_model="clinicedc_tests.offschedule",
             )
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
@@ -568,13 +568,13 @@ class TestAeAndActions(TestCase):
         mock_get_by_model.return_value = OffscheduleAction
 
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
 
         self.assertRaises(
             OnScheduleError,
             baker.make_recipe,
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
@@ -588,15 +588,15 @@ class TestAeAndActions(TestCase):
     def test_ae_followup_outcome_not_ltfu(
         self, mock_offschedule_models, mock_get_by_model
     ):
-        mock_offschedule_models.return_value = ["tests.offschedule"]
+        mock_offschedule_models.return_value = ["clinicedc_tests.offschedule"]
         mock_get_by_model.return_value = OffscheduleAction
 
         ae_initial = baker.make_recipe(
-            "tests.aeinitial", subject_identifier=self.subject_identifier
+            "clinicedc_tests.aeinitial", subject_identifier=self.subject_identifier
         )
 
         ae_followup = baker.make_recipe(
-            "tests.aefollowup",
+            "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             report_datetime=get_utcnow(),
@@ -606,7 +606,7 @@ class TestAeAndActions(TestCase):
         try:
             ActionItem.objects.get(
                 parent_action_item=ae_followup.action_item,
-                action_type__reference_model="tests.offschedule",
+                action_type__reference_model="clinicedc_tests.offschedule",
             )
         except ObjectDoesNotExist:
             pass
@@ -615,7 +615,7 @@ class TestAeAndActions(TestCase):
 
     def test_ae_creates_death_report_action(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE5,
             sae=NO,
@@ -623,17 +623,17 @@ class TestAeAndActions(TestCase):
 
         ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.deathreport",
+            action_type__reference_model="clinicedc_tests.deathreport",
         )
 
         ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.aetmg",
+            action_type__reference_model="clinicedc_tests.aetmg",
         )
 
     def test_ae_initial_creates_susar_if_not_reported(self):
         ae_initial = baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=YES,
@@ -644,11 +644,11 @@ class TestAeAndActions(TestCase):
             ObjectDoesNotExist,
             ActionItem.objects.get,
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.aesusar",
+            action_type__reference_model="clinicedc_tests.aesusar",
         )
 
         ae_initial = baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=NO,
@@ -657,13 +657,13 @@ class TestAeAndActions(TestCase):
 
         ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.aesusar",
+            action_type__reference_model="clinicedc_tests.aesusar",
         )
 
     def test_susar_updates_aeinitial_if_submitted(self):
         # create ae initial
         ae_initial = baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=NO,
@@ -673,14 +673,14 @@ class TestAeAndActions(TestCase):
         # confirm ae susar action item is created
         action_item = ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.aesusar",
+            action_type__reference_model="clinicedc_tests.aesusar",
         )
 
         self.assertEqual(action_item.status, NEW)
 
         # create ae susar
         baker.make_recipe(
-            "tests.aesusar",
+            "clinicedc_tests.aesusar",
             subject_identifier=self.subject_identifier,
             submitted_datetime=get_utcnow(),
             ae_initial=ae_initial,
@@ -698,7 +698,7 @@ class TestAeAndActions(TestCase):
     def test_aeinitial_can_close_action_without_susar_model(self):
         # create ae initial
         ae_initial = baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=NO,
@@ -708,7 +708,7 @@ class TestAeAndActions(TestCase):
         # confirm ae susar action item is created
         action_item = ActionItem.objects.get(
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.aesusar",
+            action_type__reference_model="clinicedc_tests.aesusar",
         )
 
         # change to YES before submitting an AeSusar

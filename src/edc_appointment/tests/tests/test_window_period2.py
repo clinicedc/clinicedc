@@ -15,8 +15,10 @@ from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule4
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule4,
+)
 
 utc = ZoneInfo("UTC")
 

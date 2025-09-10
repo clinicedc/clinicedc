@@ -20,7 +20,7 @@ from edc_reportable.utils.get_normal_data_or_raise import (
     create_obj_for_new_units_or_raise,
 )
 from edc_utils import get_utcnow
-from tests.reportables import grading_data, normal_data
+from clinicedc_tests.reportables import grading_data, normal_data
 
 
 @tag("reportable")

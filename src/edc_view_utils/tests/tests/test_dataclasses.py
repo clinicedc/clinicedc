@@ -21,9 +21,9 @@ from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
     get_visit_schedule,
 )
 
@@ -112,7 +112,7 @@ class TestDataclasses(TestCase):
         # add view perm
         codename = get_permission_codename("view", crf._meta)
         perm = Permission.objects.get(
-            content_type__app_label="tests", codename=codename
+            content_type__app_label="clinicedc_tests", codename=codename
         )
         self.user.user_permissions.add(perm)
         self.user = get_object_or_404(User, pk=self.user.id)
@@ -144,7 +144,7 @@ class TestDataclasses(TestCase):
         for action in ["add", "change"]:
             codename = get_permission_codename(action, crf._meta)
             perm = Permission.objects.get(
-                content_type__app_label="tests", codename=codename
+                content_type__app_label="clinicedc_tests", codename=codename
             )
 
             self.user.user_permissions.add(perm)

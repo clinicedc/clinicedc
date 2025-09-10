@@ -15,10 +15,10 @@ from edc_form_runners.models import Issue
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import Member, Team, TeamWithDifferentFields, Venue
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import Member, Team, TeamWithDifferentFields, Venue
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 @override_settings(SITE_ID=10)
@@ -71,17 +71,17 @@ class TestRunners(TestCase):
 
         # raise on VenueModelAdmin has no custom ModelForm
         self.assertRaises(
-            FormRunnerModelFormNotFound, FormRunner, model_name="tests.venue"
+            FormRunnerModelFormNotFound, FormRunner, model_name="clinicedc_tests.venue"
         )
 
         # run to find name field may not be a UUID
         # see form validator
-        form_runner = FormRunner(model_name="tests.team")
+        form_runner = FormRunner(model_name="clinicedc_tests.team")
         form_runner.run_all()
         self.assertEqual(Issue.objects.all().count(), 1)
         try:
             Issue.objects.get(
-                label_lower="tests.team",
+                label_lower="clinicedc_tests.team",
                 visit_code="1000",
                 visit_code_sequence=0,
                 field_name="name",
@@ -92,11 +92,11 @@ class TestRunners(TestCase):
 
         # run to find player_name field may not be a UUID
         # see form validator
-        form_runner = FormRunner(model_name="tests.member")
+        form_runner = FormRunner(model_name="clinicedc_tests.member")
         form_runner.run_all()
         try:
             Issue.objects.get(
-                label_lower="tests.member",
+                label_lower="clinicedc_tests.member",
                 visit_code="1000",
                 visit_code_sequence=0,
                 field_name="player_name",
@@ -107,11 +107,11 @@ class TestRunners(TestCase):
 
         # run to assert ignores `name` field because it IS NOT IN admin fieldsets
         # even though the model instance field class has blank=False.
-        form_runner = FormRunner(model_name="tests.teamwithdifferentfields")
+        form_runner = FormRunner(model_name="clinicedc_tests.teamwithdifferentfields")
         form_runner.run_all()
         try:
             Issue.objects.get(
-                label_lower="tests.teamwithdifferentfields",
+                label_lower="clinicedc_tests.teamwithdifferentfields",
                 field_name="name",
             )
         except ObjectDoesNotExist:
@@ -122,7 +122,7 @@ class TestRunners(TestCase):
         # and the model instance field class has blank=False.
         try:
             Issue.objects.get(
-                label_lower="tests.teamwithdifferentfields",
+                label_lower="clinicedc_tests.teamwithdifferentfields",
                 field_name="color",
             )
         except ObjectDoesNotExist:

@@ -12,9 +12,9 @@ from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.models import SubjectModelOne, SubjectModelThree, SubjectModelTwo
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.models import SubjectModelOne, SubjectModelThree, SubjectModelTwo
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 @tag("registration")

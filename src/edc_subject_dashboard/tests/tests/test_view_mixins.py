@@ -21,10 +21,10 @@ from edc_subject_dashboard.view_mixins import (
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import TestModel
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import TestModel
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class DummyModelWrapper:

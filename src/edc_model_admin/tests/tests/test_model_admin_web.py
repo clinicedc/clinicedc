@@ -20,9 +20,9 @@ from edc_lab.tests import SiteLabsTestHelper
 from edc_utils.date import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import (
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import (
     CrfFive,
     CrfFour,
     CrfOne,

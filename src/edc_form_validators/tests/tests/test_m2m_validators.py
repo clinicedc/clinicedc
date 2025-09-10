@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_form_validators.form_validator import FormValidator
-from tests.models import Alphabet
+from clinicedc_tests.models import Alphabet
 
 
 class TestApplicableFieldValidator(TestCase):

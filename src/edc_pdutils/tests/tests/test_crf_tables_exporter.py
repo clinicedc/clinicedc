@@ -9,8 +9,8 @@ from edc_list_data import site_list_data
 from edc_pdutils.df_exporters import CsvCrfInlineTablesExporter, CsvCrfTablesExporter
 from edc_pdutils.df_handlers import CrfDfHandler
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_pdutils.visit_schedule import (
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_pdutils.visit_schedule import (
     get_visit_schedule,
 )
 

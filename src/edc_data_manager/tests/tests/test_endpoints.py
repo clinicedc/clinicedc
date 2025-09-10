@@ -21,9 +21,11 @@ from edc_data_manager.populate_data_dictionary import (
 from edc_lab.site_labs import site_labs
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.visit_schedules.visit_schedule_dashboard.lab_profiles import lab_profile
-from tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.lab_profiles import (
+    lab_profile,
+)
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
     get_visit_schedule,
 )
 
@@ -87,9 +89,9 @@ class AdminSiteTest(WebTest):
             sender=DataManagerUser.objects.get(username=self.user.username),
         )
 
-        crf = CrfDataDictionary.objects.filter(model="tests.crffive")[0]
+        crf = CrfDataDictionary.objects.filter(model="clinicedc_tests.crffive")[0]
         query_rule.data_dictionaries.add(crf)
-        crf = CrfDataDictionary.objects.filter(model="tests.crffour")[0]
+        crf = CrfDataDictionary.objects.filter(model="clinicedc_tests.crffour")[0]
         query_rule.data_dictionaries.add(crf)
 
         url = reverse(

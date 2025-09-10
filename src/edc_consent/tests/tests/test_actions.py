@@ -15,8 +15,8 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
-from tests.models import SubjectConsentV1
-from tests.sites import all_sites
+from clinicedc_tests.models import SubjectConsentV1
+from clinicedc_tests.sites import all_sites
 
 from ..consent_test_utils import consent_definition_factory
 
@@ -57,7 +57,7 @@ class TestActions(TestCase):
             last_name = fake.last_name()
             initials = first_name[0] + choice(string.ascii_uppercase) + last_name[0]
             baker.make_recipe(
-                "tests.subjectconsentv1",
+                "clinicedc_tests.subjectconsentv1",
                 consent_datetime=self.study_open_datetime + relativedelta(days=1),
                 initials=initials.upper(),
             )

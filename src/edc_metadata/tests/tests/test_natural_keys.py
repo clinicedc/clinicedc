@@ -11,9 +11,9 @@ from edc_consent import site_consents
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
 
@@ -36,15 +36,15 @@ utc_tz = ZoneInfo("UTC")
 class TestNaturalKey(TestCase):
     exclude_models = [
         "edc_visit_schedule.onschedule",
-        "tests.offschedule",
-        "tests.subjectrequisition",
+        "clinicedc_tests.offschedule",
+        "clinicedc_tests.subjectrequisition",
         "edc_visit_tracking.subjectvisit",
         "edc_offstudy.subjectoffstudy",
-        "tests.crfthree",
-        "tests.crffour",
-        "tests.crffive",
-        "tests.crfsix",
-        "tests.crfseven",
+        "clinicedc_tests.crfthree",
+        "clinicedc_tests.crffour",
+        "clinicedc_tests.crffive",
+        "clinicedc_tests.crfsix",
+        "clinicedc_tests.crfseven",
     ]
 
     @classmethod

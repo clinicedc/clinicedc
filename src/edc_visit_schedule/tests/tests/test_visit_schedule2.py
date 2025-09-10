@@ -12,8 +12,8 @@ from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import Crf, FormsCollection, FormsCollectionError
 from edc_visit_schedule.visit_schedule import AlreadyRegisteredSchedule, VisitSchedule
-from tests.consents import consent_v1
-from tests.sites import all_sites
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.sites import all_sites
 
 
 @tag("visit_schedule")
@@ -36,7 +36,7 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
             name="visit_schedule",
             verbose_name="Visit Schedule",
             offstudy_model="edc_offstudy.subjectoffstudy",
-            death_report_model="tests.deathreport",
+            death_report_model="clinicedc_tests.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
 
@@ -50,16 +50,16 @@ class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
 
         self.schedule2 = Schedule(
             name="schedule_two",
-            onschedule_model="tests.onscheduletwo",
-            offschedule_model="tests.offscheduletwo",
+            onschedule_model="clinicedc_tests.onscheduletwo",
+            offschedule_model="clinicedc_tests.offscheduletwo",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[consent_v1],
         )
 
         self.schedule3 = Schedule(
             name="schedule_three",
-            onschedule_model="tests.onschedulethree",
-            offschedule_model="tests.offschedulethree",
+            onschedule_model="clinicedc_tests.onschedulethree",
+            offschedule_model="clinicedc_tests.offschedulethree",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[consent_v1],
         )

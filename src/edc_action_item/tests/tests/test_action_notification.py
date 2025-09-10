@@ -14,8 +14,8 @@ from edc_action_item.site_action_items import site_action_items
 from edc_constants.constants import NEW
 from edc_notification.notification import NewModelNotification, UpdatedModelNotification
 from edc_notification.site_notifications import site_notifications
-from tests.action_items import FormZeroAction, register_actions
-from tests.models import FormZero
+from clinicedc_tests.action_items import FormZeroAction, register_actions
+from clinicedc_tests.models import FormZero
 
 from ..test_case_mixin import TestCaseMixin
 

@@ -10,14 +10,14 @@ from edc_action_item.delete_action_item import ActionItemDeleteError, delete_act
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
 from edc_constants.constants import CLOSED, NEW, OPEN
-from tests.action_items import (
+from clinicedc_tests.action_items import (
     FormOneAction,
     FormThreeAction,
     FormTwoAction,
     SingletonAction,
     register_actions,
 )
-from tests.models import FormOne, FormTwo
+from clinicedc_tests.models import FormOne, FormTwo
 
 from ..test_case_mixin import TestCaseMixin
 

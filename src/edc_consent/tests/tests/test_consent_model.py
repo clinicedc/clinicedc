@@ -26,16 +26,16 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent1_v1, consent1_v2, consent1_v3
-from tests.helper import Helper
-from tests.models import (
+from clinicedc_tests.consents import consent1_v1, consent1_v2, consent1_v3
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import (
     CrfEight,
     SubjectConsent,
     SubjectConsentV1Ext,
     SubjectVisitWithoutAppointment,
 )
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
 from ..consent_test_utils import consent_factory
 
@@ -67,7 +67,7 @@ class TestConsentModel(TestCase):
 
     def test_encryption(self):
         subject_consent = baker.make_recipe(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             first_name="ERIK",
             consent_datetime=self.study_open_datetime,
             dob=get_utcnow() - relativedelta(years=25),
@@ -79,7 +79,7 @@ class TestConsentModel(TestCase):
         subject_identifier_as_pk.
         """
         consent = baker.make_recipe(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             subject_identifier=None,
             consent_datetime=self.study_open_datetime,
             dob=get_utcnow() - relativedelta(years=25),
@@ -99,7 +99,7 @@ class TestConsentModel(TestCase):
         subject_identifier = "123456789"
         identity = "987654321"
         baker.make_recipe(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -113,7 +113,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.version, "1.0")
         baker.make_recipe(
-            "tests.subjectconsentv2",
+            "clinicedc_tests.subjectconsentv2",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -135,7 +135,7 @@ class TestConsentModel(TestCase):
         subject_identifier = "123456789"
         identity = "987654321"
         consent = baker.make_recipe(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -144,7 +144,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(consent.version, "1.0")
         consent = baker.make_recipe(
-            "tests.subjectconsentv2",
+            "clinicedc_tests.subjectconsentv2",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -153,7 +153,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(consent.version, "2.0")
         consent = baker.make_recipe(
-            "tests.subjectconsentv3",
+            "clinicedc_tests.subjectconsentv3",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -223,7 +223,7 @@ class TestConsentModel(TestCase):
         subject_identifier = "123456789"
         identity = "987654321"
         consent = baker.make_recipe(
-            "tests.subjectconsentv3",
+            "clinicedc_tests.subjectconsentv3",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -342,7 +342,7 @@ class TestConsentModel(TestCase):
         self.assertRaises(
             ConsentDefinitionDoesNotExist,
             baker.make_recipe,
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -383,7 +383,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v1.name)
         self.assertEqual(subject_consent.version, "1.0")
-        self.assertEqual(cdef_v1.model, "tests.subjectconsentv1")
+        self.assertEqual(cdef_v1.model, "clinicedc_tests.subjectconsentv1")
 
         try:
             subject_visit = SubjectVisit.objects.create(
@@ -430,7 +430,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v2.name)
         self.assertEqual(subject_consent.version, "2.0")
-        self.assertEqual(cdef_v2.model, "tests.subjectconsentv2")
+        self.assertEqual(cdef_v2.model, "clinicedc_tests.subjectconsentv2")
 
         try:
             subject_visit = SubjectVisit.objects.create(
@@ -478,7 +478,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v3.name)
         self.assertEqual(subject_consent.version, "3.0")
-        self.assertEqual(cdef_v3.model, "tests.subjectconsentv3")
+        self.assertEqual(cdef_v3.model, "clinicedc_tests.subjectconsentv3")
 
         try:
             subject_visit = SubjectVisit.objects.create(
@@ -535,7 +535,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v3.name)
         self.assertEqual(subject_consent.version, "3.0")
-        self.assertEqual(cdef_v3.model, "tests.subjectconsentv3")
+        self.assertEqual(cdef_v3.model, "clinicedc_tests.subjectconsentv3")
 
         # create two visits within consent v3 period
         subject_visit_1 = SubjectVisit.objects.create(
@@ -554,7 +554,7 @@ class TestConsentModel(TestCase):
         site_consents.registry[cdef_v3.name] = cdef_v3
 
         cdef_v4 = consent_factory(
-            proxy_model="tests.subjectconsentv4",
+            proxy_model="clinicedc_tests.subjectconsentv4",
             start=cdef_v3.end + relativedelta(days=1),
             end=self.study_open_datetime + timedelta(days=150),
             version="4.0",
@@ -604,7 +604,7 @@ class TestConsentModel(TestCase):
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v4.name)
         self.assertEqual(subject_consent.version, "4.0")
-        self.assertEqual(cdef_v4.model, "tests.subjectconsentv4")
+        self.assertEqual(cdef_v4.model, "clinicedc_tests.subjectconsentv4")
 
         try:
             crf_one = CrfEight.objects.create(
@@ -622,11 +622,11 @@ class TestConsentModel(TestCase):
         subject_identifier = "123456789"
         identity = "987654321"
         cdef = site_consents.get_consent_definition(report_datetime=get_utcnow())
-        self.assertEqual(cdef.model, "tests.subjectconsentv3")
+        self.assertEqual(cdef.model, "clinicedc_tests.subjectconsentv3")
         self.assertRaises(
             ConsentDefinitionDoesNotExist,
             baker.make_recipe,
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
@@ -636,7 +636,7 @@ class TestConsentModel(TestCase):
 
     def test_model_str_repr_etc(self):
         obj = baker.make_recipe(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             screening_identifier="ABCDEF",
             subject_identifier="12345",
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
@@ -652,7 +652,7 @@ class TestConsentModel(TestCase):
         self.assertRaises(
             IdentityFieldsMixinError,
             baker.make_recipe,
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             subject_identifier="12345",
             consent_datetime=self.study_open_datetime + relativedelta(days=1),
             identity="123456789",
@@ -703,13 +703,13 @@ class TestConsentModel(TestCase):
         site_consents.registry = {}
 
         consent_v1 = consent_factory(
-            proxy_model="tests.subjectconsentv1",
+            proxy_model="clinicedc_tests.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + relativedelta(months=3),
             version="1.0",
         )
         consent_v1_ext = ConsentDefinitionExtension(
-            "tests.subjectconsentv1ext",
+            "clinicedc_tests.subjectconsentv1ext",
             version="1.1",
             start=self.study_open_datetime + relativedelta(days=20),
             extends=consent_v1,

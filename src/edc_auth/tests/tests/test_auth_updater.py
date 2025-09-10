@@ -46,7 +46,7 @@ class TestAuthUpdater(TestCase):
 
         self.assertIn(
             (
-                "tests.view_customrandomizationlist",
+                "clinicedc_tests.view_customrandomizationlist",
                 "Can view custom randomization list",
             ),
             get_rando_permissions_tuples(),

@@ -11,8 +11,8 @@ from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidator
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from tests.models import DeathReportTmg
-from tests.sites import all_sites
+from clinicedc_tests.models import DeathReportTmg
+from clinicedc_tests.sites import all_sites
 
 from .mixins import DeathReportTestMixin
 

@@ -15,9 +15,9 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
-from tests.consents import consent1_v1, consent1_v2, consent1_v3
-from tests.models import SubjectConsent
-from tests.sites import all_sites
+from clinicedc_tests.consents import consent1_v1, consent1_v2, consent1_v3
+from clinicedc_tests.models import SubjectConsent
+from clinicedc_tests.sites import all_sites
 
 from ..consent_test_utils import consent_factory
 
@@ -162,7 +162,7 @@ class TestConsentModel(TestCase):
         consent date.
         """
         consent1_v3_new = consent_factory(
-            proxy_model="tests.subjectconsentv3",
+            proxy_model="clinicedc_tests.subjectconsentv3",
             start=self.study_open_datetime + timedelta(days=120),
             end=self.study_open_datetime + timedelta(days=150),
             version="3.0",

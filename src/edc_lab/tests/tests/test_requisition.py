@@ -7,8 +7,8 @@ from edc_lab.identifiers import RequisitionIdentifier
 from edc_lab.site_labs import site_labs
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from tests.labs import lab_profile
-from tests.sites import all_sites
+from clinicedc_tests.labs import lab_profile
+from clinicedc_tests.sites import all_sites
 
 
 @tag("lab")
@@ -23,7 +23,7 @@ class TestRequisitionModel(TestCase):
         add_or_update_django_sites()
 
     def setUp(self):
-        self.requisition_model = "tests.subjectrequisition"
+        self.requisition_model = "clinicedc_tests.subjectrequisition"
         site_labs.initialize()
         site_labs.register(lab_profile=lab_profile)
 

@@ -9,10 +9,12 @@ from edc_model_to_dataframe import ModelToDataframe
 from edc_model_to_dataframe.constants import SYSTEM_COLUMNS
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import Crf, CrfEncrypted, SubjectVisit
-from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule1
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import Crf, CrfEncrypted, SubjectVisit
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+)
 
 
 @override_settings(

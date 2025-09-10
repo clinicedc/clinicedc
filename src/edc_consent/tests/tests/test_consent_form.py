@@ -19,15 +19,15 @@ from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import age, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent1_v1, consent1_v2, consent1_v3
-from tests.forms import SubjectConsentForm, SubjectConsentFormValidator
-from tests.helper import Helper
-from tests.models import (
+from clinicedc_tests.consents import consent1_v1, consent1_v2, consent1_v3
+from clinicedc_tests.forms import SubjectConsentForm, SubjectConsentFormValidator
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import (
     SubjectConsentV1,
     SubjectScreening,
 )
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
 fake = Faker()
 
@@ -143,7 +143,7 @@ class TestConsentForm(TestCase):
             )
             screening_identifier = subject_screening.screening_identifier
         subject_consent = baker.prepare_recipe(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             dob=dob,
             consent_datetime=consent_datetime,
             first_name=first_name or "XXXXXX",

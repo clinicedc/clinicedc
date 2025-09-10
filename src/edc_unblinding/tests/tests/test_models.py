@@ -12,10 +12,10 @@ from edc_unblinding.auth_objects import (
 )
 from edc_unblinding.models import UnblindingRequest, UnblindingRequestorUser
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.action_items import register_actions
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.action_items import register_actions
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 @tag("unblinding")

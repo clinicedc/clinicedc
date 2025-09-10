@@ -9,7 +9,7 @@ from edc_metadata.metadata import CrfMetadataGetter
 from edc_metadata.next_form_getter import NextFormGetter
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.models import CrfOne, CrfThree, CrfTwo
+from clinicedc_tests.models import CrfOne, CrfThree, CrfTwo
 
 from .metadata_test_mixin import TestMetadataMixin
 
@@ -72,17 +72,17 @@ class TestMetadataGetter(TestMetadataMixin, TestCase):
     def test_next_requisition(self):
         getter = NextFormGetter(
             appointment=self.appointment,
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             panel_name="one",
         )
         next_form = getter.next_form
-        self.assertEqual(next_form.model, "tests.subjectrequisition")
+        self.assertEqual(next_form.model, "clinicedc_tests.subjectrequisition")
         self.assertEqual(next_form.panel.name, "two")
 
     def test_next_requisition_if_last(self):
         getter = NextFormGetter(
             appointment=self.appointment,
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             panel_name="six",
         )
         next_form = getter.next_form
@@ -91,7 +91,7 @@ class TestMetadataGetter(TestMetadataMixin, TestCase):
     def test_next_requisition_if_not_in_visit(self):
         getter = NextFormGetter(
             appointment=self.appointment,
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             panel_name="blah",
         )
         next_form = getter.next_form

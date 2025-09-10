@@ -13,11 +13,13 @@ from edc_action_item.utils import (
 )
 from edc_consent import site_consents
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.action_items import CrfOneAction, register_actions
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import CrfOne, CrfTwo, FormOne, FormTwo
-from tests.visit_schedules.visit_schedule_action_item import get_visit_schedule
+from clinicedc_tests.action_items import CrfOneAction, register_actions
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfOne, CrfTwo, FormOne, FormTwo
+from clinicedc_tests.visit_schedules.visit_schedule_action_item import (
+    get_visit_schedule,
+)
 
 utc_tz = ZoneInfo("UTC")
 

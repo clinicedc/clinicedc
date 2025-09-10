@@ -15,8 +15,8 @@ from edc_form_validators import NOT_REQUIRED_ERROR
 from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
-from tests.action_items import register_actions
-from tests.sites import all_sites
+from clinicedc_tests.action_items import register_actions
+from clinicedc_tests.sites import all_sites
 
 
 @tag("adverse_event")

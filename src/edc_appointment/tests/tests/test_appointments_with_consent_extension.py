@@ -21,10 +21,12 @@ from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
-from tests.helper import Helper
-from tests.models import SubjectConsentV1Ext
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule6
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import SubjectConsentV1Ext
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule6,
+)
 
 utc = ZoneInfo("UTC")
 tz = ZoneInfo("Africa/Dar_es_Salaam")
@@ -47,7 +49,7 @@ class TestNextAppointmentCrf(TestCase):
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
 
         consent_v1 = ConsentDefinition(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             version="1",
             start=ResearchProtocolConfig().study_open_datetime,
             end=ResearchProtocolConfig().study_close_datetime,
@@ -58,7 +60,7 @@ class TestNextAppointmentCrf(TestCase):
         )
 
         consent_v1_ext = ConsentDefinitionExtension(
-            "tests.subjectconsentv1ext",
+            "clinicedc_tests.subjectconsentv1ext",
             version="1.1",
             start=consent_v1.start + relativedelta(months=2),
             extends=consent_v1,
@@ -83,7 +85,7 @@ class TestNextAppointmentCrf(TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "tests.nextappointmentcrf": ("appt_date", "visitschedule")
+            "clinicedc_tests.nextappointmentcrf": ("appt_date", "visitschedule")
         }
     )
     @time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc))

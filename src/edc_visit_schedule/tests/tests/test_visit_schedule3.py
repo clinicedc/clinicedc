@@ -34,8 +34,8 @@ from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.models import OnScheduleThree, SubjectConsent
-from tests.sites import all_sites
+from clinicedc_tests.models import OnScheduleThree, SubjectConsent
+from clinicedc_tests.sites import all_sites
 
 
 @tag("visit_schedule")
@@ -54,7 +54,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         self.consent_v1 = ConsentDefinition(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,

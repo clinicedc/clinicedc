@@ -13,7 +13,7 @@
 # from edc_reportable.utils import load_reference_ranges
 # from edc_utils import get_utcnow
 # from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-# from tests.models import SubjectConsentV1
+# from clinicedc_tests.models import SubjectConsentV1
 # from .lab_profiles import subject_lab_profile
 # from .visit_schedule import visit_schedule
 #

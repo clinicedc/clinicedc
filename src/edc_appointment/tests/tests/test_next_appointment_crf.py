@@ -25,11 +25,16 @@ from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
-from tests.consents import consent_v1
-from tests.forms import NextAppointmentCrfForm, NextAppointmentCrfFormValidator
-from tests.models import NextAppointmentCrf, SubjectConsentV1
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule6
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.forms import (
+    NextAppointmentCrfForm,
+    NextAppointmentCrfFormValidator,
+)
+from clinicedc_tests.models import NextAppointmentCrf, SubjectConsentV1
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule6,
+)
 
 utc = ZoneInfo("UTC")
 tz = ZoneInfo("Africa/Dar_es_Salaam")
@@ -91,7 +96,7 @@ class TestNextAppointmentCrf(TestCase):
 
         # put subject on schedule
         _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "tests.onschedulesix"
+            "clinicedc_tests.onschedulesix"
         )
         schedule.put_on_schedule(
             subject_identifier=subject_consent.subject_identifier,
@@ -100,7 +105,7 @@ class TestNextAppointmentCrf(TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "tests.nextappointmentcrf": ("appt_date", "visitschedule")
+            "clinicedc_tests.nextappointmentcrf": ("appt_date", "visitschedule")
         }
     )
     @time_machine.travel(dt.datetime(2025, 6, 10, 8, 00, tzinfo=utc))
@@ -177,7 +182,7 @@ class TestNextAppointmentCrf(TestCase):
     @tag("3")
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "tests.nextappointmentcrf": ("appt_date", "visitschedule")
+            "clinicedc_tests.nextappointmentcrf": ("appt_date", "visitschedule")
         }
     )
     @time_machine.travel(dt.datetime(2025, 6, 10, 8, 00, tzinfo=utc))
@@ -237,7 +242,7 @@ class TestNextAppointmentCrf(TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "tests.nextappointmentcrf": ("appt_date", "visitschedule")
+            "clinicedc_tests.nextappointmentcrf": ("appt_date", "visitschedule")
         },
         LANGUAGE_CODE="sw",
     )

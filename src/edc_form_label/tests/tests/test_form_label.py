@@ -20,12 +20,12 @@ from edc_visit_schedule.models import OnSchedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.admin import TestModel5Admin
-from tests.consents import consent_v1
-from tests.forms import TestModel5Form
-from tests.helper import Helper
-from tests.models import SubjectConsentV1, TestModel5
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.admin import TestModel5Admin
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.forms import TestModel5Form
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import SubjectConsentV1, TestModel5
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class TestFormLabel(TestCase):
@@ -58,7 +58,7 @@ class TestFormLabel(TestCase):
         self.subject_identifier = subject_consent.subject_identifier
 
         for permission in Permission.objects.filter(
-            content_type__app_label="tests", content_type__model="testmodel5"
+            content_type__app_label="clinicedc_tests", content_type__model="testmodel5"
         ):
             self.user.user_permissions.add(permission)
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)

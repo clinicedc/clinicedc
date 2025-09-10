@@ -5,7 +5,7 @@ from edc_crf.crf_form_validator import CrfFormValidator
 from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_lab_panel.panels import fbc_panel, hba1c_panel
 from edc_lab_results.form_validator_mixins import BloodResultsFormValidatorMixin
-from tests.models import BloodResultsFbc, BloodResultsHba1c
+from clinicedc_tests.models import BloodResultsFbc, BloodResultsHba1c
 
 
 class BloodResultsFbcFormValidator(BloodResultsFormValidatorMixin, CrfFormValidator):

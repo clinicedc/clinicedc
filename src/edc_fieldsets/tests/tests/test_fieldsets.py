@@ -3,7 +3,7 @@ from django.test import TestCase, tag
 
 from edc_fieldsets.fieldset import Fieldset
 from edc_fieldsets.fieldsets import FieldsetError, Fieldsets
-from tests.admin import TestModel6Admin
+from clinicedc_tests.admin import TestModel6Admin
 
 
 @tag("fieldsets")

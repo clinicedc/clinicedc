@@ -26,8 +26,8 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.models import CrfOne, SubjectConsentV1, SubjectRequisition
-from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
+from clinicedc_tests.models import CrfOne, SubjectConsentV1, SubjectRequisition
+from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
 
@@ -221,7 +221,7 @@ class TestRequisitionRuleGroup(TestCase):
         )
         for panel in [self.panel_one, self.panel_two]:
             with self.subTest(panel=panel):
-                key = "tests.subjectrequisition"
+                key = "clinicedc_tests.subjectrequisition"
                 for rule_result in rule_results["MyRequisitionRuleGroup.male"][key]:
                     self.assertEqual(rule_result.entry_status, REQUIRED)
                 for rule_result in rule_results["MyRequisitionRuleGroup.female"][key]:
@@ -235,7 +235,7 @@ class TestRequisitionRuleGroup(TestCase):
         )
         for panel in [self.panel_one, self.panel_two]:
             with self.subTest(panel=panel):
-                key = "tests.subjectrequisition"
+                key = "clinicedc_tests.subjectrequisition"
                 for rule_result in rule_results["MyRequisitionRuleGroup.female"].get(
                     key
                 ):
@@ -303,7 +303,7 @@ class TestRequisitionRuleGroup(TestCase):
         )
         for panel_name in ["one", "two"]:
             with self.subTest(panel_name=panel_name):
-                key = "tests.subjectrequisition"
+                key = "clinicedc_tests.subjectrequisition"
                 for rule_result in rule_results["RequisitionRuleGroup2.male"][key]:
                     self.assertEqual(rule_result.entry_status, REQUIRED)
                 for rule_result in rule_results["RequisitionRuleGroup2.female"][key]:
@@ -321,7 +321,7 @@ class TestRequisitionRuleGroup(TestCase):
         for panel_name in ["one", "two"]:
             with self.subTest(panel_name=panel_name):
                 obj = RequisitionMetadata.objects.get(
-                    model="tests.subjectrequisition",
+                    model="clinicedc_tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel_name,
@@ -339,7 +339,7 @@ class TestRequisitionRuleGroup(TestCase):
         for panel_name in ["three", "four"]:
             with self.subTest(panel_name=panel_name):
                 obj = RequisitionMetadata.objects.get(
-                    model="tests.subjectrequisition",
+                    model="clinicedc_tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel_name,
@@ -357,7 +357,7 @@ class TestRequisitionRuleGroup(TestCase):
         for panel in [self.panel_three, self.panel_four]:
             with self.subTest(panel=panel):
                 obj = RequisitionMetadata.objects.get(
-                    model="tests.subjectrequisition",
+                    model="clinicedc_tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel.name,
@@ -375,7 +375,7 @@ class TestRequisitionRuleGroup(TestCase):
         for panel in [self.panel_one, self.panel_two]:
             with self.subTest(panel=panel):
                 obj = RequisitionMetadata.objects.get(
-                    model="tests.subjectrequisition",
+                    model="clinicedc_tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel.name,
@@ -401,7 +401,7 @@ class TestRequisitionRuleGroup(TestCase):
         ]:
             with self.subTest(panel=panel):
                 obj = RequisitionMetadata.objects.get(
-                    model="tests.subjectrequisition",
+                    model="clinicedc_tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel.name,
@@ -422,7 +422,7 @@ class TestRequisitionRuleGroup(TestCase):
         ]:
             with self.subTest(panel=panel):
                 obj = RequisitionMetadata.objects.get(
-                    model="tests.subjectrequisition",
+                    model="clinicedc_tests.subjectrequisition",
                     subject_identifier=subject_visit.subject_identifier,
                     visit_code=subject_visit.visit_code,
                     panel_name=panel.name,
@@ -440,7 +440,7 @@ class TestRequisitionRuleGroup(TestCase):
 
         # check default entry status
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -450,7 +450,7 @@ class TestRequisitionRuleGroup(TestCase):
         # create CRF that triggers rule to REQUIRED
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="hello")
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -461,7 +461,7 @@ class TestRequisitionRuleGroup(TestCase):
         crf_one.f1 = "goodbye"
         crf_one.save()
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -472,7 +472,7 @@ class TestRequisitionRuleGroup(TestCase):
         crf_one.f1 = "hello"
         crf_one.save()
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -484,7 +484,7 @@ class TestRequisitionRuleGroup(TestCase):
             subject_visit=subject_visit, panel=self.panel_six
         )
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -497,7 +497,7 @@ class TestRequisitionRuleGroup(TestCase):
 
         # assert KEYED value was not changed, rule was ignored
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -513,7 +513,7 @@ class TestRequisitionRuleGroup(TestCase):
         # create CRF that triggers rule to REQUIRED
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="hello")
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -525,7 +525,7 @@ class TestRequisitionRuleGroup(TestCase):
             subject_visit=subject_visit, panel=self.panel_six
         )
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -541,7 +541,7 @@ class TestRequisitionRuleGroup(TestCase):
 
         # assert KEYED value was not changed, rule was ignored
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -555,7 +555,7 @@ class TestRequisitionRuleGroup(TestCase):
         subject_visit = self.enroll(gender=FEMALE)
         try:
             RequisitionMetadata.objects.get(
-                model="tests.subjectrequisition",
+                model="clinicedc_tests.subjectrequisition",
                 subject_identifier=subject_visit.subject_identifier,
                 visit_code=subject_visit.visit_code,
                 panel_name=self.panel_six.name,
@@ -567,7 +567,7 @@ class TestRequisitionRuleGroup(TestCase):
         # create CRF that triggers rule to panel_six = REQUIRED
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="hello")
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -579,7 +579,7 @@ class TestRequisitionRuleGroup(TestCase):
             subject_visit=subject_visit, panel=self.panel_six
         )
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,
@@ -594,7 +594,7 @@ class TestRequisitionRuleGroup(TestCase):
 
         # assert KEYED value was not changed, rule was ignored
         metadata_obj = RequisitionMetadata.objects.get(
-            model="tests.subjectrequisition",
+            model="clinicedc_tests.subjectrequisition",
             subject_identifier=subject_visit.subject_identifier,
             visit_code=subject_visit.visit_code,
             panel_name=self.panel_six.name,

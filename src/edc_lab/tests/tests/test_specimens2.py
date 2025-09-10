@@ -24,12 +24,12 @@ from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.labs import lab_profile, vl_panel
-from tests.models import SubjectRequisition
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.labs import lab_profile, vl_panel
+from clinicedc_tests.models import SubjectRequisition
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class AliquotIdentifier(AliquotIdentifierBase):
@@ -188,7 +188,7 @@ class TestSpecimen2(TestCase):
         meaning there are 7 tubes, primary + 6 derivatives or
         4 plasma and 3 buffy coat as configured in the process
         (See lap_profile.processing_profile.processes) or
-        the lab_profile from tests.labs
+        the lab_profile from clinicedc_tests.labs
         """
         self.specimen.process()
 

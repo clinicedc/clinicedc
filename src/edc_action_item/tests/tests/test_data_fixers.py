@@ -12,8 +12,8 @@ from edc_action_item.data_fixers import (
     fix_null_related_action_items,
 )
 from edc_action_item.models import update_or_create_action_item_on_post_save
-from tests.action_items import register_actions
-from tests.models import FormOne, FormTwo
+from clinicedc_tests.action_items import register_actions
+from clinicedc_tests.models import FormOne, FormTwo
 
 from ..test_case_mixin import TestCaseMixin
 

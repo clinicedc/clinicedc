@@ -7,5 +7,5 @@ tmpdir = mkdtemp()
 
 class CustomRandomizer(Randomizer):
     name = "custom_randomizer"
-    model = "tests.customrandomizationlist"
+    model = "clinicedc_tests.customrandomizationlist"
     randomization_list_path = tmpdir

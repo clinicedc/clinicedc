@@ -8,7 +8,7 @@ from edc_form_validators.base_form_validator import (
 )
 from edc_form_validators.form_validator import FormValidator
 from edc_form_validators.form_validator_mixins import FormValidatorMixin
-from tests.models import TestModelWithFk
+from clinicedc_tests.models import TestModelWithFk
 
 
 class TestFieldValidator(TestCase):

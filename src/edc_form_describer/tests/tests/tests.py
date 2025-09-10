@@ -3,8 +3,8 @@ from tempfile import mkstemp
 from django.test import TestCase
 
 from edc_form_describer.form_describer import FormDescriber
-from tests.admin import TestModel3Admin
-from tests.models import TestModel3
+from clinicedc_tests.admin import TestModel3Admin
+from clinicedc_tests.models import TestModel3
 
 
 class TestForDescriber(TestCase):

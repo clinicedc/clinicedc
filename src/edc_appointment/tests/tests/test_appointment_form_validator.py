@@ -44,9 +44,9 @@ from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
 from edc_visit_tracking.models import SubjectVisit
 from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_appointment import (
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
     get_visit_schedule1,
     get_visit_schedule2,
 )
@@ -714,7 +714,7 @@ class TestAppointmentFormValidator(TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "tests.crfone": ("next_appt_date", "next_visit_code")
+            "clinicedc_tests.crfone": ("next_appt_date", "next_visit_code")
         }
     )
     def test_skipped_never_allowed_at_baseline(self):
@@ -742,7 +742,7 @@ class TestAppointmentFormValidator(TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "tests.crfone": ("next_appt_date", "next_visit_code")
+            "clinicedc_tests.crfone": ("next_appt_date", "next_visit_code")
         }
     )
     def test_skipped_allowed_after_baseline_and_settings_attr_is_set(self):
@@ -808,7 +808,7 @@ class TestAppointmentFormValidator(TestCase):
 
     @override_settings(
         EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING={
-            "tests.crfone": ("next_appt_date", "next_visit_code")
+            "clinicedc_tests.crfone": ("next_appt_date", "next_visit_code")
         }
     )
     def test_skip_appointments(self):

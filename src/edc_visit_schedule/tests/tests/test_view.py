@@ -16,9 +16,9 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.sites import all_sites
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
 
 
 class MyView(VisitScheduleViewMixin, ContextMixin):
@@ -58,7 +58,7 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
             name="visit_schedule",
             verbose_name="Visit Schedule",
             offstudy_model="edc_offstudy.SubjectOffstudy",
-            death_report_model="tests.DeathReport",
+            death_report_model="clinicedc_tests.DeathReport",
         )
 
         self.schedule = Schedule(
@@ -70,8 +70,8 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         )
         self.schedule3 = Schedule(
             name="schedule_three",
-            onschedule_model="tests.OnScheduleThree",
-            offschedule_model="tests.OffScheduleThree",
+            onschedule_model="clinicedc_tests.OnScheduleThree",
+            offschedule_model="clinicedc_tests.OffScheduleThree",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )

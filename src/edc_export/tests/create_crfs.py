@@ -2,7 +2,14 @@ import uuid
 
 from edc_appointment.models import Appointment
 from edc_utils import get_utcnow
-from tests.models import CrfFour, CrfOne, CrfThree, CrfTwo, ListModel, SubjectVisit
+from clinicedc_tests.models import (
+    CrfFour,
+    CrfOne,
+    CrfThree,
+    CrfTwo,
+    ListModel,
+    SubjectVisit,
+)
 
 from .create_crfs_with_inlines import create_crf_with_inlines
 

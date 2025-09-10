@@ -23,11 +23,11 @@ from edc_utils.date import get_utcnow
 from edc_visit_schedule.constants import DAY01
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import SpecimenResult
-from tests.reportables import grading_data, normal_data
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import SpecimenResult
+from clinicedc_tests.reportables import grading_data, normal_data
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class SpecimenResultFormValidator(ReportablesFormValidatorMixin, CrfFormValidator):

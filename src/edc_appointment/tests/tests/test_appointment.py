@@ -28,10 +28,10 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from edc_visit_tracking.exceptions import RelatedVisitReasonError
 from edc_visit_tracking.utils import get_related_visit_model_cls
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import OnScheduleOne, OnScheduleTwo, SubjectConsent
-from tests.visit_schedules.visit_schedule_appointment import (
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import OnScheduleOne, OnScheduleTwo, SubjectConsent
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
     get_visit_schedule1,
     get_visit_schedule2,
 )

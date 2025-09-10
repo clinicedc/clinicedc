@@ -37,7 +37,7 @@ class TestPanel(TestCase):
         )
 
         lp = LabProfile(
-            name="test_profile", requisition_model="tests.subjectrequisition"
+            name="test_profile", requisition_model="clinicedc_tests.subjectrequisition"
         )
         lp.add_panel(wb_panel)
 

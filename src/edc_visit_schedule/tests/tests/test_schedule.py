@@ -10,7 +10,7 @@ from edc_visit_schedule.schedule.schedule import ScheduleNameError, VisitTimepoi
 from edc_visit_schedule.schedule.visit_collection import VisitCollectionError
 from edc_visit_schedule.utils import check_schedule_models
 from edc_visit_schedule.visit import Visit
-from tests.consents import consent_v1
+from clinicedc_tests.consents import consent_v1
 
 
 @tag("visit_schedule")
@@ -190,8 +190,8 @@ class TestSchedule(TestCase):
     def test_add_visits_base_timepoint_mismatch(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="tests.onschedule",
-            offschedule_model="tests.offschedule",
+            onschedule_model="clinicedc_tests.onschedule",
+            offschedule_model="clinicedc_tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
             base_timepoint=1,
@@ -209,8 +209,8 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_timepoint(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="tests.onschedule",
-            offschedule_model="tests.offschedule",
+            onschedule_model="clinicedc_tests.onschedule",
+            offschedule_model="clinicedc_tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -234,8 +234,8 @@ class TestSchedule(TestCase):
     def test_add_visits_duplicate_rbase(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="tests.onschedule",
-            offschedule_model="tests.offschedule",
+            onschedule_model="clinicedc_tests.onschedule",
+            offschedule_model="clinicedc_tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -261,8 +261,8 @@ class TestScheduleWithVisits(TestCase):
     def setUp(self):
         self.schedule = Schedule(
             name="schedule",
-            onschedule_model="tests.onschedule",
-            offschedule_model="tests.offschedule",
+            onschedule_model="clinicedc_tests.onschedule",
+            offschedule_model="clinicedc_tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -270,8 +270,8 @@ class TestScheduleWithVisits(TestCase):
     def test_wont_accept_visit_before_base_timepoint(self):
         schedule = Schedule(
             name="schedule",
-            onschedule_model="tests.onschedule",
-            offschedule_model="tests.offschedule",
+            onschedule_model="clinicedc_tests.onschedule",
+            offschedule_model="clinicedc_tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
             base_timepoint=1,

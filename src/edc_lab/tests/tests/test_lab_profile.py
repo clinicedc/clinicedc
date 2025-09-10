@@ -10,7 +10,7 @@ from edc_lab.lab import (
     RequisitionPanel,
     RequisitionPanelGroup,
 )
-from tests.models import SubjectRequisition
+from clinicedc_tests.models import SubjectRequisition
 
 
 @tag("lab")
@@ -61,11 +61,15 @@ class TestBuildProfile(TestCase):
         )
 
     def test_repr(self):
-        obj = LabProfile(name="profile", requisition_model="tests.subjectrequisition")
+        obj = LabProfile(
+            name="profile", requisition_model="clinicedc_tests.subjectrequisition"
+        )
         self.assertTrue(repr(obj))
 
     def test_str(self):
-        obj = LabProfile(name="profile", requisition_model="tests.subjectrequisition")
+        obj = LabProfile(
+            name="profile", requisition_model="clinicedc_tests.subjectrequisition"
+        )
         self.assertTrue(str(obj))
 
     def test_processing_bad(self):
@@ -107,7 +111,7 @@ class TestBuildProfile(TestCase):
             name="some panel", processing_profile=processing_profile
         )
         lab_profile = LabProfile(
-            name="profile", requisition_model="tests.subjectrequisition"
+            name="profile", requisition_model="clinicedc_tests.subjectrequisition"
         )
         lab_profile.add_panel(panel)
         self.assertEqual(panel, lab_profile.panels.get(panel.name))
@@ -123,7 +127,7 @@ class TestBuildProfile(TestCase):
             name="Viral Load", processing_profile=processing_profile
         )
         lab_profile = LabProfile(
-            name="profile", requisition_model="tests.subjectrequisition"
+            name="profile", requisition_model="clinicedc_tests.subjectrequisition"
         )
         lab_profile.add_panel(panel)
 
@@ -139,7 +143,7 @@ class TestBuildProfile(TestCase):
             name="Viral Load", processing_profile=processing_profile
         )
         lab_profile = LabProfile(
-            name="profile", requisition_model="tests.subjectrequisition"
+            name="profile", requisition_model="clinicedc_tests.subjectrequisition"
         )
         lab_profile.add_panel(panel)
         self.assertRaises(PanelAlreadyRegistered, lab_profile.add_panel, panel)
@@ -156,18 +160,18 @@ class TestBuildProfile(TestCase):
             name="Viral Load", processing_profile=processing_profile
         )
         lab_profile = LabProfile(
-            name="profile", requisition_model="tests.subjectrequisition"
+            name="profile", requisition_model="clinicedc_tests.subjectrequisition"
         )
         lab_profile.add_panel(panel)
         panel = lab_profile.panels.get("Viral Load")
-        self.assertEqual(panel.requisition_model, "tests.subjectrequisition")
+        self.assertEqual(panel.requisition_model, "clinicedc_tests.subjectrequisition")
         self.assertEqual(panel.requisition_model_cls, SubjectRequisition)
 
     def test_add_panel_group(self):
         panel_group = self.get_panel_group()
         lab_profile = LabProfile(
             name="profile",
-            requisition_model="tests.subjectrequisition",
+            requisition_model="clinicedc_tests.subjectrequisition",
         )
         lab_profile.add_panel(panel_group)
         panel = lab_profile.panels.get(panel_group.name)
@@ -179,9 +183,9 @@ class TestBuildProfile(TestCase):
         """Assert same panel cannot be added twice."""
         panel_group = self.get_panel_group()
         lab_profile = LabProfile(
-            name="profile", requisition_model="tests.subjectrequisition"
+            name="profile", requisition_model="clinicedc_tests.subjectrequisition"
         )
         lab_profile.add_panel(panel_group)
         panel = lab_profile.panels.get(panel_group.name)
-        self.assertEqual(panel.requisition_model, "tests.subjectrequisition")
+        self.assertEqual(panel.requisition_model, "clinicedc_tests.subjectrequisition")
         self.assertEqual(panel.requisition_model_cls, SubjectRequisition)

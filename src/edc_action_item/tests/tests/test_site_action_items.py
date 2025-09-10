@@ -12,7 +12,7 @@ from edc_action_item.site_action_items import (
     SiteActionError,
     site_action_items,
 )
-from tests.action_items import FormZeroAction
+from clinicedc_tests.action_items import FormZeroAction
 
 from ..test_case_mixin import TestCaseMixin
 

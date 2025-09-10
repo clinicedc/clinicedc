@@ -33,8 +33,8 @@ from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.models import CrfOne, SubjectConsent
-from tests.visit_schedules.visit_schedule_metadata.visit_schedule2 import (
+from clinicedc_tests.models import CrfOne, SubjectConsent
+from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule2 import (
     get_visit_schedule,
 )
 

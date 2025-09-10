@@ -17,12 +17,18 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.action_items import register_actions
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import Alphabet, BadCrfOneInline, CrfOne, CrfOneInline, CrfThree
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule import get_visit_schedule
+from clinicedc_tests.action_items import register_actions
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import (
+    Alphabet,
+    BadCrfOneInline,
+    CrfOne,
+    CrfOneInline,
+    CrfThree,
+)
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 from ..crfs import crfs
 from ..requisitions import requisitions
@@ -55,8 +61,8 @@ class TestVisit(TestCase):
             requisitions=requisitions,
             visit_schedule_name="visit_schedule1",
             schedule_name="schedule1",
-            onschedule_model="tests.onscheduleone",
-            offschedule_model="tests.offscheduleone",
+            onschedule_model="clinicedc_tests.onscheduleone",
+            offschedule_model="clinicedc_tests.offscheduleone",
             visit_count=4,
             allow_unscheduled=True,
         )
@@ -67,8 +73,8 @@ class TestVisit(TestCase):
             requisitions=requisitions,
             visit_schedule_name="visit_schedule2",
             schedule_name="schedule2",
-            onschedule_model="tests.onscheduletwo",
-            offschedule_model="tests.offscheduletwo",
+            onschedule_model="clinicedc_tests.onscheduletwo",
+            offschedule_model="clinicedc_tests.offscheduletwo",
             visit_count=4,
             allow_unscheduled=True,
         )

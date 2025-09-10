@@ -34,11 +34,11 @@ from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit, SubjectVisitMissedReasons
-from tests.consents import consent_v1
-from tests.forms import SubjectVisitMissedForm
-from tests.helper import Helper
-from tests.list_data import list_data
-from tests.sites import all_sites
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.forms import SubjectVisitMissedForm
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.list_data import list_data
+from clinicedc_tests.sites import all_sites
 
 utc_tz = ZoneInfo("UTC")
 
@@ -67,11 +67,11 @@ class TestVisit(TestCase):
         site_consents.register(consent_v1)
         self.helper = self.helper_cls()
         crfs = CrfCollection(
-            Crf(show_order=1, model="tests.crfone", required=True),
-            Crf(show_order=2, model="tests.crftwo", required=True),
-            Crf(show_order=3, model="tests.crfthree", required=True),
-            Crf(show_order=4, model="tests.crffour", required=True),
-            Crf(show_order=5, model="tests.crffive", required=True),
+            Crf(show_order=1, model="clinicedc_tests.crfone", required=True),
+            Crf(show_order=2, model="clinicedc_tests.crftwo", required=True),
+            Crf(show_order=3, model="clinicedc_tests.crfthree", required=True),
+            Crf(show_order=4, model="clinicedc_tests.crffour", required=True),
+            Crf(show_order=5, model="clinicedc_tests.crffive", required=True),
         )
         crfs_missed = CrfCollection(
             Crf(
@@ -84,13 +84,13 @@ class TestVisit(TestCase):
         visit_schedule1 = VisitSchedule(
             name="visit_schedule1",
             offstudy_model="edc_offstudy.subjectoffstudy",
-            death_report_model="tests.deathreport",
+            death_report_model="clinicedc_tests.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
         schedule1 = Schedule(
             name="schedule1",
-            onschedule_model="tests.onscheduleone",
-            offschedule_model="tests.offscheduleone",
+            onschedule_model="clinicedc_tests.onscheduleone",
+            offschedule_model="clinicedc_tests.offscheduleone",
             consent_definitions=[consent_v1],
         )
         visits = []

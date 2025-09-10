@@ -15,7 +15,7 @@ from edc_screening.utils import (
     get_subject_screening_model,
     get_subject_screening_model_cls,
 )
-from tests.models import (
+from clinicedc_tests.models import (
     SubjectScreening,
     SubjectScreeningSimple,
     SubjectScreeningWithoutEligibility,
@@ -23,9 +23,11 @@ from tests.models import (
 
 
 class TestScreening(TestCase):
-    @override_settings(SUBJECT_SCREENING_MODEL="tests.subjectscreening")
+    @override_settings(SUBJECT_SCREENING_MODEL="clinicedc_tests.subjectscreening")
     def test_model_funcs(self):
-        self.assertEqual(get_subject_screening_model(), "tests.subjectscreening")
+        self.assertEqual(
+            get_subject_screening_model(), "clinicedc_tests.subjectscreening"
+        )
         self.assertEqual(get_subject_screening_app_label(), "tests")
         self.assertEqual(get_subject_screening_model_cls(), SubjectScreening)
 

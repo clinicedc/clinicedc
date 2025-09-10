@@ -32,8 +32,10 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule3
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule3,
+)
 
 utc = ZoneInfo("UTC")
 

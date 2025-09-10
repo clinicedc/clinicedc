@@ -24,10 +24,10 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.helper import Helper
-from tests.models import CrfEight, SubjectVisitWithoutAppointment
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfEight, SubjectVisitWithoutAppointment
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
 from ..consent_test_utils import consent_definition_factory
 
@@ -67,7 +67,7 @@ class TestConsent(TestCase):
         self.assertRaises(
             SiteConsentError,
             baker.make_recipe,
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             subject_identifier=subject_identifier,
             consent_datetime=self.study_open_datetime,
         )
@@ -275,7 +275,7 @@ class TestConsent(TestCase):
             version="1.0",
         )
         cdef20 = consent_definition_factory(
-            model="tests.subjectconsentv2",
+            model="clinicedc_tests.subjectconsentv2",
             start=self.study_open_datetime + timedelta(days=51),
             end=self.study_open_datetime + timedelta(days=100),
             version="2.0",
@@ -357,14 +357,14 @@ class TestConsent(TestCase):
 
     def test_consent_periods_cannot_overlap2(self):
         cdef1 = consent_definition_factory(
-            model="tests.subjectconsentv1",
+            model="clinicedc_tests.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
 
         cdef2 = consent_definition_factory(
-            model="tests.subjectconsentv2",
+            model="clinicedc_tests.subjectconsentv2",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="2.0",
@@ -377,14 +377,14 @@ class TestConsent(TestCase):
 
     def test_consent_periods_can_overlap_if_different_model(self):
         cdef1 = consent_definition_factory(
-            model="tests.subjectconsentv1",
+            model="clinicedc_tests.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
 
         cdef2 = consent_definition_factory(
-            model="tests.subjectconsentv2",
+            model="clinicedc_tests.subjectconsentv2",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
@@ -494,7 +494,7 @@ class TestConsent(TestCase):
         self.assertRaises(
             ConsentVersionSequenceError,
             baker.make_recipe,
-            "tests.subjectconsent",
+            "clinicedc_tests.subjectconsent",
             dob=self.study_open_datetime - relativedelta(years=25),
             consent_datetime=self.study_open_datetime + timedelta(days=60),
         )
@@ -514,13 +514,13 @@ class TestConsent(TestCase):
             update_versions=["1.0"],
         )
         subject_consent = baker.make_recipe(
-            "tests.subjectconsent",
+            "clinicedc_tests.subjectconsent",
             consent_datetime=self.study_open_datetime + timedelta(days=5),
             dob=self.study_open_datetime - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.version, "1.0")
         subject_consent = baker.make_recipe(
-            "tests.subjectconsent",
+            "clinicedc_tests.subjectconsent",
             subject_identifier=subject_consent.subject_identifier,
             consent_datetime=self.study_open_datetime + timedelta(days=60),
             first_name=subject_consent.first_name,
@@ -555,7 +555,7 @@ class TestConsent(TestCase):
             update_versions=["1.1"],
         )
         subject_consent = baker.make_recipe(
-            "tests.subjectconsent",
+            "clinicedc_tests.subjectconsent",
             consent_datetime=self.study_open_datetime,
             dob=self.study_open_datetime - relativedelta(years=25),
         )
@@ -564,7 +564,7 @@ class TestConsent(TestCase):
         self.assertRaises(
             ConsentVersionSequenceError,
             baker.make_recipe,
-            "tests.subjectconsent",
+            "clinicedc_tests.subjectconsent",
             consent_datetime=self.study_open_datetime + timedelta(days=125),
             subject_identifier=subject_consent.subject_identifier,
             first_name=subject_consent.first_name,

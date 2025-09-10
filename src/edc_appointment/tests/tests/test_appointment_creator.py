@@ -21,7 +21,7 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from tests.helper import Helper
+from clinicedc_tests.helper import Helper
 
 utc_tz = ZoneInfo("UTC")
 
@@ -40,7 +40,7 @@ class AppointmentCreatorTestCase(TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         self.consent_v1 = ConsentDefinition(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,
@@ -57,13 +57,13 @@ class AppointmentCreatorTestCase(TestCase):
             name="visit_schedule",
             verbose_name="Visit Schedule",
             offstudy_model="edc_offstudy.subjectoffstudy",
-            death_report_model="tests.deathreport",
+            death_report_model="clinicedc_tests.deathreport",
         )
 
         self.schedule = Schedule(
             name="schedule",
             onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="tests.offschedule",
+            offschedule_model="clinicedc_tests.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[self.consent_v1],
         )
@@ -225,7 +225,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
 
         site_consents.registry = {}
         consent_definition = ConsentDefinition(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,

@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings, tag
 from edc_auth.auth_updater import AuthUpdater
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE, SITE_DATA_MANAGER_ROLE
 from edc_export.constants import EXPORT
-from tests.action_items import register_actions
+from clinicedc_tests.action_items import register_actions
 
 
 @tag("adverse_event")

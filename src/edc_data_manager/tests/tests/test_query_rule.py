@@ -29,10 +29,17 @@ from edc_visit_schedule.constants import HOURS
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-from tests.consents import consent_v1
-from tests.models import CrfOne, SubjectConsentV1, SubjectRequisition, SubjectVisit
-from tests.visit_schedules.visit_schedule_dashboard.lab_profiles import lab_profile
-from tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.models import (
+    CrfOne,
+    SubjectConsentV1,
+    SubjectRequisition,
+    SubjectVisit,
+)
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.lab_profiles import (
+    lab_profile,
+)
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
     get_visit_schedule,
 )
 
@@ -164,7 +171,9 @@ class TestQueryRules(TestCase):
 
     def test_crf_rule(self):
         # create a rule
-        question = CrfDataDictionary.objects.get(model="tests.crfone", field_name="f1")
+        question = CrfDataDictionary.objects.get(
+            model="clinicedc_tests.crfone", field_name="f1"
+        )
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
 
@@ -267,7 +276,9 @@ class TestQueryRules(TestCase):
 
     def test_crf_rule_with_requisition(self):
         # create a rule
-        question = CrfDataDictionary.objects.get(model="tests.crfone", field_name="f1")
+        question = CrfDataDictionary.objects.get(
+            model="clinicedc_tests.crfone", field_name="f1"
+        )
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
         requisition_panel = RequisitionPanel.objects.all()[0]
@@ -384,7 +395,9 @@ class TestQueryRules(TestCase):
     @skip("fix later")
     def test_crf_rule_with_requisition_prn_visit(self):
         # create a rule
-        question = CrfDataDictionary.objects.get(model="tests.crfone", field_name="f1")
+        question = CrfDataDictionary.objects.get(
+            model="clinicedc_tests.crfone", field_name="f1"
+        )
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
         requisition_panel = RequisitionPanel.objects.all()[0]

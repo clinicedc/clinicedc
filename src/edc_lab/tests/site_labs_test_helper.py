@@ -14,7 +14,7 @@ class SiteLabsTestHelper:
         self.panel = None
         self.lab_profile = None
 
-    requisition_model = "tests.subjectrequisition"
+    requisition_model = "clinicedc_tests.subjectrequisition"
 
     def setup_site_labs(self):
         """Sets up the site_lab global."""

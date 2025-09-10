@@ -18,10 +18,10 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import CrfFour
-from tests.visit_schedules.visit_schedule_crf import visit_schedule
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfFour
+from clinicedc_tests.visit_schedules.visit_schedule_crf import visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 

@@ -15,10 +15,10 @@ from edc_auth.site_auths import site_auths
 class TestAuthUpdater2(TestCase):
     def test_add_group(self):
         codenames = [
-            "tests.add_testmodel",
-            "tests.change_testmodel",
-            "tests.delete_testmodel",
-            "tests.view_testmodel",
+            "clinicedc_tests.add_testmodel",
+            "clinicedc_tests.change_testmodel",
+            "clinicedc_tests.delete_testmodel",
+            "clinicedc_tests.view_testmodel",
         ]
         site_auths.clear()
         site_auths.add_group(*codenames, name="GROUP")
@@ -27,7 +27,9 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(content_type__app_label="tests")
+                for p in group.permissions.filter(
+                    content_type__app_label="clinicedc_tests"
+                )
             ],
             [c.split(".")[1] for c in codenames],
         )
@@ -35,17 +37,17 @@ class TestAuthUpdater2(TestCase):
     def test_add_group_with_callable(self):
         def codenames_callable() -> list[str]:
             return [
-                "tests.add_subjectrequisition",
-                "tests.change_subjectrequisition",
-                "tests.delete_subjectrequisition",
-                "tests.view_subjectrequisition",
+                "clinicedc_tests.add_subjectrequisition",
+                "clinicedc_tests.change_subjectrequisition",
+                "clinicedc_tests.delete_subjectrequisition",
+                "clinicedc_tests.view_subjectrequisition",
             ]
 
         codenames = [
-            "tests.add_testmodel",
-            "tests.change_testmodel",
-            "tests.delete_testmodel",
-            "tests.view_testmodel",
+            "clinicedc_tests.add_testmodel",
+            "clinicedc_tests.change_testmodel",
+            "clinicedc_tests.delete_testmodel",
+            "clinicedc_tests.view_testmodel",
         ]
         codenames_with_callable: list = copy(codenames)
         codenames_with_callable.append(codenames_callable)
@@ -60,7 +62,7 @@ class TestAuthUpdater2(TestCase):
             [
                 p.codename
                 for p in group.permissions.filter(
-                    content_type__app_label="tests"
+                    content_type__app_label="clinicedc_tests"
                 ).order_by("codename")
             ],
             [c.split(".")[1] for c in codenames],
@@ -68,10 +70,10 @@ class TestAuthUpdater2(TestCase):
 
     def test_add_group_view_only(self):
         codenames = [
-            "tests.add_testmodel",
-            "tests.change_testmodel",
-            "tests.delete_testmodel",
-            "tests.view_testmodel",
+            "clinicedc_tests.add_testmodel",
+            "clinicedc_tests.change_testmodel",
+            "clinicedc_tests.delete_testmodel",
+            "clinicedc_tests.view_testmodel",
         ]
         site_auths.clear()
         site_auths.add_group(*codenames, name="GROUP_VIEW_ONLY", view_only=True)
@@ -80,7 +82,9 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(content_type__app_label="tests")
+                for p in group.permissions.filter(
+                    content_type__app_label="clinicedc_tests"
+                )
             ],
             ["view_testmodel"],
         )
@@ -88,17 +92,17 @@ class TestAuthUpdater2(TestCase):
     def test_add_group_view_only_with_callable(self):
         def more_codenames():
             return [
-                "tests.add_subjectrequisition",
-                "tests.change_subjectrequisition",
-                "tests.delete_subjectrequisition",
-                "tests.view_subjectrequisition",
+                "clinicedc_tests.add_subjectrequisition",
+                "clinicedc_tests.change_subjectrequisition",
+                "clinicedc_tests.delete_subjectrequisition",
+                "clinicedc_tests.view_subjectrequisition",
             ]
 
         codenames = [
-            "tests.add_testmodel",
-            "tests.change_testmodel",
-            "tests.delete_testmodel",
-            "tests.view_testmodel",
+            "clinicedc_tests.add_testmodel",
+            "clinicedc_tests.change_testmodel",
+            "clinicedc_tests.delete_testmodel",
+            "clinicedc_tests.view_testmodel",
             more_codenames,
         ]
         site_auths.clear()
@@ -108,7 +112,9 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(content_type__app_label="tests")
+                for p in group.permissions.filter(
+                    content_type__app_label="clinicedc_tests"
+                )
             ],
             ["view_subjectrequisition", "view_testmodel"],
         )
@@ -116,17 +122,17 @@ class TestAuthUpdater2(TestCase):
     def test_add_group_convert_to_export_with_callable(self):
         def more_codenames():
             return [
-                "tests.add_subjectrequisition",
-                "tests.change_subjectrequisition",
-                "tests.delete_subjectrequisition",
-                "tests.view_subjectrequisition",
+                "clinicedc_tests.add_subjectrequisition",
+                "clinicedc_tests.change_subjectrequisition",
+                "clinicedc_tests.delete_subjectrequisition",
+                "clinicedc_tests.view_subjectrequisition",
             ]
 
         codenames = [
-            "tests.add_testmodel",
-            "tests.change_testmodel",
-            "tests.delete_testmodel",
-            "tests.view_testmodel",
+            "clinicedc_tests.add_testmodel",
+            "clinicedc_tests.change_testmodel",
+            "clinicedc_tests.delete_testmodel",
+            "clinicedc_tests.view_testmodel",
             more_codenames,
         ]
 
@@ -134,8 +140,11 @@ class TestAuthUpdater2(TestCase):
         # export permissions are custom, you need to add to the
         # permissions model if not already on the model
         for model, codename in [
-            ("tests.subjectrequisition", "tests.export_subjectrequisition"),
-            ("tests.testmodel", "tests.export_testmodel"),
+            (
+                "clinicedc_tests.subjectrequisition",
+                "clinicedc_tests.export_subjectrequisition",
+            ),
+            ("clinicedc_tests.testmodel", "clinicedc_tests.export_testmodel"),
         ]:
             site_auths.add_custom_permissions_tuples(
                 model=model,
@@ -147,7 +156,9 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(content_type__app_label="tests")
+                for p in group.permissions.filter(
+                    content_type__app_label="clinicedc_tests"
+                )
             ],
             ["export_subjectrequisition", "export_testmodel"],
         )
@@ -155,17 +166,17 @@ class TestAuthUpdater2(TestCase):
     def test_add_group_remove_delete_with_callable(self):
         def more_codenames():
             return [
-                "tests.add_subjectrequisition",
-                "tests.change_subjectrequisition",
-                "tests.delete_subjectrequisition",
-                "tests.view_subjectrequisition",
+                "clinicedc_tests.add_subjectrequisition",
+                "clinicedc_tests.change_subjectrequisition",
+                "clinicedc_tests.delete_subjectrequisition",
+                "clinicedc_tests.view_subjectrequisition",
             ]
 
         codenames = [
-            "tests.add_testmodel",
-            "tests.change_testmodel",
-            "tests.delete_testmodel",
-            "tests.view_testmodel",
+            "clinicedc_tests.add_testmodel",
+            "clinicedc_tests.change_testmodel",
+            "clinicedc_tests.delete_testmodel",
+            "clinicedc_tests.view_testmodel",
             more_codenames,
         ]
         site_auths.clear()
@@ -185,7 +196,7 @@ class TestAuthUpdater2(TestCase):
             [
                 p.codename
                 for p in group.permissions.filter(
-                    content_type__app_label="tests"
+                    content_type__app_label="clinicedc_tests"
                 ).order_by("codename")
             ],
             codenames,

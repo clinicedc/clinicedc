@@ -10,7 +10,7 @@ from edc_constants.constants import GRADE3, GRADE4, GRADE5, NO, YES
 from edc_facility.import_holidays import import_holidays
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from tests.sites import all_sites
+from clinicedc_tests.sites import all_sites
 
 from ...action_items import (
     AeFollowupAction,
@@ -37,7 +37,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
 
     def test_notifies_initial_ae_g3_not_sae(self):
         baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE3,
             sae=NO,
@@ -86,7 +86,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
 
     def test_notifies_initial_ae_g3_is_sae(self):
         baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE3,
             sae=YES,
@@ -148,7 +148,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
 
     def test_notifies_initial_ae_g4_is_sae(self):
         baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE4,
             sae=YES,
@@ -171,7 +171,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
 
     def test_notifies_initial_ae_death(self):
         baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE5,
             sae=YES,
@@ -272,7 +272,7 @@ class TestNotifications(DeathReportTestMixin, TestCase):
 
     def test_notifies_initial_ae_susar(self):
         baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             ae_grade=GRADE4,
             sae=YES,
