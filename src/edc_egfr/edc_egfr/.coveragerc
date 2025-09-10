@@ -1,0 +1,4 @@
+[run]
+include = edc_egfr/*
+omit = edc_egfr/tests/*,edc_egfr/migrations/*
+branch = 1

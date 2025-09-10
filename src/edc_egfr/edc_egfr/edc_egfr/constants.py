@@ -1,0 +1,1 @@
+EGFR_DROP_NOTIFICATION_ACTION = "egfr_notification_action"

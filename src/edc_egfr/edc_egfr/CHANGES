@@ -1,0 +1,6 @@
+Changes
+=======
+
+0.1.9
+-----
+- reset egfr_value when creatinine_value is None
