@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.apps import apps as django_apps
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
@@ -16,6 +16,7 @@ from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.models import CrfLongitudinalOne
 from tests.visit_schedules.visit_schedule_action_item import get_visit_schedule
+
 from ..test_case_mixin import TestCaseMixin
 
 utc_tz = ZoneInfo("UTC")

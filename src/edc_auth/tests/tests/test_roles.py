@@ -16,7 +16,8 @@ from edc_auth.constants import (
 )
 from edc_auth.models import Role
 from edc_auth.site_auths import site_auths
-from ..utils import create_users, EdcAuthTestCase
+
+from ..utils import EdcAuthTestCase, create_users
 
 fake = Faker()
 

@@ -9,15 +9,16 @@ from django.db.models.deletion import ProtectedError
 
 from edc_facility.exceptions import FacilityError
 from edc_facility.utils import get_facility
-from .appointment_creator import AppointmentCreator
+
 from ..exceptions import CreateAppointmentError
+from .appointment_creator import AppointmentCreator
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
 
+    from edc_consent.consent_definition import ConsentDefinition
     from edc_visit_schedule.schedule import Schedule
     from edc_visit_schedule.visit_schedule import VisitSchedule
-    from edc_consent.consent_definition import ConsentDefinition
 
     from ..models import Appointment
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import sys
-from typing import Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist

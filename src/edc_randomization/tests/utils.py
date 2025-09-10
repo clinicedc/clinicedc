@@ -5,11 +5,12 @@ import random
 import secrets
 from pathlib import Path
 from tempfile import mkdtemp
-from typing import Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from django.contrib.sites.models import Site
 
 from edc_randomization.site_randomizers import site_randomizers
+
 from ..constants import ACTIVE, PLACEBO
 
 if TYPE_CHECKING:

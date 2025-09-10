@@ -8,9 +8,10 @@ from django.conf import settings
 from edc_form_validators import INVALID_ERROR
 from edc_screening.form_validator_mixins import SubjectScreeningFormValidatorMixin
 from edc_sites.site import sites
-from edc_utils import age, AgeValueError
+from edc_utils import AgeValueError, age
 from edc_utils.date import to_local, to_utc
 from edc_utils.text import convert_php_dateformat
+
 from ..site_consents import site_consents
 
 

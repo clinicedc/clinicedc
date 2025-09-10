@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import INCOMPLETE_APPT, NEW_APPT
 from edc_appointment.managers import AppointmentDeleteError
@@ -31,7 +31,6 @@ from tests.visit_schedules.visit_schedule_appointment import (
     get_visit_schedule2,
     get_visit_schedule3,
 )
-
 
 utc_tz = ZoneInfo("UTC")
 

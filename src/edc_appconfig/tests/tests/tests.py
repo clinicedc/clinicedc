@@ -1,6 +1,6 @@
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_action_item.system_checks import edc_action_item_checks
 from edc_consent import site_consents

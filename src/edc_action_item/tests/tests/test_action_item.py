@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_action_item.action import Action
 from edc_action_item.create_or_update_action_type import create_or_update_action_type
@@ -26,6 +26,7 @@ from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.models import FormOne, FormThree, FormTwo, TestModelWithAction
 from tests.visit_schedules.visit_schedule_action_item import get_visit_schedule
+
 from ..test_case_mixin import TestCaseMixin
 
 utc_tz = ZoneInfo("UTC")

@@ -5,7 +5,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from faker import Faker
 from model_bakery import baker
 
@@ -36,6 +36,7 @@ from tests.models import (
 )
 from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
+
 from ..consent_test_utils import consent_factory
 
 fake = Faker()

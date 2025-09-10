@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_consent import site_consents
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES

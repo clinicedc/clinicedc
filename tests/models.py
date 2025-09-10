@@ -407,9 +407,7 @@ class SubjectIdentifierModel(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel
         pass
 
 
-class OffSchedule(
-    SiteModelMixin, OffScheduleModelMixin, ActionModelMixin, BaseUuidModel
-):
+class OffSchedule(SiteModelMixin, OffScheduleModelMixin, ActionModelMixin, BaseUuidModel):
     action_name = OFFSCHEDULE_ACTION
     offschedule_compare_dates_as_datetimes = False
 
@@ -1033,9 +1031,7 @@ class TestModel3(CrfModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    f1 = models.CharField(
-        verbose_name="Is it what it is?", max_length=10, choices=YES_NO
-    )
+    f1 = models.CharField(verbose_name="Is it what it is?", max_length=10, choices=YES_NO)
 
     f2 = models.CharField(
         verbose_name="Are they serious?", max_length=10, null=True, blank=True
@@ -1069,9 +1065,7 @@ class TestModel4(CrfModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    f1 = models.CharField(
-        verbose_name="Is it what it is?", max_length=10, choices=YES_NO
-    )
+    f1 = models.CharField(verbose_name="Is it what it is?", max_length=10, choices=YES_NO)
 
     f2 = models.CharField(
         verbose_name="Are they serious?", max_length=10, null=True, blank=True
@@ -1284,9 +1278,7 @@ class SpecimenResult(CrfModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=get_utcnow)
 
-    haemoglobin = models.DecimalField(
-        decimal_places=1, max_digits=6, null=True, blank=True
-    )
+    haemoglobin = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True)
 
     haemoglobin_units = models.CharField(
         verbose_name="units",
@@ -1315,8 +1307,7 @@ class SpecimenResult(CrfModelMixin, BaseUuidModel):
     )
 
     results_reportable = models.CharField(
-        verbose_name="If any results are abnormal, are results within grade III "
-        "or above?",
+        verbose_name="If any results are abnormal, are results within grade III " "or above?",
         max_length=25,
         choices=YES_NO_NA,
     )

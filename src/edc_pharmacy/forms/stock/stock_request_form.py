@@ -1,6 +1,7 @@
 from django import forms
 
 from edc_registration.models import RegisteredSubject
+
 from ...models import Allocation, StockRequest
 
 
@@ -29,10 +30,16 @@ class StockRequestForm(forms.ModelForm):
                 raise forms.ValidationError(
                     {"subject_identifiers": "Not all subject identifiers are valid."}
                 )
-        if cleaned_data.get("excluded_subject_identifiers") and cleaned_data.get("location"):
-            subject_identifiers = cleaned_data.get("excluded_subject_identifiers").split("\n")
+        if cleaned_data.get("excluded_subject_identifiers") and cleaned_data.get(
+            "location"
+        ):
+            subject_identifiers = cleaned_data.get(
+                "excluded_subject_identifiers"
+            ).split("\n")
             subject_identifiers = [s.strip() for s in subject_identifiers]
-            self.cleaned_data["excluded_subject_identifiers"] = "\n".join(subject_identifiers)
+            self.cleaned_data["excluded_subject_identifiers"] = "\n".join(
+                subject_identifiers
+            )
             if RegisteredSubject.objects.values("subject_identifier").filter(
                 subject_identifier__in=subject_identifiers,
                 site_id=cleaned_data.get("location").site_id,
@@ -77,7 +84,8 @@ class StockRequestForm(forms.ModelForm):
         if (
             cleaned_data.get("request_datetime")
             and cleaned_data.get("cutoff_datetime")
-            and cleaned_data.get("cutoff_datetime") < cleaned_data.get("request_datetime")
+            and cleaned_data.get("cutoff_datetime")
+            < cleaned_data.get("request_datetime")
         ):
             raise forms.ValidationError(
                 {"cutoff_datetime": "Invalid. Must after the request date"}
@@ -89,7 +97,9 @@ class StockRequestForm(forms.ModelForm):
             == cleaned_data.get("request_datetime").date()
         ):
             raise forms.ValidationError(
-                {"cutoff_datetime": "Invalid. Must be at least 1 day after the request date"}
+                {
+                    "cutoff_datetime": "Invalid. Must be at least 1 day after the request date"
+                }
             )
         if (
             cleaned_data.get("start_datetime")

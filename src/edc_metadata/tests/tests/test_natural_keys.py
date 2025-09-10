@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_consent import site_consents
 from edc_constants.constants import MALE

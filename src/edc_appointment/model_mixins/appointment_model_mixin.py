@@ -22,14 +22,15 @@ from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import is_baseline
-from .appointment_fields_model_mixin import AppointmentFieldsModelMixin
-from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
-from .missed_appointment_model_mixin import MissedAppointmentModelMixin
-from .window_period_model_mixin import WindowPeriodModelMixin
+
 from ..constants import CANCELLED_APPT, IN_PROGRESS_APPT
 from ..exceptions import AppointmentDatetimeError, UnknownVisitCode
 from ..managers import AppointmentManager
 from ..utils import raise_on_appt_may_not_be_missed, update_appt_status
+from .appointment_fields_model_mixin import AppointmentFieldsModelMixin
+from .appointment_methods_model_mixin import AppointmentMethodsModelMixin
+from .missed_appointment_model_mixin import MissedAppointmentModelMixin
+from .window_period_model_mixin import WindowPeriodModelMixin
 
 if TYPE_CHECKING:
     from edc_visit_schedule.schedule import Schedule

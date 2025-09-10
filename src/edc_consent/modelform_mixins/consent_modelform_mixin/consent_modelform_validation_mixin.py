@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from dateutil.relativedelta import relativedelta
 from django import forms
 
 from edc_constants.constants import NO, YES
 from edc_model_form.utils import get_field_or_raise
-from edc_utils import age, AgeValueError, formatted_age
+from edc_utils import AgeValueError, age, formatted_age
+
 from ...exceptions import ConsentDefinitionValidityPeriodError
 from ...site_consents import site_consents
 from ...utils import InvalidInitials, verify_initials_against_full_name

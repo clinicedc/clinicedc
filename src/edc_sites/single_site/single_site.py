@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field, KW_ONLY
+from dataclasses import KW_ONLY, dataclass, field
 
 from .get_languages import get_languages
 

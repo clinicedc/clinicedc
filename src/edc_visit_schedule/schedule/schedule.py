@@ -4,7 +4,7 @@ import re
 from copy import deepcopy
 from datetime import datetime
 from decimal import Decimal
-from typing import Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 
@@ -17,12 +17,13 @@ from edc_registration import get_registered_subject_model_cls
 from edc_sites import site_sites
 from edc_sites.single_site import SingleSite
 from edc_utils import formatted_date
-from .visit_collection import VisitCollection
-from .window import Window
+
 from ..exceptions import NotOnScheduleError, NotOnScheduleForDateError
 from ..site_visit_schedules import site_visit_schedules
 from ..subject_schedule import SubjectSchedule
 from ..visit import Visit
+from .visit_collection import VisitCollection
+from .window import Window
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment

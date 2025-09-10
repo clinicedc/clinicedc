@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_constants.constants import FEMALE, MALE
 from edc_reportable import Formula

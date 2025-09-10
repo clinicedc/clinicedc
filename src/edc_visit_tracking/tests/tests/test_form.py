@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.models import Appointment
@@ -40,6 +40,7 @@ from tests.helper import Helper
 from tests.models import BadCrfNoRelatedVisit, CrfOne
 from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
+
 from ..crfs import crfs
 from ..requisitions import requisitions
 

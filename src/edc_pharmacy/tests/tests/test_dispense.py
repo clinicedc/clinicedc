@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_consent import site_consents
 from edc_pharmacy.models import (

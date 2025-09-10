@@ -1,7 +1,7 @@
-from unittest.mock import patch, PropertyMock
+from unittest.mock import PropertyMock, patch
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from model_bakery import baker
 
 from edc_action_item.get_action_type import get_action_type

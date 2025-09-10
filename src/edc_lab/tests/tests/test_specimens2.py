@@ -2,20 +2,20 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
+from edc_lab.lab import AliquotCreator as AliquotCreatorBase
 from edc_lab.lab import (
-    AliquotCreator as AliquotCreatorBase,
     AliquotType,
     Process,
     ProcessingProfile,
-    Specimen as SpecimenBase,
 )
+from edc_lab.lab import Specimen as SpecimenBase
 from edc_lab.models import Aliquot
 from edc_lab.site_labs import site_labs
 from edc_sites.site import sites as site_sites

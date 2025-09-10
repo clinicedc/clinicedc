@@ -3,19 +3,20 @@ from importlib import import_module
 
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
 from edc_randomization.auth_objects import (
-    get_rando_permissions_tuples,
     RANDO_BLINDED,
     RANDO_UNBLINDED,
+    get_rando_permissions_tuples,
 )
 from edc_randomization.randomizer import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
-from ..randomizers import CustomRandomizer
+
 from ...auth_objects import default_groups
+from ..randomizers import CustomRandomizer
 
 
 @tag("auth")

@@ -7,7 +7,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.forms import model_to_dict
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from faker import Faker
 from model_bakery import baker
 

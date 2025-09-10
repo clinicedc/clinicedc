@@ -2,7 +2,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_adverse_event.form_validator_mixins import (
     RequiresDeathReportFormValidatorMixin,
@@ -13,6 +13,7 @@ from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from tests.models import DeathReportTmg
 from tests.sites import all_sites
+
 from .mixins import DeathReportTestMixin
 
 

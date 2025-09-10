@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.core.exceptions import ObjectDoesNotExist
 
 from edc_utils.round_up import round_half_away_from_zero
-from .molecular_weight_model_cls import molecular_weight_model_cls
+
 from ..exceptions import ConversionNotHandled
 from ..units import (
     GRAMS_PER_LITER,
@@ -12,6 +12,7 @@ from ..units import (
     MILLIGRAMS_PER_LITER,
     MILLIMOLES_PER_LITER,
 )
+from .molecular_weight_model_cls import molecular_weight_model_cls
 
 __all__ = ["convert_units"]
 

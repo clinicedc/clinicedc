@@ -7,7 +7,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.db.models import Sum
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from sequences import get_next_value
 
 from edc_consent import site_consents

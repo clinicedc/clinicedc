@@ -3,10 +3,10 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.contrib import admin
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
+from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fields
 
-from django_audit_fields.admin import audit_fields, ModelAdminAuditFieldsMixin
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -23,6 +23,7 @@ from tests.helper import Helper
 from tests.models import CrfOne, CrfThree
 from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
+
 from ..crfs import crfs
 from ..requisitions import requisitions
 

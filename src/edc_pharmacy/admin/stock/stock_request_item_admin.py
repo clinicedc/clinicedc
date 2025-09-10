@@ -3,12 +3,16 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django_audit_fields import audit_fieldset_tuple
 from rangefilter.filters import DateRangeFilterBuilder
 
-from django_audit_fields import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_model_admin.list_filters import FutureDateListFilter
 from edc_utils.date import to_local
+
+from ...admin_site import edc_pharmacy_admin
+from ...forms import StockRequestItemForm
+from ...models import StockRequestItem
 from ..actions.print_labels import print_labels_from_stock_request_item
 from ..list_filters import (
     AssignmentListFilter,
@@ -18,9 +22,6 @@ from ..list_filters import (
 )
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
-from ...admin_site import edc_pharmacy_admin
-from ...forms import StockRequestItemForm
-from ...models import StockRequestItem
 
 
 class ApptDatetimeListFilter(FutureDateListFilter):

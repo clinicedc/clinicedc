@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.apps import apps as django_apps
 from django.db.models.signals import post_save
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 
 from edc_action_item.data_fixers import (
     fix_null_action_item_fk,
@@ -14,6 +14,7 @@ from edc_action_item.data_fixers import (
 from edc_action_item.models import update_or_create_action_item_on_post_save
 from tests.action_items import register_actions
 from tests.models import FormOne, FormTwo
+
 from ..test_case_mixin import TestCaseMixin
 
 utc_tz = ZoneInfo("UTC")

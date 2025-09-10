@@ -3,8 +3,8 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil._common import weekday
-from dateutil.relativedelta import FR, MO, relativedelta, SA, SU, TH, TU, WE
-from django.test import override_settings, tag, TestCase
+from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents

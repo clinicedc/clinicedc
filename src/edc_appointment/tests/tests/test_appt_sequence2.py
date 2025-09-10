@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -21,7 +21,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule1
-
 
 utc_tz = ZoneInfo("UTC")
 

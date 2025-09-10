@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_adverse_event.form_validators import DeathReportFormValidator as Base
 from edc_constants.constants import OTHER, UNKNOWN

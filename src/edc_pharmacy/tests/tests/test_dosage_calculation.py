@@ -1,4 +1,4 @@
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_list_data import site_list_data
 from edc_pharmacy.dosage_calculator import DosageCalculator
@@ -65,7 +65,9 @@ class TestDoseCalculator(TestCase):
             dose_per_kg=100.0,
             dose_units=Units.objects.get(display_name__iexact="mg"),
             frequency=1.0,
-            frequency_units=FrequencyUnits.objects.get(display_name__iexact="times per day"),
+            frequency_units=FrequencyUnits.objects.get(
+                display_name__iexact="times per day"
+            ),
         )
         formulation = Formulation.objects.get(
             medication=medication,
@@ -95,7 +97,9 @@ class TestDoseCalculator(TestCase):
             dose_per_kg=10.0,
             dose_units=Units.objects.get(display_name__iexact="mg"),
             frequency=1.0,
-            frequency_units=FrequencyUnits.objects.get(display_name__iexact="times per day"),
+            frequency_units=FrequencyUnits.objects.get(
+                display_name__iexact="times per day"
+            ),
         )
         formulation = Formulation.objects.get(medication=medication)
         self.assertEqual(
@@ -114,7 +118,9 @@ class TestDoseCalculator(TestCase):
             dose=1200.0,
             dose_units=Units.objects.get(display_name__iexact="mg"),
             frequency=1.0,
-            frequency_units=FrequencyUnits.objects.get(display_name__iexact="times per day"),
+            frequency_units=FrequencyUnits.objects.get(
+                display_name__iexact="times per day"
+            ),
         )
         formulation = Formulation.objects.get(medication=medication)
         self.assertEqual(
@@ -131,7 +137,9 @@ class TestDoseCalculator(TestCase):
             dose_per_kg=100,
             dose_units=Units.objects.get(display_name__iexact="mg"),
             frequency=1,
-            frequency_units=FrequencyUnits.objects.get(display_name__iexact="times per day"),
+            frequency_units=FrequencyUnits.objects.get(
+                display_name__iexact="times per day"
+            ),
         )
 
         formulation = Formulation.objects.create(

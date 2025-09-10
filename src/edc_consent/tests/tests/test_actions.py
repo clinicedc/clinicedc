@@ -4,7 +4,7 @@ from secrets import choice
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from faker import Faker
 from model_bakery import baker
 
@@ -17,6 +17,7 @@ from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from tests.models import SubjectConsentV1
 from tests.sites import all_sites
+
 from ..consent_test_utils import consent_definition_factory
 
 fake = Faker()

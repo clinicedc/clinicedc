@@ -1,7 +1,7 @@
 from tempfile import mkdtemp
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_consent import site_consents
 from edc_list_data import site_list_data

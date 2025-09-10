@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.core import mail
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_action_item.action_item_notification import (
     NOTIFY_ON_CHANGED_REFERENCE_OBJ,
@@ -16,6 +16,7 @@ from edc_notification.notification import NewModelNotification, UpdatedModelNoti
 from edc_notification.site_notifications import site_notifications
 from tests.action_items import FormZeroAction, register_actions
 from tests.models import FormZero
+
 from ..test_case_mixin import TestCaseMixin
 
 utc_tz = ZoneInfo("UTC")

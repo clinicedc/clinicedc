@@ -11,6 +11,7 @@ from django.utils.module_loading import import_module, module_has_submodule
 
 from edc_sites.site import sites as site_sites
 from edc_utils import ceil_secs, floor_secs, formatted_date, to_utc
+
 from .exceptions import (
     AlreadyRegistered,
     ConsentDefinitionDoesNotExist,

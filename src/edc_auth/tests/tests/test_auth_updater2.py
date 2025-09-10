@@ -1,7 +1,7 @@
 from copy import copy
 
 from django.contrib.auth.models import Group
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
@@ -25,7 +25,10 @@ class TestAuthUpdater2(TestCase):
         AuthUpdater()
         group = Group.objects.get(name="GROUP")
         self.assertEqual(
-            [p.codename for p in group.permissions.filter(content_type__app_label="tests")],
+            [
+                p.codename
+                for p in group.permissions.filter(content_type__app_label="tests")
+            ],
             [c.split(".")[1] for c in codenames],
         )
 
@@ -56,9 +59,9 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(content_type__app_label="tests").order_by(
-                    "codename"
-                )
+                for p in group.permissions.filter(
+                    content_type__app_label="tests"
+                ).order_by("codename")
             ],
             [c.split(".")[1] for c in codenames],
         )
@@ -75,7 +78,10 @@ class TestAuthUpdater2(TestCase):
         AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP_VIEW_ONLY")
         self.assertEqual(
-            [p.codename for p in group.permissions.filter(content_type__app_label="tests")],
+            [
+                p.codename
+                for p in group.permissions.filter(content_type__app_label="tests")
+            ],
             ["view_testmodel"],
         )
 
@@ -100,7 +106,10 @@ class TestAuthUpdater2(TestCase):
         AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP_VIEW_ONLY")
         self.assertEqual(
-            [p.codename for p in group.permissions.filter(content_type__app_label="tests")],
+            [
+                p.codename
+                for p in group.permissions.filter(content_type__app_label="tests")
+            ],
             ["view_subjectrequisition", "view_testmodel"],
         )
 
@@ -136,7 +145,10 @@ class TestAuthUpdater2(TestCase):
         AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP_EXPORT")
         self.assertEqual(
-            [p.codename for p in group.permissions.filter(content_type__app_label="tests")],
+            [
+                p.codename
+                for p in group.permissions.filter(content_type__app_label="tests")
+            ],
             ["export_subjectrequisition", "export_testmodel"],
         )
 
@@ -172,9 +184,9 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(content_type__app_label="tests").order_by(
-                    "codename"
-                )
+                for p in group.permissions.filter(
+                    content_type__app_label="tests"
+                ).order_by("codename")
             ],
             codenames,
         )
