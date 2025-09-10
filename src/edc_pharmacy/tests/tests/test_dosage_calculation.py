@@ -1,4 +1,4 @@
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_list_data import site_list_data
 from edc_pharmacy.dosage_calculator import DosageCalculator

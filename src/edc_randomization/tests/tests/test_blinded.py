@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_randomization.auth_objects import RANDO_UNBLINDED
 from edc_randomization.blinding import (

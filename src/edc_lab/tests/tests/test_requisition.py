@@ -1,6 +1,6 @@
 import re
 
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_facility.import_holidays import import_holidays
 from edc_lab.identifiers import RequisitionIdentifier

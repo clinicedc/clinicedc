@@ -2,7 +2,7 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT

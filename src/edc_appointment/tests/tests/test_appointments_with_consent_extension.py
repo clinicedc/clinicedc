@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.models import Appointment
 from edc_appointment.utils import refresh_appointments

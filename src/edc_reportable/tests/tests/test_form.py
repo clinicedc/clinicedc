@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_consent import site_consents
 from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES

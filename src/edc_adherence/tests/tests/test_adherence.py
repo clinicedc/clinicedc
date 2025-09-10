@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 
 from edc_adherence import list_data
 from edc_adherence.models import NonAdherenceReasons
@@ -20,6 +20,7 @@ from tests.helper import Helper
 from tests.models import MedicationAdherence
 from tests.sites import all_sites
 from tests.visit_schedules import visit_schedule_adherence
+
 from ..forms import MedicationAdherenceForm
 
 

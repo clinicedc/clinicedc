@@ -8,7 +8,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 from model_bakery import baker
 
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT

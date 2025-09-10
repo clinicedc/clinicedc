@@ -19,6 +19,7 @@ from tests.visit_schedules.visit_schedule_lab_results.lab_profiles import lab_pr
 from tests.visit_schedules.visit_schedule_lab_results.visit_schedule import (
     get_visit_schedule,
 )
+
 from ..forms import BloodResultsFbcForm, BloodResultsHba1cForm
 
 

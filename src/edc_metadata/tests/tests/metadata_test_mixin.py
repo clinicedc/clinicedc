@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.test import TestCase
+
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -10,7 +11,6 @@ from edc_lab.models import Panel
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-
 from tests.consents import consent_v1
 from tests.models import SubjectConsentV1
 from tests.visit_schedules.visit_schedule import get_visit_schedule

@@ -6,7 +6,7 @@ import time_machine
 from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission, User
 from django.shortcuts import get_object_or_404
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_appointment.models import Appointment

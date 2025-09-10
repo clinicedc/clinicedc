@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_consent import site_consents
 from edc_pharmacy.exceptions import PrescriptionNotStarted
@@ -19,10 +19,10 @@ from edc_pharmacy.models import (
     Units,
 )
 from edc_pharmacy.refill import (
+    RefillCreator,
     activate_refill,
     deactivate_refill,
     get_active_refill,
-    RefillCreator,
 )
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules

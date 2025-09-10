@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field, KW_ONLY
+from dataclasses import KW_ONLY, dataclass, field
 from datetime import datetime
-from typing import Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,6 +13,7 @@ from edc_screening.utils import get_subject_screening_model
 from edc_sites import site_sites
 from edc_utils import ceil_secs, floor_secs, formatted_date, formatted_datetime
 from edc_utils.date import to_local
+
 from .exceptions import (
     ConsentDefinitionError,
     ConsentDefinitionValidityPeriodError,

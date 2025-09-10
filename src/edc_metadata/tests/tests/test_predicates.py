@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 from faker import Faker
 
 from edc_appointment.models import Appointment
@@ -11,7 +11,7 @@ from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
-from edc_metadata.metadata_rules import P, PF
+from edc_metadata.metadata_rules import PF, P
 from edc_registration.models import RegisteredSubject
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules

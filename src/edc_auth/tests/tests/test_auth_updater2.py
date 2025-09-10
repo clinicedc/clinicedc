@@ -1,7 +1,7 @@
 from copy import copy
 
 from django.contrib.auth.models import Group
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths

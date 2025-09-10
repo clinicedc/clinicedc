@@ -5,9 +5,9 @@ import sys
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
+from ..single_site import SingleSite
 from .get_or_create_site_obj import get_or_create_site_obj
 from .get_or_create_site_profile_obj import get_or_create_site_profile_obj
-from ..single_site import SingleSite
 
 
 class UpdateDjangoSitesError(Exception):

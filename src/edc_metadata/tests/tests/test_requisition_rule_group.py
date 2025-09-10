@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 from faker import Faker
 
 from edc_appointment.models import Appointment

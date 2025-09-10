@@ -10,8 +10,8 @@ from edc_appointment.analytics import get_appointment_df
 from edc_appointment.constants import NEW_APPT
 from edc_registration import get_registered_subject_model_cls
 from edc_sites.site import sites as site_sites
-from ...models import Rx
 
+from ...models import Rx
 
 if TYPE_CHECKING:
     from ...models import StockRequest

@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 from faker import Faker
 
 from edc_consent import site_consents
@@ -10,16 +10,16 @@ from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.constants import NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_rules import (
+    PF,
     CrfRule,
     CrfRuleGroup,
     CrfRuleModelConflict,
     P,
-    PF,
     PredicateError,
     RuleEvaluatorRegisterSubjectError,
     RuleGroupMetaError,
-    site_metadata_rules,
     TargetModelConflict,
+    site_metadata_rules,
 )
 from edc_metadata.models import CrfMetadata
 from edc_registration.models import RegisteredSubject
@@ -30,6 +30,7 @@ from tests.models import CrfThree
 from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
+
 from ..crf_rule_groups import (
     CrfRuleGroupGender,
     CrfRuleGroupWithoutExplicitReferenceModel,

@@ -1,7 +1,7 @@
 from tempfile import mkdtemp
 
 from django.apps import apps as django_apps
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_randomization.randomization_list_verifier import RandomizationListError
 from edc_randomization.randomizer import Randomizer
@@ -11,6 +11,7 @@ from edc_randomization.system_checks import (
     randomizationlist_check,
 )
 from edc_sites.site import sites as site_sites
+
 from ..utils import populate_randomization_list_for_tests
 
 tmpdir1 = mkdtemp()

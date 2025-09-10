@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Optional, Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Type
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -14,7 +14,8 @@ from edc_action_item.stubs import ActionItemStub
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_model.constants import DEFAULT_BASE_FIELDS
 from edc_sites.utils import valid_site_for_subject_or_raise
-from .create_action_item import create_action_item, SingletonActionItemError
+
+from .create_action_item import SingletonActionItemError, create_action_item
 from .exceptions import ActionError
 from .get_action_type import get_action_type
 from .site_action_items import site_action_items

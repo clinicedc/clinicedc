@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -16,6 +16,7 @@ from edc_sites.site import sites as site_sites
 from edc_sites.utils import valid_site_for_subject_or_raise
 from edc_utils import convert_php_dateformat, formatted_datetime, get_utcnow
 from edc_utils.date import to_local
+
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
 from .exceptions import (
     InvalidOffscheduleDate,

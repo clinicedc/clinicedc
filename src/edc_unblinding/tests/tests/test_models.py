@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_action_item.site_action_items import AlreadyRegistered, site_action_items
 from edc_auth.site_auths import site_auths

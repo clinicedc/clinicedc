@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from unittest import skip
 
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from model_bakery import baker
 
 from edc_appointment.models import Appointment
@@ -28,6 +28,7 @@ from tests.helper import Helper
 from tests.models import CrfEight, SubjectVisitWithoutAppointment
 from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
+
 from ..consent_test_utils import consent_definition_factory
 
 

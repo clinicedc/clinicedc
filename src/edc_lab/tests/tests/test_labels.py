@@ -1,6 +1,6 @@
 from copy import copy
 
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents

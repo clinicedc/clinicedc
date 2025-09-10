@@ -1,5 +1,5 @@
 from django.core import mail
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from model_bakery import baker
 
 from edc_adverse_event.notifications import (
@@ -11,7 +11,7 @@ from edc_facility.import_holidays import import_holidays
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from tests.sites import all_sites
-from .mixins import DeathReportTestMixin
+
 from ...action_items import (
     AeFollowupAction,
     AeInitialAction,
@@ -20,6 +20,7 @@ from ...action_items import (
     DeathReportAction,
     DeathReportTmgAction,
 )
+from .mixins import DeathReportTestMixin
 
 
 @tag("adverse_event")

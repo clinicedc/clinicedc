@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator

@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from django.core.exceptions import ValidationError
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 
 from edc_constants.constants import OTHER
 from edc_metadata.tests.tests.metadata_test_mixin import TestMetadataMixin

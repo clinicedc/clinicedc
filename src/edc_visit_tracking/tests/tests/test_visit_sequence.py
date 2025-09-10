@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.managers import AppointmentDeleteError
@@ -23,6 +23,7 @@ from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.sites import all_sites
 from tests.visit_schedules.visit_schedule import get_visit_schedule
+
 from ..crfs import crfs
 from ..requisitions import requisitions
 

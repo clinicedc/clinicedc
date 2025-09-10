@@ -1,8 +1,8 @@
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_constants.constants import MALE
 from edc_reportable import MILLIMOLES_PER_LITER
-from edc_reportable.formula import clean_and_validate_phrase, Formula, FormulaError
+from edc_reportable.formula import Formula, FormulaError, clean_and_validate_phrase
 
 
 @tag("reportable")

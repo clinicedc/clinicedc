@@ -5,10 +5,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.test.utils import override_settings, tag
+from multisite import SiteID
 
 from edc_constants.constants import FEMALE
 from edc_randomization.constants import ACTIVE, PLACEBO
-from edc_randomization.decorators import register, RegisterRandomizerError
+from edc_randomization.decorators import RegisterRandomizerError, register
 
 # from edc_randomization.models import RandomizationList
 from edc_randomization.randomization_list_importer import (
@@ -27,19 +28,18 @@ from edc_randomization.randomizer import (
 )
 from edc_randomization.site_randomizers import NotRegistered, site_randomizers
 from edc_randomization.utils import (
+    RandomizationListExporterError,
     export_randomization_list,
     get_assignment_for_subject,
-    RandomizationListExporterError,
 )
 from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites as site_sites
-from multisite import SiteID
+
 from ..models import MyRandomizationList, SubjectConsent
 from ..utils import (
     make_randomization_list_for_tests,
     populate_randomization_list_for_tests,
 )
-
 
 tmpdir = mkdtemp()
 

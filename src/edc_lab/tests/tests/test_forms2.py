@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django import forms
 from django.core.exceptions import NON_FIELD_ERRORS
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.models import Appointment
 from edc_constants.constants import YES

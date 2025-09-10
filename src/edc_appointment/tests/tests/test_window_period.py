@@ -6,7 +6,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from tqdm import tqdm
 
 from edc_appointment.constants import (

@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 
 from edc_metadata.constants import REQUIRED
 from edc_metadata.metadata import CrfMetadataGetter
@@ -10,6 +10,7 @@ from edc_metadata.next_form_getter import NextFormGetter
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from tests.models import CrfOne, CrfThree, CrfTwo
+
 from .metadata_test_mixin import TestMetadataMixin
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))

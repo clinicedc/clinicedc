@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import (
     COMPLETE_APPT,

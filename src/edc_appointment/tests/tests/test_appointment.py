@@ -8,7 +8,7 @@ import time_machine
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,

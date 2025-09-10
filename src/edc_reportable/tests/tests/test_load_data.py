@@ -1,13 +1,13 @@
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_constants.constants import FEMALE, MALE
 from edc_reportable import (
-    ConversionNotHandled,
     MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
     MILLIMOLES_PER_LITER,
+    ConversionNotHandled,
 )
 from edc_reportable.evaluator import ValueBoundryError
 from edc_reportable.models import GradingData, MolecularWeight, NormalData

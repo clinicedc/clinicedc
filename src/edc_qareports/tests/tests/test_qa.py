@@ -2,8 +2,8 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.db import connection, OperationalError
-from django.test import override_settings, tag, TestCase
+from django.db import OperationalError, connection
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.models import Appointment
 from edc_auth.get_app_codenames import get_app_codenames

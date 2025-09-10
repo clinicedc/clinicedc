@@ -6,7 +6,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
 

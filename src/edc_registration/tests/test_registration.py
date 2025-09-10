@@ -2,6 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings, tag
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -11,7 +12,6 @@ from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from multisite import SiteID
 from tests.consents import consent_v1
 from tests.models import SubjectModelOne, SubjectModelThree, SubjectModelTwo
 from tests.visit_schedules.visit_schedule import get_visit_schedule

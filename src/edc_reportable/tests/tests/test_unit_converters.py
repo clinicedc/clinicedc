@@ -1,4 +1,4 @@
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_reportable.units import (
     GRAMS_PER_LITER,

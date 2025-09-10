@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from edc_sites import site_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import SubjectSchedule
+
 from ..model_mixins import ConsentExtensionModelMixin, RequiresConsentFieldsModelMixin
 from ..site_consents import site_consents
 

@@ -19,6 +19,7 @@ from tests.helper import Helper
 from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
+
 from .test_view_mixin import MyView
 
 

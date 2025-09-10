@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import MISSED_APPT, ONTIME_APPT, SCHEDULED_APPT
 from edc_appointment.exceptions import AppointmentBaselineError

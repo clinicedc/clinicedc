@@ -8,19 +8,20 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django_audit_fields import audit_fieldset_tuple
 from rangefilter.filters import DateRangeFilterBuilder
 
-from django_audit_fields import audit_fieldset_tuple
 from edc_constants.constants import CANCELLED, COMPLETE, PENDING
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+
+from ...admin_site import edc_pharmacy_admin
+from ...forms import StockRequestForm
+from ...models import StockRequest
 from ..actions import allocate_stock_to_subject, prepare_stock_request_items_action
 from ..actions.print_labels import print_labels_from_stock_request_by_code
 from ..model_admin_mixin import ModelAdminMixin
 from ..utils import stock_request_status_counts
-from ...admin_site import edc_pharmacy_admin
-from ...forms import StockRequestForm
-from ...models import StockRequest
 
 
 class StatusListFilter(admin.SimpleListFilter):

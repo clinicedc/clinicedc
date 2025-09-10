@@ -1,20 +1,21 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.creators import (
-    create_unscheduled_appointment,
     UnscheduledAppointmentCreator,
+    create_unscheduled_appointment,
 )
 from edc_appointment.utils import get_appointment_model_cls
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
 if TYPE_CHECKING:
-    from edc_appointment.models import Appointment
     from decimal import Decimal
+
+    from edc_appointment.models import Appointment
     from edc_visit_tracking.models import SubjectVisit
 
 
