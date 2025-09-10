@@ -3,14 +3,15 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from dateutil.relativedelta import relativedelta
 from django.db import transaction
 
-from ..constants import INCOMPLETE_APPT, NEW_APPT
-from ..utils import get_appointment_by_datetime
 from .unscheduled_appointment_creator import (
     CreateAppointmentError,
     UnscheduledAppointmentCreator,
 )
+from ..constants import INCOMPLETE_APPT, NEW_APPT
+from ..utils import get_appointment_by_datetime
 
 if TYPE_CHECKING:
     from ..models import Appointment
@@ -31,6 +32,9 @@ def create_unscheduled_appointment(
 
     """
     unscheduled_appointment = None
+    next_appt_datetime = (
+        next_appt_datetime or appointment.appt_datetime + relativedelta(days=1)
+    )
     next_appointment = get_appointment_by_datetime(
         next_appt_datetime,
         appointment.subject_identifier,
