@@ -726,21 +726,28 @@ class TestConsentModel(TestCase):
             self.study_open_datetime + relativedelta(days=10)
         )
         traveller.start()
+
         cdef_v1 = site_consents.get_consent_definition(report_datetime=get_utcnow())
-        subject_consent = baker.make_recipe(
-            cdef_v1.model,
-            subject_identifier=subject_identifier,
-            identity=identity,
-            confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+        helper = Helper()
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=schedule.name,
+            consent_definition=cdef_v1,
         )
-        # make appointments
-        schedule.put_on_schedule(
-            subject_consent.subject_identifier,
-            subject_consent.consent_datetime,
-            skip_get_current_site=True,
-        )
+        # subject_consent = baker.make_recipe(
+        #     cdef_v1.model,
+        #     subject_identifier=subject_identifier,
+        #     identity=identity,
+        #     confirm_identity=identity,
+        #     consent_datetime=get_utcnow(),
+        #     dob=get_utcnow() - relativedelta(years=25),
+        # )
+        # # make appointments
+        # schedule.put_on_schedule(
+        #     subject_consent.subject_identifier,
+        #     subject_consent.consent_datetime,
+        #     skip_get_current_site=True,
+        # )
 
         self.assertEqual(subject_consent.consent_definition_name, cdef_v1.name)
         self.assertEqual(subject_consent.version, "1.0")
@@ -767,6 +774,7 @@ class TestConsentModel(TestCase):
             subject_consent=subject_consent,
             report_datetime=get_utcnow(),
             agrees_to_extension=YES,
+            site=subject_consent.site,
         )
         appointments = Appointment.objects.all().order_by("appt_datetime")
         self.assertEqual(appointments.count(), 5)

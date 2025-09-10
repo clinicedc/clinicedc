@@ -386,6 +386,9 @@ class SubjectRequisition(RequisitionModelMixin, BaseUuidModel):
     def update_reference_on_save(self):
         pass
 
+    class Meta(RequisitionModelMixin.Meta, BaseUuidModel.Meta):
+        pass
+
 
 class SubjectIdentifierModelManager(models.Manager):
     def get_by_natural_key(self, subject_identifier):

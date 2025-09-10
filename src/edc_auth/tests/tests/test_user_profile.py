@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.test import override_settings
+from django.test import override_settings, tag
 from django.test.client import RequestFactory
 
 from edc_auth.auth_updater import AuthUpdater
@@ -10,6 +10,7 @@ from edc_auth.models.role import Role
 from edc_auth.tests.utils import EdcAuthTestCase
 
 
+@tag("auth")
 @override_settings(
     EDC_AUTH_SKIP_SITE_AUTHS=False,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,

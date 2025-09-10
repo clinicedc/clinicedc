@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import override_settings
+from django.test import override_settings, tag
 from faker import Faker
 
 from edc_auth.auth_updater import AuthUpdater
@@ -16,8 +16,7 @@ from edc_auth.constants import (
 )
 from edc_auth.models import Role
 from edc_auth.site_auths import site_auths
-
-from ..utils import EdcAuthTestCase, create_users
+from ..utils import create_users, EdcAuthTestCase
 
 fake = Faker()
 
@@ -25,6 +24,7 @@ site_names = ["harare", "gaborone", "kampala"]
 user_model = get_user_model()
 
 
+@tag("auth")
 @override_settings(
     EDC_AUTH_SKIP_SITE_AUTHS=False,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,

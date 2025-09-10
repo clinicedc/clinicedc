@@ -7,7 +7,6 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.db.models import Sum
-from django.db.models.signals import pre_save
 from django.test import override_settings, tag, TestCase
 from sequences import get_next_value
 
@@ -65,7 +64,7 @@ class TestOrderReceive(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-        pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
+        # pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
 
     def setUp(self):
         self.helper = self.helper_cls()

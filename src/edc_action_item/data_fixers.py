@@ -10,7 +10,6 @@ from django.db import connection
 from django.db.models.signals import post_delete, post_save, pre_save
 
 from edc_constants.constants import CLOSED, NEW, OPEN
-
 from .site_action_items import site_action_items
 
 
@@ -34,8 +33,8 @@ def fix_null_historical_action_identifier(app_label, models):
 def fix_null_action_item_fk(apps, app_label, models):
     """Re-save instances to update action_item FKs."""
     action_item_cls = apps.get_model("edc_action_item", "ActionItem")
-    post_save.disconnect(dispatch_uid="serialize_on_save")
-    pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
+    # post_save.disconnect(dispatch_uid="serialize_on_save")
+    # pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
 
     fix_null_action_items(apps)
 
@@ -131,8 +130,8 @@ def fix_null_action_items(apps):
 
 def fix_null_related_action_items(apps):  # noqa
     """"""
-    post_save.disconnect(dispatch_uid="serialize_on_save")
-    pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
+    # post_save.disconnect(dispatch_uid="serialize_on_save")
+    # pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
     action_item_cls = apps.get_model("edc_action_item", "ActionItem")
 
     fix_null_action_items(apps)
@@ -267,8 +266,8 @@ def fix_null_related_action_items2(delete_orphans=None):  # noqa
     """
     from django.apps import apps as django_apps
 
-    post_save.disconnect(dispatch_uid="serialize_on_save")
-    pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
+    # post_save.disconnect(dispatch_uid="serialize_on_save")
+    # pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
     action_item_cls = django_apps.get_model("edc_action_item", "ActionItem")
     for action_cls in site_action_items.registry.values():
         if action_cls.related_reference_fk_attr:

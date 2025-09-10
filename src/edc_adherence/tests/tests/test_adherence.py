@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase
+from django.test import override_settings, TestCase
 
 from edc_adherence import list_data
 from edc_adherence.models import NonAdherenceReasons
@@ -10,22 +10,30 @@ from edc_consent.site_consents import site_consents
 from edc_constants.constants import NEVER, NO, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data.site_list_data import site_list_data
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 from tests.consents import consent_v1
 from tests.helper import Helper
 from tests.models import MedicationAdherence
+from tests.sites import all_sites
 from tests.visit_schedules import visit_schedule_adherence
 from ..forms import MedicationAdherenceForm
 
 
+@override_settings(SITE_ID=30)
 class TestAdherence(TestCase):
     helper_cls = Helper
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self) -> None:
         site_consents.registry = {}

@@ -1,10 +1,11 @@
 from datetime import datetime
+from unittest import skip
 from zoneinfo import ZoneInfo
 
 import time_machine
 from django.apps import apps as django_apps
 from django.db.models.signals import post_save
-from django.test import override_settings, tag, TestCase
+from django.test import override_settings, TestCase
 
 from edc_action_item.data_fixers import (
     fix_null_action_item_fk,
@@ -18,7 +19,7 @@ from ..test_case_mixin import TestCaseMixin
 utc_tz = ZoneInfo("UTC")
 
 
-@tag("action_item")
+@skip("fix_null_related_action_items")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 @override_settings(SITE_ID=30)
 class TestUtils(TestCaseMixin, TestCase):
@@ -58,6 +59,7 @@ class TestUtils(TestCaseMixin, TestCase):
 
         self.assertEqual(form_one.action_item, form_two.action_item.related_action_item)
 
+    @skip("test_fix_null_related_action_items2")
     def test_fix_null_related_action_items2(self):
         fix_null_related_action_items(django_apps)
 

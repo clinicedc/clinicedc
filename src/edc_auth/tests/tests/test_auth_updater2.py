@@ -1,12 +1,13 @@
 from copy import copy
 
 from django.contrib.auth.models import Group
-from django.test import TestCase, override_settings
+from django.test import override_settings, tag, TestCase
 
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
 
 
+@tag("auth")
 @override_settings(
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
@@ -24,10 +25,7 @@ class TestAuthUpdater2(TestCase):
         AuthUpdater()
         group = Group.objects.get(name="GROUP")
         self.assertEqual(
-            [
-                p.codename
-                for p in group.permissions.filter(content_type__app_label="tests")
-            ],
+            [p.codename for p in group.permissions.filter(content_type__app_label="tests")],
             [c.split(".")[1] for c in codenames],
         )
 
@@ -58,9 +56,9 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(
-                    content_type__app_label="tests"
-                ).order_by("codename")
+                for p in group.permissions.filter(content_type__app_label="tests").order_by(
+                    "codename"
+                )
             ],
             [c.split(".")[1] for c in codenames],
         )
@@ -77,10 +75,7 @@ class TestAuthUpdater2(TestCase):
         AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP_VIEW_ONLY")
         self.assertEqual(
-            [
-                p.codename
-                for p in group.permissions.filter(content_type__app_label="tests")
-            ],
+            [p.codename for p in group.permissions.filter(content_type__app_label="tests")],
             ["view_testmodel"],
         )
 
@@ -105,10 +100,7 @@ class TestAuthUpdater2(TestCase):
         AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP_VIEW_ONLY")
         self.assertEqual(
-            [
-                p.codename
-                for p in group.permissions.filter(content_type__app_label="tests")
-            ],
+            [p.codename for p in group.permissions.filter(content_type__app_label="tests")],
             ["view_subjectrequisition", "view_testmodel"],
         )
 
@@ -128,15 +120,23 @@ class TestAuthUpdater2(TestCase):
             "tests.view_testmodel",
             more_codenames,
         ]
+
         site_auths.clear()
+        # export permissions are custom, you need to add to the
+        # permissions model if not already on the model
+        for model, codename in [
+            ("tests.subjectrequisition", "tests.export_subjectrequisition"),
+            ("tests.testmodel", "tests.export_testmodel"),
+        ]:
+            site_auths.add_custom_permissions_tuples(
+                model=model,
+                codename_tuples=((codename, f"Can access {codename.split('.')[1]}"),),
+            )
         site_auths.add_group(*codenames, name="GROUP_EXPORT", convert_to_export=True)
         AuthUpdater(verbose=False, warn_only=True)
         group = Group.objects.get(name="GROUP_EXPORT")
         self.assertEqual(
-            [
-                p.codename
-                for p in group.permissions.filter(content_type__app_label="tests")
-            ],
+            [p.codename for p in group.permissions.filter(content_type__app_label="tests")],
             ["export_subjectrequisition", "export_testmodel"],
         )
 
@@ -172,9 +172,9 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(
-                    content_type__app_label="tests"
-                ).order_by("codename")
+                for p in group.permissions.filter(content_type__app_label="tests").order_by(
+                    "codename"
+                )
             ],
             codenames,
         )

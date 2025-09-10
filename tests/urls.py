@@ -2,6 +2,7 @@ from django.urls import include, path, re_path
 from django.views.generic import RedirectView
 
 from edc_dashboard.views import AdministrationView
+from edc_listboard.views import SubjectListboardView
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_subject_dashboard.views import SubjectDashboardView
 from edc_utils.paths_for_urlpatterns import paths_for_urlpatterns
@@ -31,6 +32,10 @@ urlpatterns = [
     *paths_for_urlpatterns("edc_subject_dashboard"),
     *paths_for_urlpatterns("edc_visit_schedule"),
     *paths_for_urlpatterns("edc_visit_tracking"),
+    *SubjectListboardView.urls(
+        label="subject_listboard",
+        identifier_pattern=ResearchProtocolConfig().subject_identifier_pattern,
+    ),
     *SubjectDashboardView.urls(
         label="subject_dashboard",
         identifier_pattern=ResearchProtocolConfig().subject_identifier_pattern,

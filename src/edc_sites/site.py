@@ -33,6 +33,24 @@ if TYPE_CHECKING:
         site: Site
 
 
+__all__ = [
+    "SiteDoesNotExist",
+    "AlreadyRegistered",
+    "AlreadyRegisteredName",
+    "AlreadyRegisteredDomain",
+    "SiteNotRegistered",
+    "SitesCheckError",
+    "SitesError",
+    "get_register_default_site",
+    "get_default_country",
+    "get_default_country_code",
+    "get_default_domain",
+    "get_insert_uat_subdomain",
+    "get_autodiscover_sites",
+    "sites",
+]
+
+
 class SiteDoesNotExist(Exception):
     pass
 

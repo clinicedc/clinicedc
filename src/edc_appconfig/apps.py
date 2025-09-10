@@ -1,13 +1,11 @@
 import sys
 
-from django.apps import AppConfig as DjangoAppConfig
-from django.apps import apps as django_apps
+from django.apps import AppConfig as DjangoAppConfig, apps as django_apps
 from django.conf import settings
 from django.contrib.sites.management import create_default_site
 from django.core.checks import register
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
-from multisite.apps import post_migrate_sync_alias
 
 from edc_action_item.post_migrate_signals import update_action_types
 from edc_action_item.site_action_items import site_action_items
@@ -49,6 +47,7 @@ from edc_visit_schedule.system_checks import (
     check_subject_schedule_history,
     visit_schedule_check,
 )
+from multisite.apps import post_migrate_sync_alias
 
 installed_apps = [x.split(".apps")[0] for x in settings.INSTALLED_APPS]
 
@@ -141,7 +140,7 @@ class AppConfig(DjangoAppConfig):
         if "edc_metadata" in installed_apps:
             sys.stdout.write("   - check_for_metadata_rules (deploy only)\n")
             register(check_for_metadata_rules)
-        if "edc_metadata" in installed_apps:
+        if "edc_consent" in installed_apps:
             sys.stdout.write("   - check_site_consents\n")
             register(check_consents)
         if "edc_navbar" in installed_apps:

@@ -2,22 +2,22 @@ from string import Template
 
 from django.contrib.auth.models import User
 from django.core import mail
-from django.test import override_settings
+from django.test import override_settings, tag
 from faker import Faker
 
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.constants import CLINIC, CLINICIAN_ROLE
-from edc_auth.import_users import UserImporter, UserImporterError, import_users
+from edc_auth.import_users import import_users, UserImporter, UserImporterError
 from edc_auth.password_setter import PasswordSetter
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
-
-from ..utils import EdcAuthTestCase, create_user_csv_file, create_users
+from ..utils import create_user_csv_file, create_users, EdcAuthTestCase
 
 fake = Faker()
 
 site_names = ["harare", "gaborone", "kampala"]
 
 
+@tag("auth")
 @override_settings(
     EDC_AUTH_SKIP_SITE_AUTHS=False,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,

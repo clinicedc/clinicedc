@@ -124,6 +124,11 @@ class GroupUpdater:
             except PermissionsCodenameError as e:
                 warn(str(e))
             else:
+                # if you add extra codenames you must also add custom
+                # codename tuples to the Permissions model before you
+                # get here. See also changes to default_permissions from
+                # model Meta class BaseUuidModel.Meta.
+                # See also site_auths.add_custom_permissions_tuples
                 try:
                     permissions.append(
                         self.permission_model_cls.objects.get(
@@ -161,9 +166,7 @@ class GroupUpdater:
         try:
             app_label, _codename = codename.split(".")
         except ValueError as e:
-            raise PermissionsCodenameError(
-                f"Invalid dotted codename. {e} Got {codename}."
-            )
+            raise PermissionsCodenameError(f"Invalid dotted codename. {e} Got {codename}.")
         else:
             try:
                 self.apps.get_app_config(app_label)
@@ -216,9 +219,7 @@ class GroupUpdater:
             except LookupError as e:
                 warn(f"{e}. Got {model}")
             else:
-                content_type = self.content_type_model_cls.objects.get_for_model(
-                    model_cls
-                )
+                content_type = self.content_type_model_cls.objects.get_for_model(model_cls)
                 for codename_tpl in codename_tuples:
                     app_label, codename, name = self.get_from_codename_tuple(
                         codename_tpl, model_cls._meta.app_label
@@ -245,9 +246,7 @@ class GroupUpdater:
                 f"Unable to verify codename. {e} Got '{app_label}.{codename}'"
             )
         except MultipleObjectsReturned as e:
-            self.delete_and_raise_on_duplicate_codenames(
-                codename, app_label, exception=e
-            )
+            self.delete_and_raise_on_duplicate_codenames(codename, app_label, exception=e)
         return permission
 
     def delete_and_raise_on_duplicate_codenames(
