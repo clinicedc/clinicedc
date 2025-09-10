@@ -40,15 +40,16 @@ class ReportablesFormValidatorMixin:
             subject_identifier=self.subject_identifier
         )
         # check normal ranges and grade result values
-        reference_range_evaluator = self.reference_range_evaluator_cls(
-            reference_range_collection_name,
+        options = dict(
             cleaned_data=deepcopy(cleaned_data),
             gender=registered_subject.gender,
             dob=registered_subject.dob,
             report_datetime=self.report_datetime,
             value_field_suffix=self.value_field_suffix,
-            age_units=self.age_units,
-            **reportables_evaluator_options,
+        )
+        options.update(**reportables_evaluator_options)
+        reference_range_evaluator = self.reference_range_evaluator_cls(
+            reference_range_collection_name, **options
         )
         try:
             reference_range_evaluator.validate_reportable_fields()
