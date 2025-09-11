@@ -12,8 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddIndex(
             model_name="qareportlog",
-            index=models.Index(
-                fields=["accessed"], name="edc_qarepor_accesse_738ffe_idx"
-            ),
+            index=models.Index(fields=["accessed"], name="edc_qarepor_accesse_738ffe_idx"),
         ),
     ]

@@ -17,16 +17,18 @@ You should subclass into your projects ``apps.py`` like this, for example:
         device_id = '32'
         device_role = CLIENT
         device_permissions = DevicePermissions(
-            plot_add, plot_change, ...)
+            plot_add, plot_change,
+            #...
+            )
 
 and then in your settings:
 
 .. code-block:: python
 
     INSTALLED_APPS = [
-        ...
+        # ...
         my_app.apps.EdcDeviceAppConfig,
-        myapp.apps.AppConfig',
+        myapp.apps.AppConfig,
     ]
 
 Include in your ``urls.py``:
@@ -34,9 +36,9 @@ Include in your ``urls.py``:
 .. code-block:: python
 
     urlpatterns = [
-        ...
+        # ...
         path('edc_device/', include('edc_device.urls')),
-        ...
+        # ...
     ]
 
 To get to the Edc Device home page, reverse the url like this:
@@ -59,6 +61,8 @@ A ``client`` might look like this:
         node_server_id_list = [97, 98, 99]
         middleman_id_list = [95, 96]
 
+and ::
+
     >>> from django.apps import apps as django_apps
     >>> app_config = django_apps.get_app_config('edc_device')
     >>> app_config.device_id
@@ -76,6 +80,8 @@ A node server server might look like this:
         device_id = '98'
         node_server_id_list = [97, 98, 99]
         middleman_id_list = [95, 96]
+
+and ::
 
     >>> from django.apps import apps as django_apps
     >>> app_config = django_apps.get_app_config('edc_device')
@@ -95,6 +101,8 @@ A middleman server might look like this:
         node_server_id_list = [97, 98, 99]
         middleman_id_list = [95, 96]
 
+and ::
+
     >>> from django.apps import apps as django_apps
     >>> app_config = django_apps.get_app_config('edc_device')
     >>> app_config.device_id
@@ -112,6 +120,8 @@ The central server might look like this:
         device_id = '99'
         node_server_id_list = [97, 98, 99]
         middleman_id_list = [95, 96]
+
+and ::
 
     >>> from django.apps import apps as django_apps
     >>> app_config = django_apps.get_app_config('edc_device')
@@ -138,14 +148,14 @@ To declare a ``DeviceAddPermission`` object:
 .. code-block:: python
 
     test_model_add = DeviceAddPermission(
-        model='my_app.mymodel, device_roles=[NODE_SERVER, CENTRAL_SERVER])
+        model='my_app.mymodel', device_roles=[NODE_SERVER, CENTRAL_SERVER])
 
 To declare a ``DeviceChangePermission`` object:
 
 .. code-block:: python
 
     test_model_change = DeviceChangePermission(
-        model='my_app.mymodel, device_roles=[CLIENT])
+        model='my_app.mymodel', device_roles=[CLIENT])
 
 This means that if ``app_config.device_role`` is anything other than ``NODE_SERVER`` or ``CENTRAL_SERVER``, the save method will raise a ``DevicePermissionsAddError``.
 
@@ -157,9 +167,7 @@ To register the instances with ``edc_device.apps.AppConfig.device_permissions``:
 
 This means that if ``app_config.device_role`` is anything other than ``CLIENT``, the save method will raise a ``DevicePermissionsChangeError``.
 
-On boot up you should see:
-
-.. code-block:: python
+On boot up you should see::
 
     Loading Edc Device ...
       * device id is '10'.

@@ -1,5 +1,3 @@
-.. _store_stock_at_site:
-
 Store stock at site
 ===================
 

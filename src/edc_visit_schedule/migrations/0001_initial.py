@@ -2,12 +2,13 @@
 import _socket
 import django_audit_fields.fields.uuid_auto_field
 import django_revision.revision_field
+from django.db import migrations, models
+
 import edc_model.models
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
 import edc_protocol.validators
 import edc_utils
-from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -134,8 +135,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="subjectschedulehistory",
-            unique_together={
-                ("subject_identifier", "visit_schedule_name", "schedule_name")
-            },
+            unique_together={("subject_identifier", "visit_schedule_name", "schedule_name")},
         ),
     ]

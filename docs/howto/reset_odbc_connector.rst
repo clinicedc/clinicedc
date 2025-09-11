@@ -9,9 +9,7 @@ To rectify, try removing and re-adding the ODBC configuration like this:
 
 2. Start the ssh tunnel / connection (`start_ssh_tunnel.bat`) and login
 
-3. Open the ODBC Data Source Administrator
-
-.. code-block:: text
+3. Open the ODBC Data Source Administrator::
 
     Start > Run > ODBC Data Source Administrator (64-bit)
     User DSN  > Add
@@ -24,5 +22,6 @@ To rectify, try removing and re-adding the ODBC configuration like this:
     Password: <password>
     Database: effect_production
     Click Test, and it should be successful
+
 
 4. Re-open STATA, type `odbc list` and you should see the (new) connection

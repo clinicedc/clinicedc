@@ -41,9 +41,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="gradingdata",
             name="age_phrase",
-            field=models.CharField(
-                help_text="calculated in save()", max_length=25, null=True
-            ),
+            field=models.CharField(help_text="calculated in save()", max_length=25, null=True),
         ),
         migrations.AlterField(
             model_name="gradingdata",
@@ -66,9 +64,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="normaldata",
             name="age_phrase",
-            field=models.CharField(
-                help_text="calculated in save()", max_length=25, null=True
-            ),
+            field=models.CharField(help_text="calculated in save()", max_length=25, null=True),
         ),
         migrations.AlterField(
             model_name="normaldata",
@@ -166,9 +162,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(
-                        blank=True, max_length=10, verbose_name="Device created"
-                    ),
+                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
                 ),
                 (
                     "device_modified",

@@ -27,12 +27,8 @@ project_settings = DefaultTestSettings(
     EDC_AUTH_CODENAMES_WARN_ONLY=True,
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=True,
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(
-        2019, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")
-    ),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(
-        2029, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")
-    ),
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2029, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")),
     LABEL_TEMPLATE_FOLDER=base_dir / "tests" / "label_templates",
     SUBJECT_SCREENING_MODEL="clinicedc_tests.subjectscreening",
     SUBJECT_CONSENT_MODEL="edc_consent.subjectconsent",

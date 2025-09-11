@@ -124,21 +124,15 @@ You can use the management command ``run_form_runners`` to run form runners for 
 all CRF/Requisitions. Run this command to initially populate ``Issue`` table and whenever you
 change validation logic for a form.
 
-Pass the management command one or more app_labels separated by comma:
-
-.. code-block:: bash
+Pass the management command one or more app_labels separated by comma::
 
     >>> python manage.py run_form_runners -a intecomm_subject
 
-or pass one or more model names (label_lower format) separated by comma:
-
-.. code-block:: bash
+or pass one or more model names (label_lower format) separated by comma::
 
     >>> python manage.py run_form_runners -m intecomm_subject.vitals,intecomm_subject.dmmedicationadherence
 
-You can skip a model as well:
-
-.. code-block:: bash
+You can skip a model as well::
 
     >>> python manage.py run_form_runners -a intecomm_subject -s intecomm_subject.medicationadherence
 

@@ -9,9 +9,9 @@ For the model and signal to be registered you need to add the AppConfig to your 
 .. code-block:: python
 
     INSTALLED_APPS = (
-        ....
+        # ....
         'edc_registration.apps.AppConfig',
-        ....
+        # ....
     )
 
 
@@ -23,15 +23,18 @@ For example, a model, ``SubjectEligibility`` or a screening model creates or upd
 
 .. code-block:: python
 
-    class SubjectEligibility(UniqueSubjectIdentifierModelMixin,
-                             UpdatesOrCreatesRegistrationModelMixin, BaseUuidModel):
+    class SubjectEligibility(
+        UniqueSubjectIdentifierModelMixin,
+        UpdatesOrCreatesRegistrationModelMixin,
+        BaseUuidModel,
+    ):
 
         screening_identifier = models.CharField(
             max_length=36,
             null=True,
             unique=True)
 
-    	@property
+        @property
         def registration_unique_field(self):
             return 'screening_identifier'
 
@@ -49,12 +52,12 @@ For example, a model, ``SubjectEligibility`` or a screening model creates or upd
         PersonalFieldsMixin, CitizenFieldsMixin, VulnerabilityFieldsMixin,
         BaseUuidModel):
 
-		@property
-	    def registration_unique_field(self):
-	        return 'screening_identifier'
+        @property
+        def registration_unique_field(self):
+            return 'screening_identifier'
 
-	    class Meta:
-	        app_label = 'my_app'
+        class Meta:
+            app_label = 'my_app'
 
 
 The property ``registration_unique_field`` returns a model attribute that is used to set a registration identifier on ``RegisteredSubject``.

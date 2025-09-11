@@ -43,16 +43,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="label",
             name="device_created",
-            field=models.CharField(
-                blank=True, max_length=10, verbose_name="Device created"
-            ),
+            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
         ),
         migrations.AddField(
             model_name="label",
             name="device_modified",
-            field=models.CharField(
-                blank=True, max_length=10, verbose_name="Device modified"
-            ),
+            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
         ),
         migrations.AddField(
             model_name="label",

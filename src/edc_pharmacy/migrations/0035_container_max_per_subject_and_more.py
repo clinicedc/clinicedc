@@ -13,15 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="container",
             name="max_per_subject",
-            field=models.DecimalField(
-                blank=True, decimal_places=2, max_digits=10, null=True
-            ),
+            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
         ),
         migrations.AddField(
             model_name="historicalcontainer",
             name="max_per_subject",
-            field=models.DecimalField(
-                blank=True, decimal_places=2, max_digits=10, null=True
-            ),
+            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True),
         ),
     ]

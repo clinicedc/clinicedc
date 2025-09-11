@@ -1,5 +1,3 @@
-.. _allocation:
-
 Allocation to subjects / patients
 =================================
 

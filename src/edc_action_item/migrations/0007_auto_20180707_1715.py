@@ -8,7 +8,5 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RemoveField(model_name="actionitem", name="reference_identifier"),
-        migrations.RemoveField(
-            model_name="historicalactionitem", name="reference_identifier"
-        ),
+        migrations.RemoveField(model_name="historicalactionitem", name="reference_identifier"),
     ]

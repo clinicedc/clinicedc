@@ -169,4 +169,3 @@ If all result models are prefixed with "bloodresult", you can filter on the path
                 else:
                     queryset = queryset.filter(subject_visit=subject_visit, is_drawn=YES)
             return queryset, use_distinct
-

@@ -8,12 +8,13 @@ import django_audit_fields.fields.uuid_auto_field
 import django_crypto_fields.fields.encrypted_char_field
 import django_crypto_fields.fields.encrypted_text_field
 import django_revision.revision_field
+from django.conf import settings
+from django.db import migrations, models
+
 import edc_model.validators.phone
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
 import edc_utils
-from django.conf import settings
-from django.db import migrations, models
 
 
 class Migration(migrations.Migration):

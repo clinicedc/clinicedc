@@ -10,6 +10,10 @@ import django_audit_fields.fields.userfield
 import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_revision.revision_field
+import simple_history.models
+from django.conf import settings
+from django.db import migrations, models
+
 import edc_metadata.metadata_helper.metadata_helper_mixin
 import edc_metadata.model_mixins.creates.creates_metadata_model_mixin
 import edc_model.models.fields.other_charfield
@@ -18,10 +22,6 @@ import edc_model_fields.fields.other_charfield
 import edc_protocol.validators
 import edc_sites.models
 import edc_utils.date
-import simple_history.models
-from django.conf import settings
-from django.db import migrations, models
-
 import edc_visit_tracking.managers
 
 
@@ -101,9 +101,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(
-                        blank=True, max_length=10, verbose_name="Device created"
-                    ),
+                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
                 ),
                 (
                     "device_modified",
@@ -465,9 +463,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(
-                        blank=True, max_length=10, verbose_name="Device created"
-                    ),
+                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
                 ),
                 (
                     "device_modified",
@@ -726,9 +722,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(
-                        blank=True, max_length=10, verbose_name="Device created"
-                    ),
+                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
                 ),
                 (
                     "device_modified",
@@ -1088,9 +1082,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(
-                        blank=True, max_length=10, verbose_name="Device created"
-                    ),
+                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
                 ),
                 (
                     "device_modified",

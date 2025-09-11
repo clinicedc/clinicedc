@@ -2,7 +2,6 @@
 
 import django.db.models.deletion
 import django.db.models.manager
-import edc_sites.managers
 from django.db import migrations, models
 
 import edc_pharmacy.models.stock.allocation
@@ -10,6 +9,7 @@ import edc_pharmacy.models.stock.confirmation_at_site
 import edc_pharmacy.models.stock.confirmation_at_site_item
 import edc_pharmacy.models.stock.dispense
 import edc_pharmacy.models.stock.dispense_item
+import edc_sites.managers
 
 
 class Migration(migrations.Migration):

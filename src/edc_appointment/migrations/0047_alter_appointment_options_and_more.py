@@ -175,9 +175,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="appointment",
-            index=models.Index(
-                fields=["appt_status"], name="edc_appoint_appt_st_57c8d0_idx"
-            ),
+            index=models.Index(fields=["appt_status"], name="edc_appoint_appt_st_57c8d0_idx"),
         ),
         migrations.AddIndex(
             model_name="appointment",

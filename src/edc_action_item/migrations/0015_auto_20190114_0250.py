@@ -6,12 +6,13 @@ import _socket
 import django.db.models.deletion
 import django_audit_fields.fields.uuid_auto_field
 import django_revision.revision_field
-import edc_model_fields.fields.hostname_modification_field
-import edc_model_fields.fields.userfield
-import edc_utils
 import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
+
+import edc_model_fields.fields.hostname_modification_field
+import edc_model_fields.fields.userfield
+import edc_utils
 
 
 class Migration(migrations.Migration):

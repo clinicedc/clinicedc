@@ -2,6 +2,7 @@
 
 from django.db import migrations
 from django.db.migrations import RunPython
+
 from edc_constants.constants import FEEDBACK, PENDING
 
 

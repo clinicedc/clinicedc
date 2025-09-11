@@ -7,11 +7,12 @@ import django.db.models.deletion
 import django.utils.timezone
 import django_audit_fields.fields.uuid_auto_field
 import django_revision.revision_field
+from django.conf import settings
+from django.db import migrations, models
+
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
 import edc_utils
-from django.conf import settings
-from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -146,15 +147,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "original_measure",
-                    models.DecimalField(
-                        decimal_places=2, default="5.00", max_digits=10
-                    ),
+                    models.DecimalField(decimal_places=2, default="5.00", max_digits=10),
                 ),
                 (
                     "current_measure",
-                    models.DecimalField(
-                        decimal_places=2, default="5.00", max_digits=10
-                    ),
+                    models.DecimalField(decimal_places=2, default="5.00", max_digits=10),
                 ),
                 (
                     "measure_units",
@@ -205,9 +202,7 @@ class Migration(migrations.Migration):
                     "alpha_code",
                     models.CharField(
                         max_length=25,
-                        validators=[
-                            django.core.validators.RegexValidator("^[A-Z]{2}$")
-                        ],
+                        validators=[django.core.validators.RegexValidator("^[A-Z]{2}$")],
                         verbose_name="Aliquot Type Alpha Code",
                     ),
                 ),
@@ -215,9 +210,7 @@ class Migration(migrations.Migration):
                     "numeric_code",
                     models.CharField(
                         max_length=25,
-                        validators=[
-                            django.core.validators.RegexValidator("^[0-9]{2}$")
-                        ],
+                        validators=[django.core.validators.RegexValidator("^[0-9]{2}$")],
                         verbose_name="Aliquot Type Numeric Code",
                     ),
                 ),
@@ -520,9 +513,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "total",
-                    models.IntegerField(
-                        help_text="total number of cells in this box type"
-                    ),
+                    models.IntegerField(help_text="total number of cells in this box type"),
                 ),
                 (
                     "fill_order",
@@ -738,15 +729,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "original_measure",
-                    models.DecimalField(
-                        decimal_places=2, default="5.00", max_digits=10
-                    ),
+                    models.DecimalField(decimal_places=2, default="5.00", max_digits=10),
                 ),
                 (
                     "current_measure",
-                    models.DecimalField(
-                        decimal_places=2, default="5.00", max_digits=10
-                    ),
+                    models.DecimalField(decimal_places=2, default="5.00", max_digits=10),
                 ),
                 (
                     "measure_units",
@@ -797,9 +784,7 @@ class Migration(migrations.Migration):
                     "alpha_code",
                     models.CharField(
                         max_length=25,
-                        validators=[
-                            django.core.validators.RegexValidator("^[A-Z]{2}$")
-                        ],
+                        validators=[django.core.validators.RegexValidator("^[A-Z]{2}$")],
                         verbose_name="Aliquot Type Alpha Code",
                     ),
                 ),
@@ -807,9 +792,7 @@ class Migration(migrations.Migration):
                     "numeric_code",
                     models.CharField(
                         max_length=25,
-                        validators=[
-                            django.core.validators.RegexValidator("^[0-9]{2}$")
-                        ],
+                        validators=[django.core.validators.RegexValidator("^[0-9]{2}$")],
                         verbose_name="Aliquot Type Numeric Code",
                     ),
                 ),

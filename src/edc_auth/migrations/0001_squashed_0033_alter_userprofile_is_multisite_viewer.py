@@ -249,9 +249,7 @@ class Migration(migrations.Migration):
                         help_text="e.g. +1234567890",
                         max_length=25,
                         null=True,
-                        validators=[
-                            django.core.validators.RegexValidator(regex="^\\+\\d+")
-                        ],
+                        validators=[django.core.validators.RegexValidator(regex="^\\+\\d+")],
                     ),
                 ),
                 (
@@ -453,9 +451,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(
-                        blank=True, max_length=10, verbose_name="Device created"
-                    ),
+                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
                 ),
                 (
                     "device_modified",
@@ -483,16 +479,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="role",
             name="device_created",
-            field=models.CharField(
-                blank=True, max_length=10, verbose_name="Device created"
-            ),
+            field=models.CharField(blank=True, max_length=10, verbose_name="Device created"),
         ),
         migrations.AlterField(
             model_name="role",
             name="device_modified",
-            field=models.CharField(
-                blank=True, max_length=10, verbose_name="Device modified"
-            ),
+            field=models.CharField(blank=True, max_length=10, verbose_name="Device modified"),
         ),
         migrations.AlterField(
             model_name="role",

@@ -399,9 +399,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="exportreceipt",
-            index=models.Index(
-                fields=["-timestamp"], name="edc_export__timesta_6a2406_idx"
-            ),
+            index=models.Index(fields=["-timestamp"], name="edc_export__timesta_6a2406_idx"),
         ),
         migrations.AddIndex(
             model_name="filehistory",
@@ -437,8 +435,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="uploadexportreceiptfile",
-            index=models.Index(
-                fields=["-created"], name="edc_export__created_f54b3c_idx"
-            ),
+            index=models.Index(fields=["-created"], name="edc_export__created_f54b3c_idx"),
         ),
     ]

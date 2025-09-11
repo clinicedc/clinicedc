@@ -10,14 +10,14 @@ import django_audit_fields.fields.userfield
 import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_revision.revision_field
-import edc_model_fields.fields.other_charfield
-import edc_sites.models
-import edc_utils.date
 import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
 
 import edc_facility.model_mixins
+import edc_model_fields.fields.other_charfield
+import edc_sites.models
+import edc_utils.date
 
 
 class Migration(migrations.Migration):
@@ -195,9 +195,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "plural_name",
-                    models.CharField(
-                        max_length=250, null=True, verbose_name="Plural name"
-                    ),
+                    models.CharField(max_length=250, null=True, verbose_name="Plural name"),
                 ),
                 (
                     "display_name",

@@ -1,7 +1,5 @@
-.. _repack:
-
 Repack (Decant from bulk to patient bottles)
---------------------------------------------
+============================================
 Repacking starts from the main Stock table.
 
 Bulk stock needs to be decanted into patient bottles by the process until date recorded in the receiving document. In your work area do not work with Active and Placebo in the same space and at the same time. Let’s start with Active.

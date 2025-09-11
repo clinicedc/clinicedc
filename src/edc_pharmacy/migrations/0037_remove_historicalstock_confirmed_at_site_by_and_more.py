@@ -107,9 +107,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(
-                        blank=True, max_length=10, verbose_name="Device created"
-                    ),
+                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
                 ),
                 (
                     "device_modified",
@@ -265,9 +263,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(
-                        blank=True, max_length=10, verbose_name="Device created"
-                    ),
+                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
                 ),
                 (
                     "device_modified",

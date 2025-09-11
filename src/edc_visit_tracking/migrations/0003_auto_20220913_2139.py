@@ -12,15 +12,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="subjectvisitmissedreasons",
             name="plural_name",
-            field=models.CharField(
-                max_length=250, null=True, verbose_name="Plural name"
-            ),
+            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
         ),
         migrations.AddField(
             model_name="visitreasons",
             name="plural_name",
-            field=models.CharField(
-                max_length=250, null=True, verbose_name="Plural name"
-            ),
+            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
         ),
     ]

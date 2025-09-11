@@ -220,4 +220,3 @@ In this example the app is called ``meta_reports`` and the group is ``META_REPOR
     site_auths.add_group(*reports_codenames, name=META_REPORTS)
     # add the group to the QA_REPORTS role
     site_auths.update_role(META_REPORTS, name=QA_REPORTS_ROLE)
-

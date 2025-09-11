@@ -9,8 +9,9 @@ import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_crypto_fields.fields.encrypted_char_field
 import django_revision.revision_field
-import edc_sites.models
 from django.db import migrations, models
+
+import edc_sites.models
 
 
 class Migration(migrations.Migration):
@@ -141,9 +142,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "ordering": ("site_name", "sid"),
-                "permissions": (
-                    ("display_randomization", "Can display randomization"),
-                ),
+                "permissions": (("display_randomization", "Can display randomization"),),
                 "abstract": False,
                 "unique_together": {("site_name", "sid")},
             },

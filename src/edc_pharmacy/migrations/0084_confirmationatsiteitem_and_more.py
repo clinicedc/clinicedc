@@ -9,13 +9,13 @@ import django_audit_fields.fields.userfield
 import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_revision.revision_field
-import edc_sites.managers
-import edc_utils.date
 import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
 
 import edc_pharmacy.models.stock.confirmation_at_site_item
+import edc_sites.managers
+import edc_utils.date
 
 
 class Migration(migrations.Migration):

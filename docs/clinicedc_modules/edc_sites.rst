@@ -52,25 +52,20 @@ EDC model ``SiteProfile`` on the next migration:
 
 
 
-Now in your code you can use the ``sites`` global to inspect the trial sites:
+Now in your code you can use the ``sites`` global to inspect the trial sites::
 
-.. code-block:: python
-
-    from edc_sites.site import sites
-
-    In [1]: sites.all()
-    Out[1]:
+    >>> from edc_sites.site import sites
+    >>> sites.all()
     {10: SingleSite(site_id=10, name='hindu_mandal', domain='hindu_mandal.tz.example.clinicedc.org', country='tanzania', description='Hindu Mandal Hospital'),
      20: SingleSite(site_id=20, name='amana', domain='amana.tz.example.clinicedc.org', country='tanzania', description='Amana Hospital')}
 
-    In [2]: sites.get(10)
-    Out[2]: SingleSite(site_id=10, name='hindu_mandal', domain='hindu_mandal.tz.example.clinicedc.org', country='tanzania', description='Hindu Mandal Hospital')
+    >>> sites.get(10)
+    SingleSite(site_id=10, name='hindu_mandal', domain='hindu_mandal.tz.example.clinicedc.org', country='tanzania', description='Hindu Mandal Hospital')
 
-    In [3]: sites.get_by_attr("name", 'hindu_mandal')
-    Out[3]: SingleSite(site_id=10, name='hindu_mandal', domain='hindu_mandal.tz.example.clinicedc.org', country='tanzania', description='Hindu Mandal Hospital')
+    >>> sites.get_by_attr("name", 'hindu_mandal')
+    SingleSite(site_id=10, name='hindu_mandal', domain='hindu_mandal.tz.example.clinicedc.org', country='tanzania', description='Hindu Mandal Hospital')
 
-    In [4]: sites.get(10).languages
-    Out[4]:
+    >>> sites.get(10).languages
     {'sw': 'Swahili',
      'en-gb': 'British English',
      'en': 'English',
@@ -126,14 +121,11 @@ For example:
         ),
     )
 
-You can use the ``sites`` global to get the trial sites for a country:
+You can use the ``sites`` global to get the trial sites for a country::
 
-.. code-block:: python
+    >>> from edc_sites.site import sites
+    >>> sites.get_by_country("uganda")
 
-    from edc_sites.site import sites
-
-    In [1]: sites.get_by_country("uganda")
-    Out[1]:
     {201: SingleSite(site_id=201, name='kojja', domain='kojja.ug.inte.clinicedc.org', country='uganda', description='Kojja'),
      202: SingleSite(site_id=202, name='mbarara', domain='mbarara.ug.inte.clinicedc.org', country='uganda', description='Mbarara')}
 

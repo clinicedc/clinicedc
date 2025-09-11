@@ -2,10 +2,10 @@
 
 import uuid
 
-import edc_sites.models
 from django.db import migrations, models
 
 import edc_pharmacy.models.prescription
+import edc_sites.models
 
 
 class Migration(migrations.Migration):
