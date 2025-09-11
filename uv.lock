@@ -553,6 +553,7 @@ version = "2.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "argon2-cffi" },
+    { name = "arrow" },
     { name = "boto3" },
     { name = "celery" },
     { name = "cryptography" },
@@ -654,6 +655,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "argon2-cffi", specifier = ">=25.1.0" },
+    { name = "arrow", specifier = ">=1.3.0" },
     { name = "boto3", specifier = ">=1.39.16" },
     { name = "celery", specifier = ">=5.5.3" },
     { name = "cryptography", specifier = ">=45.0.7" },
@@ -754,7 +756,7 @@ test = [
 
 [[package]]
 name = "clinicedc-tests"
-version = "0.1.0"
+version = "0.1.2"
 source = { editable = "../../clinicedc-tests" }
 dependencies = [
     { name = "faker" },

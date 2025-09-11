@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import Any, TYPE_CHECKING
 
 from edc_visit_tracking.constants import MISSED_VISIT
 
@@ -35,8 +35,9 @@ class RequisitionMetadataHandler(MetadataHandler):
         except IndexError as e:
             if self.related_visit.reason != MISSED_VISIT:
                 raise MetadataHandlerError(
-                    "Model not found. Not in visit.all_requisitions. "
-                    f"Model {self.model}. Got {e}"
+                    "Panel not found. Not in visit.all_requisitions. "
+                    f"Panel `{self.panel}` at `{self.creator.related_visit.visit}`. "
+                    f"Got {e}. Check your visit schedule."
                 )
         else:
             metadata_obj = self.creator.create_requisition(requisition_object)

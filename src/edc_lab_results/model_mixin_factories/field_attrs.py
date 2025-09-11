@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -12,13 +12,13 @@ from edc_reportable.choices import REPORTABLE
 def get_field_attrs_for_utestid(
     utest_id: str,
     units_choices: tuple,
-    default_units: Optional[str] = None,
-    verbose_name: Optional[str] = None,
-    decimal_places: Optional[int] = None,
-    max_digits: Optional[int] = None,
-    validators: Optional[list] = None,
-    quantifier: Optional[list] = None,
-    help_text: Optional[list] = None,
+    default_units: str | None = None,
+    verbose_name: str | None = None,
+    decimal_places: int | None = None,
+    max_digits: int | None = None,
+    validators: list | None = None,
+    quantifier: list | None = None,
+    help_text: list | None = None,
 ) -> dict:
     """Returns a dictionary of field classes for the model"""
     value_options = dict(

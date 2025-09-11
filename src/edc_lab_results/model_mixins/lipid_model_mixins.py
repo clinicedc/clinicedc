@@ -2,8 +2,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from edc_reportable.units import MILLIMOLES_PER_LITER
-
-from ..model_mixin_factory import reportable_result_model_mixin_factory
+from ..model_mixin_factories import reportable_result_model_mixin_factory
 
 
 class CholModelMixin(

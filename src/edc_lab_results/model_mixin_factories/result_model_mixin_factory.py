@@ -5,6 +5,9 @@ from django.db import models
 from .field_attrs import get_field_attrs_for_utestid
 
 
+__all__ = ["result_model_mixin_factory"]
+
+
 def result_model_mixin_factory(
     utest_id: str,
     units_choices: tuple,
