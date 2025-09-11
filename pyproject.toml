@@ -27,6 +27,7 @@ module-name = [
     "edc_form_label",
     "edc_form_runners",
     "edc_form_validators",
+    "edc_glucose",
     "edc_identifier",
     "edc_lab",
     "edc_lab_dashboard",
@@ -126,7 +127,6 @@ dependencies = [
     "django-simple-history>=3.10.1",
     "django-storages>=1.14.6",
     "djangorestframework>=3.16.0",
-    "edc-glucose>=1.0.3",
     "fontawesomefree>=6.6.0",
     "gunicorn>=23.0.0",
     "inflect>=7.5.0",
@@ -198,7 +198,6 @@ test = [
     "coverage>=7.10.1",
     "django-audit-fields>=2.0.0",
     "django-webtest>=1.9.13",
-    "edc-glucose>=1.0.3",
     "edc-test-settings>=1.1.2",
     "edc-test-utils>=1.0.0",
     "faker>=37.4.2",
@@ -223,7 +222,6 @@ notebook = [
 
 develop = [
     "clinicedc",
-    "edc-glucose",
     'argon2-cffi',
     'python-memcached',
     'django-environ',
@@ -250,7 +248,6 @@ django-audit-fields = { path = "../../django-audit-fields", editable = true }
 django-crypto-fields = { path = "../../django-crypto-fields", editable = true }
 django-revision = { path = "../../django-revision", editable = true }
 django-multisite2 = { path = "../../django-multisite2", editable = true }
-edc-glucose = { path = "../../edc-glucose", editable = true }
 edc-test-settings = { path = "../../edc-test-settings", editable = true }
 edc-test-utils = { path = "../../edc-test-utils", editable = true }
 clinicedc-tests = { path = "../../clinicedc-tests", editable = true }

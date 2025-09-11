@@ -573,7 +573,6 @@ dependencies = [
     { name = "django-simple-history" },
     { name = "django-storages" },
     { name = "djangorestframework" },
-    { name = "edc-glucose" },
     { name = "fontawesomefree" },
     { name = "gunicorn" },
     { name = "inflect" },
@@ -605,7 +604,6 @@ develop = [
     { name = "django-revision" },
     { name = "django-simple-history" },
     { name = "django-storages" },
-    { name = "edc-glucose" },
     { name = "faker" },
     { name = "fontawesomefree" },
     { name = "ipython" },
@@ -643,7 +641,6 @@ test = [
     { name = "coverage" },
     { name = "django-audit-fields" },
     { name = "django-webtest" },
-    { name = "edc-glucose" },
     { name = "edc-test-settings" },
     { name = "edc-test-utils" },
     { name = "faker" },
@@ -675,7 +672,6 @@ requires-dist = [
     { name = "django-simple-history", specifier = ">=3.10.1" },
     { name = "django-storages", specifier = ">=1.14.6" },
     { name = "djangorestframework", specifier = ">=3.16.0" },
-    { name = "edc-glucose", editable = "../../edc-glucose" },
     { name = "fontawesomefree", specifier = ">=6.6.0" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "inflect", specifier = ">=7.5.0" },
@@ -707,7 +703,6 @@ develop = [
     { name = "django-revision", editable = "../../django-revision" },
     { name = "django-simple-history" },
     { name = "django-storages" },
-    { name = "edc-glucose", editable = "../../edc-glucose" },
     { name = "faker", specifier = ">=37.5.3" },
     { name = "fontawesomefree" },
     { name = "ipython", specifier = ">=9.5.0" },
@@ -745,7 +740,6 @@ test = [
     { name = "coverage", specifier = ">=7.10.1" },
     { name = "django-audit-fields", editable = "../../django-audit-fields" },
     { name = "django-webtest", specifier = ">=1.9.13" },
-    { name = "edc-glucose", editable = "../../edc-glucose" },
     { name = "edc-test-settings", editable = "../../edc-test-settings" },
     { name = "edc-test-utils", editable = "../../edc-test-utils" },
     { name = "faker", specifier = ">=37.4.2" },
@@ -1409,63 +1403,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ae/ed/aefcc8cd0ba62a0560c3c18c33925362d46c6075480bfa4df87b28e169a9/docutils-0.21.2.tar.gz", hash = "sha256:3a6b18732edf182daa3cd12775bbb338cf5691468f91eeeb109deff6ebfa986f", size = 2204444, upload-time = "2024-04-23T18:57:18.24Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8f/d7/9322c609343d929e75e7e5e6255e614fcc67572cfd083959cdef3b7aad79/docutils-0.21.2-py3-none-any.whl", hash = "sha256:dafca5b9e384f0e419294eb4d2ff9fa826435bf15f15b7bd45723e8ad76811b2", size = 587408, upload-time = "2024-04-23T18:57:14.835Z" },
-]
-
-[[package]]
-name = "edc-glucose"
-version = "1.0.3"
-source = { editable = "../../edc-glucose" }
-dependencies = [
-    { name = "black" },
-    { name = "clinicedc" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "clinicedc", editable = "." },
-]
-
-[package.metadata.requires-dev]
-develop = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "faker", specifier = ">=37.4.2" },
-    { name = "flake8", specifier = ">=7.3.0" },
-    { name = "isort", specifier = ">=6.0.1" },
-    { name = "model-bakery", specifier = ">=1.20.5" },
-    { name = "ruff", specifier = ">=0.12.5" },
-    { name = "time-machine", specifier = ">=2.16.0" },
-    { name = "tqdm", specifier = ">=4.67.1" },
-]
-docs = [
-    { name = "furo", specifier = ">=2025.7.19" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
-]
-lint = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "flake8", specifier = ">=7.3.0" },
-    { name = "isort", specifier = ">=6.0.1" },
-    { name = "ruff", specifier = ">=0.12.5" },
-]
-test = [
-    { name = "coverage", specifier = ">=7.10.1" },
-    { name = "django-admin-rangefilter", specifier = ">=0.13.3" },
-    { name = "django-crypto-fields", specifier = ">=1.0.1" },
-    { name = "django-db-views", specifier = ">=0.1.11" },
-    { name = "django-logentry-admin", specifier = ">=1.1.0" },
-    { name = "django-multisite2", specifier = ">=2.1.0" },
-    { name = "django-pandas", specifier = ">=0.6.7" },
-    { name = "django-revision", specifier = ">=1.0.0" },
-    { name = "django-simple-history", specifier = ">=3.10.1" },
-    { name = "django-webtest", specifier = ">=1.9.13" },
-    { name = "edc-test-utils", specifier = ">=1.0.0" },
-    { name = "faker", specifier = ">=37.4.2" },
-    { name = "model-bakery", specifier = ">=1.20.5" },
-    { name = "time-machine", specifier = ">=2.16.0" },
-    { name = "tox-uv", specifier = ">=1.26.2" },
-    { name = "tqdm", specifier = ">=4.67.1" },
 ]
 
 [[package]]

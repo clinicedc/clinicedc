@@ -179,7 +179,6 @@ Optional modules
 edc-csf_                    |edc-csf|                     |pypi-edc-csf|
 edc-dx_                     |edc-dx|                      |pypi-edc-dx|
 edc-dx-review_              |edc-dx-review|               |pypi-edc-dx-review|
-edc-glucose_                |edc-glucose|                 |pypi-edc-glucose|
 edc-he_                     |edc-he|                      |pypi-edc-he|
 edc-icecap-a_               |edc-icecap-a|                |pypi-edc-icecap-a|
 edc-microbiology_           |edc-microbiology|            |pypi-edc-microbiology|
@@ -221,7 +220,6 @@ or just
 .. _edc-csf: https://github.com/clinicedc/edc-csf
 .. _edc-dx: https://github.com/clinicedc/edc-dx
 .. _edc-dx-review: https://github.com/clinicedc/edc-dx-review
-.. _edc-glucose: https://github.com/clinicedc/edc-glucose
 .. _edc-he: https://github.com/clinicedc/edc-he
 .. _edc-icecap-a: https://github.com/clinicedc/edc-icecap-a
 .. _edc-mnsi: https://github.com/clinicedc/edc-mnsi
@@ -239,8 +237,6 @@ or just
   :target: https://github.com/clinicedc/edc-dx/actions/workflows/build.yml
 .. |edc-dx-review| image:: https://github.com/clinicedc/edc-dx-review/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-dx-review/actions/workflows/build.yml
-.. |edc-glucose| image:: https://github.com/clinicedc/edc-glucose/actions/workflows/build.yml/badge.svg
-  :target: https://github.com/clinicedc/edc-glucose/actions/workflows/build.yml
 .. |edc-he| image:: https://github.com/clinicedc/edc-he/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-he/actions/workflows/build.yml
 .. |edc-icecap-a| image:: https://github.com/clinicedc/edc-icecap-a/actions/workflows/build.yml/badge.svg
@@ -270,8 +266,6 @@ or just
     :target: https://pypi.python.org/pypi/edc-dx
 .. |pypi-edc-dx-review| image:: https://img.shields.io/pypi/v/edc-dx-review.svg
     :target: https://pypi.python.org/pypi/edc-dx-review
-.. |pypi-edc-glucose| image:: https://img.shields.io/pypi/v/edc-glucose.svg
-    :target: https://pypi.python.org/pypi/edc-glucose
 .. |pypi-edc-he| image:: https://img.shields.io/pypi/v/edc-he.svg
     :target: https://pypi.python.org/pypi/edc-he
 .. |pypi-edc-icecap-a| image:: https://img.shields.io/pypi/v/edc-he.svg
