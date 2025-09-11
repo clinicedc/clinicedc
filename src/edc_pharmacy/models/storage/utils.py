@@ -75,10 +75,7 @@ def repackage_for_subject(
             "Did not expect subject identifier. SID has not been allocated. "
             f"Got sid `{rando_sid}`."
         )
-    if (
-        subject_identifier
-        and randomization_list.subject_identifier != subject_identifier
-    ):
+    if subject_identifier and randomization_list.subject_identifier != subject_identifier:
         raise PackagingSubjectIdentifierMismatchError(
             f"Subject identifier mismatch. Got sid `{rando_sid}`."
         )

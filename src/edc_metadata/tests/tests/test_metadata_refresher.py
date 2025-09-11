@@ -1,6 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from clinicedc_tests.models import CrfFive, CrfOne, SubjectVisit
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
@@ -16,7 +17,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
-from clinicedc_tests.models import CrfFive, CrfOne, SubjectVisit
 
 from .metadata_test_mixin import TestMetadataMixin
 
@@ -80,9 +80,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         }
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
-        crf_metadata = CrfMetadata.objects.get(
-            model="edc_metadata.crfone", entry_status=KEYED
-        )
+        crf_metadata = CrfMetadata.objects.get(model="edc_metadata.crfone", entry_status=KEYED)
         crf_metadata.entry_status = REQUIRED
         crf_metadata.save()
         metadata_refresher = MetadataRefresher()

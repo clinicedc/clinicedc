@@ -19,9 +19,7 @@ class OnScheduleModelError(Exception):
 
 
 class SubjectScheduleModelManager(models.Manager):
-    def get_by_natural_key(
-        self, subject_identifier, visit_schedule_name, schedule_name
-    ):
+    def get_by_natural_key(self, subject_identifier, visit_schedule_name, schedule_name):
         return self.get(
             subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule_name,
@@ -69,9 +67,7 @@ class SubjectScheduleHistory(
         validators=[datetime_not_before_study_start, datetime_not_future], null=True
     )
 
-    schedule_status = models.CharField(
-        max_length=15, choices=SCHEDULE_STATUS, null=True
-    )
+    schedule_status = models.CharField(max_length=15, choices=SCHEDULE_STATUS, null=True)
 
     objects = SubjectScheduleModelManager()
 
@@ -112,6 +108,5 @@ class SubjectScheduleHistory(
             )
         ]
         indexes = (
-            BaseUuidModel.Meta.indexes
-            + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
+            BaseUuidModel.Meta.indexes + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
         )

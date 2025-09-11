@@ -77,9 +77,7 @@ class UnscheduledAppointmentCreator:
                 "suggested visit code sequence cannot be less than 1"
             )
         self.facility = facility
-        self.visit_schedule = site_visit_schedules.get_visit_schedule(
-            visit_schedule_name
-        )
+        self.visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
         self.schedule = self.visit_schedule.schedules.get(schedule_name)
         self.appointment_model_cls = self.schedule.appointment_model_cls
         self.visit = self.visit_schedule.schedules.get(self.schedule_name).visits.get(
@@ -264,10 +262,8 @@ class UnscheduledAppointmentCreator:
         if (
             self.calling_appointment
             and self.calling_appointment.next
-            and self.calling_appointment.next.appt_status
-            in [INCOMPLETE_APPT, COMPLETE_APPT]
-            and self.suggested_appt_datetime
-            < self.calling_appointment.next.appt_datetime
+            and self.calling_appointment.next.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
+            and self.suggested_appt_datetime < self.calling_appointment.next.appt_datetime
         ):
             value = True
         return value

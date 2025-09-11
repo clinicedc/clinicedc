@@ -77,7 +77,5 @@ class StockAdjustmentAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 label=obj.stock.code,
                 title="Go to stock",
             )
-            return render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

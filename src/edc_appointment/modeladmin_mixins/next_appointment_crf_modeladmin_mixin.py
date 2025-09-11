@@ -104,6 +104,4 @@ class NextAppointmentCrfModelAdminMixin(admin.ModelAdmin):
         )
 
     def get_default_info_source(self, request):
-        return django_apps.get_model("edc_appointment.infosources").objects.get(
-            name=PATIENT
-        )
+        return django_apps.get_model("edc_appointment.infosources").objects.get(name=PATIENT)

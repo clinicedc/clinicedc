@@ -2,6 +2,12 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.labs import lab_profile, vl_panel
+from clinicedc_tests.models import SubjectRequisition
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings, tag
 
 from edc_appointment.models import Appointment
@@ -10,11 +16,7 @@ from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_lab.identifiers import AliquotIdentifier as AliquotIdentifierBase
 from edc_lab.lab import AliquotCreator as AliquotCreatorBase
-from edc_lab.lab import (
-    AliquotType,
-    Process,
-    ProcessingProfile,
-)
+from edc_lab.lab import AliquotType, Process, ProcessingProfile
 from edc_lab.lab import Specimen as SpecimenBase
 from edc_lab.models import Aliquot
 from edc_lab.site_labs import site_labs
@@ -24,12 +26,6 @@ from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.labs import lab_profile, vl_panel
-from clinicedc_tests.models import SubjectRequisition
-from clinicedc_tests.sites import all_sites
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class AliquotIdentifier(AliquotIdentifierBase):
@@ -122,9 +118,7 @@ class TestSpecimen2(TestCase):
             requisition_identifier=self.requisition.requisition_identifier,
             is_primary=True,
         )
-        self.assertEqual(
-            specimen.aliquots[0].aliquot_identifier, obj.aliquot_identifier
-        )
+        self.assertEqual(specimen.aliquots[0].aliquot_identifier, obj.aliquot_identifier)
 
     def test_process_repr(self):
         a = AliquotType(name="aliquot_a", numeric_code="02", alpha_code="WB")
@@ -133,9 +127,7 @@ class TestSpecimen2(TestCase):
 
     def test_process_profile_repr(self):
         a = AliquotType(name="aliquot_a", numeric_code="02", alpha_code="WB")
-        processing_profile = ProcessingProfile(
-            name="processing_profile", aliquot_type=a
-        )
+        processing_profile = ProcessingProfile(name="processing_profile", aliquot_type=a)
         self.assertTrue(repr(processing_profile))
 
     def test_specimen_process(self):
@@ -206,9 +198,7 @@ class TestSpecimen2(TestCase):
         pl_aliquots.reverse()
         for i in range(0, 3):
             self.assertFalse(pl_aliquots[i].is_primary)
-            self.assertEqual(
-                f"36{str(i+2).zfill(2)}", pl_aliquots[i].aliquot_identifier[-4:]
-            )
+            self.assertEqual(f"36{str(i+2).zfill(2)}", pl_aliquots[i].aliquot_identifier[-4:])
 
         # buffy coat: 2 aliquots where seq fragment start w/ 12
         # ending in 6,7
@@ -219,6 +209,4 @@ class TestSpecimen2(TestCase):
         bc_aliquots.reverse()
         for i in range(0, 2):
             self.assertFalse(bc_aliquots[i].is_primary)
-            self.assertEqual(
-                f"12{str(i+6).zfill(2)}", bc_aliquots[i].aliquot_identifier[-4:]
-            )
+            self.assertEqual(f"12{str(i+6).zfill(2)}", bc_aliquots[i].aliquot_identifier[-4:])

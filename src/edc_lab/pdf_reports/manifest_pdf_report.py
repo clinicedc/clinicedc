@@ -83,9 +83,7 @@ class ManifestPdfReport(Report):
 
         story.append(
             Paragraph(
-                "SPECIMEN MANIFEST{}".format(
-                    " (reprint)" if self.manifest.printed else ""
-                ),
+                "SPECIMEN MANIFEST{}".format(" (reprint)" if self.manifest.printed else ""),
                 self.styles["line_label_center"],
             )
         )
@@ -159,9 +157,7 @@ class ManifestPdfReport(Report):
                     "SHIPPER/EXPORTER (complete name and address)",
                     self.styles["line_label"],
                 ),
-                Paragraph(
-                    "CONSIGNEE (complete name and address)", self.styles["line_label"]
-                ),
+                Paragraph("CONSIGNEE (complete name and address)", self.styles["line_label"]),
             ],
             [
                 Paragraph(
@@ -197,16 +193,12 @@ class ManifestPdfReport(Report):
                 ),
             ],
             [
-                Paragraph(
-                    self.manifest.shipper.country, self.styles["line_data_largest"]
-                ),
+                Paragraph(self.manifest.shipper.country, self.styles["line_data_largest"]),
                 Paragraph(self.description, self.styles["line_data_large"]),
             ],
             [Paragraph("COUNTRY OF ORIGIN", self.styles["line_label"]), ""],
             [
-                Paragraph(
-                    self.manifest.shipper.country, self.styles["line_data_largest"]
-                ),
+                Paragraph(self.manifest.shipper.country, self.styles["line_data_largest"]),
                 "",
             ],
             [
@@ -214,9 +206,7 @@ class ManifestPdfReport(Report):
                 "",
             ],
             [
-                Paragraph(
-                    self.manifest.consignee.country, self.styles["line_data_largest"]
-                ),
+                Paragraph(self.manifest.consignee.country, self.styles["line_data_largest"]),
                 "",
             ],
         ]
@@ -355,9 +345,7 @@ class ManifestPdfReport(Report):
     @property
     def description(self):
         boxes = self.box_model.objects.filter(
-            box_identifier__in=[
-                obj.identifier for obj in self.manifest.manifestitem_set.all()
-            ]
+            box_identifier__in=[obj.identifier for obj in self.manifest.manifestitem_set.all()]
         )
         box_items = self.box_item_model.objects.filter(box__in=boxes)
         aliquots = self.aliquot_model.objects.filter(
@@ -399,9 +387,7 @@ class ManifestPdfReport(Report):
             data1 = []
             data1.append(box_header)
             try:
-                box = self.box_model.objects.get(
-                    box_identifier=manifest_item.identifier
-                )
+                box = self.box_model.objects.get(box_identifier=manifest_item.identifier)
             except ObjectDoesNotExist as e:
                 raise ManifestPdfReportError(
                     f"{e} Got Manifest item '{manifest_item.identifier}'.",
@@ -461,9 +447,7 @@ class ManifestPdfReport(Report):
                     [
                         barcode,
                         Paragraph(str(box_item.position), self.styles["row_data"]),
-                        Paragraph(
-                            aliquot.human_readable_identifier, self.styles["row_data"]
-                        ),
+                        Paragraph(aliquot.human_readable_identifier, self.styles["row_data"]),
                         Paragraph(aliquot.subject_identifier, self.styles["row_data"]),
                         Paragraph(
                             "{} ({}) {}".format(
@@ -495,9 +479,7 @@ class ManifestPdfReport(Report):
     def get_aliquot(self, box_item_identifier=None):
         """Returns the aliquot instance for this box item."""
         try:
-            aliquot = self.aliquot_model.objects.get(
-                aliquot_identifier=box_item_identifier
-            )
+            aliquot = self.aliquot_model.objects.get(aliquot_identifier=box_item_identifier)
         except ObjectDoesNotExist as e:
             raise ManifestPdfReportError(
                 f"{e} Got Box item '{box_item_identifier}'",

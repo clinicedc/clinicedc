@@ -107,9 +107,7 @@ class AeTmgModelAdminMixin(
         initial = super().get_changeform_initial_data(request)
         ae_initial_model_cls = get_ae_model("aeinitial")
         try:
-            ae_initial = ae_initial_model_cls.objects.get(
-                pk=request.GET.get("ae_initial")
-            )
+            ae_initial = ae_initial_model_cls.objects.get(pk=request.GET.get("ae_initial"))
         except ObjectDoesNotExist:
             pass
         else:

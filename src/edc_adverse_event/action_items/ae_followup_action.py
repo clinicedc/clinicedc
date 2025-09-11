@@ -63,8 +63,7 @@ class AeFollowupAction(ActionWithNotification):
             next_actions=next_actions,
             action_name=DEATH_REPORT_ACTION,
             required=(
-                self.reference_obj.outcome == DEAD
-                or self.reference_obj.ae_grade == GRADE5
+                self.reference_obj.outcome == DEAD or self.reference_obj.ae_grade == GRADE5
             ),
         )
 
@@ -89,10 +88,7 @@ class AeFollowupAction(ActionWithNotification):
 
     def update_next_actions_ltfu(self, next_actions=None):
         """Add Study termination to next_actions if LTFU."""
-        if (
-            self.reference_obj.outcome
-            and self.reference_obj.outcome == LOST_TO_FOLLOWUP
-        ):
+        if self.reference_obj.outcome and self.reference_obj.outcome == LOST_TO_FOLLOWUP:
             if not self.onschedule_models:
                 raise OnScheduleError(
                     f"Subject cannot be lost to followup. "

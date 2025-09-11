@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_lab.constants import EQ
 from edc_reportable import PERCENT
 

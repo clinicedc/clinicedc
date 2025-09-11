@@ -57,9 +57,7 @@ class Baseline:
     def visit_schedule(self) -> VisitSchedule:
         self.have_required_attrs_or_raise()
         try:
-            visit_schedule = site_visit_schedules.get_visit_schedule(
-                self.visit_schedule_name
-            )
+            visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
         except SiteVisitScheduleError as e:
             raise VisitScheduleBaselineError(str(e))
         return visit_schedule

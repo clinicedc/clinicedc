@@ -6,9 +6,7 @@ from django_audit_fields.admin import audit_fieldset_tuple
 
 
 def get_missed_medications_fieldset_tuple():
-    description = render_to_string(
-        "edc_adherence/missed_medication_fieldset_description.html"
-    )
+    description = render_to_string("edc_adherence/missed_medication_fieldset_description.html")
     return (
         _("Missed Medications"),
         {

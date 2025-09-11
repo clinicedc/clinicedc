@@ -1,5 +1,6 @@
-from edc_visit_schedule.visit import Requisition, RequisitionCollection
 from clinicedc_tests.dummy_panel import Panel
+
+from edc_visit_schedule.visit import Requisition, RequisitionCollection
 
 requisitions = RequisitionCollection(
     Requisition(show_order=10, panel=Panel("one"), required=True, additional=False),

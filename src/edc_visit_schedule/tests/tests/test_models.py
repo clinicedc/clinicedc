@@ -2,24 +2,6 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from dateutil.relativedelta import relativedelta
-from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase, override_settings, tag
-
-from edc_appointment.models import Appointment
-from edc_consent.site_consents import site_consents
-from edc_facility.import_holidays import import_holidays
-from edc_sites.site import sites as site_sites
-from edc_sites.tests import SiteTestCaseMixin
-from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
-from edc_visit_schedule.constants import OFF_SCHEDULE, ON_SCHEDULE
-from edc_visit_schedule.models import OnSchedule, SubjectScheduleHistory
-from edc_visit_schedule.site_visit_schedules import (
-    RegistryNotLoaded,
-    site_visit_schedules,
-)
-from edc_visit_tracking.constants import SCHEDULED
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent5_v1, consent6_v1, consent7_v1, consent_v1
 from clinicedc_tests.helper import Helper
@@ -40,6 +22,24 @@ from clinicedc_tests.visit_schedules.visit_schedule_visitschedule import (
     visit_schedule6,
     visit_schedule7,
 )
+from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ImproperlyConfigured
+from django.test import TestCase, override_settings, tag
+
+from edc_appointment.models import Appointment
+from edc_consent.site_consents import site_consents
+from edc_facility.import_holidays import import_holidays
+from edc_sites.site import sites as site_sites
+from edc_sites.tests import SiteTestCaseMixin
+from edc_sites.utils import add_or_update_django_sites
+from edc_utils import get_utcnow
+from edc_visit_schedule.constants import OFF_SCHEDULE, ON_SCHEDULE
+from edc_visit_schedule.models import OnSchedule, SubjectScheduleHistory
+from edc_visit_schedule.site_visit_schedules import (
+    RegistryNotLoaded,
+    site_visit_schedules,
+)
+from edc_visit_tracking.constants import SCHEDULED
 
 
 @tag("visit_schedule")
@@ -100,9 +100,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
             report_datetime=get_utcnow(),
             consent_definition=consent_v1,
         )
-        traveller = time_machine.travel(
-            consent.consent_datetime + relativedelta(years=1)
-        )
+        traveller = time_machine.travel(consent.consent_datetime + relativedelta(years=1))
         traveller.start()
         obj = OffSchedule.objects.create(subject_identifier=consent.subject_identifier)
         self.assertIn(consent.subject_identifier, str(obj))
@@ -123,9 +121,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
             report_datetime=get_utcnow(),
         )
 
-        traveller = time_machine.travel(
-            consent.consent_datetime + relativedelta(years=1)
-        )
+        traveller = time_machine.travel(consent.consent_datetime + relativedelta(years=1))
         traveller.start()
         offschedule_datetime = get_utcnow()
         obj = OffScheduleFive.objects.create(
@@ -144,9 +140,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
             report_datetime=get_utcnow(),
         )
 
-        traveller = time_machine.travel(
-            consent.consent_datetime + relativedelta(years=1)
-        )
+        traveller = time_machine.travel(consent.consent_datetime + relativedelta(years=1))
         traveller.start()
         offschedule_datetime = get_utcnow()
         try:
@@ -188,9 +182,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
             consent_definition=consent7_v1,
             report_datetime=get_utcnow(),
         )
-        traveller = time_machine.travel(
-            consent.consent_datetime + relativedelta(years=1)
-        )
+        traveller = time_machine.travel(consent.consent_datetime + relativedelta(years=1))
         traveller.start()
         offschedule_datetime = get_utcnow()
         obj = OffScheduleSeven.objects.create(
@@ -232,9 +224,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         )
 
     def test_on_offschedule(self):
-        traveller = time_machine.travel(
-            datetime(2025, 6, 21, 8, 00, tzinfo=ZoneInfo("UTC"))
-        )
+        traveller = time_machine.travel(datetime(2025, 6, 21, 8, 00, tzinfo=ZoneInfo("UTC")))
         traveller.start()
         consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule7",
@@ -248,9 +238,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertEqual(history_obj.schedule_status, ON_SCHEDULE)
         traveller.stop()
 
-        traveller = time_machine.travel(
-            consent.consent_datetime + relativedelta(years=1)
-        )
+        traveller = time_machine.travel(consent.consent_datetime + relativedelta(years=1))
         traveller.start()
         OffScheduleSeven.objects.create(
             subject_identifier=consent.subject_identifier,
@@ -269,17 +257,13 @@ class TestModels(SiteTestCaseMixin, TestCase):
             consent_definition=consent_v1,
             report_datetime=get_utcnow(),
         )
-        traveller = time_machine.travel(
-            consent.consent_datetime + relativedelta(years=1)
-        )
+        traveller = time_machine.travel(consent.consent_datetime + relativedelta(years=1))
         traveller.start()
         OffSchedule.objects.create(
             subject_identifier=consent.subject_identifier,
             offschedule_datetime=get_utcnow(),
         )
-        obj = SubjectScheduleHistory.objects.get(
-            subject_identifier=consent.subject_identifier
-        )
+        obj = SubjectScheduleHistory.objects.get(subject_identifier=consent.subject_identifier)
         self.assertEqual(
             obj.natural_key(),
             (obj.subject_identifier, obj.visit_schedule_name, obj.schedule_name),
@@ -300,9 +284,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
             consent_definition=consent_v1,
             report_datetime=get_utcnow(),
         )
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         self.assertEqual(appointments.count(), 2)
         appointment = Appointment.objects.all().order_by("appt_datetime").first()
 
@@ -331,17 +313,13 @@ class TestModels(SiteTestCaseMixin, TestCase):
             consent_definition=consent_v1,
             report_datetime=get_utcnow(),
         )
-        onschedule = OnSchedule.objects.get(
-            subject_identifier=consent.subject_identifier
-        )
+        onschedule = OnSchedule.objects.get(subject_identifier=consent.subject_identifier)
         history = SubjectScheduleHistory.objects.onschedules(
             subject_identifier=consent.subject_identifier
         )
         self.assertEqual([onschedule], [obj for obj in history])
 
-        traveller = time_machine.travel(
-            consent.consent_datetime + relativedelta(months=3)
-        )
+        traveller = time_machine.travel(consent.consent_datetime + relativedelta(months=3))
         traveller.start()
         onschedules = SubjectScheduleHistory.objects.onschedules(
             subject_identifier=consent.subject_identifier, report_datetime=get_utcnow()
@@ -355,9 +333,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         self.assertEqual(0, len(onschedules))
 
         # add offschedule
-        traveller = time_machine.travel(
-            consent.consent_datetime + relativedelta(months=5)
-        )
+        traveller = time_machine.travel(consent.consent_datetime + relativedelta(months=5))
         traveller.start()
         OffSchedule.objects.create(
             subject_identifier=consent.subject_identifier,
@@ -397,9 +373,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
         obj = OnSchedule.objects.get(subject_identifier=consent.subject_identifier)
         self.assertEqual(obj.natural_key(), (consent.subject_identifier,))
 
-        traveller = time_machine.travel(
-            consent.consent_datetime + relativedelta(years=1)
-        )
+        traveller = time_machine.travel(consent.consent_datetime + relativedelta(years=1))
         traveller.start()
         obj = OffSchedule.objects.create(subject_identifier=consent.subject_identifier)
         self.assertEqual(obj.natural_key(), (consent.subject_identifier,))

@@ -32,9 +32,7 @@ class TextboxFlowable(Flowable):
             y=y,
             width=width * 0.6,
             height=height * 0.4,
-            borderStyle=(
-                self.borderStyle if self.borderStyle != "underlined" else "none"
-            ),
+            borderStyle=(self.borderStyle if self.borderStyle != "underlined" else "none"),
             fillColor=colors.white,
             textColor=colors.black,
             forceBorder=True,

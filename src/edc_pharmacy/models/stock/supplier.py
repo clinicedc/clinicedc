@@ -13,9 +13,7 @@ class Manager(models.Manager):
 
 class Supplier(AddressModelMixin, ContactModelMixin, BaseUuidModel):
 
-    supplier_identifier = models.CharField(
-        max_length=36, unique=True, null=True, blank=True
-    )
+    supplier_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
 
     name = models.CharField(max_length=255, unique=True)
 

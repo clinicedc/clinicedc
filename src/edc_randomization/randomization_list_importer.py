@@ -128,9 +128,7 @@ class RandomizationListImporter:
         self._summarize_results()
         if self.verbose:
             sys.stdout.write(
-                style.SUCCESS(
-                    "\nDone.------------------------------------------------\n"
-                )
+                style.SUCCESS("\nDone.------------------------------------------------\n")
             )
         return rec_count, self.randomizationlist_path
 
@@ -176,8 +174,7 @@ class RandomizationListImporter:
                     for fieldname in self.required_csv_fieldnames:
                         if fieldname not in row:
                             raise RandomizationListImportError(
-                                "Invalid header. Missing column "
-                                f"`{fieldname}`. Got {row}"
+                                "Invalid header. Missing column " f"`{fieldname}`. Got {row}"
                             )
                 elif index == 1:
                     if self.dryrun:
@@ -311,8 +308,7 @@ class RandomizationListImporter:
     def get_site_names() -> dict[str, str]:
         """A dict of site names for the target randomizer."""
         return {
-            single_site.name: single_site.name
-            for single_site in site_sites.all().values()
+            single_site.name: single_site.name for single_site in site_sites.all().values()
         }
 
     def validate_site_name(self, row) -> str:

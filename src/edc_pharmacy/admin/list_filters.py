@@ -17,9 +17,7 @@ class MedicationsListFilter(SimpleListFilter):
     def lookups(self, request, model_admin):
         medications = []
         for medication in Medication.objects.all().order_by("name"):
-            medications.append(
-                (medication.name, medication.name.replace("_", " ").title())
-            )
+            medications.append((medication.name, medication.name.replace("_", " ").title()))
         medications.append(("none", "None"))
         return tuple(medications)
 
@@ -139,23 +137,15 @@ class TransferredListFilter(SimpleListFilter):
             if self.value() == YES:
                 qs = queryset.filter(
                     container__may_request_as=True,
-                    allocation__stock_request_item__stock_request__location=F(
-                        "location"
-                    ),
+                    allocation__stock_request_item__stock_request__location=F("location"),
                 )
             elif self.value() == NO:
                 qs = queryset.filter(
-                    ~Q(
-                        allocation__stock_request_item__stock_request__location=F(
-                            "location"
-                        )
-                    ),
+                    ~Q(allocation__stock_request_item__stock_request__location=F("location")),
                     container__may_request_as=True,
                 )
             elif self.value() == NOT_APPLICABLE:
-                qs = queryset.filter(
-                    allocation__isnull=True, container__may_request_as=False
-                )
+                qs = queryset.filter(allocation__isnull=True, container__may_request_as=False)
         return qs
 
 
@@ -410,9 +400,7 @@ class OrderItemStatusListFilter(SimpleListFilter):
             if self.value() == RECEIVED:
                 qs = queryset.filter(unit_qty=0)
             elif self.value() == PARTIAL:
-                qs = queryset.filter(
-                    Q(unit_qty_ordered__gt=F("unit_qty")) & ~Q(unit_qty=0)
-                )
+                qs = queryset.filter(Q(unit_qty_ordered__gt=F("unit_qty")) & ~Q(unit_qty=0))
             elif self.value() == NEW:
                 qs = queryset.filter(unit_qty=F("unit_qty_ordered"))
         return qs

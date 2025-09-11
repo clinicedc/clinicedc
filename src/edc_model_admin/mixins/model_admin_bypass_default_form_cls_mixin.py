@@ -38,9 +38,7 @@ class ModelAdminBypassDefaultFormClsMixin:
     """
 
     # if custom_form_codename is None, this mixin does nothing
-    custom_form_codename: str | None = (
-        None  # "e.g. edc_data_manager.special_bypassmodelform"
-    )
+    custom_form_codename: str | None = None  # "e.g. edc_data_manager.special_bypassmodelform"
 
     def custom_modelform_factory(self):
         """Returns a basic modelform (with no validation checks)"""
@@ -64,9 +62,7 @@ class ModelAdminBypassDefaultFormClsMixin:
         permissions otherwise returns the Form class originally
         declared on this ModelAdmin class.
         """
-        if self.custom_form_codename and request.user.has_perm(
-            self.custom_form_codename
-        ):
+        if self.custom_form_codename and request.user.has_perm(self.custom_form_codename):
             try:
                 messages.add_message(
                     request,
@@ -126,9 +122,7 @@ class ModelAdminBypassDefaultFormClsMixin:
         exclude = exclude or None
 
         # Remove declared form fields which are in readonly_fields.
-        new_attrs = dict.fromkeys(
-            f for f in readonly_fields if f in self.form.declared_fields
-        )
+        new_attrs = dict.fromkeys(f for f in readonly_fields if f in self.form.declared_fields)
         form = type(form_cls.__name__, (form_cls,), new_attrs)
 
         defaults = {
@@ -139,9 +133,7 @@ class ModelAdminBypassDefaultFormClsMixin:
             **kwargs,
         }
 
-        if defaults["fields"] is None and not modelform_defines_fields(
-            defaults["form"]
-        ):
+        if defaults["fields"] is None and not modelform_defines_fields(defaults["form"]):
             defaults["fields"] = forms.ALL_FIELDS
 
         try:

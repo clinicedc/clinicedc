@@ -1,6 +1,11 @@
 from datetime import datetime
 from uuid import uuid4
 
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_action_item import (
+    get_visit_schedule,
+)
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -14,11 +19,6 @@ from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.sites import all_sites
-from clinicedc_tests.visit_schedules.visit_schedule_action_item import (
-    get_visit_schedule,
-)
 
 
 class TestCaseMixin(TestCase):

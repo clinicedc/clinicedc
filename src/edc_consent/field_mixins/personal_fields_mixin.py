@@ -2,12 +2,13 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
-
 from django_crypto_fields.fields import EncryptedCharField
 from django_crypto_fields.models import CryptoMixin
+
 from edc_constants.choices import GENDER_UNDETERMINED
 from edc_model.models import NameFieldsModelMixin
 from edc_model_fields.fields import IsDateEstimatedField
+
 from ..validators import FullNameValidator
 
 
@@ -34,9 +35,7 @@ class BaseFieldsMixin(models.Model):
         help_text=format_html(
             "{text1}.<BR>{text2}",
             text1=_("Required only if participant is a minor"),
-            text2=_(
-                "Format is 'LASTNAME, FIRSTNAME'. All uppercase separated by a comma."
-            ),
+            text2=_("Format is 'LASTNAME, FIRSTNAME'. All uppercase separated by a comma."),
         ),
     )
 

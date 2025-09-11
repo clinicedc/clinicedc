@@ -38,9 +38,7 @@ class TestConsentModel(TestCase):
         ConsentDefinition("clinicedc_tests.subjectconsentv1", **self.default_options())
 
     def test_cdef_name(self):
-        cdef1 = ConsentDefinition(
-            "clinicedc_tests.subjectconsentv1", **self.default_options()
-        )
+        cdef1 = ConsentDefinition("clinicedc_tests.subjectconsentv1", **self.default_options())
         self.assertEqual(cdef1.name, "clinicedc_tests.subjectconsentv1-1")
         site_consents.register(cdef1)
         site_consents.get_consent_definition("clinicedc_tests.subjectconsentv1")

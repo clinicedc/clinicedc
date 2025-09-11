@@ -20,9 +20,7 @@ def read_unmanaged_model_sql(
         uuid_func = "gen_random_uuid()"
 
     if not fullpath:
-        fullpath = (
-            Path(settings.BASE_DIR) / app_name / "models" / "unmanaged" / filename
-        )
+        fullpath = Path(settings.BASE_DIR) / app_name / "models" / "unmanaged" / filename
     else:
         fullpath = Path(fullpath)
 
@@ -86,9 +84,7 @@ def recreate_db_view(model_cls, drop: bool | None = None, verbose: bool | None =
     """
     drop = True if drop is None else drop
     try:
-        sql = model_cls.view_definition.get(
-            settings.DATABASES["default"]["ENGINE"]
-        )  # noqa
+        sql = model_cls.view_definition.get(settings.DATABASES["default"]["ENGINE"])  # noqa
     except AttributeError as e:
         raise AttributeError(
             f"Is this model linked to a view? Declare model with `DBView`. Got {e}"

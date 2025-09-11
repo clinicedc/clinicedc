@@ -107,13 +107,9 @@ class Schedule:
             None if loss_to_followup_model is None else loss_to_followup_model.lower()
         )
         self.offstudymedication_model = (
-            None
-            if offstudymedication_model is None
-            else offstudymedication_model.lower()
+            None if offstudymedication_model is None else offstudymedication_model.lower()
         )
-        self.history_model = (
-            history_model or "edc_visit_schedule.subjectschedulehistory"
-        )
+        self.history_model = history_model or "edc_visit_schedule.subjectschedulehistory"
 
     def __repr__(self):
         return f"Schedule({self.name})"
@@ -140,9 +136,7 @@ class Schedule:
                 f"ConsentDefinition(s) may not be None. See Schedule `{self}`. "
                 f"Got `{consent_definitions}`."
             )
-        self._consent_definitions = sorted(
-            self._consent_definitions, key=lambda x: x.version
-        )
+        self._consent_definitions = sorted(self._consent_definitions, key=lambda x: x.version)
 
     @property
     def visits(self) -> VisitCollection:
@@ -289,8 +283,7 @@ class Schedule:
         ]
         if not consent_definition:
             raise ScheduleError(
-                "Consent definition may not be None. Expected one of "
-                f"{formatted_cdefs}."
+                "Consent definition may not be None. Expected one of " f"{formatted_cdefs}."
             )
 
         if consent_definition not in self.consent_definitions:
@@ -328,9 +321,7 @@ class Schedule:
         return True
 
     def datetime_in_window(self, **kwargs):
-        return self.window_cls(
-            name=self.name, visits=self.visits, **kwargs
-        ).datetime_in_window
+        return self.window_cls(name=self.name, visits=self.visits, **kwargs).datetime_in_window
 
     @property
     def onschedule_model_cls(self) -> Type[OnSchedule]:
@@ -371,9 +362,7 @@ class Schedule:
         """
         if consent_definition:
             consent_definitions = [
-                c
-                for c in self.consent_definitions
-                if c.version == consent_definition.version
+                c for c in self.consent_definitions if c.version == consent_definition.version
             ]
         else:
             consent_definitions = self.consent_definitions

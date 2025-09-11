@@ -342,9 +342,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 label=obj.from_stock.code,
                 title="Go to stock",
             )
-            return render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
     @admin.display(description="Order #", ordering="-order__order_datetime")
@@ -357,9 +355,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 label=obj.receive_item.order_item.order.order_identifier,
                 title="Go to order",
             )
-            return render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
     @admin.display(
@@ -374,9 +370,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 label=obj.receive_item.receive.receive_identifier,
                 title="Go to receiving",
             )
-            return render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
     @admin.display(description="Repack #", ordering="-repack_request__repack_datetime")
@@ -417,9 +411,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 label=obj.allocation.registered_subject.subject_identifier,
                 title="Go to allocation",
             )
-            return render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
     @admin.display(
@@ -428,18 +420,14 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
     def stock_transfer_item_changelist(self, obj):
         if obj and get_related_or_none(obj, "stocktransferitem"):
-            url = reverse(
-                "edc_pharmacy_admin:edc_pharmacy_stocktransferitem_changelist"
-            )
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferitem_changelist")
             url = f"{url}?q={obj.code}"
             context = dict(
                 url=url,
                 label=obj.stocktransferitem.stock_transfer.transfer_identifier,
                 title="Go to stock transfer item",
             )
-            return render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
     @admin.display(description="Request #")
@@ -452,9 +440,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 label=obj.allocation.stock_request_item.stock_request.request_identifier,
                 title="Go to stock request",
             )
-            return render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
     @admin.display(description="DISPENSE #")
@@ -467,7 +453,5 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 label=obj.dispenseitem.dispense.dispense_identifier,
                 title="Go to dispense",
             )
-            return render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

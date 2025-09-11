@@ -51,9 +51,7 @@ def get_appointment(
     return appointment
 
 
-def create_related_visit(
-    appointment: Appointment, reason: str | None = None
-) -> SubjectVisit:
+def create_related_visit(appointment: Appointment, reason: str | None = None) -> SubjectVisit:
     if not appointment.related_visit:
         related_visit = get_related_visit_model_cls().objects.create(
             appointment=appointment,

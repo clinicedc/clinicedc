@@ -34,9 +34,7 @@ class PrintersMixin:
     @property
     def print_server_name(self):
         """Returns a string."""
-        return self.request.session.get(
-            PRINT_SERVER_NAME, self.user_profile.print_server
-        )
+        return self.request.session.get(PRINT_SERVER_NAME, self.user_profile.print_server)
 
     @property
     def clinic_label_printer_name(self):

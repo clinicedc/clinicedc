@@ -24,9 +24,7 @@ from ..exceptions import RegisteredSubjectError
 from .managers import RegisteredSubjectManager
 
 
-class RegisteredSubject(
-    UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseUuidModel
-):
+class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseUuidModel):
     """A model mixin for the RegisteredSubject model (only)."""
 
     # may not be available when instance created (e.g. infants prior to birth
@@ -47,8 +45,7 @@ class RegisteredSubject(
             RegexValidator(
                 regex=r"^[A-Z]{2,3}$",
                 message=(
-                    "Ensure initials consist of letters "
-                    "only in upper case, no spaces."
+                    "Ensure initials consist of letters " "only in upper case, no spaces."
                 ),
             )
         ],
@@ -114,9 +111,7 @@ class RegisteredSubject(
 
     consent_datetime = models.DateTimeField(null=True, blank=True)
 
-    comment = models.TextField(
-        verbose_name="Comment", max_length=250, null=True, blank=True
-    )
+    comment = models.TextField(verbose_name="Comment", max_length=250, null=True, blank=True)
 
     additional_key = models.CharField(
         max_length=36,
@@ -262,9 +257,7 @@ class RegisteredSubject(
         ]
         indexes = BaseUuidModel.Meta.indexes + [
             models.Index(fields=["first_name", "dob", "initials", "additional_key"]),
-            models.Index(
-                fields=["subject_identifier", "identity", "screening_identifier"]
-            ),
+            models.Index(fields=["subject_identifier", "identity", "screening_identifier"]),
         ]
         permissions = (
             ("display_firstname", "Can display first name"),

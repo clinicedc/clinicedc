@@ -20,9 +20,7 @@ class TestTransfer(TestMetadataMixin, TestCase):
         form.is_valid()
 
     def test_form_validator(self):
-        data = dict(
-            subject_identifier=self.appointment.subject_identifier, initiated_by=OTHER
-        )
+        data = dict(subject_identifier=self.appointment.subject_identifier, initiated_by=OTHER)
         form = SubjectTransferFormValidator(cleaned_data=data)
         self.assertRaises(ValidationError, form.validate)
 

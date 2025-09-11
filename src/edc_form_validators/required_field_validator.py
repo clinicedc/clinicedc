@@ -23,9 +23,7 @@ class RequiredFieldValidator(BaseFormValidator):
         self, field: str, msg: Optional[str] = None, inline_set: Optional[str] = None
     ) -> None:
         if inline_set:
-            default_errmsg = _(
-                "Based on your responses, inline information is required."
-            )
+            default_errmsg = _("Based on your responses, inline information is required.")
             message = {"__all__": (msg or default_errmsg).strip()}
         else:
             errmsg = _("This field is required")
@@ -37,9 +35,7 @@ class RequiredFieldValidator(BaseFormValidator):
         self, field: str, msg: Optional[str] = None, inline_set: Optional[str] = None
     ) -> None:
         if inline_set:
-            default_errmsg = _(
-                "Based on your responses, inline information is not required."
-            )
+            default_errmsg = _("Based on your responses, inline information is not required.")
             message = {"__all__": (msg or default_errmsg).strip()}
         else:
             errmsg = _("This field is not required")
@@ -113,10 +109,7 @@ class RequiredFieldValidator(BaseFormValidator):
                 field_value not in responses
                 and (
                     field_required_has_value
-                    and (
-                        self.get(field_required, inline_set=inline_set)
-                        != NOT_APPLICABLE
-                    )
+                    and (self.get(field_required, inline_set=inline_set) != NOT_APPLICABLE)
                 )
             ):
                 self.raise_not_required(
@@ -252,11 +245,7 @@ class RequiredFieldValidator(BaseFormValidator):
             self.update_cleaned_data_from_instance(field)
         self._inspect_params(*responses, field=field, field_required=field_required)
         if field in self.cleaned_data and field_required in self.cleaned_data:
-            if (
-                DWTA in responses
-                and optional_if_dwta
-                and self.cleaned_data.get(field) == DWTA
-            ):
+            if DWTA in responses and optional_if_dwta and self.cleaned_data.get(field) == DWTA:
                 pass
             elif self.cleaned_data.get(field) in responses and (
                 self.cleaned_data.get(field_required)
@@ -304,9 +293,7 @@ class RequiredFieldValidator(BaseFormValidator):
             errmsg = _("`field` cannot be `None`")
             raise InvalidModelFormFieldValidator(f"{errmsg}.")
         elif not responses:
-            errmsg = _(
-                f"At least one valid response for field '{field}' must be provided."
-            )
+            errmsg = _(f"At least one valid response for field '{field}' must be provided.")
             raise InvalidModelFormFieldValidator(errmsg)
         elif not field_required:
             raise InvalidModelFormFieldValidator('"field_required" cannot be None.')

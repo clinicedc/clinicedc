@@ -28,9 +28,7 @@ class BoxType(BaseUuidModel):
 
     total = models.IntegerField(help_text="total number of cells in this box type")
 
-    fill_order = models.CharField(
-        max_length=15, default=FILL_ACROSS, choices=FILL_ORDER
-    )
+    fill_order = models.CharField(max_length=15, default=FILL_ACROSS, choices=FILL_ORDER)
 
     objects = BoxTypeManager()
 

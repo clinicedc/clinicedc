@@ -2,6 +2,8 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.sites import all_sites
 from django.test import TestCase, override_settings, tag
 
 from edc_consent.site_consents import site_consents
@@ -12,8 +14,6 @@ from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit import Crf, FormsCollection, FormsCollectionError
 from edc_visit_schedule.visit_schedule import AlreadyRegisteredSchedule, VisitSchedule
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.sites import all_sites
 
 
 @tag("visit_schedule")

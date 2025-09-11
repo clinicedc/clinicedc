@@ -70,9 +70,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
 
         if labels.zpl_data:
             try:
-                job_id = self.clinic_label_printer.stream_print(
-                    zpl_data=labels.zpl_data
-                )
+                job_id = self.clinic_label_printer.stream_print(zpl_data=labels.zpl_data)
             except (PrintServerError, PrinterError) as e:
                 messages.error(self.request, str(e))
             else:
@@ -84,9 +82,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
                 )
                 messages.success(self.request, job_result.message)
         if labels.requisitions_not_printed:
-            panels = ", ".join(
-                [str(r.panel_object) for r in labels.requisitions_not_printed]
-            )
+            panels = ", ".join([str(r.panel_object) for r in labels.requisitions_not_printed])
             messages.warning(
                 self.request, f"Some selected labels were not printed. See {panels}."
             )
@@ -102,9 +98,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
             )
             response = requisition_report.render_to_response()
         else:
-            messages.error(
-                self.request, 'Nothing to do. No "verified" requisitions selected.'
-            )
+            messages.error(self.request, 'Nothing to do. No "verified" requisitions selected.')
             response = None
         return response
 
@@ -114,9 +108,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
         appointment.
         """
         if not self._requisition_metadata:
-            appointment = Appointment.objects.get(
-                pk=self.request.POST.get("appointment")
-            )
+            appointment = Appointment.objects.get(pk=self.request.POST.get("appointment"))
             subject_identifier = self.request.POST.get("subject_identifier")
             opts = dict(
                 subject_identifier=subject_identifier,

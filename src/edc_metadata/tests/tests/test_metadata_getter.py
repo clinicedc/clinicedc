@@ -1,6 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from clinicedc_tests.models import CrfOne, CrfThree, CrfTwo
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 
@@ -9,7 +10,6 @@ from edc_metadata.metadata import CrfMetadataGetter
 from edc_metadata.next_form_getter import NextFormGetter
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.models import CrfOne, CrfThree, CrfTwo
 
 from .metadata_test_mixin import TestMetadataMixin
 
@@ -51,9 +51,7 @@ class TestMetadataGetter(TestMetadataMixin, TestCase):
         self.assertEqual(len(objects), len(visit.crfs) - 1)
 
     def test_next_required_form(self):
-        getter = NextFormGetter(
-            appointment=self.appointment, model="edc_metadata.crftwo"
-        )
+        getter = NextFormGetter(appointment=self.appointment, model="edc_metadata.crftwo")
         self.assertEqual(getter.next_form.model, "edc_metadata.crfthree")
 
     def test_next_required_form2(self):

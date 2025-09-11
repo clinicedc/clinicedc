@@ -109,9 +109,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         context = dict(
             url=url, label=obj.receive.receive_identifier, title="Back to receiving"
         )
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Stock")
     def stock_changelist(self, obj):
@@ -119,9 +117,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = f"{url}?q={obj.id}"
         label = "Stock"
         context = dict(url=url, label=label, title="Go to stock")
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Order #")
     def order_changelist(self, obj):
@@ -130,9 +126,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         context = dict(
             url=url, label=obj.order_item.order.order_identifier, title="Back to order"
         )
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Order item #")
     def order_items_changelist(self, obj):
@@ -143,9 +137,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             label=obj.order_item.order_item_identifier,
             title="Back to order item",
         )
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="RECEIVE ITEM #", ordering="-receive_item_identifier")
     def identifier(self, obj):

@@ -21,9 +21,7 @@ class NoteModelMixin(SiteModelMixin, BaseUuidModel):
 
     note = models.TextField(null=True, blank=True)
 
-    status = models.CharField(
-        max_length=25, choices=NOTE_STATUSES, null=True, blank=False
-    )
+    status = models.CharField(max_length=25, choices=NOTE_STATUSES, null=True, blank=False)
 
     @property
     def report_model_cls(self):

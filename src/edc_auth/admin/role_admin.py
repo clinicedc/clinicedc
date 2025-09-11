@@ -12,9 +12,7 @@ from ..models import Role
 
 @admin.register(Role, site=edc_auth_admin)
 class RoleAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
-    fieldsets = (
-        (None, ({"fields": ("display_name", "name", "display_index", "groups")})),
-    )
+    fieldsets = ((None, ({"fields": ("display_name", "name", "display_index", "groups")})),)
 
     list_display_links: Tuple[str, ...] = ("display_name", "group_list")
 

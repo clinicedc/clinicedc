@@ -27,9 +27,7 @@ class RuleGroupMetaOptions:
             except AttributeError:
                 setattr(meta, attr, None)
         # populate options dictionary
-        self.options = {
-            k: getattr(meta, k) for k in meta.__dict__ if not k.startswith("_")
-        }
+        self.options = {k: getattr(meta, k) for k in meta.__dict__ if not k.startswith("_")}
         # raise on any unknown attributes declared on the Meta class
         for meta_attr in self.options:
             if meta_attr not in [

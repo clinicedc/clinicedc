@@ -12,9 +12,7 @@ class SubjectTransferModelFormMixin:
             and getattr(self.death_report, "death_date", None)
             and self.cleaned_data.get("transfer_date") >= self.death_report.death_date
         ):
-            raise forms.ValidationError(
-                "Invalid date. Cannot be on or after death_date"
-            )
+            raise forms.ValidationError("Invalid date. Cannot be on or after death_date")
 
     def death_report(self):
         try:

@@ -4,7 +4,6 @@ from django.db import models
 
 from .field_attrs import get_field_attrs_for_utestid
 
-
 __all__ = ["result_model_mixin_factory"]
 
 

@@ -30,9 +30,7 @@ class TestUserProfile(EdcAuthTestCase):
         request = RequestFactory()
         backend = ModelBackendWithSite()
         self.assertIsNotNone(
-            backend.authenticate(
-                request, username="erik", password="password"
-            )  # nosec B106
+            backend.authenticate(request, username="erik", password="password")  # nosec B106
         )
 
     @override_settings(SITE_ID=10)
@@ -49,9 +47,7 @@ class TestUserProfile(EdcAuthTestCase):
         request = RequestFactory()
         backend = ModelBackendWithSite()
         self.assertIsNotNone(
-            backend.authenticate(
-                request, username="erik", password="password"
-            )  # nosec B106
+            backend.authenticate(request, username="erik", password="password")  # nosec B106
         )
 
     @override_settings(SITE_ID=20)

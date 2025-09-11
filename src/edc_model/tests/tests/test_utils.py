@@ -80,9 +80,7 @@ class TestUtils(TestCase):
 
         reference_datetime = datetime(2015, 6, 15).astimezone(ZoneInfo("UTC"))
         obj = SimpleModel.objects.create(ago="5d", report_datetime=reference_datetime)
-        estimated_date = estimated_date_from_ago(
-            instance=obj, ago_field="ago", future=True
-        )
+        estimated_date = estimated_date_from_ago(instance=obj, ago_field="ago", future=True)
         self.assertEqual(estimated_date, date(2015, 6, 20))
 
         reference_date = datetime(2015, 6, 15)

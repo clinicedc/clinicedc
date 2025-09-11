@@ -29,9 +29,7 @@ class Dispense(SiteModelMixin, BaseUuidModel):
 
     rx = models.ForeignKey(Rx, on_delete=models.PROTECT, null=True, blank=False)
 
-    location = models.ForeignKey(
-        Location, on_delete=models.PROTECT, null=True, blank=False
-    )
+    location = models.ForeignKey(Location, on_delete=models.PROTECT, null=True, blank=False)
 
     to_clinician = models.BooleanField(default=False)
     to_clinician_datetime = models.DateTimeField(null=True, blank=True)

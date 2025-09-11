@@ -32,9 +32,7 @@ class EdcAuthTestCase(TestCase):
         SiteProfile.objects.all().delete()
         Site.objects.all().delete()
         for site_id, site_name in sites.items():
-            Site.objects.create(
-                id=site_id, name=site_name, domain=f"{site_name}.example.com"
-            )
+            Site.objects.create(id=site_id, name=site_name, domain=f"{site_name}.example.com")
         site_randomizers._registry = {}
         site_randomizers.register(Randomizer)
         site_randomizers.register(CustomRandomizer)

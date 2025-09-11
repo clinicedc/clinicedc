@@ -59,9 +59,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
                 available.weekday,
-                facility.available_arr(
-                    dt, schedule_on_holidays=True
-                ).datetime.weekday(),
+                facility.available_arr(dt, schedule_on_holidays=True).datetime.weekday(),
             )
 
     def test_allowed_weekday_limited2(self):
@@ -78,9 +76,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
             dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
                 available.weekday,
-                facility.available_arr(
-                    dt, schedule_on_holidays=True
-                ).datetime.weekday(),
+                facility.available_arr(dt, schedule_on_holidays=True).datetime.weekday(),
             )
 
     @override_settings(SITE_ID=20)

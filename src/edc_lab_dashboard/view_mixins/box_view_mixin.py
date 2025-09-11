@@ -39,9 +39,7 @@ class BoxViewMixin(ContextMixin):
     def box_identifier(self):
         """Returns a cleaned box identifier."""
         if not self._box_identifier:
-            self.original_box_identifier = escape(
-                self.kwargs.get("box_identifier")
-            ).strip()
+            self.original_box_identifier = escape(self.kwargs.get("box_identifier")).strip()
             self._box_identifier = "".join(self.original_box_identifier.split("-"))
         return self._box_identifier
 

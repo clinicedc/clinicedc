@@ -16,8 +16,6 @@ def paths_for_urlpatterns(app_name) -> list[URLPattern]:
     except ModuleNotFoundError:
         pass
     else:
-        paths.append(
-            path(f"{app_name}/admin/", getattr(admin_site, f"{app_name}_admin").urls)
-        )
+        paths.append(path(f"{app_name}/admin/", getattr(admin_site, f"{app_name}_admin").urls))
     paths.append(path(f"{app_name}/", include(f"{app_name}.urls")))
     return paths

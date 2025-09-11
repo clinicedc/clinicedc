@@ -236,9 +236,7 @@ class QueryRuleHandler:
 
     def get_field_value(self, field_name):
         """Safely get a model instance value for this query."""
-        if not self.query_rule_obj.data_dictionaries.filter(
-            field_name=field_name
-        ).exists():
+        if not self.query_rule_obj.data_dictionaries.filter(field_name=field_name).exists():
             field_names = [
                 f"{dd.field_name} ({dd.number})"
                 for dd in self.query_rule_obj.data_dictionaries.all()
@@ -319,9 +317,7 @@ class QueryRuleHandler:
         if not self._model_obj:
             try:
                 self._model_obj = self.model_cls.objects.get(
-                    **{
-                        f"{self.model_cls.related_visit_model_attr()}": self.related_visit
-                    }
+                    **{f"{self.model_cls.related_visit_model_attr()}": self.related_visit}
                 )
             except ObjectDoesNotExist:
                 pass

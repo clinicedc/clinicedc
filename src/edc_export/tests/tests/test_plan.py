@@ -1,6 +1,10 @@
 import uuid
 from tempfile import mkdtemp
 
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import Crf, ListModel
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings
 
 from edc_appointment.models import Appointment
@@ -10,15 +14,9 @@ from edc_facility.import_holidays import import_holidays
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import Crf, ListModel
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
-@override_settings(
-    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp()
-)
+@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestPlan(TestCase):
     helper_cls = Helper
 
@@ -43,12 +41,8 @@ class TestPlan(TestCase):
                 report_datetime=get_utcnow(),
             )
         self.subject_visit = SubjectVisit.objects.all()[0]
-        self.thing_one = ListModel.objects.create(
-            display_name="thing_one", name="thing_one"
-        )
-        self.thing_two = ListModel.objects.create(
-            display_name="thing_two", name="thing_two"
-        )
+        self.thing_one = ListModel.objects.create(display_name="thing_one", name="thing_one")
+        self.thing_two = ListModel.objects.create(display_name="thing_two", name="thing_two")
         self.crf = Crf.objects.create(
             subject_visit=self.subject_visit,
             char1="char",

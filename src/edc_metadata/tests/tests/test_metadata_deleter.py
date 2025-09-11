@@ -1,6 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from clinicedc_tests.models import CrfOne, SubjectRequisition
 from dateutil.relativedelta import relativedelta
 from django.db.models import ProtectedError
 from django.test import TestCase, override_settings
@@ -13,7 +14,6 @@ from edc_metadata.metadata import DeleteMetadataError
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.models import CrfOne, SubjectRequisition
 
 from .metadata_test_mixin import TestMetadataMixin
 
@@ -56,9 +56,7 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         )
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 5)
         self.assertEqual(
-            CrfMetadata.objects.filter(
-                visit_code="2000", entry_status=REQUIRED
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="2000", entry_status=REQUIRED).count(),
             3,
         )
         self.assertEqual(
@@ -106,9 +104,7 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         obj.reason = MISSED_VISIT
         obj.save()
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 1)
-        self.assertEqual(
-            RequisitionMetadata.objects.filter(visit_code="2000").count(), 0
-        )
+        self.assertEqual(RequisitionMetadata.objects.filter(visit_code="2000").count(), 0)
 
     def test_deletes_metadata_on_changed_reason(self):
         SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
@@ -155,14 +151,10 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         obj.reason = MISSED_VISIT
         obj.save()
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 1)
-        self.assertEqual(
-            RequisitionMetadata.objects.filter(visit_code="2000").count(), 0
-        )
+        self.assertEqual(RequisitionMetadata.objects.filter(visit_code="2000").count(), 0)
 
     def test_deletes_metadata_on_delete_visit(self):
-        obj = SubjectVisit.objects.create(
-            appointment=self.appointment, reason=SCHEDULED
-        )
+        obj = SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
         self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
         obj.delete()
@@ -175,18 +167,14 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
             subject_identifier=self.subject_identifier,
             visit_code="2000",
         )
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         appointment.appt_timing = MISSED_APPT
         appointment.save()
         subject_visit.reason = MISSED_VISIT
         subject_visit.save()
         subject_visit.delete()
         self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 0)
-        self.assertEqual(
-            RequisitionMetadata.objects.filter(visit_code="2000").count(), 0
-        )
+        self.assertEqual(RequisitionMetadata.objects.filter(visit_code="2000").count(), 0)
 
     def test_delete_visit_for_keyed_crf(self):
         subject_visit = SubjectVisit.objects.create(

@@ -2,6 +2,11 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.forms import StudyMedicationForm
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import StudyMedication, SubjectVisit
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -30,11 +35,6 @@ from edc_pharmacy.models import (
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.forms import StudyMedicationForm
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import StudyMedication, SubjectVisit
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 
@@ -49,7 +49,6 @@ class TestMedicationCrf(TestCase):
     def setUpTestData(cls):
         import_holidays()
         site_action_items.autodiscover()
-        # pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
 
     def setUp(self) -> None:
         site_consents.registry = {}
@@ -67,9 +66,7 @@ class TestMedicationCrf(TestCase):
         self.consent_datetime = subject_consent.consent_datetime
 
         self.assertGreater(
-            Appointment.objects.filter(
-                subject_identifier=self.subject_identifier
-            ).count(),
+            Appointment.objects.filter(subject_identifier=self.subject_identifier).count(),
             0,
         )
 
@@ -110,9 +107,7 @@ class TestMedicationCrf(TestCase):
         self.rx.medications.add(self.medication)
 
     def test_ok(self):
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -144,9 +139,7 @@ class TestMedicationCrf(TestCase):
         self.assertGreater(obj.number_of_days, 0)
 
     def test_refill_before_rx(self):
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -175,9 +168,7 @@ class TestMedicationCrf(TestCase):
             obj.save()
 
     def test_refill_for_expired_rx(self):
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -190,8 +181,7 @@ class TestMedicationCrf(TestCase):
         obj = StudyMedication(
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
-            refill_start_datetime=subject_visit.report_datetime
-            + relativedelta(years=1),
+            refill_start_datetime=subject_visit.report_datetime + relativedelta(years=1),
             refill_end_datetime=get_next_appointment(
                 subject_visit.appointment, include_interim=True
             ).appt_datetime
@@ -229,9 +219,7 @@ class TestMedicationCrf(TestCase):
         self.assertEqual(
             StudyMedication.objects.all().count(), Appointment.objects.all().count() - 1
         )
-        self.assertEqual(
-            RxRefill.objects.all().count(), Appointment.objects.all().count() - 1
-        )
+        self.assertEqual(RxRefill.objects.all().count(), Appointment.objects.all().count() - 1)
 
     def test_rx_refill_start_datetimes_are_greater(self):
         for appointment in Appointment.objects.all().order_by(
@@ -367,9 +355,7 @@ class TestMedicationCrf(TestCase):
                 prev_obj = obj
                 continue
             self.assertLess(prev_obj.refill_start_datetime, obj.refill_start_datetime)
-            self.assertLessEqual(
-                prev_obj.refill_end_datetime, obj.refill_start_datetime
-            )
+            self.assertLessEqual(prev_obj.refill_end_datetime, obj.refill_start_datetime)
             self.assertLess(prev_obj.refill_end_datetime, obj.refill_end_datetime)
             prev_obj = obj
 
@@ -379,9 +365,7 @@ class TestMedicationCrf(TestCase):
                 prev_obj = obj
                 continue
             self.assertLess(prev_obj.refill_start_datetime, obj.refill_start_datetime)
-            self.assertLessEqual(
-                prev_obj.refill_end_datetime, obj.refill_start_datetime
-            )
+            self.assertLessEqual(prev_obj.refill_end_datetime, obj.refill_start_datetime)
             self.assertLess(prev_obj.refill_end_datetime, obj.refill_end_datetime)
             prev_obj = obj
 
@@ -424,9 +408,7 @@ class TestMedicationCrf(TestCase):
     def test_study_medication_form_baseline(self):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         next_appointment = get_next_appointment(appointment, include_interim=True)
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
@@ -452,9 +434,7 @@ class TestMedicationCrf(TestCase):
 
     def test_inserts_refill(self):
         # 1000
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -479,9 +459,7 @@ class TestMedicationCrf(TestCase):
         appointment.save()
 
         # 2000
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
@@ -508,23 +486,21 @@ class TestMedicationCrf(TestCase):
         appointment.save()
 
         # 3000
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[2]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[2]
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             report_datetime=appointment.appt_datetime,
             reason=SCHEDULED,
         )
-        opts = dict(
-            subject_visit=subject_visit,
-            report_datetime=subject_visit.report_datetime,
-            refill_start_datetime=subject_visit.report_datetime,
-            refill_end_datetime=None,
-            dosage_guideline=self.dosage_guideline_200,
-            formulation=self.formulation,
-            site=Site.objects.get(id=settings.SITE_ID),
-        )
+        # opts = dict(
+        #     subject_visit=subject_visit,
+        #     report_datetime=subject_visit.report_datetime,
+        #     refill_start_datetime=subject_visit.report_datetime,
+        #     refill_end_datetime=None,
+        #     dosage_guideline=self.dosage_guideline_200,
+        #     formulation=self.formulation,
+        #     site=Site.objects.get(id=settings.SITE_ID),
+        # )
         # self.assertRaises(
         #     NextStudyMedicationError, StudyMedication.objects.create, **opts
         # )
@@ -538,9 +514,7 @@ class TestMedicationCrf(TestCase):
 
         # insert unscheduled appt between 2000 and 3000
 
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
         creator = UnscheduledAppointmentCreator(
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,

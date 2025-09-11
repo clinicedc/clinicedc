@@ -34,25 +34,17 @@ class AliquotModelMixin(SiteModelMixin, models.Model):
         editable=False, default=1, help_text="e.g. number of tubes"
     )
 
-    original_measure = models.DecimalField(
-        max_digits=10, decimal_places=2, default="5.00"
-    )
+    original_measure = models.DecimalField(max_digits=10, decimal_places=2, default="5.00")
 
-    current_measure = models.DecimalField(
-        max_digits=10, decimal_places=2, default="5.00"
-    )
+    current_measure = models.DecimalField(max_digits=10, decimal_places=2, default="5.00")
 
     measure_units = models.CharField(
         max_length=25, choices=SPECIMEN_MEASURE_UNITS, default="mL"
     )
 
-    status = models.CharField(
-        max_length=25, choices=ALIQUOT_STATUS, default="available"
-    )
+    status = models.CharField(max_length=25, choices=ALIQUOT_STATUS, default="available")
 
-    condition = models.CharField(
-        max_length=25, choices=ALIQUOT_CONDITIONS, default="10"
-    )
+    condition = models.CharField(max_length=25, choices=ALIQUOT_CONDITIONS, default="10")
 
     comment = models.CharField(max_length=50, null=True, blank=True)
 

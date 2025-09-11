@@ -126,9 +126,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Product", ordering="product__name")
     def product_name(self, obj):
-        return obj.product.formulation.get_description_with_assignment(
-            obj.product.assignment
-        )
+        return obj.product.formulation.get_description_with_assignment(obj.product.assignment)
 
     @admin.display(description="Container", ordering="container__name")
     def container_name(self, obj):
@@ -139,9 +137,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_order_changelist")
         url = f"{url}?q={obj.order.order_identifier}"
         context = dict(url=url, label=obj.order.order_identifier, title="Back to order")
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Stock")
     def stock_changelist(self, obj):
@@ -149,9 +145,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
             url = f"{url}?q={obj.order.id}"
             context = dict(url=url, label="Stock", title="Go to stock")
-            return render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
     @admin.display(description="RECEIVE #")
@@ -184,9 +178,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         if not receive:
             return self.render_start_receiving_button(obj)
         if (obj.unit_qty_received or Decimal(0)) < obj.unit_qty_ordered:
-            receive_this_item_button = self.render_receive_this_item_button(
-                obj, receive
-            )
+            receive_this_item_button = self.render_receive_this_item_button(obj, receive)
         received_items_link = self.render_received_items_link(obj)
         renders = [
             receive_this_item_button,
@@ -255,7 +247,5 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
             url = f"{url}?q={str(obj.pk)}"
             context = dict(url=url, label=status_label, title=_("Go to received items"))
-            return render_to_string(
-                "edc_pharmacy/stock/items_as_link.html", context=context
-            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

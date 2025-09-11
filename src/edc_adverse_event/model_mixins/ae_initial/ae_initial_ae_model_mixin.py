@@ -25,9 +25,7 @@ class AeInitialAeModelMixin(models.Model):
         verbose_name='If "Yes", specify', max_length=250, blank=True, null=True
     )
 
-    ae_treatment = models.TextField(
-        verbose_name="Specify action taken for treatment of AE:"
-    )
+    ae_treatment = models.TextField(verbose_name="Specify action taken for treatment of AE:")
 
     ae_action_classification = models.ForeignKey(
         AeActionClassification,

@@ -3,6 +3,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test.testcases import TestCase
@@ -22,9 +25,6 @@ from edc_protocol_incident.models import (
 )
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 
@@ -51,9 +51,7 @@ class TestProtocolViolation(TestCase):
         )
         self.subject_identifier = consent.subject_identifier
 
-        action = ProtocolDeviationViolationAction(
-            subject_identifier=self.subject_identifier
-        )
+        action = ProtocolDeviationViolationAction(subject_identifier=self.subject_identifier)
         self.data = dict(
             action_identifier=action.action_item.action_identifier,
             site=Site.objects.get(id=settings.SITE_ID),
@@ -90,9 +88,7 @@ class TestProtocolViolation(TestCase):
             }
         )
 
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertEqual({}, form._errors)
 
@@ -111,50 +107,36 @@ class TestProtocolViolation(TestCase):
             }
         )
 
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("corrective_action_datetime", form._errors)
         data.update(corrective_action_datetime=get_utcnow())
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("corrective_action", form._errors)
 
         data.update(corrective_action="we took corrective action")
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("preventative_action_datetime", form._errors)
 
         data.update(preventative_action_datetime=get_utcnow())
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("preventative_action", form._errors)
 
         data.update(preventative_action="we took preventative action")
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("action_required", form._errors)
 
         data.update(action_required=ActionsRequired.objects.get(name="remain_on_study"))
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("report_closed_datetime", form._errors)
 
         data.update(report_closed_datetime=get_utcnow())
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertEqual({}, form._errors)
 
@@ -172,113 +154,81 @@ class TestProtocolViolation(TestCase):
             }
         )
 
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("safety_impact", form._errors)
 
         data.update({"safety_impact": YES})
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("safety_impact_details", form._errors)
 
         data.update({"safety_impact_details": "blah blah"})
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("study_outcomes_impact", form._errors)
 
         data.update({"study_outcomes_impact": YES})
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("study_outcomes_impact_details", form._errors)
 
         data.update({"study_outcomes_impact_details": "details details ..."})
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("violation_datetime", form._errors)
 
         data.update({"violation_datetime": get_utcnow()})
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("violation", form._errors)
 
         data.update({"violation": ProtocolViolations.objects.get(name=OTHER)})
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("violation_other", form._errors)
 
         data.update({"violation_other": "a bad violation"})
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("violation_description", form._errors)
 
         data.update({"violation_description": "a violation is better described"})
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("violation_reason", form._errors)
 
         data.update({"violation_reason": "a violation is better reasoned"})
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("corrective_action_datetime", form._errors)
 
         data.update(corrective_action_datetime=get_utcnow())
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("corrective_action", form._errors)
 
         data.update(corrective_action="we took corrective action")
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("preventative_action_datetime", form._errors)
 
         data.update(preventative_action_datetime=get_utcnow())
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("preventative_action", form._errors)
 
         data.update(preventative_action="we took preventative action")
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("action_required", form._errors)
 
         data.update(action_required=ActionsRequired.objects.get(name="remain_on_study"))
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("report_closed_datetime", form._errors)
 
         data.update(report_closed_datetime=get_utcnow())
-        form = ProtocolDeviationViolationForm(
-            data=data, instance=ProtocolDeviationViolation()
-        )
+        form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertEqual({}, form._errors)

@@ -4,6 +4,11 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+)
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 
@@ -18,11 +23,6 @@ from edc_metadata.models import CrfMetadata
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
-    get_visit_schedule1,
-)
 
 utc_tz = ZoneInfo("UTC")
 
@@ -53,9 +53,7 @@ class TestMoveAppointment(TestCase):
             report_datetime=get_utcnow(),
         )
         self.subject_identifier = subject_consent.subject_identifier
-        appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
-        )
+        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 4)
 
         appointment = Appointment.objects.get(timepoint=0.0)
@@ -78,8 +76,7 @@ class TestMoveAppointment(TestCase):
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
-            suggested_appt_datetime=appointment.appt_datetime
-            + relativedelta(days=days),
+            suggested_appt_datetime=appointment.appt_datetime + relativedelta(days=days),
             suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
         )
         appointment = creator.appointment
@@ -88,9 +85,7 @@ class TestMoveAppointment(TestCase):
         return appointment
 
     @staticmethod
-    def get_visit_codes(
-        by: str = None, visit_schedule_name: str | None = None, **kwargs
-    ):
+    def get_visit_codes(by: str = None, visit_schedule_name: str | None = None, **kwargs):
         opts = dict(visit_schedule_name=visit_schedule_name)
         return [
             f"{o.visit_code}.{o.visit_code_sequence}"
@@ -99,15 +94,9 @@ class TestMoveAppointment(TestCase):
 
     def test_resequence_appointment_on_insert_between_two_unscheduled(self):
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
-        self.assertEqual(
-            self.create_unscheduled(appointment, days=2).visit_code_sequence, 1
-        )
-        self.assertEqual(
-            self.create_unscheduled(appointment, days=4).visit_code_sequence, 2
-        )
-        self.assertEqual(
-            self.create_unscheduled(appointment, days=5).visit_code_sequence, 3
-        )
+        self.assertEqual(self.create_unscheduled(appointment, days=2).visit_code_sequence, 1)
+        self.assertEqual(self.create_unscheduled(appointment, days=4).visit_code_sequence, 2)
+        self.assertEqual(self.create_unscheduled(appointment, days=5).visit_code_sequence, 3)
 
         self.assertEqual(
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
@@ -254,15 +243,11 @@ class TestMoveAppointment(TestCase):
         )
 
         self.assertEqual(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=3333
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=3333).count(),
             3,
         )
         self.assertEqual(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=33
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=33).count(),
             3,
         )
         reset_visit_code_sequence_or_pass(
@@ -272,27 +257,19 @@ class TestMoveAppointment(TestCase):
             visit_code="1000",
         )
         self.assertEqual(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=3333
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=3333).count(),
             0,
         )
         self.assertEqual(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=33
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=33).count(),
             0,
         )
 
         self.assertEqual(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=2
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=2).count(),
             3,
         )
         self.assertEqual(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=3
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=3).count(),
             3,
         )

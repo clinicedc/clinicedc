@@ -83,9 +83,7 @@ class ConsentDefinition:
         if MALE not in self.gender and FEMALE not in self.gender:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
         if not self.start.tzinfo:
-            raise ConsentDefinitionError(
-                f"Naive datetime not allowed. Got {self.start}."
-            )
+            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
         elif str(self.start.tzinfo).upper() != "UTC":
             raise ConsentDefinitionError(
                 f"Start date must be UTC. Got {self.start} / {self.start.tzinfo}."
@@ -141,9 +139,7 @@ class ConsentDefinition:
         if self.country:
             sites = site_sites.get_by_country(self.country, aslist=True)
         elif self.site_ids:
-            sites = [
-                s for s in site_sites.all(aslist=True) if s.site_id in self.site_ids
-            ]
+            sites = [s for s in site_sites.all(aslist=True) if s.site_id in self.site_ids]
         else:
             sites = [s for s in site_sites.all(aslist=True)]
         return sites

@@ -68,16 +68,12 @@ def is_baseline(
 
 def raise_if_baseline(subject_visit) -> None:
     if subject_visit and is_baseline(instance=subject_visit):
-        raise forms.ValidationError(
-            "This form is not available for completion at baseline."
-        )
+        raise forms.ValidationError("This form is not available for completion at baseline.")
 
 
 def raise_if_not_baseline(subject_visit) -> None:
     if subject_visit and not is_baseline(instance=subject_visit):
-        raise forms.ValidationError(
-            "This form is only available for completion at baseline."
-        )
+        raise forms.ValidationError("This form is only available for completion at baseline.")
 
 
 def get_onschedule_models(
@@ -163,9 +159,7 @@ def off_all_schedules_or_raise(subject_identifier: str = None):
                             subject_identifier=subject_identifier
                         )
                 except ObjectDoesNotExist:
-                    model_name = (
-                        schedule.offschedule_model_cls()._meta.verbose_name.title()
-                    )
+                    model_name = schedule.offschedule_model_cls()._meta.verbose_name.title()
                     raise OffScheduleError(
                         f"Subject cannot be taken off study. Subject is still on a "
                         f"schedule. Got schedule '{visit_schedule.name}."
@@ -247,9 +241,7 @@ def report_datetime_within_onschedule_offschedule_datetimes(
     ):
         onschedule_datetime = formatted_datetime(onschedule_obj.onschedule_datetime)
         if offschedule_obj:
-            offschedule_datetime = formatted_datetime(
-                offschedule_obj.offschedule_datetime
-            )
+            offschedule_datetime = formatted_datetime(offschedule_obj.offschedule_datetime)
             error_msg = (
                 "Invalid report datetime. Expected a datetime between "
                 f"{onschedule_datetime} and {offschedule_datetime}. "
@@ -274,15 +266,14 @@ def get_onschedule_model_instance(
     Increment reference_datetime by 1 sec to avoid millisecond
     in lte comparison.
     """
-    schedule = site_visit_schedules.get_visit_schedule(
-        visit_schedule_name
-    ).schedules.get(schedule_name)
+    schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name).schedules.get(
+        schedule_name
+    )
     model_cls = django_apps.get_model(schedule.onschedule_model)
     try:
         onschedule_obj = model_cls.objects.get(
             subject_identifier=subject_identifier,
-            onschedule_datetime__lte=to_utc(reference_datetime)
-            + relativedelta(seconds=1),
+            onschedule_datetime__lte=to_utc(reference_datetime) + relativedelta(seconds=1),
         )
     except ObjectDoesNotExist as e:
         dte_as_str = formatted_datetime(to_local(reference_datetime))

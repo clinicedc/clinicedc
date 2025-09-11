@@ -5,9 +5,7 @@ from django.apps import apps as django_apps
 
 def get_models(app_config, exclude_models: list[str] | None):
     exclude_models = exclude_models or []
-    return [
-        m for m in app_config.get_models() if m._meta.label_lower not in exclude_models
-    ]
+    return [m for m in app_config.get_models() if m._meta.label_lower not in exclude_models]
 
 
 def get_app_codenames(

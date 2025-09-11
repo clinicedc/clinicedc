@@ -36,9 +36,7 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
         self.assertIn("edc_facility.E001", [error.id for error in errors])
 
     @override_settings(
-        HOLIDAY_FILE=os.path.join(
-            settings.BASE_DIR, "edc_facility", "tests", "blah.csv"
-        ),
+        HOLIDAY_FILE=os.path.join(settings.BASE_DIR, "edc_facility", "tests", "blah.csv"),
         SITE_ID=SiteID(default=10),
     )
     def test_bad_path(self):
@@ -47,9 +45,7 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
         self.assertIn("edc_facility.W001", [error.id for error in errors])
 
     @override_settings(
-        HOLIDAY_FILE=os.path.join(
-            settings.BASE_DIR, "edc_facility", "tests", "holidays.csv"
-        ),
+        HOLIDAY_FILE=os.path.join(settings.BASE_DIR, "edc_facility", "tests", "holidays.csv"),
         SITE_ID=SiteID(default=60),
     )
     def test_unknown_country(self):

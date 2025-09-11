@@ -31,8 +31,7 @@ def get_related_visit_model_cls() -> Type[SubjectVisit]:
     if model_cls._meta.proxy:
         # raise for now until we have a solution
         raise RelatedVisitModelError(
-            "Not allowed. Related visit model may not be a "
-            f"proxy model. Got {model_cls}. "
+            "Not allowed. Related visit model may not be a " f"proxy model. Got {model_cls}. "
         )
     return model_cls
 

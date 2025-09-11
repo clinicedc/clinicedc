@@ -1,3 +1,4 @@
+from clinicedc_tests.models import TestModel, TestModel2, TestModelPermissions
 from django.apps import apps as django_apps
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -10,7 +11,6 @@ from edc_device.device_permission import (
     DevicePermissionChangeError,
     device_permissions,
 )
-from clinicedc_tests.models import TestModel, TestModel2, TestModelPermissions
 
 
 class TestDevicePermission(TestCase):

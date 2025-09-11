@@ -53,9 +53,7 @@ class SubjectTransferModelMixin(
     )
 
     may_contact = models.CharField(
-        verbose_name=(
-            "Is the participant willing to be contacted at the end of the study?"
-        ),
+        verbose_name=("Is the participant willing to be contacted at the end of the study?"),
         max_length=15,
         choices=YES_NO,
     )

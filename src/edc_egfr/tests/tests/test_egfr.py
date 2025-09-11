@@ -5,7 +5,7 @@ from clinicedc_tests.models import EgfrDropNotification, ResultCrf, SubjectRequi
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_consent import site_consents
 from edc_constants.constants import BLACK, MALE
@@ -28,9 +28,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 @tag("egfr")
-@override_settings(
-    EDC_SITES_REGISTER_DEFAULT=True, EDC_SITES_CREATE_DEFAULT=True, SITE_ID=10
-)
+@override_settings(EDC_SITES_REGISTER_DEFAULT=True, EDC_SITES_CREATE_DEFAULT=True, SITE_ID=10)
 class TestEgfr(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -199,9 +197,7 @@ class TestEgfr(TestCase):
         self.assertEqual(egfr.egfr_drop_grade, 4)
         self.assertEqual(egfr.egfr_drop_grade, 4)
 
-    @override_settings(
-        EDC_EGFR_DROP_NOTIFICATION_MODEL="clinicedc_tests.EgfrDropNotification"
-    )
+    @override_settings(EDC_EGFR_DROP_NOTIFICATION_MODEL="clinicedc_tests.EgfrDropNotification")
     def test_egfr_drop_with_notify(self):
         panel = Panel.objects.get(name=rft_panel.name)
 
@@ -240,9 +236,7 @@ class TestEgfr(TestCase):
         self.assertEqual(round_half_away_from_zero(egfr.egfr_drop_value, 2), 28.93)
         self.assertEqual(egfr.egfr_drop_grade, 2)
         self.assertTrue(
-            EgfrDropNotification.objects.filter(
-                subject_visit=self.subject_visit
-            ).exists()
+            EgfrDropNotification.objects.filter(subject_visit=self.subject_visit).exists()
         )
 
         crf.creatinine_value = 48
@@ -259,9 +253,7 @@ class TestEgfr(TestCase):
         self.assertEqual(round_half_away_from_zero(egfr.egfr_drop_value, 2), 25.98)
         self.assertEqual(egfr.egfr_drop_grade, 2)
         self.assertTrue(
-            EgfrDropNotification.objects.filter(
-                subject_visit=self.subject_visit
-            ).exists()
+            EgfrDropNotification.objects.filter(subject_visit=self.subject_visit).exists()
         )
 
         EgfrDropNotification.objects.all().delete()
@@ -281,9 +273,7 @@ class TestEgfr(TestCase):
         self.assertEqual(egfr.egfr_drop_grade, 2)
         self.assertEqual(egfr.egfr_drop_grade, 2)
         self.assertFalse(
-            EgfrDropNotification.objects.filter(
-                subject_visit=self.subject_visit
-            ).exists()
+            EgfrDropNotification.objects.filter(subject_visit=self.subject_visit).exists()
         )
 
         egfr = Egfr(
@@ -297,7 +287,5 @@ class TestEgfr(TestCase):
         self.assertEqual(round_half_away_from_zero(egfr.egfr_drop_value, 2), 0.0)
         self.assertIsNone(egfr.egfr_drop_grade)
         self.assertFalse(
-            EgfrDropNotification.objects.filter(
-                subject_visit=self.subject_visit
-            ).exists()
+            EgfrDropNotification.objects.filter(subject_visit=self.subject_visit).exists()
         )

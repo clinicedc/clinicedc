@@ -38,15 +38,11 @@ class CrfMetadataModelMixin(
 
     model = models.CharField(max_length=50)
 
-    document_name = models.CharField(
-        verbose_name=_("Document"), max_length=250, null=True
-    )
+    document_name = models.CharField(verbose_name=_("Document"), max_length=250, null=True)
 
     show_order = models.IntegerField()  # must always be provided!
 
-    entry_status = models.CharField(
-        max_length=25, choices=ENTRY_STATUS, default=REQUIRED
-    )
+    entry_status = models.CharField(max_length=25, choices=ENTRY_STATUS, default=REQUIRED)
 
     due_datetime = models.DateTimeField(null=True, blank=True)
 

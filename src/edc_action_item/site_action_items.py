@@ -13,9 +13,7 @@ from django.utils.module_loading import module_has_submodule
 from edc_notification.site_notifications import (
     AlreadyRegistered as NotificationAlreadyRegistered,
 )
-from edc_notification.site_notifications import (
-    site_notifications,
-)
+from edc_notification.site_notifications import site_notifications
 from edc_prn.prn import Prn
 from edc_prn.site_prn_forms import AlreadyRegistered as PrnAlreadyRegistered
 from edc_prn.site_prn_forms import site_prn_forms
@@ -53,9 +51,7 @@ class SiteActionItemCollection:
     def __init__(self):
         self.registry: dict[str, Type[Action] | Type[ActionWithNotification]] = {}
         self.updated_action_types: bool | None = None
-        prn = Prn(
-            model="edc_action_item.actionitem", url_namespace="edc_action_item_admin"
-        )
+        prn = Prn(model="edc_action_item.actionitem", url_namespace="edc_action_item_admin")
         site_prn_forms.register(prn)
 
     def __repr__(self):
@@ -67,9 +63,7 @@ class SiteActionItemCollection:
     def __iter__(self):
         return iter(self.registry.values())
 
-    def unregister(
-        self, action_cls: Type[Action] | Type[ActionWithNotification]
-    ) -> None:
+    def unregister(self, action_cls: Type[Action] | Type[ActionWithNotification]) -> None:
         if action_cls.name in self.registry:
             del self.registry[action_cls.name]
             prn = Prn(
@@ -78,9 +72,7 @@ class SiteActionItemCollection:
             )
             site_prn_forms.unregister(prn)
 
-    def register(
-        self, action_cls: Type[Action] | Type[ActionWithNotification] = None
-    ) -> None:
+    def register(self, action_cls: Type[Action] | Type[ActionWithNotification] = None) -> None:
         if action_cls.name in self.registry:
             raise AlreadyRegistered(
                 f"Action class is already registered. Got name='{action_cls.name}' "
@@ -130,9 +122,7 @@ class SiteActionItemCollection:
             )
         return self.registry.get(name)
 
-    def get_by_model(
-        self, model=None
-    ) -> Type[Action] | Type[ActionWithNotification] | None:
+    def get_by_model(self, model=None) -> Type[Action] | Type[ActionWithNotification] | None:
         """Returns the action_cls linked to this reference model."""
         for action_cls in self.registry.values():
             if action_cls.get_reference_model() == model:

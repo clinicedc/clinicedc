@@ -29,9 +29,7 @@ class ModelAdminRedirectAllToChangelistMixin:
 
     def redirect_url(self, request, obj, post_url_continue=None) -> str | None:
         if request.GET.dict().get(self.next_querystring_attr):
-            return super().redirect_url(
-                request, obj, post_url_continue=post_url_continue
-            )
+            return super().redirect_url(request, obj, post_url_continue=post_url_continue)
         return self.response_post_save_change(request, obj)
 
     def response_post_save_change(self, request, obj):
@@ -54,9 +52,7 @@ class ModelAdminRedirectAllToChangelistMixin:
     def add_view(self, request, form_url="", extra_context=None):
         q = get_value_from_lookup_string(
             self.add_search_field_name, request=request
-        ) or get_value_from_lookup_string(
-            self.change_search_field_name, request=request
-        )
+        ) or get_value_from_lookup_string(self.change_search_field_name, request=request)
         extra_context = extra_context or {}
         extra_context.update(
             cancel_url=self.get_changelist_url(request),

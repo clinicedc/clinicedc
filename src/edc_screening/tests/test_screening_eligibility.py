@@ -1,3 +1,4 @@
+from clinicedc_tests.models import SubjectScreening
 from django.test import TestCase
 
 from edc_constants.constants import NO, TBD, YES
@@ -11,7 +12,6 @@ from edc_screening.fc import FC
 from edc_screening.screening_eligibility import (
     ScreeningEligibility as BaseScreeningEligibility,
 )
-from clinicedc_tests.models import SubjectScreening
 
 
 class TestScreening(TestCase):
@@ -187,10 +187,7 @@ class TestScreening(TestCase):
                 return required_fields
 
             def assess_eligibility(self) -> None:
-                if (
-                    self.cleaned_data.get("thing_one") == "maybe"
-                    and self.eligible == YES
-                ):
+                if self.cleaned_data.get("thing_one") == "maybe" and self.eligible == YES:
                     self.eligible = "BAD DOG"
                     self.reasons_ineligible.update(thing_one="thing one not sure")
 

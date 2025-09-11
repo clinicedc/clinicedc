@@ -2,6 +2,8 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.models import OnScheduleThree, SubjectConsent
+from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 
@@ -23,19 +25,13 @@ from edc_visit_schedule.exceptions import (
     NotOnScheduleError,
     SiteVisitScheduleError,
 )
-from edc_visit_schedule.models import (
-    OffSchedule,
-    OnSchedule,
-    SubjectScheduleHistory,
-)
+from edc_visit_schedule.models import OffSchedule, OnSchedule, SubjectScheduleHistory
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.models import OnScheduleThree, SubjectConsent
-from clinicedc_tests.sites import all_sites
 
 
 @tag("visit_schedule")
@@ -181,9 +177,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         """Will pass as long as this is not a holiday"""
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(
-            days=28
-        )
+        onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=28)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_visit_schedule.onschedule"
         )
@@ -199,9 +193,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
         self.assertEqual(
-            OnSchedule.objects.filter(
-                subject_identifier=self.subject_identifier
-            ).count(),
+            OnSchedule.objects.filter(subject_identifier=self.subject_identifier).count(),
             0,
         )
         self.assertRaises(
@@ -212,9 +204,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         traveller.stop()
 
     def test_cannot_create_offschedule_before_onschedule(self):
-        traveller = time_machine.travel(
-            self.study_open_datetime + relativedelta(days=28)
-        )
+        traveller = time_machine.travel(self.study_open_datetime + relativedelta(days=28))
         traveller.start()
         OnSchedule.objects.put_on_schedule(
             subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
@@ -228,9 +218,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         traveller.stop()
 
     def test_cannot_create_offschedule_before_last_visit(self):
-        traveller = time_machine.travel(
-            self.study_open_datetime + relativedelta(days=10)
-        )
+        traveller = time_machine.travel(self.study_open_datetime + relativedelta(days=10))
         traveller.start()
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_visit_schedule.onschedule"
@@ -261,9 +249,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
     def test_cannot_put_on_schedule_if_visit_schedule_not_registered_subject(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(
-            days=10
-        )
+        onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=10)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_visit_schedule.onschedule"
         )
@@ -279,9 +265,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
     def test_cannot_put_on_schedule_if_visit_schedule_not_consented(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(
-            days=10
-        )
+        onschedule_datetime = self.subject_consent.consent_datetime + relativedelta(days=10)
         _, schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_visit_schedule.onschedule"
         )

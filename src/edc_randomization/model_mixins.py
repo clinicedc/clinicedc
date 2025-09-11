@@ -42,9 +42,7 @@ class RandomizationListModelMixin(models.Model):
 
     site_name = models.CharField(max_length=100)
 
-    allocation = EncryptedCharField(
-        verbose_name="Original integer allocation", null=True
-    )
+    allocation = EncryptedCharField(verbose_name="Original integer allocation", null=True)
 
     allocated = models.BooleanField(default=False)
 
@@ -82,8 +80,7 @@ class RandomizationListModelMixin(models.Model):
         except ObjectDoesNotExist:
             site_names = [obj.name for obj in Site.objects.all()]
             raise RandomizationListModelError(
-                f"Invalid site name. Got {self.site_name}. "
-                f"Expected one of {site_names}."
+                f"Invalid site name. Got {self.site_name}. " f"Expected one of {site_names}."
             )
         super().save(*args, **kwargs)
 

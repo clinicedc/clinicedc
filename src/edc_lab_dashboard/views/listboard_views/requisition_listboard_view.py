@@ -20,9 +20,7 @@ class RequisitionListboardView(BaseListboardView):
     listboard_template = "requisition_listboard_template"
     listboard_url = "requisition_listboard_url"
     listboard_view_filters = RequisitionListboardViewFilters()
-    listboard_view_permission_codename = (
-        "edc_lab_dashboard.view_lab_requisition_listboard"
-    )
+    listboard_view_permission_codename = "edc_lab_dashboard.view_lab_requisition_listboard"
     listboard_view_only_my_permission_codename = None
     navbar_selected_item = "requisition"
     search_form_url = "requisition_listboard_url"
@@ -51,8 +49,6 @@ class RequisitionListboardView(BaseListboardView):
         return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
-        q_objects, options = super().get_queryset_filter_options(
-            request, *args, **kwargs
-        )
+        q_objects, options = super().get_queryset_filter_options(request, *args, **kwargs)
         options.update(is_drawn=YES)
         return Q(), options

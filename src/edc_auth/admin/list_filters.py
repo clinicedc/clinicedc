@@ -17,9 +17,7 @@ class SitesListFilter(SimpleListFilter):
         """Returns a queryset if the site name is in the list of sites"""
         qs = None
         if self.value():
-            qs = get_user_model().objects.filter(
-                userprofile__sites__name__in=[self.value()]
-            )
+            qs = get_user_model().objects.filter(userprofile__sites__name__in=[self.value()])
         return qs
 
 
@@ -39,9 +37,7 @@ class CountriesListFilter(SimpleListFilter):
         if self.value():
             qs = (
                 get_user_model()
-                .objects.filter(
-                    userprofile__sites__siteprofile__country__in=[self.value()]
-                )
+                .objects.filter(userprofile__sites__siteprofile__country__in=[self.value()])
                 .distinct()
             )
         return qs

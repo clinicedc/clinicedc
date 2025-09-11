@@ -21,9 +21,7 @@ class Holiday(models.Model):
 
     @property
     def formatted_date(self) -> str:
-        return self.local_date.strftime(
-            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-        )
+        return self.local_date.strftime(convert_php_dateformat(settings.SHORT_DATE_FORMAT))
 
     def __str__(self):
         return f"{self.label} on {self.formatted_date}"

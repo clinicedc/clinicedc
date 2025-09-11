@@ -1,5 +1,7 @@
 import re
 
+from clinicedc_tests.labs import lab_profile
+from clinicedc_tests.sites import all_sites
 from django.test import TestCase, override_settings, tag
 
 from edc_facility.import_holidays import import_holidays
@@ -7,8 +9,6 @@ from edc_lab.identifiers import RequisitionIdentifier
 from edc_lab.site_labs import site_labs
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from clinicedc_tests.labs import lab_profile
-from clinicedc_tests.sites import all_sites
 
 
 @tag("lab")

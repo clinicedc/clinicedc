@@ -20,9 +20,7 @@ class Navbar:
 
     def register(self, navbar_item: NavbarItem):
         if navbar_item in self.navbar_items:
-            raise NavbarError(
-                f"Duplicate navbar item. See {self}. Got{navbar_item.name}"
-            )
+            raise NavbarError(f"Duplicate navbar item. See {self}. Got{navbar_item.name}")
         self.navbar_items.append(navbar_item)
 
     @property

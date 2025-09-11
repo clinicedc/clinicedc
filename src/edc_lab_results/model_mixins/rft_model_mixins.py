@@ -7,6 +7,7 @@ from edc_reportable.units import (
     MILLIMOLES_PER_LITER,
     MILLIMOLES_PER_LITER_DISPLAY,
 )
+
 from ..model_mixin_factories import reportable_result_model_mixin_factory
 
 

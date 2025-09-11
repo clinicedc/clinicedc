@@ -49,7 +49,5 @@ class UnblindingReview(
         verbose_name = "Unblinding Review"
         verbose_name_plural = "Unblinding Reviews"
         indexes = [
-            models.Index(
-                fields=["subject_identifier", "action_identifier", "site", "id"]
-            )
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]

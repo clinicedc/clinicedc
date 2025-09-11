@@ -34,9 +34,7 @@ class SiteLabsTestHelper:
         processing_profile.add_processes(process)
 
         # create a panel
-        self.panel = RequisitionPanel(
-            name="panel", processing_profile=processing_profile
-        )
+        self.panel = RequisitionPanel(name="panel", processing_profile=processing_profile)
 
         # lab profile
         self.lab_profile = LabProfile(

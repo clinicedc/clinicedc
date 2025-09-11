@@ -1,3 +1,7 @@
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import BloodResultsFbc
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.apps import apps as django_apps
 from django.test import TestCase
 
@@ -10,10 +14,6 @@ from edc_reportable import GRAMS_PER_DECILITER, PERCENT, TEN_X_9_PER_LITER
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import BloodResultsFbc
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class TestBloodResult(TestCase):

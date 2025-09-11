@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_vitals.utils import (
     get_g3_fever_lower,

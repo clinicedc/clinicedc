@@ -49,9 +49,7 @@ def make_randomization_list_for_tests(
         for i in range(first_sid, count + first_sid):
             n += 1
             assignment = random.choice(assignments)  # nosec B311
-            writer.writerow(
-                dict(sid=i, assignment=assignment, site_name=next(gen_site_name))
-            )
+            writer.writerow(dict(sid=i, assignment=assignment, site_name=next(gen_site_name)))
     return full_path
 
 

@@ -50,9 +50,7 @@ class DeathListboardView(
         return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
-        q_object, options = super().get_queryset_filter_options(
-            request, *args, **kwargs
-        )
+        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
         if self.search_term and re.match("^[A-Z]+$", self.search_term):
             q_object |= Q(first_name__exact=self.search_term)
         if kwargs.get("subject_identifier"):

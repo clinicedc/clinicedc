@@ -1,6 +1,6 @@
 from django.db import models
-from edc_utils import get_utcnow
 
+from edc_utils import get_utcnow
 from edc_vitals.model_mixins import (
     BloodPressureModelMixin,
     SimpleBloodPressureModelMixin,

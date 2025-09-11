@@ -24,9 +24,7 @@ SCHEDULED_WINDOW_ERROR = "scheduled_window_error"
 
 
 class WindowPeriodFormValidatorMixin:
-    def validate_appt_datetime_in_window_period(
-        self, appointment: Appointment, *args
-    ) -> None:
+    def validate_appt_datetime_in_window_period(self, appointment: Appointment, *args) -> None:
         self.datetime_in_window_or_raise(appointment, *args)
 
     @staticmethod
@@ -59,9 +57,7 @@ class WindowPeriodFormValidatorMixin:
                     dt=proposed_appt_datetime,
                     visit_code=appointment.visit_code,
                     visit_code_sequence=appointment.visit_code_sequence,
-                    baseline_timepoint_datetime=self.baseline_timepoint_datetime(
-                        appointment
-                    ),
+                    baseline_timepoint_datetime=self.baseline_timepoint_datetime(appointment),
                 )
             except UnScheduledVisitWindowError:
                 if not self.ignore_window_period_for_unscheduled(
@@ -93,9 +89,7 @@ class WindowPeriodFormValidatorMixin:
                         UNSCHEDULED_WINDOW_ERROR,
                     )
             except ScheduledVisitWindowError as e:
-                self.raise_validation_error(
-                    {form_field: (str(e))}, SCHEDULED_WINDOW_ERROR
-                )
+                self.raise_validation_error({form_field: (str(e))}, SCHEDULED_WINDOW_ERROR)
 
     @staticmethod
     def baseline_timepoint_datetime(appointment: Appointment) -> datetime:

@@ -82,9 +82,7 @@ class ValueGetter:
             self._value = self.strip_value(self._value)
         return self._value
 
-    def _get_field_value(
-        self, model_obj: Type[MyModel] = None, field_name: str = None
-    ) -> Any:
+    def _get_field_value(self, model_obj: Type[MyModel] = None, field_name: str = None) -> Any:
         """Returns a field value.
 
         1. Tries to access a field as a model instance attribute;
@@ -104,13 +102,10 @@ class ValueGetter:
                 value = getattr(model_obj, field_name)
             except AttributeError:
                 if field_name in self.lookups:
-                    value = self.get_lookup_value(
-                        model_obj=model_obj, field_name=field_name
-                    )
+                    value = self.get_lookup_value(model_obj=model_obj, field_name=field_name)
                 else:
                     raise ValueGetterUnknownField(
-                        f"Unknown field name. Perhaps add a lookup. "
-                        f"Got {field_name}.",
+                        f"Unknown field name. Perhaps add a lookup. " f"Got {field_name}.",
                         code=field_name,
                     )
             if isinstance(value, Manager):
@@ -122,9 +117,7 @@ class ValueGetter:
                     )
         return value
 
-    def get_lookup_value(
-        self, model_obj: Type[MyModel] = None, field_name: str = None
-    ) -> Any:
+    def get_lookup_value(self, model_obj: Type[MyModel] = None, field_name: str = None) -> Any:
         """Returns the field value by following the lookup string
         to a related instance.
         """
@@ -144,9 +137,7 @@ class ValueGetter:
         """Returns the list of m2m field names for this model."""
         return [m2m.name for m2m in self.model_cls._meta.many_to_many]
 
-    def get_m2m_value(
-        self, model_obj: Type[MyModel] = None, field_name: str = None
-    ) -> str:
+    def get_m2m_value(self, model_obj: Type[MyModel] = None, field_name: str = None) -> str:
         """Returns an m2m field value as a delimited string."""
         return self.m2m_delimiter.join(
             [value.name for value in getattr(model_obj, field_name).all()]

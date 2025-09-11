@@ -124,9 +124,7 @@ class ManyToManyFieldValidator(BaseFormValidator):
         """
         code: Optional[str] = None
         message: dict = {}
-        if self.cleaned_data.get(field) == response and not self.cleaned_data.get(
-            m2m_field
-        ):
+        if self.cleaned_data.get(field) == response and not self.cleaned_data.get(m2m_field):
             message = {m2m_field: "This field is required"}
             code = REQUIRED_ERROR
         elif (

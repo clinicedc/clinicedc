@@ -3,6 +3,10 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule3,
+)
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -32,10 +36,6 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
-    get_visit_schedule3,
-)
 
 utc = ZoneInfo("UTC")
 
@@ -157,9 +157,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         appointment_1060 = Appointment.objects.get(
             subject_identifier=subject_consent.subject_identifier, visit_code="1060"
         )
-        appointment_1030.appt_datetime = appointment_1060.appt_datetime - relativedelta(
-            days=1
-        )
+        appointment_1030.appt_datetime = appointment_1060.appt_datetime - relativedelta(days=1)
         self.assertRaises(AppointmentWindowError, appointment_1030.save)
 
     @patch("edc_appointment.form_validators.utils.url_names")
@@ -181,13 +179,9 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         )
         form.is_valid()
         # conflicts on non-unique appointment date
-        self.assertIn(
-            "This appointment conflicts", form._errors.get("appt_datetime")[0]
-        )
+        self.assertIn("This appointment conflicts", form._errors.get("appt_datetime")[0])
         form = AppointmentForm(
-            data={
-                "appt_datetime": appointment_1060.appt_datetime - relativedelta(days=1)
-            },
+            data={"appt_datetime": appointment_1060.appt_datetime - relativedelta(days=1)},
             instance=appointment_1030,
         )
         form.is_valid()
@@ -260,9 +254,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         self.assertIn(appointment_1060.appt_status, [INCOMPLETE_APPT, COMPLETE_APPT])
 
         # get appt_date one day before 1060
-        appt_datetime_after_1030 = appointment_1060.appt_datetime - relativedelta(
-            days=1
-        )
+        appt_datetime_after_1030 = appointment_1060.appt_datetime - relativedelta(days=1)
         # create unscheduled off of 1030
         unscheduled_appointment = self.create_unscheduled(appointment_1030)
 
@@ -283,9 +275,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         )
 
         # get appt_date one day before 1060
-        appt_datetime_after_1030 = appointment_1060.appt_datetime - relativedelta(
-            days=1
-        )
+        appt_datetime_after_1030 = appointment_1060.appt_datetime - relativedelta(days=1)
         # create unscheduled off of 1030
         unscheduled_appointment = self.create_unscheduled(appointment_1030)
 
@@ -319,9 +309,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         self.assertIn(appointment_1030.appt_status, [INCOMPLETE_APPT])
 
         # get appt_date one day before 1060
-        appt_datetime_after_1030 = appointment_1060.appt_datetime - relativedelta(
-            days=1
-        )
+        appt_datetime_after_1030 = appointment_1060.appt_datetime - relativedelta(days=1)
         # create unscheduled off of 1030
         unscheduled_appointment = self.create_unscheduled(appointment_1030)
 
@@ -368,8 +356,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
 
         self.assertEqual(
             (
-                appointment_1060_lower_appt_datetime
-                - unscheduled_appointment.appt_datetime
+                appointment_1060_lower_appt_datetime - unscheduled_appointment.appt_datetime
             ).days,
             1,
         )
@@ -383,9 +370,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         form.is_valid()
         # form.save(commit=True)
         self.assertIn("appt_datetime", form._errors)
-        self.assertIn(
-            "Invalid. Expected a date between", form._errors.get("appt_datetime")[0]
-        )
+        self.assertIn("Invalid. Expected a date between", form._errors.get("appt_datetime")[0])
 
     def test_match_appt_date_to_visit_code(self):
         subject_consent = self.helper.consent_and_put_on_schedule(
@@ -398,9 +383,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         self.assertEqual(appointments.count(), 5)
         appointment_1000 = appointments[0]
 
-        suggested_appt_datetime = appointment_1000.appt_datetime + relativedelta(
-            months=3
-        )
+        suggested_appt_datetime = appointment_1000.appt_datetime + relativedelta(months=3)
         appointment = get_appointment_by_datetime(
             suggested_appt_datetime,
             appointment_1000.subject_identifier,
@@ -410,9 +393,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         self.assertIsNotNone(appointment)
         self.assertEqual(appointment.visit_code, "1030")
 
-        suggested_appt_datetime = appointment_1000.appt_datetime + relativedelta(
-            months=6
-        )
+        suggested_appt_datetime = appointment_1000.appt_datetime + relativedelta(months=6)
         appointment = get_appointment_by_datetime(
             suggested_appt_datetime,
             appointment_1000.subject_identifier,

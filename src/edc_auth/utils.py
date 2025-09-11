@@ -24,9 +24,7 @@ def get_user(username: str) -> User | None:
     return user
 
 
-def compare_codenames_for_group(
-    group_name: str = None, expected: list[str] = None
-) -> None:
+def compare_codenames_for_group(group_name: str = None, expected: list[str] = None) -> None:
     group = django_apps.get_model("auth.group").objects.get(name=group_name)
     codenames = [p.codename for p in group.permissions.all()]
     new_expected = []
@@ -47,9 +45,7 @@ def compare_codenames_for_group(
         pprint(compared)
 
 
-def remove_default_model_permissions_from_edc_permissions(
-    auth_updater: Any, app_label: str
-):
+def remove_default_model_permissions_from_edc_permissions(auth_updater: Any, app_label: str):
     for group in auth_updater.group_model_cls.objects.all():
         auth_updater.remove_permissions_by_codenames(
             group=group,
@@ -121,9 +117,7 @@ def get_codenames_for_user(
     roles = roles or user.userprofile.roles
 
     for role in roles.all():
-        groups.extend(
-            [grp for grp in role.groups.all() if grp not in account_manager_groups]
-        )
+        groups.extend([grp for grp in role.groups.all() if grp not in account_manager_groups])
     if include_groups:
         for group in user.groups.all():
             if group not in account_manager_groups:

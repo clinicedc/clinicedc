@@ -51,9 +51,7 @@ def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     sender=StockAdjustment,
     dispatch_uid="update_stock_adjustment_on_post_save",
 )
-def stock_adjustment_on_post_save(
-    sender, instance, raw, created, update_fields, **kwargs
-):
+def stock_adjustment_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty"""
     if not raw and not update_fields:
         instance.stock.unit_qty_in = instance.unit_qty_in_new
@@ -70,31 +68,25 @@ def order_item_on_post_save(sender, instance, raw, created, update_fields, **kwa
     if not raw and not update_fields:
         # recalculate unit_qty
         unit_qty_ordered = instance.qty * instance.container.qty
-        instance.unit_qty = unit_qty_ordered - (
-            instance.unit_qty_received or Decimal(0)
-        )
+        instance.unit_qty = unit_qty_ordered - (instance.unit_qty_received or Decimal(0))
         instance.save(update_fields=["unit_qty"])
 
 
 @receiver(post_save, sender=Receive, dispatch_uid="receive_on_post_save")
-def receive_on_post_save(
-    sender, instance, raw, created, update_fields, **kwargs
-) -> None:
+def receive_on_post_save(sender, instance, raw, created, update_fields, **kwargs) -> None:
     if not raw and not update_fields:
         pass
 
 
-@receiver(
-    post_save, sender=ReceiveItem, dispatch_uid="update_receive_item_on_post_save"
-)
+@receiver(post_save, sender=ReceiveItem, dispatch_uid="update_receive_item_on_post_save")
 def receive_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     if not raw and update_fields != ["added_to_stock"]:
         receive_items = ReceiveItem.objects.filter(receive=instance.receive)
         instance.receive.item_count = receive_items.count()
         instance.order_item.unit_qty_received = (
-            instance.order_item.receiveitem_set.all().aggregate(
-                unit_qty=Sum("unit_qty")
-            )["unit_qty"]
+            instance.order_item.receiveitem_set.all().aggregate(unit_qty=Sum("unit_qty"))[
+                "unit_qty"
+            ]
         ) or Decimal(0.0)
         if instance.order_item.unit_qty_received == instance.order_item.unit_qty:
             instance.order_item.status = COMPLETE
@@ -106,9 +98,9 @@ def receive_item_on_post_save(sender, instance, raw, created, update_fields, **k
         unit_qty_received = OrderItem.objects.filter(order=order).aggregate(
             unit_qty_received=Sum("unit_qty_received")
         )["unit_qty_received"] or Decimal(0.0)
-        unit_qty = OrderItem.objects.filter(order=order).aggregate(
-            unit_qty=Sum("unit_qty")
-        )["unit_qty"] or Decimal(0.0)
+        unit_qty = OrderItem.objects.filter(order=order).aggregate(unit_qty=Sum("unit_qty"))[
+            "unit_qty"
+        ] or Decimal(0.0)
         if unit_qty_received == unit_qty:
             order.status = COMPLETE
             order.save()
@@ -134,9 +126,7 @@ def stock_request_on_post_save(
         instance.save(update_fields=["item_count"])
 
 
-@receiver(
-    post_save, sender=StockRequestItem, dispatch_uid="stock_request_item_on_post_save"
-)
+@receiver(post_save, sender=StockRequestItem, dispatch_uid="stock_request_item_on_post_save")
 def stock_request_item_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:

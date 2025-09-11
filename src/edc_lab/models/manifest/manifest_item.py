@@ -15,9 +15,7 @@ class ManifestItemManager(SearchSlugManager, models.Manager):
         return self.get(identifier=identifier, manifest_identifier=manifest_identifier)
 
 
-class ManifestItem(
-    SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel
-):
+class ManifestItem(SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
     def get_search_slug_fields(self):
         return ["identifier", "human_readable_identifier"]
 

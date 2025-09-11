@@ -55,9 +55,7 @@ class SubjectLocatorViewMixin:
             )
         except ObjectDoesNotExist:
             # only create missing action item if user has change perms
-            app_label, model_name = (
-                self.subject_locator_model_cls._meta.label_lower.split(".")
-            )
+            app_label, model_name = self.subject_locator_model_cls._meta.label_lower.split(".")
             if self.request.user.has_perm(f"{app_label}.change_{model_name}"):
                 action_cls(subject_identifier=subject_identifier)
         except MultipleObjectsReturned:

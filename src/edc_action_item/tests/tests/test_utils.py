@@ -2,6 +2,13 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import CrfOneAction, register_actions
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfOne, CrfTwo, FormOne, FormTwo
+from clinicedc_tests.visit_schedules.visit_schedule_action_item import (
+    get_visit_schedule,
+)
 from django.test import TestCase, override_settings, tag
 
 from edc_action_item.models import ActionItem
@@ -13,13 +20,6 @@ from edc_action_item.utils import (
 )
 from edc_consent import site_consents
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from clinicedc_tests.action_items import CrfOneAction, register_actions
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import CrfOne, CrfTwo, FormOne, FormTwo
-from clinicedc_tests.visit_schedules.visit_schedule_action_item import (
-    get_visit_schedule,
-)
 
 utc_tz = ZoneInfo("UTC")
 
@@ -48,9 +48,7 @@ class TestHelpers(TestCaseMixin, TestCase):
             consent_definition=consent_v1,
         )
         self.subject_identifier = self.subject_visit.subject_identifier
-        self.form_one = FormOne.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        self.form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         self.action_item = ActionItem.objects.get(
             action_identifier=self.form_one.action_identifier
         )
@@ -65,23 +63,17 @@ class TestHelpers(TestCaseMixin, TestCase):
         form_two = FormTwo.objects.create(
             form_one=self.form_one, subject_identifier=self.subject_identifier
         )
-        action_item = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
         self.assertEqual(get_reference_obj(action_item), form_two)
         form_two.delete()
-        action_item = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
         self.assertIsNone(get_reference_obj(action_item))
 
     def test_create_parent_reference_model_instance(self):
         form_two = FormTwo.objects.create(
             form_one=self.form_one, subject_identifier=self.subject_identifier
         )
-        action_item = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=form_two.action_identifier)
         self.assertEqual(get_reference_obj(action_item), form_two)
         self.assertEqual(get_parent_reference_obj(action_item), self.form_one)
         self.assertEqual(get_related_reference_obj(action_item), self.form_one)
@@ -102,9 +94,7 @@ class TestHelpers(TestCaseMixin, TestCase):
 
     def test_reference_as_crf(self):
         crf_one = CrfOne.objects.create(subject_visit=self.subject_visit)
-        action_item = ActionItem.objects.get(
-            action_identifier=crf_one.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=crf_one.action_identifier)
         self.assertEqual(get_reference_obj(action_item), crf_one)
         self.assertIsNone(get_parent_reference_obj(action_item))
         self.assertIsNone(get_related_reference_obj(action_item))
@@ -112,9 +102,7 @@ class TestHelpers(TestCaseMixin, TestCase):
     def test_reference_as_crf_create_next_model_instance(self):
         crf_one = CrfOne.objects.create(subject_visit=self.subject_visit)
         crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit)
-        action_item = ActionItem.objects.get(
-            action_identifier=crf_two.action_identifier
-        )
+        action_item = ActionItem.objects.get(action_identifier=crf_two.action_identifier)
         self.assertEqual(get_reference_obj(action_item), crf_two)
         self.assertEqual(get_parent_reference_obj(action_item), crf_one)
         self.assertIsNone(get_related_reference_obj(action_item))

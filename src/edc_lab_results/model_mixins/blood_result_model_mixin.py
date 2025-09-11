@@ -16,15 +16,12 @@ class BloodResultsFieldsModelMixin(models.Model):
         choices=YES_NO,
         max_length=25,
         help_text=(
-            "Abnormal results present at baseline or continuing from "
-            "baseline not included."
+            "Abnormal results present at baseline or continuing from " "baseline not included."
         ),
     )
 
     results_reportable = models.CharField(
-        verbose_name=(
-            "If any results are abnormal, are results within grade 3 or above?"
-        ),
+        verbose_name=("If any results are abnormal, are results within grade 3 or above?"),
         max_length=25,
         choices=YES_NO_NA,
         help_text=(

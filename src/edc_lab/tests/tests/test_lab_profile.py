@@ -1,3 +1,4 @@
+from clinicedc_tests.models import SubjectRequisition
 from django.test import TestCase, tag
 
 from edc_lab.lab import (
@@ -10,7 +11,6 @@ from edc_lab.lab import (
     RequisitionPanel,
     RequisitionPanelGroup,
 )
-from clinicedc_tests.models import SubjectRequisition
 
 
 @tag("lab")
@@ -107,9 +107,7 @@ class TestBuildProfile(TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name="some panel", processing_profile=processing_profile
-        )
+        panel = RequisitionPanel(name="some panel", processing_profile=processing_profile)
         lab_profile = LabProfile(
             name="profile", requisition_model="clinicedc_tests.subjectrequisition"
         )
@@ -123,9 +121,7 @@ class TestBuildProfile(TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name="Viral Load", processing_profile=processing_profile
-        )
+        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
         lab_profile = LabProfile(
             name="profile", requisition_model="clinicedc_tests.subjectrequisition"
         )
@@ -139,9 +135,7 @@ class TestBuildProfile(TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name="Viral Load", processing_profile=processing_profile
-        )
+        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
         lab_profile = LabProfile(
             name="profile", requisition_model="clinicedc_tests.subjectrequisition"
         )
@@ -156,9 +150,7 @@ class TestBuildProfile(TestCase):
         process = Process(aliquot_type=b, aliquot_count=3)
         processing_profile = ProcessingProfile(name="process", aliquot_type=a)
         processing_profile.add_processes(process)
-        panel = RequisitionPanel(
-            name="Viral Load", processing_profile=processing_profile
-        )
+        panel = RequisitionPanel(name="Viral Load", processing_profile=processing_profile)
         lab_profile = LabProfile(
             name="profile", requisition_model="clinicedc_tests.subjectrequisition"
         )

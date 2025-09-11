@@ -41,9 +41,7 @@ class UserProfileForm(forms.ModelForm):
             codenames = get_codenames_for_user(
                 user=self.cleaned_data.get("user"), roles=self.cleaned_data.get("roles")
             )
-            if c := [
-                c for c in codenames if "add_" in c or "change_" in c or "delete_" in c
-            ]:
+            if c := [c for c in codenames if "add_" in c or "change_" in c or "delete_" in c]:
                 raise forms.ValidationError(
                     {
                         "is_multisite_viewer": (

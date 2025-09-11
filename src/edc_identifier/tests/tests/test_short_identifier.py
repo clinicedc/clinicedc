@@ -55,9 +55,7 @@ class TestShortIdentifier(TestCase):
         class NewCls(ShortIdentifier):
             prefix_pattern = None
 
-        self.assertRaises(
-            ShortIdentifierPrefixError, NewCls, prefix_pattern=None, prefix=22
-        )
+        self.assertRaises(ShortIdentifierPrefixError, NewCls, prefix_pattern=None, prefix=22)
 
     def test_short_identifier_prefix_pattern_must_match_prefix(self):
         self.assertRaises(

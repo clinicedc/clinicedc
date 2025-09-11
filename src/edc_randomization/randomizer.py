@@ -183,9 +183,7 @@ class Randomizer:
         self.registration_obj.sid = self.sid
         self.registration_obj.randomization_datetime = self.model_obj.allocated_datetime
         self.registration_obj.registration_status = RANDOMIZED
-        self.registration_obj.randomization_list_model = (
-            self.model_obj._meta.label_lower
-        )
+        self.registration_obj.randomization_list_model = self.model_obj._meta.label_lower
         self.registration_obj.save()
         # requery
         self._registration_obj = self.get_registration_model_cls().objects.get(
@@ -302,9 +300,7 @@ class Randomizer:
                 self._registration_obj = self.get_unallocated_registration_obj()
             except ObjectDoesNotExist:
                 try:
-                    obj = self.get_registration_model_cls().objects.get(
-                        **self.identifier_opts
-                    )
+                    obj = self.get_registration_model_cls().objects.get(**self.identifier_opts)
                 except ObjectDoesNotExist:
                     raise RandomizationError(
                         f"{self.identifier_object_name.title()} does not exist. "

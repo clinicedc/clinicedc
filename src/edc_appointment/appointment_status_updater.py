@@ -30,10 +30,7 @@ class AppointmentStatusUpdater:
                 raise AppointmentStatusUpdaterError(
                     "Appointment instance must exist. Got `id` is None"
                 )
-            if (
-                change_to_in_progress
-                and self.appointment.appt_status != IN_PROGRESS_APPT
-            ):
+            if change_to_in_progress and self.appointment.appt_status != IN_PROGRESS_APPT:
                 self.appointment.appt_status = IN_PROGRESS_APPT
                 self.appointment.save_base(update_fields=["appt_status"])
             if clear_others_in_progress:

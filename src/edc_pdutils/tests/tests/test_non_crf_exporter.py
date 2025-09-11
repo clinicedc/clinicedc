@@ -1,6 +1,11 @@
 import csv
 from tempfile import mkdtemp
 
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_pdutils.visit_schedule import (
+    get_visit_schedule,
+)
 from django.apps import apps as django_apps
 from django.test import TransactionTestCase, override_settings
 
@@ -10,11 +15,6 @@ from edc_list_data import site_list_data
 from edc_pdutils.df_exporters import CsvNonCrfTablesExporter
 from edc_pdutils.df_handlers import NonCrfDfHandler
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.visit_schedules.visit_schedule_pdutils.visit_schedule import (
-    get_visit_schedule,
-)
 
 app_config = django_apps.get_app_config("edc_pdutils")
 

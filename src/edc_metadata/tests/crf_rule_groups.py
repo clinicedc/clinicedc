@@ -1,10 +1,6 @@
 from edc_constants.constants import FEMALE, MALE
 from edc_metadata import NOT_REQUIRED, REQUIRED
-from edc_metadata.metadata_rules import (
-    CrfRule,
-    CrfRuleGroup,
-    P,
-)
+from edc_metadata.metadata_rules import CrfRule, CrfRuleGroup, P
 
 
 class CrfRuleGroupWithSourceModel(CrfRuleGroup):

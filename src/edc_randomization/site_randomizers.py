@@ -115,9 +115,7 @@ class SiteRandomizers:
                         before_import_registry = copy.copy(site_randomizers._registry)
                         import_module(f"{app}.{module_name}")
                         if verbose:
-                            sys.stdout.write(
-                                " * registered randomizer from " f"'{app}'\n"
-                            )
+                            sys.stdout.write(" * registered randomizer from " f"'{app}'\n")
                     except Exception as e:
                         if f"No module named '{app}.{module_name}'" not in str(e):
                             raise

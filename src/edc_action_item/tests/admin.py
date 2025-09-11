@@ -1,5 +1,6 @@
-from edc_action_item.admin_site import edc_action_item_admin
 from clinicedc_tests.models import CrfOne, CrfTwo, Followup, FormOne, FormTwo, Initial
+
+from edc_action_item.admin_site import edc_action_item_admin
 
 edc_action_item_admin.register(CrfOne)
 edc_action_item_admin.register(CrfTwo)

@@ -56,9 +56,7 @@ class SubjectConsentListboardButton(ModelButton):
 
     @property
     def site(self) -> Site | None:
-        return getattr(self.screening_obj, "site", None) or getattr(
-            self.request, "site", None
-        )
+        return getattr(self.screening_obj, "site", None) or getattr(self.request, "site", None)
 
     @property
     def label(self) -> str:

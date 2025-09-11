@@ -78,8 +78,7 @@ class DeathReportModelMixin(
         on_delete=PROTECT,
         verbose_name="Main cause of death",
         help_text=(
-            "Main cause of death in the opinion of the "
-            "local study doctor and local PI"
+            "Main cause of death in the opinion of the " "local study doctor and local PI"
         ),
         null=True,
         blank=False,
@@ -109,7 +108,5 @@ class DeathReportModelMixin(
         verbose_name = "Death Report"
         verbose_name_plural = "Death Reports"
         indexes = ActionNoManagersModelMixin.Meta.indexes + [
-            models.Index(
-                fields=["subject_identifier", "action_identifier", "site", "id"]
-            )
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]

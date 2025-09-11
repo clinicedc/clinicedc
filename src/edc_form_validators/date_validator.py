@@ -40,9 +40,7 @@ class DateValidator(BaseFormValidator):
         )
         field_value = field_value or self._get_as_date(field)
         if field_value and reference_value:
-            if not self._compare_date_to_reference_value(
-                op, field_value, reference_value
-            ):
+            if not self._compare_date_to_reference_value(op, field_value, reference_value):
                 if field:
                     self.raise_validation_error({field: msg}, INVALID_ERROR)
                 else:
@@ -197,9 +195,7 @@ class DateValidator(BaseFormValidator):
         """Convenience method if comparing with report_datetime."""
         msg = None
         report_datetime_field = report_datetime_field or "report_datetime"
-        if self.cleaned_data.get(field) and self.cleaned_data.get(
-            report_datetime_field
-        ):
+        if self.cleaned_data.get(field) and self.cleaned_data.get(report_datetime_field):
             dte = self.cleaned_data.get(report_datetime_field).strftime(
                 convert_php_dateformat(settings.DATETIME_FORMAT)
             )
@@ -221,9 +217,7 @@ class DateValidator(BaseFormValidator):
         """Convenience method if comparing with report_datetime."""
         msg = None
         report_datetime_field = report_datetime_field or "report_datetime"
-        if self.cleaned_data.get(field) and self.cleaned_data.get(
-            report_datetime_field
-        ):
+        if self.cleaned_data.get(field) and self.cleaned_data.get(report_datetime_field):
             dte = self.cleaned_data.get(report_datetime_field).strftime(
                 convert_php_dateformat(settings.DATETIME_FORMAT)
             )

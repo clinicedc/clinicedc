@@ -87,9 +87,7 @@ class Database:
             columns = {col: col.lower() for col in list(df.columns)}
             df.rename(columns=columns, inplace=True)
         for col in uuid_columns:
-            df[col] = df.apply(
-                lambda row: str(UUID(row[col])) if row[col] else np.nan, axis=1
-            )
+            df[col] = df.apply(lambda row: str(UUID(row[col])) if row[col] else np.nan, axis=1)
         return df
 
     def show_tables(self, app_label: str = None) -> pd.DataFrame:

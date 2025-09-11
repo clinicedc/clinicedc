@@ -12,9 +12,7 @@ class Timepoint:
     Note: typically `model` is `edc_appointment.appointment`.
     """
 
-    def __init__(
-        self, model=None, datetime_field=None, status_field=None, closed_status=None
-    ):
+    def __init__(self, model=None, datetime_field=None, status_field=None, closed_status=None):
         self.model = model
         self.datetime_field = datetime_field
         self.status_field = status_field

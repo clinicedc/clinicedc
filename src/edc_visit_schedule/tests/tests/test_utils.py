@@ -3,6 +3,9 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 
@@ -20,9 +23,6 @@ from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.sites import all_sites
 
 
 @tag("visit_schedule")
@@ -167,9 +167,7 @@ class TestVisitSchedule4(SiteTestCaseMixin, TestCase):
         self.assertListEqual(get_duplicates(["one", "one"]), ["one"])
         self.assertListEqual(get_duplicates(["one", "one", "two"]), ["one"])
         self.assertListEqual(get_duplicates(["one", "two", "two"]), ["two"])
-        self.assertListEqual(
-            get_duplicates(["one", "two", "two", "one"]), ["one", "two"]
-        )
+        self.assertListEqual(get_duplicates(["one", "two", "two", "one"]), ["one", "two"])
         self.assertListEqual(
             get_duplicates(["one", "two", "three", "three", "two", "one"]),
             ["one", "two", "three"],

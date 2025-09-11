@@ -117,15 +117,9 @@ class TestAuthUpdater(TestCase):
         AuthUpdater(verbose=False, warn_only=True)
         for group in Group.objects.all():
             qs = group.permissions.all()
-            self.assertNotIn(
-                "add_randomizationlist", "|".join([o.codename for o in qs])
-            )
-            self.assertNotIn(
-                "change_randomizationlist", "|".join([o.codename for o in qs])
-            )
-            self.assertNotIn(
-                "delete_randomizationlist", "|".join([o.codename for o in qs])
-            )
+            self.assertNotIn("add_randomizationlist", "|".join([o.codename for o in qs]))
+            self.assertNotIn("change_randomizationlist", "|".join([o.codename for o in qs]))
+            self.assertNotIn("delete_randomizationlist", "|".join([o.codename for o in qs]))
 
     def test_removes_randomization_list_model_perms2(self):
         self.assertIn(
@@ -133,24 +127,14 @@ class TestAuthUpdater(TestCase):
             "|".join([o.codename for o in Permission.objects.all()]),
         )
         AuthUpdater(verbose=False, warn_only=True)
-        Permission.objects.filter(
-            content_type__app_label__in=["edc_randomization", "tests"]
-        )
+        Permission.objects.filter(content_type__app_label__in=["edc_randomization", "tests"])
         # confirm add_, change_, delete_ codenames for rando
         # does not exist in any groups.
         for group in Group.objects.all():
             qs = group.permissions.all()
             for model_name in ["customrandomizationlist", "randomizationlist"]:
-                self.assertNotIn(
-                    f"add_{model_name}", "|".join([o.codename for o in qs])
-                )
-                self.assertNotIn(
-                    f"change_{model_name}", "|".join([o.codename for o in qs])
-                )
-                self.assertNotIn(
-                    f"delete_{model_name}", "|".join([o.codename for o in qs])
-                )
+                self.assertNotIn(f"add_{model_name}", "|".join([o.codename for o in qs]))
+                self.assertNotIn(f"change_{model_name}", "|".join([o.codename for o in qs]))
+                self.assertNotIn(f"delete_{model_name}", "|".join([o.codename for o in qs]))
                 if group.name in [RANDO_UNBLINDED, RANDO_BLINDED]:
-                    self.assertIn(
-                        f"view_{model_name}", "|".join([o.codename for o in qs])
-                    )
+                    self.assertIn(f"view_{model_name}", "|".join([o.codename for o in qs]))

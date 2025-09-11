@@ -23,9 +23,7 @@ class AeTmgModelFormMixin(AeModelFormMixin):
         widgets = {
             "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
             "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
-            "ae_description": forms.Textarea(
-                attrs={"readonly": "readonly", "cols": "79"}
-            ),
+            "ae_description": forms.Textarea(attrs={"readonly": "readonly", "cols": "79"}),
             "ae_classification": forms.TextInput(attrs={"readonly": "readonly"}),
             "ae_classification_other": forms.TextInput(attrs={"readonly": "readonly"}),
         }

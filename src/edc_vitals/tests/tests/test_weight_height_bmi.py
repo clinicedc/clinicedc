@@ -2,10 +2,10 @@ from decimal import Decimal
 
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import tag, TestCase
+from django.test import TestCase, tag
+
 from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
-
 from edc_vitals.form_validators import WeightHeightBmiFormValidatorMixin
 
 from ..models import WeightHeightBmi
@@ -30,9 +30,7 @@ class TestWeightHeightBmi(TestCase):
             dob=get_utcnow() - relativedelta(years=25),
         )
         obj.save()
-        self.assertEqual(
-            round_half_away_from_zero(obj.calculated_bmi_value, 4), 20.0617
-        )
+        self.assertEqual(round_half_away_from_zero(obj.calculated_bmi_value, 4), 20.0617)
 
     def test_form_validator(self):
         form_validator = WeightHeightBmiFormValidatorMixin()

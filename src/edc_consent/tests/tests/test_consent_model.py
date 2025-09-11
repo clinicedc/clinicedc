@@ -2,6 +2,16 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent1_v1, consent1_v2, consent1_v3
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import (
+    CrfEight,
+    SubjectConsent,
+    SubjectConsentV1Ext,
+    SubjectVisitWithoutAppointment,
+)
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -11,10 +21,7 @@ from model_bakery import baker
 
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition_extension import ConsentDefinitionExtension
-from edc_consent.exceptions import (
-    ConsentDefinitionDoesNotExist,
-    NotConsentedError,
-)
+from edc_consent.exceptions import ConsentDefinitionDoesNotExist, NotConsentedError
 from edc_consent.field_mixins import IdentityFieldsMixinError
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import YES
@@ -26,16 +33,6 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.consents import consent1_v1, consent1_v2, consent1_v3
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import (
-    CrfEight,
-    SubjectConsent,
-    SubjectConsentV1Ext,
-    SubjectVisitWithoutAppointment,
-)
-from clinicedc_tests.sites import all_sites
-from clinicedc_tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
 from ..consent_test_utils import consent_factory
 
@@ -44,9 +41,7 @@ fake = Faker()
 
 @tag("consent")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(
-    EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10
-)
+@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10)
 class TestConsentModel(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -86,14 +81,10 @@ class TestConsentModel(TestCase):
             site=Site.objects.get_current(),
         )
         self.assertIsNotNone(consent.subject_identifier)
-        self.assertNotEqual(
-            consent.subject_identifier, consent.subject_identifier_as_pk
-        )
+        self.assertNotEqual(consent.subject_identifier, consent.subject_identifier_as_pk)
         consent.save()
         self.assertIsNotNone(consent.subject_identifier)
-        self.assertNotEqual(
-            consent.subject_identifier, consent.subject_identifier_as_pk
-        )
+        self.assertNotEqual(consent.subject_identifier, consent.subject_identifier_as_pk)
 
     def test_subject_has_current_consent(self):
         subject_identifier = "123456789"
@@ -173,9 +164,7 @@ class TestConsentModel(TestCase):
         traveller.start()
         subject_identifier = "123456789"
         identity = "987654321"
-        cdef = site_consents.get_consent_definition(
-            report_datetime=self.study_open_datetime
-        )
+        cdef = site_consents.get_consent_definition(report_datetime=self.study_open_datetime)
         subject_consent = baker.make_recipe(
             cdef.model,
             subject_identifier=subject_identifier,
@@ -697,9 +686,6 @@ class TestConsentModel(TestCase):
         self.assertEqual(obj.consent_version, "1.0")
 
     def test_version_with_extension(self):
-        subject_identifier = "123456789"
-        identity = "987654321"
-
         site_consents.registry = {}
 
         consent_v1 = consent_factory(
@@ -723,9 +709,7 @@ class TestConsentModel(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
 
-        traveller = time_machine.travel(
-            self.study_open_datetime + relativedelta(days=10)
-        )
+        traveller = time_machine.travel(self.study_open_datetime + relativedelta(days=10))
         traveller.start()
 
         cdef_v1 = site_consents.get_consent_definition(report_datetime=get_utcnow())
@@ -759,7 +743,6 @@ class TestConsentModel(TestCase):
         subject_visit1 = SubjectVisit.objects.create(
             appointment=appointments[0],
             report_datetime=get_utcnow(),
-            subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
             reason=SCHEDULED,
@@ -767,9 +750,7 @@ class TestConsentModel(TestCase):
         self.assertEqual(subject_visit1.consent_version, "1.0")
         traveller.stop()
 
-        traveller = time_machine.travel(
-            self.study_open_datetime + relativedelta(days=40)
-        )
+        traveller = time_machine.travel(self.study_open_datetime + relativedelta(days=40))
         traveller.start()
         SubjectConsentV1Ext.objects.create(
             subject_consent=subject_consent,
@@ -781,15 +762,12 @@ class TestConsentModel(TestCase):
         self.assertEqual(appointments.count(), 5)
 
         traveller.stop()
-        traveller = time_machine.travel(
-            self.study_open_datetime + relativedelta(days=41)
-        )
+        traveller = time_machine.travel(self.study_open_datetime + relativedelta(days=41))
         traveller.start()
 
         subject_visit2 = SubjectVisit.objects.create(
             appointment=appointments[1],
             report_datetime=get_utcnow(),
-            subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
             reason=SCHEDULED,

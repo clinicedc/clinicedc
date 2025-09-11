@@ -32,8 +32,6 @@ class ModelAdminCrfDashboardMixin(
         except ObjectDoesNotExist:
             report_datetime = None
         else:
-            report_datetime = getattr(
-                related_visit, self.report_datetime_field_attr, None
-            )
+            report_datetime = getattr(related_visit, self.report_datetime_field_attr, None)
         initial_data.update(report_datetime=report_datetime)
         return initial_data

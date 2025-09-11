@@ -1,3 +1,4 @@
+from clinicedc_tests.consents import consent_v1
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase, tag
@@ -11,7 +12,6 @@ from edc_visit_schedule.system_checks import (
 from edc_visit_schedule.visit import CrfCollection, FormsCollectionError, Visit
 from edc_visit_schedule.visit.crf import Crf
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from clinicedc_tests.consents import consent_v1
 
 
 @tag("visit_schedule")
@@ -151,9 +151,7 @@ class TestSystemChecks(TestCase):
             Crf(show_order=20, model="clinicedc_tests.CrfTwo"),
             Crf(show_order=30, model="clinicedc_tests.CrfThree"),
         )
-        missed_crfs = CrfCollection(
-            Crf(show_order=30, model="clinicedc_tests.CrfThree")
-        )
+        missed_crfs = CrfCollection(Crf(show_order=30, model="clinicedc_tests.CrfThree"))
 
         visit = Visit(
             code="1000",
@@ -522,8 +520,7 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside "
-            "associated child proxy for a visit.",
+            "Proxy root model class appears alongside " "associated child proxy for a visit.",
             fc_errors[0].msg,
         )
         self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
@@ -560,8 +557,7 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside "
-            "associated child proxy for a visit.",
+            "Proxy root model class appears alongside " "associated child proxy for a visit.",
             fc_errors[0].msg,
         )
         self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
@@ -601,8 +597,7 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside "
-            "associated child proxy for a visit.",
+            "Proxy root model class appears alongside " "associated child proxy for a visit.",
             fc_errors[0].msg,
         )
         self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
@@ -642,8 +637,7 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside "
-            "associated child proxy for a visit.",
+            "Proxy root model class appears alongside " "associated child proxy for a visit.",
             fc_errors[0].msg,
         )
         self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
@@ -1280,8 +1274,7 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside "
-            "associated child proxy for a visit.",
+            "Proxy root model class appears alongside " "associated child proxy for a visit.",
             fc_errors[0].msg,
         )
         self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
@@ -1419,9 +1412,7 @@ class TestSystemChecks(TestCase):
                 shares_proxy_root=True,
             )
         )
-        prns = CrfCollection(
-            Crf(show_order=35, model="clinicedc_tests.CrfOneProxyThree")
-        )
+        prns = CrfCollection(Crf(show_order=35, model="clinicedc_tests.CrfOneProxyThree"))
 
         visit = Visit(
             code="1000",

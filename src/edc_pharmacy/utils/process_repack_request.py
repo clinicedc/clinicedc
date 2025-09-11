@@ -11,9 +11,7 @@ from ..exceptions import InsufficientStockError, RepackError
 
 
 @shared_task
-def process_repack_request(
-    repack_request_id: UUID | None = None, username: str | None = None
-):
+def process_repack_request(repack_request_id: UUID | None = None, username: str | None = None):
     """Take from stock and fill container as new stock item."""
     repack_request_model_cls = django_apps.get_model("edc_pharmacy.repackrequest")
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")

@@ -1,12 +1,19 @@
 from datetime import timedelta
 from unittest import skip
 
+from clinicedc_tests.admin import TestModel5Admin
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.forms import TestModel5Form
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import SubjectConsentV1, TestModel5
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase
 from django.test.client import RequestFactory
 
 from edc_appointment.constants import INCOMPLETE_APPT
+from edc_appointment.forms import AppointmentForm
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import NO
@@ -20,12 +27,6 @@ from edc_visit_schedule.models import OnSchedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.admin import TestModel5Admin
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.forms import TestModel5Form
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import SubjectConsentV1, TestModel5
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class TestFormLabel(TestCase):
@@ -40,9 +41,7 @@ class TestFormLabel(TestCase):
 
     def setUp(self):
 
-        self.user = User.objects.create(
-            username="erikvw", is_staff=True, is_active=True
-        )
+        self.user = User.objects.create(username="erikvw", is_staff=True, is_active=True)
 
         site_consents.registry = {}
         site_consents.register(consent_v1)
@@ -111,12 +110,10 @@ class TestFormLabel(TestCase):
         request = rf.get(f"/?appointment={str(self.appointment_one.id)}")
         request.user = self.user
 
-        form = MyForm()
+        form = AppointmentForm()
 
         self.assertEqual(
-            form_label.get_form_label(
-                request=request, obj=None, model=TestModel5, form=form
-            ),
+            form_label.get_form_label(request=request, obj=None, model=TestModel5, form=form),
             self.default_label,
         )
 
@@ -140,9 +137,7 @@ class TestFormLabel(TestCase):
         form = TestModel5Form()
 
         self.assertEqual(
-            form_label.get_form_label(
-                request=request, obj=None, model=TestModel5, form=form
-            ),
+            form_label.get_form_label(request=request, obj=None, model=TestModel5, form=form),
             self.default_label,
         )
 
@@ -153,9 +148,7 @@ class TestFormLabel(TestCase):
         form = TestModel5Form()
 
         self.assertEqual(
-            form_label.get_form_label(
-                request=request, obj=None, model=TestModel5, form=form
-            ),
+            form_label.get_form_label(request=request, obj=None, model=TestModel5, form=form),
             form_label.custom_label,
         )
 
@@ -182,9 +175,7 @@ class TestFormLabel(TestCase):
         form = TestModel5Form()
 
         self.assertEqual(
-            form_label.get_form_label(
-                request=request, obj=None, model=TestModel5, form=form
-            ),
+            form_label.get_form_label(request=request, obj=None, model=TestModel5, form=form),
             "The appointment is 2000.0. "
             "The previous appointment is 1000.0. "
             "The previous obj is None. "
@@ -202,9 +193,7 @@ class TestFormLabel(TestCase):
                 rendered_change_form = my_model_admin.changeform_view(
                     request, None, "", {"subject_visit": self.subject_visit_one}
                 )
-                self.assertIn(
-                    "Are you circumcised", rendered_change_form.rendered_content
-                )
+                self.assertIn("Are you circumcised", rendered_change_form.rendered_content)
 
     @skip
     def test_custom_form_labels_2(self):
@@ -220,9 +209,7 @@ class TestFormLabel(TestCase):
                 rendered_change_form = my_model_admin.changeform_view(
                     request, None, "", {"subject_visit": self.subject_visit_two}
                 )
-                self.assertNotIn(
-                    "Are you circumcised", rendered_change_form.rendered_content
-                )
+                self.assertNotIn("Are you circumcised", rendered_change_form.rendered_content)
                 self.assertIn(
                     "Since we last saw you in ", rendered_change_form.rendered_content
                 )

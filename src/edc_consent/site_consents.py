@@ -45,9 +45,7 @@ class SiteConsents:
         cdef.updated_by = updated_by
         cdef.extended_by = extended_by
         if cdef.name in self.registry:
-            raise AlreadyRegistered(
-                f"Consent definition already registered. Got {cdef.name}."
-            )
+            raise AlreadyRegistered(f"Consent definition already registered. Got {cdef.name}.")
         self.validate_period_overlap_or_raise(cdef)
         self.validate_updates_or_raise(cdef)
         self.registry.update({cdef.name: cdef})
@@ -166,11 +164,7 @@ class SiteConsents:
                     f"'{consent_definition.version}' "
                     f"of consent on or after report_datetime='{dte}'?"
                 )
-            elif (
-                consent_definition.start
-                <= to_utc(report_datetime)
-                <= consent_definition.end
-            ):
+            elif consent_definition.start <= to_utc(report_datetime) <= consent_definition.end:
                 # ensures the higher version is returned if there is overlap
                 pass
             elif (
@@ -251,9 +245,7 @@ class SiteConsents:
 
         # filter cdefs to try to get just one.
         # by model, report_datetime, version, site
-        cdefs, error_msg = self._filter_cdefs_by_model_or_raise(
-            model, cdefs, error_messages
-        )
+        cdefs, error_msg = self._filter_cdefs_by_model_or_raise(model, cdefs, error_messages)
         cdefs, error_msg = self._filter_cdefs_by_report_datetime_or_raise(
             report_datetime, cdefs, error_messages
         )
@@ -334,9 +326,7 @@ class SiteConsents:
             cdefs = [
                 cdef
                 for cdef in cdefs
-                if floor_secs(cdef.start)
-                <= to_utc(report_datetime)
-                <= ceil_secs(cdef.end)
+                if floor_secs(cdef.start) <= to_utc(report_datetime) <= ceil_secs(cdef.end)
             ]
             if not cdefs:
                 date_string = formatted_date(report_datetime)
@@ -411,9 +401,7 @@ class SiteConsents:
                 try:
                     before_import_registry = deepcopy(site_consents.registry)
                     import_module(f"{app}.{module_name}")
-                    writer(
-                        f" * registered consent definitions '{module_name}' from '{app}'\n"
-                    )
+                    writer(f" * registered consent definitions '{module_name}' from '{app}'\n")
                 except SiteConsentError as e:
                     writer(f"   - loading {app}.consents ... ")
                     writer(style.ERROR(f"ERROR! {e}\n"))

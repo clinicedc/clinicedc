@@ -39,8 +39,7 @@ class Crf:
 
     def __repr__(self) -> str:
         return (
-            f"{self.__class__.__name__}({self.show_order}, "
-            f"{self.model}, {self.required})"
+            f"{self.__class__.__name__}({self.show_order}, " f"{self.model}, {self.required})"
         )
 
     def __str__(self) -> str:

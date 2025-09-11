@@ -27,9 +27,7 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(
-                    content_type__app_label="clinicedc_tests"
-                )
+                for p in group.permissions.filter(content_type__app_label="clinicedc_tests")
             ],
             [c.split(".")[1] for c in codenames],
         )
@@ -82,9 +80,7 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(
-                    content_type__app_label="clinicedc_tests"
-                )
+                for p in group.permissions.filter(content_type__app_label="clinicedc_tests")
             ],
             ["view_testmodel"],
         )
@@ -112,9 +108,7 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(
-                    content_type__app_label="clinicedc_tests"
-                )
+                for p in group.permissions.filter(content_type__app_label="clinicedc_tests")
             ],
             ["view_subjectrequisition", "view_testmodel"],
         )
@@ -156,9 +150,7 @@ class TestAuthUpdater2(TestCase):
         self.assertEqual(
             [
                 p.codename
-                for p in group.permissions.filter(
-                    content_type__app_label="clinicedc_tests"
-                )
+                for p in group.permissions.filter(content_type__app_label="clinicedc_tests")
             ],
             ["export_subjectrequisition", "export_testmodel"],
         )

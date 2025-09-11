@@ -105,9 +105,7 @@ class TestUser(EdcAuthTestCase):
     def test_with_custom_templates(self):
         AuthUpdater(verbose=False, warn_only=True)
         created_email_template = Template("Hi $first_name, \n\nStay Classy")
-        updated_email_template = Template(
-            "Hi $first_name, \n\nYou stay classy San Diego"
-        )
+        updated_email_template = Template("Hi $first_name, \n\nYou stay classy San Diego")
         first_name = fake.first_name()
         UserImporter(
             username="erik",

@@ -9,7 +9,5 @@ def convert_numerics_from_model(source_df: pd.DataFrame, model_cls) -> pd.DataFr
         if field_cls.get_internal_type() in numeric_datatypes:
             numeric_cols.append(field_cls.name)
     if numeric_cols:
-        source_df[numeric_cols] = source_df[numeric_cols].apply(
-            pd.to_numeric, errors="coerce"
-        )
+        source_df[numeric_cols] = source_df[numeric_cols].apply(pd.to_numeric, errors="coerce")
     return source_df

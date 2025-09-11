@@ -48,9 +48,7 @@ if settings.APP_NAME == "edc_timepoint":
                 days=[MO, TU, WE, TH, FR, SA, SU],
                 slots=[100, 100, 100, 100, 100, 100, 100],
             ),
-            "5-day-clinic": dict(
-                days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]
-            ),
+            "5-day-clinic": dict(days=[MO, TU, WE, TH, FR], slots=[100, 100, 100, 100, 100]),
             "3-day-clinic": dict(
                 days=[TU, WE, TH],
                 slots=[100, 100, 100],

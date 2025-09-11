@@ -42,9 +42,7 @@ def draw_callable_example(
     br.x = width - 140
     br.y = 25
     label.add(br)
-    label.add(
-        String(15, height - 20, f"TEST!! Study - {obj.site.name.title()}", fontSize=10)
-    )
+    label.add(String(15, height - 20, f"TEST!! Study - {obj.site.name.title()}", fontSize=10))
     label.add(
         String(
             width - 110,

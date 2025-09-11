@@ -97,9 +97,9 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
     def formfield_for_foreignkey(self, db_field, request: WSGIRequest, **kwargs):
         db = kwargs.get("using")
         if db_field.name == "appointment" and request.GET.get("appointment"):
-            kwargs["queryset"] = db_field.related_model._default_manager.using(
-                db
-            ).filter(pk=request.GET.get("appointment"))
+            kwargs["queryset"] = db_field.related_model._default_manager.using(db).filter(
+                pk=request.GET.get("appointment")
+            )
         else:
             kwargs["queryset"] = db_field.related_model._default_manager.none()
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
@@ -151,8 +151,6 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         else:
             initial_data.update(
                 report_datetime=appointment.appt_datetime,
-                reason=(
-                    SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED
-                ),
+                reason=(SCHEDULED if appointment.visit_code_sequence == 0 else UNSCHEDULED),
             )
         return initial_data

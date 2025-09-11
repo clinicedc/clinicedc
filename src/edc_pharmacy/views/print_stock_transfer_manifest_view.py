@@ -6,9 +6,7 @@ from ..models import StockTransfer
 from ..pdf_reports import ManifestReport, NumberedCanvas
 
 
-def print_stock_transfer_manifest_view(
-    request, stock_transfer: StockTransfer | None = None
-):
+def print_stock_transfer_manifest_view(request, stock_transfer: StockTransfer | None = None):
 
     stock_transfer = StockTransfer.objects.get(pk=stock_transfer)
     response = HttpResponse(content_type="application/pdf")

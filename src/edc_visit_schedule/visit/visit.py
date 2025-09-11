@@ -80,8 +80,7 @@ class VisitDate:
     def lower(self) -> datetime:
         if not self.base:
             raise BaseDatetimeNotSet(
-                "Base datetime is None, set the base datetime "
-                "before accessing attr lower"
+                "Base datetime is None, set the base datetime " "before accessing attr lower"
             )
         return self._lower
 
@@ -89,8 +88,7 @@ class VisitDate:
     def upper(self) -> datetime:
         if not self.base:
             raise BaseDatetimeNotSet(
-                "Base datetime is None, set the base datetime "
-                "before accessing attr upper"
+                "Base datetime is None, set the base datetime " "before accessing attr upper"
             )
         return self._upper
 
@@ -136,9 +134,7 @@ class Visit:
         self.crfs_prn: CrfCollection = crfs_prn or CrfCollection()
         for prn in self.crfs_prn:
             prn.required = False
-        self.requisitions: RequisitionCollection = (
-            requisitions or RequisitionCollection()
-        )
+        self.requisitions: RequisitionCollection = requisitions or RequisitionCollection()
         self.requisitions_unscheduled: RequisitionCollection = (
             requisitions_unscheduled or RequisitionCollection()
         )
@@ -220,9 +216,7 @@ class Visit:
             if crf.model not in [crf.model for crf in self.crfs]
         ]
         crfs = crfs + [
-            crf
-            for crf in self.crfs_missed
-            if crf.model not in [crf.model for crf in crfs]
+            crf for crf in self.crfs_missed if crf.model not in [crf.model for crf in crfs]
         ]
         crfs = crfs + [
             crf for crf in self.crfs_prn if crf.model not in [crf.model for crf in crfs]
@@ -236,9 +230,7 @@ class Visit:
             r for r in self.requisitions_unscheduled if r.name not in names
         ]
         names = list(set([r.name for r in requisitions]))
-        requisitions = requisitions + [
-            r for r in self.requisitions_prn if r.name not in names
-        ]
+        requisitions = requisitions + [r for r in self.requisitions_prn if r.name not in names]
         return RequisitionCollection(
             *requisitions, name="all_requisitions", check_sequence=False
         )
@@ -285,9 +277,7 @@ class Visit:
     def to_dict(self):
         return dict(
             crfs=[(crf.model, crf.required) for crf in self.crfs],
-            crfs_unscheduled=[
-                (crf.model, crf.required) for crf in self.crfs_unscheduled
-            ],
+            crfs_unscheduled=[(crf.model, crf.required) for crf in self.crfs_unscheduled],
             crfs_prn=[(crf.model, crf.required) for crf in self.crfs_prn],
             crfs_missed=[(crf.model, crf.required) for crf in self.crfs_missed],
             requisitions=[

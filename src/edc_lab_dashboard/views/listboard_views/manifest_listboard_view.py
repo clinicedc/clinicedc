@@ -42,7 +42,5 @@ class ManifestListboardView(BaseListboardView):
         )
 
     def print_manifest(self):
-        manifest_report = ManifestPdfReport(
-            manifest=self.manifest, user=self.request.user
-        )
+        manifest_report = ManifestPdfReport(manifest=self.manifest, user=self.request.user)
         return manifest_report.render_to_response()

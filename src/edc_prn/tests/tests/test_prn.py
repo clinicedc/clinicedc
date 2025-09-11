@@ -22,21 +22,15 @@ class TestPrn(TestCase):
         self.assertEqual(prn.changelist_url_name, "tests_testmodel_changelist")
 
     def test_reverse_add_url(self):
-        prn = Prn(
-            model="clinicedc_tests.testmodel", url_namespace="admin", allow_add=True
-        )
+        prn = Prn(model="clinicedc_tests.testmodel", url_namespace="admin", allow_add=True)
         reverse(prn.add_url_name)
 
     def test_reverse_changelist_url(self):
-        prn = Prn(
-            model="clinicedc_tests.testmodel", url_namespace="admin", allow_add=True
-        )
+        prn = Prn(model="clinicedc_tests.testmodel", url_namespace="admin", allow_add=True)
         reverse(prn.changelist_url_name)
 
     def test_verbose_name(self):
-        prn = Prn(
-            model="clinicedc_tests.testmodel", url_namespace="admin", allow_add=True
-        )
+        prn = Prn(model="clinicedc_tests.testmodel", url_namespace="admin", allow_add=True)
         self.assertEqual(prn.verbose_name, "Test Model")
 
         prn = Prn(

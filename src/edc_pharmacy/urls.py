@@ -29,9 +29,7 @@ urlpatterns = [
         DispenseView.as_view(),
         name="dispense_url",
     ),
-    path(
-        "get-stock-transfers/", get_stock_transfers_view, name="get_stock_transfers_url"
-    ),
+    path("get-stock-transfers/", get_stock_transfers_view, name="get_stock_transfers_url"),
     path(
         "confirmation-at-site/<uuid:session_uuid>/<str:stock_transfer_identifier>/"
         "<int:location_id>/<int:items_to_scan>/",

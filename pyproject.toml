@@ -150,7 +150,7 @@ Repository = "https://github.com/clinicedc/clinicedc.git"
 Changelog = "https://github.com/clinicedc/clinicedc/blob/main/CHANGES"
 
 [tool.black]
-line-length = 88
+line-length = 95
 target-version = ["py312"]
 extend-exclude = '''^(.*\/)*\b(migrations|\.venv)\b($|\/.*$)'''
 

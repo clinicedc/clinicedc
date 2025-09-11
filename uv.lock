@@ -658,13 +658,13 @@ requires-dist = [
     { name = "cryptography", specifier = ">=45.0.7" },
     { name = "django", specifier = ">=5.2.4,<5.3" },
     { name = "django-admin-rangefilter", specifier = ">=0.13.3" },
-    { name = "django-audit-fields", editable = "../../django-audit-fields" },
-    { name = "django-crypto-fields", editable = "../../django-crypto-fields" },
+    { name = "django-audit-fields", specifier = ">=2.0.0" },
+    { name = "django-crypto-fields", specifier = ">=1.0.1" },
     { name = "django-db-views", specifier = ">=0.1.11" },
     { name = "django-defender", specifier = ">=0.9.8" },
     { name = "django-environ", specifier = ">=0.12.0" },
     { name = "django-logentry-admin", specifier = ">=1.1.0" },
-    { name = "django-multisite2", editable = "../../django-multisite2" },
+    { name = "django-multisite2", specifier = ">=2.1.0" },
     { name = "django-pandas", specifier = ">=0.6.7" },
     { name = "django-pylabels", specifier = ">=1.0.1" },
     { name = "django-redis", specifier = ">=6.0.0" },
@@ -691,16 +691,16 @@ requires-dist = [
 [package.metadata.requires-dev]
 develop = [
     { name = "argon2-cffi" },
-    { name = "clinicedc", editable = "." },
+    { name = "clinicedc" },
     { name = "django-admin-rangefilter" },
-    { name = "django-audit-fields", editable = "../../django-audit-fields" },
-    { name = "django-crypto-fields", editable = "../../django-crypto-fields" },
+    { name = "django-audit-fields" },
+    { name = "django-crypto-fields" },
     { name = "django-db-views" },
     { name = "django-environ" },
     { name = "django-logentry-admin" },
-    { name = "django-multisite2", editable = "../../django-multisite2" },
+    { name = "django-multisite2" },
     { name = "django-pandas" },
-    { name = "django-revision", editable = "../../django-revision" },
+    { name = "django-revision" },
     { name = "django-simple-history" },
     { name = "django-storages" },
     { name = "faker", specifier = ">=37.5.3" },
@@ -736,12 +736,12 @@ notebook = [
 ]
 test = [
     { name = "arrow", specifier = ">=1.3.0" },
-    { name = "clinicedc-tests", editable = "../../clinicedc-tests" },
+    { name = "clinicedc-tests", specifier = ">=0.1.0" },
     { name = "coverage", specifier = ">=7.10.1" },
-    { name = "django-audit-fields", editable = "../../django-audit-fields" },
+    { name = "django-audit-fields", specifier = ">=2.0.0" },
     { name = "django-webtest", specifier = ">=1.9.13" },
-    { name = "edc-test-settings", editable = "../../edc-test-settings" },
-    { name = "edc-test-utils", editable = "../../edc-test-utils" },
+    { name = "edc-test-settings", specifier = ">=1.1.2" },
+    { name = "edc-test-utils", specifier = ">=1.0.0" },
     { name = "faker", specifier = ">=37.4.2" },
     { name = "model-bakery", specifier = ">=1.20.5" },
     { name = "time-machine", specifier = ">=2.16.0" },
@@ -751,55 +751,16 @@ test = [
 [[package]]
 name = "clinicedc-tests"
 version = "0.1.2"
-source = { editable = "../../clinicedc-tests" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "faker" },
     { name = "model-bakery" },
     { name = "time-machine" },
     { name = "tox-uv" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "faker", specifier = ">=37.4.2" },
-    { name = "model-bakery", specifier = ">=1.20.5" },
-    { name = "time-machine", specifier = ">=2.16.0" },
-    { name = "tox-uv", specifier = ">=1.26.2" },
-]
-
-[package.metadata.requires-dev]
-develop = [
-    { name = "argon2-cffi" },
-    { name = "clinicedc" },
-    { name = "django-admin-rangefilter" },
-    { name = "django-audit-fields", editable = "../../django-audit-fields" },
-    { name = "django-crypto-fields", editable = "../../django-crypto-fields" },
-    { name = "django-db-views" },
-    { name = "django-environ" },
-    { name = "django-logentry-admin" },
-    { name = "django-multisite2", editable = "../../django-multisite2" },
-    { name = "django-pandas" },
-    { name = "django-revision", editable = "../../django-revision" },
-    { name = "django-simple-history" },
-    { name = "django-storages" },
-    { name = "edc-glucose", editable = "../../edc-glucose" },
-    { name = "faker", specifier = ">=37.5.3" },
-    { name = "fontawesomefree" },
-    { name = "ipython", specifier = ">=9.5.0" },
-    { name = "model-bakery", specifier = ">=1.20.5" },
-    { name = "python-memcached" },
-    { name = "time-machine", specifier = ">=2.17.0" },
-]
-docs = [
-    { name = "furo", specifier = ">=2025.7.19" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
-]
-lint = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "isort", specifier = "==5.13.2" },
-    { name = "ruff", specifier = ">=0.12.5" },
+sdist = { url = "https://files.pythonhosted.org/packages/ab/56/0e42de7c4cdb035ad194ff638f5dd009fe1b98d052037ff74e1e57d7ccfe/clinicedc_tests-0.1.2.tar.gz", hash = "sha256:bf8b7c6ffe7062bcde72ef057a56d7262c731f84c11728db7ba599710d102193", size = 45393, upload-time = "2025-09-11T16:28:19.359Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ee/33/0c1a6dbfbe14c1316e6fb609642d0cc62184af4469d31ad9f86dca4e9ab6/clinicedc_tests-0.1.2-py3-none-any.whl", hash = "sha256:c899170f366828afddc6fc1537d575498ab559ba5a3509fb9d0e28619494ab46", size = 71586, upload-time = "2025-09-11T16:28:18.29Z" },
 ]
 
 [[package]]
@@ -1093,40 +1054,19 @@ wheels = [
 [[package]]
 name = "django-audit-fields"
 version = "2.0.0"
-source = { editable = "../../django-audit-fields" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django-revision" },
 ]
-
-[package.metadata]
-requires-dist = [{ name = "django-revision", specifier = ">=2.0.0" }]
-
-[package.metadata.requires-dev]
-dev = [{ name = "django", specifier = ">=5.2.5" }]
-docs = [
-    { name = "furo", specifier = ">=2025.7.19" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
-]
-lint = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "flake8", specifier = ">=7.3.0" },
-    { name = "isort", specifier = "==5.13.2" },
-    { name = "ruff", specifier = ">=0.12.5" },
-]
-test = [
-    { name = "coverage", specifier = ">=7.10.3" },
-    { name = "django", specifier = ">=5.2" },
-    { name = "edc-test-settings", specifier = ">=1.1.2" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
-    { name = "tox-uv", specifier = ">=1.28.0" },
+sdist = { url = "https://files.pythonhosted.org/packages/0e/50/b96b201403b8199d73c7e96d796dfb66fc8deeb40afbd6059112e4d9bb07/django_audit_fields-2.0.0.tar.gz", hash = "sha256:779449448da97a566239498f340e6d6239a33266798fbcaa19aa9ef0653033ce", size = 21704, upload-time = "2025-08-18T00:51:53.721Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/45/32/fa979f58fafc581a4761a7be0a810d0b8dfb530a39ae0306be233aefe1eb/django_audit_fields-2.0.0-py3-none-any.whl", hash = "sha256:f3d5c524e3b017739c3fd6329e01d3181fce6ef87cabeca76f50e4c2050a9623", size = 28895, upload-time = "2025-08-18T00:51:52.415Z" },
 ]
 
 [[package]]
 name = "django-crypto-fields"
 version = "1.0.1"
-source = { editable = "../../django-crypto-fields" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django-audit-fields" },
     { name = "django-extensions" },
@@ -1135,34 +1075,9 @@ dependencies = [
     { name = "edc-utils" },
     { name = "pycryptodomex" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "django-audit-fields", specifier = ">=1.1.0" },
-    { name = "django-extensions", specifier = ">=4.1" },
-    { name = "django-revision", specifier = ">=1.0.0" },
-    { name = "edc-model-fields", specifier = ">=1.0.0" },
-    { name = "edc-utils", specifier = ">=1.1.1" },
-    { name = "pycryptodomex", specifier = ">=3.23.0" },
-]
-
-[package.metadata.requires-dev]
-docs = [
-    { name = "furo", specifier = ">=2025.7.19" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
-]
-lint = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "flake8", specifier = ">=7.3.0" },
-    { name = "isort", specifier = ">=6.0.1" },
-    { name = "ruff", specifier = ">=0.12.5" },
-]
-test = [
-    { name = "coverage", specifier = ">=7.10.1" },
-    { name = "edc-test-settings" },
-    { name = "tox-uv", specifier = ">=1.26.2" },
+sdist = { url = "https://files.pythonhosted.org/packages/05/6d/fd6e95d928d8a406ec33da61f2c691433f3f54a8d520e1a4e244406140fd/django_crypto_fields-1.0.1.tar.gz", hash = "sha256:0814ad1c799f9e037bb12f2b3a22ea8e31295ef51772eed5b93a3786333dfed7", size = 51113, upload-time = "2025-07-17T23:08:48.738Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/19/e4/fdc4cee538c114ee511b9cac3ef949c68446d87b5b5bdb0babc276a716d0/django_crypto_fields-1.0.1-py3-none-any.whl", hash = "sha256:f4b78f2cd41baa4bca5bcb519872d277a517420d7878a98875a54267c1039407", size = 65470, upload-time = "2025-07-17T23:08:47.721Z" },
 ]
 
 [[package]]
@@ -1226,20 +1141,15 @@ wheels = [
 
 [[package]]
 name = "django-multisite2"
-source = { editable = "../../django-multisite2" }
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "tldextract" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "coverage", marker = "extra == 'test'" },
-    { name = "mock", marker = "extra == 'test'" },
-    { name = "pluggy", marker = "extra == 'test'" },
-    { name = "tldextract" },
-    { name = "tox", marker = "extra == 'test'" },
+sdist = { url = "https://files.pythonhosted.org/packages/c8/c7/b41b822c2c00c585f35070621c0c3527388c9ba85f2c930d82d5917ee28e/django_multisite2-2.1.0.tar.gz", hash = "sha256:aeccb6fba824efb28678c2630b2e8223da2b53fff034c0b3f38e9d304921eb97", size = 89545, upload-time = "2025-07-18T21:16:04.068Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/01/02/32dda08f37a2955279204a01f3efe8cac69ac0ef298da0eb3eb0c2bfec16/django_multisite2-2.1.0-py3-none-any.whl", hash = "sha256:29b63f9ca6aca0f77199f1ef657b1c2a4ccb133ae574aec4f0db5995cc754824", size = 120810, upload-time = "2025-07-18T21:16:03.023Z" },
 ]
-provides-extras = ["test"]
 
 [[package]]
 name = "django-pandas"
@@ -1284,43 +1194,14 @@ wheels = [
 [[package]]
 name = "django-revision"
 version = "2.0.0"
-source = { editable = "../../django-revision" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "gitpython" },
     { name = "python-dateutil" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "gitpython" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "django", specifier = ">=5.2" },
-    { name = "edc-test-settings", editable = "../../edc-test-settings" },
-    { name = "ipython", specifier = ">=9.4.0" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
-]
-docs = [
-    { name = "furo", specifier = ">=2025.7.19" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
-]
-lint = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "flake8", specifier = ">=7.3.0" },
-    { name = "isort", specifier = "==5.13.2" },
-    { name = "ruff", specifier = ">=0.12.5" },
-]
-test = [
-    { name = "coverage", specifier = ">=7.10.3" },
-    { name = "django", specifier = ">=5.2" },
-    { name = "edc-test-settings", editable = "../../edc-test-settings" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
-    { name = "tox-uv", specifier = ">=1.28.0" },
+sdist = { url = "https://files.pythonhosted.org/packages/6f/d1/9764a77133dbf6e0121abdb06aec57495929f900ea6f0fca6025899df75b/django_revision-2.0.0.tar.gz", hash = "sha256:285d8a491955f2c63629de5738bd9db3199b7caa01fd2b8aedae7816a3a0eda8", size = 15108, upload-time = "2025-08-17T22:32:33.661Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7c/82/c30c2c2be3c9c311e70d146afb387e097e1d114bfe192211ce840970f376/django_revision-2.0.0-py3-none-any.whl", hash = "sha256:085a04d18bfa0682b1cf3fd307698617473443f6fd88704df3982b9c58adf00c", size = 20075, upload-time = "2025-08-17T22:32:32.331Z" },
 ]
 
 [[package]]
@@ -1417,75 +1298,29 @@ wheels = [
 [[package]]
 name = "edc-test-settings"
 version = "2.0.0"
-source = { editable = "../../edc-test-settings" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "python-dateutil" },
 ]
-
-[package.metadata]
-requires-dist = [{ name = "python-dateutil", specifier = ">=2.9.0.post0" }]
-
-[package.metadata.requires-dev]
-docs = [
-    { name = "furo", specifier = ">=2025.7.19" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
-]
-lint = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "deptry", specifier = ">=0.23.0" },
-    { name = "flake8", specifier = ">=7.3.0" },
-    { name = "isort", specifier = ">=6.0.1" },
-    { name = "ruff", specifier = ">=0.12.5" },
-]
-test = [
-    { name = "coverage", specifier = ">=7.10.1" },
-    { name = "django", specifier = ">=5.2.5" },
-    { name = "tox-uv", specifier = ">=1.26.2" },
+sdist = { url = "https://files.pythonhosted.org/packages/96/54/0087b79a807c34c23cb940e31ac3dd44b1eafe263bdcf8d90e98d8fc7225/edc_test_settings-2.0.0.tar.gz", hash = "sha256:8993a193fe7df5ceb11f0b1bc5ffbef37b4686c0bdeffed33e9f48832ec95518", size = 19289, upload-time = "2025-08-18T02:40:07.276Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a2/d3/99fe4a56820b6d8bdb2369a3727ee3833bd601ea1470ca940b6405b591ac/edc_test_settings-2.0.0-py3-none-any.whl", hash = "sha256:b3977183d55b6591ae4214eb17a43e281fb264adb728eaf045c482a653126ed5", size = 21446, upload-time = "2025-08-18T02:40:06.346Z" },
 ]
 
 [[package]]
 name = "edc-test-utils"
 version = "2.0.0"
-source = { editable = "../../edc-test-utils" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "black" },
     { name = "django-webtest" },
     { name = "faker" },
     { name = "model-bakery" },
     { name = "python-dateutil" },
     { name = "requests" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "django-webtest", specifier = ">=1.9.13" },
-    { name = "faker", specifier = ">=37.5.3" },
-    { name = "model-bakery", specifier = ">=1.20.5" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
-    { name = "requests", specifier = ">=2.32.4" },
-]
-
-[package.metadata.requires-dev]
-docs = [
-    { name = "furo", specifier = ">=2025.7.19" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
-]
-lint = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "flake8", specifier = ">=7.3.0" },
-    { name = "isort", specifier = "==5.13.2" },
-    { name = "ruff", specifier = ">=0.12.5" },
-]
-test = [
-    { name = "coverage", specifier = ">=7.10.3" },
-    { name = "django", specifier = ">=5.2" },
-    { name = "edc-test-settings", specifier = ">=1.1.2" },
-    { name = "tox-uv", specifier = ">=1.28.0" },
+sdist = { url = "https://files.pythonhosted.org/packages/77/c2/d93c6c33fa4be45cbd8289ea0687087a5d1becc056f88d35694cd82e1300/edc_test_utils-2.0.0.tar.gz", hash = "sha256:3fe2fa5d74073cababb3c0030291c0b16ec7e7e708cba85a4b569b7c7a67a349", size = 17460, upload-time = "2025-08-18T02:31:26.84Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d6/ce/f777632fdc01533bd6b2d7db2c276323a93b761b8e6eb82cc2fc45dc4219/edc_test_utils-2.0.0-py3-none-any.whl", hash = "sha256:a69e7f5ab8a5fe51e6263cab1169290af701258d3024156cbc4d34696d2aaae8", size = 18416, upload-time = "2025-08-18T02:31:25.497Z" },
 ]
 
 [[package]]

@@ -1,5 +1,12 @@
 from importlib import import_module
 
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.lab_profiles import (
+    lab_profile,
+)
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
+    get_visit_schedule,
+)
 from django.contrib.auth import get_user_model
 from django.test import override_settings, tag
 from django.urls.base import reverse
@@ -21,13 +28,6 @@ from edc_data_manager.populate_data_dictionary import (
 from edc_lab.site_labs import site_labs
 from edc_registration.models import RegisteredSubject
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.visit_schedules.visit_schedule_dashboard.lab_profiles import (
-    lab_profile,
-)
-from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
-    get_visit_schedule,
-)
 
 User = get_user_model()
 

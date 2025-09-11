@@ -44,21 +44,17 @@ class NoteStatusListFilter(SimpleListFilter):
         if self.value() and self.value() != "none":
             if report_model := self.report_model(queryset):
                 if self.value() == NEW:
-                    qs = self.note_model_cls.objects.values(
-                        "subject_identifier"
-                    ).filter(report_model=report_model)
+                    qs = self.note_model_cls.objects.values("subject_identifier").filter(
+                        report_model=report_model
+                    )
                     queryset = queryset.exclude(
-                        subject_identifier__in=[
-                            obj.get("subject_identifier") for obj in qs
-                        ]
+                        subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
                     )
                 elif self.value() in [tpl[0] for tpl in self.note_model_status_choices]:
-                    qs = self.note_model_cls.objects.values(
-                        "subject_identifier"
-                    ).filter(report_model=report_model, status=self.value())
+                    qs = self.note_model_cls.objects.values("subject_identifier").filter(
+                        report_model=report_model, status=self.value()
+                    )
                     queryset = queryset.filter(
-                        subject_identifier__in=[
-                            obj.get("subject_identifier") for obj in qs
-                        ]
+                        subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
                     )
         return queryset

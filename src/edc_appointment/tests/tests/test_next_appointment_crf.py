@@ -4,6 +4,16 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.forms import (
+    NextAppointmentCrfForm,
+    NextAppointmentCrfFormValidator,
+)
+from clinicedc_tests.models import NextAppointmentCrf, SubjectConsentV1
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule6,
+)
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -25,16 +35,6 @@ from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.forms import (
-    NextAppointmentCrfForm,
-    NextAppointmentCrfFormValidator,
-)
-from clinicedc_tests.models import NextAppointmentCrf, SubjectConsentV1
-from clinicedc_tests.sites import all_sites
-from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
-    get_visit_schedule6,
-)
 
 utc = ZoneInfo("UTC")
 tz = ZoneInfo("Africa/Dar_es_Salaam")
@@ -145,16 +145,12 @@ class TestNextAppointmentCrf(TestCase):
             health_facility=health_facility.id,
             offschedule_today=NO,
         )
-        obj = NextAppointmentCrf(
-            subject_visit=subject_visit, health_facility=health_facility
-        )
+        obj = NextAppointmentCrf(subject_visit=subject_visit, health_facility=health_facility)
         form = NextAppointmentCrfForm(data=data, instance=obj)
         form.is_valid()
 
         self.assertIn("visitschedule", form._errors)
-        self.assertIn(
-            "Cannot be the current visit", str(form._errors.get("visitschedule"))
-        )
+        self.assertIn("Cannot be the current visit", str(form._errors.get("visitschedule")))
 
         # still from 1000, attempt to update NextAppointmentCrf
         # but this time correctly link this to visit code 1010
@@ -171,9 +167,7 @@ class TestNextAppointmentCrf(TestCase):
         form.is_valid()
         self.assertIn("Invalid clinic day", str(form._errors.get("appt_date")))
 
-        data.update(
-            appt_date=appointment.next.appt_datetime.date() + relativedelta(days=1)
-        )
+        data.update(appt_date=appointment.next.appt_datetime.date() + relativedelta(days=1))
         form = NextAppointmentCrfForm(data=data, instance=obj)
         form.is_valid()
         # del form._errors["subject_visit"]
@@ -214,9 +208,7 @@ class TestNextAppointmentCrf(TestCase):
         data = dict(
             report_datetime=subject_visit.report_datetime,
             appt_date=(
-                appointment.appt_datetime
-                + relativedelta(months=3)
-                + relativedelta(days=3)
+                appointment.appt_datetime + relativedelta(months=3) + relativedelta(days=3)
             ).date(),
             info_source=InfoSources.objects.get(name=PATIENT),
             visitschedule=VisitSchedule.objects.get(visit_code="1030"),
@@ -274,9 +266,7 @@ class TestNextAppointmentCrf(TestCase):
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             appt_date=(
-                appointment.appt_datetime
-                + relativedelta(months=3)
-                + relativedelta(days=2)
+                appointment.appt_datetime + relativedelta(months=3) + relativedelta(days=2)
             ).date(),
             info_source=InfoSources.objects.get(name=PATIENT),
             visitschedule=VisitSchedule.objects.get(visit_code="1030"),
@@ -370,8 +360,8 @@ class TestNextAppointmentCrf(TestCase):
                 report_datetime=appointment.report_datetime,
             )
         next_appt = subject_visit.appointment.next
-        next_appt_date = (
-            subject_visit.appointment.next.appt_datetime.date() + relativedelta(days=1)
+        next_appt_date = subject_visit.appointment.next.appt_datetime.date() + relativedelta(
+            days=1
         )
         NextAppointmentCrf.objects.create(
             subject_visit=subject_visit,
@@ -522,9 +512,7 @@ class TestNextAppointmentCrf(TestCase):
 
         # set appt date to that of the next appointment, visit_code to
         # next visit code
-        cleaned_data = dict(
-            appt_date=appt_date, visitschedule=visitschedule, **defaults
-        )
+        cleaned_data = dict(appt_date=appt_date, visitschedule=visitschedule, **defaults)
 
         form_validator = NextAppointmentCrfFormValidator(
             cleaned_data=cleaned_data, model=NextAppointmentCrf

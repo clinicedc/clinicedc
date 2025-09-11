@@ -1,12 +1,12 @@
 from django import forms
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_constants.constants import BLACK, FEMALE, MALE, NON_BLACK
 from edc_egfr.calculators import (
-    egfr_percent_change,
     EgfrCalculatorError,
     EgfrCkdEpi,
     EgfrCockcroftGault,
+    egfr_percent_change,
 )
 from edc_egfr.form_validator_mixins import (
     EgfrCkdEpiFormValidatorMixin,

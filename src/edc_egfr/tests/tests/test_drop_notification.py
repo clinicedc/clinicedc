@@ -4,7 +4,7 @@ from clinicedc_tests.labs import lab_profile
 from clinicedc_tests.models import EgfrDropNotification, ResultCrf, SubjectRequisition
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_consent import site_consents
 from edc_constants.constants import BLACK, CLOSED, COMPLETE, INCOMPLETE, MALE, OPEN
@@ -24,9 +24,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 @tag("egfr")
-@override_settings(
-    EDC_SITES_REGISTER_DEFAULT=True, EDC_SITES_CREATE_DEFAULT=True, SITE_ID=10
-)
+@override_settings(EDC_SITES_REGISTER_DEFAULT=True, EDC_SITES_CREATE_DEFAULT=True, SITE_ID=10)
 class TestEgfr(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -81,9 +79,7 @@ class TestEgfr(TestCase):
             formula_name="ckd-epi",
         )
 
-    @override_settings(
-        EDC_EGFR_DROP_NOTIFICATION_MODEL="clinicedc_tests.EgfrDropNotification"
-    )
+    @override_settings(EDC_EGFR_DROP_NOTIFICATION_MODEL="clinicedc_tests.EgfrDropNotification")
     def test_egfr_drop_notification_model(self):
         Egfr(
             baseline_egfr_value=220.1,

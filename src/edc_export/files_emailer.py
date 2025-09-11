@@ -70,9 +70,7 @@ class FilesEmailer:
         try:
             email_message.send()
         except socket.gaierror:
-            raise FilesEmailerError(
-                "Unable to connect to email server.", code="gaierror"
-            )
+            raise FilesEmailerError("Unable to connect to email server.", code="gaierror")
 
     def email_files(self) -> None:
         email_message = self.get_email_message()

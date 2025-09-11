@@ -37,6 +37,5 @@ class Reference(NonUniqueSubjectIdentifierFieldMixin, ActionModelMixin, BaseUuid
 
     class Meta(BaseUuidModel.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
         indexes = (
-            BaseUuidModel.Meta.indexes
-            + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
+            BaseUuidModel.Meta.indexes + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
         )

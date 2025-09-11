@@ -45,9 +45,7 @@ def stock_for_subjects_df() -> pd.DataFrame:
         ).filter(confirmationatsiteitem__isnull=False, dispenseitem__isnull=True),
         verbose=False,
     ).rename(
-        columns={
-            "allocation__registered_subject__subject_identifier": "subject_identifier"
-        }
+        columns={"allocation__registered_subject__subject_identifier": "subject_identifier"}
     )
 
     df = pd.merge(

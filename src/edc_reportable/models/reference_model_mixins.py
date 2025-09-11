@@ -55,9 +55,7 @@ class ReferenceModelMixin(models.Model):
         help_text="calculated by the formula instance",
     )
 
-    age_phrase = models.CharField(
-        max_length=25, null=True, help_text="calculated in save()"
-    )
+    age_phrase = models.CharField(max_length=25, null=True, help_text="calculated in save()")
 
     grade = models.IntegerField(
         null=True, validators=[MinValueValidator(1), MaxValueValidator(5)]

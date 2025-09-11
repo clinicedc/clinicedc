@@ -50,12 +50,9 @@ class UserProfileAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
     @staticmethod
     def user_email_notifications(obj=None):
         display_names = [
-            o.display_name
-            for o in obj.email_notifications.all().order_by("display_name")
+            o.display_name for o in obj.email_notifications.all().order_by("display_name")
         ]
-        return format_html(
-            "{}", mark_safe("<BR>".join(display_names))
-        )  # nosec B703 B308
+        return format_html("{}", mark_safe("<BR>".join(display_names)))  # nosec B703 B308
 
     @staticmethod
     def user_sms_notifications(obj=None):

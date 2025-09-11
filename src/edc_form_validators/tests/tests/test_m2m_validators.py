@@ -1,9 +1,9 @@
+from clinicedc_tests.models import Alphabet
 from django import forms
 from django.test import TestCase
 
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_form_validators.form_validator import FormValidator
-from clinicedc_tests.models import Alphabet
 
 
 class TestApplicableFieldValidator(TestCase):
@@ -49,9 +49,7 @@ class TestApplicableFieldValidator(TestCase):
         )
 
     def test_m2m_applicable_if2(self):
-        cleaned_data = dict(
-            f1=YES, alphabet=Alphabet.objects.filter(name__in=["A", "B"])
-        )
+        cleaned_data = dict(f1=YES, alphabet=Alphabet.objects.filter(name__in=["A", "B"]))
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
 
@@ -65,9 +63,7 @@ class TestApplicableFieldValidator(TestCase):
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
 
-        self.assertRaises(
-            forms.ValidationError, form_validator.m2m_required, "alphabet"
-        )
+        self.assertRaises(forms.ValidationError, form_validator.m2m_required, "alphabet")
 
         cleaned_data = dict(f1=YES, alphabet=Alphabet.objects.filter(name="A"))
 
@@ -116,9 +112,7 @@ class TestApplicableFieldValidator(TestCase):
         except forms.ValidationError:
             self.fail("ValidationError unexpectedly raised")
 
-        cleaned_data = dict(
-            f1=YES, alphabet=Alphabet.objects.filter(name__in=["A", "B"])
-        )
+        cleaned_data = dict(f1=YES, alphabet=Alphabet.objects.filter(name__in=["A", "B"]))
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
 
@@ -176,9 +170,7 @@ class TestApplicableFieldValidator(TestCase):
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
         try:
-            form_validator.m2m_other_specify(
-                "A", m2m_field="alphabet", field_other="f3"
-            )
+            form_validator.m2m_other_specify("A", m2m_field="alphabet", field_other="f3")
         except forms.ValidationError:
             self.fail("ValidationError unexpectedly raised")
 
@@ -230,9 +222,7 @@ class TestApplicableFieldValidator(TestCase):
             field_other="f3",
         )
 
-        cleaned_data = dict(
-            f1=YES, f3="A", alphabet=Alphabet.objects.filter(name__in=["B"])
-        )
+        cleaned_data = dict(f1=YES, f3="A", alphabet=Alphabet.objects.filter(name__in=["B"]))
 
         form_validator = FormValidator(cleaned_data=cleaned_data)
 

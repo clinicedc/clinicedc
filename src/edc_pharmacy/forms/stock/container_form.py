@@ -7,15 +7,11 @@ class ContainerForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get("max_per_subject") and not cleaned_data.get(
-            "may_request_as"
-        ):
+        if cleaned_data.get("max_per_subject") and not cleaned_data.get("may_request_as"):
             raise forms.ValidationError(
                 {"max_per_subject": "Not applicable. Leave blank or 0"}
             )
-        if not cleaned_data.get("max_per_subject") and cleaned_data.get(
-            "may_request_as"
-        ):
+        if not cleaned_data.get("max_per_subject") and cleaned_data.get("may_request_as"):
             raise forms.ValidationError({"max_per_subject": "This field is required"})
         if (
             cleaned_data.get("max_per_subject")

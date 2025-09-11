@@ -90,9 +90,7 @@ class StorageBinAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(url=url, label="Stock", title="Go to stock")
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Items")
     def storage_bin_item_changelist(self, obj):
@@ -100,13 +98,7 @@ class StorageBinAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_storagebinitem_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(url=url, label=f"Items ({items})", title="Go to bin items")
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
-        return [
-            s.id
-            for s in request.user.userprofile.sites.all()
-            if s.id != request.site.id
-        ]
+        return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]

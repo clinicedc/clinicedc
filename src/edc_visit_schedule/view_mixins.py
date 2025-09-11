@@ -31,21 +31,15 @@ class VisitScheduleViewMixin:
             if self.subject_identifier:
                 for schedule in visit_schedule.schedules.values():
                     try:
-                        onschedule_model_obj = (
-                            schedule.onschedule_model_cls.objects.get(
-                                subject_identifier=self.subject_identifier
-                            )
+                        onschedule_model_obj = schedule.onschedule_model_cls.objects.get(
+                            subject_identifier=self.subject_identifier
                         )
                     except ObjectDoesNotExist:
                         pass
                     else:
                         self.onschedule_models.append(onschedule_model_obj)
-                        self.visit_schedules.update(
-                            {visit_schedule.name: visit_schedule}
-                        )
-                        if schedule.is_onschedule(
-                            self.subject_identifier, get_utcnow()
-                        ):
+                        self.visit_schedules.update({visit_schedule.name: visit_schedule})
+                        if schedule.is_onschedule(self.subject_identifier, get_utcnow()):
                             self.current_schedule = schedule
                             self.current_visit_schedule = visit_schedule
                             self.current_onschedule_model = onschedule_model_obj

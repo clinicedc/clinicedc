@@ -3,9 +3,7 @@ from django.db.models import expressions
 from simple_history import signals
 
 
-@dispatch.receiver(
-    signals.pre_create_historical_record, dispatch_uid="simple_history_refresh"
-)
+@dispatch.receiver(signals.pre_create_historical_record, dispatch_uid="simple_history_refresh")
 def remove_f_expressions(sender, instance, history_instance, **kwargs) -> None:
     """Model with history manager fails to save if update contains
     an F() expression.

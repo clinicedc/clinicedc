@@ -25,9 +25,7 @@ def update_query_rule_handlers(sender=None, **kwargs):
     from .site_data_manager import site_data_manager
 
     sys.stdout.write(
-        style.MIGRATE_HEADING(
-            "Deactivating query rules with invalid rule handler names:\n"
-        )
+        style.MIGRATE_HEADING("Deactivating query rules with invalid rule handler names:\n")
     )
     handler_names = [x for x in site_data_manager.registry.keys()]
     django_apps.get_model("edc_data_manager.queryrule").objects.exclude(

@@ -1,5 +1,7 @@
 from datetime import timedelta
 
+from clinicedc_tests.action_items import register_actions
+from clinicedc_tests.sites import all_sites
 from django import forms
 from django.test import TestCase, override_settings, tag
 
@@ -11,8 +13,6 @@ from edc_form_validators.tests.mixins import FormValidatorTestMixin
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow, get_utcnow_as_date
-from clinicedc_tests.action_items import register_actions
-from clinicedc_tests.sites import all_sites
 
 
 class HospitalizationFormValidator(FormValidatorTestMixin, Base):

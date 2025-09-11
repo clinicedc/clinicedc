@@ -63,9 +63,7 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
                     self.raise_validation_error(
                         {"consent_datetime": "This field is required."}, INVALID_ERROR
                     )
-                self._consent_datetime = to_utc(
-                    self.cleaned_data.get("consent_datetime")
-                )
+                self._consent_datetime = to_utc(self.cleaned_data.get("consent_datetime"))
             else:
                 self._consent_datetime = self.instance.consent_datetime
         return self._consent_datetime
@@ -82,10 +80,7 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
 
     def validate_age(self) -> None:
         """Validate age matches that on the screening form."""
-        if (
-            self.dob
-            and self.screening_age_in_years != self.subject_screening.age_in_years
-        ):
+        if self.dob and self.screening_age_in_years != self.subject_screening.age_in_years:
             self.raise_validation_error(
                 {
                     "dob": "Age mismatch. The date of birth entered does "

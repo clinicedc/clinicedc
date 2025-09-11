@@ -24,9 +24,7 @@ class Command(BaseCommand):
         )
         requisition_models = [grp.get("model") for grp in grouping]
         grouping = (
-            CrfMetadata.objects.values("model")
-            .annotate(model_count=Count("model"))
-            .order_by()
+            CrfMetadata.objects.values("model").annotate(model_count=Count("model")).order_by()
         )
         crf_models = [grp.get("model") for grp in grouping]
 

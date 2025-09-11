@@ -66,9 +66,7 @@ class TestPreload(TestCase):
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_autodiscover_import_and_register(self):
         site_list_data.initialize()
-        self.assertRaises(
-            ModuleNotFoundError, site_list_data._import_and_register, "blah"
-        )
+        self.assertRaises(ModuleNotFoundError, site_list_data._import_and_register, "blah")
         site_list_data.initialize(module_name="blah")
         site_list_data._import_and_register(app_name="my_list_app")
         self.assertRaises(
@@ -151,9 +149,7 @@ class TestPreload(TestCase):
         self.assertIn("edc_list_data.tests.list_data", site_list_data.registry)
         self.assertIn(
             "edc_list_data.antibiotic",
-            site_list_data.registry.get("edc_list_data.tests.list_data").get(
-                "list_data"
-            ),
+            site_list_data.registry.get("edc_list_data.tests.list_data").get("list_data"),
         )
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
@@ -164,18 +160,14 @@ class TestPreload(TestCase):
         site_list_data.register(module)
         self.assertIn(
             "edc_list_data.antibiotic",
-            site_list_data.registry.get("edc_list_data.tests.list_data").get(
-                "list_data"
-            ),
+            site_list_data.registry.get("edc_list_data.tests.list_data").get("list_data"),
         )
 
         module = import_module("my_list_app.list_data")
         site_list_data.register(module)
         self.assertNotIn(
             "edc_list_data.antibiotic",
-            site_list_data.registry.get("edc_list_data.tests.list_data").get(
-                "list_data"
-            ),
+            site_list_data.registry.get("edc_list_data.tests.list_data").get("list_data"),
         )
         self.assertIn(
             "edc_list_data.antibiotic",

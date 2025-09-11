@@ -21,9 +21,7 @@ class TestFieldAttrs(TestCase):
                     units_choices=(MILLIMOLES_PER_LITER, MILLIMOLES_PER_LITER_DISPLAY),
                     decimal_places=specified_dp,
                 )
-                self.assertEqual(
-                    field_classes["sodium_value"].decimal_places, specified_dp
-                )
+                self.assertEqual(field_classes["sodium_value"].decimal_places, specified_dp)
 
     def test_0_decimal_places(self):
         field_classes = get_field_attrs_for_utestid(

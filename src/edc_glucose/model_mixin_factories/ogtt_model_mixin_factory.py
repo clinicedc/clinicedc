@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+
 from edc_constants.constants import NOT_APPLICABLE
 from edc_lab.choices import GLUCOSE_UNITS_NA, RESULT_QUANTIFIER
 from edc_lab.constants import EQ

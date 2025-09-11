@@ -96,12 +96,8 @@ class OnStudyMissingValuesModelAdminMixin(
                 appointment=self.related_visit(obj).appointment.id,
             ),
         )
-        context = dict(
-            title=_("Go to subject's dashboard"), url=dashboard_url, label=label
-        )
-        return render_to_string(
-            "edc_subject_dashboard/dashboard_button.html", context=context
-        )
+        context = dict(title=_("Go to subject's dashboard"), url=dashboard_url, label=label)
+        return render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)
 
     @staticmethod
     def crf_admin_site_name(crf_model_cls) -> str:

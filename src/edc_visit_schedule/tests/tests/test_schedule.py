@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from clinicedc_tests.consents import consent_v1
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 
@@ -10,7 +11,6 @@ from edc_visit_schedule.schedule.schedule import ScheduleNameError, VisitTimepoi
 from edc_visit_schedule.schedule.visit_collection import VisitCollectionError
 from edc_visit_schedule.utils import check_schedule_models
 from edc_visit_schedule.visit import Visit
-from clinicedc_tests.consents import consent_v1
 
 
 @tag("visit_schedule")

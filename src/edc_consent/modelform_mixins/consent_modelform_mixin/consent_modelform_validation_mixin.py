@@ -54,9 +54,7 @@ class ConsentModelFormValidationMixin:
 
     @property
     def consent_datetime(self) -> datetime:
-        return self.get_field_or_raise(
-            "consent_datetime", "Consent date and time is required"
-        )
+        return self.get_field_or_raise("consent_datetime", "Consent date and time is required")
 
     @property
     def identity(self) -> str:
@@ -64,9 +62,7 @@ class ConsentModelFormValidationMixin:
 
     @property
     def confirm_identity(self) -> str:
-        return self.get_field_or_raise(
-            "confirm_identity", "Confirmed identity is required"
-        )
+        return self.get_field_or_raise("confirm_identity", "Confirmed identity is required")
 
     @property
     def age_delta(self) -> relativedelta | None:
@@ -193,8 +189,7 @@ class ConsentModelFormValidationMixin:
         gender = self.cleaned_data.get("gender")
         if gender not in self.consent_definition.gender:
             raise forms.ValidationError(
-                "Gender of consent can only be "
-                "'%(gender_of_consent)s'. Got '%(gender)s'.",
+                "Gender of consent can only be " "'%(gender_of_consent)s'. Got '%(gender)s'.",
                 params={
                     "gender_of_consent": "' or '".join(self.consent_definition.gender),
                     "gender": gender,

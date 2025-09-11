@@ -55,9 +55,7 @@ class HasCrfChecker:
         except ObjectDoesNotExist:
             pass
         except MultipleObjectsReturned:
-            raise MultipleObjectsReturned(
-                "Specify the visit_code and visit_code_sequence"
-            )
+            raise MultipleObjectsReturned("Specify the visit_code and visit_code_sequence")
         else:
             for model in self.models:
                 if model.objects.filter(subject_visit=subject_visit).exists():

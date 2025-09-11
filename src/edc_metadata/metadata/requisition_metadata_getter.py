@@ -14,6 +14,4 @@ class RequisitionMetadataValidator(MetadataValidator):
 class RequisitionMetadataGetter(MetadataGetter):
     metadata_model: str = "edc_metadata.requisitionmetadata"
 
-    metadata_validator_cls: Type[RequisitionMetadataValidator] = (
-        RequisitionMetadataValidator
-    )
+    metadata_validator_cls: Type[RequisitionMetadataValidator] = RequisitionMetadataValidator

@@ -17,9 +17,7 @@ class StockRequestItemForm(forms.ModelForm):
                 randomization_datetime__isnull=False,
             )
         except ObjectDoesNotExist:
-            raise forms.ValidationError(
-                {"subject_identifier": "Subject does not exist"}
-            )
+            raise forms.ValidationError({"subject_identifier": "Subject does not exist"})
         return cleaned_data
 
     class Meta:

@@ -39,9 +39,7 @@ class QueryButton(DashboardModelButton):
 
     def __post_init__(self):
         if self.model_obj is not None:
-            raise ValueError(
-                f"Invalid. Expected none for 'model_obj'. Got {self.model_obj}."
-            )
+            raise ValueError(f"Invalid. Expected none for 'model_obj'. Got {self.model_obj}.")
         self.model_cls = django_apps.get_model("edc_data_manager.dataquery")
         self.verbose_name = self.metadata_model_obj.verbose_name
 

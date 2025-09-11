@@ -22,9 +22,7 @@ class UpdateMetadataOnScheduleChange:
         sys.stdout.write(style.SUCCESS("\n\nUpdate metadata.\n"))
         sys.stdout.write(style.SUCCESS(f"Field is '{self.fieldname}'.\n"))
         sys.stdout.write(
-            style.SUCCESS(
-                f"Old value='{self.old_value}', New value='{self.new_value}'.\n"
-            )
+            style.SUCCESS(f"Old value='{self.old_value}', New value='{self.new_value}'.\n")
         )
         if self.dry_run:
             sys.stdout.write(
@@ -36,25 +34,20 @@ class UpdateMetadataOnScheduleChange:
                 f"Old value='{self.old_value}', New value='{self.new_value}'.\n"
             )
             for name, model_cls in self.models.items():
-                count = model_cls.objects.filter(
-                    **{self.fieldname: self.old_value}
-                ).count()
-                sys.stdout.write(
-                    f"{model_cls._meta.label_lower}. {count} records found.\n"
-                )
+                count = model_cls.objects.filter(**{self.fieldname: self.old_value}).count()
+                sys.stdout.write(f"{model_cls._meta.label_lower}. {count} records found.\n")
             sys.stdout.write(
                 style.ERROR(
-                    "No records have been updated. \n"
-                    "Set --dry-run=False to update.\n"
+                    "No records have been updated. \n" "Set --dry-run=False to update.\n"
                 )
             )
         else:
             sys.stdout.write(style.SUCCESS("Updating... \n"))
             for name, model_cls in self.models.items():
                 sys.stdout.write(f"Updating {name} ...\r")
-                updated = model_cls.objects.filter(
-                    **{self.fieldname: self.old_value}
-                ).update(**{self.fieldname: self.new_value})
+                updated = model_cls.objects.filter(**{self.fieldname: self.old_value}).update(
+                    **{self.fieldname: self.new_value}
+                )
                 sys.stdout.write(f"Updated {name}. {updated} records.     \n")
             sys.stdout.write(style.SUCCESS("Done. \n"))
 

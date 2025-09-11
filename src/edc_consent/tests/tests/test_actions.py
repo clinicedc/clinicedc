@@ -1,6 +1,8 @@
 import string
 from secrets import choice
 
+from clinicedc_tests.models import SubjectConsentV1
+from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
@@ -15,8 +17,6 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
-from clinicedc_tests.models import SubjectConsentV1
-from clinicedc_tests.sites import all_sites
 
 from ..consent_test_utils import consent_definition_factory
 

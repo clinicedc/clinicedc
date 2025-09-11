@@ -39,9 +39,7 @@ def validate_appt_datetime_unique(
             "schedule_name": appointment.schedule_name,
             "appt_datetime__date": appt_datetime_utc.date(),
         }
-        other_appts = appointment.__class__.objects.filter(**opts).exclude(
-            id=appointment.id
-        )
+        other_appts = appointment.__class__.objects.filter(**opts).exclude(id=appointment.id)
         if other_appts.count() > 1:
             raise form_validator.raise_validation_error(
                 {form_field: "An appointment already exists for this date (M)"},

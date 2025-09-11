@@ -54,9 +54,7 @@ def get_registered_subject(
 def valid_subject_identifier_or_raise(
     subject_identifier: str, raise_exception: bool | None = None
 ) -> bool:
-    if not re.match(
-        ResearchProtocolConfig().subject_identifier_pattern, subject_identifier
-    ):
+    if not re.match(ResearchProtocolConfig().subject_identifier_pattern, subject_identifier):
         if raise_exception:
             raise RegisteredSubjectError(
                 f"Invalid subject identifier format. "

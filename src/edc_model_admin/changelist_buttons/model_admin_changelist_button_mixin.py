@@ -6,9 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class ModelAdminChangelistButtonMixin:
-    changelist_model_button_template_name = (
-        "edc_model_admin/changelist_model_button.html"
-    )
+    changelist_model_button_template_name = "edc_model_admin/changelist_model_button.html"
 
     def button(
         self,
@@ -23,9 +21,7 @@ class ModelAdminChangelistButtonMixin:
         if namespace:
             url_name = f"{namespace}:{url_name}"
         url = reverse(url_name, args=reverse_args)
-        return self.button_template(
-            label=label, url=url, disabled=disabled, title=title
-        )
+        return self.button_template(label=label, url=url, disabled=disabled, title=title)
 
     def change_button(
         self,
@@ -40,9 +36,7 @@ class ModelAdminChangelistButtonMixin:
         if namespace:
             url_name = f"{namespace}:{url_name}"
         url = reverse(url_name, args=reverse_args)
-        return self.button_template(
-            label=label, url=url, disabled=disabled, title=title
-        )
+        return self.button_template(label=label, url=url, disabled=disabled, title=title)
 
     def add_button(
         self,
@@ -57,9 +51,7 @@ class ModelAdminChangelistButtonMixin:
         if namespace:
             url_name = f"{namespace}:{url_name}"
         url = reverse(url_name) + "" if querystring is None else querystring
-        return self.button_template(
-            label=label, url=url, disabled=disabled, title=title
-        )
+        return self.button_template(label=label, url=url, disabled=disabled, title=title)
 
     def button_template(
         self,

@@ -60,10 +60,7 @@ def raise_if_prohibited_from_export_pii_group(username: str, groups: Iterable) -
 
     See also edc_auth's UserForm.
     """
-    if (
-        EXPORT_PII in [grp.name for grp in groups]
-        and username not in get_export_pii_users()
-    ):
+    if EXPORT_PII in [grp.name for grp in groups] and username not in get_export_pii_users():
         raise forms.ValidationError(
             {
                 "groups": format_html(

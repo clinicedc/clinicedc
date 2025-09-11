@@ -40,9 +40,7 @@ class StockRequestItem(VisitCodeFieldsModelMixin, BaseUuidModel):
 
     rx = models.ForeignKey(Rx, on_delete=models.PROTECT, null=True, blank=False)
 
-    assignment = models.ForeignKey(
-        Assignment, on_delete=models.PROTECT, null=True, blank=True
-    )
+    assignment = models.ForeignKey(Assignment, on_delete=models.PROTECT, null=True, blank=True)
 
     registered_subject = models.ForeignKey(
         RegisteredSubject,
@@ -59,7 +57,9 @@ class StockRequestItem(VisitCodeFieldsModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.registered_subject.subject_identifier}: {self.stock_request.formulation}"
+        return (
+            f"{self.registered_subject.subject_identifier}: {self.stock_request.formulation}"
+        )
 
     def save(self, *args, **kwargs):
         """Important: check `bulk_create_stock_request_items`

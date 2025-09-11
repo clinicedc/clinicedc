@@ -1,9 +1,9 @@
+from clinicedc_tests.admin import TestModel6Admin
 from django.contrib.admin.utils import flatten_fieldsets
 from django.test import TestCase, tag
 
 from edc_fieldsets.fieldset import Fieldset
 from edc_fieldsets.fieldsets import FieldsetError, Fieldsets
-from clinicedc_tests.admin import TestModel6Admin
 
 
 @tag("fieldsets")
@@ -67,9 +67,7 @@ class TestFieldsets(TestCase):
     def test_add_fieldset(self):
         """Asserts returns fieldset with added fields."""
         fs = Fieldsets(self.fieldsets)
-        fs.add_fieldset(
-            section="Hospitalisation", fields=("field1", "field2", "field3")
-        )
+        fs.add_fieldset(section="Hospitalisation", fields=("field1", "field2", "field3"))
         flatten = flatten_fieldsets(fs.fieldsets)
         self.assertEqual(flatten[-3:], ["field1", "field2", "field3"])
 
@@ -93,9 +91,7 @@ class TestFieldsets(TestCase):
         fieldset = Fieldset("field1", "field2", "field3", section="Hospitalisation")
         fieldsets.add_fieldset(fieldset=fieldset)
         self.assertEqual(fieldsets.fieldsets[0][1]["fields"], self.original_fields)
-        self.assertEqual(
-            fieldsets.fieldsets[1][1]["fields"], ("field1", "field2", "field3")
-        )
+        self.assertEqual(fieldsets.fieldsets[1][1]["fields"], ("field1", "field2", "field3"))
 
     def test_insert_insert_after(self):
         """Asserts adds fields to an existing section."""
@@ -103,9 +99,7 @@ class TestFieldsets(TestCase):
         fields = ("field1", "field2", "field3")
         fs.insert_fields(*fields, insert_after="on_arv")
         pos = self.original_fields.index("on_arv")
-        self.assertEqual(
-            fs.fieldsets[0][1]["fields"][0:pos], self.original_fields[0:pos]
-        )
+        self.assertEqual(fs.fieldsets[0][1]["fields"][0:pos], self.original_fields[0:pos])
         self.assertEqual(fs.fieldsets[0][1]["fields"][pos + 1 :][0:3], fields)
 
     def test_insert_fields_after_bad_section(self):

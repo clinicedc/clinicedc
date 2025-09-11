@@ -29,9 +29,7 @@ class PrnFormValidatorMixin(BaseFormValidatorMixin):
         fldname: str = None,
         error_code: str = None,
     ) -> ConsentDefinition:
-        return site_consents.get_consent_definition(
-            report_datetime=self.report_datetime
-        )
+        return site_consents.get_consent_definition(report_datetime=self.report_datetime)
 
     @property
     def report_datetime(self) -> datetime:

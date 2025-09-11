@@ -11,9 +11,7 @@ from ..constants import SCHEDULED
 from ..model_mixins import SubjectVisitMissedModelMixin
 
 
-@receiver(
-    post_save, weak=False, dispatch_uid="visit_tracking_check_in_progress_on_post_save"
-)
+@receiver(post_save, weak=False, dispatch_uid="visit_tracking_check_in_progress_on_post_save")
 def visit_tracking_check_in_progress_on_post_save(
     sender, instance, raw, created, using, update_fields, **kwargs  # noqa
 ):

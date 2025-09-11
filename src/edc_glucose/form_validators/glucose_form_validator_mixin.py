@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dateutil.relativedelta import relativedelta
+
 from edc_constants.constants import YES
 
 from ..utils import validate_glucose_as_millimoles_per_liter
@@ -17,7 +18,9 @@ class GlucoseFormValidatorMixin:
             YES, field=f"{prefix}_performed", field_applicable=f"{prefix}_fasting"
         )
         self.required_if(
-            YES, field=f"{prefix}_fasting", field_required=f"{prefix}_fasting_duration_str"
+            YES,
+            field=f"{prefix}_fasting",
+            field_required=f"{prefix}_fasting_duration_str",
         )
         self.required_if(YES, field=f"{prefix}_performed", field_required=f"{prefix}_date")
         self.required_if(YES, field=f"{prefix}_performed", field_required=f"{prefix}_value")

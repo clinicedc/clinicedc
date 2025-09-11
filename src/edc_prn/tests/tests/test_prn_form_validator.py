@@ -1,3 +1,7 @@
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import Prn
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django import forms
 from django.contrib.sites.models import Site
 from django.test import TestCase
@@ -14,10 +18,6 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import Prn
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class TestPrn(TestCase):
@@ -40,9 +40,7 @@ class TestPrn(TestCase):
         self.subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=visit_schedule.name, schedule_name=schedule.name
         )
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )

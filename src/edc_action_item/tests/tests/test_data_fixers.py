@@ -3,6 +3,8 @@ from unittest import skip
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import register_actions
+from clinicedc_tests.models import FormOne, FormTwo
 from django.apps import apps as django_apps
 from django.db.models.signals import post_save
 from django.test import TestCase, override_settings
@@ -12,8 +14,6 @@ from edc_action_item.data_fixers import (
     fix_null_related_action_items,
 )
 from edc_action_item.models import update_or_create_action_item_on_post_save
-from clinicedc_tests.action_items import register_actions
-from clinicedc_tests.models import FormOne, FormTwo
 
 from ..test_case_mixin import TestCaseMixin
 
@@ -97,9 +97,7 @@ class TestUtils(TestCaseMixin, TestCase):
 
         # assert related_action_item are NOT None
         form_two_b.refresh_from_db()
-        self.assertEqual(
-            form_one.action_item, form_two_b.action_item.related_action_item
-        )
+        self.assertEqual(form_one.action_item, form_two_b.action_item.related_action_item)
         self.assertEqual(form_one.action_item, form_two_b.related_action_item)
         self.assertEqual(form_two_a.action_item, form_two_b.parent_action_item)
 
@@ -146,9 +144,7 @@ class TestUtils(TestCaseMixin, TestCase):
         )
 
         self.assertEqual(form_one.action_item, form_two_b.parent_action_item)
-        self.assertEqual(
-            form_one.action_item, form_two_b.action_item.parent_action_item
-        )
+        self.assertEqual(form_one.action_item, form_two_b.action_item.parent_action_item)
 
         # fix
         fix_null_related_action_items(django_apps)
@@ -161,37 +157,23 @@ class TestUtils(TestCaseMixin, TestCase):
         form_two_b.parent_action_item.refresh_from_db()
 
         # assert related_action_item are NOT None
-        self.assertEqual(
-            form_one.action_item, form_two_a.action_item.related_action_item
-        )
+        self.assertEqual(form_one.action_item, form_two_a.action_item.related_action_item)
         self.assertEqual(form_one.action_item, form_two_b.related_action_item)
 
         self.assertEqual(form_two_a.parent_action_item, form_two_a.related_action_item)
 
         self.assertEqual(form_one.action_item, form_two_a.parent_action_item)
 
-        self.assertEqual(
-            form_one.action_item, form_two_a.action_item.parent_action_item
-        )
+        self.assertEqual(form_one.action_item, form_two_a.action_item.parent_action_item)
 
         # assert parent was fixed
-        self.assertEqual(
-            form_two_a.action_item, form_two_b.action_item.parent_action_item
-        )
+        self.assertEqual(form_two_a.action_item, form_two_b.action_item.parent_action_item)
         self.assertEqual(form_two_a.action_item, form_two_b.parent_action_item)
 
-        self.assertNotEqual(
-            form_two_b.parent_action_item, form_two_b.related_action_item
-        )
+        self.assertNotEqual(form_two_b.parent_action_item, form_two_b.related_action_item)
 
     def test_fix_null_action_item_fk(self):
         form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
-        FormTwo.objects.create(
-            subject_identifier=self.subject_identifier, form_one=form_one
-        )
-        FormTwo.objects.create(
-            subject_identifier=self.subject_identifier, form_one=form_one
-        )
-        fix_null_action_item_fk(
-            django_apps, app_label="tests", models=["formone", "formtwo"]
-        )
+        FormTwo.objects.create(subject_identifier=self.subject_identifier, form_one=form_one)
+        FormTwo.objects.create(subject_identifier=self.subject_identifier, form_one=form_one)
+        fix_null_action_item_fk(django_apps, app_label="tests", models=["formone", "formtwo"])

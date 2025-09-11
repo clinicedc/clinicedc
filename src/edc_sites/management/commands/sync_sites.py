@@ -75,7 +75,5 @@ class Command(BaseCommand):
                         style.ERROR(f"  {single_site.domain}: <not found>. Got {e}\n")
                     )
                 else:
-                    sys.stdout.write(
-                        f"  {single_site.domain}: {host} {style.SUCCESS('OK')}\n"
-                    )
+                    sys.stdout.write(f"  {single_site.domain}: {host} {style.SUCCESS('OK')}\n")
         sys.stdout.write("Done     \n")

@@ -2,6 +2,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import TestModel4, TestModel6
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase, override_settings, tag
@@ -22,9 +25,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Crf, CrfCollection
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import TestModel4, TestModel6
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 
@@ -82,12 +82,8 @@ class TestFieldsetAdmin(TestCase):
         )
 
     def setUp(self):
-        self.user = User.objects.create(
-            username="erikvw", is_staff=True, is_active=True
-        )
-        for permission in Permission.objects.filter(
-            content_type__app_label="clinicedc_tests"
-        ):
+        self.user = User.objects.create(username="erikvw", is_staff=True, is_active=True)
+        for permission in Permission.objects.filter(content_type__app_label="clinicedc_tests"):
             self.user.user_permissions.add(permission)
 
     def test_fieldset_excluded(self):

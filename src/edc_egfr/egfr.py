@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+
 from edc_constants.constants import NEW
 from edc_reportable.models import ReferenceRangeCollection
 from edc_reportable.units import EGFR_UNITS, PERCENT
@@ -87,7 +88,8 @@ class Egfr:
 
         if self.dob:
             self.age_in_years = age(
-                born=self.dob, reference_dt=self.report_datetime.astimezone(ZoneInfo("UTC"))
+                born=self.dob,
+                reference_dt=self.report_datetime.astimezone(ZoneInfo("UTC")),
             ).years
         elif not self.dob and self.age_in_years:
             self.dob = (

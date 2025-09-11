@@ -1,11 +1,11 @@
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, tag
+
 from edc_constants.constants import BLACK, MALE
 from edc_form_validators import FormValidator
 from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
-
 from edc_vitals.calculators import BMI, CalculatorError, calculate_bmi
 from edc_vitals.form_validators import BmiFormValidatorMixin
 

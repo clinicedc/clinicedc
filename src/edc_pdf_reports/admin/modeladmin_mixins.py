@@ -22,6 +22,4 @@ class PdfButtonModelAdminMixin:
             title=self.pdf_button_title,
             url_name=self.pdf_button_url_name,
         )
-        return render_to_string(
-            template_name=self.pdf_button_template_name, context=context
-        )
+        return render_to_string(template_name=self.pdf_button_template_name, context=context)

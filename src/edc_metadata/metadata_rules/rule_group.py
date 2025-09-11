@@ -47,9 +47,7 @@ class RuleGroup:
         # note: fields referenced in funcs in a predicate collection
         # are not verified here.
         if cls._meta.source_model:
-            model_cls = cls._lookup_model(
-                model=cls._meta.source_model, category="source"
-            )
+            model_cls = cls._lookup_model(model=cls._meta.source_model, category="source")
             fields = [f.name for f in model_cls._meta.get_fields()]
             fields.extend(default_fields)
             for rule in cls.get_rules():
@@ -69,9 +67,7 @@ class RuleGroup:
         try:
             model_cls = django_apps.get_model(model)
         except LookupError:
-            sys.stdout.write(
-                style.ERROR(f"  (?) {model}. See {category} model in {cls}\n")
-            )
+            sys.stdout.write(style.ERROR(f"  (?) {model}. See {category} model in {cls}\n"))
         else:
             sys.stdout.write(f"  (*) {model}\n")
         return model_cls

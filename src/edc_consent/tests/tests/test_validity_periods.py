@@ -2,6 +2,9 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent1_v1, consent1_v2, consent1_v3
+from clinicedc_tests.models import SubjectConsent
+from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase, override_settings, tag
@@ -15,9 +18,6 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
-from clinicedc_tests.consents import consent1_v1, consent1_v2, consent1_v3
-from clinicedc_tests.models import SubjectConsent
-from clinicedc_tests.sites import all_sites
 
 from ..consent_test_utils import consent_factory
 
@@ -26,9 +26,7 @@ fake = Faker()
 
 @tag("consent")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(
-    EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10
-)
+@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10)
 class TestConsentModel(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -116,9 +114,7 @@ class TestConsentModel(TestCase):
         self.create_v2_consent_for_subject()
         self.create_v3_consent_for_subject()
 
-        self.assertEqual(
-            SubjectConsent.objects.filter(identity=self.identity).count(), 3
-        )
+        self.assertEqual(SubjectConsent.objects.filter(identity=self.identity).count(), 3)
 
         consent = site_consents.get_consent_or_raise(
             subject_identifier=self.subject_identifier,
@@ -137,9 +133,7 @@ class TestConsentModel(TestCase):
         v3_consent_datetime = self.create_v3_consent_for_subject(
             travel_datetime=consent1_v3.start + relativedelta(days=10)
         )
-        self.assertEqual(
-            SubjectConsent.objects.filter(identity=self.identity).count(), 3
-        )
+        self.assertEqual(SubjectConsent.objects.filter(identity=self.identity).count(), 3)
         cdef = site_consents.get_consent_definition(report_datetime=v3_consent_datetime)
         cosent_obj_v3 = SubjectConsent.objects.get(
             consent_datetime__range=[cdef.start, cdef.end]
@@ -206,9 +200,7 @@ class TestConsentModel(TestCase):
         self.create_v1_consent_for_subject()
         self.create_v2_consent_for_subject()
         v3_consent_datetime = self.create_v3_consent_for_subject()
-        self.assertEqual(
-            SubjectConsent.objects.filter(identity=self.identity).count(), 3
-        )
+        self.assertEqual(SubjectConsent.objects.filter(identity=self.identity).count(), 3)
         traveller = time_machine.travel(v3_consent_datetime)
         traveller.start()
         consent = site_consents.get_consent_or_raise(
@@ -224,9 +216,7 @@ class TestConsentModel(TestCase):
         self.create_v2_consent_for_subject()
         v3_consent_datetime = self.create_v3_consent_for_subject()
 
-        self.assertEqual(
-            SubjectConsent.objects.filter(identity=self.identity).count(), 3
-        )
+        self.assertEqual(SubjectConsent.objects.filter(identity=self.identity).count(), 3)
 
         traveller = time_machine.travel(v3_consent_datetime)
         traveller.start()

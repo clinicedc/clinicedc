@@ -59,9 +59,7 @@ class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
                 f"cannot be None. See model {self.__class__.__name__}"
             )
         if self.offschedule_datetime_field_attr != "offschedule_datetime":
-            self.offschedule_datetime = getattr(
-                self, self.offschedule_datetime_field_attr
-            )
+            self.offschedule_datetime = getattr(self, self.offschedule_datetime_field_attr)
         try:
             self.offschedule_datetime.date()
         except AttributeError:
@@ -91,6 +89,4 @@ class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     class Meta:
         abstract = True
-        indexes = [
-            models.Index(fields=["subject_identifier", "offschedule_datetime", "site"])
-        ]
+        indexes = [models.Index(fields=["subject_identifier", "offschedule_datetime", "site"])]

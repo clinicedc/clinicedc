@@ -16,9 +16,7 @@ class RequisitionIdentifierMixin(models.Model):
         verbose_name="Requisition Id", max_length=50, unique=True
     )
 
-    identifier_prefix = models.CharField(
-        max_length=50, null=True, editable=False, unique=True
-    )
+    identifier_prefix = models.CharField(max_length=50, null=True, editable=False, unique=True)
 
     primary_aliquot_identifier = models.CharField(
         max_length=18, null=True, editable=False, unique=True

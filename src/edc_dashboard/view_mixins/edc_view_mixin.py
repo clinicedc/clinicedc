@@ -35,9 +35,7 @@ class EdcViewMixin(
         kwargs.update(
             {
                 "device_id": getattr(edc_device_app_config, "device_id", "device_id?"),
-                "device_role": getattr(
-                    edc_device_app_config, "device_role", "device_role?"
-                ),
+                "device_role": getattr(edc_device_app_config, "device_role", "device_role?"),
                 "live_system": live_system,
             }
         )

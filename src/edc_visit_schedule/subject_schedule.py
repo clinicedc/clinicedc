@@ -77,9 +77,7 @@ class SubjectSchedule:
         )
 
     def __str__(self):
-        return (
-            f"{self.subject_identifier} {self.visit_schedule_name}.{self.schedule_name}"
-        )
+        return f"{self.subject_identifier} {self.visit_schedule_name}.{self.schedule_name}"
 
     @property
     def onschedule_model_cls(self) -> Type[OnSchedule]:
@@ -294,11 +292,7 @@ class SubjectSchedule:
                 subject_identifier=self.subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                **{
-                    f"{related_visit_model_attr}__report_datetime__gt": (
-                        offschedule_datetime
-                    )
-                },
+                **{f"{related_visit_model_attr}__report_datetime__gt": (offschedule_datetime)},
             )
         except ObjectDoesNotExist:
             appointments = None
@@ -307,11 +301,7 @@ class SubjectSchedule:
                 subject_identifier=self.subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                **{
-                    f"{related_visit_model_attr}__report_datetime__gt": (
-                        offschedule_datetime
-                    )
-                },
+                **{f"{related_visit_model_attr}__report_datetime__gt": (offschedule_datetime)},
             )
         if appointments:
             raise InvalidOffscheduleDate(
@@ -370,9 +360,7 @@ class SubjectSchedule:
         """Raise an exception if subject is not on the schedule during
         the given date.
         """
-        compare_as_datetimes = (
-            True if compare_as_datetimes is None else compare_as_datetimes
-        )
+        compare_as_datetimes = True if compare_as_datetimes is None else compare_as_datetimes
 
         onschedule_obj = self.onschedule_obj
 

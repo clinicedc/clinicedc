@@ -2,6 +2,12 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfOne, CrfTwo, PrnOne
+from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
+    get_visit_schedule,
+)
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from faker import Faker
@@ -21,12 +27,6 @@ from edc_metadata.tests.crf_rule_groups import (
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import CrfOne, CrfTwo, PrnOne
-from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
-    get_visit_schedule,
-)
 
 fake = Faker()
 utc_tz = ZoneInfo("UTC")
@@ -405,9 +405,7 @@ class CrfRuleGroupTestCase(TestCase):
         # create 1000 then add crf_one then create 2000
         subject_visit = self.enroll(gender=MALE)
 
-        self.assertEqual(
-            1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
-        )
+        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
 
         crf_one = CrfOne.objects.create(subject_visit=subject_visit, f1="caufield")
         self.assertEqual(
@@ -419,9 +417,7 @@ class CrfRuleGroupTestCase(TestCase):
 
         subject_visit_two = self.get_next_subject_visit(subject_visit)
 
-        self.assertEqual(
-            2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
-        )
+        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
         self.assertEqual(
             2,
             CrfMetadata.objects.filter(
@@ -452,13 +448,9 @@ class CrfRuleGroupTestCase(TestCase):
 
     def test_crf_cannot_be_saved_if_not_in_visits_crfs(self):
         subject_visit = self.enroll(gender=MALE)
-        self.assertEqual(
-            1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
-        )
+        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
         subject_visit_two = self.get_next_subject_visit(subject_visit)
-        self.assertEqual(
-            2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
-        )
+        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
 
         # note: crf_one is not listed as a crf for visit 2000
         # trigger exception just to prove that the crf_one cannot be saved
@@ -470,13 +462,9 @@ class CrfRuleGroupTestCase(TestCase):
 
     def test_prn_can_be_submitted_if_now_required(self):
         subject_visit = self.enroll(gender=MALE)
-        self.assertEqual(
-            1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
-        )
+        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
         self.get_next_subject_visit(subject_visit)
-        self.assertEqual(
-            2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count()
-        )
+        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
         CrfOne.objects.create(subject_visit=subject_visit, f1="holden")
         PrnOne.objects.create(subject_visit=subject_visit)
 

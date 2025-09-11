@@ -34,9 +34,7 @@ urlpatterns.extend(
 
 urlpatterns.extend(
     [
-        path(
-            "administration/", AdministrationView.as_view(), name="administration_url"
-        ),
+        path("administration/", AdministrationView.as_view(), name="administration_url"),
         path("i18n/", include("django.conf.urls.i18n")),
         path("", RedirectView.as_view(url="admin/"), name="home_url"),
         path("", RedirectView.as_view(url="admin/"), name="logout"),

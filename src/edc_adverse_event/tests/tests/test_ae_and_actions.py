@@ -1,5 +1,16 @@
 from unittest.mock import PropertyMock, patch
 
+from clinicedc_tests.action_items import (
+    AeFollowupAction,
+    AeInitialAction,
+    OffscheduleAction,
+    register_actions,
+)
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import AeFollowup, AeInitial, AeSusar, AeTmg
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from model_bakery import baker
@@ -19,17 +30,6 @@ from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import OnScheduleError
-from clinicedc_tests.action_items import (
-    AeFollowupAction,
-    AeInitialAction,
-    OffscheduleAction,
-    register_actions,
-)
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import AeFollowup, AeInitial, AeSusar, AeTmg
-from clinicedc_tests.sites import all_sites
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 @tag("adverse_event")
@@ -289,9 +289,7 @@ class TestAeAndActions(TestCase):
         )
 
         action_item = ActionItem.objects.get(pk=action_item.pk)
-        self.assertEqual(
-            action_item.action_type.reference_model, ae_initial._meta.label_lower
-        )
+        self.assertEqual(action_item.action_type.reference_model, ae_initial._meta.label_lower)
         self.assertEqual(action_item.action_identifier, ae_initial.action_identifier)
 
     def test_ae_initial_creates_next_action_on_close(self):
@@ -524,9 +522,7 @@ class TestAeAndActions(TestCase):
         )
         AeFollowup.objects.get(pk=ae_followup.pk)
 
-    @patch(
-        "edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model"
-    )
+    @patch("edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model")
     @patch.object(AeFollowupAction, "offschedule_models", new_callable=PropertyMock)
     @patch.object(AeFollowupAction, "onschedule_models", new_callable=PropertyMock)
     def test_ae_followup_outcome_ltfu_creates_action(
@@ -555,9 +551,7 @@ class TestAeAndActions(TestCase):
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
 
-    @patch(
-        "edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model"
-    )
+    @patch("edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model")
     @patch.object(AeFollowupAction, "offschedule_models", new_callable=PropertyMock)
     @patch.object(AeFollowupAction, "onschedule_models", new_callable=PropertyMock)
     def test_ae_followup_outcome_ltfu_raises(
@@ -581,13 +575,9 @@ class TestAeAndActions(TestCase):
             outcome=LOST_TO_FOLLOWUP,
         )
 
-    @patch(
-        "edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model"
-    )
+    @patch("edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model")
     @patch.object(AeFollowupAction, "offschedule_models", new_callable=PropertyMock)
-    def test_ae_followup_outcome_not_ltfu(
-        self, mock_offschedule_models, mock_get_by_model
-    ):
+    def test_ae_followup_outcome_not_ltfu(self, mock_offschedule_models, mock_get_by_model):
         mock_offschedule_models.return_value = ["clinicedc_tests.offschedule"]
         mock_get_by_model.return_value = OffscheduleAction
 

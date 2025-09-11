@@ -106,6 +106,4 @@ class EdcAdminSite(DjangoAdminSite):
             **(extra_context or {}),
         }
         request.current_app = self.name
-        return TemplateResponse(
-            request, self.index_template or "admin/index.html", context
-        )
+        return TemplateResponse(request, self.index_template or "admin/index.html", context)

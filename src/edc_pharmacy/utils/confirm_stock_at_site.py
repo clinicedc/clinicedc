@@ -41,8 +41,8 @@ def confirm_stock_at_site(
     confirmation_at_site_model_cls: Type[ConfirmationAtSite] = django_apps.get_model(
         "edc_pharmacy.confirmationatsite"
     )
-    confirmation_at_site_item_model_cls: Type[ConfirmationAtSiteItem] = (
-        django_apps.get_model("edc_pharmacy.confirmationatsiteitem")
+    confirmation_at_site_item_model_cls: Type[ConfirmationAtSiteItem] = django_apps.get_model(
+        "edc_pharmacy.confirmationatsiteitem"
     )
     location_model_cls: Type[Location] = django_apps.get_model("edc_pharmacy.location")
 
@@ -58,9 +58,7 @@ def confirm_stock_at_site(
     for stock_code in stock_codes:
         if not stock_model_cls.objects.filter(code=stock_code).exists():
             invalid.append(stock_code)
-        elif not stock_transfer.stocktransferitem_set.filter(
-            stock__code=stock_code
-        ).exists():
+        elif not stock_transfer.stocktransferitem_set.filter(stock__code=stock_code).exists():
             invalid.append(stock_code)
         else:
             try:

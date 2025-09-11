@@ -127,9 +127,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
         # add box items with invalid aliquot identifiers
         for i in range(0, 3):
             BoxItem.objects.create(box=box, identifier=f"{i}", position=i)
-        ManifestItem.objects.create(
-            manifest=self.manifest, identifier=box.box_identifier
-        )
+        ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
         self.assertEqual(self.manifest.site.name, "mochudi")
         self.assertRaises(
             ManifestPdfReportError,
@@ -156,9 +154,7 @@ class TestManifestReport(SiteTestCaseMixin, TestCase):
             BoxItem.objects.create(
                 box=box, identifier=aliquot.aliquot_identifier, position=index
             )
-        ManifestItem.objects.create(
-            manifest=self.manifest, identifier=box.box_identifier
-        )
+        ManifestItem.objects.create(manifest=self.manifest, identifier=box.box_identifier)
         self.assertEqual(self.manifest.site.name, "mochudi")
         self.assertRaises(
             ManifestPdfReportError,

@@ -2,6 +2,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent1_v1, consent1_v2, consent2_v1, consent2_v2
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
@@ -18,14 +21,6 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import SubjectSchedule
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from clinicedc_tests.consents import (
-    consent1_v1,
-    consent1_v2,
-    consent2_v1,
-    consent2_v2,
-)
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.sites import all_sites
 
 
 @tag("visit_schedule")
@@ -107,9 +102,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         for onschedule_model, schedule_name, cdef in [
             ("clinicedc_tests.onscheduletwo", "schedule_two", consent1_v1),
         ]:
-            with self.subTest(
-                onschedule_model=onschedule_model, schedule_name=schedule_name
-            ):
+            with self.subTest(onschedule_model=onschedule_model, schedule_name=schedule_name):
                 subject_consent = helper.consent_subject(
                     consent_definition=cdef,
                     subject_screening=subject_screening,
@@ -141,9 +134,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         for onschedule_model, schedule_name, cdef in [
             ("clinicedc_tests.onschedulefour", "schedule_four", consent1_v2),
         ]:
-            with self.subTest(
-                onschedule_model=onschedule_model, schedule_name=schedule_name
-            ):
+            with self.subTest(onschedule_model=onschedule_model, schedule_name=schedule_name):
                 subject_consent = helper.consent_subject(
                     consent_definition=cdef,
                     subject_screening=subject_screening,
@@ -262,9 +253,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             # consent_definition=subject_consent.consent_definition,
         )
         try:
-            OnSchedule.objects.get(
-                subject_identifier=subject_consent.subject_identifier
-            )
+            OnSchedule.objects.get(subject_identifier=subject_consent.subject_identifier)
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
 
@@ -291,9 +280,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         traveller.start()
         schedule.take_off_schedule(subject_consent.subject_identifier, get_utcnow())
         try:
-            OffSchedule.objects.get(
-                subject_identifier=subject_consent.subject_identifier
-            )
+            OffSchedule.objects.get(subject_identifier=subject_consent.subject_identifier)
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
         traveller.stop()

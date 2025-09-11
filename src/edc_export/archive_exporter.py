@@ -64,9 +64,7 @@ class ArchiveExporter:
             )
             self.exported.append(csv_exporter.to_csv())
         if not self.exported:
-            raise ArchiveExporterNothingExported(
-                f"Nothing exported. Got models={models}."
-            )
+            raise ArchiveExporterNothingExported(f"Nothing exported. Got models={models}.")
         else:
             if archive:
                 archiver = self.files_archiver_cls(
@@ -92,6 +90,4 @@ class ArchiveExporter:
                 else:
                     self.emailed_to = user.email
                     self.emailed_datetime = get_utcnow()
-                    self.exported_datetime = (
-                        self.exported_datetime or self.emailed_datetime
-                    )
+                    self.exported_datetime = self.exported_datetime or self.emailed_datetime

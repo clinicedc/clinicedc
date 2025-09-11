@@ -2,6 +2,15 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import (
+    BloodResultsFbc,
+    CrfThree,
+    SubjectRequisition,
+    SubjectVisit,
+)
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.db import OperationalError, connection
 from django.test import TestCase, override_settings, tag
 
@@ -16,15 +25,6 @@ from edc_qareports.sql_generator import CrfCase, CrfCaseError, RequisitionCase
 from edc_qareports.sql_generator.crf_subquery import CrfSubqueryError
 from edc_reportable import TEN_X_9_PER_LITER
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import (
-    BloodResultsFbc,
-    CrfThree,
-    SubjectRequisition,
-    SubjectVisit,
-)
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 

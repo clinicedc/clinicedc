@@ -52,9 +52,7 @@ class NavbarItem:
         try:
             url_name = url_names.get(self.url_name)
         except InvalidDashboardUrlName:
-            url_name = (
-                self.url_name.split(":")[1] if self.no_url_namespace else self.url_name
-            )
+            url_name = self.url_name.split(":")[1] if self.no_url_namespace else self.url_name
         return url_name
 
     def set_disabled(self, user: User | None = None):

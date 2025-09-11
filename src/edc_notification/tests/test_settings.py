@@ -58,10 +58,7 @@ project_settings = DefaultTestSettings(
         "edc_visit_tracking.apps.AppConfig",
         "edc_appconfig.apps.AppConfig",
     ],
-    RANDOMIZATION_LIST_PATH=base_dir
-    / app_name
-    / "tests"
-    / "test_randomization_list.csv",
+    RANDOMIZATION_LIST_PATH=base_dir / app_name / "tests" / "test_randomization_list.csv",
     add_dashboard_middleware=True,
 ).settings
 

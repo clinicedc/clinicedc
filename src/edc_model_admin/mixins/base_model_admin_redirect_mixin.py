@@ -9,14 +9,10 @@ class BaseModelAdminRedirectMixin:
     def redirect_url(self, request, obj, post_url_continue=None) -> Optional[str]:
         pass
 
-    def redirect_url_on_add(
-        self, request, obj, post_url_continue=None
-    ) -> Optional[str]:
+    def redirect_url_on_add(self, request, obj, post_url_continue=None) -> Optional[str]:
         return self.redirect_url(request, obj, post_url_continue=post_url_continue)
 
-    def redirect_url_on_change(
-        self, request, obj, post_url_continue=None
-    ) -> Optional[str]:
+    def redirect_url_on_change(self, request, obj, post_url_continue=None) -> Optional[str]:
         return self.redirect_url(request, obj, post_url_continue=post_url_continue)
 
     def redirect_url_on_delete(self, request, obj_display, obj_id) -> Optional[str]:

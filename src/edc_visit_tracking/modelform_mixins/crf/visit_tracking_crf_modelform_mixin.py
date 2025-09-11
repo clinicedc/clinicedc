@@ -32,9 +32,7 @@ class VisitTrackingCrfModelFormMixin:
     """
 
     crf_date_validator_cls = CrfDateValidator
-    report_datetime_allowance = getattr(
-        settings, "DEFAULT_REPORT_DATETIME_ALLOWANCE", 0
-    )
+    report_datetime_allowance = getattr(settings, "DEFAULT_REPORT_DATETIME_ALLOWANCE", 0)
     visit_sequence_cls = VisitSequence
 
     def clean(self: Any) -> dict:
@@ -99,9 +97,7 @@ class VisitTrackingCrfModelFormMixin:
             try:
                 self.crf_date_validator_cls(
                     report_datetime_allowance=self.report_datetime_allowance,
-                    report_datetime=self.cleaned_data.get(
-                        self.report_datetime_field_attr
-                    ),
+                    report_datetime=self.cleaned_data.get(self.report_datetime_field_attr),
                     visit_report_datetime=self.related_visit.report_datetime,
                 )
             except (

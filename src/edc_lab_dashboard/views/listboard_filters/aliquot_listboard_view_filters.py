@@ -11,9 +11,7 @@ class AliquotListboardViewFilters(ListboardViewFilters):
 
     is_primary = ListboardFilter(label="Primary", lookup={"is_primary": True})
 
-    packed = ListboardFilter(
-        label="Packed", lookup={"aliquot_identifier__in": get_box_items}
-    )
+    packed = ListboardFilter(label="Packed", lookup={"aliquot_identifier__in": get_box_items})
 
     not_packed = ListboardFilter(
         label="Not Packed",
@@ -23,6 +21,4 @@ class AliquotListboardViewFilters(ListboardViewFilters):
 
     shipped = ListboardFilter(label="Shipped", lookup={"shipped": True})
 
-    not_shipped = ListboardFilter(
-        label="Not shipped", default=True, lookup={"shipped": False}
-    )
+    not_shipped = ListboardFilter(label="Not shipped", default=True, lookup={"shipped": False})

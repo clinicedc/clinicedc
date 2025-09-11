@@ -135,9 +135,7 @@ class AppointmentFormValidator(
         if self.cleaned_data.get("appt_status") == IN_PROGRESS_APPT and getattr(
             self.instance, "id", None
         ):
-            previous_appt = get_previous_appointment(
-                self.instance, include_interim=True
-            )
+            previous_appt = get_previous_appointment(self.instance, include_interim=True)
             if previous_appt and previous_appt.appt_status not in [
                 CANCELLED_APPT,
                 SKIPPED_APPT,
@@ -297,10 +295,7 @@ class AppointmentFormValidator(
         appt_status = self.cleaned_data.get("appt_status")
         if appt_datetime and appt_status and appt_status != NEW_APPT:
             if self.instance.relative_previous:
-                if (
-                    to_utc(appt_datetime)
-                    < self.instance.relative_previous.appt_datetime
-                ):
+                if to_utc(appt_datetime) < self.instance.relative_previous.appt_datetime:
                     formatted_date = formatted_datetime(
                         self.instance.relative_previous.appt_datetime
                     )
@@ -352,16 +347,12 @@ class AppointmentFormValidator(
         appt_status = self.cleaned_data.get("appt_status")
         if self.instance.visit_code_sequence == 0 and appt_status == CANCELLED_APPT:
             self.raise_validation_error(
-                {
-                    "appt_status": "Invalid. A scheduled appointment may not be cancelled."
-                },
+                {"appt_status": "Invalid. A scheduled appointment may not be cancelled."},
                 INVALID_APPT_STATUS,
             )
         elif self.instance.visit_code_sequence != 0 and appt_status == SKIPPED_APPT:
             self.raise_validation_error(
-                {
-                    "appt_status": "Invalid. An unscheduled appointment may not be skipped."
-                },
+                {"appt_status": "Invalid. An unscheduled appointment may not be skipped."},
                 INVALID_APPT_STATUS,
             )
         elif is_baseline(self.instance) and appt_status == SKIPPED_APPT:
@@ -388,10 +379,7 @@ class AppointmentFormValidator(
 
     def validate_appt_inprogress_or_incomplete(self: Any) -> None:
         appt_status = self.cleaned_data.get("appt_status")
-        if (
-            appt_status in [CANCELLED_APPT, SKIPPED_APPT]
-            and self.crf_metadata_keyed_exists
-        ):
+        if appt_status in [CANCELLED_APPT, SKIPPED_APPT] and self.crf_metadata_keyed_exists:
             self.raise_validation_error(
                 {"appt_status": "Invalid. Some CRFs have already been keyed"},
                 INVALID_APPT_STATUS,
@@ -468,9 +456,7 @@ class AppointmentFormValidator(
                 )
             elif not self.requisition_metadata_required_exists:
                 self.raise_validation_error(
-                    {
-                        "appt_status": "Invalid. All required requisitions have been keyed"
-                    },
+                    {"appt_status": "Invalid. All required requisitions have been keyed"},
                     INVALID_APPT_STATUS,
                 )
             elif not self.required_additional_forms_exist:
@@ -509,9 +495,7 @@ class AppointmentFormValidator(
                 )
             elif is_baseline(self.instance):
                 self.raise_validation_error(
-                    {
-                        "appt_status": "Invalid. Appointment may not be skipped at baseline"
-                    },
+                    {"appt_status": "Invalid. Appointment may not be skipped at baseline"},
                     INVALID_APPT_STATUS_AT_BASELINE,
                 )
 
@@ -528,9 +512,7 @@ class AppointmentFormValidator(
                 )
 
     def validate_appt_type(self):
-        self.not_applicable_if(
-            SKIPPED_APPT, field="appt_status", field_applicable="appt_type"
-        )
+        self.not_applicable_if(SKIPPED_APPT, field="appt_status", field_applicable="appt_type")
 
     def validate_appt_status(self):
         pass
@@ -568,15 +550,9 @@ class AppointmentFormValidator(
                 {"appt_status": "Invalid. A scheduled appointment cannot be cancelled"},
                 INVALID_APPT_STATUS,
             )
-        elif (
-            appt_status
-            and self.instance.visit_code_sequence
-            and appt_status == SKIPPED_APPT
-        ):
+        elif appt_status and self.instance.visit_code_sequence and appt_status == SKIPPED_APPT:
             self.raise_validation_error(
-                {
-                    "appt_status": "Invalid. An unscheduled appointment cannot be skipped"
-                },
+                {"appt_status": "Invalid. An unscheduled appointment cannot be skipped"},
                 INVALID_APPT_STATUS,
             )
 
@@ -584,9 +560,7 @@ class AppointmentFormValidator(
         if (
             self.cleaned_data.get("appt_reason") == UNSCHEDULED_APPT
             and get_previous_appointment(self.instance, include_interim=True)
-            and get_previous_appointment(
-                self.instance, include_interim=True
-            ).appt_status
+            and get_previous_appointment(self.instance, include_interim=True).appt_status
             == MISSED_APPT
         ):
             self.raise_validation_error(

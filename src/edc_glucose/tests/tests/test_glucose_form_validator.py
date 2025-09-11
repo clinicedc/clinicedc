@@ -1,17 +1,17 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
+
 from edc_appointment.models import Appointment
 from edc_appointment.tests.helper import Helper as BaseHelper
 from edc_consent import site_consents
 from edc_constants.constants import NOT_APPLICABLE, YES
+from edc_glucose.form_validators import GlucoseFormValidator
 from edc_lab.constants import EQ
 from edc_reportable import MILLIMOLES_PER_LITER
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-
-from edc_glucose.form_validators import GlucoseFormValidator
 
 from ..consents import consent_v1
 from ..models import SubjectScreening

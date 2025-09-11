@@ -41,9 +41,7 @@ def update_action_item_reason(instance):
         instance.save_base(update_fields=["action_item_reason"])
 
 
-@receiver(
-    m2m_changed, weak=False, dispatch_uid="update_action_item_reason_on_m2m_changed"
-)
+@receiver(m2m_changed, weak=False, dispatch_uid="update_action_item_reason_on_m2m_changed")
 def update_action_item_reason_on_m2m_changed(action, instance, **kwargs):
     if "historical" not in instance._meta.label_lower and isinstance(
         instance, (ActionModelMixin, ActionNoManagersModelMixin)
@@ -51,9 +49,7 @@ def update_action_item_reason_on_m2m_changed(action, instance, **kwargs):
         update_action_item_reason(instance)
 
 
-@receiver(
-    m2m_changed, weak=False, dispatch_uid="update_or_create_action_item_on_m2m_change"
-)
+@receiver(m2m_changed, weak=False, dispatch_uid="update_or_create_action_item_on_m2m_change")
 def update_or_create_action_item_on_m2m_change(action, instance, using, **kwargs):
     if "historical" not in instance._meta.label_lower and isinstance(
         instance, (ActionModelMixin, ActionNoManagersModelMixin)
@@ -61,9 +57,7 @@ def update_or_create_action_item_on_m2m_change(action, instance, using, **kwargs
         update_or_create_action_item(instance, False, using)
 
 
-@receiver(
-    post_save, weak=False, dispatch_uid="update_or_create_action_item_on_post_save"
-)
+@receiver(post_save, weak=False, dispatch_uid="update_or_create_action_item_on_post_save")
 def update_or_create_action_item_on_post_save(
     sender, instance, raw, created, using, update_fields, **kwargs
 ):

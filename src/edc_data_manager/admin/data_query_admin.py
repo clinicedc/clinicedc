@@ -35,15 +35,11 @@ from .actions import toggle_dm_status
 
 
 @register(DataQuery, site=edc_data_manager_admin)
-class DataQueryAdmin(
-    SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
-):
+class DataQueryAdmin(SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
     status_column_template_name = "edc_data_manager/columns/status.html"
     query_date_column_template_name = "edc_data_manager/columns/query_date.html"
     query_text_column_template_name = "edc_data_manager/columns/query_text.html"
-    query_recipients_column_template_name = (
-        "edc_data_manager/columns/query_recipients.html"
-    )
+    query_recipients_column_template_name = "edc_data_manager/columns/query_recipients.html"
 
     rule_generated_column_template_name = "edc_data_manager/columns/rule_generated.html"
 
@@ -305,9 +301,7 @@ class DataQueryAdmin(
         return render_to_string(self.locked_column_template_name, context=context)
 
     def render_rule_generated_to_string(self, context):
-        return render_to_string(
-            self.rule_generated_column_template_name, context=context
-        )
+        return render_to_string(self.rule_generated_column_template_name, context=context)
 
     def render_query_date_to_string(self, context):
         return render_to_string(self.query_date_column_template_name, context=context)
@@ -316,9 +310,7 @@ class DataQueryAdmin(
         return render_to_string(self.query_text_column_template_name, context=context)
 
     def render_query_recipients_to_string(self, context):
-        return render_to_string(
-            self.query_recipients_column_template_name, context=context
-        )
+        return render_to_string(self.query_recipients_column_template_name, context=context)
 
     def created_details(self, obj):
         rule_generated = YES if obj.rule_generated else NO

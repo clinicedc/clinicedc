@@ -4,6 +4,9 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.db.models import Sum
@@ -49,9 +52,6 @@ from edc_randomization.constants import ACTIVE, PLACEBO
 from edc_randomization.models import RandomizationList
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 
@@ -454,8 +454,7 @@ class TestOrderReceive(TestCase):
         # scan in some or all stock code labels to confirm stock (central)
         for repack_request in RepackRequest.objects.all():
             codes = [
-                obj.code
-                for obj in repack_request.stock_set.filter(confirmation__isnull=True)
+                obj.code for obj in repack_request.stock_set.filter(confirmation__isnull=True)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
                 repack_request, codes, fk_attr="repack_request"
@@ -482,8 +481,7 @@ class TestOrderReceive(TestCase):
         # try to scan in stock codes that were already confirmed
         for repack_request in RepackRequest.objects.all():
             codes = [
-                obj.code
-                for obj in repack_request.stock_set.filter(confirmation__isnull=False)
+                obj.code for obj in repack_request.stock_set.filter(confirmation__isnull=False)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
                 repack_request, codes, fk_attr="repack_request"
@@ -508,9 +506,7 @@ class TestOrderReceive(TestCase):
 
         # refer back to repack_request from stock
         self.assertEqual(Stock.objects.filter(repack_request__isnull=True).count(), 20)
-        self.assertEqual(
-            Stock.objects.filter(repack_request__isnull=False).count(), 39 * 20
-        )
+        self.assertEqual(Stock.objects.filter(repack_request__isnull=False).count(), 39 * 20)
 
         # we create bottles of 128 from the two bottles of 50000 tablets
         # the total number of tablets remains the same
@@ -572,9 +568,7 @@ class TestOrderReceive(TestCase):
         SITE_ID=10,
         EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=True,
     )
-    @patch(
-        "edc_model_admin.templatetags.edc_admin_modify.get_cancel_url", return_value="/"
-    )
+    @patch("edc_model_admin.templatetags.edc_admin_modify.get_cancel_url", return_value="/")
     def test_create_stock_request_and_items(self, mock_cancel_url):
         site_consents.registry = {}
         site_consents.register(consent_v1)
@@ -611,12 +605,8 @@ class TestOrderReceive(TestCase):
         )
 
         # user prepares stock request items (admin action against the stock request)
-        df_next_scheduled_visits = get_next_scheduled_visit_for_subjects_df(
-            stock_request
-        )
-        _, df_nostock = get_instock_and_nostock_data(
-            stock_request, df_next_scheduled_visits
-        )
+        df_next_scheduled_visits = get_next_scheduled_visit_for_subjects_df(stock_request)
+        _, df_nostock = get_instock_and_nostock_data(stock_request, df_next_scheduled_visits)
         nostock_as_dict = df_nostock.to_dict("list")
         bulk_create_stock_request_items(
             stock_request.pk, nostock_as_dict, user_created="erikvw", bulk_create=False

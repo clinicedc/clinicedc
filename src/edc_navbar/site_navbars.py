@@ -34,9 +34,7 @@ class NavbarCollection:
             self.registry.update({navbar.name: navbar})
             # self.codenames.update(**navbar.codenames)
         else:
-            raise AlreadyRegistered(
-                f"Navbar with name {navbar.name} is already registered."
-            )
+            raise AlreadyRegistered(f"Navbar with name {navbar.name} is already registered.")
 
     def context(self, name=None, selected_item=None):
         """Returns the named navbar in the collection as context."""
@@ -92,9 +90,7 @@ class NavbarCollection:
                     try:
                         before_import_registry = copy.copy(site_navbars.registry)
                         import_module(f"{app}.{module_name}")
-                        writer(
-                            f"   - registered navbars '{module_name}' from '{app}'\n"
-                        )
+                        writer(f"   - registered navbars '{module_name}' from '{app}'\n")
                     except NavbarError as e:
                         writer(f"   * loading {app}.navbars ... \n")
                         writer(style.ERROR(f"ERROR! {e}\n"))

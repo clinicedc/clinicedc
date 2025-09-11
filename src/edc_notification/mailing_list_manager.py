@@ -81,9 +81,7 @@ class MailingListManager:
         a member to the list.
         """
         if not self.email_enabled:
-            raise EmailNotEnabledError(
-                "Email is not enabled. See settings.EMAIL_ENABLED"
-            )
+            raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
         if not user.email:
             raise UserEmailError(f"User {user}'s email address is not defined.")
         response = requests.post(
@@ -107,9 +105,7 @@ class MailingListManager:
         a member from the list.
         """
         if not self.email_enabled:
-            raise EmailNotEnabledError(
-                "Email is not enabled. See settings.EMAIL_ENABLED"
-            )
+            raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
         response = requests.put(
             f"{self.api_url}/{self.address}/members/{user.email}",
             auth=("api", self.api_key),
@@ -140,9 +136,7 @@ class MailingListManager:
     def create(self, verbose: bool | None = None) -> Response:
         """Returns a response after attempting to create the list."""
         if not self.email_enabled:
-            raise EmailNotEnabledError(
-                "Email is not enabled. See settings.EMAIL_ENABLED"
-            )
+            raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
         response = requests.post(
             self.api_url,
             auth=("api", self.api_key),
@@ -163,9 +157,7 @@ class MailingListManager:
     def delete(self) -> Response:
         """Returns a response after attempting to delete the list."""
         if not self.email_enabled:
-            raise EmailNotEnabledError(
-                "Email is not enabled. See settings.EMAIL_ENABLED"
-            )
+            raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
         return requests.delete(
             f"{self.api_url}/{self.address}", auth=("api", self.api_key), timeout=10
         )
@@ -175,9 +167,7 @@ class MailingListManager:
         a member from the list.
         """
         if not self.email_enabled:
-            raise EmailNotEnabledError(
-                "Email is not enabled. See settings.EMAIL_ENABLED"
-            )
+            raise EmailNotEnabledError("Email is not enabled. See settings.EMAIL_ENABLED")
         return requests.delete(
             f"{self.api_url}/{self.address}/members/{user.email}",
             auth=("api", self.api_key),

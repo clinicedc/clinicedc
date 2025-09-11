@@ -3,6 +3,12 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+    get_visit_schedule2,
+)
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 
@@ -28,12 +34,6 @@ from edc_visit_schedule.exceptions import ScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
-    get_visit_schedule1,
-    get_visit_schedule2,
-)
 
 utc_tz = ZoneInfo("UTC")
 
@@ -213,9 +213,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             schedule_name=self.schedule1.name,
         )
         traveller.stop()
-        for visit in self.visit_schedule1.schedules.get(
-            self.schedule1.name
-        ).visits.values():
+        for visit in self.visit_schedule1.schedules.get(self.schedule1.name).visits.values():
             # with self.subTest(visit=visit):
             # get parent appointment
             new_appointment = None
@@ -253,14 +251,10 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             appointment.save()
             appointment.refresh_from_db()
 
-            print(
-                visit, appointment, appointment.related_visit, appointment.appt_status
-            )
+            print(visit, appointment, appointment.related_visit, appointment.appt_status)
 
             traveller.stop()
-            traveller = time_machine.travel(
-                appointment.appt_datetime + relativedelta(days=1)
-            )
+            traveller = time_machine.travel(appointment.appt_datetime + relativedelta(days=1))
             traveller.start()
 
             # create unscheduled off of this appt
@@ -338,9 +332,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             [IN_PROGRESS_APPT, N, N, N],
         )
         appointment = set_to_incomplete(appointment)
-        self.assertEqual(
-            appt_status(subject_consent.subject_identifier), [INC, N, N, N]
-        )
+        self.assertEqual(appt_status(subject_consent.subject_identifier), [INC, N, N, N])
         unscheduled_appointment = get_unscheduled(appointment)
         self.assertEqual(
             appt_status(subject_consent.subject_identifier),

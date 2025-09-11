@@ -2,6 +2,12 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import SubjectConsentV1Ext
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule6,
+)
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings, tag
@@ -21,12 +27,6 @@ from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
-from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import SubjectConsentV1Ext
-from clinicedc_tests.sites import all_sites
-from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
-    get_visit_schedule6,
-)
 
 utc = ZoneInfo("UTC")
 tz = ZoneInfo("Africa/Dar_es_Salaam")
@@ -113,9 +113,7 @@ class TestNextAppointmentCrf(TestCase):
         )
         subject_visit.save()
 
-        traveller = time_machine.travel(
-            appointment.appt_datetime + relativedelta(days=10)
-        )
+        traveller = time_machine.travel(appointment.appt_datetime + relativedelta(days=10))
         traveller.start()
         SubjectConsentV1Ext.objects.create(
             subject_consent=self.subject_consent,
