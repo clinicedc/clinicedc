@@ -68,10 +68,3 @@ def ogtt_model_mixin_factory(utest_id: str, **kwargs):
         AbstractModel.add_to_class(name, fld_cls)
 
     return AbstractModel
-
-
-class OgttModelMixin(ogtt_model_mixin_factory("ogtt"), models.Model):
-    """A model mixin of fields for the OGTT"""
-
-    class Meta:
-        abstract = True

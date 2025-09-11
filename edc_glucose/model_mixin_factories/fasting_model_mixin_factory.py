@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from django.db import models
 from edc_constants.choices import YES_NO_NA
 from edc_constants.constants import NOT_APPLICABLE
@@ -25,7 +23,10 @@ def fasting_model_mixin_factory(
 
     opts = {
         f"{prefix}fasting": models.CharField(
-            verbose_name=verbose_names.get(f"{prefix}fasting", "Has the participant fasted?"),
+            verbose_name=verbose_names.get(
+                f"{prefix}fasting",
+                "Has the participant fasted?",
+            ),
             max_length=15,
             choices=YES_NO_NA,
             default=NOT_APPLICABLE,
@@ -59,13 +60,3 @@ def fasting_model_mixin_factory(
         AbstractModel.add_to_class(name, fld_cls)
 
     return AbstractModel
-
-
-class FastingModelMixin(fasting_model_mixin_factory(), models.Model):
-    """A model mixin of fields about fasting.
-
-    Used together with mixins for glucose measurements.
-    """
-
-    class Meta:
-        abstract = True

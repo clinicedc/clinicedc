@@ -9,12 +9,12 @@ class Hba1cModelMixin(models.Model):
     """A model mixin of fields for the HbA1c"""
 
     hba1c_value = models.DecimalField(
-        verbose_name="HbA1c Reading",
+        verbose_name="HbA1c value",
         max_digits=8,
         decimal_places=2,
         null=True,
         blank=True,
-        help_text=f"A `HIGH` reading may be entered as {GLUCOSE_HIGH_READING}",
+        help_text=f"In percent. A `HIGH` reading may be entered as {GLUCOSE_HIGH_READING}",
     )
 
     hba1c_quantifier = models.CharField(
@@ -25,7 +25,10 @@ class Hba1cModelMixin(models.Model):
     )
 
     hba1c_units = models.CharField(
-        verbose_name="HbA1c units", max_length=15, default=PERCENT, editable=False
+        verbose_name="HbA1c units",
+        max_length=15,
+        default=PERCENT,
+        editable=False,
     )
 
     hba1c_datetime = models.DateTimeField(

@@ -21,7 +21,7 @@ project_settings = DefaultTestSettings(
         "edc_dx.apps.AppConfig",
         "edc_dx_review.apps.AppConfig",
         "edc_glucose.apps.AppConfig",
-        "visit_schedule_app.apps.AppConfig",
+        "edc_visit_schedule_app.apps.AppConfig",
     ],
     EDC_DX_LABELS=dict(dm="Diabetes"),
     EDC_DX_REVIEW_LIST_MODEL_APP_LABEL="edc_glucose",
