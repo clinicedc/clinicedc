@@ -1,12 +1,17 @@
 from _decimal import Decimal
+
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.labs import lab_profile
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
+from django.test import tag, TestCase, override_settings
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import BLACK, MALE
 from edc_lab import site_labs
 from edc_lab.models import Panel
 from edc_lab_panel.panels import rft_panel
-from edc_registration.models import RegisteredSubject
 from edc_reportable import MICROMOLES_PER_LITER, MILLIGRAMS_PER_DECILITER
 from edc_reportable.data.grading_data.daids_july_2017 import grading_data
 from edc_reportable.data.normal_data.africa import normal_data
@@ -20,20 +25,32 @@ from edc_visit_tracking.models import SubjectVisit
 
 from edc_egfr.calculators import EgfrCalculatorError
 from edc_egfr.egfr import Egfr, EgfrError
-from egfr_app.lab_profiles import lab_profile
-from egfr_app.models import EgfrDropNotification, ResultCrf, SubjectRequisition
-from egfr_app.visit_schedules import visit_schedule
+from ..models import EgfrDropNotification, ResultCrf, SubjectRequisition
 
 
+@tag("egfr")
 class TestEgfr(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        load_reference_ranges(
+            "my_reference_list", normal_data=normal_data, grading_data=grading_data
+        )
+        site_labs.initialize()
+        site_labs.register(lab_profile=lab_profile)
+
     def setUp(self) -> None:
+        helper = Helper()
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
+        visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules.register(visit_schedule)
-        RegisteredSubject.objects.create(
-            subject_identifier="1234",
-            gender=MALE,
-            dob=get_utcnow() - relativedelta(years=30),
+
+        self.subject_visit = helper.enroll_to_baseline(
+            visit_schedule_name=visit_schedule.name,
+            schedule_name="schedule",
             ethnicity=BLACK,
+            gender=MALE,
         )
 
     @classmethod
@@ -183,7 +200,7 @@ class TestEgfr(TestCase):
         self.assertEqual(egfr.egfr_drop_grade, 4)
         self.assertEqual(egfr.egfr_drop_grade, 4)
 
-    @override_settings(EDC_EGFR_DROP_NOTIFICATION_MODEL="egfr_app.EgfrDropNotification")
+    @override_settings(EDC_EGFR_DROP_NOTIFICATION_MODEL="edc_egfr.EgfrDropNotification")
     def test_egfr_drop_with_notify(self):
         appointment = Appointment.objects.create(
             subject_identifier="1234",
@@ -232,7 +249,10 @@ class TestEgfr(TestCase):
         )
 
         egfr = Egfr(
-            baseline_egfr_value=220.1, percent_drop_threshold=20, calling_crf=crf, **opts
+            baseline_egfr_value=220.1,
+            percent_drop_threshold=20,
+            calling_crf=crf,
+            **opts,
         )
         self.assertEqual(round_half_away_from_zero(egfr.egfr_value, 2), 156.42)
         self.assertIsNone(egfr.egfr_grade)
@@ -246,7 +266,10 @@ class TestEgfr(TestCase):
         crf.save()
         crf.refresh_from_db()
         egfr = Egfr(
-            baseline_egfr_value=220.1, percent_drop_threshold=20, calling_crf=crf, **opts
+            baseline_egfr_value=220.1,
+            percent_drop_threshold=20,
+            calling_crf=crf,
+            **opts,
         )
         self.assertEqual(round_half_away_from_zero(egfr.egfr_value, 2), 162.92)
         self.assertIsNone(egfr.egfr_grade)
@@ -262,7 +285,10 @@ class TestEgfr(TestCase):
         crf.save()
         crf.refresh_from_db()
         egfr = Egfr(
-            baseline_egfr_value=190.1, percent_drop_threshold=20, calling_crf=crf, **opts
+            baseline_egfr_value=190.1,
+            percent_drop_threshold=20,
+            calling_crf=crf,
+            **opts,
         )
         self.assertEqual(round_half_away_from_zero(egfr.egfr_value, 2), 156.42)
         self.assertIsNone(egfr.egfr_grade)
@@ -274,7 +300,10 @@ class TestEgfr(TestCase):
         )
 
         egfr = Egfr(
-            baseline_egfr_value=100.1, percent_drop_threshold=20, calling_crf=crf, **opts
+            baseline_egfr_value=100.1,
+            percent_drop_threshold=20,
+            calling_crf=crf,
+            **opts,
         )
         self.assertEqual(round_half_away_from_zero(egfr.egfr_value, 2), 156.42)
         self.assertIsNone(egfr.egfr_grade)

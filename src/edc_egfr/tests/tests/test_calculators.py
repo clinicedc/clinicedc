@@ -1,5 +1,5 @@
 from django import forms
-from django.test import TestCase
+from django.test import tag, TestCase
 from edc_constants.constants import BLACK, FEMALE, MALE, NON_BLACK
 from edc_form_validators import FormValidator
 from edc_reportable.units import (
@@ -22,6 +22,7 @@ from edc_egfr.form_validator_mixins import (
 )
 
 
+@tag("egfr")
 class TestCalculators(TestCase):
     def test_creatinine_units(self):
         """U.S. units: 0.84 to 1.21 milligrams per deciliter (mg/dL);

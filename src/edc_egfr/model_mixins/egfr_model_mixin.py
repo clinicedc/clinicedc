@@ -4,7 +4,8 @@ from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models, transaction
-from edc_lab_panel.model_mixin_factory import reportable_result_model_mixin_factory
+
+from edc_lab_results.model_mixin_factory import reportable_result_model_mixin_factory
 from edc_registration.models import RegisteredSubject
 from edc_reportable.units import EGFR_UNITS, PERCENT
 from edc_reportable.utils import get_reference_range_collection

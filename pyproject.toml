@@ -19,6 +19,7 @@ module-name = [
     "edc_data_manager",
     "edc_device",
     "edc_document_status",
+    "edc_egfr",
     "edc_export",
     "edc_facility",
     "edc_fieldsets",
