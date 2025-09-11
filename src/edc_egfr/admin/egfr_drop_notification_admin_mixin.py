@@ -2,7 +2,7 @@ from typing import Dict, Optional, Tuple
 
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_action_item import action_fieldset_tuple
+from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_crf.fieldset import crf_status_fieldset
 
 

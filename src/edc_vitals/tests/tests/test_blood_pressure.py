@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import tag, TestCase
 from edc_constants.constants import YES
 
 from edc_vitals.form_validators import BloodPressureFormValidatorMixin
@@ -9,6 +9,7 @@ from edc_vitals.utils import has_severe_htn
 from ..models import BloodPressure, SimpleBloodPressure
 
 
+@tag("vitals")
 class TestBloodPressure(TestCase):
     def test_allows_none(self):
         obj = BloodPressure()
@@ -79,15 +80,21 @@ class TestBloodPressureFormValidatorMixin(TestCase):
         )
         form_validator = BloodPressureFormValidatorMixin()
         self.assertIsNone(
-            form_validator.raise_on_avg_blood_pressure_suggests_severe_htn(**cleaned_data)
+            form_validator.raise_on_avg_blood_pressure_suggests_severe_htn(
+                **cleaned_data
+            )
         )
         cleaned_data.update(sys_blood_pressure_one=180, dia_blood_pressure_one=None)
         self.assertIsNone(
-            form_validator.raise_on_avg_blood_pressure_suggests_severe_htn(**cleaned_data)
+            form_validator.raise_on_avg_blood_pressure_suggests_severe_htn(
+                **cleaned_data
+            )
         )
         cleaned_data.update(sys_blood_pressure_one=180, dia_blood_pressure_one=120)
         self.assertIsNone(
-            form_validator.raise_on_avg_blood_pressure_suggests_severe_htn(**cleaned_data)
+            form_validator.raise_on_avg_blood_pressure_suggests_severe_htn(
+                **cleaned_data
+            )
         )
         cleaned_data.update(
             sys_blood_pressure_one=180,
@@ -103,7 +110,9 @@ class TestBloodPressureFormValidatorMixin(TestCase):
 
         cleaned_data.update(severe_htn=YES)
         try:
-            form_validator.raise_on_avg_blood_pressure_suggests_severe_htn(**cleaned_data)
+            form_validator.raise_on_avg_blood_pressure_suggests_severe_htn(
+                **cleaned_data
+            )
         except forms.ValidationError as e:
             self.fail(f"ValidationError unexpectedly raised. Got {e}")
 

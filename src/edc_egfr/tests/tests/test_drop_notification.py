@@ -1,10 +1,15 @@
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.labs import lab_profile
-from clinicedc_tests.models import SubjectRequisition
-from django.test import tag, TestCase, override_settings
+from clinicedc_tests.models import EgfrDropNotification, ResultCrf, SubjectRequisition
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
+from django.test import override_settings, tag, TestCase
+
 from edc_consent import site_consents
 from edc_constants.constants import BLACK, CLOSED, COMPLETE, INCOMPLETE, MALE, OPEN
+from edc_egfr.egfr import Egfr
+from edc_facility.import_holidays import import_holidays
 from edc_lab import site_labs
 from edc_lab.models import Panel
 from edc_lab_panel.panels import rft_panel
@@ -12,18 +17,16 @@ from edc_reportable import MICROMOLES_PER_LITER
 from edc_reportable.data.grading_data.daids_july_2017 import grading_data
 from edc_reportable.data.normal_data.africa import normal_data
 from edc_reportable.utils import load_reference_ranges
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from edc_egfr.egfr import Egfr
-from ..models import (
-    EgfrDropNotification,
-    ResultCrf,
-)
-from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
-
 
 @tag("egfr")
+@override_settings(
+    EDC_SITES_REGISTER_DEFAULT=True, EDC_SITES_CREATE_DEFAULT=True, SITE_ID=10
+)
 class TestEgfr(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -32,6 +35,11 @@ class TestEgfr(TestCase):
         )
         site_labs.initialize()
         site_labs.register(lab_profile=lab_profile)
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self) -> None:
         helper = Helper()
@@ -73,7 +81,9 @@ class TestEgfr(TestCase):
             formula_name="ckd-epi",
         )
 
-    @override_settings(EDC_EGFR_DROP_NOTIFICATION_MODEL="edc_egfr.EgfrDropNotification")
+    @override_settings(
+        EDC_EGFR_DROP_NOTIFICATION_MODEL="clinicedc_tests.EgfrDropNotification"
+    )
     def test_egfr_drop_notification_model(self):
         Egfr(
             baseline_egfr_value=220.1,

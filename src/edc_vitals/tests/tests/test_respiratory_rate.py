@@ -1,9 +1,10 @@
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import tag, TestCase
 
 from ..models import RespiratoryRate
 
 
+@tag("vitals")
 class TestTemperature(TestCase):
     def test_simple_ok(self):
         obj = RespiratoryRate(respiratory_rate=20)

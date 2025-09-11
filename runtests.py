@@ -68,4 +68,5 @@ if __name__ == "__main__":
         "edc_view_utils.tests",
         "edc_visit_schedule.tests",
         "edc_visit_tracking.tests",
+        "edc_vitals.tests",
     )

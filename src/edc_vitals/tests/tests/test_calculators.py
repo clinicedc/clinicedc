@@ -10,8 +10,8 @@ from edc_vitals.calculators import BMI, CalculatorError, calculate_bmi
 from edc_vitals.form_validators import BmiFormValidatorMixin
 
 
+@tag("vitals")
 class TestCalculators(TestCase):
-    @tag("1")
     def test_bmi_calculator(self):
         dob = get_utcnow() - relativedelta(years=25)
         self.assertRaises(CalculatorError, BMI, weight_kg=56, height_cm=None)
@@ -32,7 +32,10 @@ class TestCalculators(TestCase):
                 )
                 try:
                     bmi = func(
-                        weight_kg=56, height_cm=150, dob=dob, report_datetime=get_utcnow()
+                        weight_kg=56,
+                        height_cm=150,
+                        dob=dob,
+                        report_datetime=get_utcnow(),
                     )
                 except CalculatorError as e:
                     self.fail(f"CalculatorError unexpectedly raises. Got {e}")

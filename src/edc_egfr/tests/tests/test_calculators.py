@@ -1,6 +1,17 @@
 from django import forms
 from django.test import tag, TestCase
+
 from edc_constants.constants import BLACK, FEMALE, MALE, NON_BLACK
+from edc_egfr.calculators import (
+    egfr_percent_change,
+    EgfrCalculatorError,
+    EgfrCkdEpi,
+    EgfrCockcroftGault,
+)
+from edc_egfr.form_validator_mixins import (
+    EgfrCkdEpiFormValidatorMixin,
+    EgfrCockcroftGaultFormValidatorMixin,
+)
 from edc_form_validators import FormValidator
 from edc_reportable.units import (
     GRAMS_PER_DECILITER,
@@ -9,17 +20,6 @@ from edc_reportable.units import (
 )
 from edc_reportable.utils import convert_units
 from edc_utils.round_up import round_half_away_from_zero
-
-from edc_egfr.calculators import (
-    EgfrCalculatorError,
-    EgfrCkdEpi,
-    EgfrCockcroftGault,
-    egfr_percent_change,
-)
-from edc_egfr.form_validator_mixins import (
-    EgfrCkdEpiFormValidatorMixin,
-    EgfrCockcroftGaultFormValidatorMixin,
-)
 
 
 @tag("egfr")

@@ -70,6 +70,7 @@ module-name = [
     "edc_view_utils",
     "edc_visit_schedule",
     "edc_visit_tracking",
+    "edc_vitals",
 ]
 source-include = ["edc_*/templates/**", "edc_*/locale/**", "locale/**"]
 source-exclude = ["edc_*/tests/**", "edc_*/notebooks/**", "tests/**", "bin"]

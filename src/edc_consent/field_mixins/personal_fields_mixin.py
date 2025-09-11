@@ -2,13 +2,12 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
+
 from django_crypto_fields.fields import EncryptedCharField
 from django_crypto_fields.models import CryptoMixin
-
 from edc_constants.choices import GENDER_UNDETERMINED
 from edc_model.models import NameFieldsModelMixin
 from edc_model_fields.fields import IsDateEstimatedField
-
 from ..validators import FullNameValidator
 
 
@@ -39,6 +38,13 @@ class BaseFieldsMixin(models.Model):
                 "Format is 'LASTNAME, FIRSTNAME'. All uppercase separated by a comma."
             ),
         ),
+    )
+
+    ethnicity = models.CharField(
+        max_length=15,
+        help_text=_("from screening"),
+        editable=False,
+        null=True,
     )
 
     subject_type = models.CharField(max_length=25)
