@@ -2,10 +2,10 @@ import os
 import shutil
 from tempfile import mkdtemp
 
+from clinicedc_tests.utils import get_user_for_tests
 from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.test.utils import override_settings
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
 from edc_registration.models import RegisteredSubject

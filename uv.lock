@@ -314,30 +314,30 @@ css = [
 
 [[package]]
 name = "boto3"
-version = "1.40.28"
+version = "1.40.29"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore" },
     { name = "jmespath" },
     { name = "s3transfer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4a/0c/4c4545430e0a0519cb2b17f6a798097673ae265fa3c910b912726cea5cfb/boto3-1.40.28.tar.gz", hash = "sha256:dd44710ab908b0b38cf127053cac83608a15358c85fa267a498e3dbac6fd5789", size = 111549, upload-time = "2025-09-10T19:22:51.103Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/41/da/403df8247b332668a5bf2fa78ee1cbe6edfafa9c70260743596e4d29989c/boto3-1.40.29.tar.gz", hash = "sha256:3abdf649163ab86929cee9a6401e3ed1aaf8aef35c95e262a1b1c496d20f4168", size = 111559, upload-time = "2025-09-11T19:24:27Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f1/3f/18aa63d1693f93792f329efa88b92e6af43816577ba3cf918d89e444027d/boto3-1.40.28-py3-none-any.whl", hash = "sha256:fd5cb71b6390e870974e56969e10868f1cf391babeef0b18f91cf8d4f00557cd", size = 139328, upload-time = "2025-09-10T19:22:48.656Z" },
+    { url = "https://files.pythonhosted.org/packages/3c/49/704058732e48261d8194b1b108dce57421b64c5058dea58ee26ac4151f61/boto3-1.40.29-py3-none-any.whl", hash = "sha256:bb2871e9be0fe20e6605d3369d521f2079cef77df672c1ee13362746184969d6", size = 139324, upload-time = "2025-09-11T19:24:25.546Z" },
 ]
 
 [[package]]
 name = "botocore"
-version = "1.40.28"
+version = "1.40.29"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jmespath" },
     { name = "python-dateutil" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/10/b2/fe454104d7321c2e08b8eefa87cbd8c25128f6ba064595d69b2fc61dd29c/botocore-1.40.28.tar.gz", hash = "sha256:4a26c662dcce2e675209c23cd3a569e137a59fdc9692b8bb9dabed522cbe2d8c", size = 14343261, upload-time = "2025-09-10T19:22:37.203Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3f/0d/3e420528a69ea8077c91d80aaeea9c2c4dcdc4115e5e267f52636f3fa4f5/botocore-1.40.29.tar.gz", hash = "sha256:4e5207acef693167bb99c08a4c24d3e9405cb9669999e272a473a04cf2ba9df9", size = 14346806, upload-time = "2025-09-11T19:24:17.717Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ba/c9/41542221147a162f7043235cbccbb3b39148ab408e76fe466783f27c1680/botocore-1.40.28-py3-none-any.whl", hash = "sha256:fcd393da6cb4d97cff3823d4085cd034d1c80f1cc22a57b1f84d3f863b337a03", size = 14017584, upload-time = "2025-09-10T19:22:33.077Z" },
+    { url = "https://files.pythonhosted.org/packages/4b/9e/d9d9726a9c95179544fb7ca3cba7e1cf82b60d9bc030eb034aa4abc22454/botocore-1.40.29-py3-none-any.whl", hash = "sha256:69a180a027044ae01db80b4cce4b2f93b6e4731fd7a8393c54f708c5677af85f", size = 14021245, upload-time = "2025-09-11T19:24:14.947Z" },
 ]
 
 [[package]]
@@ -549,7 +549,7 @@ wheels = [
 
 [[package]]
 name = "clinicedc"
-version = "2.0.2"
+version = "2.0.3"
 source = { editable = "." }
 dependencies = [
     { name = "argon2-cffi" },
@@ -593,6 +593,7 @@ dependencies = [
 develop = [
     { name = "argon2-cffi" },
     { name = "clinicedc" },
+    { name = "clinicedc-tests" },
     { name = "django-admin-rangefilter" },
     { name = "django-audit-fields" },
     { name = "django-crypto-fields" },
@@ -641,8 +642,6 @@ test = [
     { name = "coverage" },
     { name = "django-audit-fields" },
     { name = "django-webtest" },
-    { name = "edc-test-settings" },
-    { name = "edc-test-utils" },
     { name = "faker" },
     { name = "model-bakery" },
     { name = "time-machine" },
@@ -692,6 +691,7 @@ requires-dist = [
 develop = [
     { name = "argon2-cffi" },
     { name = "clinicedc", editable = "." },
+    { name = "clinicedc-tests", editable = "../../clinicedc-tests" },
     { name = "django-admin-rangefilter" },
     { name = "django-audit-fields", editable = "../../django-audit-fields" },
     { name = "django-crypto-fields", editable = "../../django-crypto-fields" },
@@ -740,8 +740,6 @@ test = [
     { name = "coverage", specifier = ">=7.10.1" },
     { name = "django-audit-fields", editable = "../../django-audit-fields" },
     { name = "django-webtest", specifier = ">=1.9.13" },
-    { name = "edc-test-settings", editable = "../../edc-test-settings" },
-    { name = "edc-test-utils", editable = "../../edc-test-utils" },
     { name = "faker", specifier = ">=37.4.2" },
     { name = "model-bakery", specifier = ">=1.20.5" },
     { name = "time-machine", specifier = ">=2.16.0" },
@@ -750,7 +748,7 @@ test = [
 
 [[package]]
 name = "clinicedc-tests"
-version = "0.1.2"
+version = "0.1.5"
 source = { editable = "../../clinicedc-tests" }
 dependencies = [
     { name = "faker" },
@@ -770,7 +768,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 develop = [
     { name = "argon2-cffi" },
-    { name = "clinicedc" },
+    { name = "clinicedc", editable = "." },
     { name = "django-admin-rangefilter" },
     { name = "django-audit-fields", editable = "../../django-audit-fields" },
     { name = "django-crypto-fields", editable = "../../django-crypto-fields" },
@@ -782,13 +780,9 @@ develop = [
     { name = "django-revision", editable = "../../django-revision" },
     { name = "django-simple-history" },
     { name = "django-storages" },
-    { name = "edc-glucose", editable = "../../edc-glucose" },
-    { name = "faker", specifier = ">=37.5.3" },
     { name = "fontawesomefree" },
     { name = "ipython", specifier = ">=9.5.0" },
-    { name = "model-bakery", specifier = ">=1.20.5" },
     { name = "python-memcached" },
-    { name = "time-machine", specifier = ">=2.17.0" },
 ]
 docs = [
     { name = "furo", specifier = ">=2025.7.19" },
@@ -1412,80 +1406,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/1b/a1/50ce9748278ff556cb9a2c5e25a308f22cc96ef79f4f5d75c6edb85160cc/edc_model_fields-1.0.0.tar.gz", hash = "sha256:906da1a96178a34c0544941cabba96a506f06eda804b81e6ebd489fbb8f1f144", size = 40357, upload-time = "2025-01-21T16:42:37.431Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0f/19/2e3708648aec69079709f2d38573b6097c7a3dcd7a212e769801c614fb1b/edc_model_fields-1.0.0-py3-none-any.whl", hash = "sha256:e977a5fde96b60d6f585fa29298bb66cd5e2f835a95abccca7f51029384a445d", size = 40611, upload-time = "2025-01-21T16:42:35.529Z" },
-]
-
-[[package]]
-name = "edc-test-settings"
-version = "2.0.0"
-source = { editable = "../../edc-test-settings" }
-dependencies = [
-    { name = "python-dateutil" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "python-dateutil", specifier = ">=2.9.0.post0" }]
-
-[package.metadata.requires-dev]
-docs = [
-    { name = "furo", specifier = ">=2025.7.19" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
-]
-lint = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "deptry", specifier = ">=0.23.0" },
-    { name = "flake8", specifier = ">=7.3.0" },
-    { name = "isort", specifier = ">=6.0.1" },
-    { name = "ruff", specifier = ">=0.12.5" },
-]
-test = [
-    { name = "coverage", specifier = ">=7.10.1" },
-    { name = "django", specifier = ">=5.2.5" },
-    { name = "tox-uv", specifier = ">=1.26.2" },
-]
-
-[[package]]
-name = "edc-test-utils"
-version = "2.0.0"
-source = { editable = "../../edc-test-utils" }
-dependencies = [
-    { name = "black" },
-    { name = "django-webtest" },
-    { name = "faker" },
-    { name = "model-bakery" },
-    { name = "python-dateutil" },
-    { name = "requests" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "django-webtest", specifier = ">=1.9.13" },
-    { name = "faker", specifier = ">=37.5.3" },
-    { name = "model-bakery", specifier = ">=1.20.5" },
-    { name = "python-dateutil", specifier = ">=2.9.0.post0" },
-    { name = "requests", specifier = ">=2.32.4" },
-]
-
-[package.metadata.requires-dev]
-docs = [
-    { name = "furo", specifier = ">=2025.7.19" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
-]
-lint = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "flake8", specifier = ">=7.3.0" },
-    { name = "isort", specifier = "==5.13.2" },
-    { name = "ruff", specifier = ">=0.12.5" },
-]
-test = [
-    { name = "coverage", specifier = ">=7.10.3" },
-    { name = "django", specifier = ">=5.2" },
-    { name = "edc-test-settings", specifier = ">=1.1.2" },
-    { name = "tox-uv", specifier = ">=1.28.0" },
 ]
 
 [[package]]
@@ -2976,11 +2896,11 @@ wheels = [
 
 [[package]]
 name = "prometheus-client"
-version = "0.22.1"
+version = "0.23.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/5e/cf/40dde0a2be27cc1eb41e333d1a674a74ce8b8b0457269cc640fd42b07cf7/prometheus_client-0.22.1.tar.gz", hash = "sha256:190f1331e783cf21eb60bca559354e0a4d4378facecf78f5428c39b675d20d28", size = 69746, upload-time = "2025-06-02T14:29:01.152Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/59/5d/2f7cd40906695c960959d7b65eb67a32354dbd4b68a5ae1ec4d0dc586010/prometheus_client-0.23.0.tar.gz", hash = "sha256:1f5eb6aeaf73891f15aa23ec44912c96410d90d027dc0618a3faae5911e1ff24", size = 80419, upload-time = "2025-09-11T19:50:13.799Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/32/ae/ec06af4fe3ee72d16973474f122541746196aaa16cea6f66d18b963c6177/prometheus_client-0.22.1-py3-none-any.whl", hash = "sha256:cca895342e308174341b2cbf99a56bef291fbc0ef7b9e5412a0f26d653ba7094", size = 58694, upload-time = "2025-06-02T14:29:00.068Z" },
+    { url = "https://files.pythonhosted.org/packages/09/b9/82b4a4e17cc0d80a37276619e412fac07367c5aaf9360803d5b176970ed7/prometheus_client-0.23.0-py3-none-any.whl", hash = "sha256:6ee02bc4e34275a62b3a48f2afce1c29b8e64bfc7f4bd0b19ca4f9d359151781", size = 61026, upload-time = "2025-09-11T19:50:12.458Z" },
 ]
 
 [[package]]

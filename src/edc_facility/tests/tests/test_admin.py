@@ -1,10 +1,10 @@
 from unittest.mock import patch
 
+from clinicedc_tests.utils import login
 from django.contrib.auth.models import User
 from django.test import tag
 from django.urls import reverse
 from django_webtest import WebTest
-from edc_test_utils.webtest import login
 
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
 from edc_facility.auths import codenames

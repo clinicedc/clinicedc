@@ -1,6 +1,6 @@
 from django.db import models
 
-from ..model_mixin_factory import ogtt_model_mixin_factory
+from ..model_mixin_factories import ogtt_model_mixin_factory
 
 
 class OgttModelMixin(ogtt_model_mixin_factory("ogtt"), models.Model):

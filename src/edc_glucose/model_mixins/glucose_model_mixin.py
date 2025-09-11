@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.db import models
 
-from ..model_mixin_factory import glucose_model_mixin_factory
+from ..model_mixin_factories import glucose_model_mixin_factory
 from .fasting_model_mixin import fasting_model_mixin_factory
 
 

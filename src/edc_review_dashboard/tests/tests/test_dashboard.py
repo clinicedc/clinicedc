@@ -1,5 +1,6 @@
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.utils import get_user_for_tests
 from clinicedc_tests.visit_schedules.visit_schedule_dashboard.lab_profiles import (
     lab_profile,
 )
@@ -10,7 +11,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.urls.base import reverse
 from django_webtest import WebTest
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment

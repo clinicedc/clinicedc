@@ -4,14 +4,13 @@ from unittest.mock import patch
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.sites import all_sites
+from clinicedc_tests.utils import get_user_for_tests, login
 from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
     get_visit_schedule1,
 )
 from django.test import override_settings, tag
 from django.urls import reverse
 from django_webtest import WebTest
-from edc_test_utils.get_user_for_tests import get_user_for_tests
-from edc_test_utils.webtest import login
 
 from edc_appointment.admin import AppointmentAdmin
 from edc_appointment.auth_objects import codenames

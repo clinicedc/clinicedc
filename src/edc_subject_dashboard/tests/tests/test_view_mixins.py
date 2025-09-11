@@ -5,11 +5,10 @@ import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import TestModel
+from clinicedc_tests.utils import get_request_object_for_tests, get_user_for_tests
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings
 from django.views.generic.base import ContextMixin
-from edc_test_utils.get_httprequest_for_tests import get_request_object_for_tests
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_appointment.models import Appointment
 from edc_appointment.view_mixins import AppointmentViewMixin

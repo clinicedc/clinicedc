@@ -2,12 +2,12 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import arrow
+from clinicedc_tests.utils import get_user_for_tests
 from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.constants import CLINIC
