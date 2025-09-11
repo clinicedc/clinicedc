@@ -164,6 +164,14 @@ Contacts
 
 For further information go to https://github.com/erikvw.
 
+Testing modules
+---------------
+=========================== ============================= ==================================
+clinicedc-tests_            |clinicedc-tests|             |pypi-clinicedc-tests|
+edc-test-settings_          |edc-test-settings|           |pypi-edc-test-settings|
+edc-test-utils_             |edc-test-utils|              |pypi-edc-test-utils|
+=========================== ============================= ==================================
+
 Optional modules
 ----------------
 
@@ -171,7 +179,6 @@ Optional modules
 edc-csf_                    |edc-csf|                     |pypi-edc-csf|
 edc-dx_                     |edc-dx|                      |pypi-edc-dx|
 edc-dx-review_              |edc-dx-review|               |pypi-edc-dx-review|
-edc-egfr_                   |edc-egfr|                    |pypi-edc-egfr|
 edc-glucose_                |edc-glucose|                 |pypi-edc-glucose|
 edc-he_                     |edc-he|                      |pypi-edc-he|
 edc-icecap-a_               |edc-icecap-a|                |pypi-edc-icecap-a|
@@ -180,9 +187,6 @@ edc-microscopy_             |edc-microscopy|              |pypi-edc-microscopy|
 edc-mnsi_                   |edc-mnsi|                    |pypi-edc-mnsi|
 edc-phq9_                   |edc-phq9|                    |pypi-edc-phq9|
 edc-qol_                    |edc-qol|                     |pypi-edc-qol|
-edc-vitals_                 |edc-vitals|                  |pypi-edc-vitals|
-edc-test-settings_          |edc-test-settings|           |pypi-edc-test-settings|
-edc-test-utils_             |edc-test-utils|              |pypi-edc-test-utils|
 =========================== ============================= ==================================
 
 
@@ -217,7 +221,6 @@ or just
 .. _edc-csf: https://github.com/clinicedc/edc-csf
 .. _edc-dx: https://github.com/clinicedc/edc-dx
 .. _edc-dx-review: https://github.com/clinicedc/edc-dx-review
-.. _edc-egfr: https://github.com/clinicedc/edc-egfr
 .. _edc-glucose: https://github.com/clinicedc/edc-glucose
 .. _edc-he: https://github.com/clinicedc/edc-he
 .. _edc-icecap-a: https://github.com/clinicedc/edc-icecap-a
@@ -228,7 +231,7 @@ or just
 .. _edc-qol: https://github.com/clinicedc/edc-qol
 .. _edc-test-settings: https://github.com/clinicedc/edc-test-settings
 .. _edc-test-utils: https://github.com/clinicedc/edc-test-utils
-.. _edc-vitals: https://github.com/clinicedc/edc-vitals
+.. _clinicedc-tests: https://github.com/clinicedc/clinicedc-tests
 
 .. |edc-csf| image:: https://github.com/clinicedc/edc-csf/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-csf/actions/workflows/build.yml
@@ -236,8 +239,6 @@ or just
   :target: https://github.com/clinicedc/edc-dx/actions/workflows/build.yml
 .. |edc-dx-review| image:: https://github.com/clinicedc/edc-dx-review/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-dx-review/actions/workflows/build.yml
-.. |edc-egfr| image:: https://github.com/clinicedc/edc-egfr/actions/workflows/build.yml/badge.svg
-  :target: https://github.com/clinicedc/edc-egfr/actions/workflows/build.yml
 .. |edc-glucose| image:: https://github.com/clinicedc/edc-glucose/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-glucose/actions/workflows/build.yml
 .. |edc-he| image:: https://github.com/clinicedc/edc-he/actions/workflows/build.yml/badge.svg
@@ -260,8 +261,8 @@ or just
   :target: https://github.com/clinicedc/edc-test-settings/actions/workflows/build.yml
 .. |edc-test-utils| image:: https://github.com/clinicedc/edc-test-utils/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-test-utils/actions/workflows/build.yml
-.. |edc-vitals| image:: https://github.com/clinicedc/edc-vitals/actions/workflows/build.yml/badge.svg
-  :target: https://github.com/clinicedc/edc-vitals/actions/workflows/build.yml
+.. |clinicedc-tests| image:: https://github.com/clinicedc/clinicedc-tests/actions/workflows/build.yml/badge.svg
+  :target: https://github.com/clinicedc/clinicedc-tests/actions/workflows/build.yml
 
 .. |pypi-edc-csf| image:: https://img.shields.io/pypi/v/edc-csf.svg
     :target: https://pypi.python.org/pypi/edc-csf
@@ -269,8 +270,6 @@ or just
     :target: https://pypi.python.org/pypi/edc-dx
 .. |pypi-edc-dx-review| image:: https://img.shields.io/pypi/v/edc-dx-review.svg
     :target: https://pypi.python.org/pypi/edc-dx-review
-.. |pypi-edc-egfr| image:: https://img.shields.io/pypi/v/edc-egfr.svg
-    :target: https://pypi.python.org/pypi/edc-egfr
 .. |pypi-edc-glucose| image:: https://img.shields.io/pypi/v/edc-glucose.svg
     :target: https://pypi.python.org/pypi/edc-glucose
 .. |pypi-edc-he| image:: https://img.shields.io/pypi/v/edc-he.svg
@@ -293,8 +292,8 @@ or just
     :target: https://pypi.python.org/pypi/edc-test-utils
 .. |pypi-edc-test-utils| image:: https://img.shields.io/pypi/v/edc-test-utils.svg
     :target: https://pypi.python.org/pypi/edc-test-utils
-.. |pypi-edc-vitals| image:: https://img.shields.io/pypi/v/edc-vitals.svg
-    :target: https://pypi.python.org/pypi/edc-vitals
+.. |pypi-clinicedc-tests| image:: https://img.shields.io/pypi/v/clinicedc-tests.svg
+    :target: https://pypi.python.org/pypi/clinicedc-tests
 
 .. |jet-brains| image:: https://resources.jetbrains.com/storage/products/company/brand/logos/PyCharm_icon.png
     :target: https://jb.gg/OpenSource
