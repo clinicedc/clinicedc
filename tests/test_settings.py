@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from edc_test_settings.default_test_settings import DefaultTestSettings
+from clinicedc_tests.config import DefaultTestSettings
 
 app_name = "clinicedc_tests"
 base_dir = Path(__file__).absolute().parent.parent

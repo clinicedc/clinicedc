@@ -1,9 +1,8 @@
 from unittest.case import skip
 
+from clinicedc_tests.utils import get_request_object_for_tests, get_user_for_tests
 from django.test import TestCase
 from django.views.generic.base import ContextMixin
-from edc_test_utils.get_httprequest_for_tests import get_request_object_for_tests
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items

@@ -13,6 +13,7 @@ from clinicedc_tests.models import (
     CrfTwo,
     SubjectRequisition,
 )
+from clinicedc_tests.utils import get_webtest_form
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -20,7 +21,6 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django_webtest import WebTest
-from edc_test_utils.webtest import get_webtest_form
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents

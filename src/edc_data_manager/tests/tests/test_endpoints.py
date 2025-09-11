@@ -1,6 +1,7 @@
 from importlib import import_module
 
 from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.utils import login
 from clinicedc_tests.visit_schedules.visit_schedule_dashboard.lab_profiles import (
     lab_profile,
 )
@@ -11,7 +12,6 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings, tag
 from django.urls.base import reverse
 from django_webtest import WebTest
-from edc_test_utils.webtest import login
 from model_bakery import baker
 
 from edc_action_item.models.action_item import ActionItem

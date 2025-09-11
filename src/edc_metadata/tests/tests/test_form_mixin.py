@@ -4,12 +4,12 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.utils import get_user_for_tests
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
 from django.test import TestCase
 from django.test.client import RequestFactory
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays

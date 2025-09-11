@@ -1,9 +1,9 @@
 import tempfile
 from pathlib import Path
 
+from clinicedc_tests.utils import get_user_for_tests
 from django.test import TestCase
 from django.test.utils import override_settings, tag
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 from multisite import SiteID
 from pypdf import PdfReader
 

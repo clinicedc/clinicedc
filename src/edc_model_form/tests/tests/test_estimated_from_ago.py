@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from edc_model import estimated_date_from_ago
+from edc_model.utils import estimated_date_from_ago
 
 
 class TestEstimatedFromAgo(TestCase):

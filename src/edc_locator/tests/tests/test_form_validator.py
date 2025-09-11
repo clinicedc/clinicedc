@@ -2,8 +2,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from edc_constants.constants import NO, YES
-
-from ..forms import SubjectLocatorFormValidator
+from edc_locator.forms import SubjectLocatorFormValidator
 
 
 class TestFormValidator(TestCase):

@@ -1,5 +1,5 @@
+from clinicedc_tests.utils import NaturalKeyTestHelper
 from django.test import TestCase, override_settings, tag
-from edc_test_utils.natural_key_test_helper import NaturalKeyTestHelper
 
 from edc_sites.tests import SiteTestCaseMixin
 

@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.utils import get_user_for_tests
 from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
     get_visit_schedule,
 )
@@ -12,7 +13,6 @@ from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission, User
 from django.shortcuts import get_object_or_404
 from django.test import TestCase, override_settings, tag
-from edc_test_utils.get_user_for_tests import get_user_for_tests
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
