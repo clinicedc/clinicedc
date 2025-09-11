@@ -72,9 +72,7 @@ class CrfFormValidator(
                 fldname="report_datetime",
             )
             if floor_secs(report_datetime) < floor_secs(consent_datetime):
-                msg = _(
-                    "Invalid. Cannot be before date of consent. Participant consented on"
-                )
+                msg = _("Invalid. Cannot be before date of consent. Participant consented on")
                 formatted_date = formatted_datetime(to_local(consent_datetime))
                 err_message = format_lazy(
                     "{msg} {formatted_date}", msg=msg, formatted_date=formatted_date
@@ -100,9 +98,7 @@ class CrfFormValidator(
             msg = _("is required")
             verbose_name = self.related_visit._meta.verbose_name
             self.raise_validation_error(
-                format_lazy(
-                    "{verbose_name} {msg}.", msg=msg, verbose_name=verbose_name
-                ),
+                format_lazy("{verbose_name} {msg}.", msg=msg, verbose_name=verbose_name),
                 INVALID_ERROR,
             )
 

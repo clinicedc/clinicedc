@@ -141,9 +141,7 @@ class TestUtils(TestCase):
 
     def get_datetime_from_env(self):
         dt = datetime(1990, 5, 2, 0, 0, tzinfo=ZoneInfo("Africa/Gaborone"))
-        self.assertEqual(
-            dt, get_datetime_from_env(1990, 5, 2, 0, 0, 0, "Africa/Gaborone")
-        )
+        self.assertEqual(dt, get_datetime_from_env(1990, 5, 2, 0, 0, 0, "Africa/Gaborone"))
 
     def test_round_up(self):
         self.assertEqual(round_half_away_from_zero(1.5, 0), 2)
@@ -161,12 +159,8 @@ class TestUtils(TestCase):
         self.assertEqual(round_half_away_from_zero(Decimal("1.5"), 0), Decimal("2"))
         self.assertEqual(round_half_away_from_zero(Decimal("1.55"), 1), Decimal("1.6"))
         self.assertEqual(round_half_away_from_zero(Decimal("1.54"), 1), Decimal("1.5"))
-        self.assertEqual(
-            round_half_away_from_zero(Decimal("1.555"), 2), Decimal("1.56")
-        )
-        self.assertEqual(
-            round_half_away_from_zero(Decimal("1.5554"), 3), Decimal("1.555")
-        )
+        self.assertEqual(round_half_away_from_zero(Decimal("1.555"), 2), Decimal("1.56"))
+        self.assertEqual(round_half_away_from_zero(Decimal("1.5554"), 3), Decimal("1.555"))
 
     def test_truncate_string_with_len_eq_max_length_returns_orig_string(self):
         orig_string = "String of len 16"

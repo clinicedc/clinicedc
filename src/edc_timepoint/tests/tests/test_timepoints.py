@@ -93,9 +93,7 @@ class TimepointTests(TestCase):
     def test_timepoint_status_close_attempt_fails1(self):
         """Assert timepoint does not close when tried."""
         self.assertEqual(self.appointment.timepoint_status, OPEN_TIMEPOINT)
-        self.assertRaises(
-            UnableToCloseTimepoint, self.appointment.timepoint_close_timepoint
-        )
+        self.assertRaises(UnableToCloseTimepoint, self.appointment.timepoint_close_timepoint)
 
     def test_timepoint_status_closed_blocks_everything(self):
         """Assert timepoint closes because appointment status

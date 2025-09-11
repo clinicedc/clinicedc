@@ -14,9 +14,7 @@ style = color_style()
 
 
 def load_mw():
-    model_cls: MolecularWeight = django_apps.get_model(
-        "edc_reportable", "MolecularWeight"
-    )
+    model_cls: MolecularWeight = django_apps.get_model("edc_reportable", "MolecularWeight")
     for label, mw in molecular_weights.items():
         model_cls.objects.get_or_create(label=label, mw=mw)
 

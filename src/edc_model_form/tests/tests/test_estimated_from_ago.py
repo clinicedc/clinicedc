@@ -52,9 +52,7 @@ class TestEstimatedFromAgo(TestCase):
 
             self.assertEqual(
                 expected_date,
-                estimated_date_from_ago(
-                    cleaned_data=cleaned_data, ago_field="ago_field"
-                ),
+                estimated_date_from_ago(cleaned_data=cleaned_data, ago_field="ago_field"),
             )
 
         for i in range(1, 3):
@@ -66,9 +64,7 @@ class TestEstimatedFromAgo(TestCase):
 
             self.assertEqual(
                 expected_date,
-                estimated_date_from_ago(
-                    cleaned_data=cleaned_data, ago_field="ago_field"
-                ),
+                estimated_date_from_ago(cleaned_data=cleaned_data, ago_field="ago_field"),
             )
 
     def test_with_years_and_days_raises(self):

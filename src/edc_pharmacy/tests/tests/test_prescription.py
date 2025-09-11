@@ -1,5 +1,8 @@
 from tempfile import mkdtemp
 
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 
@@ -19,19 +22,14 @@ from edc_pharmacy.models import (
 from edc_pharmacy.prescribe import create_prescription
 from edc_randomization.randomizer import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
-from edc_randomization.tests.utils import (
-    populate_randomization_list_for_tests,
-)
+from edc_randomization.tests.utils import populate_randomization_list_for_tests
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class MyRandomizer(Randomizer):
     name = "my_randomizer"
-    model = "tests.CustomRandomizationList"
+    model = "clinicedc_tests.CustomRandomizationList"
     randomizationlist_folder = mkdtemp()
 
 

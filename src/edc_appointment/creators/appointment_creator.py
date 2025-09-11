@@ -86,8 +86,7 @@ class AppointmentCreator:
         try:
             if is_naive(timepoint_datetime):
                 raise ValueError(
-                    f"Naive datetime not allowed. {repr(self)}. "
-                    f"Got {timepoint_datetime}"
+                    f"Naive datetime not allowed. {repr(self)}. " f"Got {timepoint_datetime}"
                 )
             else:
                 self.timepoint_datetime = timepoint_datetime
@@ -100,16 +99,13 @@ class AppointmentCreator:
         # to timepoint_datetime still apply.
         if suggested_datetime and is_naive(suggested_datetime):
             raise ValueError(
-                f"Naive datetime not allowed. {repr(self)}. "
-                f"Got {suggested_datetime}"
+                f"Naive datetime not allowed. {repr(self)}. " f"Got {suggested_datetime}"
             )
         else:
             self.suggested_datetime = suggested_datetime or self.timepoint_datetime
         self.facility = facility or visit.facility
         if not self.facility:
-            raise AppointmentCreatorError(
-                f"facility_name not defined. See {repr(visit)}"
-            )
+            raise AppointmentCreatorError(f"facility_name not defined. See {repr(visit)}")
         self.get_appointment()
 
     def __repr__(self):
@@ -129,9 +125,7 @@ class AppointmentCreator:
         """Returns a newly created or updated appointment model instance."""
         if not self._appointment:
             try:
-                self._appointment = self.appointment_model_cls.objects.get(
-                    **self.options
-                )
+                self._appointment = self.appointment_model_cls.objects.get(**self.options)
             except ObjectDoesNotExist:
                 self._appointment = self._create()
             else:

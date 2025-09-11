@@ -234,11 +234,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                 and EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED is False
             ):
                 raise forms.ValidationError(
-                    {
-                        "reason": (
-                            "Invalid. This is an unscheduled visit. See appointment."
-                        )
-                    },
+                    {"reason": ("Invalid. This is an unscheduled visit. See appointment.")},
                     code=INVALID_ERROR,
                 )
             # raise if CRF metadata exist
@@ -263,9 +259,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
             )
 
         if self.validate_missed_visit_reason:
-            self.required_if(
-                MISSED_VISIT, field="reason", field_required="reason_missed"
-            )
+            self.required_if(MISSED_VISIT, field="reason", field_required="reason_missed")
 
             self.required_if(
                 OTHER,

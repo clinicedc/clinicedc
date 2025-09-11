@@ -18,9 +18,7 @@ class Identifier:
     seed: str = "0"
     separator: str | None = None
 
-    def __init__(
-        self, last_identifier: str | None = None, prefix: str | None = None
-    ) -> None:
+    def __init__(self, last_identifier: str | None = None, prefix: str | None = None) -> None:
         self.identifier_as_list: list = []
         self.prefix: str = prefix or self.prefix or ""
         edc_device_app_config = django_apps.get_app_config("edc_device")

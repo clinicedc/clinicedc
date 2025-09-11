@@ -37,18 +37,14 @@ class TestDoseCalculator(TestCase):
             dose=1000.0,
             dose_units=Units.objects.get(display_name__iexact="mg"),
             frequency=1.0,
-            frequency_units=FrequencyUnits.objects.get(
-                display_name__iexact="times per day"
-            ),
+            frequency_units=FrequencyUnits.objects.get(display_name__iexact="times per day"),
         )
         self.dosage_guideline = DosageGuideline.objects.create(
             medication=self.medication,
             dose=2000.0,
             dose_units=Units.objects.get(display_name__iexact="mg"),
             frequency=1.0,
-            frequency_units=FrequencyUnits.objects.get(
-                display_name__iexact="times per day"
-            ),
+            frequency_units=FrequencyUnits.objects.get(display_name__iexact="times per day"),
         )
 
     def test_dosage_baseline(self):

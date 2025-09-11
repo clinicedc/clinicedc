@@ -119,9 +119,7 @@ def generate_fake_randomization_list(
     # get site ID and write the file
     site_id = sites.get_by_attr("name", site_name)
     with open(filename, "a+", newline="") as f:
-        writer = csv.DictWriter(
-            f, fieldnames=["sid", "assignment", "site_name", "country"]
-        )
+        writer = csv.DictWriter(f, fieldnames=["sid", "assignment", "site_name", "country"])
         if write_header:
             writer.writeheader()
         for j in range(1, int(slots)):
@@ -147,9 +145,7 @@ def export_randomization_list(
         user = get_user_model().objects.get(username=username)
     except ObjectDoesNotExist:
         raise RandomizationListExporterError(f"User `{username}` does not exist")
-    if not user.has_perm(
-        randomizer_cls.model_cls()._meta.label_lower.replace(".", ".view_")
-    ):
+    if not user.has_perm(randomizer_cls.model_cls()._meta.label_lower.replace(".", ".view_")):
         raise RandomizationListExporterError(
             f"User `{username}` does not have "
             f"permission to view '{randomizer_cls.model_cls()._meta.label_lower}'"

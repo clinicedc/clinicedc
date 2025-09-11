@@ -139,16 +139,10 @@ class AppointmentModelMixin(
                 )
 
     def validate_appt_datetime_not_after_next(self) -> None:
-        if (
-            self.appt_status != CANCELLED_APPT
-            and self.appt_datetime
-            and self.relative_next
-        ):
+        if self.appt_status != CANCELLED_APPT and self.appt_datetime and self.relative_next:
             if self.appt_datetime >= self.relative_next.appt_datetime:
                 appt_datetime = formatted_datetime(self.appt_datetime)
-                next_appt_datetime = formatted_datetime(
-                    self.relative_next.appt_datetime
-                )
+                next_appt_datetime = formatted_datetime(self.relative_next.appt_datetime)
                 raise AppointmentDatetimeError(
                     "Datetime cannot be on or after next appointment datetime. "
                     f"Got {appt_datetime} >= {next_appt_datetime}. "

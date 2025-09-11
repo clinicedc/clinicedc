@@ -6,8 +6,9 @@ import django_audit_fields.fields.userfield
 import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_revision.revision_field
-import edc_pharmacy.models.scan_duplicates
 from django.db import migrations, models
+
+import edc_pharmacy.models.scan_duplicates
 
 
 class Migration(migrations.Migration):
@@ -87,9 +88,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "device_created",
-                    models.CharField(
-                        blank=True, max_length=10, verbose_name="Device created"
-                    ),
+                    models.CharField(blank=True, max_length=10, verbose_name="Device created"),
                 ),
                 (
                     "device_modified",

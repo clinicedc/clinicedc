@@ -2,6 +2,16 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import (
+    CrfLongitudinalOneAction,
+    CrfLongitudinalTwoAction,
+)
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfLongitudinalOne
+from clinicedc_tests.visit_schedules.visit_schedule_action_item import (
+    get_visit_schedule,
+)
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings, tag
 
@@ -11,11 +21,6 @@ from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-from tests.action_items import CrfLongitudinalOneAction, CrfLongitudinalTwoAction
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import CrfLongitudinalOne
-from tests.visit_schedules.visit_schedule_action_item import get_visit_schedule
 
 from ..test_case_mixin import TestCaseMixin
 

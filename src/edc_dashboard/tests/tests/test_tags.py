@@ -1,6 +1,7 @@
+from clinicedc_tests.models import TestModel
 from dateutil.relativedelta import relativedelta
 from django.core.paginator import Paginator
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_dashboard.templatetags.edc_dashboard_extras import (
     age_in_years,
@@ -9,9 +10,9 @@ from edc_dashboard.templatetags.edc_dashboard_extras import (
     paginator_row,
 )
 from edc_utils.date import get_utcnow
-from tests.models import TestModel
 
 
+@tag("dashboard")
 class TestTags(TestCase):
     def test_(self):
         for i in range(0, 100):

@@ -135,7 +135,7 @@ To setup a *new* script/configuration folder for ``duplicity``:
 
 *OR* copy an existing ``.duplicity`` config from another host.
 
-.. code-block::
+.. code-block:: bash
 
     rsync -chavzP --stats user@source.host:/path/to/remote/.duplicity/ ~/.duplicity/
 

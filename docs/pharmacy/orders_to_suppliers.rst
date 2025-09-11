@@ -1,5 +1,3 @@
-.. _orders_to_suppliers:
-
 Orders (from supplier to central)
 =================================
 

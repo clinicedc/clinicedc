@@ -52,6 +52,4 @@ def floor_datetime(dt) -> datetime:
 
 
 def ceil_datetime(dt) -> datetime:
-    return dt.replace(
-        hour=23, minute=59, second=59, microsecond=999999, tzinfo=dt.tzinfo
-    )
+    return dt.replace(hour=23, minute=59, second=59, microsecond=999999, tzinfo=dt.tzinfo)

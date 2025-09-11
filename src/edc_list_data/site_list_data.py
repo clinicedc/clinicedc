@@ -53,9 +53,7 @@ class SiteListData:
         else:
             self.app_names.append(app_name)
             opts = copy.deepcopy(self._get_options(module))
-            sys.stdout.write(
-                f"   - registered {self.module_name} from '{module.__name__}'\n"
-            )
+            sys.stdout.write(f"   - registered {self.module_name} from '{module.__name__}'\n")
             if opts.get(self.module_name):
                 self._replace_list_data_or_raise_on_duplicate(module, opts)
             self.registry[module.__name__] = opts

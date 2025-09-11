@@ -12,5 +12,3 @@ For example::
         --app_label effect_subject \
         --admin_site effect_subject_admin \
         --visit_schedule visit_schedule
-
-

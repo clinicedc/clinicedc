@@ -18,9 +18,7 @@ if TYPE_CHECKING:
     from edc_sites.model_mixins import SiteModelMixin
     from edc_visit_tracking.model_mixins import VisitModelMixin as Base
 
-    class RelatedVisitModel(
-        SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel
-    ):
+    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel):
         pass
 
 
@@ -82,9 +80,7 @@ class CrfFormValidatorMixin(BaseFormValidatorMixin):
     @property
     def related_visit(self) -> RelatedVisitModel:
         """Returns a subject visit model instance or None"""
-        return get_related_visit(
-            self, related_visit_model_attr=self.related_visit_model_attr
-        )
+        return get_related_visit(self, related_visit_model_attr=self.related_visit_model_attr)
 
     @property
     def related_visit_model_cls(self) -> Type[RelatedVisitModel]:

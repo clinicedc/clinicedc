@@ -40,9 +40,7 @@ class TestCreatesMetadata(TestMetadataMixin, TestCase):
         self.appointment_2000.appt_timing = MISSED_APPT
         self.appointment_2000.save_base(update_fields=["appt_timing"])
         self.assertEqual(
-            CrfMetadata.objects.filter(
-                visit_code=self.appointment_2000.visit_code
-            ).count(),
+            CrfMetadata.objects.filter(visit_code=self.appointment_2000.visit_code).count(),
             1,
         )
         self.assertEqual(
@@ -71,8 +69,6 @@ class TestCreatesMetadata(TestMetadataMixin, TestCase):
         )
 
     def test_change_to_unknown_reason_raises(self):
-        obj = SubjectVisit.objects.create(
-            appointment=self.appointment, reason=SCHEDULED
-        )
+        obj = SubjectVisit.objects.create(appointment=self.appointment, reason=SCHEDULED)
         obj.reason = "ERIK"
         self.assertRaises(CreatesMetadataError, obj.save)

@@ -19,6 +19,7 @@ module-name = [
     "edc_data_manager",
     "edc_device",
     "edc_document_status",
+    "edc_egfr",
     "edc_export",
     "edc_facility",
     "edc_fieldsets",
@@ -26,6 +27,7 @@ module-name = [
     "edc_form_label",
     "edc_form_runners",
     "edc_form_validators",
+    "edc_glucose",
     "edc_identifier",
     "edc_lab",
     "edc_lab_dashboard",
@@ -69,6 +71,7 @@ module-name = [
     "edc_view_utils",
     "edc_visit_schedule",
     "edc_visit_tracking",
+    "edc_vitals",
 ]
 source-include = ["edc_*/templates/**", "edc_*/locale/**", "locale/**"]
 source-exclude = ["edc_*/tests/**", "edc_*/notebooks/**", "tests/**", "bin"]
@@ -76,7 +79,7 @@ namespace = false
 
 [project]
 name = "clinicedc"
-version = "2.0.1"
+version = "2.0.2"
 description = "A clinical trials data management framework built on Django"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -104,6 +107,7 @@ license-files = ["LICEN[CS]E*"]
 requires-python = ">=3.12"
 dependencies = [
     "argon2-cffi>=25.1.0",
+    "arrow>=1.3.0",
     "boto3>=1.39.16",
     "celery>=5.5.3",
     "cryptography>=45.0.7",
@@ -123,7 +127,6 @@ dependencies = [
     "django-simple-history>=3.10.1",
     "django-storages>=1.14.6",
     "djangorestframework>=3.16.0",
-    "edc-glucose>=1.0.3",
     "fontawesomefree>=6.6.0",
     "gunicorn>=23.0.0",
     "inflect>=7.5.0",
@@ -147,7 +150,7 @@ Repository = "https://github.com/clinicedc/clinicedc.git"
 Changelog = "https://github.com/clinicedc/clinicedc/blob/main/CHANGES"
 
 [tool.black]
-line-length = 88
+line-length = 95
 target-version = ["py312"]
 extend-exclude = '''^(.*\/)*\b(migrations|\.venv)\b($|\/.*$)'''
 
@@ -191,10 +194,10 @@ lint = [
 
 test = [
     "arrow>=1.3.0",
+    "clinicedc-tests>=0.1.0",
     "coverage>=7.10.1",
     "django-audit-fields>=2.0.0",
     "django-webtest>=1.9.13",
-    "edc-glucose>=1.0.3",
     "edc-test-settings>=1.1.2",
     "edc-test-utils>=1.0.0",
     "faker>=37.4.2",
@@ -203,9 +206,22 @@ test = [
     "tox-uv>=1.26.2",
 ]
 
+notebook = [
+    "dj-notebook>=0.7.0",
+    "great-tables>=0.18.0",
+    "matplotlib>=3.10.3",
+    "matplotlib-venn>=1.1.2",
+    "numpy>=2.3.2",
+    "pandas>=2.3.1",
+    "pdfkit>=1.0.0",
+    "scikit-learn>=1.7.1",
+    "scipy>=1.16.0",
+    "selenium>=4.34.2",
+    "tabulate>=0.9.0",
+]
+
 develop = [
     "clinicedc",
-    "edc-glucose",
     'argon2-cffi',
     'python-memcached',
     'django-environ',
@@ -232,6 +248,6 @@ django-audit-fields = { path = "../../django-audit-fields", editable = true }
 django-crypto-fields = { path = "../../django-crypto-fields", editable = true }
 django-revision = { path = "../../django-revision", editable = true }
 django-multisite2 = { path = "../../django-multisite2", editable = true }
-edc-glucose = { path = "../../edc-glucose", editable = true }
 edc-test-settings = { path = "../../edc-test-settings", editable = true }
 edc-test-utils = { path = "../../edc-test-utils", editable = true }
+clinicedc-tests = { path = "../../clinicedc-tests", editable = true }

@@ -25,9 +25,7 @@ site_auths.add_custom_permissions_tuples(
 )
 
 site_auths.add_group(*action_items_codenames, name=ACTION_ITEM)
-site_auths.add_group(
-    *action_items_codenames, name=ACTION_ITEM_VIEW_ONLY, view_only=True
-)
+site_auths.add_group(*action_items_codenames, name=ACTION_ITEM_VIEW_ONLY, view_only=True)
 site_auths.add_group(
     "edc_action_item.export_actionitem",
     "edc_action_item.export_actiontype",

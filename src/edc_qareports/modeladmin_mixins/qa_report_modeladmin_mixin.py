@@ -83,9 +83,7 @@ class QaReportModelAdminMixin:
     @admin.display(description="Notes")
     def notes(self, obj=None) -> str:
         """Returns url to add or edit qa_report note model."""
-        note_app_label, note_model_name = self.note_model_cls._meta.label_lower.split(
-            "."
-        )
+        note_app_label, note_model_name = self.note_model_cls._meta.label_lower.split(".")
         note_url_name = f"{note_app_label}_{note_model_name}"
 
         report_app_label, report_model_name = self.model._meta.label_lower.split(".")

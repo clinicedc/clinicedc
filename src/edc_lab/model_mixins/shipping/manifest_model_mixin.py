@@ -32,9 +32,7 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
 
     status = models.CharField(max_length=15, default=OPEN, choices=STATUS)
 
-    category = models.CharField(
-        max_length=25, default=TESTING, choices=MANIFEST_CATEGORY
-    )
+    category = models.CharField(max_length=25, default=TESTING, choices=MANIFEST_CATEGORY)
 
     category_other = models.CharField(max_length=25, null=True, blank=True)
 

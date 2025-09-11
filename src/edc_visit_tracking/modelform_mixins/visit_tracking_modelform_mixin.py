@@ -31,8 +31,7 @@ class VisitTrackingModelFormMixin(SiteModelFormMixin):
             raise forms.ValidationError(
                 {
                     "reason": (
-                        "Invalid. Appointment is missed. "
-                        "Expected visit to be missed also."
+                        "Invalid. Appointment is missed. " "Expected visit to be missed also."
                     )
                 }
             )

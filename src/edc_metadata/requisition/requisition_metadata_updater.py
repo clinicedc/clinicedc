@@ -42,6 +42,4 @@ class RequisitionMetadataUpdater(MetadataUpdater):
         """Returns a dictionary of query options to filter for, or
         get, the SubjectRequisition model instance.
         """
-        return dict(
-            subject_visit_id=self.related_visit.id, panel__name=self.source_panel.name
-        )
+        return dict(subject_visit_id=self.related_visit.id, panel__name=self.source_panel.name)

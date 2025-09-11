@@ -321,12 +321,8 @@ class TestRandomizer(TestCase):
     @override_settings(ETC_DIR=tmpdir, DEBUG=False)
     def test_get_subject_assignment(self):
         self.populate_list(randomizer_name="default", overwrite_site=True)
-        first_assignment = (
-            MyRandomizationList.objects.all().order_by("sid").first().assignment
-        )
-        second_assignment = (
-            MyRandomizationList.objects.all().order_by("sid")[1].assignment
-        )
+        first_assignment = MyRandomizationList.objects.all().order_by("sid").first().assignment
+        second_assignment = MyRandomizationList.objects.all().order_by("sid")[1].assignment
         site = Site.objects.get_current()
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="12345", site=site, user_created="erikvw"
@@ -337,9 +333,7 @@ class TestRandomizer(TestCase):
             site=subject_consent.site,
             user=subject_consent.user_created,
         ).randomize()
-        self.assertEqual(
-            get_assignment_for_subject("12345", "default"), first_assignment
-        )
+        self.assertEqual(get_assignment_for_subject("12345", "default"), first_assignment)
 
         subject_consent = SubjectConsent.objects.create(
             subject_identifier="54321", site=site, user_created="erikvw"
@@ -350,9 +344,7 @@ class TestRandomizer(TestCase):
             site=subject_consent.site,
             user=subject_consent.user_created,
         ).randomize()
-        self.assertEqual(
-            get_assignment_for_subject("54321", "default"), second_assignment
-        )
+        self.assertEqual(get_assignment_for_subject("54321", "default"), second_assignment)
 
     @override_settings(ETC_DIR=tmpdir, DEBUG=False)
     def test_valid_assignment_description_maps(self):
@@ -529,9 +521,7 @@ class TestRandomizer(TestCase):
                     "consent_datetime"
                 )
             ):
-                rs = RegisteredSubject.objects.get(
-                    subject_identifier=obj.subject_identifier
-                )
+                rs = RegisteredSubject.objects.get(subject_identifier=obj.subject_identifier)
                 self.assertEqual(obj.subject_identifier, randomized_subjects[index][0])
                 self.assertEqual(rs.sid, randomized_subjects[index][1])
 
@@ -634,9 +624,7 @@ class TestRandomizer(TestCase):
         site = Site.objects.get_current()
         # change number of SIDs in DB
         self.populate_list(randomizer_name="default")
-        MyRandomizationList.objects.create(
-            sid=100, assignment=ACTIVE, site_name=site.name
-        )
+        MyRandomizationList.objects.create(sid=100, assignment=ACTIVE, site_name=site.name)
         self.assertEqual(MyRandomizationList.objects.all().count(), 51)
         with self.assertRaises(RandomizationListError) as cm:
             randomizer_cls.verify_list()
@@ -683,9 +671,7 @@ class TestRandomizer(TestCase):
             site_names=self.site_names,
         )
         randomizer_cls.import_list()
-        self.assertRaises(
-            RandomizationListExporterError, export_randomization_list, "default"
-        )
+        self.assertRaises(RandomizationListExporterError, export_randomization_list, "default")
         self.assertRaises(
             RandomizationListExporterError,
             export_randomization_list,

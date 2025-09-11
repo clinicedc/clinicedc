@@ -1,3 +1,8 @@
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import MedicationAdherence
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules import visit_schedule_adherence
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
@@ -15,11 +20,6 @@ from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import MedicationAdherence
-from tests.sites import all_sites
-from tests.visit_schedules import visit_schedule_adherence
 
 from ..forms import MedicationAdherenceForm
 
@@ -51,9 +51,7 @@ class TestAdherence(TestCase):
             consent_definition=consent_v1,
         )
         self.subject_identifier = subject_consent.subject_identifier
-        appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
-        )
+        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointments[0], reason=SCHEDULED
         )

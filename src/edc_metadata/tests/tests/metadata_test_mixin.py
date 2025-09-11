@@ -2,6 +2,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.models import SubjectConsentV1
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase
 
 from edc_appointment.models import Appointment
@@ -11,9 +14,6 @@ from edc_lab.models import Panel
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.models import SubjectConsentV1
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 

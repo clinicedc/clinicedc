@@ -25,8 +25,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="rx",
-            index=models.Index(
-                fields=["rando_sid"], name="edc_pharmac_rando_s_0bcc84_idx"
-            ),
+            index=models.Index(fields=["rando_sid"], name="edc_pharmac_rando_s_0bcc84_idx"),
         ),
     ]

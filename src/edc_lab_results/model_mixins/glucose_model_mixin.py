@@ -2,10 +2,10 @@ from typing import Any
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from edc_glucose.constants import GLUCOSE_HIGH_READING
 
 from edc_constants.choices import FASTING_CHOICES, YES_NO
 from edc_constants.constants import FASTING
+from edc_glucose.constants import GLUCOSE_HIGH_READING
 from edc_lab.choices import RESULT_QUANTIFIER
 from edc_lab.constants import EQ
 from edc_reportable import (
@@ -14,7 +14,7 @@ from edc_reportable import (
     MILLIMOLES_PER_LITER_DISPLAY,
 )
 
-from ..model_mixin_factory import reportable_result_model_mixin_factory
+from ..model_mixin_factories import reportable_result_model_mixin_factory
 
 
 class GlucoseModelMixin(

@@ -92,9 +92,7 @@ class SiteVisitSchedules:
                 visit_schedule_name = visit_schedule_name.split(".")[0]
             except AttributeError:
                 pass
-            visit_schedules[visit_schedule_name] = self.get_visit_schedule(
-                visit_schedule_name
-            )
+            visit_schedules[visit_schedule_name] = self.get_visit_schedule(visit_schedule_name)
         return visit_schedules or self.registry
 
     def get_by_consent_definition(
@@ -154,9 +152,7 @@ class SiteVisitSchedules:
 
         attr `loss_to_followup_model` is in "label_lower" format.
         """
-        return self.get_by_model(
-            attr="loss_to_followup_model", model=loss_to_followup_model
-        )
+        return self.get_by_model(attr="loss_to_followup_model", model=loss_to_followup_model)
 
     def get_by_model(
         self, attr: str = None, model: str = None
@@ -207,9 +203,7 @@ class SiteVisitSchedules:
         site: SingleSite | None = None,
     ) -> str:
         """Returns the consent model name specified on the schedule"""
-        schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(
-            schedule_name
-        )
+        schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(schedule_name)
         if isinstance(schedule.consent_model, (dict,)):
             # schedule returns a dict, get model name for this
             # site_id or country
@@ -223,9 +217,7 @@ class SiteVisitSchedules:
 
     def get_onschedule_model(self, visit_schedule_name: str, schedule_name: str) -> str:
         """Returns the onschedule model name"""
-        schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(
-            schedule_name
-        )
+        schedule = self.get_visit_schedule(visit_schedule_name).schedules.get(schedule_name)
         return schedule.onschedule_model
 
     @staticmethod
@@ -321,9 +313,7 @@ class SiteVisitSchedules:
                     before_import_registry = copy.copy(site_visit_schedules._registry)
                     import_module(f"{app}.{module_name}")
                     if verbose:
-                        sys.stdout.write(
-                            "   - registered visit schedule from " f"'{app}'\n"
-                        )
+                        sys.stdout.write("   - registered visit schedule from " f"'{app}'\n")
                 except Exception as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         raise

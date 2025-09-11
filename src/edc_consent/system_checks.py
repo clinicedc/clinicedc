@@ -79,9 +79,7 @@ def check_consents_durations() -> list[CheckMessage]:
         for cdef2 in cdefs:
             if cdef1 == cdef2:
                 continue
-            err, found = _inspect_possible_overlap_in_validity_period(
-                cdef1, cdef2, found
-            )
+            err, found = _inspect_possible_overlap_in_validity_period(cdef1, cdef2, found)
             if err:
                 errors.append(err)
     return errors
@@ -99,13 +97,9 @@ def _inspect_possible_overlap_in_validity_period(
     err = None
     if (
         cdef1.model_cls._meta.proxy
-        and cdef1.model_cls._meta.proxy_for_model
-        == cdef1.model_cls._meta.proxy_for_model
+        and cdef1.model_cls._meta.proxy_for_model == cdef1.model_cls._meta.proxy_for_model
     ):
-        if (
-            cdef1.start <= cdef2.start <= cdef1.end
-            or cdef1.start <= cdef2.end <= cdef1.end
-        ):
+        if cdef1.start <= cdef2.start <= cdef1.end or cdef1.start <= cdef2.end <= cdef1.end:
             if sorted([cdef1, cdef2], key=lambda x: x.version) in found:
                 pass
             else:

@@ -4,6 +4,14 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfSix
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+    get_visit_schedule2,
+    get_visit_schedule3,
+)
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, override_settings, tag
@@ -23,14 +31,6 @@ from edc_metadata.models import CrfMetadata
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import CrfSix
-from tests.visit_schedules.visit_schedule_appointment import (
-    get_visit_schedule1,
-    get_visit_schedule2,
-    get_visit_schedule3,
-)
 
 utc_tz = ZoneInfo("UTC")
 
@@ -65,9 +65,7 @@ class TestMoveAppointment(TestCase):
             schedule_name="schedule1",
         )
         self.subject_identifier = subject_consent.subject_identifier
-        appointments = Appointment.objects.filter(
-            subject_identifier=self.subject_identifier
-        )
+        appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
         self.assertEqual(appointments.count(), 4)
 
         appointment = Appointment.objects.get(timepoint=0.0)
@@ -141,9 +139,7 @@ class TestMoveAppointment(TestCase):
         self.assertRaises(ProtectedError, delete_appointment_in_sequence, appointment)
         SubjectVisit.objects.get(appointment=appointment).delete()
         # raises AppointmentDeleteError (from manager) because not allowed by manager
-        self.assertRaises(
-            AppointmentDeleteError, delete_appointment_in_sequence, appointment
-        )
+        self.assertRaises(AppointmentDeleteError, delete_appointment_in_sequence, appointment)
         # assert nothing was done
         self.assertEqual(
             [0, 1, 2, 3],
@@ -235,9 +231,7 @@ class TestMoveAppointment(TestCase):
             ["1000.0", "1000.1", "1000.2", "1000.3", "2000.0", "3000.0", "4000.0"],
             get_visit_codes(SubjectVisit, order_by="report_datetime"),
         )
-        appointment_10001 = Appointment.objects.get(
-            visit_code="1000", visit_code_sequence=1
-        )
+        appointment_10001 = Appointment.objects.get(visit_code="1000", visit_code_sequence=1)
         appointment_10001.related_visit.delete()
         appointment_10001.delete()
         self.assertEqual(
@@ -259,18 +253,14 @@ class TestMoveAppointment(TestCase):
             get_visit_codes(Appointment, order_by="appt_datetime"),
         )
         # enter CRF on 1000.2
-        appointment_10002 = Appointment.objects.get(
-            visit_code="1000", visit_code_sequence=2
-        )
+        appointment_10002 = Appointment.objects.get(visit_code="1000", visit_code_sequence=2)
         CrfSix.objects.create(subject_visit=appointment_10002.related_visit)
         CrfSix.objects.get(
             subject_visit__appointment__visit_code="1000",
             subject_visit__appointment__visit_code_sequence=2,
         )
         # delete 1000.1
-        appointment_10001 = Appointment.objects.get(
-            visit_code="1000", visit_code_sequence=1
-        )
+        appointment_10001 = Appointment.objects.get(visit_code="1000", visit_code_sequence=1)
         appointment_10001.related_visit.delete()
         appointment_10001.delete()
         CrfSix.objects.get(
@@ -286,46 +276,32 @@ class TestMoveAppointment(TestCase):
             get_visit_codes(Appointment, order_by="appt_datetime"),
         )
         self.assertGreater(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=1
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=1).count(),
             0,
         )
         self.assertGreater(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=2
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=2).count(),
             0,
         )
         self.assertGreater(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=3
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=3).count(),
             0,
         )
         # delete 1000.1
-        appointment_10001 = Appointment.objects.get(
-            visit_code="1000", visit_code_sequence=1
-        )
+        appointment_10001 = Appointment.objects.get(visit_code="1000", visit_code_sequence=1)
         appointment_10001.related_visit.delete()
         appointment_10001.delete()
 
         self.assertGreater(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=1
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=1).count(),
             0,
         )
         self.assertGreater(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=2
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=2).count(),
             0,
         )
         self.assertEqual(
-            CrfMetadata.objects.filter(
-                visit_code="1000", visit_code_sequence=3
-            ).count(),
+            CrfMetadata.objects.filter(visit_code="1000", visit_code_sequence=3).count(),
             0,
         )
 

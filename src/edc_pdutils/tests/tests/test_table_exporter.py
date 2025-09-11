@@ -1,17 +1,17 @@
 import csv
 from tempfile import mkdtemp
 
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_pdutils.visit_schedule import (
+    get_visit_schedule,
+)
 from django.test import TestCase, override_settings
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_pdutils.df_exporters import TablesExporter
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_pdutils.visit_schedule import (
-    get_visit_schedule,
-)
 
 
 @override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp())

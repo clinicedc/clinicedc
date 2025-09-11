@@ -22,9 +22,7 @@ from ..models import Stock
 
 
 @method_decorator(login_required, name="dispatch")
-class PrintLabelsView(
-    EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
-):
+class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
     stock_pks: list[str] | None = None
     template_name: str = "edc_pharmacy/stock/print_labels.html"
     session_key = "model_pks"

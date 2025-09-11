@@ -10,10 +10,11 @@ import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_crypto_fields.fields.encrypted_char_field
 import django_revision.revision_field
-import edc_utils.date
 import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
+
+import edc_utils.date
 
 
 class Migration(migrations.Migration):
@@ -140,9 +141,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "plural_name",
-                    models.CharField(
-                        max_length=250, null=True, verbose_name="Plural name"
-                    ),
+                    models.CharField(max_length=250, null=True, verbose_name="Plural name"),
                 ),
                 (
                     "display_name",
@@ -1061,9 +1060,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "plural_name",
-                    models.CharField(
-                        max_length=250, null=True, verbose_name="Plural name"
-                    ),
+                    models.CharField(max_length=250, null=True, verbose_name="Plural name"),
                 ),
                 (
                     "display_name",
@@ -1129,23 +1126,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="container",
             name="plural_name",
-            field=models.CharField(
-                max_length=250, null=True, verbose_name="Plural name"
-            ),
+            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
         ),
         migrations.AddField(
             model_name="formulationtype",
             name="plural_name",
-            field=models.CharField(
-                max_length=250, null=True, verbose_name="Plural name"
-            ),
+            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
         ),
         migrations.AddField(
             model_name="frequencyunits",
             name="plural_name",
-            field=models.CharField(
-                max_length=250, null=True, verbose_name="Plural name"
-            ),
+            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
         ),
         migrations.AddField(
             model_name="historicalmedicationlot",
@@ -1170,16 +1161,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="route",
             name="plural_name",
-            field=models.CharField(
-                max_length=250, null=True, verbose_name="Plural name"
-            ),
+            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
         ),
         migrations.AddField(
             model_name="units",
             name="plural_name",
-            field=models.CharField(
-                max_length=250, null=True, verbose_name="Plural name"
-            ),
+            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
         ),
         migrations.AddIndex(
             model_name="unittype",

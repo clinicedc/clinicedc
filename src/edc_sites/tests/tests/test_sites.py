@@ -80,9 +80,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         self.assertEqual(obj.site.pk, 40)
         self.assertNotEqual(obj.site.pk, Site.objects.get_current().pk)
 
-    @override_settings(
-        LANGUAGES=[("en", "English"), ("sw", "Swahili"), ("tn", "Setswana")]
-    )
+    @override_settings(LANGUAGES=[("en", "English"), ("sw", "Swahili"), ("tn", "Setswana")])
     def test_get_language_choices_for_site(self):
         site_sites.initialize(initialize_site_model=True)
         site_sites.register(
@@ -228,12 +226,8 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site2 = SingleSite(site_id=2, name="site2", domain="site2.clinicedc.org")
 
         site_sites.register(site1, site2)
-        self.assertEqual(
-            site_sites.get(site1.site_id).domain, "site1.uat.clinicedc.org"
-        )
-        self.assertEqual(
-            site_sites.get(site2.site_id).domain, "site2.uat.clinicedc.org"
-        )
+        self.assertEqual(site_sites.get(site1.site_id).domain, "site1.uat.clinicedc.org")
+        self.assertEqual(site_sites.get(site2.site_id).domain, "site2.uat.clinicedc.org")
 
     @override_settings(EDC_SITES_REGISTER_DEFAULT=True, SITE_ID=1)
     def test_register_default_site_domain(self):
@@ -262,22 +256,16 @@ class TestSites(SiteTestCaseMixin, TestCase):
         )
         self.assertEqual(settings.SITE_ID, 10)
         site = Site.objects.get(id=10)
-        self.assertEqual(
-            Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org"
-        )
+        self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
 
-    @override_settings(
-        EDC_SITES_REGISTER_DEFAULT=False, EDC_SITES_UAT_DOMAIN=True, SITE_ID=10
-    )
+    @override_settings(EDC_SITES_REGISTER_DEFAULT=False, EDC_SITES_UAT_DOMAIN=True, SITE_ID=10)
     def test_alias_model_for_uat(self):
         site_sites.initialize(initialize_site_model=True)
         site_sites.register(*self.default_sites)
         add_or_update_django_sites()
         self.assertEqual(settings.SITE_ID, 10)
         site = Site.objects.get(id=10)
-        self.assertEqual(
-            Alias.objects.get(site=site).domain, "mochudi.uat.bw.clinicedc.org"
-        )
+        self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.uat.bw.clinicedc.org")
 
     @override_settings(LANGUAGES={"xx": "XXX"})
     def test_site_language_code_not_found_raises(self):
@@ -382,9 +370,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request = rf.get("/")
         request.site = Site.objects.get(id=30)
         request.user = User.objects.get(username="user_login")
-        self.assertRaises(
-            InvalidSiteForUser, site_sites.user_may_view_other_sites, request
-        )
+        self.assertRaises(InvalidSiteForUser, site_sites.user_may_view_other_sites, request)
 
     @override_settings(EDC_SITES_REGISTER_DEFAULT=False, SITE_ID=SiteID(default=30))
     def test_permissions_sites(self):
@@ -419,8 +405,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request.user.userprofile.sites.add(Site.objects.get(id=40))
         self.assertTrue(site_sites.user_may_view_other_sites(request))
         self.assertEqual(
-            [request.site.id]
-            + site_sites.get_view_only_site_ids_for_user(request=request),
+            [request.site.id] + site_sites.get_view_only_site_ids_for_user(request=request),
             [30, 40],
         )
 
@@ -448,9 +433,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request.user.userprofile.is_multisite_viewer = True
         request.user.userprofile.save()
 
-        self.assertRaises(
-            InvalidSiteForUser, site_sites.user_may_view_other_sites, request
-        )
+        self.assertRaises(InvalidSiteForUser, site_sites.user_may_view_other_sites, request)
 
     @override_settings(EDC_SITES_REGISTER_DEFAULT=False, SITE_ID=SiteID(default=30))
     def test_permissions_messages(self):

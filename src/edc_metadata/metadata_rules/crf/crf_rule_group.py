@@ -71,8 +71,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
                         f"Got {target_model}=={related_visit._meta.label_lower}"
                     )
                 elif (
-                    target_model.split(".")[1]
-                    == related_visit._meta.label_lower.split(".")[1]
+                    target_model.split(".")[1] == related_visit._meta.label_lower.split(".")[1]
                 ):
                     raise TargetModelConflict(
                         f"Target model and visit model might be the same. "
@@ -84,9 +83,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
                     if not entry_status:
                         raise RuleGroupError("Cannot be None. Got `entry_status`.")
                     # only do something if target model is in visit.crfs (including PRNs)
-                    if target_model in [
-                        c.model for c in cls.crfs_for_visit(related_visit)
-                    ]:
+                    if target_model in [c.model for c in cls.crfs_for_visit(related_visit)]:
                         metadata_updater = cls.metadata_updater_cls(
                             related_visit=related_visit,
                             source_model=target_model,

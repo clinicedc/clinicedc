@@ -11,14 +11,15 @@ import django_crypto_fields.fields.firstname_field
 import django_crypto_fields.fields.identity_field
 import django_crypto_fields.fields.lastname_field
 import django_revision.revision_field
+import simple_history.models
+from django.conf import settings
+from django.db import migrations, models
+
 import edc_model_fields.fields.date_estimated
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.identity_type_field
 import edc_model_fields.fields.userfield
 import edc_utils
-import simple_history.models
-from django.conf import settings
-from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -193,9 +194,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "sid",
-                    models.CharField(
-                        blank=True, max_length=15, null=True, verbose_name="SID"
-                    ),
+                    models.CharField(blank=True, max_length=15, null=True, verbose_name="SID"),
                 ),
                 (
                     "subject_type",

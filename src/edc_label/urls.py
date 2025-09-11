@@ -39,9 +39,7 @@ urlpatterns = [
         HomeView.as_view(),
         name="print-test-label",
     ),
-    re_path(
-        r"print/(?P<label_name>\w+)/$", HomeView.as_view(), name="print-test-label"
-    ),
+    re_path(r"print/(?P<label_name>\w+)/$", HomeView.as_view(), name="print-test-label"),
     path("printer_setup/", PrinterSetupView.as_view(), name="printer_setup_url"),
     path("", HomeView.as_view(), name="home_url"),
 ]

@@ -35,10 +35,15 @@ class BaseFieldsMixin(models.Model):
         help_text=format_html(
             "{text1}.<BR>{text2}",
             text1=_("Required only if participant is a minor"),
-            text2=_(
-                "Format is 'LASTNAME, FIRSTNAME'. All uppercase separated by a comma."
-            ),
+            text2=_("Format is 'LASTNAME, FIRSTNAME'. All uppercase separated by a comma."),
         ),
+    )
+
+    ethnicity = models.CharField(
+        max_length=15,
+        help_text=_("from screening"),
+        editable=False,
+        null=True,
     )
 
     subject_type = models.CharField(max_length=25)

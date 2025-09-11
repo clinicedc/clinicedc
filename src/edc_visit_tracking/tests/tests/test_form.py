@@ -2,6 +2,11 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import BadCrfNoRelatedVisit, CrfOne
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.conf import settings
@@ -35,11 +40,6 @@ from edc_visit_tracking.modelform_mixins import (
     VisitTrackingModelFormMixin,
 )
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import BadCrfNoRelatedVisit, CrfOne
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 from ..crfs import crfs
 from ..requisitions import requisitions
@@ -79,8 +79,8 @@ class TestForm(TestCase):
             requisitions=requisitions,
             visit_schedule_name="visit_schedule1",
             schedule_name="schedule1",
-            onschedule_model="tests.onscheduleone",
-            offschedule_model="tests.offscheduleone",
+            onschedule_model="clinicedc_tests.onscheduleone",
+            offschedule_model="clinicedc_tests.offscheduleone",
             visit_count=4,
             allow_unscheduled=True,
         )
@@ -91,8 +91,8 @@ class TestForm(TestCase):
             requisitions=requisitions,
             visit_schedule_name="visit_schedule2",
             schedule_name="schedule2",
-            onschedule_model="tests.onscheduletwo",
-            offschedule_model="tests.offscheduletwo",
+            onschedule_model="clinicedc_tests.onscheduletwo",
+            offschedule_model="clinicedc_tests.offscheduletwo",
             visit_count=4,
             allow_unscheduled=True,
         )
@@ -109,9 +109,7 @@ class TestForm(TestCase):
             report_datetime=datetime(2025, 6, 12, 8, 00, tzinfo=utc_tz),
         )
 
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
 
         data = dict(
             appointment=appointment,
@@ -135,13 +133,9 @@ class TestForm(TestCase):
             visit_schedule_name="visit_schedule1",
             schedule_name="schedule1",
         )
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
 
         data = dict(
             appointment=appointment,
@@ -166,13 +160,9 @@ class TestForm(TestCase):
             schedule_name="schedule1",
             report_datetime=datetime(2025, 5, 11, 00, tzinfo=utc_tz),
         )
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
 
         appointment.appt_timing = MISSED_APPT
         appointment.save()
@@ -202,9 +192,7 @@ class TestForm(TestCase):
             schedule_name="schedule1",
             report_datetime=datetime(2025, 6, 12, 8, 00, tzinfo=utc_tz),
         )
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
 
         SubjectVisit.objects.create(
             appointment=appointment,
@@ -212,15 +200,11 @@ class TestForm(TestCase):
             reason=SCHEDULED,
         )
 
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
 
         appointment.appt_timing = MISSED_APPT
         appointment.save()
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
 
         # note if appt_timing = MISSED_APPT, will auto create subject visit
         # see VisitModelManager
@@ -252,13 +236,9 @@ class TestForm(TestCase):
             schedule_name="schedule1",
             report_datetime=datetime(2025, 6, 12, 00, tzinfo=utc_tz),
         )
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[1]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[1]
 
         appointment.appt_timing = MISSED_APPT
         appointment.save()
@@ -286,9 +266,7 @@ class TestForm(TestCase):
             report_datetime=datetime(2025, 6, 12, 00, tzinfo=utc_tz),
         )
         appointment = Appointment.objects.all()[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         form = CrfForm(
             {
                 "f1": "1",
@@ -368,9 +346,7 @@ class TestForm(TestCase):
             schedule_name="schedule1",
         )
         appointment = Appointment.objects.all()[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         form = CrfForm(
             {
                 "f1": "1",
@@ -399,9 +375,7 @@ class TestForm(TestCase):
             schedule_name="schedule1",
         )
         appointment = Appointment.objects.all()[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         for report_datetime in [
             get_utcnow() - relativedelta(months=1),
             get_utcnow() + relativedelta(months=1),
@@ -473,9 +447,7 @@ class TestForm(TestCase):
             report_datetime=datetime(2025, 6, 12, 8, 00, tzinfo=utc_tz),
         )
         appointment = Appointment.objects.all()[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         form = CrfForm(
             {
                 "f1": "1",

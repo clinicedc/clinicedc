@@ -10,16 +10,12 @@ def update_new_appt_type(apps, schema_editor):
     historical_model_cls = apps.get_model("edc_appointment.historicalappointment")
     total = appointment_model_cls.objects.all().count()
     for appointment in tqdm(appointment_model_cls.objects.all(), total=total):
-        appt_type = appointment_type_model_cls.objects.get(
-            name=appointment.appt_type_old
-        )
+        appt_type = appointment_type_model_cls.objects.get(name=appointment.appt_type_old)
         appointment.appt_type = appt_type
         appointment.save(update_fields=["appt_type"])
 
     for appointment in tqdm(historical_model_cls.objects.all(), total=total):
-        appt_type = appointment_type_model_cls.objects.get(
-            name=appointment.appt_type_old
-        )
+        appt_type = appointment_type_model_cls.objects.get(name=appointment.appt_type_old)
         appointment.appt_type = appt_type
         appointment.save(update_fields=["appt_type"])
 

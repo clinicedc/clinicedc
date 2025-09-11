@@ -21,9 +21,7 @@ class VisitSequence:
     that visits are filled in sequence.
     """
 
-    def __init__(
-        self, appointment: Appointment, skip_enforce: bool | None = None
-    ) -> None:
+    def __init__(self, appointment: Appointment, skip_enforce: bool | None = None) -> None:
         self._previous_appointment = None
         self.appointment = appointment
         self.skip_enforce = skip_enforce  # for tests

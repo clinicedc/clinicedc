@@ -26,9 +26,7 @@ class StockReport(Report):
         width, height = self.page.get("pagesize")
         canvas.setFontSize(6)
         text_width = stringWidth(self.protocol_name, "Helvetica", 6)
-        canvas.drawRightString(
-            width - text_width, height - 20, self.protocol_name.upper()
-        )
+        canvas.drawRightString(width - text_width, height - 20, self.protocol_name.upper())
         canvas.drawString(
             40,
             height - 30,
@@ -98,9 +96,7 @@ class StockReport(Report):
             ]
         ]
         for index, stock_obj in enumerate(self.queryset.all()):
-            barcode = code128.Code128(
-                stock_obj.code, barHeight=5 * mm, barWidth=0.7, gap=1.7
-            )
+            barcode = code128.Code128(stock_obj.code, barHeight=5 * mm, barWidth=0.7, gap=1.7)
             subject_identifier = (
                 stock_obj.allocation.registered_subject.subject_identifier
                 if get_related_or_none(stock_obj, "allocation")
@@ -208,9 +204,7 @@ class StockReport(Report):
         catsd += "C" if get_related_or_none(stock_obj, "confirmation") else "-"
         catsd += "A" if get_related_or_none(stock_obj, "allocation") else "-"
         catsd += "T" if get_related_or_none(stock_obj, "stocktransferitem") else "-"
-        catsd += (
-            "S" if get_related_or_none(stock_obj, "confirmationatsiteitem") else "-"
-        )
+        catsd += "S" if get_related_or_none(stock_obj, "confirmationatsiteitem") else "-"
         catsd += "B" if get_related_or_none(stock_obj, "stored_at_site") else "-"
         catsd += "D" if get_related_or_none(stock_obj, "dispenseitem") else "-"
         return catsd

@@ -99,30 +99,22 @@ class ReceiveAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         count = obj.receiveitem_set.all().count()
         url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
         url = f"{url}?q={obj.id}"
-        context = dict(
-            url=url, label=f"Received ({count})", title="Go to received items"
-        )
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        context = dict(url=url, label=f"Received ({count})", title="Go to received items")
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Order #")
     def order_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_order_changelist")
         url = f"{url}?q={str(obj.order.order_identifier)}"
         context = dict(url=url, label=obj.order.order_identifier, title="Back to order")
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Stock")
     def stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(url=url, label="Stock", title="Go to stock")
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "order" and request.GET.get("order"):

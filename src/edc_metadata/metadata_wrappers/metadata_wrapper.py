@@ -56,9 +56,7 @@ class MetadataWrapper:
     def source_model_obj(self) -> CrfModelMixin:
         if not self._source_model_obj:
             try:
-                self._source_model_obj = self.source_model_cls.objects.get(
-                    **self.options
-                )
+                self._source_model_obj = self.source_model_cls.objects.get(**self.options)
             except AttributeError as e:
                 if "related_visit_model_attr" not in str(e):
                     raise ImproperlyConfigured(f"{e} See {repr(self.source_model_cls)}")

@@ -30,9 +30,7 @@ class ConsentExtensionModelMixin(UniqueSubjectIdentifierModelMixin, models.Model
         help_text=_("See above for the definition of extended followup."),
     )
 
-    comment = EncryptedTextField(
-        verbose_name="Comment", max_length=250, blank=True, null=True
-    )
+    comment = EncryptedTextField(verbose_name="Comment", max_length=250, blank=True, null=True)
 
     consent_extension_version = models.CharField(
         verbose_name="Consent extension version",

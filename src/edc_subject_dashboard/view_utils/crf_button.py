@@ -14,9 +14,7 @@ class CrfButton(DashboardModelButton):
 
     @property
     def extra_kwargs(self) -> dict[str, str | int | UUID]:
-        return {
-            self.model_cls().related_visit_model_attr(): self.appointment.related_visit.id
-        }
+        return {self.model_cls().related_visit_model_attr(): self.appointment.related_visit.id}
 
     @property
     def disabled(self) -> str:

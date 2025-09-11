@@ -17,9 +17,7 @@ def requires_consent_on_pre_save(instance, raw, using, update_fields, **kwargs):
         and isinstance(instance, (RequiresConsentFieldsModelMixin,))
         and not instance._meta.model_name.startswith("historical")
     ):
-        subject_identifier = getattr(
-            instance, "related_visit", instance
-        ).subject_identifier
+        subject_identifier = getattr(instance, "related_visit", instance).subject_identifier
         site = getattr(instance, "related_visit", instance).site
         try:
             schedule = getattr(instance, "related_visit", instance).schedule
@@ -68,9 +66,7 @@ def update_appointment_from_consentext_post_save(
                 model=instance.subject_consent._meta.label_lower,
                 version=instance.subject_consent.version,
             )
-            visit_schedule, schedule = site_visit_schedules.get_by_consent_definition(
-                cdef
-            )
+            visit_schedule, schedule = site_visit_schedules.get_by_consent_definition(cdef)
             subject_schedule = SubjectSchedule(
                 instance.subject_consent.subject_identifier,
                 visit_schedule=visit_schedule,

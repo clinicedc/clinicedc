@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import FormZeroAction
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 
@@ -12,7 +13,6 @@ from edc_action_item.site_action_items import (
     SiteActionError,
     site_action_items,
 )
-from tests.action_items import FormZeroAction
 
 from ..test_case_mixin import TestCaseMixin
 
@@ -40,9 +40,7 @@ class TestSiteActionItems(TestCaseMixin, TestCase):
 
     def test_action_instance_creates_action_type(self):
         ActionType.objects.all().delete()
-        self.assertRaises(
-            ObjectDoesNotExist, ActionType.objects.get, name=FormZeroAction.name
-        )
+        self.assertRaises(ObjectDoesNotExist, ActionType.objects.get, name=FormZeroAction.name)
         site_action_items.register(FormZeroAction)
         FormZeroAction(subject_identifier=self.subject_identifier)
         try:

@@ -10,7 +10,7 @@ from edc_reportable.units import (
     MILLIGRAMS_PER_LITER,
 )
 
-from ..model_mixin_factory import reportable_result_model_mixin_factory
+from ..model_mixin_factories import reportable_result_model_mixin_factory
 
 
 class AlbuminModelMixin(

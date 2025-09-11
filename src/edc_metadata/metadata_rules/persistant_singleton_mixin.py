@@ -89,9 +89,9 @@ class PersistantSingletonMixin:
                 timepoint=last_attended_visit.appointment.timepoint, **opts
             ).update(entry_status=REQUIRED)
         else:
-            crf_metadata_model_cls.objects.filter(**opts).exclude(
-                entry_status=KEYED
-            ).update(entry_status=NOT_REQUIRED)
+            crf_metadata_model_cls.objects.filter(**opts).exclude(entry_status=KEYED).update(
+                entry_status=NOT_REQUIRED
+            )
 
     @staticmethod
     def get_last_attended_scheduled_visit(visit):

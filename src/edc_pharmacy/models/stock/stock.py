@@ -92,9 +92,7 @@ class Stock(BaseUuidModel):
         Lot, verbose_name="Batch", on_delete=models.PROTECT, null=True, blank=False
     )
 
-    container = models.ForeignKey(
-        Container, on_delete=models.PROTECT, null=True, blank=False
-    )
+    container = models.ForeignKey(Container, on_delete=models.PROTECT, null=True, blank=False)
 
     location = models.ForeignKey(Location, on_delete=PROTECT, null=True, blank=False)
 
@@ -178,8 +176,7 @@ class Stock(BaseUuidModel):
     def update_transferred(self) -> bool:
         if (
             self.allocation
-            and self.allocation.stock_request_item.stock_request.location
-            == self.location
+            and self.allocation.stock_request_item.stock_request.location == self.location
             and self.container.may_request_as
         ):
             return True
@@ -192,9 +189,7 @@ class Stock(BaseUuidModel):
         if not stock:
             stock = self
         if stock.product.assignment != stock.lot.assignment:
-            raise AssignmentError(
-                "Lot number assignment does not match product assignment!"
-            )
+            raise AssignmentError("Lot number assignment does not match product assignment!")
         if self.allocation and self.allocation.assignment != stock.lot.assignment:
             raise AllocationError(
                 f"Allocation assignment does not match lot assignment! Got {self.code}."

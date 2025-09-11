@@ -31,12 +31,8 @@ class ReceiveListboardView(RequisitionListboardView):
     search_form_url = "receive_listboard_url"
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
-        q_object, options = super().get_queryset_filter_options(
-            request, *args, **kwargs
-        )
-        options.update(
-            is_drawn=YES, clinic_verified=YES, received=False, processed=False
-        )
+        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
+        options.update(is_drawn=YES, clinic_verified=YES, received=False, processed=False)
         return q_object, options
 
     def get_empty_queryset_message(self) -> str:

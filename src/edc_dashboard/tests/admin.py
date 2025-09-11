@@ -1,7 +1,6 @@
+from clinicedc_tests.models import SubjectVisit
 from django.contrib import admin
 from django.contrib.admin import AdminSite as DjangoAdminSite
-
-from tests.models import SubjectVisit
 
 
 class AdminSite(DjangoAdminSite):

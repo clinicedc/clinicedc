@@ -7,10 +7,11 @@ import django.db.models.deletion
 import django_audit_fields.fields.uuid_auto_field
 import django_extensions.db.fields
 import django_revision.revision_field
-import edc_model_fields.fields.hostname_modification_field
-import edc_model_fields.fields.userfield
 from django.conf import settings
 from django.db import migrations, models
+
+import edc_model_fields.fields.hostname_modification_field
+import edc_model_fields.fields.userfield
 
 
 class Migration(migrations.Migration):
@@ -236,9 +237,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "comment",
-                    models.CharField(
-                        blank=True, max_length=250, verbose_name="Comment"
-                    ),
+                    models.CharField(blank=True, max_length=250, verbose_name="Comment"),
                 ),
                 ("is_confirmed", models.BooleanField(default=False, editable=False)),
                 (
@@ -463,9 +462,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "comment",
-                    models.CharField(
-                        blank=True, max_length=250, verbose_name="Comment"
-                    ),
+                    models.CharField(blank=True, max_length=250, verbose_name="Comment"),
                 ),
                 ("is_confirmed", models.BooleanField(default=False, editable=False)),
                 (

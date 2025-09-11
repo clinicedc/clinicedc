@@ -1,5 +1,3 @@
-.. _prepare_stock_request:
-
 Prepare a stock request
 =======================
 

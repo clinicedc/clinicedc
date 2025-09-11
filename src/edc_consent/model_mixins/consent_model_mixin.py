@@ -16,17 +16,13 @@ from ..managers import ConsentObjectsManager
 from .consent_version_model_mixin import ConsentVersionModelMixin
 
 
-class ConsentModelMixin(
-    ConsentVersionModelMixin, VerificationFieldsMixin, models.Model
-):
+class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, models.Model):
     """Mixin for a Consent model class such as SubjectConsent.
 
     Declare with edc_identifier's NonUniqueSubjectIdentifierModelMixin
     """
 
-    screening_identifier = models.CharField(
-        verbose_name="Screening identifier", max_length=50
-    )
+    screening_identifier = models.CharField(verbose_name="Screening identifier", max_length=50)
 
     screening_datetime = models.DateTimeField(
         verbose_name="Screening datetime", null=True, editable=False
@@ -59,9 +55,7 @@ class ConsentModelMixin(
         help_text="Used for randomization against a prepared rando-list.",
     )
 
-    comment = EncryptedTextField(
-        verbose_name="Comment", max_length=250, blank=True, null=True
-    )
+    comment = EncryptedTextField(verbose_name="Comment", max_length=250, blank=True, null=True)
 
     dm_comment = models.CharField(
         verbose_name="Data Management comment",

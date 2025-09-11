@@ -28,9 +28,7 @@ class RuleEvaluatorRegisterSubjectError(Exception):
     pass
 
 
-show_edc_metadata_warnings = getattr(
-    settings, "EDC_METADATA_SHOW_NOVALUEERROR_WARNING", False
-)
+show_edc_metadata_warnings = getattr(settings, "EDC_METADATA_SHOW_NOVALUEERROR_WARNING", False)
 
 
 class RuleEvaluator:

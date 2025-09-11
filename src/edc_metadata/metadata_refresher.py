@@ -53,9 +53,7 @@ class MetadataRefresher:
                         self._source_models.append(rule_groups._meta.source_model)
             self._source_models = list(set(self._source_models))
             self._source_models.sort()
-            self._source_models.insert(
-                0, get_related_visit_model_cls()._meta.label_lower
-            )
+            self._source_models.insert(0, get_related_visit_model_cls()._meta.label_lower)
             self._message(f"  Found source models: {', '.join(self.source_models)}.\n")
         return self._source_models
 
@@ -119,9 +117,7 @@ class MetadataRefresher:
                 and model not in self.admin_models
             ):
                 count = CrfMetadata.objects.filter(model=model).delete()
-                self._message(
-                    f"   * deleted {count} metadata records for model {model}.\n"
-                )
+                self._message(f"   * deleted {count} metadata records for model {model}.\n")
         self._message("    Done.\n")
 
     def verifying_requisition_metadata_with_visit_schedule_and_admin(self) -> None:
@@ -134,9 +130,7 @@ class MetadataRefresher:
                 and model not in self.admin_models
             ):
                 count = RequisitionMetadata.objects.filter(model=model).delete()
-                self._message(
-                    f"   * deleted {count} metadata records for model {model}.\n"
-                )
+                self._message(f"   * deleted {count} metadata records for model {model}.\n")
         self._message("    Done.\n")
 
     def create_or_update_metadata_for_all(self) -> None:

@@ -37,8 +37,7 @@ class CrfDateValidator:
         subject_identifier=None,
     ):
         self.allow_report_datetime_before_visit = (
-            allow_report_datetime_before_visit
-            or self.allow_report_datetime_before_visit
+            allow_report_datetime_before_visit or self.allow_report_datetime_before_visit
         )
         self.report_datetime_allowance = (
             report_datetime_allowance or self.report_datetime_allowance

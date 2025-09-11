@@ -11,9 +11,7 @@ protocol_violation_codenames = (
     "edc_protocol_incident.view_protocoldeviationviolation",
 )
 
-protocol_violation_view_codenames = (
-    "edc_protocol_incident.view_protocoldeviationviolation",
-)
+protocol_violation_view_codenames = ("edc_protocol_incident.view_protocoldeviationviolation",)
 
 
 protocol_incident_codenames = (

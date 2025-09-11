@@ -47,9 +47,7 @@ class DispenseItem(SiteModelMixin, VisitCodeFieldsModelMixin, BaseUuidModel):
     def save(self, *args, **kwargs):
         self.site = self.dispense.site
         if not self.dispense_item_identifier:
-            self.dispense_item_identifier = (
-                f"{get_next_value(self._meta.label_lower):010d}"
-            )
+            self.dispense_item_identifier = f"{get_next_value(self._meta.label_lower):010d}"
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

@@ -65,15 +65,11 @@ class ModelAdminFormInstructionsMixin:
         )
         return extra_context
 
-    def add_view(
-        self, request: WSGIRequest, form_url: str = "", extra_context: dict = None
-    ):
+    def add_view(self, request: WSGIRequest, form_url: str = "", extra_context: dict = None):
         extra_context = self.get_add_instructions(extra_context, request=request)
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
-    def change_view(
-        self, request: WSGIRequest, object_id, form_url="", extra_context=None
-    ):
+    def change_view(self, request: WSGIRequest, object_id, form_url="", extra_context=None):
         extra_context = self.get_change_instructions(extra_context, request=request)
         return super().change_view(
             request, object_id, form_url=form_url, extra_context=extra_context

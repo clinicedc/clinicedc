@@ -17,9 +17,7 @@ def update_previous_refill_end_datetime(instance):
         except ObjectDoesNotExist:
             pass
         else:
-            obj.refill_end_datetime = instance.refill_start_datetime - relativedelta(
-                seconds=1
-            )
+            obj.refill_end_datetime = instance.refill_start_datetime - relativedelta(seconds=1)
             obj.save_base(update_fields=["refill_end_datetime"])
 
 

@@ -1,5 +1,3 @@
-.. _transfer_stock_to_site:
-
 Transfer stock to site
 ======================
 

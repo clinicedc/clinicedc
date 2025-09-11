@@ -47,9 +47,7 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
             and not cleaned_data.get(other_specify_field)
         ):
             ref = "" if not ref else f" ref: {ref}"
-            message = {
-                other_specify_field: required_msg or f"This field is required.{ref}"
-            }
+            message = {other_specify_field: required_msg or f"This field is required.{ref}"}
             self._errors.update(message)
             self._error_codes.append(REQUIRED_ERROR)
             raise ValidationError(message, code=REQUIRED_ERROR)
@@ -60,8 +58,7 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
         ):
             ref = "" if not ref else f" ref: {ref}"
             message = {
-                other_specify_field: not_required_msg
-                or f"This field is not required.{ref}"
+                other_specify_field: not_required_msg or f"This field is not required.{ref}"
             }
             self._errors.update(message)
             self._error_codes.append(NOT_REQUIRED_ERROR)
@@ -69,8 +66,7 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
         elif field_value is None and cleaned_data.get(other_specify_field):
             ref = "" if not ref else f" ref: {ref}"
             message = {
-                other_specify_field: not_required_msg
-                or f"This field is not required.{ref}"
+                other_specify_field: not_required_msg or f"This field is not required.{ref}"
             }
             self._errors.update(message)
             self._error_codes.append(NOT_REQUIRED_ERROR)

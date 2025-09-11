@@ -46,9 +46,7 @@ class MetadataUpdater(SourceModelMetadataMixin):
             f"source_model={self.source_model})"
         )
 
-    def get_and_update(
-        self, entry_status: str = None
-    ) -> CrfMetadata | RequisitionMetadata:
+    def get_and_update(self, entry_status: str = None) -> CrfMetadata | RequisitionMetadata:
         metadata_obj = self.metadata_handler.metadata_obj
         if entry_status != KEYED and self.source_model_obj_exists:
             entry_status = KEYED

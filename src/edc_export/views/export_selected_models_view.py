@@ -45,8 +45,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         if self.request.session.get("selected_models"):
             kwargs.update(
                 selected_models=[
-                    ModelOptions(**dct)
-                    for dct in self.request.session["selected_models"]
+                    ModelOptions(**dct) for dct in self.request.session["selected_models"]
                 ]
             )
         return super().get_context_data(**kwargs)
@@ -74,9 +73,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                     "Nothing to do. Select one or more models and try again.",
                 )
             except FilesEmailerError as e:
-                messages.error(
-                    request, f"Failed to send the data you requested. Got '{e}'"
-                )
+                messages.error(request, f"Failed to send the data you requested. Got '{e}'")
         url = reverse(self.post_action_url, kwargs=self.kwargs)
         return HttpResponseRedirect(url)
 
@@ -110,9 +107,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
                     "Please check your email."
                 )
             else:
-                msg = (
-                    f"Your data request has been saved to {exporter.archive_filename}. "
-                )
+                msg = f"Your data request has been saved to {exporter.archive_filename}. "
 
             messages.success(request, msg)
             summary = [str(x) for x in exporter.exported]
@@ -143,18 +138,12 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         exportables = Exportables(request=request, user=request.user)
         selected_models = []
         for exportable in exportables:
-            selected_models.extend(
-                request.POST.getlist(f"chk_{exportable}_models") or []
-            )
+            selected_models.extend(request.POST.getlist(f"chk_{exportable}_models") or [])
             selected_models.extend(
                 request.POST.getlist(f"chk_{exportable}_historical_models") or []
             )
-            selected_models.extend(
-                request.POST.getlist(f"chk_{exportable}_list_models") or []
-            )
-            selected_models.extend(
-                request.POST.getlist(f"chk_{exportable}_inlines") or []
-            )
+            selected_models.extend(request.POST.getlist(f"chk_{exportable}_list_models") or [])
+            selected_models.extend(request.POST.getlist(f"chk_{exportable}_inlines") or [])
         if selected_models:
             selected_models = [ModelOptions(model=m) for m in selected_models if m]
         return selected_models

@@ -27,9 +27,7 @@ class CrfDfHandler(DfHandler):
     def __init__(self, exclude_system_columns=None, **kwargs):
         self._df_visit_and_related = pd.DataFrame()
         self.crf_dialect = self.crf_dialect_cls(self)
-        self.exclude_system_columns = (
-            exclude_system_columns or self.exclude_system_columns
-        )
+        self.exclude_system_columns = exclude_system_columns or self.exclude_system_columns
         super().__init__(**kwargs)
 
     def prepare_dataframe(self, **kwargs):
@@ -66,9 +64,7 @@ class CrfDfHandler(DfHandler):
         else:
             if [col for col in columns if col in self.action_item_columns]:
                 # "action_item" columns, move to the end
-                columns = [
-                    col for col in columns if col not in self.action_item_columns
-                ]
+                columns = [col for col in columns if col not in self.action_item_columns]
                 columns.extend(self.action_item_columns)
             # "system" columns, move to the end
             columns = [col for col in columns if col not in self.system_columns]
@@ -81,8 +77,6 @@ class CrfDfHandler(DfHandler):
         SQL statement.
         """
         if self._df_visit_and_related.empty:
-            sql, params = getattr(
-                self.crf_dialect, self.dialect_select_visit_and_related
-            )
+            sql, params = getattr(self.crf_dialect, self.dialect_select_visit_and_related)
             self._df_visit_and_related = self.db.read_sql(sql, params=params)
         return self._df_visit_and_related

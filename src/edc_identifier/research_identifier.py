@@ -49,9 +49,7 @@ class ResearchIdentifier:
         self.template = template or self.template
         app_config = django_apps.get_app_config("edc_device")
         self.device_id = device_id or app_config.device_id
-        self.protocol_number = (
-            protocol_number or ResearchProtocolConfig().protocol_number
-        )
+        self.protocol_number = protocol_number or ResearchProtocolConfig().protocol_number
         self.site = site or django_apps.get_model("sites.site").objects.get_current()
         if identifier:
             # load an existing identifier
@@ -120,14 +118,8 @@ class ResearchIdentifier:
         """
         template_opts: dict = {}
         formatter = Formatter()
-        keys = [
-            opt[1]
-            for opt in formatter.parse(self.template)
-            if opt[1] not in ["sequence"]
-        ]
-        template_opts.update(
-            sequence=str(self.sequence_number).rjust(self.padding, "0")
-        )
+        keys = [opt[1] for opt in formatter.parse(self.template) if opt[1] not in ["sequence"]]
+        template_opts.update(sequence=str(self.sequence_number).rjust(self.padding, "0"))
         for key in keys:
             try:
                 value = getattr(self, key)

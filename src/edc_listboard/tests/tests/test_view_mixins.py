@@ -22,9 +22,7 @@ from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from ..models import SubjectVisit
 
 
-@override_settings(
-    EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=1
-)
+@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=1)
 class TestViewMixins(TestCase):
     user: User = None
 
@@ -65,9 +63,7 @@ class TestViewMixins(TestCase):
         class MyListboardViewFilters(ListboardViewFilters):
             all = ListboardFilter(name="all", label="All", lookup={})
 
-            scheduled = ListboardFilter(
-                label="Scheduled", lookup={"reason": "scheduled"}
-            )
+            scheduled = ListboardFilter(label="Scheduled", lookup={"reason": "scheduled"})
 
             not_scheduled = ListboardFilter(
                 label="Not Scheduled",

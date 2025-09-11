@@ -1,5 +1,6 @@
+from clinicedc_tests.models import CrfWithInline, ListOne, ListTwo
+
 from edc_utils import get_utcnow
-from tests.models import CrfWithInline, ListOne, ListTwo
 
 
 def create_crf_with_inlines(subject_visit):

@@ -51,9 +51,7 @@ class DataQueryFormValidator(FormValidator):
             OPEN,
             FEEDBACK,
         ] and self.cleaned_data.get("status") in [CLOSED, CLOSED_WITH_ACTION]:
-            raise forms.ValidationError(
-                {"status": "Invalid: Site response is not resolved."}
-            )
+            raise forms.ValidationError({"status": "Invalid: Site response is not resolved."})
 
         # DM
         self.required_if(
@@ -62,9 +60,7 @@ class DataQueryFormValidator(FormValidator):
             field="status",
             field_required="resolved_datetime",
         )
-        self.required_if(
-            CLOSED, CLOSED_WITH_ACTION, field="status", field_required="dm_user"
-        )
+        self.required_if(CLOSED, CLOSED_WITH_ACTION, field="status", field_required="dm_user")
         self.required_if(
             CLOSED_WITH_ACTION,
             field="status",

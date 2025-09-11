@@ -14,7 +14,7 @@ def get_form_runner_by_src_id(
     verbose: bool | None = None,
 ) -> BaseFormRunnerBySrcId | FormRunnerBySrcId:
     if form_runner_cls := site_form_runners.registry.get(model_name):
-        return type(
-            "CustomFormRunnerBySrcId", (BaseFormRunnerBySrcId, form_runner_cls), {}
-        )(src_id=src_id, model_name=model_name)
+        return type("CustomFormRunnerBySrcId", (BaseFormRunnerBySrcId, form_runner_cls), {})(
+            src_id=src_id, model_name=model_name
+        )
     return FormRunnerBySrcId(src_id=src_id, model_name=model_name, verbose=verbose)

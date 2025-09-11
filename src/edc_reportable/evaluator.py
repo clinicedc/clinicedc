@@ -64,14 +64,10 @@ class Evaluator:
         self.lower_inclusive = lower_inclusive
         self.upper_inclusive = upper_inclusive
         self.lower_operator: str | None = (
-            None
-            if self.lower is None
-            else "<=" if self.lower_inclusive is True else "<"
+            None if self.lower is None else "<=" if self.lower_inclusive is True else "<"
         )
         self.upper_operator: str | None = (
-            None
-            if self.upper is None
-            else "<=" if self.upper_inclusive is True else "<"
+            None if self.upper is None else "<=" if self.upper_inclusive is True else "<"
         )
 
     def __repr__(self) -> str:

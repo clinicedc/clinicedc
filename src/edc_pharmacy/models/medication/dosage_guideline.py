@@ -20,9 +20,7 @@ class Manager(models.Manager):
 class DosageGuideline(BaseUuidModel):
     """Dosage guidelines."""
 
-    medication = models.ForeignKey(
-        Medication, on_delete=PROTECT, null=True, blank=False
-    )
+    medication = models.ForeignKey(Medication, on_delete=PROTECT, null=True, blank=False)
 
     dose = models.DecimalField(
         max_digits=8,

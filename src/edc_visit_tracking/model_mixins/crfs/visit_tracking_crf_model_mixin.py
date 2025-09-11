@@ -12,9 +12,7 @@ from edc_visit_schedule.model_mixins import CrfScheduleModelMixin
 from ..base import VisitMethodsModelMixin
 
 
-class VisitTrackingCrfModelMixin(
-    VisitMethodsModelMixin, CrfScheduleModelMixin, models.Model
-):
+class VisitTrackingCrfModelMixin(VisitMethodsModelMixin, CrfScheduleModelMixin, models.Model):
     """Base mixin for all CRF models (used by edc-crf CrfModelMixin).
 
     CRFs have a OneToOne relation to the related visit model

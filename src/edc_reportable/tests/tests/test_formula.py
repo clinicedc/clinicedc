@@ -77,9 +77,7 @@ class TestParser(TestCase):
             f"0.77<=x<=0.88 {MILLIMOLES_PER_LITER}",
         )
         self.assertEqual(
-            Formula(
-                "0.77 <= x <= 0.88", units=MILLIMOLES_PER_LITER, gender=MALE
-            ).description,
+            Formula("0.77 <= x <= 0.88", units=MILLIMOLES_PER_LITER, gender=MALE).description,
             f"0.77<=x<=0.88 {MILLIMOLES_PER_LITER} {MALE}",
         )
 

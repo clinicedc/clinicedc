@@ -8,9 +8,7 @@ class SubjectLocatorFormValidator(FormValidator):
     def clean(self):
         self.validate_may_call_fields()
 
-        self.required_if(
-            YES, field="may_call_work", field_required="subject_work_place"
-        )
+        self.required_if(YES, field="may_call_work", field_required="subject_work_place")
         self.not_required_if(
             NO,
             field="may_call_work",
@@ -21,16 +19,10 @@ class SubjectLocatorFormValidator(FormValidator):
             NO, field="may_call_work", field_required="subject_work_cell", inverse=False
         )
 
-        self.required_if(
-            YES, field="home_visit_permission", field_required="physical_address"
-        )
-        self.required_if(
-            YES, field="may_contact_someone", field_required="contact_name"
-        )
+        self.required_if(YES, field="home_visit_permission", field_required="physical_address")
+        self.required_if(YES, field="may_contact_someone", field_required="contact_name")
         self.required_if(YES, field="contact_name", field_required="contact_rel")
-        self.required_if(
-            YES, field="contact_name", field_required="contact_physical_address"
-        )
+        self.required_if(YES, field="contact_name", field_required="contact_physical_address")
 
         self.required_if(
             YES, field="may_contact_indirectly", field_required="indirect_contact_name"

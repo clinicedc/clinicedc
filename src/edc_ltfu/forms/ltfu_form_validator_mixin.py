@@ -18,8 +18,7 @@ class LtfuFormValidatorMixin(FormValidator):
 
     def validate_ltfu(self):
         subject_identifier = (
-            self.cleaned_data.get("subject_identifier")
-            or self.instance.subject_identifier
+            self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
         )
 
         try:

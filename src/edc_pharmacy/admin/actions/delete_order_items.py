@@ -23,9 +23,7 @@ def delete_order_items_action(modeladmin, request, queryset: QuerySet[OrderItem]
         messages.add_message(
             request,
             messages.SUCCESS,
-            gettext(
-                f"Successfully deleted {success_count} {OrderItem._meta.verbose_name}."
-            ),
+            gettext(f"Successfully deleted {success_count} {OrderItem._meta.verbose_name}."),
         )
     if failed_count > 0:
         messages.add_message(

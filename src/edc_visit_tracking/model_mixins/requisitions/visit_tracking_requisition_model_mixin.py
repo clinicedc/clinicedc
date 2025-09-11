@@ -17,9 +17,7 @@ class VisitTrackingRequisitionModelMixin(
 ):
     """Model mixin used by RequisitionModelMixin (edc-lab)"""
 
-    subject_visit = models.ForeignKey(
-        settings.SUBJECT_VISIT_MODEL, on_delete=models.PROTECT
-    )
+    subject_visit = models.ForeignKey(settings.SUBJECT_VISIT_MODEL, on_delete=models.PROTECT)
 
     report_datetime = models.DateTimeField(
         verbose_name=_("Report Date"),

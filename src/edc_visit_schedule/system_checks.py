@@ -183,9 +183,7 @@ def check_multiple_proxies_same_proxy_root(
 
     # Find proxy models declared as sharing a proxy root
     proxies_sharing_roots = get_proxy_models_from_collection(
-        collection=CrfCollection(
-            *[f for f in visit_crf_collection if f.shares_proxy_root]
-        )
+        collection=CrfCollection(*[f for f in visit_crf_collection if f.shares_proxy_root])
     ) + get_proxy_models_from_collection(
         collection=CrfCollection(*[f for f in visit.crfs_prn if f.shares_proxy_root])
     )

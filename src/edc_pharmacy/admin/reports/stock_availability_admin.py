@@ -122,8 +122,4 @@ class StockAvailabilityModelAdmin(
         return obj.created
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
-        return [
-            s.id
-            for s in request.user.userprofile.sites.all()
-            if s.id != request.site.id
-        ]
+        return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]

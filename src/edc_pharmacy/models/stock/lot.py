@@ -27,9 +27,7 @@ class Lot(BaseUuidModel):
 
     product = models.ForeignKey(Product, on_delete=PROTECT, null=True, blank=False)
 
-    assignment = models.ForeignKey(
-        Assignment, on_delete=models.PROTECT, null=True, blank=True
-    )
+    assignment = models.ForeignKey(Assignment, on_delete=models.PROTECT, null=True, blank=True)
 
     manufactured_date = models.DateField(null=True, blank=True)
 

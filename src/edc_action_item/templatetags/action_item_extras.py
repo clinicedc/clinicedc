@@ -103,9 +103,7 @@ def action_item_with_popover(context, action_item: ActionItem, tabindex):
             to_local(reference_obj.modified or reference_obj.created)
         )
         if get_user(reference_obj.user_modified or reference_obj.user_created):
-            user_last_updated = (
-                reference_obj.user_modified or reference_obj.user_created
-            )
+            user_last_updated = reference_obj.user_modified or reference_obj.user_created
         else:
             user_last_updated = None
 

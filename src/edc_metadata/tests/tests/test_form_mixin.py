@@ -2,6 +2,11 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
+    get_visit_schedule,
+)
 from django.test import TestCase
 from django.test.client import RequestFactory
 from edc_test_utils.get_user_for_tests import get_user_for_tests
@@ -14,11 +19,6 @@ from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_metadata.metadata_rules import site_metadata_rules
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
-    get_visit_schedule,
-)
 
 from .test_view_mixin import MyView
 

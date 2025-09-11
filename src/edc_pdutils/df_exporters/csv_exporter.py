@@ -76,9 +76,7 @@ class CsvExporter:
         if not self.export_folder:
             raise ExporterExportFolder("Invalid export folder. Got None")
         if not os.path.exists(self.export_folder):
-            raise ExporterExportFolder(
-                f"Invalid export folder. Got {self.export_folder}"
-            )
+            raise ExporterExportFolder(f"Invalid export folder. Got {self.export_folder}")
         if self.model_name:
             try:
                 self.model_cls = django_apps.get_model(self.model_name)
@@ -138,9 +136,7 @@ class CsvExporter:
                 sys.stdout.write(f"(?) {self.model_name} empty  \n")
         return Exported(path, self.model_name, record_count)
 
-    def to_csv(
-        self, dataframe: pd.DataFrame = None, export_folder: str = None
-    ) -> Exported:
+    def to_csv(self, dataframe: pd.DataFrame = None, export_folder: str = None) -> Exported:
         """Returns the full path of the written CSV file if the
         dataframe is exported otherwise None.
 
@@ -218,19 +214,14 @@ class CsvExporter:
                 suffix = ""
             else:
                 suffix = f"_{get_utcnow().strftime(timestamp_format)}"
-            prefix = (
-                (self.model_name or self.data_label).replace("-", "_").replace(".", "_")
-            )
+            prefix = (self.model_name or self.data_label).replace("-", "_").replace(".", "_")
             filename = f"{prefix}{suffix}"
         return filename
 
     def stata_variable_labels(self, dataframe: pd.DataFrame) -> dict[str, str]:
         variable_labels = dict(id="primary key")
         variable_labels.update(
-            {
-                obj.field_name: obj.prompt[:79]
-                for obj in self.data_dictionary_qs(dataframe)
-            }
+            {obj.field_name: obj.prompt[:79] for obj in self.data_dictionary_qs(dataframe)}
         )
         return variable_labels
 
@@ -243,9 +234,7 @@ class CsvExporter:
                     if field_cls.choices:
                         responses = []
                         for tpl in field_cls.choices:
-                            if mapped_choice := site_values_mappings.get_by_choices(
-                                tpl
-                            ):
+                            if mapped_choice := site_values_mappings.get_by_choices(tpl):
                                 responses.append([mapped_choice[0], mapped_choice[1]])
                             else:
                                 responses.append([tpl[0], tpl[1]])
@@ -256,9 +245,7 @@ class CsvExporter:
                     for stored, displayed in responses:
                         labels.append(f'"{stored}" "{displayed}"')
                     commands.append(f'label define {fname}l {" ".join(labels)}')
-                    commands.append(
-                        f"encode {fname}, generate({fname}_encoded) {fname}l"
-                    )
+                    commands.append(f"encode {fname}, generate({fname}_encoded) {fname}l")
                     commands.append(f"ren {fname} {fname}_edc")
                     commands.append(f"ren {fname}_encoded {fname}")
                     commands.append("")
@@ -268,9 +255,7 @@ class CsvExporter:
         return commands
 
     def data_dictionary_qs(self, dataframe: pd.DataFrame) -> QuerySet:
-        data_dictionary_model_cls = django_apps.get_model(
-            "edc_data_manager.DataDictionary"
-        )
+        data_dictionary_model_cls = django_apps.get_model("edc_data_manager.DataDictionary")
         return data_dictionary_model_cls.objects.filter(
             model=self.model_name, field_name__in=list(dataframe.columns)
         )

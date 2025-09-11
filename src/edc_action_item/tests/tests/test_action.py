@@ -2,6 +2,16 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import (
+    FormFourAction,
+    FormOneAction,
+    FormThreeAction,
+    FormTwoAction,
+    FormZeroAction,
+    SingletonAction,
+    register_actions,
+)
+from clinicedc_tests.models import FormFour, FormOne, FormThree, FormTwo, FormZero
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
@@ -11,16 +21,6 @@ from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import site_action_items
 from edc_constants.constants import CLOSED, NEW, NO, YES
 from edc_sites.exceptions import InvalidSiteForSubjectError
-from tests.action_items import (
-    FormFourAction,
-    FormOneAction,
-    FormThreeAction,
-    FormTwoAction,
-    FormZeroAction,
-    SingletonAction,
-    register_actions,
-)
-from tests.models import FormFour, FormOne, FormThree, FormTwo, FormZero
 
 from ..test_case_mixin import TestCaseMixin
 
@@ -46,16 +46,12 @@ class TestAction(TestCaseMixin, TestCase):
         site_action_items.updated_action_types = False
         site_action_items.create_or_update_action_types()
         self.assertGreater(len(site_action_items.registry), 0)
-        self.assertEqual(
-            ActionType.objects.all().count(), len(site_action_items.registry)
-        )
+        self.assertEqual(ActionType.objects.all().count(), len(site_action_items.registry))
         self.assertTrue(site_action_items.updated_action_types)
 
         site_action_items.create_or_update_action_types()
         self.assertGreater(len(site_action_items.registry), 0)
-        self.assertEqual(
-            ActionType.objects.all().count(), len(site_action_items.registry)
-        )
+        self.assertEqual(ActionType.objects.all().count(), len(site_action_items.registry))
 
     def test_creates_own_action0(self):
         """Asserts a form creates its action item."""
@@ -74,9 +70,7 @@ class TestAction(TestCaseMixin, TestCase):
                 except ObjectDoesNotExist:
                     self.fail("Action item unexpectedly does not exist.")
         self.assertEqual(
-            ActionItem.objects.filter(
-                subject_identifier=self.subject_identifier
-            ).count(),
+            ActionItem.objects.filter(subject_identifier=self.subject_identifier).count(),
             1,
         )
 
@@ -132,17 +126,11 @@ class TestAction(TestCaseMixin, TestCase):
         )
         form_one = FormOne.objects.get(id=form_one.id)
 
-        self.assertEqual(
-            action_item_two.subject_identifier, form_one.subject_identifier
-        )
-        self.assertNotEqual(
-            action_item_two.action_identifier, form_one.action_identifier
-        )
+        self.assertEqual(action_item_two.subject_identifier, form_one.subject_identifier)
+        self.assertNotEqual(action_item_two.action_identifier, form_one.action_identifier)
         self.assertEqual(action_item_two.reference_model, FormTwo._meta.label_lower)
         self.assertEqual(action_item_two.related_action_item, form_one.action_item)
-        self.assertEqual(
-            action_item_two.related_reference_model, FormOne._meta.label_lower
-        )
+        self.assertEqual(action_item_two.related_reference_model, FormOne._meta.label_lower)
         self.assertEqual(action_item_two.parent_action_item, form_one.action_item)
         self.assertEqual(
             action_item_two.parent_action_item.reference_model,
@@ -164,9 +152,7 @@ class TestAction(TestCaseMixin, TestCase):
                 except ObjectDoesNotExist:
                     self.fail("Action item unexpectedly does not exist.")
         self.assertEqual(
-            ActionItem.objects.filter(
-                subject_identifier=self.subject_identifier
-            ).count(),
+            ActionItem.objects.filter(subject_identifier=self.subject_identifier).count(),
             1,
         )
 
@@ -186,25 +172,19 @@ class TestAction(TestCaseMixin, TestCase):
                 except ObjectDoesNotExist:
                     self.fail("Action item unexpectedly does not exist.")
         self.assertEqual(
-            ActionItem.objects.filter(
-                subject_identifier=self.subject_identifier
-            ).count(),
+            ActionItem.objects.filter(subject_identifier=self.subject_identifier).count(),
             3,
         )
 
     def test_does_not_duplicate_own_actions_on_save(self):
         obj = FormOne.objects.create(subject_identifier=self.subject_identifier)
         self.assertEqual(
-            ActionItem.objects.filter(
-                subject_identifier=self.subject_identifier
-            ).count(),
+            ActionItem.objects.filter(subject_identifier=self.subject_identifier).count(),
             3,
         )
         obj.save()
         self.assertEqual(
-            ActionItem.objects.filter(
-                subject_identifier=self.subject_identifier
-            ).count(),
+            ActionItem.objects.filter(subject_identifier=self.subject_identifier).count(),
             3,
         )
         for name in ["submit-form-one", "submit-form-two", "submit-form-three"]:
@@ -226,9 +206,7 @@ class TestAction(TestCaseMixin, TestCase):
         )
         FormZero.objects.create(subject_identifier=self.subject_identifier)
         obj = FormZero.objects.get(subject_identifier=self.subject_identifier)
-        self.assertTrue(
-            ActionItem.objects.filter(action_identifier=obj.action_identifier)
-        )
+        self.assertTrue(ActionItem.objects.filter(action_identifier=obj.action_identifier))
         self.assertEqual(ActionItem.objects.all().count(), 1)
         obj.save()
         self.assertEqual(ActionItem.objects.all().count(), 1)
@@ -243,9 +221,7 @@ class TestAction(TestCaseMixin, TestCase):
                 subject_identifier=self.subject_identifier, action_type=action_type
             )
         self.assertEqual(
-            ActionItem.objects.filter(
-                subject_identifier=self.subject_identifier
-            ).count(),
+            ActionItem.objects.filter(subject_identifier=self.subject_identifier).count(),
             5,
         )
         self.assertEqual(ActionItem.objects.filter(action_type=action_type).count(), 5)
@@ -266,9 +242,7 @@ class TestAction(TestCaseMixin, TestCase):
                 self.assertTrue(
                     ActionItem.objects.get(action_identifier=obj.action_identifier)
                 )
-                self.assertEqual(
-                    ActionItem.objects.filter(action_type=action_type).count(), 5
-                )
+                self.assertEqual(ActionItem.objects.filter(action_type=action_type).count(), 5)
                 self.assertEqual(
                     ActionItem.objects.filter(
                         action_type=action_type, action_identifier=obj.action_identifier
@@ -321,16 +295,12 @@ class TestAction(TestCaseMixin, TestCase):
 
     def test_creates_next_actions2(self):
         form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
-        FormTwo.objects.create(
-            subject_identifier=self.subject_identifier, form_one=form_one
-        )
+        FormTwo.objects.create(subject_identifier=self.subject_identifier, form_one=form_one)
         FormThree.objects.create(subject_identifier=self.subject_identifier)
 
     def test_action_is_closed_if_model_creates_action(self):
         # form_one next_actions = [FormTwoAction, FormThreeAction]
-        form_one_obj = FormOne.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        form_one_obj = FormOne.objects.create(subject_identifier=self.subject_identifier)
         self.assertEqual(ActionItem.objects.all().count(), 3)
 
         # next_actions = ['self']
@@ -428,17 +398,13 @@ class TestAction(TestCaseMixin, TestCase):
         form_four.happy = NO
         form_four.save()
         try:
-            ActionItem.objects.get(
-                action_type=get_action_type(FormOneAction), status=NEW
-            )
+            ActionItem.objects.get(action_type=get_action_type(FormOneAction), status=NEW)
         except ObjectDoesNotExist:
             self.fail("action item unexpectedly does not exist")
 
         form_four.save()
         try:
-            ActionItem.objects.get(
-                action_type=get_action_type(FormOneAction), status=NEW
-            )
+            ActionItem.objects.get(action_type=get_action_type(FormOneAction), status=NEW)
         except ObjectDoesNotExist:
             self.fail("action item unexpectedly does not exist")
 
@@ -446,9 +412,7 @@ class TestAction(TestCaseMixin, TestCase):
 
         form_four.save()
         try:
-            ActionItem.objects.get(
-                action_identifier=form_one.action_identifier, status=CLOSED
-            )
+            ActionItem.objects.get(action_identifier=form_one.action_identifier, status=CLOSED)
         except ObjectDoesNotExist:
             self.fail("action item unexpectedly does not exist")
 
@@ -456,9 +420,7 @@ class TestAction(TestCaseMixin, TestCase):
     def test_create_action_force_site_id(self):
         another_site = Site.objects.get(id=90)
         # site_id = 2  # use a site other than the current
-        subject_identifier = self.fake_enroll(
-            subject_identifier="333333", site=another_site
-        )
+        subject_identifier = self.fake_enroll(subject_identifier="333333", site=another_site)
 
         # do not specify site: will raise because current site and subject site
         # do not match
@@ -473,9 +435,7 @@ class TestAction(TestCaseMixin, TestCase):
         # wants checks that you to creating for subjects in the current
         # site only
         try:
-            SingletonAction(
-                subject_identifier=subject_identifier, site_id=another_site.id
-            )
+            SingletonAction(subject_identifier=subject_identifier, site_id=another_site.id)
         except InvalidSiteForSubjectError:
             pass
         else:
@@ -489,9 +449,7 @@ class TestAction(TestCaseMixin, TestCase):
         )
 
         try:
-            ActionItem.objects.get(
-                subject_identifier=subject_identifier, site=another_site
-            )
+            ActionItem.objects.get(subject_identifier=subject_identifier, site=another_site)
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised.")
 
@@ -513,9 +471,7 @@ class TestAction(TestCaseMixin, TestCase):
         # wants checks that you to creating for subjects in the current
         # site only
         try:
-            SingletonAction(
-                subject_identifier=subject_identifier, site_id=another_site.id
-            )
+            SingletonAction(subject_identifier=subject_identifier, site_id=another_site.id)
         except InvalidSiteForSubjectError:
             pass
         else:

@@ -1,3 +1,11 @@
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.lab_profiles import (
+    lab_profile,
+)
+from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
+    get_visit_schedule,
+)
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.urls.base import reverse
@@ -12,12 +20,6 @@ from edc_lab.site_labs import site_labs
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_dashboard.lab_profiles import lab_profile
-from tests.visit_schedules.visit_schedule_dashboard.visit_schedule import (
-    get_visit_schedule,
-)
 
 User = get_user_model()
 
@@ -30,9 +32,7 @@ class TestDashboard(WebTest):
         import_holidays()
         cls.user = get_user_for_tests()
         cls.user.user_permissions.clear()
-        cls.user.user_permissions.add(
-            Permission.objects.get(codename="view_appointment")
-        )
+        cls.user.user_permissions.add(Permission.objects.get(codename="view_appointment"))
         cls.user.refresh_from_db()
 
     def setUp(self):
@@ -93,15 +93,11 @@ class TestDashboard(WebTest):
             status=200,
         )
 
-        n = SubjectVisit.objects.filter(
-            subject_identifier=self.subject_identifiers[1]
-        ).count()
+        n = SubjectVisit.objects.filter(subject_identifier=self.subject_identifiers[1]).count()
         self.assertIn("Subjects", response.html.get_text())
 
         # shows something like 1. 12345 3 visits
-        self.assertIn(
-            f"{self.subject_identifiers[1]} {n} visits", response.html.get_text()
-        )
+        self.assertIn(f"{self.subject_identifiers[1]} {n} visits", response.html.get_text())
         self.assertIn("click to list reported visits for this subject", response)
 
         # follow to schedule for this subject

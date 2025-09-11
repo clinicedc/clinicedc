@@ -14,7 +14,7 @@ class SiteLabsTestHelper:
         self.panel = None
         self.lab_profile = None
 
-    requisition_model = "tests.subjectrequisition"
+    requisition_model = "clinicedc_tests.subjectrequisition"
 
     def setup_site_labs(self):
         """Sets up the site_lab global."""
@@ -34,9 +34,7 @@ class SiteLabsTestHelper:
         processing_profile.add_processes(process)
 
         # create a panel
-        self.panel = RequisitionPanel(
-            name="panel", processing_profile=processing_profile
-        )
+        self.panel = RequisitionPanel(name="panel", processing_profile=processing_profile)
 
         # lab profile
         self.lab_profile = LabProfile(

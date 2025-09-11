@@ -9,32 +9,32 @@ from edc_prn.site_prn_forms import AlreadyRegistered, site_prn_forms
 @override_settings(SITE_ID=10)
 class TestPrn(TestCase):
     def test_init(self):
-        Prn(model="tests.testmodel")
+        Prn(model="clinicedc_tests.testmodel")
 
     def test_add_url(self):
-        prn = Prn(model="tests.testmodel")
+        prn = Prn(model="clinicedc_tests.testmodel")
         self.assertIsNone(prn.add_url_name)
-        prn = Prn(model="tests.testmodel", allow_add=True)
+        prn = Prn(model="clinicedc_tests.testmodel", allow_add=True)
         self.assertEqual(prn.add_url_name, "tests_testmodel_add")
 
     def test_changelist_url(self):
-        prn = Prn(model="tests.testmodel")
+        prn = Prn(model="clinicedc_tests.testmodel")
         self.assertEqual(prn.changelist_url_name, "tests_testmodel_changelist")
 
     def test_reverse_add_url(self):
-        prn = Prn(model="tests.testmodel", url_namespace="admin", allow_add=True)
+        prn = Prn(model="clinicedc_tests.testmodel", url_namespace="admin", allow_add=True)
         reverse(prn.add_url_name)
 
     def test_reverse_changelist_url(self):
-        prn = Prn(model="tests.testmodel", url_namespace="admin", allow_add=True)
+        prn = Prn(model="clinicedc_tests.testmodel", url_namespace="admin", allow_add=True)
         reverse(prn.changelist_url_name)
 
     def test_verbose_name(self):
-        prn = Prn(model="tests.testmodel", url_namespace="admin", allow_add=True)
+        prn = Prn(model="clinicedc_tests.testmodel", url_namespace="admin", allow_add=True)
         self.assertEqual(prn.verbose_name, "Test Model")
 
         prn = Prn(
-            model="tests.testmodel",
+            model="clinicedc_tests.testmodel",
             url_namespace="admin",
             verbose_name="Test Model",
             allow_add=True,
@@ -43,7 +43,7 @@ class TestPrn(TestCase):
 
     def test_register(self):
         prn = Prn(
-            model="tests.testmodel",
+            model="clinicedc_tests.testmodel",
             url_namespace="admin",
             verbose_name="Test Model",
             allow_add=True,

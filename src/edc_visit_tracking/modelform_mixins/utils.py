@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 
     from ..modelform_mixins import VisitTrackingCrfModelFormMixin
 
-    class RelatedVisitModel(
-        SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel
-    ):
+    class RelatedVisitModel(SiteModelMixin, CreatesMetadataModelMixin, Base, BaseUuidModel):
         pass
 
 

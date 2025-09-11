@@ -33,23 +33,17 @@ class QueryRuleModelAdminMixin:
 
     @staticmethod
     def form_name(obj=None):
-        data_dictionaries = [
-            dd for dd in obj.data_dictionaries.all().order_by("number")
-        ]
+        data_dictionaries = [dd for dd in obj.data_dictionaries.all().order_by("number")]
         return ", ".join(list(set([dd.model_verbose_name for dd in data_dictionaries])))
 
     @staticmethod
     def questions(obj=None):
-        numbers = [
-            str(dd.number) for dd in obj.data_dictionaries.all().order_by("number")
-        ]
+        numbers = [str(dd.number) for dd in obj.data_dictionaries.all().order_by("number")]
         return ", ".join(numbers)
 
     @staticmethod
     def field_names(obj=None):
-        fields = [
-            dd.field_name for dd in obj.data_dictionaries.all().order_by("field_name")
-        ]
+        fields = [dd.field_name for dd in obj.data_dictionaries.all().order_by("field_name")]
         return ", ".join(fields)
 
     @staticmethod
@@ -59,10 +53,7 @@ class QueryRuleModelAdminMixin:
 
     @staticmethod
     def query_timing(obj=None):
-        return (
-            f"{obj.timing} {obj.get_timing_units_display()} "
-            f"from {obj.reference_date}"
-        )
+        return f"{obj.timing} {obj.get_timing_units_display()} " f"from {obj.reference_date}"
 
     @staticmethod
     def requisition(obj=None):

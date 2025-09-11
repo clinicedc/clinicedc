@@ -70,9 +70,7 @@ class ConfirmationAtSiteAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         ),
     )
 
-    @admin.display(
-        description="CONFIRMATION #", ordering="-transfer_confirmation_identifier"
-    )
+    @admin.display(description="CONFIRMATION #", ordering="-transfer_confirmation_identifier")
     def identifier(self, obj):
         return obj.transfer_confirmation_identifier.split("-")[0]
 
@@ -83,18 +81,14 @@ class ConfirmationAtSiteAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="Confirmed items")
     def confirmation_at_site_item_changelist(self, obj):
         item_count = obj.confirmationatsiteitem_set.all().count()
-        url = reverse(
-            "edc_pharmacy_admin:edc_pharmacy_confirmationatsiteitem_changelist"
-        )
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_confirmationatsiteitem_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(
             url=url,
             label=_("Confirmed items (%(item_count)s)") % {"item_count": item_count},
             title="Go to stock transfer confirmation items",
         )
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(
         description="Stock Transfer", ordering="stock_transfer__transfer_identifier"
@@ -109,6 +103,4 @@ class ConfirmationAtSiteAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             ),
             title="Go to stock transfer",
         )
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)

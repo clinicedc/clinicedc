@@ -47,7 +47,5 @@ class ReceiveView(EdcViewMixin, ProcessRequisitionViewMixin, ActionView):
 
     def create_specimens(self):
         """Creates aliquots for each selected and received requisition."""
-        for requisition in self.get_requisitions(
-            pk__in=self.selected_items, received=True
-        ):
+        for requisition in self.get_requisitions(pk__in=self.selected_items, received=True):
             self.specimen_cls(requisition=requisition)

@@ -7,9 +7,7 @@ class MolecularWeight(BaseUuidModel):
 
     label = models.CharField(max_length=25, unique=True)
 
-    mw = models.FloatField(
-        verbose_name="Molecular weight", default=0, help_text="in g/mol"
-    )
+    mw = models.FloatField(verbose_name="Molecular weight", default=0, help_text="in g/mol")
 
     history = HistoricalRecords()
 

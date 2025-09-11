@@ -3,6 +3,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -23,9 +26,6 @@ from edc_protocol_incident.models import (
 )
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 
@@ -142,9 +142,7 @@ class TestProtocolIncident(TestCase):
         form.is_valid()
         self.assertIn("preventative_action", form._errors)
 
-        data.update(
-            preventative_action="we took preventative action", report_status=CLOSED
-        )
+        data.update(preventative_action="we took preventative action", report_status=CLOSED)
         form = ProtocolIncidentForm(data=data, instance=ProtocolIncident())
         form.is_valid()
         self.assertIn("action_required", form._errors)

@@ -9,7 +9,5 @@ from .models import Ltfu
 
 
 @admin.register(Ltfu, site=edc_ltfu_admin)
-class LtfuAdmin(
-    LtfuModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
-):
+class LtfuAdmin(LtfuModelAdminMixin, ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
     pass

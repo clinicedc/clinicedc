@@ -1,3 +1,4 @@
+from clinicedc_tests.reportables import grading_data, normal_data
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count
 from django.test import TestCase, tag
@@ -20,7 +21,6 @@ from edc_reportable.utils.get_normal_data_or_raise import (
     create_obj_for_new_units_or_raise,
 )
 from edc_utils import get_utcnow
-from tests.reportables import grading_data, normal_data
 
 
 @tag("reportable")
@@ -218,9 +218,7 @@ class TestLoadData(TestCase):
         )
 
         self.assertTrue(
-            NormalData.objects.filter(
-                label="tbil", units=MILLIGRAMS_PER_DECILITER
-            ).exists()
+            NormalData.objects.filter(label="tbil", units=MILLIGRAMS_PER_DECILITER).exists()
         )
 
         NormalData.objects.filter(label="tbil", units=MILLIGRAMS_PER_DECILITER).delete()
@@ -238,9 +236,7 @@ class TestLoadData(TestCase):
         create_obj_for_new_units_or_raise(**opts)
 
         self.assertTrue(
-            NormalData.objects.filter(
-                label="tbil", units=MILLIGRAMS_PER_DECILITER
-            ).exists()
+            NormalData.objects.filter(label="tbil", units=MILLIGRAMS_PER_DECILITER).exists()
         )
 
     def test_auto_create_new_normal_data2(self):
@@ -331,9 +327,7 @@ class TestLoadData(TestCase):
             age_units="years",
             create_missing_normal=True,
         )
-        self.assertEqual(
-            NormalData.objects.filter(label="tbil").count(), starting_count + 1
-        )
+        self.assertEqual(NormalData.objects.filter(label="tbil").count(), starting_count + 1)
         self.assertEqual(obj.description, "tbil: 0.292<=x<1.23 mg/dL M 18<=AGE<=120")
 
         # do again to ensure does not create duplicates
@@ -347,9 +341,7 @@ class TestLoadData(TestCase):
             age_units="years",
             create_missing_normal=True,
         )
-        self.assertEqual(
-            NormalData.objects.filter(label="tbil").count(), starting_count + 1
-        )
+        self.assertEqual(NormalData.objects.filter(label="tbil").count(), starting_count + 1)
 
     def test_normal_data_creates_for_missing_units_and_evaluates(self):
         report_datetime = get_utcnow()

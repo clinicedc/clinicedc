@@ -15,9 +15,7 @@ def render_navbar(context) -> dict:
     user = getattr(context["request"], "user", None)
     user_id = getattr(user, "id", None)
     try:
-        auth_user_change_url = reverse(
-            "edc_auth_admin:auth_user_change", args=(user_id,)
-        )
+        auth_user_change_url = reverse("edc_auth_admin:auth_user_change", args=(user_id,))
     except NoReverseMatch:
         pass
     return dict(

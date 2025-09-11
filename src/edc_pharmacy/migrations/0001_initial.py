@@ -10,15 +10,15 @@ import django_audit_fields.fields.userfield
 import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_revision.revision_field
-import edc_registration.models.managers
-import edc_sites.models
-import edc_utils.date
 import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
 
 import edc_pharmacy.models.medication
 import edc_pharmacy.models.prescription
+import edc_registration.models.managers
+import edc_sites.models
+import edc_utils.date
 
 
 class Migration(migrations.Migration):
@@ -1918,9 +1918,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "weight_in_kgs",
-                    models.DecimalField(
-                        blank=True, decimal_places=1, max_digits=6, null=True
-                    ),
+                    models.DecimalField(blank=True, decimal_places=1, max_digits=6, null=True),
                 ),
                 ("clinician_initials", models.CharField(max_length=3, null=True)),
                 (
@@ -2071,9 +2069,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "weight_in_kgs",
-                    models.DecimalField(
-                        blank=True, decimal_places=1, max_digits=6, null=True
-                    ),
+                    models.DecimalField(blank=True, decimal_places=1, max_digits=6, null=True),
                 ),
                 (
                     "refill_date",
@@ -3171,9 +3167,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "weight_in_kgs",
-                    models.DecimalField(
-                        blank=True, decimal_places=1, max_digits=6, null=True
-                    ),
+                    models.DecimalField(blank=True, decimal_places=1, max_digits=6, null=True),
                 ),
                 ("clinician_initials", models.CharField(max_length=3, null=True)),
                 (
@@ -3328,9 +3322,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "weight_in_kgs",
-                    models.DecimalField(
-                        blank=True, decimal_places=1, max_digits=6, null=True
-                    ),
+                    models.DecimalField(blank=True, decimal_places=1, max_digits=6, null=True),
                 ),
                 (
                     "refill_date",

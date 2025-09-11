@@ -4,6 +4,12 @@ from uuid import uuid4
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent1_v1, consent1_v2, consent1_v3
+from clinicedc_tests.forms import SubjectConsentForm, SubjectConsentFormValidator
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import SubjectConsentV1, SubjectScreening
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.forms import model_to_dict
@@ -19,15 +25,6 @@ from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils import age, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent1_v1, consent1_v2, consent1_v3
-from tests.forms import SubjectConsentForm, SubjectConsentFormValidator
-from tests.helper import Helper
-from tests.models import (
-    SubjectConsentV1,
-    SubjectScreening,
-)
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
 fake = Faker()
 
@@ -143,7 +140,7 @@ class TestConsentForm(TestCase):
             )
             screening_identifier = subject_screening.screening_identifier
         subject_consent = baker.prepare_recipe(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             dob=dob,
             consent_datetime=consent_datetime,
             first_name=first_name or "XXXXXX",
@@ -161,14 +158,14 @@ class TestConsentForm(TestCase):
 
     def test_base_form_is_valid(self):
         """Asserts baker defaults validate."""
-        options = dict(
-            dob=self.dob,
-            consent_datetime=self.study_open_datetime,
-            first_name="ERIK",
-            last_name="THEPLEEB",
-            initials="ET",
-            screening_identifier="ABCD1",
-        )
+        # options = dict(
+        #     dob=self.dob,
+        #     consent_datetime=self.study_open_datetime,
+        #     first_name="ERIK",
+        #     last_name="THEPLEEB",
+        #     initials="ET",
+        #     screening_identifier="ABCD1",
+        # )
         helper = Helper()
         subject_consent = helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
@@ -231,9 +228,7 @@ class TestConsentForm(TestCase):
                 self.assertEqual(form._errors, {})
         traveller.stop()
 
-        traveller = time_machine.travel(
-            self.study_open_datetime - relativedelta(days=1)
-        )
+        traveller = time_machine.travel(self.study_open_datetime - relativedelta(days=1))
         traveller.start()
         subject_consent = helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",

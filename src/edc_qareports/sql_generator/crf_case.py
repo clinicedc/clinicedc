@@ -24,11 +24,7 @@ class CrfCase:
     @property
     def sql(self):
         sql = CrfSubquery(**self.__dict__).sql
-        vendor = (
-            "postgres"
-            if connection.vendor.startswith("postgres")
-            else connection.vendor
-        )
+        vendor = "postgres" if connection.vendor.startswith("postgres") else connection.vendor
         return sqlglot.transpile(sql, read="mysql", write=vendor)[0]
 
     @property

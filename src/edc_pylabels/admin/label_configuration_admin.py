@@ -32,13 +32,13 @@ class LabelConfigurationAdmin(
     actions = [print_test_label_sheet_action]
     form = LabelConfigurationForm
 
-    instructions = "This model links the label specification with a registered label configuration."
+    instructions = (
+        "This model links the label specification with a registered label configuration."
+    )
 
     date_hierarchy = "created"
 
-    fieldsets = (
-        (None, {"fields": ("name", "label_specification", "requires_allocation")}),
-    )
+    fieldsets = ((None, {"fields": ("name", "label_specification", "requires_allocation")}),)
 
     list_display = ("name", "label_specification")
 

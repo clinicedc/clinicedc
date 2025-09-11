@@ -57,12 +57,7 @@ class MetadataValidator:
                         f"{source_model_cls.related_visit_model_attr()}": self.related_visit
                     }
                     query_attrs.update(**self.extra_query_attrs)
-                    if (
-                        source_model_cls.objects.filter(**query_attrs)
-                        .values("id")
-                        .count()
-                        > 1
-                    ):
+                    if source_model_cls.objects.filter(**query_attrs).values("id").count() > 1:
                         raise MultipleObjectsReturned(
                             f"{source_model_cls._meta.label_lower} {self.related_visit}"
                         )
@@ -137,9 +132,7 @@ class MetadataGetter:
             opts = {"show_order__gt": show_order}
             if entry_status:
                 opts.update(entry_status=entry_status)
-            metadata_obj = (
-                self.metadata_objects.filter(**opts).order_by("show_order").first()
-            )
+            metadata_obj = self.metadata_objects.filter(**opts).order_by("show_order").first()
         return metadata_obj
 
     def validate_metadata_objects(

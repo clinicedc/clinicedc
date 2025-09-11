@@ -9,12 +9,13 @@ import django_audit_fields.fields.userfield
 import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_revision.revision_field
-import edc_action_item.managers
-import edc_model.validators.date
-import edc_utils.date
 import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
+
+import edc_action_item.managers
+import edc_model.validators.date
+import edc_utils.date
 
 
 class Migration(migrations.Migration):

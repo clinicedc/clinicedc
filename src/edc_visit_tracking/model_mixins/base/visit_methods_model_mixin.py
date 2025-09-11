@@ -53,9 +53,7 @@ class VisitMethodsModelMixin(models.Model):
                     related_visit_field_cls = field
                     break
         if not related_visit_field_cls:
-            raise RelatedVisitFieldError(
-                f"Related visit field class not found. See {cls}."
-            )
+            raise RelatedVisitFieldError(f"Related visit field class not found. See {cls}.")
         return related_visit_field_cls
 
     @classmethod
@@ -73,9 +71,7 @@ class VisitMethodsModelMixin(models.Model):
                 if issubclass(related_model, (VisitModelMixin,)):
                     break
         if not related_model:
-            raise RelatedVisitFieldError(
-                f"Related visit field class not found. See {cls}."
-            )
+            raise RelatedVisitFieldError(f"Related visit field class not found. See {cls}.")
         return related_model
 
     @classmethod

@@ -29,7 +29,7 @@ def consent_definition_factory(
         age_is_adult=age_is_adult or 18,
     )
     options.update(**kwargs)
-    model = model or "tests.subjectconsentv1"
+    model = model or "clinicedc_tests.subjectconsentv1"
     consent_definition = ConsentDefinition(model, **options)
     return consent_definition
 

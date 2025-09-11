@@ -2,6 +2,10 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule4,
+)
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 
@@ -15,8 +19,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule4
 
 utc = ZoneInfo("UTC")
 
@@ -151,9 +153,7 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
                 raise_if_in_gap=False,
             )
         except AppointmentDateWindowPeriodGapError as e:
-            self.fail(
-                f"AppointmentDateWindowPeriodGapError unexpectedly raised. Got {e}"
-            )
+            self.fail(f"AppointmentDateWindowPeriodGapError unexpectedly raised. Got {e}")
         self.assertIsNone(appointment)
 
     def test_window_gap_days(self):

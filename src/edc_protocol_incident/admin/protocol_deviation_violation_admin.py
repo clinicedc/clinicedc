@@ -10,9 +10,7 @@ from ..models import ProtocolDeviationViolation
 
 
 @admin.register(ProtocolDeviationViolation, site=edc_protocol_incident_admin)
-class ProtocolDeviationViolationAdmin(
-    ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
-):
+class ProtocolDeviationViolationAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
     form = ProtocolDeviationViolationForm
 
     fieldsets = (

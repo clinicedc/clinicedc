@@ -20,9 +20,7 @@ def fix_null_historical_action_identifier(app_label, models):
         for model in models:
             tbl = f"{app_label}_historical{model}"
             if not re.match("([a-z_]+)_historical([a-z]+)", tbl):
-                raise ValueError(
-                    f"Invalid table name when building sql statement. Got {tbl}"
-                )
+                raise ValueError(f"Invalid table name when building sql statement. Got {tbl}")
             tbl = re.match("([a-z_]+)_historical([a-z]+)", tbl).group()
             sql = (
                 f"update {tbl} set action_identifier=id "  # nosec B608
@@ -49,9 +47,7 @@ def fix_null_action_item_fk(apps, app_label, models):
         ][0]
         if model_cls.action_name:
             for obj in model_cls.objects.all():
-                sys.stdout.write(
-                    f"fixing {model_cls.action_name} action_item for {obj}.\n"
-                )
+                sys.stdout.write(f"fixing {model_cls.action_name} action_item for {obj}.\n")
                 if not obj.action_item:
                     try:
                         obj.action_item_id = action_item_cls.objects.get(
@@ -81,10 +77,7 @@ def fix_null_action_items(apps):
         print(e)
     else:
         for action_item in action_items:
-            if (
-                not action_item.parent_action_item
-                and action_item.parent_action_identifier
-            ):
+            if not action_item.parent_action_item and action_item.parent_action_identifier:
                 parent_action_item = action_item_cls.objects.get(
                     action_identifier=action_item.parent_action_identifier
                 )
@@ -108,10 +101,7 @@ def fix_null_action_items(apps):
         print(e)
     else:
         for action_item in action_items:
-            if (
-                not action_item.related_action_item
-                and action_item.related_action_identifier
-            ):
+            if not action_item.related_action_item and action_item.related_action_identifier:
                 related_action_item = action_item_cls.objects.get(
                     action_identifier=action_item.related_action_identifier
                 )
@@ -163,9 +153,7 @@ def fix_null_related_action_items(apps):  # noqa
                     else:
                         related_action_item = related_reference_obj.action_item
                 if related_action_item:
-                    related_action_items.update(
-                        {related_action_item: related_action_item}
-                    )
+                    related_action_items.update({related_action_item: related_action_item})
                     action_item.related_action_item = related_action_item
                     action_item.save()
                     if reference_obj:
@@ -188,9 +176,7 @@ def fix_null_related_action_items(apps):  # noqa
         )
 
 
-def fix_action_item_sequence(
-    action_item_cls, action_identifier=None, subject_identifier=None
-):
+def fix_action_item_sequence(action_item_cls, action_identifier=None, subject_identifier=None):
     """Verify the parent sequence of action items given the
     related action item.
     """

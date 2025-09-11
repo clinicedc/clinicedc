@@ -49,9 +49,7 @@ class ScreeningListboardView(
         return self.listboard_model_cls().get_absolute_url()
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
-        q_object, options = super().get_queryset_filter_options(
-            request, *args, **kwargs
-        )
+        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
         if kwargs.get("screening_identifier"):
             options.update({"screening_identifier": kwargs.get("screening_identifier")})
         return q_object, options

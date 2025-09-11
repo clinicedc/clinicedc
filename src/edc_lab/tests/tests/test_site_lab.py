@@ -1,5 +1,11 @@
 import re
 
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.labs import lab_profile, vl_panel
+from clinicedc_tests.models import SubjectRequisition
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings, tag
 
 from edc_appointment.models import Appointment
@@ -20,12 +26,6 @@ from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.labs import lab_profile, vl_panel
-from tests.models import SubjectRequisition
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 @tag("lab")
@@ -72,7 +72,7 @@ class TestSiteLab2(TestCase):
     def test_site_labs_register(self):
         site_labs.initialize()
         lp = LabProfile(
-            name="lab_profile", requisition_model="tests.subjectrequisition"
+            name="lab_profile", requisition_model="clinicedc_tests.subjectrequisition"
         )
         site_labs.register(lp)
         self.assertTrue(site_labs.loaded)

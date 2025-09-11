@@ -4,6 +4,11 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule3,
+)
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 
@@ -15,9 +20,6 @@ from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule3
 
 utc_tz = ZoneInfo("UTC")
 
@@ -80,8 +82,7 @@ class TestInsertUnscheduled(TestCase):
             visit_schedule_name=appointment.visit_schedule_name,
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
-            suggested_appt_datetime=appointment.appt_datetime
-            + relativedelta(days=days),
+            suggested_appt_datetime=appointment.appt_datetime + relativedelta(days=days),
             suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
         )
         appointment = creator.appointment
@@ -90,9 +91,7 @@ class TestInsertUnscheduled(TestCase):
         return appointment
 
     @staticmethod
-    def get_visit_codes(
-        by: str = None, visit_schedule_name: str | None = None, **kwargs
-    ):
+    def get_visit_codes(by: str = None, visit_schedule_name: str | None = None, **kwargs):
         opts = dict(visit_schedule_name=visit_schedule_name)
         return [
             f"{o.visit_code}.{o.visit_code_sequence}"

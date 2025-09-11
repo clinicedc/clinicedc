@@ -4,10 +4,11 @@ from __future__ import unicode_literals
 
 import django_audit_fields.fields.uuid_auto_field
 import django_revision.revision_field
+from django.db import migrations, models
+
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
 import edc_utils
-from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -19,15 +20,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, editable=False
-                    ),
+                    models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, editable=False
-                    ),
+                    models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
                 ),
                 (
                     "user_created",

@@ -97,9 +97,7 @@ class SubjectVisitMissedModelMixin(models.Model):
     missed_reasons_other = edc_models.OtherCharField()
 
     ltfu = models.CharField(
-        verbose_name=_(
-            "Has the participant met the protocol criteria for lost to follow up?"
-        ),
+        verbose_name=_("Has the participant met the protocol criteria for lost to follow up?"),
         max_length=15,
         choices=YES_NO_NA,
         default=NO,

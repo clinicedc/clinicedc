@@ -63,9 +63,9 @@ class ShortIdentifier:
             )
 
         if self.prefix_pattern:
-            if not self.prefix_pattern.startswith(
-                "^"
-            ) or not self.prefix_pattern.endswith("$"):
+            if not self.prefix_pattern.startswith("^") or not self.prefix_pattern.endswith(
+                "$"
+            ):
                 raise ShortIdentifierPrefixPatternError(
                     f"Invalid prefix pattern. Got {self.prefix_pattern}."
                 )
@@ -93,9 +93,7 @@ class ShortIdentifier:
     def get_identifier(self):
         """Returns a new unique identifier."""
         identifier = None
-        allowed_chars = self.random_string_pattern.match(
-            "ABCDEFGHKMNPRTUVWXYZ2346789"
-        ).group()
+        allowed_chars = self.random_string_pattern.match("ABCDEFGHKMNPRTUVWXYZ2346789").group()
         max_tries = len(allowed_chars) ** (self.random_string_length + 1)
         tries = 0
         while not identifier:
@@ -106,9 +104,7 @@ class ShortIdentifier:
                     for _ in range(self.random_string_length)
                 ]
             )
-            identifier = self.template.format(
-                random_string=random_string, prefix=self.prefix
-            )
+            identifier = self.template.format(random_string=random_string, prefix=self.prefix)
             try:
                 self.identifier_model_cls.objects.get(
                     identifier=identifier, identifier_type=self.name

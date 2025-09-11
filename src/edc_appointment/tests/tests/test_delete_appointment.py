@@ -2,6 +2,12 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+    get_visit_schedule2,
+)
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, override_settings, tag
@@ -17,12 +23,6 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_appointment import (
-    get_visit_schedule1,
-    get_visit_schedule2,
-)
 
 utc = ZoneInfo("UTC")
 
@@ -109,9 +109,7 @@ class TestDeleteAppointment(TestCase):
         self.assertRaises(ProtectedError, delete_appointment_in_sequence, appointment)
         SubjectVisit.objects.get(appointment=appointment).delete()
         # raises AppointmentDeleteError (from manager) because not allowed by manager
-        self.assertRaises(
-            AppointmentDeleteError, delete_appointment_in_sequence, appointment
-        )
+        self.assertRaises(AppointmentDeleteError, delete_appointment_in_sequence, appointment)
         # assert nothing was done
         self.assertEqual(
             [0, 1, 2, 3],

@@ -37,9 +37,7 @@ class TestSubjectIdentifier(TestCase):
 
     def test_increments(self):
         """Asserts identifier sequence increments correctly."""
-        opts = dict(
-            identifier_type="subject", requesting_model="edc_identifier.enrollment"
-        )
+        opts = dict(identifier_type="subject", requesting_model="edc_identifier.enrollment")
         for i in range(1, 10):
             subject_identifier = SubjectIdentifier(**opts)
             self.assertEqual(subject_identifier.identifier[7:11], "000" + str(i))
@@ -130,9 +128,7 @@ class TestSubjectIdentifier(TestCase):
             EnrollmentThree.objects.create(subject_identifier=identifier.identifier)
             self.assertIsNotNone(identifier.identifier)
         self.assertEqual(
-            IdentifierModel.objects.filter(
-                model="edc_identifier.enrollmentthree"
-            ).count(),
+            IdentifierModel.objects.filter(model="edc_identifier.enrollmentthree").count(),
             5,
         )
         self.assertRaises(

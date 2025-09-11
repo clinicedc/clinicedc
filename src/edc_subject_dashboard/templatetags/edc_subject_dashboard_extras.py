@@ -176,9 +176,7 @@ def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
         overdue = True
     else:
         crf_keyed = helper.get_crf_metadata_by(entry_status=KEYED).count()
-        requisition_keyed = helper.get_requisition_metadata_by(
-            entry_status=KEYED
-        ).count()
+        requisition_keyed = helper.get_requisition_metadata_by(entry_status=KEYED).count()
         crf_total = helper.get_crf_metadata_by(entry_status=[REQUIRED, KEYED]).count()
         requisition_total = helper.get_requisition_metadata_by(
             entry_status=[REQUIRED, KEYED]
@@ -470,9 +468,7 @@ def render_screening_button(context, subject_screening) -> dict:
 def render_subject_schedule_button(
     subject_dashboard_url: str, subject_identifier: str
 ) -> dict:
-    url = reverse(
-        subject_dashboard_url, kwargs=dict(subject_identifier=subject_identifier)
-    )
+    url = reverse(subject_dashboard_url, kwargs=dict(subject_identifier=subject_identifier))
     return dict(url=url, subject_identifier=subject_identifier)
 
 

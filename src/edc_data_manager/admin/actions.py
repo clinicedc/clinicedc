@@ -16,9 +16,7 @@ from ..rule import update_query_rules
 DATA_MANAGER_ENABLED = getattr(settings, "DATA_MANAGER_ENABLED", True)
 
 
-@admin.action(
-    description=f"Toggle Active/Inactive {QueryRule._meta.verbose_name_plural}"
-)
+@admin.action(description=f"Toggle Active/Inactive {QueryRule._meta.verbose_name_plural}")
 def toggle_active_flag(modeladmin, request, queryset):
     for obj in queryset:
         obj.active = False if obj.active else True
@@ -37,9 +35,7 @@ def copy_query_rule_action(modeladmin, request, queryset):
     if queryset.count() == 1:
         obj = queryset[0]
         options = {
-            k: v
-            for k, v in obj.__dict__.items()
-            if not k.startswith("_") and k not in ["id"]
+            k: v for k, v in obj.__dict__.items() if not k.startswith("_") and k not in ["id"]
         }
         options["title"] = f"{options['title']} (Copy)"
         options["active"] = False
@@ -77,9 +73,7 @@ def update_query_rules_action(modeladmin, request, queryset):
         if settings.CELERY_ENABLED:
             update_query_rules.delay(pks=[o.pk for o in queryset])
             dte = get_utcnow()
-            taskresult_url = reverse(
-                "admin:django_celery_results_taskresult_changelist"
-            )
+            taskresult_url = reverse("admin:django_celery_results_taskresult_changelist")
             msg = format_html(
                 "Updating data queries in the background. "
                 "Started at {}. "

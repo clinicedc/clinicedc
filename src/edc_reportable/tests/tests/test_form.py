@@ -2,6 +2,11 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import SpecimenResult
+from clinicedc_tests.reportables import grading_data, normal_data
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
@@ -23,11 +28,6 @@ from edc_utils.date import get_utcnow
 from edc_visit_schedule.constants import DAY01
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import SpecimenResult
-from tests.reportables import grading_data, normal_data
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class SpecimenResultFormValidator(ReportablesFormValidatorMixin, CrfFormValidator):
@@ -151,9 +151,7 @@ class TestSpecimenResultForm(TestCase):
             self.fail(f"ValidationError unexpectedly raised. Got{e}")
 
     def test_no_creatinine_mg_invalid(self):
-        self.cleaned_data.update(
-            creatinine=0.3, creatinine_units=MILLIGRAMS_PER_DECILITER
-        )
+        self.cleaned_data.update(creatinine=0.3, creatinine_units=MILLIGRAMS_PER_DECILITER)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -228,9 +226,7 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("magnesium", form_validator._errors)
 
     def test_magnesium(self):
-        self.cleaned_data.update(
-            magnesium=0.35, results_abnormal=YES, results_reportable=YES
-        )
+        self.cleaned_data.update(magnesium=0.35, results_abnormal=YES, results_reportable=YES)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -246,9 +242,7 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("potassium", form_validator._errors)
 
     def test_potassium_high(self):
-        self.cleaned_data.update(
-            potassium=6.8, results_abnormal=YES, results_reportable=NO
-        )
+        self.cleaned_data.update(potassium=6.8, results_abnormal=YES, results_reportable=NO)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -256,9 +250,7 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("potassium", form_validator._errors)
 
     def test_potassium_low(self):
-        self.cleaned_data.update(
-            potassium=2.3, results_abnormal=YES, results_reportable=NO
-        )
+        self.cleaned_data.update(potassium=2.3, results_abnormal=YES, results_reportable=NO)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -284,9 +276,7 @@ class TestSpecimenResultForm(TestCase):
         self.assertIn("sodium", form_validator._errors)
 
     def test_sodium_invalid_2(self):
-        self.cleaned_data.update(
-            sodium=119, results_abnormal=YES, results_reportable=NO
-        )
+        self.cleaned_data.update(sodium=119, results_abnormal=YES, results_reportable=NO)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )
@@ -360,9 +350,7 @@ class TestSpecimenResultForm(TestCase):
             self.fail(f"ValidationError unexpectedly raised. Got{e}")
 
     def test_results_reportable_invalid(self):
-        self.cleaned_data.update(
-            sodium=1000, results_abnormal=YES, results_reportable=NO
-        )
+        self.cleaned_data.update(sodium=1000, results_abnormal=YES, results_reportable=NO)
         form_validator = SpecimenResultFormValidator(
             cleaned_data=self.cleaned_data, instance=SpecimenResult()
         )

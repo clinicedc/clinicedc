@@ -2,8 +2,9 @@
 
 import django.db.models.deletion
 import django.db.models.manager
-import edc_sites.models
 from django.db import migrations, models
+
+import edc_sites.models
 
 
 class Migration(migrations.Migration):

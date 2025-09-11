@@ -2,6 +2,15 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import (
+    BloodResultsFbc,
+    CrfThree,
+    SubjectRequisition,
+    SubjectVisit,
+)
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.db import OperationalError, connection
 from django.test import TestCase, override_settings, tag
 
@@ -16,10 +25,6 @@ from edc_qareports.sql_generator import CrfCase, CrfCaseError, RequisitionCase
 from edc_qareports.sql_generator.crf_subquery import CrfSubqueryError
 from edc_reportable import TEN_X_9_PER_LITER
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import BloodResultsFbc, CrfThree, SubjectRequisition, SubjectVisit
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 
@@ -76,7 +81,7 @@ class TestQA(TestCase):
         crf_case = CrfCase(
             label="F1 is missing",
             dbtable="tests_crfthree",
-            label_lower="tests.crfthree",
+            label_lower="clinicedc_tests.crfthree",
             fld_name="bad_fld_name",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
         )
@@ -93,7 +98,7 @@ class TestQA(TestCase):
         crf_case = CrfCase(
             label="F1 is missing",
             dbtable="tests_crfthree",
-            label_lower="tests.crfthree",
+            label_lower="clinicedc_tests.crfthree",
             fld_name="f1",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
         )
@@ -109,7 +114,7 @@ class TestQA(TestCase):
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
             dbtable="tests_crfthree",
-            label_lower="tests.crfthree",
+            label_lower="clinicedc_tests.crfthree",
             where="bad_fld_name is null and f2='Yes'",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
         )
@@ -126,7 +131,7 @@ class TestQA(TestCase):
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
             dbtable="tests_crfthree",
-            label_lower="tests.crfthree",
+            label_lower="clinicedc_tests.crfthree",
             where="f1 is null and f2='Yes'",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
         )
@@ -140,7 +145,7 @@ class TestQA(TestCase):
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
             dbtable="tests_crfthree",
-            label_lower="tests.crfthree",
+            label_lower="clinicedc_tests.crfthree",
             where="f1 is null and f2='Yes'",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
         )
@@ -156,7 +161,7 @@ class TestQA(TestCase):
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
             dbtable="tests_crfthree",
-            label_lower="tests.crfthree",
+            label_lower="clinicedc_tests.crfthree",
             where="f1 is null and f2='Yes'",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
         )
@@ -179,7 +184,7 @@ class TestQA(TestCase):
         requisition_case = RequisitionCase(
             label="FBC Requisition, no results",
             dbtable="tests_bloodresultsfbc",
-            label_lower="tests.bloodresultsfbc",
+            label_lower="clinicedc_tests.bloodresultsfbc",
             panel=FBC,
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
             subjectrequisition_dbtable="tests_subjectrequisition",

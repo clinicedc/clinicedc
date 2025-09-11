@@ -22,9 +22,7 @@ class EdcLabelViewMixin(PrintersMixin, ContextMixin):
                 messages.error(self.request, str(e))
             else:
                 try:
-                    kwargs.update(
-                        selected_clinic_label_printer=self.clinic_label_printer
-                    )
+                    kwargs.update(selected_clinic_label_printer=self.clinic_label_printer)
                 except PrinterError:
                     pass
                 try:

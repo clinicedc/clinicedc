@@ -2,6 +2,17 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import (
+    CrfFive,
+    CrfFour,
+    CrfOne,
+    CrfSix,
+    CrfThree,
+    CrfTwo,
+    SubjectRequisition,
+)
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -20,17 +31,6 @@ from edc_lab.tests import SiteLabsTestHelper
 from edc_utils.date import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import (
-    CrfFive,
-    CrfFour,
-    CrfOne,
-    CrfSix,
-    CrfThree,
-    CrfTwo,
-    SubjectRequisition,
-)
 
 User = get_user_model()
 
@@ -90,9 +90,7 @@ class ModelAdminSiteTest(WebTest):
             status=200,
         )
 
-        CrfOne.objects.create(
-            subject_visit=self.subject_visit, report_datetime=get_utcnow()
-        )
+        CrfOne.objects.create(subject_visit=self.subject_visit, report_datetime=get_utcnow())
 
         model = "redirectnextmodel"
         query_string = (

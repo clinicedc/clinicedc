@@ -97,9 +97,7 @@ class CrfPdfReport(Report):
                 f"Got {self.model_obj}."
             )
         if not self.changelist_url:
-            raise CrfPdfReportError(
-                f"Invalid changelist url. Got {self.changelist_url}."
-            )
+            raise CrfPdfReportError(f"Invalid changelist url. Got {self.changelist_url}.")
 
         self.user_model_cls = get_user_model()
         self.user = self.request.user if self.request else user
@@ -195,9 +193,7 @@ class CrfPdfReport(Report):
             ],
             [
                 "Randomization date:",
-                self.registered_subject.randomization_datetime.strftime(
-                    "%Y-%m-%d %H:%M"
-                ),
+                self.registered_subject.randomization_datetime.strftime("%Y-%m-%d %H:%M"),
             ],
             ["Assignment:", assignment],
         ]
@@ -252,9 +248,7 @@ class CrfPdfReport(Report):
     @property
     def logo(self):
         if not self._logo:
-            path = get_static_file(
-                self.logo_data["app_label"], self.logo_data["filename"]
-            )
+            path = get_static_file(self.logo_data["app_label"], self.logo_data["filename"])
             if os.path.isfile(path):
                 self._logo = ImageReader(path)
         return self._logo

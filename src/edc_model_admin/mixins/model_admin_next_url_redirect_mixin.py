@@ -57,16 +57,12 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         extra_context = self.extra_context(extra_context)
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 
-    def change_view(
-        self, request: WSGIRequest, object_id, form_url="", extra_context=None
-    ):
+    def change_view(self, request: WSGIRequest, object_id, form_url="", extra_context=None):
         """Redirect before save on "cancel", otherwise return
         normal behavior.
         """
         if self.show_cancel and request.POST.get("_cancel"):
-            redirect_url = self.get_next_redirect_url(
-                request=request, object_id=object_id
-            )
+            redirect_url = self.get_next_redirect_url(request=request, object_id=object_id)
             return HttpResponseRedirect(redirect_url)
         extra_context = self.extra_context(extra_context)
         return super().change_view(
@@ -155,9 +151,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
                 redirect_url = reverse(f"{url_name}_change", args=(next_obj.id,))
         next_querystring = request.GET.get(self.next_querystring_attr)
         querystring_opts = self.get_next_options(request=request)
-        querystring_opts.update(
-            {obj.related_visit_model_attr(): str(obj.related_visit.id)}
-        )
+        querystring_opts.update({obj.related_visit_model_attr(): str(obj.related_visit.id)})
         if panel_name:
             panel_model_cls = django_apps.get_model("edc_lab.panel")
             panel = panel_model_cls.objects.get(name=panel_name)

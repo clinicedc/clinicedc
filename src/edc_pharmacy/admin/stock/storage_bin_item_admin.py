@@ -26,9 +26,7 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
     autocomplete_fields = ["stock"]
     actions = ["delete_selected"]
 
-    change_list_note = (
-        "Once an item is dispensed it is automatically removed from storage."
-    )
+    change_list_note = "Once an item is dispensed it is automatically removed from storage."
 
     form = StorageBinItemForm
 
@@ -88,18 +86,14 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
         url = reverse("edc_pharmacy_admin:edc_pharmacy_storagebin_changelist")
         url = f"{url}?q={bin_ref}"
         context = dict(url=url, label=bin_ref, title="Go to bin")
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Stock")
     def stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.stock.code}"
         context = dict(url=url, label=obj.stock.code, title="Go to stock")
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(
         description="Subject #",
@@ -113,8 +107,4 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
         return qs.filter(stock__dispenseitem__isnull=True)
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
-        return [
-            s.id
-            for s in request.user.userprofile.sites.all()
-            if s.id != request.site.id
-        ]
+        return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]

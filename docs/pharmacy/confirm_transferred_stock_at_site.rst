@@ -1,5 +1,3 @@
-.. _confirm_transferred_stock_at_site:
-
 Confirm transferred stock (at the site)
 =======================================
 

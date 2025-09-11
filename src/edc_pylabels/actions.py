@@ -18,9 +18,7 @@ if TYPE_CHECKING:
 
 
 @admin.action(description="Test print sheet of labels")
-def print_test_label_sheet_action(
-    modeladmin, request, queryset: QuerySet[LabelConfiguration]
-):
+def print_test_label_sheet_action(modeladmin, request, queryset: QuerySet[LabelConfiguration]):
 
     if queryset.count() > 1 or queryset.count() == 0:
         messages.add_message(
@@ -50,9 +48,7 @@ def print_test_label_sheet_action(
             ]
         )
         buffer = sheet.save_to_buffer()
-        return FileResponse(
-            buffer, as_attachment=True, filename=f"test_print_{obj.name}.pdf"
-        )
+        return FileResponse(buffer, as_attachment=True, filename=f"test_print_{obj.name}.pdf")
     return None
 
 

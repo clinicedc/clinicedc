@@ -3,6 +3,12 @@ from decimal import Context
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+    get_visit_schedule2,
+)
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings, tag
@@ -17,12 +23,6 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_appointment import (
-    get_visit_schedule1,
-    get_visit_schedule2,
-)
 
 utc_tz = ZoneInfo("UTC")
 
@@ -123,9 +123,7 @@ class TestAppointment(TestCase):
 
         appointment0_2 = self.helper.add_unscheduled_appointment(appointment0_1)
 
-        appointment0_1.appt_datetime = appointment0_2.appt_datetime + relativedelta(
-            days=1
-        )
+        appointment0_1.appt_datetime = appointment0_2.appt_datetime + relativedelta(days=1)
 
         self.assertRaises(AppointmentDatetimeError, appointment0_1.save)
 
@@ -143,9 +141,7 @@ class TestAppointment(TestCase):
         self.assertEqual(
             [
                 obj.timepoint
-                for obj in get_appointment_model_cls()
-                .objects.all()
-                .order_by("appt_datetime")
+                for obj in get_appointment_model_cls().objects.all().order_by("appt_datetime")
             ],
             [context.create_decimal(n) for n in range(0, 4)],
         )

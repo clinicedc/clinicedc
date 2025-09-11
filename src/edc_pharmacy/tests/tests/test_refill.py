@@ -2,6 +2,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 
@@ -26,9 +29,6 @@ from edc_pharmacy.refill import (
 )
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 @tag("pharmacy")
@@ -314,9 +314,7 @@ class TestRefill(TestCase):
             weight_in_kgs=65,
         )
 
-        self.assertEqual(
-            refill_creator.rx_refill.refill_start_datetime, refill_start_datetime
-        )
+        self.assertEqual(refill_creator.rx_refill.refill_start_datetime, refill_start_datetime)
 
     def test_refill_create_and_make_active(self):
         refill_start_datetime = get_utcnow()

@@ -7,7 +7,7 @@ Add classes for the Informed Consent form and process.
 Concepts
 ++++++++
 
-In `Clinic EDC <https://github.com/clinicedc>`_ projects, the Informed Consent Form (ICF) is represented by an online document to be completed by each participant before data may be captured. The ICF is linked to a longitudinal data collection schedule or ``visit schedule``. By consenting, the participant consents for data in this ``visit schedule`` to be captured. The `Clinic EDC <https://github.com/clinicedc>`_ will allow the data values referred to in this ``visit schedule`` to be captured for the term of schedule or until the approved consent expires, whichever comes first.
+In `Clinic EDC <https://github.com/clinicedc>`_ projects, the Informed Consent Form (ICF) is represented by an online document to be completed by each participant before data may be captured. The ICF is linked to a longitudinal data collection schedule or ``visit schedule``. By consenting, the participant consents for data in this ``visit schedule`` to be captured. The Clinic EDC will allow the data values referred to in this ``visit schedule`` to be captured for the term of schedule or until the approved consent expires, whichever comes first.
 
 Consents are versioned
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -132,8 +132,9 @@ To create an instance of the consent for a subject, find the ``ConsentDefinition
 
     consent_obj = cdef.model_create(
         subject_identifier="123456789",
-        consent_datetime=datetime(2013, 10, 16, tzinfo=ZoneInfo("UTC"),
-        ...)
+        consent_datetime=datetime(2013, 10, 16, tzinfo=ZoneInfo("UTC")),
+        # ...
+        )
 
     assert consent_obj.consent_version == "1"
     assert consent_obj.consent_model == "edc_example.subjectconsentv1"
@@ -191,8 +192,9 @@ Add a second ``ConsentDefinition`` to ``your consents.py`` for version 2:
 
     consent_obj = cdef.model_create(
         subject_identifier="123456789",
-        consent_datetime=datetime(2016, 10, 17, tzinfo=ZoneInfo("UTC"),
-        ...)
+        consent_datetime=datetime(2016, 10, 17, tzinfo=ZoneInfo("UTC")),
+        # ...
+        )
 
     assert consent_obj.consent_version == "2"
     assert consent_obj.consent_model == "edc_example.subjectconsentv2"
@@ -228,12 +230,15 @@ To allow this, we would add ``update_versions`` to the version 2 ``ConsentDefini
 
     consent_v1 = ConsentDefinition(
         'edc_example.subjectconsentv1',
-        version='1', ...)
+        version='1',
+        #...
+        )
 
     consent_v2 = ConsentDefinition(
         'edc_example.subjectconsentv2',
         version='2',
         update_versions=[UpdateVersion(consent_v1.version, consent_v1.end)],
+        )
 
     site_consents.register(consent_v1)
     site_consents.register(consent_v2)
@@ -462,6 +467,3 @@ TODO
 * review verification actions
 * management command to update version on models that require consent (if edc_consent added after instances were created)
 * handle re-consenting issues, for example, if original consent was restricted by age (16-64) but the re-consent is not. May need to open upper bound.
-
-.. _edc_consent: https://github.com/clinicedc/clinicedc/tree/develop/src/edc_consent
-.. _edc_visit_schedule: https://github.com/clinicedc/clinicedc/tree/develop/src/edc_visit_schedule

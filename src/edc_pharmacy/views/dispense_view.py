@@ -77,9 +77,7 @@ class DispenseView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Template
     def confirmation_at_site(self):
         confirmation_at_site_id = self.kwargs.get("confirmation_at_site")
         try:
-            confirmation_at_site = ConfirmationAtSite.objects.get(
-                id=confirmation_at_site_id
-            )
+            confirmation_at_site = ConfirmationAtSite.objects.get(id=confirmation_at_site_id)
         except ObjectDoesNotExist:
             confirmation_at_site = None
             messages.add_message(
@@ -94,9 +92,7 @@ class DispenseView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Template
         formulation = Formulation.objects.get(pk=formulation_id)
         subject_identifier = request.POST.get("subject_identifier")
         container_count = request.POST.get("container_count")
-        stock_codes = (
-            request.POST.getlist("codes") if request.POST.get("codes") else None
-        )
+        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
         rx = self.get_rx(subject_identifier, location, formulation)
         if not stock_codes and location and formulation and rx and container_count:
             url = reverse(

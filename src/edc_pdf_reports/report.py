@@ -28,9 +28,7 @@ class ReportError(Exception):
 
 class Report(ABC):
     document_template = SimpleDocTemplate
-    watermark_word: str | None = getattr(
-        settings, "EDC_PDF_REPORTS_WATERMARK_WORD", None
-    )
+    watermark_word: str | None = getattr(settings, "EDC_PDF_REPORTS_WATERMARK_WORD", None)
     watermark_font: tuple[str, int] | None = getattr(
         settings, "EDC_PDF_REPORTS_WATERMARK_FONT", ("Helvetica", 100)
     )
@@ -144,9 +142,7 @@ class Report(ABC):
             styles.add(ParagraphStyle(name="right", alignment=TA_RIGHT))
             styles.add(ParagraphStyle(name="left", alignment=TA_LEFT))
             styles.add(
-                ParagraphStyle(
-                    name="line_data", alignment=TA_LEFT, fontSize=8, leading=10
-                )
+                ParagraphStyle(name="line_data", alignment=TA_LEFT, fontSize=8, leading=10)
             )
             styles.add(
                 ParagraphStyle(
@@ -186,24 +182,16 @@ class Report(ABC):
                 )
             )
             styles.add(
-                ParagraphStyle(
-                    name="line_label", fontSize=7, leading=6, alignment=TA_LEFT
-                )
+                ParagraphStyle(name="line_label", fontSize=7, leading=6, alignment=TA_LEFT)
             )
             styles.add(
-                ParagraphStyle(
-                    name="line_label_center", fontSize=7, alignment=TA_CENTER
-                )
+                ParagraphStyle(name="line_label_center", fontSize=7, alignment=TA_CENTER)
             )
             styles.add(
-                ParagraphStyle(
-                    name="row_header", fontSize=8, leading=8, alignment=TA_CENTER
-                )
+                ParagraphStyle(name="row_header", fontSize=8, leading=8, alignment=TA_CENTER)
             )
             styles.add(
-                ParagraphStyle(
-                    name="row_data", fontSize=7, leading=7, alignment=TA_CENTER
-                )
+                ParagraphStyle(name="row_data", fontSize=7, leading=7, alignment=TA_CENTER)
             )
             self._styles = self.add_to_styles(styles)
         return self._styles

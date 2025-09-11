@@ -67,7 +67,5 @@ class UnblindingRequest(
         verbose_name = "Unblinding Request"
         verbose_name_plural = "Unblinding Requests"
         indexes = [
-            models.Index(
-                fields=["subject_identifier", "action_identifier", "site", "id"]
-            )
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
         ]

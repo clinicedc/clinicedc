@@ -2,8 +2,9 @@
 
 import django_crypto_fields.fields.encrypted_char_field
 import django_crypto_fields.fields.encrypted_text_field
-import edc_model.validators.phone
 from django.db import migrations, models
+
+import edc_model.validators.phone
 
 
 class Migration(migrations.Migration):

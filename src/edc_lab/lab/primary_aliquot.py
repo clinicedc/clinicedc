@@ -39,7 +39,5 @@ class PrimaryAliquot:
                 requisition_identifier=self.requisition_identifier,
                 subject_identifier=self.subject_identifier,
             )
-            self._object = aliquot_creator.create_primary(
-                aliquot_type=self.aliquot_type
-            )
+            self._object = aliquot_creator.create_primary(aliquot_type=self.aliquot_type)
         return self._object

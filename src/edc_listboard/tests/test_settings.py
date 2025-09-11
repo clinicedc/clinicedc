@@ -21,7 +21,7 @@ project_settings = DefaultTestSettings(
     ],
     SUBJECT_VISIT_MODEL="edc_visit_tracking.subjectvisit",
     SUBJECT_VISIT_MISSED_MODEL="edc_appointment.subjectvisitmissed",
-    SUBJECT_REQUISITION_MODEL="tests.subjectrequisition",
+    SUBJECT_REQUISITION_MODEL="clinicedc_tests.subjectrequisition",
     EDC_SITES_REGISTER_DEFAULT=True,
     INSTALLED_APPS=[
         "django.contrib.admin",

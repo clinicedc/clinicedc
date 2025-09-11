@@ -51,9 +51,7 @@ class PrintPdfReportView(ContextMixin, View):
         else:
             password = kwargs.get("phrase") or slugify(mempass.mkpassword(2))
             app_label, model_name = kwargs.get("app_label"), kwargs.get("model_name")
-            qs = django_apps.get_model(app_label, model_name).objects.filter(
-                pk__in=model_pks
-            )
+            qs = django_apps.get_model(app_label, model_name).objects.filter(pk__in=model_pks)
             buffer = write_queryset_to_secure_pdf(
                 queryset=qs, password=password, request=self.request
             )
@@ -74,9 +72,7 @@ class PrintPdfReportView(ContextMixin, View):
         else:
             report_filename = pdf_report_cls.get_generic_report_filename()
         if not report_filename:
-            raise ValueError(
-                "Cannot create file without a filename. Got report_filename=None"
-            )
+            raise ValueError("Cannot create file without a filename. Got report_filename=None")
         return report_filename
 
     def message_user(self, report_filename=None, password=None) -> None:

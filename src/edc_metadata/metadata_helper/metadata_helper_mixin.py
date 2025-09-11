@@ -73,9 +73,7 @@ class MetadataHelperMixin(VisitScheduleFieldsProtocol):
         )
         return get_crf_metadata_model_cls().objects.filter(**opts)
 
-    def get_crf_metadata_by(
-        self, entry_status: str | list[str]
-    ) -> QuerySet[CrfMetadata]:
+    def get_crf_metadata_by(self, entry_status: str | list[str]) -> QuerySet[CrfMetadata]:
         if isinstance(entry_status, (list,)):
             opts = dict(entry_status__in=entry_status)
         else:

@@ -2,6 +2,11 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+)
 from dateutil._common import weekday
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.test import TestCase, override_settings, tag
@@ -11,9 +16,6 @@ from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.schedule.visit_collection import VisitCollection
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule1
 
 utc_tz = ZoneInfo("UTC")
 
@@ -98,9 +100,7 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="5-day-clinic")
         base_appt_datetime = datetime(2025, 1, 7)  # noqa
         self.assertTrue(weekday(base_appt_datetime.weekday()), SA)
-        appt_datetimes, _ = self.get_appt_datetimes(
-            base_appt_datetime=base_appt_datetime
-        )
+        appt_datetimes, _ = self.get_appt_datetimes(base_appt_datetime=base_appt_datetime)
         self.assertTrue(weekday(appt_datetimes[0].weekday()), MO)
         self.assertTrue(weekday(appt_datetimes[1].weekday()), TU)
         self.assertTrue(weekday(appt_datetimes[2].weekday()), WE)
@@ -111,9 +111,7 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="5-day-clinic")
         base_appt_datetime = datetime(2025, 1, 8)
         self.assertTrue(weekday(base_appt_datetime.weekday()), SU)
-        appt_datetimes, _ = self.get_appt_datetimes(
-            base_appt_datetime=base_appt_datetime
-        )
+        appt_datetimes, _ = self.get_appt_datetimes(base_appt_datetime=base_appt_datetime)
         self.assertTrue(weekday(appt_datetimes[0].weekday()), MO)
         self.assertTrue(weekday(appt_datetimes[1].weekday()), TU)
         self.assertTrue(weekday(appt_datetimes[2].weekday()), WE)
@@ -124,9 +122,7 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="5-day-clinic")
         base_appt_datetime = datetime(2025, 1, 9)
         self.assertTrue(weekday(base_appt_datetime.weekday()), MO)
-        appt_datetimes, _ = self.get_appt_datetimes(
-            base_appt_datetime=base_appt_datetime
-        )
+        appt_datetimes, _ = self.get_appt_datetimes(base_appt_datetime=base_appt_datetime)
         self.assertTrue(weekday(appt_datetimes[0].weekday()), MO)
         self.assertTrue(weekday(appt_datetimes[1].weekday()), TU)
         self.assertTrue(weekday(appt_datetimes[2].weekday()), WE)
@@ -137,9 +133,7 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="5-day-clinic")
         base_appt_datetime = datetime(2025, 1, 10)
         self.assertTrue(weekday(base_appt_datetime.weekday()), TU)
-        appt_datetimes, _ = self.get_appt_datetimes(
-            base_appt_datetime=base_appt_datetime
-        )
+        appt_datetimes, _ = self.get_appt_datetimes(base_appt_datetime=base_appt_datetime)
         self.assertTrue(weekday(appt_datetimes[0].weekday()), TU)
         self.assertTrue(weekday(appt_datetimes[1].weekday()), WE)
         self.assertTrue(weekday(appt_datetimes[2].weekday()), TH)
@@ -150,9 +144,7 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="5-day-clinic")
         base_appt_datetime = datetime(2025, 1, 11)
         self.assertTrue(weekday(base_appt_datetime.weekday()), WE)
-        appt_datetimes, _ = self.get_appt_datetimes(
-            base_appt_datetime=base_appt_datetime
-        )
+        appt_datetimes, _ = self.get_appt_datetimes(base_appt_datetime=base_appt_datetime)
         self.assertTrue(weekday(appt_datetimes[0].weekday()), WE)
         self.assertTrue(weekday(appt_datetimes[1].weekday()), TH)
         self.assertTrue(weekday(appt_datetimes[2].weekday()), FR)
@@ -163,9 +155,7 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2025, 1, 7)  # noqa
         self.assertTrue(weekday(base_appt_datetime.weekday()), SA)
-        appt_datetimes, _ = self.get_appt_datetimes(
-            base_appt_datetime=base_appt_datetime
-        )
+        appt_datetimes, _ = self.get_appt_datetimes(base_appt_datetime=base_appt_datetime)
         self.assertTrue(weekday(appt_datetimes[0].weekday()), TU)
         self.assertTrue(weekday(appt_datetimes[1].weekday()), WE)
         self.assertTrue(weekday(appt_datetimes[2].weekday()), TH)
@@ -176,9 +166,7 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2025, 1, 8)
         self.assertTrue(weekday(base_appt_datetime.weekday()), SU)
-        appt_datetimes, _ = self.get_appt_datetimes(
-            base_appt_datetime=base_appt_datetime
-        )
+        appt_datetimes, _ = self.get_appt_datetimes(base_appt_datetime=base_appt_datetime)
         self.assertTrue(weekday(appt_datetimes[0].weekday()), TU)
         self.assertTrue(weekday(appt_datetimes[1].weekday()), WE)
         self.assertTrue(weekday(appt_datetimes[2].weekday()), TH)
@@ -189,9 +177,7 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2025, 1, 9)
         self.assertTrue(weekday(base_appt_datetime.weekday()), MO)
-        appt_datetimes, _ = self.get_appt_datetimes(
-            base_appt_datetime=base_appt_datetime
-        )
+        appt_datetimes, _ = self.get_appt_datetimes(base_appt_datetime=base_appt_datetime)
         self.assertTrue(weekday(appt_datetimes[0].weekday()), TU)
         self.assertTrue(weekday(appt_datetimes[1].weekday()), WE)
         self.assertTrue(weekday(appt_datetimes[2].weekday()), TH)
@@ -202,9 +188,7 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2025, 1, 10)
         self.assertTrue(weekday(base_appt_datetime.weekday()), TU)
-        appt_datetimes, _ = self.get_appt_datetimes(
-            base_appt_datetime=base_appt_datetime
-        )
+        appt_datetimes, _ = self.get_appt_datetimes(base_appt_datetime=base_appt_datetime)
         self.assertTrue(weekday(appt_datetimes[0].weekday()), TU)
         self.assertTrue(weekday(appt_datetimes[1].weekday()), WE)
         self.assertTrue(weekday(appt_datetimes[2].weekday()), TH)
@@ -215,9 +199,7 @@ class TestApptDatetimes(TestCase):
         self.register_visit_schedule(facility_name="3-day-clinic")
         base_appt_datetime = datetime(2025, 1, 11)
         self.assertTrue(weekday(base_appt_datetime.weekday()), WE)
-        appt_datetimes, _ = self.get_appt_datetimes(
-            base_appt_datetime=base_appt_datetime
-        )
+        appt_datetimes, _ = self.get_appt_datetimes(base_appt_datetime=base_appt_datetime)
         self.assertTrue(weekday(appt_datetimes[0].weekday()), WE)
         self.assertTrue(weekday(appt_datetimes[1].weekday()), TH)
         self.assertTrue(weekday(appt_datetimes[2].weekday()), FR)

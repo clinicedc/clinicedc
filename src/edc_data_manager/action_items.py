@@ -72,9 +72,7 @@ class DataQueryAction(Action):
 
     def get_category(self):
         return (
-            "DM Query"
-            if self.site_response_status in [FEEDBACK, RESOLVED]
-            else "Site Query"
+            "DM Query" if self.site_response_status in [FEEDBACK, RESOLVED] else "Site Query"
         )
 
     def get_status(self):

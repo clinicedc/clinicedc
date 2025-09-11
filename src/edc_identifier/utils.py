@@ -6,9 +6,7 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from .exceptions import SubjectIdentifierError
 
 
-def is_subject_identifier_or_raise(
-    subject_identifier, reference_obj=None, raise_on_none=None
-):
+def is_subject_identifier_or_raise(subject_identifier, reference_obj=None, raise_on_none=None):
     """Returns the given subject identifier.
 
     * If the format of the `subject_identifier` is invalid,

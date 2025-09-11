@@ -2,6 +2,10 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.models import CrfOne, SubjectConsentV1
+from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
+    get_visit_schedule,
+)
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 from faker import Faker
@@ -17,10 +21,6 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.models import CrfOne, SubjectConsentV1
-from tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
-    get_visit_schedule,
-)
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 

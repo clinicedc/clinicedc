@@ -2,6 +2,18 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import (
+    FormOneAction,
+    FormThreeAction,
+    FormTwoAction,
+    FormZeroAction,
+)
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import FormOne, FormThree, FormTwo, TestModelWithAction
+from clinicedc_tests.visit_schedules.visit_schedule_action_item import (
+    get_visit_schedule,
+)
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, override_settings, tag
@@ -16,16 +28,6 @@ from edc_action_item.site_action_items import site_action_items
 from edc_consent import site_consents
 from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.action_items import (
-    FormOneAction,
-    FormThreeAction,
-    FormTwoAction,
-    FormZeroAction,
-)
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import FormOne, FormThree, FormTwo, TestModelWithAction
-from tests.visit_schedules.visit_schedule_action_item import get_visit_schedule
 
 from ..test_case_mixin import TestCaseMixin
 
@@ -68,7 +70,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         self.assertTrue(obj.action_identifier.startswith("AC"))
         self.assertEqual(obj.status, NEW)
         self.assertIsNotNone(obj.report_datetime)
-        self.assertEqual(obj.action_type.reference_model, "tests.formzero")
+        self.assertEqual(obj.action_type.reference_model, "clinicedc_tests.formzero")
 
     def test_create_requires_existing_subject(self):
         self.assertRaises(
@@ -85,12 +87,8 @@ class TestActionItem(TestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier, form_one=form_one
         )
         form_two.refresh_from_db()
-        action_item_one = ActionItem.objects.get(
-            action_identifier=form_one.action_identifier
-        )
-        action_item_two = ActionItem.objects.get(
-            action_identifier=form_two.action_identifier
-        )
+        action_item_one = ActionItem.objects.get(action_identifier=form_one.action_identifier)
+        action_item_two = ActionItem.objects.get(action_identifier=form_two.action_identifier)
 
         self.assertEqual(
             action_item_two.action_cls,
@@ -134,7 +132,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         class MyAction(Action):
             name = "my-action"
             display_name = "my action"
-            reference_model = "tests.FormOne"
+            reference_model = "clinicedc_tests.FormOne"
 
         class MyActionWithNextAction(Action):
             name = "my-action-with-next-as-self"
@@ -145,7 +143,7 @@ class TestActionItem(TestCaseMixin, TestCase):
             name = "my-action-with-next"
             display_name = "my action with next"
             next_actions = ["self"]
-            reference_model = "tests.FormOne"
+            reference_model = "clinicedc_tests.FormOne"
 
         site_action_items.register(MyAction)
         site_action_items.register(MyActionWithNextAction)
@@ -153,9 +151,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         my_action = MyAction(subject_identifier=self.subject_identifier)
 
         try:
-            action_item = ActionItem.objects.get(
-                action_identifier=my_action.action_identifier
-            )
+            action_item = ActionItem.objects.get(action_identifier=my_action.action_identifier)
         except ObjectDoesNotExist:
             self.fail("ActionItem unexpectedly does not exist")
 
@@ -170,7 +166,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         class MyActionWithIncorrectModel(Action):
             name = "my-action2"
             display_name = "my action 2"
-            reference_model = "tests.TestModelWithAction"
+            reference_model = "clinicedc_tests.TestModelWithAction"
 
         site_action_items.register(MyActionWithIncorrectModel)
 
@@ -186,7 +182,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         class MyAction(Action):
             name = "my-action3"
             display_name = "original display_name"
-            reference_model = "tests.FormOne"
+            reference_model = "clinicedc_tests.FormOne"
 
         site_action_items.register(MyAction)
         MyAction(subject_identifier=self.subject_identifier)
@@ -237,9 +233,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         # delete form one
         form_one.delete()
         # assert resets action item
-        action_item = ActionItem.objects.get(
-            action_type__name=FormOneAction.name, status=NEW
-        )
+        action_item = ActionItem.objects.get(action_type__name=FormOneAction.name, status=NEW)
 
         # assert cleans up child action items
         self.assertRaises(
@@ -314,9 +308,7 @@ class TestActionItem(TestCaseMixin, TestCase):
             subject_identifier=self.subject_identifier, form_one=form_one
         )
 
-        form_three = FormThree.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        form_three = FormThree.objects.create(subject_identifier=self.subject_identifier)
 
         self.assertEqual(form_one.action_item.status, CLOSED)
         self.assertEqual(form_two.action_item.status, CLOSED)
@@ -353,9 +345,7 @@ class TestActionItem(TestCaseMixin, TestCase):
         form_two = FormTwo.objects.create(
             subject_identifier=self.subject_identifier, form_one=form_one
         )
-        form_three = FormThree.objects.create(
-            subject_identifier=self.subject_identifier
-        )
+        form_three = FormThree.objects.create(subject_identifier=self.subject_identifier)
 
         form_one.f1 = "blah"
         form_one.save()

@@ -8,9 +8,7 @@ from ..models import Ltfu
 from .ltfu_form_validator import LtfuFormValidator
 
 
-class LtfuForm(
-    SiteModelFormMixin, FormValidatorMixin, ActionItemFormMixin, forms.ModelForm
-):
+class LtfuForm(SiteModelFormMixin, FormValidatorMixin, ActionItemFormMixin, forms.ModelForm):
     form_validator_cls = LtfuFormValidator
 
     subject_identifier = forms.CharField(

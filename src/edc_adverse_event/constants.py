@@ -1,8 +1,6 @@
 from django.conf import settings
 
-ADVERSE_EVENT_APP_LABEL = getattr(
-    settings, "ADVERSE_EVENT_APP_LABEL", "edc_adverse_event"
-)
+ADVERSE_EVENT_APP_LABEL = getattr(settings, "ADVERSE_EVENT_APP_LABEL", "edc_adverse_event")
 ADVERSE_EVENT_ADMIN_SITE = getattr(
     settings, "ADVERSE_EVENT_ADMIN_SITE", "edc_adverse_event_admin"
 )

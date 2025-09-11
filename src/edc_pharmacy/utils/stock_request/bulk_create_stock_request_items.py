@@ -23,12 +23,8 @@ def bulk_create_stock_request_items(
 ) -> None:
     bulk_create = True if bulk_create is None else bulk_create
     stock_request_model_cls = django_apps.get_model("edc_pharmacy.StockRequest")
-    stock_request_item_model_cls = django_apps.get_model(
-        "edc_pharmacy.StockRequestItem"
-    )
-    registered_subject_model_cls = django_apps.get_model(
-        "edc_registration.registeredsubject"
-    )
+    stock_request_item_model_cls = django_apps.get_model("edc_pharmacy.StockRequestItem")
+    registered_subject_model_cls = django_apps.get_model("edc_registration.registeredsubject")
     rx_model_cls = django_apps.get_model("edc_pharmacy.rx")
 
     stock_request = stock_request_model_cls.objects.get(pk=stock_request_pk)

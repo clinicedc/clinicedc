@@ -33,8 +33,7 @@ class ActionWithNotification(Action):
                     name=f"{cls.name}-notification",
                     notification_action_name=cls.name,
                     display_name=(
-                        cls.notification_display_name
-                        or f"{cls.display_name} Notification"
+                        cls.notification_display_name or f"{cls.display_name} Notification"
                     ),
                     email_to=cls.notification_email_to,
                     notification_fields=cls.notification_fields,

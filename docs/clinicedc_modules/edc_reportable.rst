@@ -63,7 +63,7 @@ A normal reference is declared like this:
                 **adult_age_options,
             ),
         ],
-        ...
+        # ...
     }
 
 Add as many normal references in the dictionary as you like, just ensure the ``lower`` and ``upper`` boundaries don't overlap.
@@ -88,7 +88,7 @@ A grading reference is declared like this:
     from ...units import IU_LITER
 
     grading_data = {
-        amylase=[
+        "amylase": [
             Formula(
                 "1.1*ULN<=x<1.5*ULN",
                 grade=1,
@@ -118,7 +118,7 @@ A grading reference is declared like this:
                 **adult_age_options,
             ),
         ],
-        ...
+        # ...
     }
 
 Some references are not relative to LLN or ULN and are declared like this:
@@ -126,7 +126,7 @@ Some references are not relative to LLN or ULN and are declared like this:
 .. code-block:: python
 
     grading_data = {
-        ldl=[
+        "ldl": [
             Formula(
                 "4.90<=x",
                 grade=3,
@@ -136,7 +136,7 @@ Some references are not relative to LLN or ULN and are declared like this:
                 fasting=True,
             ),
         ],
-        ...
+        # ...
     }
 
 
@@ -168,9 +168,9 @@ For example, in your ``reportables.py``:
 
 .. code-block:: python
 
-    ...
+    # ...
     reportable_grades = [3, 4]
-    ...
+    # ...
 
 In the above, by explicitly passing a list of grades, the evaluator will only raise an
 exception for grades 3 and 4. If a value meets the criteria for grade 1 or 2, it will be ignored.
@@ -184,19 +184,18 @@ but grades 3,4 for everything else. You would register as follows:
 
 .. code-block:: python
 
-    ...
+    # ...
     reportable_grades_exceptions={"amylase": [GRADE2, GRADE3, GRADE4]}
-    ...
+    # ...
 
 
 Exporting the reference tables
 ++++++++++++++++++++++++++++++
 
-You can export your declared references to CSV for further inspection using the management command
+You can export your declared references to CSV for further inspection using the management command::
 
-.. code-block:: python
 
-    python manage.py export_reportables
+    >>> python manage.py export_reportables
 
     ('/Users/erikvw/my_project_normal_data.csv',
     '/Users/erikvw/my_project_grading_data.csv')

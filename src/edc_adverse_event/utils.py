@@ -39,9 +39,7 @@ def validate_ae_initial_outcome_date(form_obj):
                 convert_php_dateformat(settings.SHORT_DATE_FORMAT)
             )
             raise forms.ValidationError(
-                {
-                    "outcome_date": f"May not be before the AE start date {formatted_dte}."
-                }
+                {"outcome_date": f"May not be before the AE start date {formatted_dte}."}
             )
 
 
@@ -73,9 +71,7 @@ def get_hospitalization_model_app_label() -> str:
 
 def get_ae_model(
     model_name,
-) -> (
-    Type[DeathReportModelMixin] | Type[AeInitialModelMixin] | Type[AeFollowupModelMixin]
-):
+) -> Type[DeathReportModelMixin] | Type[AeInitialModelMixin] | Type[AeFollowupModelMixin]:
     return django_apps.get_model(f"{get_adverse_event_app_label()}.{model_name}")
 
 

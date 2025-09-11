@@ -102,8 +102,7 @@ def create_or_update_data_dictionary(index, model, fld):
                 data_dictionary_model_cls.objects.create(**options)
             except (OperationalError, IntegrityError) as e:
                 warn(
-                    f"Error when creating DataDictionary instance. "
-                    f"Model={model}. Got {e}"
+                    f"Error when creating DataDictionary instance. " f"Model={model}. Got {e}"
                 )
         else:
             for k, v in options.items():

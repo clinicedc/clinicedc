@@ -1,5 +1,11 @@
 from tempfile import mkdtemp
 
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import Crf, CrfEncrypted, SubjectVisit
+from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
+    get_visit_schedule1,
+)
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings
 
@@ -9,15 +15,9 @@ from edc_model_to_dataframe import ModelToDataframe
 from edc_model_to_dataframe.constants import SYSTEM_COLUMNS
 from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import Crf, CrfEncrypted, SubjectVisit
-from tests.visit_schedules.visit_schedule_appointment import get_visit_schedule1
 
 
-@override_settings(
-    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp()
-)
+@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestExport(TestCase):
     helper_cls = Helper
 
@@ -107,16 +107,12 @@ class TestExport(TestCase):
         self.assertEqual(len(m.dataframe.index), 0)
 
     def test_encrypted_records(self):
-        CrfEncrypted.objects.create(
-            subject_visit=self.subject_visit, encrypted1="encrypted1"
-        )
+        CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
         model = "model_to_dataframe_app.crfencrypted"
         m = ModelToDataframe(model=model)
         self.assertEqual(len(m.dataframe.index), 1)
 
     def test_encrypted_records_as_qs(self):
-        CrfEncrypted.objects.create(
-            subject_visit=self.subject_visit, encrypted1="encrypted1"
-        )
+        CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
         m = ModelToDataframe(queryset=CrfEncrypted.objects.all())
         self.assertEqual(len(m.dataframe.index), 1)

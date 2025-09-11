@@ -22,9 +22,7 @@ class NextAppointmentCrfModelMixin(models.Model):
         choices=YES_NO,
         default=NO,
         max_length=15,
-        help_text=_(
-            "If going off schedule today, additional CRFs will be added for today."
-        ),
+        help_text=_("If going off schedule today, additional CRFs will be added for today."),
     )
 
     appt_date = models.DateField(

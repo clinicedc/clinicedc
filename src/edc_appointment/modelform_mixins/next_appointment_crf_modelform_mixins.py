@@ -110,11 +110,7 @@ class NextAppointmentCrfModelFormMixin:
                 raise forms.ValidationError({self.appt_date_fld: str(e)})
             if not appointment:
                 raise forms.ValidationError(
-                    {
-                        self.appt_date_fld: _(
-                            "Invalid. Must be within the followup period."
-                        )
-                    }
+                    {self.appt_date_fld: _("Invalid. Must be within the followup period.")}
                 )
 
             if (

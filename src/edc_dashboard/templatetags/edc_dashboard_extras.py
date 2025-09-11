@@ -82,9 +82,7 @@ def index_link(context):
 @register.filter
 @stringfilter
 def human(value):
-    return "-".join(
-        [value[i * 4 : (i + 1) * 4] for i in range(0, ceil(len(value) / 4))]
-    )
+    return "-".join([value[i * 4 : (i + 1) * 4] for i in range(0, ceil(len(value) / 4))])
 
 
 @register.inclusion_tag(
@@ -110,9 +108,7 @@ def paginator_row(context):
 
     paginator_url_kwargs = context.get("paginator_url_kwargs") or {}
     if context.get("subject_identifier"):
-        paginator_url_kwargs.update(
-            subject_identifier=context.get("subject_identifier")
-        )
+        paginator_url_kwargs.update(subject_identifier=context.get("subject_identifier"))
     paginator_url = reverse(paginator_url, kwargs=paginator_url_kwargs)
 
     if querystring:

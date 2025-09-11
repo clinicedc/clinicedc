@@ -3,6 +3,12 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_visit_tracking.visit_schedule1 import (
+    get_visit_schedule as get_visit_schedule1,
+)
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, override_settings, tag
@@ -19,12 +25,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.form_validators import VisitFormValidator
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule_visit_tracking.visit_schedule1 import (
-    get_visit_schedule as get_visit_schedule1,
-)
 
 utc_tz = ZoneInfo("UTC")
 
@@ -58,12 +58,8 @@ class TestSubjectVisitFormValidator(TestCase):
         self.appointment = Appointment.objects.all().order_by("timepoint_datetime")[0]
 
     def test_form_validator_ok(self):
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         cleaned_data = dict(
             appointment=appointment,
             reason=SCHEDULED,
@@ -71,9 +67,7 @@ class TestSubjectVisitFormValidator(TestCase):
             survival_status=ALIVE,
             last_alive_date=get_utcnow().date(),
         )
-        form_validator = VisitFormValidator(
-            cleaned_data=cleaned_data, instance=subject_visit
-        )
+        form_validator = VisitFormValidator(cleaned_data=cleaned_data, instance=subject_visit)
         form_validator.validate()
 
     def test_visit_code_reason_with_visit_code_sequence_0(self):
@@ -138,9 +132,7 @@ class TestSubjectVisitFormValidator(TestCase):
             "Previous visit report required",
             ",".join([str(e) for e in form_validator._errors.values()]),
         )
-        self.assertIn(
-            "1000.1", ",".join([str(e) for e in form_validator._errors.values()])
-        )
+        self.assertIn("1000.1", ",".join([str(e) for e in form_validator._errors.values()]))
 
     def test_reason_missed(self):
         options = {

@@ -39,9 +39,7 @@ class TestRequiredFieldValidator(TestCase):
         )
 
     def test_required_if_raises_on_value_not_required(self):
-        form_validator = FormValidator(
-            cleaned_data=dict(field_one=NO, field_two="something")
-        )
+        form_validator = FormValidator(cleaned_data=dict(field_one=NO, field_two="something"))
         self.assertRaises(
             forms.ValidationError,
             form_validator.required_if,
@@ -88,9 +86,7 @@ class TestRequiredFieldValidator(TestCase):
             cleaned_data=dict(field_one="nothing", field_two="something")
         )
         try:
-            form_validator.required_if_not_none(
-                field="field_one", field_required="field_two"
-            )
+            form_validator.required_if_not_none(field="field_one", field_required="field_two")
         except forms.ValidationError as e:
             self.fail(f"forms.ValidationError unexpectedly raised. Got {e}")
 
@@ -110,9 +106,7 @@ class TestRequiredFieldValidator(TestCase):
             cleaned_data=dict(field_one=None, field_two=NOT_APPLICABLE)
         )
         try:
-            form_validator.required_if_not_none(
-                field="field_one", field_required="field_two"
-            )
+            form_validator.required_if_not_none(field="field_one", field_required="field_two")
         except forms.ValidationError as e:
             self.fail(f"forms.ValidationError unexpectedly raised. Got {e}")
 

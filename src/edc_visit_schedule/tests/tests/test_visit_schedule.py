@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.sites import all_sites
 from django.test import TestCase, override_settings, tag
 
 from edc_consent.consent_definition import ConsentDefinition
@@ -14,7 +15,6 @@ from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.utils import check_visit_schedule_models
 from edc_visit_schedule.visit_schedule import VisitSchedule, VisitScheduleNameError
-from tests.sites import all_sites
 
 
 @tag("visit_schedule")
@@ -34,7 +34,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
         self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         self.consent_v1 = ConsentDefinition(
-            "tests.subjectconsentv1",
+            "clinicedc_tests.subjectconsentv1",
             version="1",
             start=self.study_open_datetime,
             end=self.study_close_datetime,
@@ -53,8 +53,8 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             VisitSchedule,
             name="visit &&&& schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="tests.deathreport",
-            death_report_model="tests.deathreport",
+            offstudy_model="clinicedc_tests.deathreport",
+            death_report_model="clinicedc_tests.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
 
@@ -63,8 +63,8 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
         v = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="tests.deathreport",
-            death_report_model="tests.deathreport",
+            offstudy_model="clinicedc_tests.deathreport",
+            death_report_model="clinicedc_tests.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
         self.assertTrue(v.__repr__())
@@ -74,7 +74,7 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
             name="visit_schedule",
             verbose_name="Visit Schedule",
             offstudy_model="edc_offstudy.subjectoffstudy",
-            death_report_model="tests.deathreport",
+            death_report_model="clinicedc_tests.deathreport",
             locator_model="edc_locator.subjectlocator",
         )
         errors = check_visit_schedule_models(visit_schedule)

@@ -138,9 +138,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             label=obj.allocation.registered_subject.subject_identifier,
             title="Go to allocation",
         )
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Assignment", ordering="allocation__assignment")
     def assignment(self, obj):
@@ -191,9 +189,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             label=f"{obj.stock_request.request_identifier}",
             title="Back to stock request",
         )
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Allocation #")
     def allocation_changelist(self, obj):
@@ -204,20 +200,14 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             label=f"{obj.allocation.allocation_identifier}",
             title="Allocation",
         )
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Stock #")
     def stock_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.allocation.stock.code}"
-        context = dict(
-            url=url, label=f"{obj.allocation.stock.code}", title="Go to stock"
-        )
-        return render_to_string(
-            "edc_pharmacy/stock/items_as_link.html", context=context
-        )
+        context = dict(url=url, label=f"{obj.allocation.stock.code}", title="Go to stock")
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     def get_readonly_fields(self, request, obj=None):
         if obj:

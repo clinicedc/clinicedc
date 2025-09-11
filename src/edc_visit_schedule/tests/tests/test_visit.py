@@ -72,9 +72,7 @@ class TestVisit(TestCase):
             rupper=relativedelta(days=6),
             timepoint=0,
         )
-        visit.timepoint_datetime = datetime(
-            2001, 12, 1, tzinfo=ZoneInfo("Africa/Gaborone")
-        )
+        visit.timepoint_datetime = datetime(2001, 12, 1, tzinfo=ZoneInfo("Africa/Gaborone"))
         self.assertEqual(
             visit.timepoint_datetime,
             datetime(2001, 11, 30, 22, tzinfo=ZoneInfo("UTC")),

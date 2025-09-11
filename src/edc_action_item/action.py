@@ -61,9 +61,7 @@ class Action:
 
     action_item_model: str = "edc_action_item.actionitem"
     action_type_model: str = "edc_action_item.actiontype"
-    next_actions: list[str] | None = (
-        None  # a list of Action classes which may include 'self'
-    )
+    next_actions: list[str] | None = None  # a list of Action classes which may include 'self'
 
     def __init__(
         self,
@@ -170,9 +168,7 @@ class Action:
                 except ObjectDoesNotExist:
                     if self.action_item and self.action_item.status == CLOSED:
                         self.action_item.status = OPEN
-                        self.action_item.save(
-                            update_fields=["status"], using=self.using
-                        )
+                        self.action_item.save(update_fields=["status"], using=self.using)
                         self.action_item.refresh_from_db()
         return self._reference_obj
 
@@ -205,9 +201,7 @@ class Action:
                 )
                 try:
                     self._action_item = (
-                        self.action_item_model_cls()
-                        .objects.using(self.using)
-                        .get(**opts)
+                        self.action_item_model_cls().objects.using(self.using).get(**opts)
                     )
                 except ObjectDoesNotExist:
                     # does not exist so create ...
@@ -303,14 +297,10 @@ class Action:
                 True if cls.show_on_dashboard is None else cls.show_on_dashboard
             ),
             show_link_to_changelist=(
-                True
-                if cls.show_link_to_changelist is None
-                else cls.show_link_to_changelist
+                True if cls.show_link_to_changelist is None else cls.show_link_to_changelist
             ),
             create_by_user=(True if cls.create_by_user is None else cls.create_by_user),
-            create_by_action=(
-                True if cls.create_by_action is None else cls.create_by_action
-            ),
+            create_by_action=(True if cls.create_by_action is None else cls.create_by_action),
             instructions=cls.instructions,
         )
         return dct
@@ -350,15 +340,11 @@ class Action:
         next_actions = list(set(self.get_next_actions()))
         for action_name in next_actions:
             action_cls = (
-                self.__class__
-                if action_name == "self"
-                else site_action_items.get(action_name)
+                self.__class__ if action_name == "self" else site_action_items.get(action_name)
             )
             action_type = get_action_type(action_cls)
             if action_type.related_reference_model:
-                related_action_item = (
-                    self.action_item.related_action_item or self.action_item
-                )
+                related_action_item = self.action_item.related_action_item or self.action_item
             else:
                 related_action_item = None
             action_cls(
@@ -390,9 +376,7 @@ class Action:
                             self.reference_obj.action_identifier
                         )
                     )
-                    | models.Q(
-                        related_action_item=self.reference_obj.action_item
-                    )  # noqa
+                    | models.Q(related_action_item=self.reference_obj.action_item)  # noqa
                 ),
                 status=CLOSED,
             )
@@ -427,9 +411,7 @@ class Action:
             # most recent saved history. But how could self.reference_obj
             # be changed??
             history = (
-                self.reference_obj.history.using(self.using)
-                .all()
-                .order_by("-history_date")[0]
+                self.reference_obj.history.using(self.using).all().order_by("-history_date")[0]
             )
         except IndexError:
             pass
@@ -444,9 +426,7 @@ class Action:
             ]
             for field_name in field_names:
                 try:
-                    if getattr(history, field_name) != getattr(
-                        self.reference_obj, field_name
-                    ):
+                    if getattr(history, field_name) != getattr(self.reference_obj, field_name):
                         changed_message.update(
                             {field_name: getattr(self.reference_obj, field_name)}
                         )

@@ -18,6 +18,7 @@ if __name__ == "__main__":
         "edc_data_manager.tests",
         "edc_device.tests",
         "edc_document_status.tests",
+        "edc_egfr.tests",
         "edc_export.tests",
         "edc_facility.tests",
         "edc_fieldsets.tests",
@@ -67,4 +68,5 @@ if __name__ == "__main__":
         "edc_view_utils.tests",
         "edc_visit_schedule.tests",
         "edc_visit_tracking.tests",
+        "edc_vitals.tests",
     )

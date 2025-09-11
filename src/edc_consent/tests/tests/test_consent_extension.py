@@ -2,6 +2,10 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import SubjectConsentV1Ext
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 
@@ -15,17 +19,11 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.helper import Helper
-from tests.models import SubjectConsentV1Ext
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule_consent import get_visit_schedule
 
 
 @tag("consent")
 @time_machine.travel(datetime(2025, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(
-    EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10
-)
+@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10)
 class TestConsentExtension(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -40,13 +38,13 @@ class TestConsentExtension(TestCase):
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
         site_consents.registry = {}
         self.consent_v1 = consent_factory(
-            proxy_model="tests.subjectconsentv1",
+            proxy_model="clinicedc_tests.subjectconsentv1",
             start=self.study_open_datetime,
             end=self.study_open_datetime + timedelta(days=50),
             version="1.0",
         )
         consent_v1_ext = ConsentDefinitionExtension(
-            "tests.subjectconsentv1ext",
+            "clinicedc_tests.subjectconsentv1ext",
             version="1.1",
             start=self.study_open_datetime,
             extends=self.consent_v1,
@@ -56,9 +54,7 @@ class TestConsentExtension(TestCase):
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(
-            get_visit_schedule([self.consent_v1], extend=True)
-        )
+        site_visit_schedules.register(get_visit_schedule([self.consent_v1], extend=True))
 
         self.dob = self.study_open_datetime - relativedelta(years=25)
 

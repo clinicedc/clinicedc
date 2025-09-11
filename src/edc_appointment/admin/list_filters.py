@@ -35,9 +35,7 @@ class AppointmentStatusListFilter(SimpleListFilter):
     field_name = "appt_status"
 
     def lookups(self, request, model_admin) -> tuple:
-        return APPT_STATUS + (
-            (ATTENDED_APPT, "Attended (In progress, incomplete, done)"),
-        )
+        return APPT_STATUS + ((ATTENDED_APPT, "Attended (In progress, incomplete, done)"),)
 
     def queryset(self, request, queryset):
         qs = None

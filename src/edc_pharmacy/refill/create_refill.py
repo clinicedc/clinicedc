@@ -32,9 +32,7 @@ def create_refill(
     rx_refill = None
     creator = None
     try:
-        rx_refill = get_rxrefill_model_cls().objects.get(
-            refill_identifier=refill_identifier
-        )
+        rx_refill = get_rxrefill_model_cls().objects.get(refill_identifier=refill_identifier)
     except ObjectDoesNotExist:
         creator = RefillCreator(
             refill_identifier=refill_identifier,

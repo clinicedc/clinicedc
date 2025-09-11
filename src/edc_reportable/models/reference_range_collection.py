@@ -47,9 +47,7 @@ class ReferenceRangeCollection(BaseUuidModel):
 
     def reportable_grades(self, label: str) -> list[int]:
         if not label:
-            raise ValueError(
-                "Unable to determine reportable grades. Label may not be None"
-            )
+            raise ValueError("Unable to determine reportable grades. Label may not be None")
         try:
             grading_exception = GradingException.objects.get(
                 reference_range_collection=self, label=label
@@ -73,9 +71,7 @@ class ReferenceRangeCollection(BaseUuidModel):
         site: Site | None = None,
     ) -> tuple[GradingData | None, str | None]:
         if subject_identifier:
-            rs_obj = RegisteredSubject.objects.get(
-                subject_identifier=subject_identifier
-            )
+            rs_obj = RegisteredSubject.objects.get(subject_identifier=subject_identifier)
             dob = rs_obj.dob
             gender = rs_obj.gender
         grading_data, eval_phrase = get_grade_for_value(
@@ -104,9 +100,7 @@ class ReferenceRangeCollection(BaseUuidModel):
         site: Site | None = None,
     ) -> tuple[bool, NormalData]:
         if subject_identifier:
-            rs_obj = RegisteredSubject.objects.get(
-                subject_identifier=subject_identifier
-            )
+            rs_obj = RegisteredSubject.objects.get(subject_identifier=subject_identifier)
             dob = rs_obj.dob
             gender = rs_obj.gender
         normal_data = get_normal_data_or_raise(

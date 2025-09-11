@@ -176,8 +176,7 @@ class ReferenceRangeEvaluator:
         if (
             grading_data
             and grading_data.grade
-            and str(user_form_response.reportable)
-            in [str(g) for g in self.grades(utest_id)]
+            and str(user_form_response.reportable) in [str(g) for g in self.grades(utest_id)]
             and str(grading_data.grade) != str(user_form_response.reportable)
         ):
             raise forms.ValidationError(
@@ -196,9 +195,7 @@ class ReferenceRangeEvaluator:
             NOT_APPLICABLE,
         ]:
             raise forms.ValidationError(
-                {
-                    f"{utest_id}_reportable": "Invalid. Expected 'No' or 'Not applicable'."
-                }
+                {f"{utest_id}_reportable": "Invalid. Expected 'No' or 'Not applicable'."}
             )
         self._check_normal_range(
             utest_id, value, field, grading_data, user_form_response, opts
@@ -290,9 +287,7 @@ class ReferenceRangeEvaluator:
         )
         answers = [str(v) for v in answers if v is not None]
         if len(answers) == 0:
-            raise forms.ValidationError(
-                {"results_abnormal": "No results have been entered."}
-            )
+            raise forms.ValidationError({"results_abnormal": "No results have been entered."})
         answers_as_bool = [True for v in answers if v in responses]
         if self.cleaned_data.get(field) == NO:
             if any(answers_as_bool):
@@ -302,6 +297,4 @@ class ReferenceRangeEvaluator:
                 )
         elif self.cleaned_data.get(field) == YES:
             if not any(answers_as_bool):
-                raise forms.ValidationError(
-                    {field: f"None of the above results are {word}"}
-                )
+                raise forms.ValidationError({field: f"None of the above results are {word}"})

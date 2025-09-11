@@ -166,9 +166,7 @@ class SubjectScreeningAdmin(
     @staticmethod
     def eligibility_status(obj=None):
         eligibility = ScreeningEligibility(obj)
-        return mark_safe(
-            conditional_escape(eligibility.display_label)
-        )  # nosec #B703 # B308
+        return mark_safe(conditional_escape(eligibility.display_label))  # nosec #B703 # B308
 
     def hide_delete_button_on_condition(self, request, object_id) -> bool:
         try:

@@ -16,9 +16,7 @@ class Manager(models.Manager):
 
 class ConfirmationAtSiteItem(SiteModelMixin, BaseUuidModel):
 
-    confirmation_at_site = models.ForeignKey(
-        ConfirmationAtSite, on_delete=models.PROTECT
-    )
+    confirmation_at_site = models.ForeignKey(ConfirmationAtSite, on_delete=models.PROTECT)
 
     transfer_confirmation_item_identifier = models.CharField(
         max_length=36,

@@ -54,6 +54,8 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(110)]
     )
 
+    ethnicity = models.CharField(max_length=25, null=True, blank=True)
+
     consent_ability = models.CharField(
         verbose_name="Participant or legal guardian/representative able and "
         "willing to give informed consent.",

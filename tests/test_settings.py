@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 
 from edc_test_settings.default_test_settings import DefaultTestSettings
 
-app_name = "tests"
+app_name = "clinicedc_tests"
 base_dir = Path(__file__).absolute().parent.parent
 
 project_settings = DefaultTestSettings(
@@ -27,23 +27,19 @@ project_settings = DefaultTestSettings(
     EDC_AUTH_CODENAMES_WARN_ONLY=True,
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=True,
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(
-        2019, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")
-    ),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(
-        2029, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")
-    ),
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2029, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")),
     LABEL_TEMPLATE_FOLDER=base_dir / "tests" / "label_templates",
-    SUBJECT_SCREENING_MODEL="tests.subjectscreening",
+    SUBJECT_SCREENING_MODEL="clinicedc_tests.subjectscreening",
     SUBJECT_CONSENT_MODEL="edc_consent.subjectconsent",
     SUBJECT_VISIT_MODEL="edc_visit_tracking.subjectvisit",
     SUBJECT_VISIT_MISSED_MODEL="edc_visit_tracking.subjectvisitmissed",
-    SUBJECT_REQUISITION_MODEL="tests.subjectrequisition",
+    SUBJECT_REQUISITION_MODEL="clinicedc_tests.subjectrequisition",
     SUBJECT_REFUSAL_MODEL="edc_refusal.subjectrefusal",
     # SUBJECT_APP_LABEL=f"{self.app_name}",
     EDC_LTFU_MODEL_NAME="edc_ltfu.ltfu",
-    LIST_MODEL_APP_LABEL="tests",
-    ADVERSE_EVENT_APP_LABEL="tests",
+    LIST_MODEL_APP_LABEL="clinicedc_tests",
+    ADVERSE_EVENT_APP_LABEL="clinicedc_tests",
     EMAIL_ENABLED=True,
     EMAIL_CONTACTS={
         "ae_reports": "joe@sample.com",
@@ -83,6 +79,7 @@ project_settings = DefaultTestSettings(
         "edc_data_manager.apps.AppConfig",
         "edc_device.apps.AppConfig",
         "edc_document_status.apps.AppConfig",
+        "edc_egfr.apps.AppConfig",
         "edc_export.apps.AppConfig",
         "edc_facility.apps.AppConfig",
         "edc_fieldsets.apps.AppConfig",
@@ -133,7 +130,8 @@ project_settings = DefaultTestSettings(
         "edc_view_utils.apps.AppConfig",
         "edc_visit_schedule.apps.AppConfig",
         "edc_visit_tracking.apps.AppConfig",
-        "tests.apps.AppConfig",
+        "edc_vitals.apps.AppConfig",
+        "clinicedc_tests.apps.AppConfig",
         "edc_appconfig.apps.AppConfig",
     ],
     add_dashboard_middleware=True,

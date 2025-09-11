@@ -1,6 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from clinicedc_tests.models import CrfFive, CrfOne, SubjectVisit
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
@@ -16,7 +17,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.constants import SCHEDULED
-from tests.models import CrfFive, CrfOne, SubjectVisit
 
 from .metadata_test_mixin import TestMetadataMixin
 
@@ -80,9 +80,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         }
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
-        crf_metadata = CrfMetadata.objects.get(
-            model="edc_metadata.crfone", entry_status=KEYED
-        )
+        crf_metadata = CrfMetadata.objects.get(model="edc_metadata.crfone", entry_status=KEYED)
         crf_metadata.entry_status = REQUIRED
         crf_metadata.save()
         metadata_refresher = MetadataRefresher()
@@ -150,7 +148,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         schedule = Schedule(
             name="schedule",
             onschedule_model="edc_visit_schedule.onschedule",
-            offschedule_model="tests.offschedule",
+            offschedule_model="clinicedc_tests.offschedule",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -158,7 +156,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         new_visit_schedule = VisitSchedule(
             name="visit_schedule",
             offstudy_model="edc_offstudy.subjectoffstudy",
-            death_report_model="tests.deathreport",
+            death_report_model="clinicedc_tests.deathreport",
         )
         new_visit_schedule.add_schedule(schedule)
         site_visit_schedules.register(new_visit_schedule)

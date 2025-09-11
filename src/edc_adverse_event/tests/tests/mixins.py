@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from random import choice
 
+from clinicedc_tests.action_items import register_actions
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from model_bakery import baker
 
 from edc_action_item.models import ActionItem
@@ -9,10 +13,6 @@ from edc_adverse_event.models import CauseOfDeath
 from edc_consent import site_consents
 from edc_constants.constants import OTHER, YES
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.action_items import register_actions
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 
 class DeathReportTestMixin:
@@ -45,7 +45,7 @@ class DeathReportTestMixin:
 
         # create ae initial
         ae_initial = baker.make_recipe(
-            "tests.aeinitial",
+            "clinicedc_tests.aeinitial",
             subject_identifier=self.subject_identifier,
             susar=YES,
             susar_reported=YES,
@@ -56,12 +56,12 @@ class DeathReportTestMixin:
         action_item = ActionItem.objects.get(
             subject_identifier=self.subject_identifier,
             parent_action_item=ae_initial.action_item,
-            action_type__reference_model="tests.deathreport",
+            action_type__reference_model="clinicedc_tests.deathreport",
         )
 
         # create death report
         death_report = baker.make_recipe(
-            "tests.deathreport",
+            "clinicedc_tests.deathreport",
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
             cause_of_death=cause_of_death,

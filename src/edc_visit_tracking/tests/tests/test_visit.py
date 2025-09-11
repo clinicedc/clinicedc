@@ -2,6 +2,18 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import register_actions
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import (
+    Alphabet,
+    BadCrfOneInline,
+    CrfOne,
+    CrfOneInline,
+    CrfThree,
+)
+from clinicedc_tests.sites import all_sites
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings, tag
@@ -17,12 +29,6 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.action_items import register_actions
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import Alphabet, BadCrfOneInline, CrfOne, CrfOneInline, CrfThree
-from tests.sites import all_sites
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 from ..crfs import crfs
 from ..requisitions import requisitions
@@ -55,8 +61,8 @@ class TestVisit(TestCase):
             requisitions=requisitions,
             visit_schedule_name="visit_schedule1",
             schedule_name="schedule1",
-            onschedule_model="tests.onscheduleone",
-            offschedule_model="tests.offscheduleone",
+            onschedule_model="clinicedc_tests.onscheduleone",
+            offschedule_model="clinicedc_tests.offscheduleone",
             visit_count=4,
             allow_unscheduled=True,
         )
@@ -67,8 +73,8 @@ class TestVisit(TestCase):
             requisitions=requisitions,
             visit_schedule_name="visit_schedule2",
             schedule_name="schedule2",
-            onschedule_model="tests.onscheduletwo",
-            offschedule_model="tests.offscheduletwo",
+            onschedule_model="clinicedc_tests.onscheduletwo",
+            offschedule_model="clinicedc_tests.offscheduletwo",
             visit_count=4,
             allow_unscheduled=True,
         )
@@ -81,12 +87,8 @@ class TestVisit(TestCase):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         instance = CrfThree(subject_visit=subject_visit)
 
         self.assertEqual(instance.subject_visit, subject_visit)
@@ -113,17 +115,11 @@ class TestVisit(TestCase):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = Alphabet.objects.create()
-        crf_one_inline = CrfOneInline.objects.create(
-            crf_one=crf_one, other_model=other_model
-        )
+        crf_one_inline = CrfOneInline.objects.create(crf_one=crf_one, other_model=other_model)
         self.assertEqual(crf_one_inline.related_visit.pk, subject_visit.pk)
 
     def test_crf_inline_model_parent_model(self):
@@ -131,12 +127,8 @@ class TestVisit(TestCase):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = Alphabet.objects.create()
         self.assertRaises(
@@ -151,17 +143,11 @@ class TestVisit(TestCase):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
-        subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, reason=SCHEDULED
-        )
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
+        subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         crf_one = CrfOne.objects.create(subject_visit=subject_visit)
         other_model = Alphabet.objects.create()
-        crf_one_inline = CrfOneInline.objects.create(
-            crf_one=crf_one, other_model=other_model
-        )
+        crf_one_inline = CrfOneInline.objects.create(crf_one=crf_one, other_model=other_model)
         self.assertIsInstance(crf_one_inline.related_visit, SubjectVisit)
 
     def test_get_previous_model_instance(self):
@@ -197,9 +183,7 @@ class TestVisit(TestCase):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1", schedule_name="schedule1"
         )
-        appointments = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )
+        appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
 
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
@@ -217,8 +201,7 @@ class TestVisit(TestCase):
                 visit_schedule_name=appointment.visit_schedule_name,
                 schedule_name=appointment.schedule_name,
                 visit_code=appointment.visit_code,
-                suggested_appt_datetime=appointment.appt_datetime
-                + relativedelta(days=1),
+                suggested_appt_datetime=appointment.appt_datetime + relativedelta(days=1),
                 suggested_visit_code_sequence=appointment.visit_code_sequence + 1,
                 facility=appointment.facility,
             ).appointment

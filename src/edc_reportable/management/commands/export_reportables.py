@@ -13,9 +13,7 @@ style = color_style()
 
 def export_daids_grading(path: str, reference_range_collection_name: str | None = None):
     path = Path(path or "~/").expanduser()
-    sys.stdout.write(
-        style.MIGRATE_HEADING("Exporting reportables to document (.csv) ...\n")
-    )
+    sys.stdout.write(style.MIGRATE_HEADING("Exporting reportables to document (.csv) ...\n"))
     reference_range_collection_name = (
         reference_range_collection_name or ResearchProtocolConfig().project_name.lower()
     )

@@ -25,7 +25,7 @@
 # from edc_utils import get_utcnow
 # from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 #
-# from tests.models import SubjectVisit
+# from clinicedc_tests.models import SubjectVisit
 #
 #
 # @override_settings(

@@ -38,4 +38,3 @@ Aliquots have been created according to the configured processing profile:
     '99900GV63F02011605'
     '99900GV63F02011606'
     '99900GV63F02011607'
-

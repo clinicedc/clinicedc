@@ -1,5 +1,14 @@
 from copy import deepcopy
 
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import SubjectRequisition
+from clinicedc_tests.visit_schedules.visit_schedule_lab_results.lab_profiles import (
+    lab_profile,
+)
+from clinicedc_tests.visit_schedules.visit_schedule_lab_results.visit_schedule import (
+    get_visit_schedule,
+)
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase
@@ -12,13 +21,6 @@ from edc_lab.models import Panel
 from edc_lab_results.action_items import register_actions
 from edc_reportable import GRAMS_PER_DECILITER, PERCENT
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import SubjectRequisition
-from tests.visit_schedules.visit_schedule_lab_results.lab_profiles import lab_profile
-from tests.visit_schedules.visit_schedule_lab_results.visit_schedule import (
-    get_visit_schedule,
-)
 
 from ..forms import BloodResultsFbcForm, BloodResultsHba1cForm
 
@@ -208,9 +210,7 @@ class TestBloodResultFormForPoc(TestCase):
         data.update(is_poc=NO)
         form = BloodResultsHba1cForm(data=data)
         form.is_valid()
-        self.assertIn(
-            "This field is required", str(form._errors.get("subject_requisition"))
-        )
+        self.assertIn("This field is required", str(form._errors.get("subject_requisition")))
 
         hba1c_panel = Panel.objects.get(name="hba1c")
         requisition = SubjectRequisition.objects.create(

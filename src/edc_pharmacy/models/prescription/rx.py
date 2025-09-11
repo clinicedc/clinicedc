@@ -79,9 +79,7 @@ class Rx(
 
     randomizer_name = models.CharField(max_length=25, null=True, blank=True)
 
-    weight_in_kgs = models.DecimalField(
-        max_digits=6, decimal_places=1, null=True, blank=True
-    )
+    weight_in_kgs = models.DecimalField(max_digits=6, decimal_places=1, null=True, blank=True)
 
     clinician_initials = models.CharField(max_length=3, null=True)
 

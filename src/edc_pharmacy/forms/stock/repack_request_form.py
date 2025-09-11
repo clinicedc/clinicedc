@@ -20,8 +20,7 @@ class RepackRequestForm(forms.ModelForm):
             )
         if (
             cleaned_data.get("container")
-            and cleaned_data.get("container")
-            == cleaned_data.get("from_stock").container
+            and cleaned_data.get("container") == cleaned_data.get("from_stock").container
         ):
             raise forms.ValidationError(
                 {"container": "Stock is already packed in this container."}
@@ -31,23 +30,17 @@ class RepackRequestForm(forms.ModelForm):
             and cleaned_data.get("container").qty
             > cleaned_data.get("from_stock").container.qty
         ):
-            raise forms.ValidationError(
-                {"container": "Cannot pack into larger container."}
-            )
+            raise forms.ValidationError({"container": "Cannot pack into larger container."})
         if cleaned_data.get("requested_qty") and self.instance.processed_qty:
             if cleaned_data.get("requested_qty") < self.instance.processed_qty:
                 raise forms.ValidationError(
-                    {
-                        "requested_qty": "Cannot be less than the number of containers processed"
-                    }
+                    {"requested_qty": "Cannot be less than the number of containers processed"}
                 )
         if (
             cleaned_data.get("requested_qty") * cleaned_data.get("container").qty
             > cleaned_data.get("from_stock").unit_qty
         ):
-            needed_qty = (
-                cleaned_data.get("requested_qty") * cleaned_data.get("container").qty
-            )
+            needed_qty = cleaned_data.get("requested_qty") * cleaned_data.get("container").qty
             on_hand_qty = cleaned_data.get("from_stock").unit_qty
             raise forms.ValidationError(
                 {

@@ -46,8 +46,7 @@ class SubjectVisitViewMixin:
                     self._related_visit = self.appointment.related_visit
                 except AttributeError as e:
                     raise SubjectVisitViewMixinError(
-                        "Visit model must have a OneToOne relation to appointment. "
-                        f"Got {e}"
+                        "Visit model must have a OneToOne relation to appointment. " f"Got {e}"
                     )
         return self._related_visit
 

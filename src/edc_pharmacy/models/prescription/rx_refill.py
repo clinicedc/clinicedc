@@ -141,9 +141,7 @@ class RxRefill(
 
     def save(self, *args, **kwargs):
         self.adjust_end_datetimes()
-        self.number_of_days = (
-            self.refill_end_datetime - self.refill_start_datetime
-        ).days
+        self.number_of_days = (self.refill_end_datetime - self.refill_start_datetime).days
         if not self.weight_in_kgs:
             self.weight_in_kgs = self.rx.weight_in_kgs
         self.dose = Decimal(str(self.get_dose()))
@@ -191,9 +189,7 @@ class RxRefill(
                 )
                 * self.roundup_divisible_by
             )
-        return (
-            float(self.get_dose()) * float(self.frequency) * float(self.number_of_days)
-        )
+        return float(self.get_dose()) * float(self.frequency) * float(self.number_of_days)
 
     @property
     def subject_identifier(self):

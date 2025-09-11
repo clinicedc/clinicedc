@@ -135,15 +135,12 @@ class ResearchProtocolConfig:
         return getattr(
             settings,
             "EDC_PROTOCOL_SUBJECT_IDENTIFIER_PATTERN",
-            r"%(protocol_number)s\-[0-9\-]+"
-            % dict(protocol_number=self.protocol_number),
+            r"%(protocol_number)s\-[0-9\-]+" % dict(protocol_number=self.protocol_number),
         )
 
     @property
     def screening_identifier_pattern(self) -> str:
-        return getattr(
-            settings, "EDC_PROTOCOL_SCREENING_IDENTIFIER_PATTERN", r"[A-Z0-9]{8}"
-        )
+        return getattr(settings, "EDC_PROTOCOL_SCREENING_IDENTIFIER_PATTERN", r"[A-Z0-9]{8}")
 
     @property
     def study_open_datetime(self) -> datetime:

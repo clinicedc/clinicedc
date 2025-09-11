@@ -76,9 +76,7 @@ def import_file(path: str, recs: list, model_cls: Holiday):
                 )
             else:
                 try:
-                    obj = model_cls.objects.get(
-                        country=row["country"], local_date=local_date
-                    )
+                    obj = model_cls.objects.get(country=row["country"], local_date=local_date)
                 except ObjectDoesNotExist:
                     model_cls.objects.create(
                         country=row["country"], local_date=local_date, name=row["label"]

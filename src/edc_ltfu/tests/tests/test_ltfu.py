@@ -2,6 +2,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.models import SubjectConsent
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
@@ -20,9 +23,6 @@ from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
 from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
 from edc_utils import get_dob, get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from tests.consents import consent_v1
-from tests.models import SubjectConsent
-from tests.visit_schedules.visit_schedule import get_visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 

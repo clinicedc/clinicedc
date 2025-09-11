@@ -45,16 +45,12 @@ class SearchListboardMixin:
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
         """Override to add conditional logic to filter on search term."""
-        q_object, options = super().get_queryset_filter_options(
-            request, *args, **kwargs
-        )
+        q_object, options = super().get_queryset_filter_options(request, *args, **kwargs)
         if self.search_term and not re.match(r"^[A-Za-z0-9\-]+?$", self.search_term):
             add_to_messages_once(
                 request=request,
                 level=WARNING,
-                message=_(
-                    "Invalid search term. May only include letters, numbers and '-'."
-                ),
+                message=_("Invalid search term. May only include letters, numbers and '-'."),
             )
         elif self.search_term:
             for field, lookup in self.get_field_lookups():

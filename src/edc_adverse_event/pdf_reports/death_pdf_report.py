@@ -127,9 +127,7 @@ class DeathPdfReport(CrfPdfReport):
             ],
             (3 * cm, 3 * cm, 3 * cm, 9 * cm),
         )
-        self.set_table_style(
-            t, bg_cmd=("BACKGROUND", (0, 0), (3, -1), colors.lightgrey)
-        )
+        self.set_table_style(t, bg_cmd=("BACKGROUND", (0, 0), (3, -1), colors.lightgrey))
         story.append(t)
 
         qs = (
@@ -138,9 +136,7 @@ class DeathPdfReport(CrfPdfReport):
             .order_by("-history_date")
         )
         for obj in qs:
-            username = (
-                obj.user_created if obj.history_type == "+" else obj.user_modified
-            )
+            username = obj.user_created if obj.history_type == "+" else obj.user_modified
             t = Table(
                 [
                     [
@@ -157,9 +153,7 @@ class DeathPdfReport(CrfPdfReport):
 
     @property
     def cause_of_death(self):
-        return getattr(
-            self.model_obj.cause_of_death, "name", self.model_obj.cause_of_death
-        )
+        return getattr(self.model_obj.cause_of_death, "name", self.model_obj.cause_of_death)
 
     @property
     def cause_of_death_other(self):

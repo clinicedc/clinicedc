@@ -1,17 +1,23 @@
 import uuid
 
+from clinicedc_tests.models import (
+    CrfFour,
+    CrfOne,
+    CrfThree,
+    CrfTwo,
+    ListModel,
+    SubjectVisit,
+)
+
 from edc_appointment.models import Appointment
 from edc_utils import get_utcnow
-from tests.models import CrfFour, CrfOne, CrfThree, CrfTwo, ListModel, SubjectVisit
 
 from .create_crfs_with_inlines import create_crf_with_inlines
 
 
 def create_crfs(i) -> None:
     j = 0
-    for appointment in Appointment.objects.all().order_by(
-        "timepoint", "visit_code_sequence"
-    ):
+    for appointment in Appointment.objects.all().order_by("timepoint", "visit_code_sequence"):
         j += 1
         if j == i:
             break

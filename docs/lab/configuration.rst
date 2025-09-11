@@ -96,4 +96,3 @@ Register the lab profile with the site global
 .. code-block:: python
 
     site_labs.register(lab_profile)
-

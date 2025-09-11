@@ -20,9 +20,7 @@ def scan_network(ip_range):
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(1)  # Timeout in seconds
-            result = sock.connect_ex(
-                (ip, 9100)
-            )  # Port 9100 is common for network printers
+            result = sock.connect_ex((ip, 9100))  # Port 9100 is common for network printers
             if result == 0:
                 open_printers.append(ip)
             sock.close()

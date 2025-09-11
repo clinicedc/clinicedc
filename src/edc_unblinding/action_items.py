@@ -6,9 +6,7 @@ from .constants import UNBLINDING_REQUEST_ACTION, UNBLINDING_REVIEW_ACTION
 
 
 class UnblindingRequestAction(ActionWithNotification):
-    reference_model = (
-        "edc_unblinding.unblindingrequest"  # or inte_prn.unblindingrequest
-    )
+    reference_model = "edc_unblinding.unblindingrequest"  # or inte_prn.unblindingrequest
     admin_site_name = "edc_unblinding_admin"  # or inte_prn_admin
 
     name = UNBLINDING_REQUEST_ACTION

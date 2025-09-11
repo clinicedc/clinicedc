@@ -18,9 +18,7 @@ class BaseListModelMixin(models.Model):
         help_text="This is the stored value, required",
     )
 
-    plural_name = models.CharField(
-        verbose_name="Plural name", max_length=250, null=True
-    )
+    plural_name = models.CharField(verbose_name="Plural name", max_length=250, null=True)
 
     display_name = models.CharField(
         verbose_name="Name",

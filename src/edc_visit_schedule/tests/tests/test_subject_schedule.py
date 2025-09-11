@@ -2,6 +2,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent1_v1, consent1_v2, consent2_v1, consent2_v2
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
@@ -18,14 +21,6 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import SubjectSchedule
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from tests.consents import (
-    consent1_v1,
-    consent1_v2,
-    consent2_v1,
-    consent2_v2,
-)
-from tests.helper import Helper
-from tests.sites import all_sites
 
 
 @tag("visit_schedule")
@@ -58,8 +53,8 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         )
         schedule3 = Schedule(
             name="schedule_three",
-            onschedule_model="tests.OnScheduleThree",
-            offschedule_model="tests.OffScheduleThree",
+            onschedule_model="clinicedc_tests.OnScheduleThree",
+            offschedule_model="clinicedc_tests.OffScheduleThree",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[consent2_v2],
             base_timepoint=1,
@@ -68,7 +63,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             name="visit_schedule",
             verbose_name="Visit Schedule",
             offstudy_model="edc_offstudy.SubjectOffstudy",
-            death_report_model="tests.DeathReport",
+            death_report_model="clinicedc_tests.DeathReport",
         )
         visit_schedule1.add_schedule(schedule)
         visit_schedule1.add_schedule(schedule3)
@@ -76,15 +71,15 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
 
         schedule2 = Schedule(
             name="schedule_two",
-            onschedule_model="tests.OnScheduleTwo",
-            offschedule_model="tests.OffScheduleTwo",
+            onschedule_model="clinicedc_tests.OnScheduleTwo",
+            offschedule_model="clinicedc_tests.OffScheduleTwo",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[consent1_v1],
         )
         schedule4 = Schedule(
             name="schedule_four",
-            onschedule_model="tests.OnScheduleFour",
-            offschedule_model="tests.OffScheduleFour",
+            onschedule_model="clinicedc_tests.OnScheduleFour",
+            offschedule_model="clinicedc_tests.OffScheduleFour",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[consent1_v2],
         )
@@ -92,7 +87,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             name="visit_schedule_two",
             verbose_name="Visit Schedule Two",
             offstudy_model="edc_offstudy.SubjectOffstudy",
-            death_report_model="tests.DeathReport",
+            death_report_model="clinicedc_tests.DeathReport",
         )
         visit_schedule2.add_schedule(schedule4)
         visit_schedule2.add_schedule(schedule2)
@@ -105,11 +100,9 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             report_datetime=get_utcnow()
         )
         for onschedule_model, schedule_name, cdef in [
-            ("tests.onscheduletwo", "schedule_two", consent1_v1),
+            ("clinicedc_tests.onscheduletwo", "schedule_two", consent1_v1),
         ]:
-            with self.subTest(
-                onschedule_model=onschedule_model, schedule_name=schedule_name
-            ):
+            with self.subTest(onschedule_model=onschedule_model, schedule_name=schedule_name):
                 subject_consent = helper.consent_subject(
                     consent_definition=cdef,
                     subject_screening=subject_screening,
@@ -139,11 +132,9 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         traveller = time_machine.travel(get_utcnow() + relativedelta(days=52))
         traveller.start()
         for onschedule_model, schedule_name, cdef in [
-            ("tests.onschedulefour", "schedule_four", consent1_v2),
+            ("clinicedc_tests.onschedulefour", "schedule_four", consent1_v2),
         ]:
-            with self.subTest(
-                onschedule_model=onschedule_model, schedule_name=schedule_name
-            ):
+            with self.subTest(onschedule_model=onschedule_model, schedule_name=schedule_name):
                 subject_consent = helper.consent_subject(
                     consent_definition=cdef,
                     subject_screening=subject_screening,
@@ -197,7 +188,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         )
 
         visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
-            "tests.OnScheduleThree"
+            "clinicedc_tests.OnScheduleThree"
         )
         subject_schedule = SubjectSchedule(
             subject_consent.subject_identifier,
@@ -262,9 +253,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             # consent_definition=subject_consent.consent_definition,
         )
         try:
-            OnSchedule.objects.get(
-                subject_identifier=subject_consent.subject_identifier
-            )
+            OnSchedule.objects.get(subject_identifier=subject_consent.subject_identifier)
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
 
@@ -291,9 +280,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         traveller.start()
         schedule.take_off_schedule(subject_consent.subject_identifier, get_utcnow())
         try:
-            OffSchedule.objects.get(
-                subject_identifier=subject_consent.subject_identifier
-            )
+            OffSchedule.objects.get(subject_identifier=subject_consent.subject_identifier)
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
         traveller.stop()

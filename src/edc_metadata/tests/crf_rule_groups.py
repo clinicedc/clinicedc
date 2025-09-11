@@ -1,10 +1,6 @@
 from edc_constants.constants import FEMALE, MALE
 from edc_metadata import NOT_REQUIRED, REQUIRED
-from edc_metadata.metadata_rules import (
-    CrfRule,
-    CrfRuleGroup,
-    P,
-)
+from edc_metadata.metadata_rules import CrfRule, CrfRuleGroup, P
 
 
 class CrfRuleGroupWithSourceModel(CrfRuleGroup):
@@ -26,7 +22,7 @@ class CrfRuleGroupWithSourceModel(CrfRuleGroup):
 
     class Meta:
         app_label = "tests"
-        source_model = "tests.crfone"
+        source_model = "clinicedc_tests.crfone"
         related_visit_model = "edc_visit_tracking.subjectvisit"
 
 
@@ -67,7 +63,7 @@ class CrfRuleGroupWithoutExplicitReferenceModel(CrfRuleGroup):
 
     class Meta:
         app_label = "tests"
-        source_model = "tests.crfone"
+        source_model = "clinicedc_tests.crfone"
         related_visit_model = "edc_visit_tracking.subjectvisit"
 
 
@@ -108,7 +104,7 @@ class CrfRuleGroupOne(CrfRuleGroup):
 
     class Meta:
         app_label = "tests"
-        source_model = "tests.crfone"
+        source_model = "clinicedc_tests.crfone"
 
 
 class CrfRuleGroupTwo(CrfRuleGroup):
@@ -128,7 +124,7 @@ class CrfRuleGroupTwo(CrfRuleGroup):
 
     class Meta:
         app_label = "tests"
-        source_model = "tests.crfone"
+        source_model = "clinicedc_tests.crfone"
 
 
 class CrfRuleGroupThree(CrfRuleGroup):
@@ -141,4 +137,4 @@ class CrfRuleGroupThree(CrfRuleGroup):
 
     class Meta:
         app_label = "tests"
-        source_model = "tests.crfone"
+        source_model = "clinicedc_tests.crfone"

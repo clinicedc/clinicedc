@@ -2,6 +2,9 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings, tag
@@ -16,9 +19,6 @@ from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.view_mixins import VisitScheduleViewMixin
 from edc_visit_schedule.visit_schedule import VisitSchedule
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.sites import all_sites
 
 
 class MyView(VisitScheduleViewMixin, ContextMixin):
@@ -58,7 +58,7 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
             name="visit_schedule",
             verbose_name="Visit Schedule",
             offstudy_model="edc_offstudy.SubjectOffstudy",
-            death_report_model="tests.DeathReport",
+            death_report_model="clinicedc_tests.DeathReport",
         )
 
         self.schedule = Schedule(
@@ -70,8 +70,8 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         )
         self.schedule3 = Schedule(
             name="schedule_three",
-            onschedule_model="tests.OnScheduleThree",
-            offschedule_model="tests.OffScheduleThree",
+            onschedule_model="clinicedc_tests.OnScheduleThree",
+            offschedule_model="clinicedc_tests.OffScheduleThree",
             consent_definitions=[consent_v1],
             appointment_model="edc_appointment.appointment",
         )
@@ -121,9 +121,7 @@ class TestViewMixin(SiteTestCaseMixin, TestCase):
         view_current = MyViewCurrent()
         view_current.request = RequestFactory()
         view_current.request.META = {"HTTP_CLIENT_IP": "1.1.1.1"}
-        context = view_current.get_context_data(
-            subject_identifier=self.subject_identifier
-        )
+        context = view_current.get_context_data(subject_identifier=self.subject_identifier)
         obj = OnSchedule.objects.get(subject_identifier=self.subject_identifier)
         self.assertEqual(context.get("current_onschedule_model"), obj)
         context.get("current_onschedule_model")

@@ -2,6 +2,10 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfFour
+from clinicedc_tests.visit_schedules.visit_schedule_crf import visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 
@@ -14,10 +18,6 @@ from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
-from tests.consents import consent_v1
-from tests.helper import Helper
-from tests.models import CrfFour
-from tests.visit_schedules.visit_schedule_crf import visit_schedule
 
 utc_tz = ZoneInfo("UTC")
 
@@ -43,9 +43,7 @@ class CrfTestCase(TestCase):
             schedule_name="schedule",
         )
         self.subject_identifier = subject_consent.subject_identifier
-        appointment = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
+        appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         self.subject_visit = SubjectVisit.objects.create(
             appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
         )
@@ -64,7 +62,7 @@ class CrfTestCase(TestCase):
         try:
             CrfStatus.objects.get(
                 subject_identifier=crf_obj.subject_visit.subject_identifier,
-                label_lower="tests.crffour",
+                label_lower="clinicedc_tests.crffour",
             )
         except ObjectDoesNotExist:
             self.fail("crf status unexpectedly does not exist")
@@ -78,5 +76,5 @@ class CrfTestCase(TestCase):
             ObjectDoesNotExist,
             CrfStatus.objects.get,
             subject_identifier=crf_obj.subject_visit.subject_identifier,
-            label_lower="tests.crffour",
+            label_lower="clinicedc_tests.crffour",
         )

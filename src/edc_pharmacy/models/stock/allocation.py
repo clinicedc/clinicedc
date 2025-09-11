@@ -38,9 +38,7 @@ class Allocation(BaseUuidModel):
         blank=False,
     )
 
-    assignment = models.ForeignKey(
-        Assignment, on_delete=models.PROTECT, null=True, blank=True
-    )
+    assignment = models.ForeignKey(Assignment, on_delete=models.PROTECT, null=True, blank=True)
 
     stock_request_item = models.OneToOneField(
         StockRequestItem,
@@ -69,14 +67,10 @@ class Allocation(BaseUuidModel):
 
     def get_assignment(self) -> Assignment:
         rx = Rx.objects.get(
-            registered_subject=RegisteredSubject.objects.get(
-                id=self.registered_subject.id
-            )
+            registered_subject=RegisteredSubject.objects.get(id=self.registered_subject.id)
         )
         randomizer = site_randomizers.get(rx.randomizer_name)
-        assignment = randomizer.get_assignment(
-            self.registered_subject.subject_identifier
-        )
+        assignment = randomizer.get_assignment(self.registered_subject.subject_identifier)
         return Assignment.objects.get(name=assignment)
 
     class Meta(BaseUuidModel.Meta):

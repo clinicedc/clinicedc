@@ -12,8 +12,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="nonadherencereasons",
             name="plural_name",
-            field=models.CharField(
-                max_length=250, null=True, verbose_name="Plural name"
-            ),
+            field=models.CharField(max_length=250, null=True, verbose_name="Plural name"),
         ),
     ]

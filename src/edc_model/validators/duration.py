@@ -14,9 +14,7 @@ dh_validator = RegexValidator(
 
 hm_validator = RegexValidator(
     r"^([0-9]{1,3}h([0-5]?[0-9]m)?)$",
-    message=_(
-        "Invalid format. Expected something like 1h20m, 11h5m, etc. No spaces allowed."
-    ),
+    message=_("Invalid format. Expected something like 1h20m, 11h5m, etc. No spaces allowed."),
 )
 
 ymd_validator = RegexValidator(
