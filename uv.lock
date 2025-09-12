@@ -2896,11 +2896,11 @@ wheels = [
 
 [[package]]
 name = "prometheus-client"
-version = "0.23.0"
+version = "0.22.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/59/5d/2f7cd40906695c960959d7b65eb67a32354dbd4b68a5ae1ec4d0dc586010/prometheus_client-0.23.0.tar.gz", hash = "sha256:1f5eb6aeaf73891f15aa23ec44912c96410d90d027dc0618a3faae5911e1ff24", size = 80419, upload-time = "2025-09-11T19:50:13.799Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5e/cf/40dde0a2be27cc1eb41e333d1a674a74ce8b8b0457269cc640fd42b07cf7/prometheus_client-0.22.1.tar.gz", hash = "sha256:190f1331e783cf21eb60bca559354e0a4d4378facecf78f5428c39b675d20d28", size = 69746, upload-time = "2025-06-02T14:29:01.152Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/09/b9/82b4a4e17cc0d80a37276619e412fac07367c5aaf9360803d5b176970ed7/prometheus_client-0.23.0-py3-none-any.whl", hash = "sha256:6ee02bc4e34275a62b3a48f2afce1c29b8e64bfc7f4bd0b19ca4f9d359151781", size = 61026, upload-time = "2025-09-11T19:50:12.458Z" },
+    { url = "https://files.pythonhosted.org/packages/32/ae/ec06af4fe3ee72d16973474f122541746196aaa16cea6f66d18b963c6177/prometheus_client-0.22.1-py3-none-any.whl", hash = "sha256:cca895342e308174341b2cbf99a56bef291fbc0ef7b9e5412a0f26d653ba7094", size = 58694, upload-time = "2025-06-02T14:29:00.068Z" },
 ]
 
 [[package]]
@@ -3833,11 +3833,11 @@ wheels = [
 
 [[package]]
 name = "sqlglot"
-version = "27.13.2"
+version = "27.14.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/71/66/d323d56ffc98a50e17e172612f2f244e7a06b54d959c2d5acb14d83a8ab1/sqlglot-27.13.2.tar.gz", hash = "sha256:81a3b46be3a6700c23f72f74fc06059289d11468aed59242687ba1600ebcef52", size = 5457480, upload-time = "2025-09-08T23:21:00.335Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3e/1a/ce57767e3b791c670aa395c92c42c5b5fe11f12c2504a656f8463862ba98/sqlglot-27.14.0.tar.gz", hash = "sha256:456c82ec95dd05927cfe37cb57d4540acbfec6f0743f8c8f246147d56549ba88", size = 5462946, upload-time = "2025-09-11T21:05:59.916Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/03/e6/79ff6a637f30a96e2fb73955e74bee42402f7bf137556f32d6405c21820c/sqlglot-27.13.2-py3-none-any.whl", hash = "sha256:88bb687ed3233a2ada1cd49483ad93a80c44ddc7e0164c1709f2cf7e32465911", size = 512483, upload-time = "2025-09-08T23:20:57.794Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/be/fbd6905dc14e0cd118a21cd48ff39a60407f7059801cd1afc1913d9e86da/sqlglot-27.14.0-py3-none-any.whl", hash = "sha256:a5adc68abc85ccd249258ae0f3aff3c1869bb5b086e360375e16518858ce8a7a", size = 515883, upload-time = "2025-09-11T21:05:57.349Z" },
 ]
 
 [[package]]
