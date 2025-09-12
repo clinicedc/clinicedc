@@ -194,7 +194,7 @@ lint = [
 
 test = [
     "arrow>=1.3.0",
-    "clinicedc-tests>=0.1.0",
+    "clinicedc-tests>=0.1.5",
     "coverage>=7.10.1",
     "django-audit-fields>=2.0.0",
     "django-webtest>=1.9.13",
