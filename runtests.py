@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-from clinicedc_tests.func_main import func_main2
+from clinicedc_tests.config import func_main
 
 if __name__ == "__main__":
 
-    func_main2(
+    func_main(
         "tests.test_settings",
         "edc_action_item.tests",
         "edc_adherence.tests",

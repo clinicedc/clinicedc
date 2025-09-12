@@ -68,8 +68,11 @@ def check_subject_schedule_history(app_configs, **kwargs) -> list:
                 )
             except ObjectDoesNotExist:
                 errors.append(
-                    "Invalid onschedule model referenced in SubjectScheduleHistory. "
-                    f"Got {obj.onschedule_model} for {obj.subject_identifier}"
+                    Error(
+                        "Invalid onschedule model referenced in SubjectScheduleHistory. "
+                        f"Got {obj.onschedule_model} for {obj.subject_identifier}",
+                        id="edc_visit_schedule.E008",
+                    )
                 )
     return errors
 
@@ -99,7 +102,8 @@ def check_onschedule_exists_in_subject_schedule_history(app_configs, **kwargs) -
                                     f"Onschedule instance not found in "
                                     "SubjectScheduleHistory. "
                                     f"See {obj.subject_identifier} "
-                                    f"model {onschedule_model_cls._meta.label_lower}."
+                                    f"model {onschedule_model_cls._meta.label_lower}.",
+                                    id="edc_visit_schedule.E009",
                                 )
                             )
     return errors
