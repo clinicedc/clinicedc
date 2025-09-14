@@ -69,7 +69,6 @@ class DeathReportModelMixin(
         choices=YES_NO,
         max_length=5,
         verbose_name="Death as inpatient",
-        null=True,
         blank=False,
     )
 
@@ -78,7 +77,7 @@ class DeathReportModelMixin(
         on_delete=PROTECT,
         verbose_name="Main cause of death",
         help_text=(
-            "Main cause of death in the opinion of the " "local study doctor and local PI"
+            "Main cause of death in the opinion of the local study doctor and local PI"
         ),
         null=True,
         blank=False,
@@ -86,18 +85,13 @@ class DeathReportModelMixin(
 
     cause_of_death_other = OtherCharField(max_length=100, blank=True, null=True)
 
-    narrative = models.TextField(verbose_name="Narrative", blank=False, null=True)
+    narrative = models.TextField(verbose_name="Narrative", blank=False)
 
     objects = ActionIdentifierModelManager()
 
     on_site = ActionIdentifierSiteManager()
 
     history = HistoricalRecords(inherit=True)
-
-    def natural_key(self):
-        return (self.action_identifier,)  # noqa
-
-    natural_key.dependencies = ["edc_adverse_event.causeofdeath"]
 
     class Meta(
         SiteModelMixin.Meta,
@@ -107,6 +101,12 @@ class DeathReportModelMixin(
         abstract = True
         verbose_name = "Death Report"
         verbose_name_plural = "Death Reports"
-        indexes = ActionNoManagersModelMixin.Meta.indexes + [
-            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
-        ]
+        indexes = (
+            *ActionNoManagersModelMixin.Meta.indexes,
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"]),
+        )
+
+    def natural_key(self):
+        return (self.action_identifier,)
+
+    natural_key.dependencies = ("edc_adverse_event.causeofdeath",)

@@ -122,8 +122,8 @@ class RequisitionReport(Report):
             [Paragraph("TEL/MOBILE/FAX", self.styles["line_label"]), ""],
             [
                 Paragraph(
-                    f'T:{self.shipper.telephone or "?"} M:{self.shipper.mobile or "?"} '
-                    f'F:{self.shipper.fax or "?"}',
+                    f"T:{self.shipper.telephone or '?'} M:{self.shipper.mobile or '?'} "
+                    f"F:{self.shipper.fax or '?'}",
                     self.styles["line_data_large"],
                 ),
                 "",
@@ -257,7 +257,7 @@ class RequisitionReport(Report):
         if not self._requisitions:
             for k, v in self.appointment.related_visit_model_cls().__dict__.items():
                 try:
-                    model_cls = getattr(getattr(v, "rel"), "related_model")
+                    model_cls = v.rel.related_model
                 except AttributeError:
                     pass
                 else:
@@ -350,8 +350,7 @@ class RequisitionReport(Report):
                         barcode,
                         Paragraph(str(index + 1), self.styles["row_data"]),
                         Paragraph(
-                            f"{requisition.human_readable_identifier} "
-                            f"({count}/{item_count})",
+                            f"{requisition.human_readable_identifier} ({count}/{item_count})",
                             self.styles["row_data"],
                         ),
                         Paragraph(

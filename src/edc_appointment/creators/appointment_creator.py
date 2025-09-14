@@ -86,26 +86,22 @@ class AppointmentCreator:
         try:
             if is_naive(timepoint_datetime):
                 raise ValueError(
-                    f"Naive datetime not allowed. {repr(self)}. " f"Got {timepoint_datetime}"
+                    f"Naive datetime not allowed. {self!r}. Got {timepoint_datetime}"
                 )
-            else:
-                self.timepoint_datetime = timepoint_datetime
+            self.timepoint_datetime = timepoint_datetime
         except AttributeError:
             raise AppointmentCreatorError(
-                f"Expected 'timepoint_datetime'. Got None. {repr(self)}."
+                f"Expected 'timepoint_datetime'. Got None. {self!r}."
             )
         # suggested_datetime (defaults to timepoint_datetime)
         # If provided, the rules for window period/rdelta relative
         # to timepoint_datetime still apply.
         if suggested_datetime and is_naive(suggested_datetime):
-            raise ValueError(
-                f"Naive datetime not allowed. {repr(self)}. " f"Got {suggested_datetime}"
-            )
-        else:
-            self.suggested_datetime = suggested_datetime or self.timepoint_datetime
+            raise ValueError(f"Naive datetime not allowed. {self!r}. Got {suggested_datetime}")
+        self.suggested_datetime = suggested_datetime or self.timepoint_datetime
         self.facility = facility or visit.facility
         if not self.facility:
-            raise AppointmentCreatorError(f"facility_name not defined. See {repr(visit)}")
+            raise AppointmentCreatorError(f"facility_name not defined. See {visit!r}")
         self.get_appointment()
 
     def __repr__(self):
@@ -217,7 +213,7 @@ class AppointmentCreator:
                 )
             except FacilityError as e:
                 raise CreateAppointmentDateError(
-                    f"{e} Visit={repr(self.visit)}. "
+                    f"{e} Visit={self.visit!r}. "
                     f"Try setting 'best_effort_available_datetime=True' on facility."
                 )
         else:

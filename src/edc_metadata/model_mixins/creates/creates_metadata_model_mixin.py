@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 from django.db import models, transaction
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from edc_visit_tracking.typing_stubs import RelatedVisitProtocol
 else:
 
-    class RelatedVisitProtocol: ...  # noqa
+    class RelatedVisitProtocol: ...
 
 
 class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
@@ -27,9 +27,9 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
     create metadata on save.
     """
 
-    metadata_cls: Type[Metadata] = Metadata
-    metadata_destroyer_cls: Type[Destroyer] = Destroyer
-    metadata_rule_evaluator_cls: Type[MetadataRuleEvaluator] = MetadataRuleEvaluator
+    metadata_cls: type[Metadata] = Metadata
+    metadata_destroyer_cls: type[Destroyer] = Destroyer
+    metadata_rule_evaluator_cls: type[MetadataRuleEvaluator] = MetadataRuleEvaluator
 
     def metadata_create(self) -> None:
         """Creates metadata, called by post_save signal."""
@@ -96,8 +96,7 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
             for key in [CRF, REQUISITION]:
                 if [obj for obj in self.metadata[key] if obj.get_entry_status() == KEYED]:
                     raise DeleteMetadataError(
-                        f"Metadata cannot be deleted. {key}s have been "
-                        f"keyed. Got {repr(self)}."
+                        f"Metadata cannot be deleted. {key}s have been keyed. Got {self!r}."
                     )
             destroyer = self.metadata_destroyer_cls(related_visit=self)
             destroyer.delete(entry_status_not_in=[KEYED])

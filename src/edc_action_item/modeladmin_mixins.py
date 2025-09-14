@@ -1,10 +1,8 @@
-from typing import Tuple
-
 from .fieldsets import action_fields
 
 
 class ActionItemModelAdminMixin:
-    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
         """
         Returns a list of readonly field names.
 
@@ -15,7 +13,7 @@ class ActionItemModelAdminMixin:
         fields += action_fields
         return tuple(f for f in fields if f != "action_identifier")
 
-    def get_search_fields(self, request) -> Tuple[str, ...]:
+    def get_search_fields(self, request) -> tuple[str, ...]:
         search_fields = super().get_search_fields(request)
         custom_fields = ("action_identifier",)
         if "subject_identifier" in [f.name for f in self.model._meta.fields]:

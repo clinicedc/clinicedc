@@ -5,7 +5,7 @@ import random
 import secrets
 from pathlib import Path
 from tempfile import mkdtemp
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.contrib.sites.models import Site
 
@@ -70,7 +70,7 @@ def populate_randomization_list_for_tests(
 
 def scramble_randomization_for_test_data(
     arms: list[str],
-    randomization_list_model_cls: Type[RandomizationList],
+    randomization_list_model_cls: type[RandomizationList],
 ):
     choices = []
     for i in range(0, 8):

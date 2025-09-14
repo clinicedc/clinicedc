@@ -35,4 +35,4 @@ class Holiday(models.Model):
                 name="%(app_label)s_%(class)s_country_uniq",
             )
         ]
-        indexes = [Index(fields=["name", "country", "local_date"])]
+        indexes = (Index(fields=["name", "country", "local_date"]),)

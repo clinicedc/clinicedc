@@ -137,7 +137,7 @@ class RefillCreator:
                     f"Got {self.subject_identifier} attempting "
                     f"refill on {self.refill_start_datetime_as_str}."
                 )
-            elif (
+            if (
                 rx.rx_expiration_date
                 and self.refill_start_datetime.date() > rx.rx_expiration_date
             ):

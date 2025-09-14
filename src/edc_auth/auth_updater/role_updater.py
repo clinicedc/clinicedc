@@ -1,5 +1,4 @@
 import sys
-from typing import Optional
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -15,7 +14,7 @@ class RoleUpdaterError(Exception):
 class RoleUpdater:
     def __init__(
         self,
-        roles: Optional[dict] = None,
+        roles: dict | None = None,
         verbose=None,
     ):
         self.roles = roles

@@ -42,4 +42,3 @@ def delete_action_item(action_cls=None, subject_identifier=None, using=None):
             obj.delete(using=using)
     else:
         obj.delete(using=using)
-    return None

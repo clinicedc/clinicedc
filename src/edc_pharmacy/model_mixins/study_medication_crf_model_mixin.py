@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -88,7 +88,7 @@ class StudyMedicationCrfModelMixin(PreviousNextModelMixin, StudyMedicationRefill
 
         super().save(*args, **kwargs)
 
-    def creates_refills_from_crf(self) -> Tuple[RxRefill, RxRefill | None]:
+    def creates_refills_from_crf(self) -> tuple[RxRefill, RxRefill | None]:
         """Attribute called in signal"""
         return create_refills_from_crf(self, self.related_visit_model_attr())
 

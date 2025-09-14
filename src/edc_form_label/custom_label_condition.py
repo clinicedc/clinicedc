@@ -26,7 +26,7 @@ class CustomLabelCondition:
 
         If True, form label will be customized. See`FormLabel`.
         """
-        return None
+        return
 
     def get_additional_options(self, request=None, obj=None, model=None):
         return {}

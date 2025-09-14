@@ -17,13 +17,13 @@ if TYPE_CHECKING:
     )
     from edc_model.models import BaseUuidModel
 
-    class AeInitialModel(AeInitialModelMixin, BaseUuidModel): ...  # noqa
+    class AeInitialModel(AeInitialModelMixin, BaseUuidModel): ...
 
-    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel): ...  # noqa
+    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel): ...
 
-    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel): ...  # noqa
+    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel): ...
 
-    class DeathReportModel(DeathReportModelMixin, BaseUuidModel): ...  # noqa
+    class DeathReportModel(DeathReportModelMixin, BaseUuidModel): ...
 
 
 @dataclass

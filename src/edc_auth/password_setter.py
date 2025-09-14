@@ -1,5 +1,4 @@
 from string import Template
-from typing import List, Optional
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -26,8 +25,8 @@ class PasswordSetter:
     def __init__(
         self,
         super_username: str,
-        alternate_email: Optional[str] = None,
-        nwords: Optional[int] = None,
+        alternate_email: str | None = None,
+        nwords: int | None = None,
         **kwargs,
     ) -> None:
         self.administrator_fullname = self.get_administrator_fullname(super_username)
@@ -48,7 +47,7 @@ class PasswordSetter:
         users = User.objects.filter(is_active=True, is_staff=True, is_superuser=False)
         self._reset(users)
 
-    def reset_by_groups(self, group_names: List[str] = None) -> None:
+    def reset_by_groups(self, group_names: list[str] = None) -> None:
         users = User.objects.filter(
             groups__name__in=group_names,
             is_active=True,
@@ -57,7 +56,7 @@ class PasswordSetter:
         )
         self._reset(users)
 
-    def reset_users(self, usernames: List[str]) -> None:
+    def reset_users(self, usernames: list[str]) -> None:
         users = User.objects.filter(username__in=usernames, is_active=True, is_staff=True)
         self._reset(users)
 
@@ -65,7 +64,7 @@ class PasswordSetter:
         usernames = [username]
         self.reset_users(usernames)
 
-    def reset_by_sites(self, site_names: List[str] = None) -> None:
+    def reset_by_sites(self, site_names: list[str] = None) -> None:
         users = User.objects.filter(
             userprofile__sites__name__in=site_names,
             is_active=True,
@@ -74,7 +73,7 @@ class PasswordSetter:
         )
         self._reset(users)
 
-    def _reset(self, users: List[User]) -> None:
+    def _reset(self, users: list[User]) -> None:
         for user in users:
             password = self.password_generator.get_password()
             user.set_password(password)

@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django.contrib import admin
 from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
@@ -88,7 +86,7 @@ class ProtocolIncidentModelAdminMixin:
 
     search_fields = ("subject_identifier",)
 
-    def get_list_display(self, request) -> Tuple[str, ...]:
+    def get_list_display(self, request) -> tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "subject_identifier",
@@ -103,12 +101,12 @@ class ProtocolIncidentModelAdminMixin:
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = ("action_required", "report_status", "report_type")
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
-    def get_search_fields(self, request) -> Tuple[str, ...]:
+    def get_search_fields(self, request) -> tuple[str, ...]:
         search_fields = super().get_search_fields(request)
         custom_fields = ("short_description",)
         return tuple(set(custom_fields + search_fields))

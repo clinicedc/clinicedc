@@ -25,7 +25,7 @@ def edc_navbar_checks(app_configs, **kwargs) -> list[CheckMessage]:
                     msg = (
                         f"Invalid app_label in codename. Expected format "
                         f"'<app_label>.<some_codename>'. Got {navbar_item.codename}. "
-                        f"See {repr(navbar_item)}."
+                        f"See {navbar_item!r}."
                     )
                     errors.append(Error(msg, id="edc_navbar.E002"))
             try:

@@ -151,7 +151,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path, "r") as f:
+        with open(path) as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
             self.assertEqual(len(rows), 2)
@@ -166,7 +166,7 @@ class TestExportModel(TestCase):
             },
         )
         path = model_exporter.export()
-        with open(path, "r") as f:
+        with open(path) as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         header = rows[0][1][0]
@@ -182,7 +182,7 @@ class TestExportModel(TestCase):
             },
         )
         path = model_exporter.export()
-        with open(path, "r") as f:
+        with open(path) as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[1][1][0]
@@ -215,7 +215,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path, "r") as f:
+        with open(path) as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[1][1][0]
@@ -231,7 +231,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path, "r") as f:
+        with open(path) as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[1][1][0]
@@ -248,7 +248,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path, "r") as f:
+        with open(path) as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[1][1][0]
@@ -329,7 +329,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path, "r") as f:
+        with open(path) as f:
             csv_reader = csv.DictReader(f, delimiter="|")
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[0][1]
@@ -346,7 +346,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path, "r") as f:
+        with open(path) as f:
             csv_reader = csv.DictReader(f, delimiter="|")
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[0][1]

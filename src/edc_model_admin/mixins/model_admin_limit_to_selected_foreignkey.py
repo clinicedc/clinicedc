@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Any
 
 from django.core.handlers.wsgi import WSGIRequest
 
@@ -11,7 +11,7 @@ class ModelAdminLimitToSelectedForeignkeyError(Exception):
 
 
 class ModelAdminLimitToSelectedForeignkey:
-    limit_fk_field_to_selected: list[Tuple[str, Any]] = None
+    limit_fk_field_to_selected: list[tuple[str, Any]] = None
 
     def formfield_for_foreignkey(self, db_field, request: WSGIRequest, **kwargs):
         db = kwargs.get("using")

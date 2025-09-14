@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from django.apps import apps as django_apps
@@ -24,7 +24,7 @@ __all__ = ["AppointmentButton"]
 class AppointmentButton(DashboardModelButton):
     model_obj: Appointment = None
     colors: tuple[str, str, str] = field(default=(3 * ("default",)))
-    model_cls: Type[Appointment] = field(default=None, init=False)
+    model_cls: type[Appointment] = field(default=None, init=False)
     appointment: Appointment = field(default=None, init=False)
 
     def __post_init__(self):
@@ -33,9 +33,7 @@ class AppointmentButton(DashboardModelButton):
     @property
     def disabled(self) -> str:
         disabled = "disabled"
-        if self.model_obj.appt_status == IN_PROGRESS_APPT and self.perms.change:
-            disabled = ""
-        elif (
+        if (self.model_obj.appt_status == IN_PROGRESS_APPT and self.perms.change) or (
             self.model_obj.appt_status != NEW_APPT
             and not self.perms.add
             and not self.perms.change

@@ -58,7 +58,7 @@ def page_numbers(page, numpages):
         min_n = page - 5
         min_n = 1 if min_n <= 0 else min_n
         max_n = min_n + 9
-        max_n = numpages if max_n >= numpages else max_n
+        max_n = min(numpages, max_n)
         page_numbers_ = [x for x in range(min_n, max_n + 1)]
     return page_numbers_ or []
 

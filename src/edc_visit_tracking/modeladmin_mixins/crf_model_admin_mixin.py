@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from edc_consent.fieldsets import REQUIRES_CONSENT_FIELDS
@@ -76,7 +76,7 @@ class CrfModelAdminMixin:
         return self.model.related_visit_model_attr()
 
     @property
-    def related_visit_model_cls(self) -> Type[VisitModelMixin]:
+    def related_visit_model_cls(self) -> type[VisitModelMixin]:
         return self.model.related_visit_model_cls()
 
     def related_visit(self, request: WSGIRequest, obj=None) -> VisitModelMixin | None:

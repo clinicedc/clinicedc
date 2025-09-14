@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import collections
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.contrib import admin
 from django.contrib.auth import get_permission_codename
@@ -68,7 +68,7 @@ class SiteModelAdminMixin:
             return obj.site.name
         return f"{site_profile.site.id} {site_profile.description}"
 
-    def get_list_filter(self, request) -> tuple[str | Type[SimpleListFilter], ...]:
+    def get_list_filter(self, request) -> tuple[str | type[SimpleListFilter], ...]:
         """Insert `SiteListFilter` before field name `created`.
 
         Remove site from the list if user does not have access

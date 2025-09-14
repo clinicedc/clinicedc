@@ -25,7 +25,6 @@ class Manager(models.Manager):
 
 
 class Formulation(BaseUuidModel):
-
     medication = models.ForeignKey(Medication, on_delete=PROTECT, null=True, blank=False)
 
     strength = models.DecimalField(max_digits=6, decimal_places=1)
@@ -36,13 +35,13 @@ class Formulation(BaseUuidModel):
 
     route = models.ForeignKey(Route, on_delete=PROTECT)
 
-    notes = models.TextField(max_length=250, null=True, blank=True)
+    notes = models.TextField(max_length=250, default="", blank=True)
 
-    description = models.CharField(max_length=250, null=True, blank=True)
+    description = models.CharField(max_length=250, default="", blank=True)
 
     imp = models.BooleanField(default=False)
 
-    imp_description = models.CharField(max_length=250, null=True, blank=True)
+    imp_description = models.CharField(max_length=250, default="", blank=True)
 
     objects = Manager()
 

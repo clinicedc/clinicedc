@@ -18,7 +18,6 @@ class Manager(models.Manager):
 
 
 class ReceiveItem(BaseUuidModel):
-
     receive_item_identifier = models.CharField(
         max_length=36,
         unique=True,
@@ -66,9 +65,9 @@ class ReceiveItem(BaseUuidModel):
         help_text="Quantity x Container.Quantity, e.g. 10 x Bottle of 128 = 1280",
     )
 
-    reference = models.CharField(max_length=150, null=True, blank=True)
+    reference = models.CharField(max_length=150, default="", blank=True)
 
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(default="", blank=True)
 
     task_id = models.UUIDField(null=True)
 

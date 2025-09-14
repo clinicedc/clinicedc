@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django import forms
 from django.apps import apps as django_apps
@@ -32,7 +32,7 @@ class SiteModelFormMixin:
         return cleaned_data
 
     @property
-    def site_model_cls(self) -> Type[Site]:
+    def site_model_cls(self) -> type[Site]:
         return django_apps.get_model("sites.site")
 
     @property

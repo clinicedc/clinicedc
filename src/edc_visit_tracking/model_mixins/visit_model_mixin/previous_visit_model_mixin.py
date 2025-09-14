@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, Type
+from typing import TYPE_CHECKING, Any, Self
 
 from django.db import models
 
@@ -24,7 +24,7 @@ class PreviousVisitModelMixin(models.Model):
     * If the visit is the first in the sequence, save() is allowed.
     """
 
-    visit_sequence_cls: Type[VisitSequence] = VisitSequence
+    visit_sequence_cls: type[VisitSequence] = VisitSequence
 
     def save(self, *args, **kwargs) -> None:
         self.validate_visit_sequence()

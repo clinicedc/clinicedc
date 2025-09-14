@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from django.contrib.sites.models import Site
@@ -18,9 +18,9 @@ if TYPE_CHECKING:
 
 @dataclass(kw_only=True)
 class ActionItemButton(ModelButton):
-    action_cls: Type[Action] = None
+    action_cls: type[Action] = None
     model_obj: ActionItem | None = None
-    model_cls: Type[ActionItem] = field(default=None)
+    model_cls: type[ActionItem] = field(default=None)
     appointment: Appointment = None
     next_url_name: str = field(default="subject_dashboard_url")
 

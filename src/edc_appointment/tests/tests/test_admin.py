@@ -73,8 +73,7 @@ class TestAdmin(WebTest):
         for index, form in response.forms.items():
             if form.action == "/i18n/setlang/":
                 continue
-            else:
-                break
+            break
         return form
 
     def login(self):

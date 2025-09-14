@@ -69,13 +69,14 @@ class SubjectTransferModelMixin(
         return f"{self.subject_identifier} on {transfer_date}."
 
     def natural_key(self):
-        return (self.subject_identifier,)  # noqa
+        return (self.subject_identifier,)
 
     class Meta(SiteModelMixin.Meta, ActionModelMixin.Meta):
         abstract = True
         verbose_name = "Subject Transfer"
         verbose_name_plural = "Subject Transfers"
-        indexes = ActionModelMixin.Meta.indexes + [
+        indexes = (
+            *ActionModelMixin.Meta.indexes,
             models.Index(
                 fields=[
                     "subject_identifier",
@@ -84,4 +85,4 @@ class SubjectTransferModelMixin(
                     "site",
                 ]
             ),
-        ]
+        )

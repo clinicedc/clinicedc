@@ -2,8 +2,13 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.utils.translation import gettext as _
 
-from edc_utils import convert_php_dateformat, floor_secs, formatted_date, to_utc
-from edc_utils.date import to_local
+from edc_utils import (
+    ceil_secs,
+    convert_php_dateformat,
+    floor_secs,
+    formatted_date,
+    to_local,
+)
 
 from ..exceptions import (
     ScheduledVisitWindowError,
@@ -30,11 +35,11 @@ class Window:
     ):
         self.name = name
         self.visits = visits
-        self.timepoint_datetime = to_utc(timepoint_datetime)
-        self.dt = to_utc(dt)
+        self.timepoint_datetime = to_local(timepoint_datetime)
+        self.dt = to_local(dt)
         self.visit_code = visit_code
         self.visit_code_sequence = visit_code_sequence
-        self.baseline_timepoint_datetime = to_utc(baseline_timepoint_datetime)
+        self.baseline_timepoint_datetime = to_local(baseline_timepoint_datetime)
 
     @property
     def datetime_in_window(self):
@@ -71,19 +76,21 @@ class Window:
         window period for a scheduled `visit` otherwise
         raises an exception.
 
+        Ensure all datetimes in UTC before comparison.
+
         In this case, `visit` is the object from schedule and
         not a model instance.
         """
         visit = self.visits.get(self.visit_code)
         visit.timepoint_datetime = self.timepoint_datetime
         gap_days = self.get_window_gap_days()
-        lower = floor_secs(to_utc(visit.dates.lower) - relativedelta(days=gap_days))
-        upper = floor_secs(to_utc(visit.dates.upper))
-        if not (lower <= floor_secs(to_utc(self.dt)) <= upper):
-            lower_date = to_local(visit.dates.lower).strftime(
+        lower = floor_secs(to_local(visit.dates.lower) - relativedelta(days=gap_days))
+        upper = ceil_secs(to_local(visit.dates.upper))
+        if not (lower <= floor_secs(to_local(self.dt)) <= upper):
+            lower_date = to_local(lower).strftime(
                 convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
             )
-            upper_date = to_local(visit.dates.upper).strftime(
+            upper_date = to_local(upper).strftime(
                 convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
             )
             dt = to_local(self.dt).strftime(
@@ -114,8 +121,8 @@ class Window:
             dt=self.baseline_timepoint_datetime
         ).get(next_visit)
         if not (
-            floor_secs(to_utc(self.dt))
-            < floor_secs(to_utc(next_timepoint_datetime - next_visit.rlower))
+            floor_secs(to_local(self.dt))
+            < floor_secs(to_local(next_timepoint_datetime - next_visit.rlower))
         ):
             dt_lower = formatted_date(next_timepoint_datetime - next_visit.rlower)
             dt = formatted_date(self.dt)

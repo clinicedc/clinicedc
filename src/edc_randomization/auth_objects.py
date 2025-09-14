@@ -1,5 +1,4 @@
 import sys
-from typing import Optional
 
 from .site_randomizers import site_randomizers
 
@@ -36,7 +35,7 @@ export_rando = [
 
 
 # post_update_func
-def update_rando_group_permissions(auth_updater, app_label: Optional[str]):
+def update_rando_group_permissions(auth_updater, app_label: str | None):
     """Update group permissions for each registered randomizer class."""
     for randomizer_cls in site_randomizers._registry.values():
         if auth_updater.verbose:
@@ -56,7 +55,7 @@ def update_rando_group_permissions(auth_updater, app_label: Optional[str]):
         )
 
 
-def make_randomizationlist_view_only(auth_updater, app_label: Optional[str]):
+def make_randomizationlist_view_only(auth_updater, app_label: str | None):
     for randomizer_cls in site_randomizers._registry.values():
         randomizer_cls.apps = auth_updater.apps
         app_label, model = randomizer_cls.model_cls()._meta.label_lower.split(".")

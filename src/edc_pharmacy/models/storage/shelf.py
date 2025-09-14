@@ -15,7 +15,7 @@ class Shelf(BaseUuidModel):
 
     name = models.CharField(max_length=25, unique=True)
 
-    description = models.TextField(null=True)
+    description = models.TextField(default="")
 
     room = models.ForeignKey(Room, on_delete=models.PROTECT)
 

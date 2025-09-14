@@ -28,7 +28,7 @@ class TestForDescriber(TestCase):
         tmp, name = mkstemp()
         describer = FormDescriber(admin_cls=TestModel3Admin, include_hidden_fields=True)
         describer.to_file(path=name, overwrite=True)
-        with open(name, "r") as describer_file:
+        with open(name) as describer_file:
             txt = describer_file.read()
             fields = self.get_fields_from_fieldset(TestModel3Admin)
             for f in TestModel3._meta.get_fields():

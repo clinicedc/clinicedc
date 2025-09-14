@@ -1,5 +1,4 @@
 from copy import copy
-from typing import Optional, Union
 
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
@@ -20,7 +19,7 @@ class RequiredFieldValidatorError(Exception):
 
 class RequiredFieldValidator(BaseFormValidator):
     def raise_required(
-        self, field: str, msg: Optional[str] = None, inline_set: Optional[str] = None
+        self, field: str, msg: str | None = None, inline_set: str | None = None
     ) -> None:
         if inline_set:
             default_errmsg = _("Based on your responses, inline information is required.")
@@ -29,10 +28,9 @@ class RequiredFieldValidator(BaseFormValidator):
             errmsg = _("This field is required")
             message = {field: f"{errmsg}. {msg or ''}".strip()}
         self.raise_validation_error(message, REQUIRED_ERROR)
-        return None
 
     def raise_not_required(
-        self, field: str, msg: Optional[str] = None, inline_set: Optional[str] = None
+        self, field: str, msg: str | None = None, inline_set: str | None = None
     ) -> None:
         if inline_set:
             default_errmsg = _("Based on your responses, inline information is not required.")
@@ -41,20 +39,19 @@ class RequiredFieldValidator(BaseFormValidator):
             errmsg = _("This field is not required")
             message = {field: f"{errmsg}. {msg or ''}".strip()}
         self.raise_validation_error(message, NOT_REQUIRED_ERROR)
-        return None
 
     def required_if(
         self,
-        *responses: Union[str, int, bool],
+        *responses: str | int | bool,
         field: str = None,
         field_required: str = None,
-        required_msg: Optional[str] = None,
-        not_required_msg: Optional[str] = None,
-        optional_if_dwta: Optional[bool] = None,
-        optional_if_na: Optional[bool] = None,
-        inverse: Optional[bool] = None,
-        is_instance_field: Optional[bool] = None,
-        field_required_evaluate_as_int: Optional[bool] = None,
+        required_msg: str | None = None,
+        not_required_msg: str | None = None,
+        optional_if_dwta: bool | None = None,
+        optional_if_na: bool | None = None,
+        inverse: bool | None = None,
+        is_instance_field: bool | None = None,
+        field_required_evaluate_as_int: bool | None = None,
         fk_stored_field_name=None,
         field_required_inline_set=None,
     ) -> bool:
@@ -88,9 +85,7 @@ class RequiredFieldValidator(BaseFormValidator):
             field_required_has_value = self.get(field_required, inline_set=inline_set)
 
         if field in self.cleaned_data:
-            if DWTA in responses and optional_if_dwta and field_value == DWTA:
-                pass
-            elif (
+            if (DWTA in responses and optional_if_dwta and field_value == DWTA) or (
                 NOT_APPLICABLE in responses
                 and optional_if_na
                 and field_value == NOT_APPLICABLE
@@ -123,9 +118,9 @@ class RequiredFieldValidator(BaseFormValidator):
         self,
         condition: bool,
         field_required: str = None,
-        required_msg: Optional[str] = None,
-        not_required_msg: Optional[str] = None,
-        inverse: Optional[bool] = None,
+        required_msg: str | None = None,
+        not_required_msg: str | None = None,
+        inverse: bool | None = None,
     ) -> bool:
         inverse = True if inverse is None else inverse
         if not field_required:
@@ -151,8 +146,8 @@ class RequiredFieldValidator(BaseFormValidator):
         self,
         condition: bool,
         field: str = None,
-        msg: Optional[str] = None,
-        is_instance_field: Optional[bool] = None,
+        msg: str | None = None,
+        is_instance_field: bool | None = None,
     ) -> bool:
         """Raises a ValidationError if condition is True stating the
         field is NOT required.
@@ -177,12 +172,12 @@ class RequiredFieldValidator(BaseFormValidator):
         self,
         field: str = None,
         field_required: str = None,
-        required_msg: Optional[str] = None,
-        not_required_msg: Optional[str] = None,
-        optional_if_dwta: Optional[bool] = None,
-        inverse: Optional[bool] = None,
-        field_required_evaluate_as_int: Optional[bool] = None,
-        is_instance_field: Optional[bool] = None,
+        required_msg: str | None = None,
+        not_required_msg: str | None = None,
+        optional_if_dwta: bool | None = None,
+        inverse: bool | None = None,
+        field_required_evaluate_as_int: bool | None = None,
+        is_instance_field: bool | None = None,
     ) -> bool:
         """Raises an exception or returns False.
 
@@ -225,15 +220,15 @@ class RequiredFieldValidator(BaseFormValidator):
 
     def not_required_if(
         self,
-        *responses: Union[str, int, bool],
+        *responses: str | int | bool,
         field: str = None,
         field_required: str = None,
-        field_not_required: Optional[str] = None,
-        required_msg: Optional[str] = None,
-        not_required_msg: Optional[str] = None,
-        optional_if_dwta: Optional[bool] = None,
-        inverse: Optional[bool] = None,
-        is_instance_field: Optional[bool] = None,
+        field_not_required: str | None = None,
+        required_msg: str | None = None,
+        not_required_msg: str | None = None,
+        optional_if_dwta: bool | None = None,
+        inverse: bool | None = None,
+        is_instance_field: bool | None = None,
     ) -> bool:
         """Raises an exception or returns False.
 
@@ -266,8 +261,8 @@ class RequiredFieldValidator(BaseFormValidator):
         self,
         field: str = None,
         field_required: str = None,
-        required_msg: Optional[str] = None,
-        is_instance_field: Optional[bool] = None,
+        required_msg: str | None = None,
+        is_instance_field: bool | None = None,
     ) -> bool:
         """Required `b` if `a`; do not require `b` if not `a`"""
         if is_instance_field:
@@ -286,16 +281,16 @@ class RequiredFieldValidator(BaseFormValidator):
 
     @staticmethod
     def _inspect_params(
-        *responses: Union[str, int, bool], field: str = None, field_required: str = None
+        *responses: str | int | bool, field: str = None, field_required: str = None
     ) -> bool:
         """Inspects params and raises if any are None"""
         if not field:
             errmsg = _("`field` cannot be `None`")
             raise InvalidModelFormFieldValidator(f"{errmsg}.")
-        elif not responses:
+        if not responses:
             errmsg = _(f"At least one valid response for field '{field}' must be provided.")
             raise InvalidModelFormFieldValidator(errmsg)
-        elif not field_required:
+        if not field_required:
             raise InvalidModelFormFieldValidator('"field_required" cannot be None.')
         return False
 

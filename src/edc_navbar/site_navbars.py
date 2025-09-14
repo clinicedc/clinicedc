@@ -52,14 +52,14 @@ class NavbarCollection:
         except KeyError:
             raise NavbarError(
                 f"Navbar '{name}' does not exist. Expected one of "
-                f"{list(self.registry.keys())}. See {repr(self)}."
+                f"{list(self.registry.keys())}. See {self!r}."
             )
         else:
             # does the navbar have items?
             if not navbar.navbar_items:
                 raise NavbarError(
                     f"Navbar '{navbar.name}' has no navbar_item. Expected "
-                    f"'{selected_item}'. See {repr(self)}"
+                    f"'{selected_item}'. See {self!r}"
                 )
             # does the selected item exist?
             if selected_item:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from django.core.handlers.wsgi import WSGIRequest
@@ -28,7 +28,7 @@ ADD: int = 0
 CHANGE = 1
 VIEW = 2
 
-__all__ = ["ModelButton", "ADD", "CHANGE", "VIEW"]
+__all__ = ["ADD", "CHANGE", "VIEW", "ModelButton"]
 
 
 class ModelButtonError(Exception):
@@ -39,7 +39,7 @@ class ModelButtonError(Exception):
 class ModelButton:
     user: User = None
     model_obj: Model = None
-    model_cls: Type[Model] = field(default=None)
+    model_cls: type[Model] = field(default=None)
     current_site: Site = None
     subject_identifier: str | None = None
     request: WSGIRequestObject | None = None
@@ -104,11 +104,10 @@ class ModelButton:
     @property
     def disabled(self) -> str:
         disabled = "disabled"
-        if not self.model_obj and self.perms.add:
+        if (not self.model_obj and self.perms.add) or (
+            self.model_obj and (self.perms.change or self.perms.view)
+        ):
             disabled = ""
-        else:
-            if self.model_obj and (self.perms.change or self.perms.view):
-                disabled = ""
         return disabled
 
     @property
@@ -116,7 +115,7 @@ class ModelButton:
         btn_id = f"{self.model_cls._meta.label_lower.split('.')[1]}-{uuid4().hex}"
         if self.model_obj:
             btn_id = (
-                f"{self.model_cls._meta.label_lower.split('.')[1]}-" f"{self.model_obj.id.hex}"
+                f"{self.model_cls._meta.label_lower.split('.')[1]}-{self.model_obj.id.hex}"
             )
         return btn_id
 

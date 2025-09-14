@@ -53,4 +53,4 @@ class SubjectVisit(
     history = HistoricalRecords()
 
     class Meta(VisitModelMixin.Meta, BaseUuidModel.Meta):
-        indexes = VisitModelMixin.Meta.indexes + BaseUuidModel.Meta.indexes
+        indexes = (*VisitModelMixin.Meta.indexes, *BaseUuidModel.Meta.indexes)

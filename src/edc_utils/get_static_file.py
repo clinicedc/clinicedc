@@ -9,7 +9,7 @@ def get_static_file(app_label: str, filename: str) -> str:
     path = os.path.join(settings.STATIC_ROOT or "", app_label, filename)
     if os.path.isfile(path):
         try:
-            with open(path, "r"):
+            with open(path):
                 pass
         except FileNotFoundError:
             path = os.path.join(f"https://{settings.STATIC_URL}", app_label, filename)

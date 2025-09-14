@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 def create_action_item(
-    action_cls: Type[Action],
+    action_cls: type[Action],
     subject_identifier: str = None,
     action_identifier: str | None = None,
     related_action_item: ActionItem | None = None,

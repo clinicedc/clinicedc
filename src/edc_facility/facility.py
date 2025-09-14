@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from operator import methodcaller
-from typing import TYPE_CHECKING, Any, List, Tuple, Union
+from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
 import arrow
@@ -42,7 +42,7 @@ class Facility:
         self.days = []
         self.name = name
         if not name:
-            raise FacilityError(f"Name cannot be None. See {repr(self)}")
+            raise FacilityError(f"Name cannot be None. See {self!r}")
         self.best_effort_available_datetime = (
             True if best_effort_available_datetime is None else best_effort_available_datetime
         )
@@ -53,7 +53,7 @@ class Facility:
                 day = weekday(day)
             self.days.append(day)
         self.slots = slots or [99999 for _ in self.days]
-        self.config = dict(zip([str(d) for d in self.days], self.slots))
+        self.config = dict(zip([str(d) for d in self.days], self.slots, strict=False))
         self.holidays = self.holiday_cls()
 
     def __repr__(self):
@@ -94,7 +94,7 @@ class Facility:
     @staticmethod
     def get_arr_span(
         suggested_arr, forward_delta, reverse_delta
-    ) -> Tuple[List[Union[Arrow, Any]], Arrow, Arrow]:
+    ) -> tuple[list[Arrow | Any], Arrow, Arrow]:
         """Returns a list of arrow objects in a custom ordered.
         Objects are ordered around the suggested date. For example,
         """
@@ -111,7 +111,7 @@ class Facility:
         span_lt = sorted(span_lt, key=methodcaller("date"), reverse=True)
         span_gt = [arw for arw in span if arw.date() > suggested_arr.date()]
         arr_span = []
-        max_len = len(span_gt) if len(span_gt) > len(span_lt) else len(span_lt)
+        max_len = max(len(span_lt), len(span_gt))
         for i in range(0, max_len):
             try:
                 item = span_lt.pop()
@@ -183,7 +183,7 @@ class Facility:
                     f"No available appointment dates at facility for period. "
                     f"Got no available dates within {reverse_delta.days}-"
                     f"{forward_delta.days} days of {formatted_date}. "
-                    f"Facility is {repr(self)}."
+                    f"Facility is {self!r}."
                 )
         available_arr = arrow.Arrow.fromdatetime(
             datetime.combine(available_arr.date(), suggested_arr.time())

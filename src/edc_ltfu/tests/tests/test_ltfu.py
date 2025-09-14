@@ -33,7 +33,6 @@ utc_tz = ZoneInfo("UTC")
 class TestLtfu(TestCase):
     @classmethod
     def setUpTestData(cls):
-
         site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
@@ -84,11 +83,11 @@ class TestLtfu(TestCase):
         class EndOfStudyAction(BaseEndOfStudyAction):
             reference_model = "edc_ltfu.offschedule"
             admin_site_name = "edc_ltfu_admin"
-            parent_action_names = [
+            parent_action_names = (
                 UNBLINDING_REVIEW_ACTION,
                 DEATH_REPORT_ACTION,
                 LTFU_ACTION,
-            ]
+            )
 
         site_action_items.register(TestLtfuAction)
         site_action_items.register(EndOfStudyAction)

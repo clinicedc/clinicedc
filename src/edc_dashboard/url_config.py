@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.urls.conf import re_path
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
     from .view_mixins import UrlRequestContextMixin
 
-    class View(UrlRequestContextMixin, BaseView): ...  # noqa
+    class View(UrlRequestContextMixin, BaseView): ...
 
 
 class UrlConfig:
@@ -22,7 +22,7 @@ class UrlConfig:
         self,
         url_name: str = None,
         namespace: str = None,
-        view_class: Type[View | UrlRequestContextMixin] = None,
+        view_class: type[View | UrlRequestContextMixin] = None,
         label: str = None,
         identifier_label: str = None,
         identifier_pattern: str = None,

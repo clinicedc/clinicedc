@@ -116,7 +116,7 @@ class VisitModelMixin(
                 "report_datetime",  # implies one visit per day!
             ),
         )
-        indexes = [
+        indexes = (
             models.Index(
                 fields=[
                     "subject_identifier",
@@ -126,5 +126,5 @@ class VisitModelMixin(
                     "visit_code_sequence",
                     "report_datetime",
                 ]
-            )
-        ]
+            ),
+        )

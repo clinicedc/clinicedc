@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from copy import deepcopy
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
@@ -25,7 +25,7 @@ __all__ = ["site_form_runners"]
 
 class SiteFormRunners:
     def __init__(self):
-        self.registry: dict[str, Type[FormRunner]] = {}
+        self.registry: dict[str, type[FormRunner]] = {}
         self.loaded = False
 
     def register(self, runner=None):

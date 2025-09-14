@@ -79,7 +79,7 @@ def match_country_and_country_code_or_raise(single_site: SingleSite, site_obj):
 
 def match_languages_or_raise(single_site: SingleSite, site_obj):
     value1 = single_site.languages
-    value2 = json.loads(getattr(site_obj.siteprofile, "languages"))
+    value2 = json.loads(site_obj.siteprofile.languages)
     if value1 != value2:
         raise SitesCheckError(
             f"Site table is out of sync. Checking {site_obj.id} "

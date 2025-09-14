@@ -15,11 +15,9 @@ class Manager(models.Manager):
 
 
 class ConfirmationAtSite(SiteModelMixin, BaseUuidModel):
-
     transfer_confirmation_identifier = models.CharField(
         max_length=36,
         unique=True,
-        null=True,
         blank=True,
         help_text="A sequential unique identifier set by the EDC",
     )
@@ -32,7 +30,7 @@ class ConfirmationAtSite(SiteModelMixin, BaseUuidModel):
         Location, on_delete=models.PROTECT, limit_choices_to={"site__isnull": False}
     )
 
-    comments = models.TextField(null=True, blank=True)
+    comments = models.TextField(default="", blank=True)
 
     objects = Manager()
 

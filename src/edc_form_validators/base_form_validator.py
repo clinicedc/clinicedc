@@ -45,7 +45,7 @@ class BaseFormValidator:
         self.data = {}
         if cleaned_data is None:
             raise ModelFormFieldValidatorError(
-                f"{repr(self)}. Expected a cleaned_data dictionary. Got None."
+                f"{self!r}. Expected a cleaned_data dictionary. Got None."
             )
         self.cleaned_data = copy(cleaned_data)
         self.original_cleaned_data = copy(cleaned_data)

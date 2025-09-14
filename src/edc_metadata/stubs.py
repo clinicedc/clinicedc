@@ -1,4 +1,4 @@
-from typing import Any, Protocol, Type
+from typing import Any, Protocol
 
 from django.db.models import Manager, Model, QuerySet
 
@@ -28,11 +28,11 @@ class VisitModel(Protocol):
     visit_schedule_name: str
     _meta: ModelMetaStub
 
-    def visit_schedule(self) -> VisitSchedule: ...  # noqa
+    def visit_schedule(self) -> VisitSchedule: ...
 
 
 class CrfMetadataModelStub(Protocol):
-    updater_cls = Type["CrfMetadataUpdaterStub"]
+    updater_cls = type["CrfMetadataUpdaterStub"]
     entry_status: str
     metadata_query_options: dict
     model: str
@@ -45,13 +45,13 @@ class CrfMetadataModelStub(Protocol):
     visit: VisitModel
     _meta: ModelMetaStub
 
-    def save(self, *args, **kwargs) -> None: ...  # noqa
+    def save(self, *args, **kwargs) -> None: ...
 
-    def delete(self) -> int: ...  # noqa
+    def delete(self) -> int: ...
 
-    def metadata_visit_object(self) -> Visit: ...  # noqa
+    def metadata_visit_object(self) -> Visit: ...
 
-    def refresh_from_db(self) -> None: ...  # noqa
+    def refresh_from_db(self) -> None: ...
 
 
 class PanelStub(Protocol):
@@ -59,7 +59,7 @@ class PanelStub(Protocol):
 
 
 class RequisitionMetadataModelStub(Protocol):
-    updater_cls = Type["RequisitionMetadataUpdaterStub"]
+    updater_cls = type["RequisitionMetadataUpdaterStub"]
     entry_status: str
     metadata_query_options: dict
     model: str
@@ -73,13 +73,13 @@ class RequisitionMetadataModelStub(Protocol):
     visit: VisitModel
     _meta: ModelMetaStub
 
-    def save(self, *args, **kwargs) -> None: ...  # noqa
+    def save(self, *args, **kwargs) -> None: ...
 
     def delete(self) -> int: ...
 
-    def metadata_visit_object(self) -> Visit: ...  # noqa
+    def metadata_visit_object(self) -> Visit: ...
 
-    def metadata_updater_cls(self, **opts: dict): ...  # noqa
+    def metadata_updater_cls(self, **opts: dict): ...
 
 
 class MetadataGetterStub(Protocol):
@@ -87,23 +87,23 @@ class MetadataGetterStub(Protocol):
     visit: RelatedVisitModelStub | None
 
 
-class CrfMetadataUpdaterStub(Protocol): ...  # noqa
+class CrfMetadataUpdaterStub(Protocol): ...
 
 
-class RequisitionMetadataUpdaterStub(Protocol): ...  # noqa
+class RequisitionMetadataUpdaterStub(Protocol): ...
 
 
-class RequisitionMetadataGetterStub(MetadataGetterStub, Protocol): ...  # noqa
+class RequisitionMetadataGetterStub(MetadataGetterStub, Protocol): ...
 
 
 class MetadataWrapperStub(Protocol):
     options: dict
     model_obj: CrfMetadataModelStub
-    model_cls: Type[CrfMetadataModelStub]
-    ...  # noqa
+    model_cls: type[CrfMetadataModelStub]
+    ...
 
 
-class RequisitionMetadataWrapperStub(MetadataWrapperStub, Protocol): ...  # noqa
+class RequisitionMetadataWrapperStub(MetadataWrapperStub, Protocol): ...
 
 
 class Predicate(Protocol):

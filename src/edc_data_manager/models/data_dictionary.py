@@ -11,7 +11,6 @@ class DataDictionaryManager(models.Manager):
 
 
 class DataDictionary(BaseUuidModel):
-
     # see edc_model_to_dataframe
     m2m_related_field = "model"
 
@@ -74,4 +73,4 @@ class DataDictionary(BaseUuidModel):
         verbose_name_plural = "Data Dictionary Items"
         default_permissions = ("view", "export")
         unique_together = (("model", "field_name"),)
-        indexes = [Index(fields=["model", "number", "prompt"])]
+        indexes = (Index(fields=["model", "number", "prompt"]),)

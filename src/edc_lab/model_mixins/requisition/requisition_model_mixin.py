@@ -110,7 +110,7 @@ class RequisitionModelMixin(
         ),
     )
 
-    comments = models.TextField(max_length=25, null=True, blank=True)
+    comments = models.TextField(max_length=25, blank=True, default="")
 
     objects = RequisitionManager()
 
@@ -130,7 +130,7 @@ class RequisitionModelMixin(
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.requisition_identifier,)  # noqa
+        return (self.requisition_identifier,)
 
     natural_key.dependencies = [settings.SUBJECT_VISIT_MODEL, "sites.Site"]
 
@@ -155,8 +155,9 @@ class RequisitionModelMixin(
             )
         ]
 
-        indexes = NonUniqueSubjectIdentifierFieldMixin.Meta.indexes + [
+        indexes = (
+            *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
             models.Index(fields=["subject_visit", "site", "panel"]),
             models.Index(fields=["subject_visit", "panel"]),
             models.Index(fields=["subject_visit", "report_datetime"]),
-        ]
+        )

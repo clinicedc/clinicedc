@@ -75,7 +75,7 @@ class ShortIdentifier:
             raise ShortIdentifierPrefixError(
                 "Prefix does not match prefix pattern. Got prefix=None."
             )
-        elif self.prefix and not self.prefix_pattern.match(self.prefix):
+        if self.prefix and not self.prefix_pattern.match(self.prefix):
             raise ShortIdentifierPrefixError(
                 "Prefix does not match prefix pattern. "
                 f"Got '{self.prefix}' does not match "

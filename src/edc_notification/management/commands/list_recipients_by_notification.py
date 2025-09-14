@@ -9,7 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for notification_cls in site_notifications.registry.values():
             notification = notification_cls()
-            print("")
+            print()
             print(notification.name)
             print(notification.display_name)
             print(f"email: {notification.email_to}")

@@ -13,7 +13,7 @@ class BaseModelFormMixinError(Exception):
     pass
 
 
-__all__ = ["BaseModelFormMixinError", "BaseModelFormMixin"]
+__all__ = ["BaseModelFormMixin", "BaseModelFormMixinError"]
 
 
 class BaseModelFormMixin(ReportDatetimeModelFormMixin):

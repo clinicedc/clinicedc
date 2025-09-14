@@ -35,19 +35,19 @@ if TYPE_CHECKING:
 
 
 __all__ = [
-    "SiteDoesNotExist",
     "AlreadyRegistered",
-    "AlreadyRegisteredName",
     "AlreadyRegisteredDomain",
+    "AlreadyRegisteredName",
+    "SiteDoesNotExist",
     "SiteNotRegistered",
     "SitesCheckError",
     "SitesError",
-    "get_register_default_site",
+    "get_autodiscover_sites",
     "get_default_country",
     "get_default_country_code",
     "get_default_domain",
     "get_insert_uat_subdomain",
-    "get_autodiscover_sites",
+    "get_register_default_site",
     "sites",
 ]
 
@@ -161,11 +161,11 @@ class Sites:
 
                 if single_site.site_id in self._registry:
                     raise AlreadyRegistered(f"Site already registered. Got `{single_site}`.")
-                elif single_site.name in [s.name for s in self._registry.values()]:
+                if single_site.name in [s.name for s in self._registry.values()]:
                     raise AlreadyRegisteredName(
                         f"Site with this name is already registered. Got `{single_site}`."
                     )
-                elif single_site.domain in [s.domain for s in self._registry.values()]:
+                if single_site.domain in [s.domain for s in self._registry.values()]:
                     raise AlreadyRegisteredDomain(
                         f"Site with this domain is already registered. Got `{single_site}`."
                     )
@@ -188,7 +188,7 @@ class Sites:
             else:
                 msg = f"Expected one of {[s.site_id for s in self.all(aslist=True)]}."
             raise SiteNotRegistered(
-                f"Site not registered. {msg} See {repr(self)}. Got `{site_id}`."
+                f"Site not registered. {msg} See {self!r}. Got `{site_id}`."
             )
         return self._registry.get(site_id)
 

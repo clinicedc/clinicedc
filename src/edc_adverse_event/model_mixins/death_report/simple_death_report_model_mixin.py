@@ -50,13 +50,14 @@ class SimpleDeathReportModelMixin(
 
     on_site = ActionIdentifierSiteManager()
 
-    def natural_key(self):
-        return (self.action_identifier,)
-
     class Meta(ActionModelMixin.Meta):
         abstract = True
         verbose_name = "Death Report"
         verbose_name_plural = "Death Reports"
-        indexes = ActionModelMixin.Meta.indexes + [
-            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
-        ]
+        indexes = (
+            *ActionModelMixin.Meta.indexes,
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"]),
+        )
+
+    def natural_key(self):
+        return (self.action_identifier,)

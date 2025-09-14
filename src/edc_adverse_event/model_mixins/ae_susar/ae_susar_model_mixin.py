@@ -34,7 +34,7 @@ class AeSusarModelMixin(
         verbose_name = "AE SUSAR Report"
         verbose_name_plural = "AE SUSAR Reports"
         indexes = (
-            NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
-            + ActionModelMixin.Meta.indexes
-            + [models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])]
+            *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
+            *ActionModelMixin.Meta.indexes,
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"]),
         )

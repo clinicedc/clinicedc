@@ -26,7 +26,7 @@ def get_subject_screening_app_label() -> str:
 
 
 def get_subject_screening_model() -> str:
-    return getattr(settings, "SUBJECT_SCREENING_MODEL")
+    return settings.SUBJECT_SCREENING_MODEL
 
 
 def get_subject_screening_model_cls() -> Any:
@@ -74,11 +74,9 @@ def get_subject_screening_or_raise(
     except ObjectDoesNotExist as e:
         if is_modelform:
             raise forms.ValidationError("Not allowed. Screening form not found.")
-        else:
-            raise ObjectDoesNotExist(
-                f"{e} screening_identifier={screening_identifier}. "
-                "Perhaps catch this in the form."
-            )
+        raise ObjectDoesNotExist(
+            f"{e} screening_identifier={screening_identifier}. Perhaps catch this in the form."
+        )
     return subject_screening
 
 

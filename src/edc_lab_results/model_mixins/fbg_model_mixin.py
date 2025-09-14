@@ -54,7 +54,7 @@ class FbgModelMixin(
     )
 
     def get_summary_options(self) -> dict:
-        opts = super().get_summary_options()  # noqa
+        opts = super().get_summary_options()
         fasting = True if self.fasting == FASTING else False
         opts.update(fasting=fasting)
         return opts

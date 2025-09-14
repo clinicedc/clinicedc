@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django_audit_fields import audit_fieldset_tuple
@@ -15,4 +13,4 @@ class ZplLabelTemplatesAdmin(ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    search_fields: Tuple[str, ...] = ("name",)
+    search_fields: tuple[str, ...] = ("name",)

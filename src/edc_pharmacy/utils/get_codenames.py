@@ -19,7 +19,7 @@ def get_codenames(
                 app_name, model_name = label_lower.split(".")
                 if label_lower in exclude_models:
                     continue
-                elif label_lower in view_only_models:
+                if label_lower in view_only_models:
                     codenames.append(f"{app_name}.view_{model_name}")
                 else:
                     for prefix in ["view_", "add_", "change_", "delete_"]:

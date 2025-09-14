@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.contrib import messages
@@ -37,14 +37,14 @@ def confirm_stock_at_site(
     See also: confirm_stock_action
     """
     confirmed_by = request.user.username
-    stock_model_cls: Type[Stock] = django_apps.get_model("edc_pharmacy.stock")
-    confirmation_at_site_model_cls: Type[ConfirmationAtSite] = django_apps.get_model(
+    stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
+    confirmation_at_site_model_cls: type[ConfirmationAtSite] = django_apps.get_model(
         "edc_pharmacy.confirmationatsite"
     )
-    confirmation_at_site_item_model_cls: Type[ConfirmationAtSiteItem] = django_apps.get_model(
+    confirmation_at_site_item_model_cls: type[ConfirmationAtSiteItem] = django_apps.get_model(
         "edc_pharmacy.confirmationatsiteitem"
     )
-    location_model_cls: Type[Location] = django_apps.get_model("edc_pharmacy.location")
+    location_model_cls: type[Location] = django_apps.get_model("edc_pharmacy.location")
 
     location = location_model_cls.objects.get(pk=location)
 
@@ -56,9 +56,10 @@ def confirm_stock_at_site(
     confirmed, already_confirmed, invalid = [], [], []
     stock_codes = [s.strip() for s in stock_codes]
     for stock_code in stock_codes:
-        if not stock_model_cls.objects.filter(code=stock_code).exists():
-            invalid.append(stock_code)
-        elif not stock_transfer.stocktransferitem_set.filter(stock__code=stock_code).exists():
+        if (
+            not stock_model_cls.objects.filter(code=stock_code).exists()
+            or not stock_transfer.stocktransferitem_set.filter(stock__code=stock_code).exists()
+        ):
             invalid.append(stock_code)
         else:
             try:

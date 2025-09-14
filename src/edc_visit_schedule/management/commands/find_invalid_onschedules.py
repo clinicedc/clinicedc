@@ -27,7 +27,7 @@ class Command(BaseCommand):
         for visit_schedule in site_visit_schedules.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
                 try:
-                    onschedule_model_cls = getattr(schedule, "onschedule_model_cls")
+                    onschedule_model_cls = schedule.onschedule_model_cls
                 except LookupError:
                     pass
                 else:

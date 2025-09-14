@@ -2,6 +2,9 @@ from django.db import models
 
 
 class AeTmgMethodsModelMixin(models.Model):
+    class Meta:
+        abstract = True
+
     def __str__(self):
         return f"{self.action_identifier[-9:]}"
 
@@ -10,7 +13,7 @@ class AeTmgMethodsModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.action_identifier,)  # noqa
+        return (self.action_identifier,)
 
     def get_action_item_reason(self):
         return self.ae_initial.ae_description
@@ -20,6 +23,3 @@ class AeTmgMethodsModelMixin(models.Model):
         fields.append("subject_identifier")
         fields.append("report_status")
         return fields
-
-    class Meta:
-        abstract = True

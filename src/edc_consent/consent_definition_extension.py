@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import KW_ONLY, dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -72,7 +72,7 @@ class ConsentDefinitionExtension:
         self.sort_index = self.name
         if not self.start.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
-        elif str(self.start.tzinfo) != "UTC":
+        if str(self.start.tzinfo) != "UTC":
             raise ConsentDefinitionError(f"Start date must be UTC. Got {self.start}.")
         self.extends.check_date_within_study_period()
 
@@ -98,7 +98,7 @@ class ConsentDefinitionExtension:
         return visits
 
     @property
-    def model_cls(self) -> Type[ConsentExtensionLikeModel]:
+    def model_cls(self) -> type[ConsentExtensionLikeModel]:
         return django_apps.get_model(self.model)
 
     @property

@@ -6,7 +6,7 @@ style = color_style()
 
 
 class Command(BaseCommand):
-    help = "Update search slugs if 'get_slugs' " "method definitions have changed."
+    help = "Update search slugs if 'get_slugs' method definitions have changed."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -31,9 +31,7 @@ class Command(BaseCommand):
             if "historical" not in model._meta.label_lower:
                 if hasattr(model, "update_search_slugs"):
                     self.stdout.write(
-                        self.style.WARNING(
-                            "Updating '{}' ...".format(model._meta.label_lower)
-                        ),
+                        self.style.WARNING(f"Updating '{model._meta.label_lower}' ..."),
                         ending="\r",
                     )
                     try:
@@ -42,20 +40,19 @@ class Command(BaseCommand):
                         if "update_search_slugs" in str(e):
                             raise CommandError(
                                 "Missing manager method 'update_search_slugs'. "
-                                "See model {}. Got {}".format(model._meta.label_lower, str(e))
+                                f"See model {model._meta.label_lower}. Got {e!s}"
                             )
-                        else:
-                            raise CommandError(e)
+                        raise CommandError(e)
                     except Exception as e:
                         raise CommandError(
-                            "An exception occurred when updating model {}. "
-                            "Got {}".format(model._meta.label_lower, e)
+                            f"An exception occurred when updating model {model._meta.label_lower}. "
+                            f"Got {e}"
                         )
                     else:
                         self.stdout.write(
                             self.style.SUCCESS(
-                                "Updating '{}' ... Done".format(model._meta.label_lower)
+                                f"Updating '{model._meta.label_lower}' ... Done"
                             )
                         )
                 else:
-                    self.stdout.write("------- {}".format(model._meta.label_lower))
+                    self.stdout.write(f"------- {model._meta.label_lower}")

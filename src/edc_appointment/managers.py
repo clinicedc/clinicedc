@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 from django.db import models, transaction
 from django.db.models.deletion import ProtectedError
@@ -43,7 +43,7 @@ class AppointmentManager(models.Manager):
         )
 
     @staticmethod
-    def get_query_options(**kwargs) -> Dict[Any]:
+    def get_query_options(**kwargs) -> dict[Any]:
         """Returns a dictionary or options.
 
         Dictionary is based on the appointment instance or everything
@@ -53,7 +53,7 @@ class AppointmentManager(models.Manager):
         schedule_name = kwargs.get("schedule_name")
         subject_identifier = kwargs.get("subject_identifier")
         visit_schedule_name = kwargs.get("visit_schedule_name")
-        options: Dict[Any] = dict(visit_code_sequence=0)
+        options: dict[Any] = dict(visit_code_sequence=0)
         try:
             options.update(
                 subject_identifier=appointment.subject_identifier,
@@ -76,7 +76,7 @@ class AppointmentManager(models.Manager):
                     f"Expected visit_schedule_name for schedule_name "
                     f"'{schedule_name}'. Got {visit_schedule_name}"
                 )
-            elif schedule_name:
+            if schedule_name:
                 options.update(schedule_name=schedule_name)
         return options
 

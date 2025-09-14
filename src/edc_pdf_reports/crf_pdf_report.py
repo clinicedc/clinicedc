@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from textwrap import fill
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from bs4 import BeautifulSoup
 from django.apps import apps as django_apps
@@ -131,7 +131,7 @@ class CrfPdfReport(Report):
         return f"{slugify(cls.get_verbose_name().lower())}s.pdf"
 
     @classmethod
-    def get_model_cls(cls) -> Type[CrfModelMixin | UniqueSubjectIdentifierModelMixin]:
+    def get_model_cls(cls) -> type[CrfModelMixin | UniqueSubjectIdentifierModelMixin]:
         return django_apps.get_model(cls.model)
 
     @classmethod

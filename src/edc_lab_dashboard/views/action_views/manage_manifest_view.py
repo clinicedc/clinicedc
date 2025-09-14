@@ -47,7 +47,7 @@ class ManageManifestView(EdcViewMixin, ManifestViewMixin, ActionView):
                 deleted = ManifestItem.objects.filter(
                     pk__in=self.selected_items, manifest__shipped=False
                 ).delete()
-                message = "{} items have been removed.".format(deleted[0])
+                message = f"{deleted[0]} items have been removed."
                 messages.success(self.request, message)
             except ProtectedError:
                 message = "Unable to remove. Manifest is not empty."

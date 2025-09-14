@@ -9,14 +9,9 @@ celery_enabled = getattr(settings, "CELERY_ENABLED", False)
 def run_task_sync_or_async(task, *args, **kwargs) -> AsyncResult:
     """Run a task with celery if running"""
 
-    if not celery_enabled:
+    if not celery_enabled or not celery_is_active() or current_app.conf.task_always_eager:
         return task(*args, **kwargs)
-    elif not celery_is_active():
-        return task(*args, **kwargs)
-    elif current_app.conf.task_always_eager:
-        return task(*args, **kwargs)
-    else:
-        return task.delay(*args, **kwargs)
+    return task.delay(*args, **kwargs)
 
 
 def celery_is_active() -> dict:
@@ -45,4 +40,4 @@ def get_task_result(obj) -> AsyncResult | None:
     return result
 
 
-__all__ = ["run_task_sync_or_async", "get_task_result", "celery_is_active"]
+__all__ = ["celery_is_active", "get_task_result", "run_task_sync_or_async"]

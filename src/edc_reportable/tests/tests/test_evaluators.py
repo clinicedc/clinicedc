@@ -155,9 +155,9 @@ class TestEvaluators(TestCase):
         rdelta = age(dob, report_datetime)
 
         self.assertEqual(age(dob, report_datetime).years, 25)
-        self.assertTrue(24 < getattr(rdelta, "years") < 26)
-        self.assertFalse(25 < getattr(rdelta, "years") < 26)
-        self.assertFalse(24 < getattr(rdelta, "years") < 25)
+        self.assertTrue(24 < rdelta.years < 26)
+        self.assertFalse(25 < rdelta.years < 26)
+        self.assertFalse(24 < rdelta.years < 25)
 
         age_eval = AgeEvaluator(age_lower=24, age_upper=26)
         self.assertTrue(repr(age_eval))

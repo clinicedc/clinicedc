@@ -12,7 +12,7 @@ class SubjectTransferAction(ActionWithNotification):
     name = SUBJECT_TRANSFER_ACTION
     display_name = "Submit Subject Transfer"
     notification_display_name = " Subject Transfer"
-    parent_action_names = []
+    parent_action_names = ()
     show_link_to_changelist = True
     show_link_to_add = True
     priority = HIGH_PRIORITY

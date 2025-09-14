@@ -39,7 +39,7 @@ class TestExport(TestCase):
     def test_tables_to_csv_lower_columns(self):
         tables_exporter = TablesExporter(app_label="edc_pdutils")
         for path in tables_exporter.exported_paths.values():
-            with open(path, "r") as f:
+            with open(path) as f:
                 csv_reader = csv.DictReader(f, delimiter="|")
                 for row in csv_reader:
                     for field in row:
@@ -49,7 +49,7 @@ class TestExport(TestCase):
     def test_tables_to_csv_from_app_label(self):
         tables_exporter = TablesExporter(app_label="edc_pdutils")
         for path in tables_exporter.exported_paths.values():
-            with open(path, "r") as f:
+            with open(path) as f:
                 csv_reader = csv.DictReader(f, delimiter="|")
                 rows = [row for row in enumerate(csv_reader)]
             self.assertGreater(len(rows), 0)

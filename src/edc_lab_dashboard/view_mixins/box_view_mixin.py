@@ -74,9 +74,7 @@ class BoxViewMixin(ContextMixin):
                         box=self.box, identifier=self.box_item_identifier
                     )
                 except ObjectDoesNotExist:
-                    message = "Invalid box item. Got {}".format(
-                        self.original_box_item_identifier
-                    )
+                    message = f"Invalid box item. Got {self.original_box_item_identifier}"
                     messages.error(self.request, message)
         return self._box_item
 
@@ -85,7 +83,7 @@ class BoxViewMixin(ContextMixin):
         try:
             box_item = BoxItem.objects.get(box=self.box, position=position)
         except ObjectDoesNotExist:
-            message = "Invalid position for box. Got {}".format(position)
+            message = f"Invalid position for box. Got {position}"
             messages.error(self.request, message)
             return None
         return box_item
@@ -103,15 +101,12 @@ class BoxViewMixin(ContextMixin):
             # raise BoxViewError(message)
         else:
             if obj.is_primary and not self.box.accept_primary:
-                message = 'Box does not accept "primary" specimens. Got {} is primary.'.format(
-                    self.original_box_item_identifier
-                )
+                message = f'Box does not accept "primary" specimens. Got {self.original_box_item_identifier} is primary.'
                 messages.error(self.request, message)
                 # raise BoxViewError(message)
             elif obj.numeric_code not in self.box.specimen_types.split(","):
                 message = (
-                    "Invalid specimen type. Box accepts types {}. "
-                    "Got {} is type {}.".format(
+                    "Invalid specimen type. Box accepts types {}. Got {} is type {}.".format(
                         ", ".join(self.box.specimen_types.split(",")),
                         self.original_box_item_identifier,
                         obj.numeric_code,

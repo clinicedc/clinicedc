@@ -88,7 +88,7 @@ class TestAction(TestCaseMixin, TestCase):
         self.assertEqual(action_item.reference_model, obj._meta.label_lower)
         self.assertTrue(action_item.linked_to_reference)
         self.assertIsNone(action_item.related_action_item)
-        self.assertIsNone(action_item.related_reference_model)
+        self.assertEqual(action_item.related_reference_model, "")
         self.assertIsNone(action_item.parent_action_item)
         # self.assertIsNone(action_item.parent_reference_model)
         self.assertIsNone(action_item.parent_action_item)

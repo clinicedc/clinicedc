@@ -79,11 +79,10 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
     def visit_reason(obj=None) -> str:
         if obj.reason != UNSCHEDULED:
             visit_reason = obj.get_reason_display()
+        elif obj.reason_unscheduled == OTHER:
+            visit_reason = obj.reason_unscheduled_other
         else:
-            if obj.reason_unscheduled == OTHER:
-                visit_reason = obj.reason_unscheduled_other
-            else:
-                visit_reason = obj.get_reason_unscheduled_display()
+            visit_reason = obj.get_reason_unscheduled_display()
         return visit_reason
 
     @staticmethod

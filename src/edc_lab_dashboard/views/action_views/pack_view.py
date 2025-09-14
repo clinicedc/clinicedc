@@ -29,16 +29,15 @@ class PackView(EdcViewMixin, LabPrintersMixin, ActionView):
         if not self.selected_items:
             message = "Nothing to do. No items have been selected."
             messages.warning(request, message)
-        else:
-            if self.action == "remove_selected_items":
-                self.remove_selected_items()
-            elif self.action == "add_selected_to_manifest":
-                if self.selected_manifest:
-                    self.add_selected_to_manifest()
-            elif self.action == "print_labels":
-                job_result = self.print_labels(pks=self.selected_items, request=request)
-                if job_result:
-                    add_job_results_to_messages(request, [job_result])
+        elif self.action == "remove_selected_items":
+            self.remove_selected_items()
+        elif self.action == "add_selected_to_manifest":
+            if self.selected_manifest:
+                self.add_selected_to_manifest()
+        elif self.action == "print_labels":
+            job_result = self.print_labels(pks=self.selected_items, request=request)
+            if job_result:
+                add_job_results_to_messages(request, [job_result])
 
     @property
     def selected_manifest(self):
@@ -77,9 +76,7 @@ class PackView(EdcViewMixin, LabPrintersMixin, ActionView):
                     else:
                         break
                 if added > 0:
-                    message = "{} items have been added to manifest {}.".format(
-                        added, self.selected_manifest.human_readable_identifier
-                    )
+                    message = f"{added} items have been added to manifest {self.selected_manifest.human_readable_identifier}."
                     messages.success(self.request, message)
             except ProtectedError:
                 message = "Unable to remove. Box is not empty."
@@ -93,7 +90,7 @@ class PackView(EdcViewMixin, LabPrintersMixin, ActionView):
         else:
             try:
                 deleted = Box.objects.filter(pk__in=self.selected_items).delete()
-                message = "{} items have been removed.".format(deleted[0])
+                message = f"{deleted[0]} items have been removed."
                 messages.success(self.request, message)
             except ProtectedError:
                 message = "Unable to remove. Box is not empty."

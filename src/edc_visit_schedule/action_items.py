@@ -11,10 +11,10 @@ class OffscheduleAction(ActionWithNotification):
     name = OFFSCHEDULE_ACTION
     display_name = "Submit Off-Schedule"
     notification_display_name = "Off-Schedule"
-    parent_action_names = [
+    parent_action_names = (
         DEATH_REPORT_ACTION,
         LTFU_ACTION,
-    ]
+    )
     reference_model = "edc_visit_schedule.offschedule"
     show_link_to_changelist = True
     admin_site_name = "edc_visit_schedule_admin"

@@ -1,5 +1,3 @@
-from typing import Optional, Type
-
 from django.db import models
 
 from .field_attrs import get_field_attrs_for_utestid
@@ -10,13 +8,13 @@ __all__ = ["result_model_mixin_factory"]
 def result_model_mixin_factory(
     utest_id: str,
     units_choices: tuple,
-    default_units: Optional[str] = None,
-    verbose_name: Optional[str] = None,
-    decimal_places: Optional[int] = None,
-    max_digits: Optional[int] = None,
-    validators: Optional[list] = None,
-    help_text: Optional[str] = None,
-) -> Type[models.Model]:
+    default_units: str | None = None,
+    verbose_name: str | None = None,
+    decimal_places: int | None = None,
+    max_digits: int | None = None,
+    validators: list | None = None,
+    help_text: str | None = None,
+) -> type[models.Model]:
     """Returns an abstract model class with a single field class"""
 
     class AbstractModel(models.Model):

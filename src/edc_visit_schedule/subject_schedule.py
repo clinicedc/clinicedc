@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     class RelatedVisitModel(SiteModelMixin, Base, BaseUuidModel):
         pass
 
-    class OnScheduleLikeModel(OnScheduleModelMixin): ...  # noqa
+    class OnScheduleLikeModel(OnScheduleModelMixin): ...
 
 
 class SubjectSchedule:
@@ -80,19 +80,19 @@ class SubjectSchedule:
         return f"{self.subject_identifier} {self.visit_schedule_name}.{self.schedule_name}"
 
     @property
-    def onschedule_model_cls(self) -> Type[OnSchedule]:
+    def onschedule_model_cls(self) -> type[OnSchedule]:
         return django_apps.get_model(self.onschedule_model)
 
     @property
-    def offschedule_model_cls(self) -> Type[OffSchedule]:
+    def offschedule_model_cls(self) -> type[OffSchedule]:
         return django_apps.get_model(self.offschedule_model)
 
     @property
-    def history_model_cls(self) -> Type[SubjectScheduleHistory]:
+    def history_model_cls(self) -> type[SubjectScheduleHistory]:
         return django_apps.get_model(self.history_model)
 
     @property
-    def appointment_model_cls(self) -> Type[Appointment]:
+    def appointment_model_cls(self) -> type[Appointment]:
         return django_apps.get_model(self.appointment_model)
 
     def put_on_schedule(
@@ -397,4 +397,3 @@ class SubjectSchedule:
                 f"Got '{self.subject_identifier}' was taken "
                 f"off this schedule on '{formatted_offschedule_datetime}'."
             )
-        return None

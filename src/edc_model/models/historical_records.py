@@ -13,7 +13,7 @@ class SerializableModel(models.Model):
     objects = SerializableModelManager()
 
     def natural_key(self) -> tuple:
-        return (self.history_id,)  # noqa
+        return (self.history_id,)
 
     def related_visit_model_attr(self):
         try:
@@ -37,7 +37,7 @@ class SerializableCrfModel(models.Model):
         return NotImplemented(self)
 
     def natural_key(self) -> tuple:
-        return (self.history_id,)  # noqa
+        return (self.history_id,)
 
     class Meta:
         abstract = True

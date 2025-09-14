@@ -3,7 +3,7 @@ from dateutil.relativedelta import relativedelta
 from edc_utils import age, get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
 
-__all__ = ["calculate_bmi", "BMI", "CalculatorError"]
+__all__ = ["BMI", "CalculatorError", "calculate_bmi"]
 
 
 class CalculatorError(Exception):

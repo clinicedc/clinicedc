@@ -41,7 +41,7 @@ class Manifest:
         """
         added = 0
         if not box:
-            message = "Box does not exist. Got {}.".format(manifest_item_identifier)
+            message = f"Box does not exist. Got {manifest_item_identifier}."
             messages.error(self.request, message)
         elif self.validate_box_category(box) and self.validate_box_verified(box):
             try:
@@ -77,8 +77,8 @@ class Manifest:
                     )
                     messages.error(self.request, message)
             else:
-                message = "Duplicate item. Got {}.".format(
-                    manifest_item.manifest.human_readable_identifier
+                message = (
+                    f"Duplicate item. Got {manifest_item.manifest.human_readable_identifier}."
                 )
                 messages.error(self.request, message)
         return added
@@ -86,9 +86,7 @@ class Manifest:
     def validate_box_category(self, box=None):
         """Returns True if box category matches manifest category."""
         if box.category != self.manifest.category:
-            message = "Invalid category. Manifest accepts {}. Got {}.".format(
-                self.manifest.get_category_display(), box.get_category_display()
-            )
+            message = f"Invalid category. Manifest accepts {self.manifest.get_category_display()}. Got {box.get_category_display()}."
             messages.error(self.request, message)
             return False
         return True
@@ -96,7 +94,7 @@ class Manifest:
     def validate_box_verified(self, box=None):
         """Returns True if box status is verified."""
         if box.status != VERIFIED:
-            message = "Box is not verified. Got {}.".format(box.human_readable_identifier)
+            message = f"Box is not verified. Got {box.human_readable_identifier}."
             messages.error(self.request, message)
             return False
         return True

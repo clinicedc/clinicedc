@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -57,12 +57,11 @@ class RuleEvaluator:
         if predicate:
             if self.logic.consequence != DO_NOTHING:
                 self.result = self.logic.consequence
-        else:
-            if self.logic.alternative != DO_NOTHING:
-                self.result = self.logic.alternative
+        elif self.logic.alternative != DO_NOTHING:
+            self.result = self.logic.alternative
 
     @property
-    def registered_subject_model(self) -> Type[RegisteredSubject]:
+    def registered_subject_model(self) -> type[RegisteredSubject]:
         return get_registered_subject_model_cls()
 
     @property
@@ -75,7 +74,7 @@ class RuleEvaluator:
                 )
             except ObjectDoesNotExist as e:
                 raise RuleEvaluatorRegisterSubjectError(
-                    f"Registered subject required for rule {repr(self)}. "
+                    f"Registered subject required for rule {self!r}. "
                     f"subject_identifier='{self.related_visit.subject_identifier}'. "
                     f"Got {e}."
                 )

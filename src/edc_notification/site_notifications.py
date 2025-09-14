@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import sys
 from json.decoder import JSONDecodeError
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -39,7 +39,7 @@ class NotificationNotRegistered(Exception):
 
 class SiteNotifications:
     def __init__(self):
-        self._registry: dict[str, Type[ActionItemNotification | Notification]] = {}
+        self._registry: dict[str, type[ActionItemNotification | Notification]] = {}
         self.loaded = False
         self.models = {}
 
@@ -55,7 +55,7 @@ class SiteNotifications:
             )
         return self._registry
 
-    def get(self, name) -> Type[Notification]:
+    def get(self, name) -> type[Notification]:
         """Returns a Notification by name."""
         if not self.loaded:
             raise RegistryNotLoaded(self)
@@ -63,7 +63,7 @@ class SiteNotifications:
             raise NotificationNotRegistered(f"Notification not registered. Got '{name}'.")
         return self._registry.get(name)
 
-    def register(self, notification_cls: Type[Notification] = None):
+    def register(self, notification_cls: type[Notification] = None):
         """Registers a Notification class unique by name."""
         self.loaded = True
         display_names = [n.display_name for n in self.registry.values()]
@@ -75,7 +75,7 @@ class SiteNotifications:
 
             models = getattr(notification_cls, "models", [])
             if not models and getattr(notification_cls, "model", None):
-                models = [getattr(notification_cls, "model")]
+                models = [notification_cls.model]
             for model in models:
                 try:
                     if notification_cls.name not in [n.name for n in self.models[model]]:
@@ -104,7 +104,7 @@ class SiteNotifications:
 
     def update_notification_list(
         self, apps: django_apps = None, schema_editor=None, verbose=False
-    ):  # noqa
+    ):
         """Updates the notification model to ensure all registered
         notifications classes are listed.
 
@@ -174,7 +174,7 @@ class SiteNotifications:
                     response = manager.create()
                 except ConnectionError as e:
                     sys.stdout.write(
-                        style.ERROR(f"  * Failed to create mailing list {name}. " f"Got {e}\n")
+                        style.ERROR(f"  * Failed to create mailing list {name}. Got {e}\n")
                     )
                 else:
                     if verbose:

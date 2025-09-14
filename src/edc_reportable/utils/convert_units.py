@@ -34,14 +34,13 @@ def micromoles_per_liter_to(
 ) -> dict:
     if units_to == MICROMOLES_PER_LITER:
         return {MICROMOLES_PER_LITER: float(value)}
-    elif units_to == MILLIMOLES_PER_LITER:
+    if units_to == MILLIMOLES_PER_LITER:
         return {MILLIMOLES_PER_LITER: float(value) / 1000.00}
-    elif units_to == GRAMS_PER_LITER:
+    if units_to == GRAMS_PER_LITER:
         return {GRAMS_PER_LITER: (float(value) * get_mw(label)) / 100.00}
-    elif units_to == MILLIGRAMS_PER_DECILITER:
+    if units_to == MILLIGRAMS_PER_DECILITER:
         return {MILLIGRAMS_PER_DECILITER: (float(value) * get_mw(label)) / 10000.00}
-    else:
-        raise ConversionNotHandled(f"Conversion not found. Tried umol/L to {units_to}. ")
+    raise ConversionNotHandled(f"Conversion not found. Tried umol/L to {units_to}. ")
 
 
 def milligrams_per_deciliter_to(
@@ -49,16 +48,15 @@ def milligrams_per_deciliter_to(
 ) -> dict[str:float]:
     if units_to == MILLIGRAMS_PER_DECILITER:
         return {MILLIGRAMS_PER_DECILITER: float(value)}
-    elif units_to == MILLIMOLES_PER_LITER:
+    if units_to == MILLIMOLES_PER_LITER:
         return {MILLIMOLES_PER_LITER: (float(value) * 10.00) / get_mw(label)}
-    elif units_to == MICROMOLES_PER_LITER:
+    if units_to == MICROMOLES_PER_LITER:
         return {MICROMOLES_PER_LITER: (float(value) * 10000.00) / get_mw(label)}
-    elif units_to == MILLIGRAMS_PER_LITER:
+    if units_to == MILLIGRAMS_PER_LITER:
         return {MILLIGRAMS_PER_LITER: float(value) * 10.00}
-    elif units_to == GRAMS_PER_LITER:
+    if units_to == GRAMS_PER_LITER:
         return {GRAMS_PER_LITER: float(value) / 100.00}
-    else:
-        raise ConversionNotHandled(f"Conversion not found. Tried mg/dL to {units_to}. ")
+    raise ConversionNotHandled(f"Conversion not found. Tried mg/dL to {units_to}. ")
 
 
 class UnitsConverter:
@@ -79,7 +77,7 @@ class UnitsConverter:
 
         if label is None:
             raise ValueError("label is required. See convert_units.")
-        elif value is not None and units_from and units_to and units_from != units_to:
+        if value is not None and units_from and units_to and units_from != units_to:
             self.converted_value = self.get_converted_value()
         elif units_from == units_to:
             self.converted_value = value

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from ..model_mixins import ManifestModelMixin
 
-    class Model(PdfReportModelMixin, ManifestModelMixin, BaseUuidModel): ...  # noqa
+    class Model(PdfReportModelMixin, ManifestModelMixin, BaseUuidModel): ...
 
 
 class ManifestPdfReportError(Exception):
@@ -403,7 +403,7 @@ class ManifestPdfReport(Report):
                     ),
                     Paragraph(box.specimen_types, self.styles["line_data_large"]),
                     Paragraph(
-                        f"{str(box.count)}/{str(box.box_type.total)}",
+                        f"{box.count!s}/{box.box_type.total!s}",
                         self.styles["line_data_large"],
                     ),
                     Paragraph(
@@ -450,11 +450,7 @@ class ManifestPdfReport(Report):
                         Paragraph(aliquot.human_readable_identifier, self.styles["row_data"]),
                         Paragraph(aliquot.subject_identifier, self.styles["row_data"]),
                         Paragraph(
-                            "{} ({}) {}".format(
-                                aliquot.aliquot_type,
-                                aliquot.numeric_code,
-                                panel_object.abbreviation,
-                            ),
+                            f"{aliquot.aliquot_type} ({aliquot.numeric_code}) {panel_object.abbreviation}",
                             self.styles["row_data"],
                         ),
                         Paragraph(

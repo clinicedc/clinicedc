@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from edc_constants.constants import NOT_APPLICABLE
 
@@ -13,8 +13,8 @@ class ApplicableFieldValidator(BaseFormValidator):
     def raise_applicable(
         self,
         field,
-        msg: Optional[str] = None,
-        applicable_msg: Optional[str] = None,
+        msg: str | None = None,
+        applicable_msg: str | None = None,
     ) -> None:
         message = {field: applicable_msg or f"This field is applicable. {msg or ''}".strip()}
         self.raise_validation_error(message, APPLICABLE_ERROR)
@@ -22,8 +22,8 @@ class ApplicableFieldValidator(BaseFormValidator):
     def raise_not_applicable(
         self,
         field,
-        msg: Optional[str] = None,
-        not_applicable_msg: Optional[str] = None,
+        msg: str | None = None,
+        not_applicable_msg: str | None = None,
     ) -> None:
         message = {
             field: not_applicable_msg or f"This field is not applicable. {msg or ''}".strip()
@@ -35,11 +35,11 @@ class ApplicableFieldValidator(BaseFormValidator):
         *responses: Any,
         field: str = None,
         field_applicable: str = None,
-        inverse: Optional[bool] = None,
-        is_instance_field: Optional[bool] = None,
-        msg: Optional[str] = None,
-        applicable_msg: Optional[str] = None,
-        not_applicable_msg: Optional[str] = None,
+        inverse: bool | None = None,
+        is_instance_field: bool | None = None,
+        msg: str | None = None,
+        applicable_msg: str | None = None,
+        not_applicable_msg: str | None = None,
         not_applicable_value=None,
     ) -> bool:
         return self.applicable(
@@ -59,11 +59,11 @@ class ApplicableFieldValidator(BaseFormValidator):
         *responses: Any,
         field: str = None,
         field_applicable: str = None,
-        inverse: Optional[bool] = None,
-        is_instance_field: Optional[bool] = None,
-        msg: Optional[str] = None,
-        applicable_msg: Optional[str] = None,
-        not_applicable_msg: Optional[str] = None,
+        inverse: bool | None = None,
+        is_instance_field: bool | None = None,
+        msg: str | None = None,
+        applicable_msg: str | None = None,
+        not_applicable_msg: str | None = None,
         not_applicable_value=None,
     ) -> bool:
         return self.not_applicable(
@@ -87,7 +87,7 @@ class ApplicableFieldValidator(BaseFormValidator):
         field_applicable_value = self.get(field_applicable)
 
         if field_value in responses and (
-            (field_applicable_value and field_applicable_value is not None)
+            field_applicable_value and field_applicable_value is not None
         ):
             self.raise_not_applicable(field_applicable)
         return False
@@ -97,11 +97,11 @@ class ApplicableFieldValidator(BaseFormValidator):
         *responses: Any,
         field: str = None,
         field_applicable: str = None,
-        inverse: Optional[bool] = None,
-        is_instance_field: Optional[bool] = None,
-        msg: Optional[str] = None,
-        applicable_msg: Optional[str] = None,
-        not_applicable_msg: Optional[str] = None,
+        inverse: bool | None = None,
+        is_instance_field: bool | None = None,
+        msg: str | None = None,
+        applicable_msg: str | None = None,
+        not_applicable_msg: str | None = None,
         not_applicable_value=None,
     ) -> bool:
         """Returns False or raises a validation error for field
@@ -135,11 +135,11 @@ class ApplicableFieldValidator(BaseFormValidator):
         *responses: Any,
         field: str = None,
         field_applicable: str = None,
-        inverse: Optional[bool] = None,
-        is_instance_field: Optional[bool] = None,
-        msg: Optional[str] = None,
-        applicable_msg: Optional[str] = None,
-        not_applicable_msg: Optional[str] = None,
+        inverse: bool | None = None,
+        is_instance_field: bool | None = None,
+        msg: str | None = None,
+        applicable_msg: str | None = None,
+        not_applicable_msg: str | None = None,
         not_applicable_value=None,
     ) -> bool:
         """Returns False or raises a validation error for field
@@ -166,9 +166,9 @@ class ApplicableFieldValidator(BaseFormValidator):
         self,
         condition: bool,
         field_applicable: str = None,
-        applicable_msg: Optional[str] = None,
-        not_applicable_msg: Optional[str] = None,
-        inverse: Optional[bool] = None,
+        applicable_msg: str | None = None,
+        not_applicable_msg: str | None = None,
+        inverse: bool | None = None,
         not_applicable_value=None,
     ) -> bool:
         inverse = True if inverse is None else inverse
@@ -189,9 +189,9 @@ class ApplicableFieldValidator(BaseFormValidator):
         self,
         condition: bool,
         field_applicable: str = None,
-        applicable_msg: Optional[str] = None,
-        not_applicable_msg: Optional[str] = None,
-        inverse: Optional[bool] = None,
+        applicable_msg: str | None = None,
+        not_applicable_msg: str | None = None,
+        inverse: bool | None = None,
         not_applicable_value=None,
     ) -> bool:
         inverse = True if inverse is None else inverse

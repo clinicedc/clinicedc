@@ -29,7 +29,6 @@ from .repack_request import RepackRequest
 
 
 class Stock(BaseUuidModel):
-
     stock_identifier = models.CharField(
         verbose_name="Internal stock identifier",
         max_length=36,
@@ -208,7 +207,7 @@ class Stock(BaseUuidModel):
         obj: Stock = self
         receive_item = self.receive_item
         while not receive_item:
-            obj = obj.from_stock  # noqa
+            obj = obj.from_stock
             receive_item = obj.receive_item
         return receive_item
 

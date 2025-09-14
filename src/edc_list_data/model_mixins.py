@@ -54,13 +54,11 @@ class BaseListModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple:
-        return (self.name,)  # noqa
+        return (self.name,)
 
     class Meta:
         abstract = True
-        indexes = [
-            models.Index(fields=["display_index", "display_name"]),
-        ]
+        indexes = (models.Index(fields=["display_index", "display_name"]),)
         default_permissions = ("add", "change", "delete", "view", "export", "import")
 
 
@@ -104,4 +102,4 @@ class ListUuidModelMixin(BaseListModelMixin, BaseUuidModel):
 
     class Meta(BaseListModelMixin.Meta, BaseUuidModel.Meta):
         abstract = True
-        indexes = BaseListModelMixin.Meta.indexes + BaseUuidModel.Meta.indexes
+        indexes = (*BaseListModelMixin.Meta.indexes, *BaseUuidModel.Meta.indexes)

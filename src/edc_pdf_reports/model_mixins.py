@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.core.handlers.wsgi import WSGIRequest
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class PdfReportModelMixin:
-    pdf_report_cls: Type[CrfPdfReport]
+    pdf_report_cls: type[CrfPdfReport]
 
     def get_pdf_report(self: ModelMixin, request: WSGIRequest):
         return self.pdf_report_cls(model_obj=self, request=request, user=request.user)

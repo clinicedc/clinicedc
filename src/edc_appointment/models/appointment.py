@@ -26,4 +26,4 @@ class Appointment(AppointmentModelMixin, SiteModelMixin, BaseUuidModel):
     natural_key.dependencies = ["sites.Site"]  # type: ignore
 
     class Meta(AppointmentModelMixin.Meta, SiteModelMixin.Meta, BaseUuidModel.Meta):
-        indexes = AppointmentModelMixin.Meta.indexes + BaseUuidModel.Meta.indexes
+        indexes = (*AppointmentModelMixin.Meta.indexes, *BaseUuidModel.Meta.indexes)

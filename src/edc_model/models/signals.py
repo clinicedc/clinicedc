@@ -16,7 +16,7 @@ def remove_f_expressions(sender, instance, history_instance, **kwargs) -> None:
     django-simple-history-by-overriding-save/62369328#62369328
     """
     f_expression_fields = []
-    for field in history_instance._meta.fields:  # noqa
+    for field in history_instance._meta.fields:
         field_value = getattr(history_instance, field.name)
         if isinstance(field_value, expressions.BaseExpression):
             f_expression_fields.append(field.name)

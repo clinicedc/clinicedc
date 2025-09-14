@@ -59,7 +59,7 @@ class TestApplicableFieldValidator(TestCase):
         """
         form_validator = FormValidator(
             cleaned_data=dict(
-                field_one=("test_con1" == YES and "test_con2" == YES),
+                field_one=(YES == "test_con1" and YES == "test_con2"),
                 field_two=NOT_APPLICABLE,
             )
         )

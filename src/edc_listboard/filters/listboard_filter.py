@@ -24,8 +24,8 @@ class ListboardFilter:
 
     def __repr__(self):
         return (
-            "{0.__class__.__name__}({0.name}, {0.label}, "
-            "exclude_filter={0.exclude_filter}, {0.default})".format(self)
+            f"{self.__class__.__name__}({self.name}, {self.label}, "
+            f"exclude_filter={self.exclude_filter}, {self.default})"
         )
 
     @property

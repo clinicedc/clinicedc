@@ -9,11 +9,11 @@ class NotificationMixin(models.Model):
 
     subject = models.CharField(max_length=200)
 
-    recipient_list = models.TextField(null=True)
+    recipient_list = models.TextField(null=True, default="")
 
-    cc_list = models.TextField(null=True)
+    cc_list = models.TextField(null=True, default="")
 
-    body = models.TextField(null=True)
+    body = models.TextField(null=True, default="")
 
     status = models.CharField(
         max_length=15,
@@ -27,4 +27,4 @@ class NotificationMixin(models.Model):
 
     class Meta:
         abstract = True
-        indexes = [Index(fields=["notification_datetime"])]
+        indexes = (Index(fields=["notification_datetime"]),)

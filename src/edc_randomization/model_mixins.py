@@ -72,7 +72,7 @@ class RandomizationListModelMixin(models.Model):
     def save(self, *args, **kwargs):
         self.randomizer_name = self.randomizer_cls.name
         try:
-            getattr(self, "assignment_description")
+            self.assignment_description
         except RandomizationError as e:
             raise RandomizationListModelError(e)
         try:
@@ -80,7 +80,7 @@ class RandomizationListModelMixin(models.Model):
         except ObjectDoesNotExist:
             site_names = [obj.name for obj in Site.objects.all()]
             raise RandomizationListModelError(
-                f"Invalid site name. Got {self.site_name}. " f"Expected one of {site_names}."
+                f"Invalid site name. Got {self.site_name}. Expected one of {site_names}."
             )
         super().save(*args, **kwargs)
 
@@ -105,7 +105,7 @@ class RandomizationListModelMixin(models.Model):
         return self.assignment
 
     def natural_key(self):
-        return (self.sid,)  # noqa
+        return (self.sid,)
 
     class Meta:
         abstract = True

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -83,7 +83,7 @@ class CrfFormValidatorMixin(BaseFormValidatorMixin):
         return get_related_visit(self, related_visit_model_attr=self.related_visit_model_attr)
 
     @property
-    def related_visit_model_cls(self) -> Type[RelatedVisitModel]:
+    def related_visit_model_cls(self) -> type[RelatedVisitModel]:
         """Returns a subject visit model instance or None"""
         return get_related_visit(
             self, related_visit_model_attr=self.related_visit_model_attr

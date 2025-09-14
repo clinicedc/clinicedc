@@ -9,7 +9,6 @@ from .qa_reports_permissions import qa_reports_permissions
 
 
 class QaReportModelMixin(models.Model):
-
     report_model = models.CharField(max_length=50)
 
     subject_identifier = models.CharField(max_length=25)
@@ -18,6 +17,9 @@ class QaReportModelMixin(models.Model):
 
     created = models.DateTimeField(default=get_utcnow)
 
+    def __str__(self):
+        return f"{self.subject_identifier}: {self.report_model}"
+
     @classmethod
     def recreate_db_view(cls, drop: bool | None = None, verbose: bool | None = None):
         recreate_db_view(cls, drop=drop, verbose=verbose)
@@ -25,4 +27,4 @@ class QaReportModelMixin(models.Model):
     class Meta:
         abstract = True
         default_permissions = qa_reports_permissions
-        indexes = [Index(fields=["subject_identifier", "site"])]
+        indexes = (Index(fields=["subject_identifier", "site"]),)

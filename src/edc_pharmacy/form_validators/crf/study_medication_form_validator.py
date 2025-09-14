@@ -110,11 +110,10 @@ class StudyMedicationFormValidator(CrfFormValidator):
     def medication(self) -> Medication:
         if self.formulation:
             return self.formulation.medication
-        else:
-            self.raise_validation_error(
-                {"__all__": "Need the formulation to look up the prescription."},
-                INVALID_ERROR,
-            )
+        self.raise_validation_error(
+            {"__all__": "Need the formulation to look up the prescription."},
+            INVALID_ERROR,
+        )
 
     @property
     def next_appointment(self) -> Appointment | None:
@@ -154,9 +153,10 @@ class StudyMedicationFormValidator(CrfFormValidator):
                 "Subject is not receiving study medication. Refill end date "
                 "and time must exactly match refill start date and time."
             )
-            if not self.refill_end_datetime:
-                self.raise_validation_error({"refill_end_datetime": error_msg}, INVALID_ERROR)
-            elif self.refill_start_datetime != self.refill_end_datetime:
+            if (
+                not self.refill_end_datetime
+                or self.refill_start_datetime != self.refill_end_datetime
+            ):
                 self.raise_validation_error({"refill_end_datetime": error_msg}, INVALID_ERROR)
 
         if (

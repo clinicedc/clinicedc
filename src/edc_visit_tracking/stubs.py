@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Protocol, TypeVar, Union
+from typing import Protocol, TypeVar
 
 from django.db import models
 
@@ -7,15 +7,15 @@ from edc_model.stubs import ModelMetaStub
 
 
 class RelatedVisitModelStub(Protocol):
-    report_datetime: Union[datetime, models.DateTimeField]
-    subject_identifier: Union[str, models.CharField]
+    report_datetime: datetime | models.DateTimeField
+    subject_identifier: str | models.CharField
     reason: str
     reason_unscheduled: str
     reason_unscheduled_other: str
-    visit_code: Union[str, models.CharField]
-    visit_code_sequence: Union[int, models.IntegerField]
-    visit_schedule: Union[str, models.CharField]
-    schedule: Union[str, models.CharField]
+    visit_code: str | models.CharField
+    visit_code_sequence: int | models.IntegerField
+    visit_schedule: str | models.CharField
+    schedule: str | models.CharField
     study_status: str
     require_crfs: bool
 

@@ -8,6 +8,9 @@ from .query_button import QueryButton
 from .render_history_and_query_buttons import render_history_and_query_buttons
 
 __all__ = [
+    "ADD",
+    "CHANGE",
+    "VIEW",
     "DashboardModelButton",
     "HistoryButton",
     "ModelButton",
@@ -16,7 +19,4 @@ __all__ = [
     "PrnButton",
     "QueryButton",
     "render_history_and_query_buttons",
-    "ADD",
-    "CHANGE",
-    "VIEW",
 ]

@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-from typing import Any, Dict
+from typing import Any
 
 project = "clinicedc"
 copyright = "2025, erik van widenfelt"
@@ -49,7 +49,7 @@ extlinks = {
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_js_files = []
-html_context: Dict[str, Any] = {}
+html_context: dict[str, Any] = {}
 
 html_theme = "furo"
 html_title = "Clinic EDC"
@@ -102,7 +102,7 @@ html_css_files += [
     "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/brands.min.css",
 ]
 
-html_theme_options: Dict[str, Any] = {
+html_theme_options: dict[str, Any] = {
     "footer_icons": [
         {
             "name": "GitHub",

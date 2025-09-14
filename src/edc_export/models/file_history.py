@@ -23,11 +23,11 @@ class FileHistory(BaseUuidModel):
     model = models.CharField(max_length=50)
 
     export_uuid_list = models.TextField(
-        null=True, help_text="list of export_uuid's of model app_label.model_name"
+        default="", help_text="list of export_uuid's of model app_label.model_name"
     )
 
     pk_list = models.TextField(
-        null=True, help_text="list of pk's of model app_label.model_name"
+        default="", help_text="list of pk's of model app_label.model_name"
     )
 
     exit_message = models.CharField(
@@ -41,14 +41,14 @@ class FileHistory(BaseUuidModel):
     filename = models.CharField(max_length=250, help_text="original filename on export")
 
     file_contents = models.TextField(
-        null=True, help_text="save contents of file as a list of rows"
+        default="", help_text="save contents of file as a list of rows"
     )
 
     exported = models.BooleanField(default=False, help_text="exported to a file")
 
     exported_datetime = models.DateTimeField(null=True)
 
-    notification_plan_name = models.CharField(max_length=50, null=True)
+    notification_plan_name = models.CharField(max_length=50, default="")
 
     sent = models.BooleanField(default=False, help_text="export file sent to recipient")
 
@@ -78,4 +78,4 @@ class FileHistory(BaseUuidModel):
         return (self.history_uuid,)
 
     class Meta(BaseUuidModel.Meta):
-        indexes = [Index(fields=["sent_datetime"])]
+        indexes = (Index(fields=["sent_datetime"]),)

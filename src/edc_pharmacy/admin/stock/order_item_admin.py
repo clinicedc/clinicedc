@@ -167,7 +167,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def get_status_label(self, obj: OrderItem) -> tuple[str, str]:
         if obj.unit_qty == 0:
             return RECEIVED, _("Received")
-        elif obj.unit_qty == obj.unit_qty_ordered:
+        if obj.unit_qty == obj.unit_qty_ordered:
             return NEW, _("New")
         return PARTIAL, _("Partial")
 
@@ -202,7 +202,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def render_start_receiving_button(obj: OrderItem) -> str:
         url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_add")
         next_url = "edc_pharmacy_admin:edc_pharmacy_orderitem_changelist"
-        url = f"{url}?next={next_url}&q={str(obj.order.id)}&order={str(obj.order.id)}"
+        url = f"{url}?next={next_url}&q={obj.order.id!s}&order={obj.order.id!s}"
         context = dict(
             url=url,
             label=_("Start Receiving"),
@@ -216,7 +216,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @staticmethod
     def render_receive_changelist_link(receive: Receive) -> str:
         url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
-        url = f"{url}?q={str(receive.receive_identifier)}"
+        url = f"{url}?q={receive.receive_identifier!s}"
         context = dict(url=url, label=receive.receive_identifier, title=_("Receive"))
         return render_to_string(
             "edc_pharmacy/stock/items_as_link.html",
@@ -228,8 +228,8 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_add")
         next_url = "edc_pharmacy_admin:edc_pharmacy_orderitem_changelist"
         url = (
-            f"{url}?next={next_url}&order_item={str(obj.id)}&q={str(obj.order.id)}"
-            f"&receive={str(receive.id)}&container={str(obj.container.id)}"
+            f"{url}?next={next_url}&order_item={obj.id!s}&q={obj.order.id!s}"
+            f"&receive={receive.id!s}&container={obj.container.id!s}"
         )
         context = dict(
             url=url,
@@ -245,7 +245,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         status, status_label = self.get_status_label(obj)
         if status != NEW:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receiveitem_changelist")
-            url = f"{url}?q={str(obj.pk)}"
+            url = f"{url}?q={obj.pk!s}"
             context = dict(url=url, label=status_label, title=_("Go to received items"))
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

@@ -20,7 +20,7 @@ class Requisition(Crf):
         if not self.panel.requisition_model:
             raise RequisitionError(
                 f"Invalid requisition model. Got None. "
-                f"See {repr(panel)}. "
+                f"See {panel!r}. "
                 f"Was the panel referred to by this schedule's requisition "
                 f"added to a lab profile and registered with site_labs?"
             )
@@ -67,5 +67,5 @@ class Requisition(Crf):
             for panel in panels:
                 if panel.name not in lab_profile.panels:
                     raise ScheduledRequisitionError(
-                        f"Panel does not exist in lab profiles. " f"Got {repr(panel)}"
+                        f"Panel does not exist in lab profiles. Got {panel!r}"
                     )

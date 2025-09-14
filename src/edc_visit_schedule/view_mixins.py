@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from .schedule import Schedule
     from .visit_schedule import VisitSchedule
 
-    class OnScheduleLikeModel(OnScheduleModelMixin): ...  # noqa
+    class OnScheduleLikeModel(OnScheduleModelMixin): ...
 
 
 class VisitScheduleViewMixin:

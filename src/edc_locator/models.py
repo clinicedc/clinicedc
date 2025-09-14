@@ -28,9 +28,9 @@ class SubjectLocator(
     def natural_key(self):
         return (self.subject_identifier,)
 
-    natural_key.dependencies = ["sites.Site"]
+    natural_key.dependencies = ("sites.Site",)
 
     class Meta(ActionModelMixin.Meta, BaseUuidModel.Meta):
         verbose_name = "Subject Locator"
         verbose_name_plural = "Subject Locators"
-        indexes = ActionModelMixin.Meta.indexes + BaseUuidModel.Meta.indexes
+        indexes = (*ActionModelMixin.Meta.indexes, *BaseUuidModel.Meta.indexes)

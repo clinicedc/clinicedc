@@ -105,11 +105,7 @@ class ConfirmStockFromQuerySetView(
 
     @property
     def adjusted_unconfirmed_count(self) -> int:
-        return (
-            self.codes_per_page
-            if self.unconfirmed_count > self.codes_per_page
-            else self.unconfirmed_count
-        )
+        return min(self.unconfirmed_count, self.codes_per_page)
 
     @property
     def source_changelist_url(self):

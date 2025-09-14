@@ -29,7 +29,7 @@ class ActionItemModelFormMixin:
                 )
             except ActionError as e:
                 raise forms.ValidationError(
-                    f"{str(e.message)}. Please contact your data manager."
+                    f"{e.message!s}. Please contact your data manager."
                 )
         return cleaned_data
 

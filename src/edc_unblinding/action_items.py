@@ -12,7 +12,7 @@ class UnblindingRequestAction(ActionWithNotification):
     name = UNBLINDING_REQUEST_ACTION
     display_name = "Unblinding request"
     notification_display_name = " Unblinding request"
-    parent_action_names = []
+    parent_action_names = ()
     show_link_to_changelist = True
     show_link_to_add = True
     priority = HIGH_PRIORITY
@@ -34,7 +34,7 @@ class UnblindingReviewAction(ActionWithNotification):
     name = UNBLINDING_REVIEW_ACTION
     display_name = "Unblinding review pending"
     notification_display_name = " Unblinding review needed"
-    parent_action_names = [UNBLINDING_REQUEST_ACTION]
+    parent_action_names = (UNBLINDING_REQUEST_ACTION,)
     show_link_to_changelist = True
     priority = HIGH_PRIORITY
     color_style = "info"

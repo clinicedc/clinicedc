@@ -34,7 +34,7 @@ class UploadExportReceiptFile(BaseUuidModel):
 
     total = models.IntegerField(default=0, editable=False)
 
-    errors = models.TextField(editable=False, null=True)
+    errors = models.TextField(editable=False, default="")
 
     receipt_datetime = models.DateTimeField(editable=False, null=True)
 
@@ -74,4 +74,4 @@ class UploadExportReceiptFile(BaseUuidModel):
         self.errors = "; ".join(error_list)
 
     class Meta(BaseUuidModel.Meta):
-        indexes = [Index(fields=["created"])]
+        indexes = (Index(fields=["created"]),)

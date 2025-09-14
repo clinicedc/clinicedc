@@ -11,7 +11,7 @@ from .model_mixins import ConsentModelMixin
 class ConsentModelStub(Protocol):
     subject_identifier: str
     report_datetime: datetime
-    ...  # noqa
+    ...
 
 
 class ConsentLikeModel(
@@ -19,4 +19,4 @@ class ConsentLikeModel(
     ConsentModelMixin,
     NonUniqueSubjectIdentifierModelMixin,
     BaseUuidModel,
-): ...  # noqa
+): ...

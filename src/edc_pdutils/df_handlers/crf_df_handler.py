@@ -36,8 +36,7 @@ class CrfDfHandler(DfHandler):
         """
         if not self.visit_column:
             raise CrfDfHandlerError(
-                f"visit column cannot be None. "
-                f"See class attr 'visit_column' on {repr(self)}"
+                f"visit column cannot be None. See class attr 'visit_column' on {self!r}"
             )
         self.dataframe = pd.merge(
             left=self.dataframe,

@@ -35,7 +35,7 @@ class AeFollowupAction(ActionWithNotification):
     name = AE_FOLLOWUP_ACTION
     display_name = "Submit AE Followup Report"
     notification_display_name = "AE Followup Report"
-    parent_action_names = [AE_INITIAL_ACTION, AE_FOLLOWUP_ACTION]
+    parent_action_names = (AE_INITIAL_ACTION, AE_FOLLOWUP_ACTION)
     related_reference_fk_attr = "ae_initial"
     create_by_user = False
     show_link_to_changelist = True

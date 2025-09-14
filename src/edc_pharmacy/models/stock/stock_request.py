@@ -87,7 +87,7 @@ class StockRequest(BaseUuidModel):
 
     subject_identifiers = models.TextField(
         verbose_name="Include ONLY these subjects in this request. (Usually left blank)",
-        null=True,
+        default="",
         blank=True,
         help_text=(
             "By adding subject identifiers in this box, only these subjects "
@@ -97,13 +97,13 @@ class StockRequest(BaseUuidModel):
 
     excluded_subject_identifiers = models.TextField(
         verbose_name="Exclude these subjects from this request. (Usually left blank)",
-        null=True,
+        default="",
         blank=True,
     )
 
     labels = models.TextField(
         verbose_name="Labels",
-        null=True,
+        default="",
         blank=True,
         help_text=(
             "A cell to capture and confirm printed/scanned labels related to this "
@@ -114,8 +114,7 @@ class StockRequest(BaseUuidModel):
     cancel = models.CharField(
         verbose_name="To cancel this request, type the word 'CANCEL' here and save the form:",
         max_length=6,
-        default=None,
-        null=True,
+        default="",
         blank=True,
     )
     status = models.CharField(

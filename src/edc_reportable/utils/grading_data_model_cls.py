@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 
@@ -10,5 +10,5 @@ if TYPE_CHECKING:
 __all__ = ["grading_data_model_cls"]
 
 
-def grading_data_model_cls() -> Type[GradingData]:
+def grading_data_model_cls() -> type[GradingData]:
     return django_apps.get_model("edc_reportable.gradingdata")

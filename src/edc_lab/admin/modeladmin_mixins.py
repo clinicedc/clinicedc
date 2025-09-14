@@ -1,4 +1,3 @@
-from typing import Tuple
 from uuid import UUID
 
 from django.contrib import admin
@@ -29,7 +28,7 @@ class RequisitionAdminMixin:
         "item_type": admin.VERTICAL,
     }
 
-    search_fields: Tuple[str, ...] = (
+    search_fields: tuple[str, ...] = (
         "requisition_identifier",
         "subject_identifier",
         "panel__display_name",
@@ -43,7 +42,7 @@ class RequisitionAdminMixin:
     def requisition(obj=None):
         if obj.is_drawn == YES:
             return obj.requisition_identifier
-        elif not obj.is_drawn:
+        if not obj.is_drawn:
             return format_html(
                 '<span style="color:red;">{}</span>', obj.requisition_identifier
             )
@@ -61,13 +60,13 @@ class RequisitionAdminMixin:
                 )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = ("requisition_datetime", "site", "is_drawn", "panel")
         list_filter = tuple(f for f in list_filter if f not in custom_fields)
         return custom_fields + list_filter
 
-    def get_list_display(self, request) -> Tuple[str, ...]:
+    def get_list_display(self, request) -> tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "requisition",
@@ -80,7 +79,7 @@ class RequisitionAdminMixin:
         list_display = tuple(f for f in list_display if f not in custom_fields)
         return custom_fields + list_display
 
-    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
         return tuple(
             set(readonly_fields + requisition_identifier_fields + requisition_verify_fields)

@@ -68,7 +68,7 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidMod
         help_text="Tick to allow 'primary' specimens to be added to this box",
     )
 
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(blank=True, default="")
 
     objects = BoxManager()
 
@@ -104,7 +104,7 @@ class Box(SearchSlugModelMixin, VerifyBoxModelMixin, SiteModelMixin, BaseUuidMod
     @property
     def human_readable_identifier(self):
         x = self.box_identifier
-        return "{}-{}-{}".format(x[0:4], x[4:8], x[8:12])
+        return f"{x[0:4]}-{x[4:8]}-{x[8:12]}"
 
     @property
     def next_position(self):

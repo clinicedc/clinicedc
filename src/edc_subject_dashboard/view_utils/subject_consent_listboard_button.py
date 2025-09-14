@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Type, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
 
 from edc_consent import site_consents
@@ -37,7 +37,7 @@ class SubjectConsentListboardButton(ModelButton):
 
     screening_obj: ScreeningModel = field(default=None)
     model_obj: ConsentModel = field(default=None)
-    model_cls: Type[ConsentModel] = field(default=None)
+    model_cls: type[ConsentModel] = field(default=None)
     consent_version: str = field(default=None, init=False)
 
     def __post_init__(self):

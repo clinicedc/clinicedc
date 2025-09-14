@@ -53,7 +53,7 @@ class TestExport(TransactionTestCase):
         exporter.to_csv()
         self.assertGreater(len(exporter.exported_paths), 0)
         for path in exporter.exported_paths.values():
-            with open(path, "r") as f:
+            with open(path) as f:
                 csv_reader = csv.DictReader(f, delimiter="|")
                 rows = [row for row in enumerate(csv_reader)]
             self.assertGreater(len(rows), 0)
@@ -77,7 +77,7 @@ class TestExport(TransactionTestCase):
         exporter.to_csv()
         self.assertGreater(len(exporter.exported_paths), 0)
         for path in exporter.exported_paths.values():
-            with open(path, "r") as f:
+            with open(path) as f:
                 csv_reader = csv.DictReader(f, delimiter="|")
                 rows = [row for row in enumerate(csv_reader)]
             self.assertGreater(len(rows), 0)

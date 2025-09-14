@@ -1,5 +1,3 @@
-from typing import Type
-
 import pandas as pd
 from django.apps import apps as django_apps
 from django.db import models
@@ -8,7 +6,7 @@ from django.db import models
 def refresh_model_from_dataframe(
     df: pd.DataFrame,
     model: str | None = None,
-    model_cls: Type[models.Model] | None = None,
+    model_cls: type[models.Model] | None = None,
     columns: list[str] | None = None,
 ) -> None:
     columns = columns or list(df.columns)

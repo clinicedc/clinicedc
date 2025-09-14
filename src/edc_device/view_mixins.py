@@ -12,7 +12,7 @@ def get_client_ip(request):
         ip = request.META.get("REMOTE_ADDR")
     try:
         socket.inet_aton(ip)
-    except socket.error:
+    except OSError:
         return None
     else:
         return ip

@@ -52,7 +52,7 @@ def age(
     rdelta = relativedelta(reference_dt_utc, born_utc)
     if born_utc > reference_dt_utc:
         raise AgeValueError(
-            f"Reference date {reference_dt} {str(reference_dt.tzinfo)} "
+            f"Reference date {reference_dt} {reference_dt.tzinfo!s} "
             f"precedes DOB {born} {timezone}. Got {rdelta}"
         )
     return rdelta

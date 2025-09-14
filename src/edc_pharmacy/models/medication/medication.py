@@ -12,12 +12,11 @@ class Manager(models.Manager):
 
 
 class Medication(BaseUuidModel):
-
     name = models.CharField(max_length=35, unique=True)
 
     display_name = models.CharField(max_length=50, unique=True)
 
-    notes = models.TextField(max_length=250, null=True, blank=True)
+    notes = models.TextField(max_length=250, default="", blank=True)
 
     objects = Manager()
 

@@ -88,9 +88,6 @@ class TimepointStatusButton(AppointmentButton):
     @property
     def disabled(self) -> str:
         disabled = "disabled"
-        if not self.model_obj and self.perms.add:
+        if (not self.model_obj and self.perms.add) or self.perms.change or self.perms.view:
             disabled = ""
-        else:
-            if self.perms.change or self.perms.view:
-                disabled = ""
         return disabled

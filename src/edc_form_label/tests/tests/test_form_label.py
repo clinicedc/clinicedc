@@ -30,7 +30,6 @@ from edc_visit_tracking.models import SubjectVisit
 
 
 class TestFormLabel(TestCase):
-
     helper = Helper
 
     @classmethod
@@ -40,7 +39,6 @@ class TestFormLabel(TestCase):
         return super().setUpTestData()
 
     def setUp(self):
-
         self.user = User.objects.create(username="erikvw", is_staff=True, is_active=True)
 
         site_consents.registry = {}
@@ -107,7 +105,7 @@ class TestFormLabel(TestCase):
         )
 
         rf = RequestFactory()
-        request = rf.get(f"/?appointment={str(self.appointment_one.id)}")
+        request = rf.get(f"/?appointment={self.appointment_one.id!s}")
         request.user = self.user
 
         form = AppointmentForm()
@@ -131,7 +129,7 @@ class TestFormLabel(TestCase):
         )
 
         rf = RequestFactory()
-        request = rf.get(f"/?appointment={str(self.appointment_one.id)}")
+        request = rf.get(f"/?appointment={self.appointment_one.id!s}")
         request.user = self.user
 
         form = TestModel5Form()
@@ -142,7 +140,7 @@ class TestFormLabel(TestCase):
         )
 
         rf = RequestFactory()
-        request = rf.get(f"/?appointment={str(self.appointment_two.id)}")
+        request = rf.get(f"/?appointment={self.appointment_two.id!s}")
         request.user = self.user
 
         form = TestModel5Form()
@@ -169,7 +167,7 @@ class TestFormLabel(TestCase):
         )
 
         rf = RequestFactory()
-        request = rf.get(f"/?appointment={str(self.appointment_two.id)}")
+        request = rf.get(f"/?appointment={self.appointment_two.id!s}")
         request.user = self.user
 
         form = TestModel5Form()
@@ -188,7 +186,7 @@ class TestFormLabel(TestCase):
             if model == TestModel5:
                 my_model_admin = model_admin.admin_site._registry.get(TestModel5)
                 rf = RequestFactory()
-                request = rf.get(f"/?appointment={str(self.appointment_one.id)}")
+                request = rf.get(f"/?appointment={self.appointment_one.id!s}")
                 request.user = self.user
                 rendered_change_form = my_model_admin.changeform_view(
                     request, None, "", {"subject_visit": self.subject_visit_one}
@@ -203,7 +201,7 @@ class TestFormLabel(TestCase):
             if model == TestModel5:
                 my_model_admin = model_admin.admin_site._registry.get(TestModel5)
                 rf = RequestFactory()
-                request = rf.get(f"/?appointment={str(self.appointment_two.id)}")
+                request = rf.get(f"/?appointment={self.appointment_two.id!s}")
                 request.user = self.user
 
                 rendered_change_form = my_model_admin.changeform_view(

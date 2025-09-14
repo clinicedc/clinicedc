@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -17,10 +17,10 @@ def create_prescription(
     subject_identifier: str,
     report_datetime: datetime,
     medication_names: list[str],
-    randomizer_name: Optional[str] = None,
-    site: Optional[Any] = None,
-    site_id: Optional[Any] = None,
-    apps: Optional[Any] = None,
+    randomizer_name: str | None = None,
+    site: Any | None = None,
+    site_id: Any | None = None,
+    apps: Any | None = None,
 ) -> Rx:
     """Creates a PrescriptionAction and Rx model instance"""
     site_id = site_id or site.id

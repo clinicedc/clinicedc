@@ -1,21 +1,19 @@
-from typing import Optional
-
 from django.http.response import HttpResponseRedirect
 
 
 class BaseModelAdminRedirectMixin:
     """Redirect on add, change, or delete."""
 
-    def redirect_url(self, request, obj, post_url_continue=None) -> Optional[str]:
+    def redirect_url(self, request, obj, post_url_continue=None) -> str | None:
         pass
 
-    def redirect_url_on_add(self, request, obj, post_url_continue=None) -> Optional[str]:
+    def redirect_url_on_add(self, request, obj, post_url_continue=None) -> str | None:
         return self.redirect_url(request, obj, post_url_continue=post_url_continue)
 
-    def redirect_url_on_change(self, request, obj, post_url_continue=None) -> Optional[str]:
+    def redirect_url_on_change(self, request, obj, post_url_continue=None) -> str | None:
         return self.redirect_url(request, obj, post_url_continue=post_url_continue)
 
-    def redirect_url_on_delete(self, request, obj_display, obj_id) -> Optional[str]:
+    def redirect_url_on_delete(self, request, obj_display, obj_id) -> str | None:
         pass
 
     def response_add(self, request, obj, post_url_continue=None):

@@ -44,9 +44,7 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
         validators=[
             RegexValidator(
                 regex=r"^[A-Z]{2,3}$",
-                message=(
-                    "Ensure initials consist of letters " "only in upper case, no spaces."
-                ),
+                message=("Ensure initials consist of letters only in upper case, no spaces."),
             )
         ],
         null=True,
@@ -154,7 +152,7 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.subject_identifier_as_pk,)  # noqa
+        return (self.subject_identifier_as_pk,)
 
     def __str__(self):
         return self.masked_subject_identifier
@@ -228,10 +226,9 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
                     ).get(**{attrname: getattr(self, attrname)})
                     if not self.id:
                         raise RegisteredSubjectError(error_msg.format(action="insert"))
-                    elif self.subject_identifier_is_set and obj.id != self.id:
+                    if self.subject_identifier_is_set and obj.id != self.id:
                         raise RegisteredSubjectError(error_msg.format(action="update"))
-                    else:
-                        raise RegisteredSubjectError(error_msg.format(action="update"))
+                    raise RegisteredSubjectError(error_msg.format(action="update"))
                 except ObjectDoesNotExist:
                     pass
 
@@ -255,10 +252,11 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
                 name="%(app_label)s_%(class)s_first_name_uniq",
             )
         ]
-        indexes = BaseUuidModel.Meta.indexes + [
+        indexes = (
+            *BaseUuidModel.Meta.indexes,
             models.Index(fields=["first_name", "dob", "initials", "additional_key"]),
             models.Index(fields=["subject_identifier", "identity", "screening_identifier"]),
-        ]
+        )
         permissions = (
             ("display_firstname", "Can display first name"),
             ("display_lastname", "Can display last name"),

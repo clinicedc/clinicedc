@@ -21,7 +21,7 @@ def is_subject_identifier_or_raise(subject_identifier, reference_obj=None, raise
         ):
             reference_msg = ""
             if reference_obj:
-                reference_msg = f"See {repr(reference_obj)}. "
+                reference_msg = f"See {reference_obj!r}. "
             raise SubjectIdentifierError(
                 f"Invalid format for subject identifier. {reference_msg}"
                 f"Got `{subject_identifier or ''}`. "

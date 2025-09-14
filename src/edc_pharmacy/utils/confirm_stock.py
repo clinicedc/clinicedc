@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -25,8 +25,8 @@ def confirm_stock(
 
     See also: confirm_stock_action
     """
-    stock_model_cls: Type[Stock] = django_apps.get_model("edc_pharmacy.stock")
-    confirmation_model_cls: Type[Confirmation] = django_apps.get_model(
+    stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
+    confirmation_model_cls: type[Confirmation] = django_apps.get_model(
         "edc_pharmacy.confirmation"
     )
     stock_codes = [s.strip() for s in stock_codes]

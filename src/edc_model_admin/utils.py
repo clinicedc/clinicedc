@@ -41,15 +41,12 @@ def get_value_from_lookup_string(search_field_name: str = None, obj=None, reques
         if request:
             value = request.GET.get(field, "")
             break
-        else:
-            try:
-                value = getattr(value or obj, field)
-            except AttributeError as e:
-                raise SearchTermLookupError(
-                    f"Invalid search term. `{search_field_name}`. Got {e}"
-                )
-            if value is None:
-                break
+        try:
+            value = getattr(value or obj, field)
+        except AttributeError as e:
+            raise SearchTermLookupError(f"Invalid search term. `{search_field_name}`. Got {e}")
+        if value is None:
+            break
     return value
 
 

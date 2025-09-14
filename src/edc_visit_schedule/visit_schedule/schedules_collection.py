@@ -22,9 +22,7 @@ class SchedulesCollection(OrderedCollection):
         if model:
             model = model.lower()
             for item in self.values():
-                if item.onschedule_model == model:
-                    schedule = item
-                elif item.offschedule_model == model:
+                if item.onschedule_model == model or item.offschedule_model == model:
                     schedule = item
                 if schedule:
                     break
@@ -32,8 +30,7 @@ class SchedulesCollection(OrderedCollection):
             schedule = self.get(schedule_name)
         if not schedule:
             raise SchedulesCollectionError(
-                f"Schedule does not exist. Using model={model}, "
-                f"schedule_name={schedule_name}."
+                f"Schedule does not exist. Using model={model}, schedule_name={schedule_name}."
             )
         return schedule
 

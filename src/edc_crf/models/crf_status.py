@@ -21,16 +21,14 @@ class CrfStatus(
         verbose_name = "CRF Status"
         verbose_name_plural = "CRF Status"
         indexes = (
-            BaseUuidModel.Meta.indexes
-            + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
-            + [
-                Index(
-                    fields=[
-                        "schedule_name",
-                        "visit_schedule_name",
-                        "visit_code",
-                        "visit_code_sequence",
-                    ]
-                )
-            ]
+            *BaseUuidModel.Meta.indexes,
+            *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
+            Index(
+                fields=[
+                    "schedule_name",
+                    "visit_schedule_name",
+                    "visit_code",
+                    "visit_code_sequence",
+                ]
+            ),
         )

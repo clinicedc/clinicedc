@@ -1,5 +1,3 @@
-from typing import Optional
-
 from .processing_profile import ProcessingProfile
 from .requisition_panel import RequisitionPanel
 
@@ -12,11 +10,11 @@ class RequisitionPanelGroup(RequisitionPanel):
     def __init__(
         self,
         *panels,
-        name: Optional[str] = None,
-        verbose_name: Optional[str] = None,
-        abbreviation: Optional[str] = None,
-        is_poc: Optional[bool] = None,
-        reference_range_collection_name: Optional[str] = None,
+        name: str | None = None,
+        verbose_name: str | None = None,
+        abbreviation: str | None = None,
+        is_poc: bool | None = None,
+        reference_range_collection_name: str | None = None,
     ):
         processing_profile = ProcessingProfile(
             name=f"{name} group", aliquot_type=panels[0].aliquot_type

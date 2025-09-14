@@ -17,7 +17,7 @@ class DeathReportAction(ActionWithNotification):
     name = DEATH_REPORT_ACTION
     display_name = "Submit Death Report"
     notification_display_name = "Death Report"
-    parent_action_names = [AE_INITIAL_ACTION, AE_FOLLOWUP_ACTION]
+    parent_action_names = (AE_INITIAL_ACTION, AE_FOLLOWUP_ACTION)
     show_link_to_changelist = True
     show_link_to_add = True
     priority = HIGH_PRIORITY

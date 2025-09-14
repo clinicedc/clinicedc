@@ -7,7 +7,7 @@ def get_message_text(level: int) -> str:
         return _(
             "You have permissions to view forms and data from sites other than the current. "
         )
-    elif level == messages.ERROR:
+    if level == messages.ERROR:
         return _(
             "Showing data from the current site only. Although you have permissions to view "
             "data from multiple sites you also have permissions to add, change or delete "

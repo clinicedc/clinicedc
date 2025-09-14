@@ -27,7 +27,7 @@ def load_list_data(
     if model_name:
         model_names = [model_name]
     else:
-        model_names = [k for k in list_data.keys()]
+        model_names = [k for k in list_data]
     n = 0
     for model_name in model_names:
         try:

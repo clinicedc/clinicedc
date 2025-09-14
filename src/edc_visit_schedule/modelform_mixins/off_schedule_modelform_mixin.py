@@ -43,8 +43,7 @@ class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
     def offschedule_datetime(self) -> datetime | None:
         if self.offschedule_datetime_field_attr in self.cleaned_data:
             return to_utc(self.cleaned_data.get(self.offschedule_datetime_field_attr))
-        else:
-            return getattr(self.instance, self.offschedule_datetime_field_attr)
+        return getattr(self.instance, self.offschedule_datetime_field_attr)
 
     @property
     def offschedule_compare_dates_as_datetimes(self):

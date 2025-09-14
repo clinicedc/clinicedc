@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
 
@@ -67,7 +65,7 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         audit_fieldset_tuple,
     )
 
-    list_filter: Tuple[str, ...] = (
+    list_filter: tuple[str, ...] = (
         "lot_no",
         "expiration_date",
         "product",
@@ -77,7 +75,7 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "modified",
     )
 
-    list_display: Tuple[str, ...] = (
+    list_display: tuple[str, ...] = (
         "lot_no",
         "expiration_date",
         "product",
@@ -86,11 +84,11 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "created",
         "modified",
     )
-    radio_fields: Tuple[str, ...] = {"assignment": admin.VERTICAL}
+    radio_fields: tuple[str, ...] = {"assignment": admin.VERTICAL}
 
-    search_fields: Tuple[str, ...] = ("lot_no",)
+    search_fields: tuple[str, ...] = ("lot_no",)
 
-    ordering: Tuple[str, ...] = ("-expiration_date",)
+    ordering: tuple[str, ...] = ("-expiration_date",)
 
     def get_readonly_fields(self, request, obj=None):
         # if obj:

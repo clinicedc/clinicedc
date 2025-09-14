@@ -27,7 +27,7 @@ def update_forms_reference(
     module = import_module(app_label)
     default_doc_folder = Path(settings.BASE_DIR / "docs")
     filename = filename or "forms_reference.md"
-    admin_site = getattr(getattr(module, "admin_site"), admin_site_name)
+    admin_site = getattr(module.admin_site, admin_site_name)
     visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
     title = title or _("%(title_app)s Forms Reference") % dict(title_app=app_label.upper())
     sys.stdout.write(

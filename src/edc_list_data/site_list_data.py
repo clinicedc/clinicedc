@@ -50,13 +50,12 @@ class SiteListData:
         """Registers but does NOT `load` list_data."""
         if app_name and app_name in self.app_names:
             raise AlreadyLoaded(f"App already loaded. Got {app_name}.")
-        else:
-            self.app_names.append(app_name)
-            opts = copy.deepcopy(self._get_options(module))
-            sys.stdout.write(f"   - registered {self.module_name} from '{module.__name__}'\n")
-            if opts.get(self.module_name):
-                self._replace_list_data_or_raise_on_duplicate(module, opts)
-            self.registry[module.__name__] = opts
+        self.app_names.append(app_name)
+        opts = copy.deepcopy(self._get_options(module))
+        sys.stdout.write(f"   - registered {self.module_name} from '{module.__name__}'\n")
+        if opts.get(self.module_name):
+            self._replace_list_data_or_raise_on_duplicate(module, opts)
+        self.registry[module.__name__] = opts
 
     def load_data(self) -> None:
         """Calls `load` class with each list_data dictionary module to

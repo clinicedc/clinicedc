@@ -12,5 +12,5 @@ def undash(value, exclude_pattern=None):
             else:
                 value = value.replace("-", "")
         except AttributeError as e:
-            raise AttributeError("{}. Got '{}'".format(str(e), value))
+            raise AttributeError(f"{e!s}. Got '{value}'")
     return value

@@ -27,7 +27,7 @@ class DeathReportTmgFormValidator(
             )
         except ObjectDoesNotExist:
             self.raise_validation_error("Death report not found.", INVALID_ERROR)
-        death_date = getattr(obj, getattr(obj, "death_date_field"))
+        death_date = getattr(obj, obj.death_date_field)
         try:
             death_date = death_date.date()
         except AttributeError:

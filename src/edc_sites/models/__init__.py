@@ -1,3 +1,3 @@
-from ..managers import CurrentSiteManager  # noqa (leave for old migrations)
+from ..managers import CurrentSiteManager
 from .edc_permissions import EdcPermissions
 from .site_profile import SiteProfile

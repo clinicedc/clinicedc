@@ -77,6 +77,6 @@ class Eligibility:
                 raise EligibilityError(
                     f"Custom reasons refer to invalid named criteria, Got '{k}'. "
                     f"Expected one of {list(self.criteria)}. "
-                    f"See {repr(self)}."
+                    f"See {self!r}."
                 )
         return self.custom_reasons_dict

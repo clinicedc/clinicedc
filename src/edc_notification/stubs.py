@@ -1,17 +1,17 @@
 from datetime import datetime
-from typing import List, Optional, Protocol
+from typing import List, Protocol
 
 
 class BaseNotificationStub(Protocol):
-    display_name: Optional[str]
+    display_name: str | None
     email_body_template: str
     email_footer_template: str
-    email_from: List[str]
+    email_from: list[str]
     # email_message_cls = Type[EmailMessage]
     email_subject_template: str
     email_test_body_line: str
-    email_to: Optional[List[str]]
-    name: Optional[str]
+    email_to: list[str] | None
+    name: str | None
     # sms_client: Type[Client]
     sms_template: str
     sms_test_line: str
@@ -29,7 +29,7 @@ class BaseNotificationStub(Protocol):
     ) -> bool: ...
 
 
-class NotificationStub(BaseNotificationStub, Protocol): ...  # noqa
+class NotificationStub(BaseNotificationStub, Protocol): ...
 
 
 class NotificationModelStub(BaseNotificationStub, Protocol):

@@ -22,12 +22,10 @@ class AliquotType:
         self.name = name
         if not alpha_code or not re.match(r"^[A-Z]+$", alpha_code, re.ASCII):
             raise AliquotTypeAlphaCodeError(f"Invalid alpha code. Got {alpha_code}.")
-        else:
-            self.alpha_code = alpha_code
+        self.alpha_code = alpha_code
         if not numeric_code or not re.match(r"^\d+$", numeric_code, re.ASCII):
             raise AliquotTypeNumericCodeError(f"Invalid numeric code. Got {numeric_code}.")
-        else:
-            self.numeric_code = numeric_code
+        self.numeric_code = numeric_code
 
     def __repr__(self):
         return "{self.__class__.__name__}({self.name}, {self.alpha_code}, {self.numeric_code})"

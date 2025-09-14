@@ -153,18 +153,17 @@ class RandomizationListImporter:
                 f"File is empty. See {self.randomizer_name}. "
                 f"Got {self.randomizationlist_path} (1)."
             )
-        else:
-            index = 0
-            with self.randomizationlist_path.open(mode="r") as csvfile:
-                reader = csv.DictReader(csvfile)
-                for index, row in enumerate(reader):
-                    if index == 0:
-                        continue
-            if index == 0:
-                raise RandomizationListImportError(
-                    f"File is empty. See {self.randomizer_name}. "
-                    f"Got {self.randomizationlist_path} (2)."
-                )
+        index = 0
+        with self.randomizationlist_path.open(mode="r") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for index, row in enumerate(reader):
+                if index == 0:
+                    continue
+        if index == 0:
+            raise RandomizationListImportError(
+                f"File is empty. See {self.randomizer_name}. "
+                f"Got {self.randomizationlist_path} (2)."
+            )
 
     def _raise_on_invalid_header(self):
         with self.randomizationlist_path.open(mode="r") as csvfile:
@@ -174,7 +173,7 @@ class RandomizationListImporter:
                     for fieldname in self.required_csv_fieldnames:
                         if fieldname not in row:
                             raise RandomizationListImportError(
-                                "Invalid header. Missing column " f"`{fieldname}`. Got {row}"
+                                f"Invalid header. Missing column `{fieldname}`. Got {row}"
                             )
                 elif index == 1:
                     if self.dryrun:
@@ -286,7 +285,7 @@ class RandomizationListImporter:
             raise InvalidAssignment(
                 f"Invalid assignment. Expected one of {list(assignment_map.keys())}. "
                 f"Got `{assignment}`. "
-                f"See randomizer `{self.randomizer_name}` {repr(self)}. "
+                f"See randomizer `{self.randomizer_name}` {self!r}. "
             )
         return assignment
 

@@ -36,7 +36,7 @@ class BoxType(BaseUuidModel):
         return f"{self.name} max={self.total}"
 
     def natural_key(self):
-        return (self.name,)  # noqa
+        return (self.name,)
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Box Type"

@@ -142,9 +142,9 @@ class TimepointModelMixin(models.Model):
         """Formats and returns the status for the change_list."""
         if self.timepoint_status == OPEN_TIMEPOINT:
             return '<span style="color:green;">Open</span>'
-        elif self.timepoint_status == CLOSED_TIMEPOINT:
+        if self.timepoint_status == CLOSED_TIMEPOINT:
             return '<span style="color:red;">Closed</span>'
-        elif self.timepoint_status == FEEDBACK:
+        if self.timepoint_status == FEEDBACK:
             return '<span style="color:orange;">Feedback</span>'
 
     # timepoint.allow_tags = True

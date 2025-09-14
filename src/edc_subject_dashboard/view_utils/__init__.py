@@ -13,6 +13,6 @@ __all__ = [
     "RequisitionButton",
     "SubjectConsentDashboardButton",
     "SubjectConsentListboardButton",
-    "TimepointStatusButton",
     "SubjectScreeningButton",
+    "TimepointStatusButton",
 ]

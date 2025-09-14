@@ -59,17 +59,15 @@ class RandomizationListVerifier:
                     "Resolve this issue before using the system."
                 )
 
-            else:
-                if not self.randomizationlist_path or not self.randomizationlist_path.exists():
-                    self.messages.append(
-                        f"Randomization list file does not exist but SIDs "
-                        f"have been loaded. Expected file "
-                        f"{self.randomizationlist_path}. "
-                        f"Resolve this issue before using the system."
-                    )
-                else:
-                    if message := self.verify():
-                        self.messages.append(message)
+            elif not self.randomizationlist_path or not self.randomizationlist_path.exists():
+                self.messages.append(
+                    f"Randomization list file does not exist but SIDs "
+                    f"have been loaded. Expected file "
+                    f"{self.randomizationlist_path}. "
+                    f"Resolve this issue before using the system."
+                )
+            elif message := self.verify():
+                self.messages.append(message)
         if self.messages:
             if (
                 "migrate" not in sys.argv
@@ -118,7 +116,7 @@ class RandomizationListVerifier:
                     f"{self.randomizationlist_path}. "
                     f"Resolve this issue before using the system. "
                     f"Problem started on line {index + 1}. "
-                    f'Got \'{row["sid"]}\' != \'{obj1.sid}\'.'
+                    f"Got '{row['sid']}' != '{obj1.sid}'."
                 )
             if not message:
                 assignment = self.get_assignment(row)
@@ -136,7 +134,7 @@ class RandomizationListVerifier:
                         f"does not match model data. See file "
                         f"{self.randomizationlist_path}. "
                         f"Resolve this issue before using the system. "
-                        f'Got \'{obj2.site_name}\' != \'{row["site_name"]}\' '
+                        f"Got '{obj2.site_name}' != '{row['site_name']}' "
                         f"for sid={obj2.sid}."
                     )
         return message

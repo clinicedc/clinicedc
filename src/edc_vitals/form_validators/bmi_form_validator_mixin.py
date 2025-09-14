@@ -15,5 +15,5 @@ class BmiFormValidatorMixin:
                 **kwargs,
             )
         except CalculatorError as e:
-            raise forms.ValidationError(e)
+            raise forms.ValidationError(str(e)) from e
         return bmi

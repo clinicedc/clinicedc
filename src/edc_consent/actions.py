@@ -6,11 +6,10 @@ from edc_utils import get_utcnow
 def verify_consent(request=None, consent_obj=None):
     if consent_obj.is_verified:
         return None
-    else:
-        consent_obj.is_verified = True
-        consent_obj.is_verified_datetime = get_utcnow()
-        consent_obj.verified_by = request.user.username
-        consent_obj.save(update_fields=["is_verified", "is_verified_datetime", "verified_by"])
+    consent_obj.is_verified = True
+    consent_obj.is_verified_datetime = get_utcnow()
+    consent_obj.verified_by = request.user.username
+    consent_obj.save(update_fields=["is_verified", "is_verified_datetime", "verified_by"])
     return consent_obj
 
 

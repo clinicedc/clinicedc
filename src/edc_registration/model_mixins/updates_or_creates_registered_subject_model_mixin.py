@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -23,7 +23,7 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
     """
 
     @property
-    def registration_model(self) -> Type[RegisteredSubject]:
+    def registration_model(self) -> type[RegisteredSubject]:
         """Returns the Registration model"""
         return get_registered_subject_model_cls()
 

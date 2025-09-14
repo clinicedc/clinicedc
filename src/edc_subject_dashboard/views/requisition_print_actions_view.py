@@ -151,7 +151,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
         if not self._requisition_model_cls:
             for v in self.appointment.visit_model_cls().__dict__.values():
                 try:
-                    model_cls = getattr(getattr(v, "rel"), "related_model")
+                    model_cls = v.rel.related_model
                 except AttributeError:
                     pass
                 else:
@@ -167,7 +167,7 @@ class RequisitionPrintActionsView(BaseRequisitionView):
         verified_requisitions = []
         for k, v in self.appointment.visit_model_cls().__dict__.items():
             try:
-                model_cls = getattr(getattr(v, "rel"), "related_model")
+                model_cls = v.rel.related_model
             except AttributeError:
                 pass
             else:

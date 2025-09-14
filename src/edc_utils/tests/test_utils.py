@@ -156,7 +156,7 @@ class TestUtils(TestCase):
         self.assertEqual(round_half_away_from_zero(-1.555, 2), -1.56)
         self.assertEqual(round_half_away_from_zero(-1.5554, 3), -1.555)
 
-        self.assertEqual(round_half_away_from_zero(Decimal("1.5"), 0), Decimal("2"))
+        self.assertEqual(round_half_away_from_zero(Decimal("1.5"), 0), Decimal(2))
         self.assertEqual(round_half_away_from_zero(Decimal("1.55"), 1), Decimal("1.6"))
         self.assertEqual(round_half_away_from_zero(Decimal("1.54"), 1), Decimal("1.5"))
         self.assertEqual(round_half_away_from_zero(Decimal("1.555"), 2), Decimal("1.56"))
@@ -215,7 +215,7 @@ class TestUtils(TestCase):
             for max_length in [0, -1, -10]:
                 with self.subTest(string=string, max_length=max_length):
                     with self.assertRaises(ValueError):
-                        truncate_string(string=string, max_length=max_length),
+                        (truncate_string(string=string, max_length=max_length),)
 
     def test_truncate_string_gt_max_len_as_expected(self):
         orig_string = "String of len 16"

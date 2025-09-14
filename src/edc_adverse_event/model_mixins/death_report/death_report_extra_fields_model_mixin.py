@@ -22,14 +22,14 @@ class DeathReportExtraFieldsModelMixin(models.Model):
 
     hospital_death = models.CharField(
         verbose_name=(
-            "Did the participant die in hospital, or die just after " "visiting a hospital?"
+            "Did the participant die in hospital, or die just after visiting a hospital?"
         ),
         max_length=50,
         choices=YES_NO,
     )
 
     hospital_name = models.CharField(
-        verbose_name="Which hospital was this", max_length=50, null=True, blank=True
+        verbose_name="Which hospital was this", max_length=50, blank=True
     )
 
     informant = models.CharField(
@@ -50,7 +50,6 @@ class DeathReportExtraFieldsModelMixin(models.Model):
 
     comment = models.TextField(
         verbose_name="Comment",
-        null=True,
         blank=True,
         help_text="Provide any additional details, if relevant",
     )

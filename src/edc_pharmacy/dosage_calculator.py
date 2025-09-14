@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Any, Optional, Union
+from typing import Any
 
 
 class DosageError(Exception):
@@ -9,9 +9,9 @@ class DosageError(Exception):
 class DosageCalculator:
     def __init__(
         self,
-        dosage_guideline: Optional[Any] = None,
-        formulation: Optional[Any] = None,
-        weight_in_kgs: Optional[Union[float, Decimal]] = None,
+        dosage_guideline: Any | None = None,
+        formulation: Any | None = None,
+        weight_in_kgs: float | Decimal | None = None,
     ) -> None:
         self.dosage_guideline = dosage_guideline
         self.formulation = formulation

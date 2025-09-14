@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Generic, Protocol, Tuple, Type, TypeVar
+from typing import Any, Generic, Protocol, Tuple, TypeVar
 from uuid import UUID
 
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -24,23 +24,23 @@ _Self = TypeVar("_Self", bound=Model)
 
 class ModelBase(type):
     @property
-    def objects(cls: type[_Self]) -> BaseManager[_Self]: ...  # noqa
+    def objects(cls: type[_Self]) -> BaseManager[_Self]: ...
 
     @property
-    def _default_manager(cls: type[_Self]) -> BaseManager[_Self]: ...  # noqa
+    def _default_manager(cls: type[_Self]) -> BaseManager[_Self]: ...
 
     @property
-    def _base_manager(cls: type[_Self]) -> BaseManager[_Self]: ...  # noqa
+    def _base_manager(cls: type[_Self]) -> BaseManager[_Self]: ...
 
 
 class Options(Generic[_M]):
-    def label_lower(self) -> str: ...  # noqa
+    def label_lower(self) -> str: ...
 
     def fields(self) -> Tuple[Field]: ...  # noqa
 
     def get_fields(
-        self, include_parents: bool = ..., include_hidden: bool = ...  # noqa
-    ) -> list[Field | ForeignObjectRel | GenericForeignKey]: ...  # noqa
+        self, include_parents: bool = ..., include_hidden: bool = ...
+    ) -> list[Field | ForeignObjectRel | GenericForeignKey]: ...
 
 
 class SiteFieldsProtocol(Protocol):
@@ -49,11 +49,11 @@ class SiteFieldsProtocol(Protocol):
 
 
 class RelatedVisitProtocol(VisitScheduleFieldsProtocol, Protocol):
-    metadata_cls: Type[Metadata]
-    metadata_destroyer_cls: Type[Destroyer]
-    metadata_rule_evaluator_cls: Type[MetadataRuleEvaluator]
+    metadata_cls: type[Metadata]
+    metadata_destroyer_cls: type[Destroyer]
+    metadata_rule_evaluator_cls: type[MetadataRuleEvaluator]
 
-    class Meta: ...  # noqa
+    class Meta: ...
 
     _meta: Options[Any]
 

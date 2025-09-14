@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.urls import reverse
@@ -15,11 +15,11 @@ if TYPE_CHECKING:
 
     from .modeladmin_mixins import AdverseEventModelAdminMixin
 
-    class ModelAdmin(AdverseEventModelAdminMixin, admin.ModelAdmin): ...  # noqa
+    class ModelAdmin(AdverseEventModelAdminMixin, admin.ModelAdmin): ...
 
     class Model(BaseUuidModel):
         report_datetime: datetime
-        ...  # noqa
+        ...
 
 
 @dataclass(order=True)
@@ -34,7 +34,7 @@ class ColumnItem:
     date_field: str | None = field(default="report_datetime", compare=False)
     verbose_name: str = field(init=False, repr=False, compare=False)
     formatted_date: str = field(init=False, repr=False, compare=False)
-    model_cls: Type[Model] = field(init=False, repr=False, compare=False)
+    model_cls: type[Model] = field(init=False, repr=False, compare=False)
     date_value: date = field(init=False, repr=False, compare=True)
 
     def __post_init__(self):

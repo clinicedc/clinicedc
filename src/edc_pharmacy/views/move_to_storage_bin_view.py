@@ -28,7 +28,7 @@ def move_to_bin(
     )
     if new_capacity > 50:
         raise StorageBinError(f"Storage bin {storage_bin.name} capacity may not exceeded 50")
-    elif new_capacity > storage_bin.capacity:
+    if new_capacity > storage_bin.capacity:
         storage_bin.capacity = new_capacity
         storage_bin.save()
         messages.add_message(
@@ -66,7 +66,6 @@ def move_to_bin(
 
 @method_decorator(login_required, name="dispatch")
 class MoveToStorageBinView(AddToStorageBinView):
-
     action_word = "Move"
 
     def redirect_on_stock_not_already_in_a_bin(
@@ -109,7 +108,7 @@ class MoveToStorageBinView(AddToStorageBinView):
                 },
             )
             return HttpResponseRedirect(url)
-        elif items_to_scan and stock_codes:
+        if items_to_scan and stock_codes:
             try:
                 codes_moved, codes_not_moved = move_to_bin(
                     storage_bin, stock_codes, request.user.username, request

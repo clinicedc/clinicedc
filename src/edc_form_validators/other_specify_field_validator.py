@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from django.forms import ValidationError
 
@@ -15,12 +15,12 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
     def validate_other_specify(
         self,
         field: str,
-        other_specify_field: Optional[str] = None,
-        required_msg: Optional[str] = None,
-        not_required_msg: Optional[str] = None,
-        other_stored_value: Optional[Any] = None,
-        ref: Optional[str] = None,
-        fk_stored_field_name: Optional[str] = None,
+        other_specify_field: str | None = None,
+        required_msg: str | None = None,
+        not_required_msg: str | None = None,
+        other_stored_value: Any | None = None,
+        ref: str | None = None,
+        fk_stored_field_name: str | None = None,
     ) -> bool:
         """Returns False or raises a ValidationError.
 
@@ -51,19 +51,11 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
             self._errors.update(message)
             self._error_codes.append(REQUIRED_ERROR)
             raise ValidationError(message, code=REQUIRED_ERROR)
-        elif (
+        if (
             field_value is not None
             and field_value != other
             and cleaned_data.get(other_specify_field)
-        ):
-            ref = "" if not ref else f" ref: {ref}"
-            message = {
-                other_specify_field: not_required_msg or f"This field is not required.{ref}"
-            }
-            self._errors.update(message)
-            self._error_codes.append(NOT_REQUIRED_ERROR)
-            raise ValidationError(message, code=NOT_REQUIRED_ERROR)
-        elif field_value is None and cleaned_data.get(other_specify_field):
+        ) or (field_value is None and cleaned_data.get(other_specify_field)):
             ref = "" if not ref else f" ref: {ref}"
             message = {
                 other_specify_field: not_required_msg or f"This field is not required.{ref}"

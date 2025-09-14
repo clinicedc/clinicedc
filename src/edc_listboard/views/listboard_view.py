@@ -114,9 +114,7 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
         Accepts `listboard_model` as a model class or label_lower.
         """
         if not self.get_listboard_model():
-            raise ListboardViewError(
-                f"Listboard model not declared. Got None. See {repr(self)}"
-            )
+            raise ListboardViewError(f"Listboard model not declared. Got None. See {self!r}")
         try:
             return django_apps.get_model(self.get_listboard_model())
         except (ValueError, AttributeError):

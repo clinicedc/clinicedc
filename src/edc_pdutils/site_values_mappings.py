@@ -59,7 +59,7 @@ class SiteValuesMappings:
             try:
                 values_mapping.append((index, str(choice[1][::79])))
             except IndexError as e:
-                raise IndexError(f"{str(e)} Got {choice[1]}")
+                raise IndexError(f"{e!s} Got {choice[1]}")
         return tuple(values_mapping)
 
     def get_by_choices(self, tpl: tuple[tuple[str, Any]]) -> tuple[tuple[int, str]] | None:
@@ -87,7 +87,7 @@ class SiteValuesMappings:
                 except ImportError as e:
                     site_values_mappings.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SiteValuesMappingError(f"{str(e)}. See {app}.{module_name}")
+                        raise SiteValuesMappingError(f"{e!s}. See {app}.{module_name}")
             except ImportError:
                 pass
 

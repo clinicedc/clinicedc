@@ -32,6 +32,7 @@ __all__ = [
     "get_imp_schedule_names",
     "get_instock_and_nostock_data",
     "get_random_code",
+    "get_related_or_none",
     "get_rx_model_cls",
     "get_rxrefill_model_cls",
     "get_stock_for_location_df",
@@ -41,5 +42,4 @@ __all__ = [
     "transfer_stock",
     "update_previous_refill_end_datetime",
     "update_stock_instance",
-    "get_related_or_none",
 ]

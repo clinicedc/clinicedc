@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
 from django.apps import apps as django_apps
@@ -82,15 +82,15 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             extra_context.update(show_cancel=self.show_cancel)
         return extra_context
 
-    def redirect_url(self, request, obj, post_url_continue=None) -> Optional[str]:
+    def redirect_url(self, request, obj, post_url_continue=None) -> str | None:
         redirect_url = None
         if self.show_save_next and request.POST.get("_savenext"):
             redirect_url = self.get_savenext_redirect_url(request=request, obj=obj)
             if not redirect_url:
                 redirect_url = self.get_next_redirect_url(request=request, obj=obj)
-        elif self.show_cancel and request.POST.get("_cancel"):
-            redirect_url = self.get_next_redirect_url(request=request, obj=obj)
-        elif request.GET.get(self.next_querystring_attr):
+        elif (self.show_cancel and request.POST.get("_cancel")) or request.GET.get(
+            self.next_querystring_attr
+        ):
             redirect_url = self.get_next_redirect_url(request=request, obj=obj)
         if not redirect_url:
             redirect_url = super().redirect_url(
@@ -98,7 +98,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             )
         return redirect_url
 
-    def get_next_redirect_url(self, request=None, **kwargs) -> Optional[str]:
+    def get_next_redirect_url(self, request=None, **kwargs) -> str | None:
         """Returns a redirect url determined from the "next" attr
         in the querystring.
         """
@@ -120,7 +120,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
                         redirect_url = f"{redirect_url}?q={options['q']}"
         return redirect_url
 
-    def get_savenext_redirect_url(self, request=None, obj=None) -> Optional[str]:
+    def get_savenext_redirect_url(self, request=None, obj=None) -> str | None:
         """Returns a redirect_url for the next form in
         the visit schedule.
 
@@ -159,8 +159,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
         querystring = urlencode(querystring_opts)
         if redirect_url:
             return (
-                f"{redirect_url}?{self.next_querystring_attr}="
-                f"{next_querystring}&{querystring}"
+                f"{redirect_url}?{self.next_querystring_attr}={next_querystring}&{querystring}"
             )
         return None
 

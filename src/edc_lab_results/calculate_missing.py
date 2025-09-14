@@ -1,7 +1,7 @@
-from typing import Any, Optional, Tuple
+from typing import Any
 
 
-def calculate_missing(obj: Any, panel: Any) -> Tuple[int, Optional[str]]:
+def calculate_missing(obj: Any, panel: Any) -> tuple[int, str | None]:
     """Returns a tuple of (missing_count, missing)
 
     Counts the number of blank results within the model

@@ -103,7 +103,7 @@ class TestFieldsetAdmin(TestCase):
                 my_test_model_6_admin = model_admin.admin_site._registry.get(TestModel6)
         rf = RequestFactory()
 
-        request = rf.get(f"/?appointment={str(appointment.id)}")
+        request = rf.get(f"/?appointment={appointment.id!s}")
 
         request.user = self.user
 
@@ -137,7 +137,7 @@ class TestFieldsetAdmin(TestCase):
 
         rf = RequestFactory()
 
-        request = rf.get(f"/?appointment={str(appointment.id)}")
+        request = rf.get(f"/?appointment={appointment.id!s}")
         request.user = self.user
 
         rendered_change_form = my_test_model_6_admin.changeform_view(
@@ -192,7 +192,7 @@ class TestFieldsetAdmin(TestCase):
 
         rf = RequestFactory()
 
-        request = rf.get(f"/?appointment={str(appointment.id)}")
+        request = rf.get(f"/?appointment={appointment.id!s}")
         request.user = self.user
 
         rendered_change_form = my_test_model_4_admin.changeform_view(

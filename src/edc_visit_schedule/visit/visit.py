@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 
 from edc_facility.utils import get_default_facility_name, get_facility
-from edc_utils import get_utcnow, to_utc
+from edc_utils import get_utcnow, to_local
 
 from .crf_collection import CrfCollection
 from .forms_collection import FormsCollection
@@ -73,14 +73,14 @@ class VisitDate:
 
     @base.setter
     def base(self, dt: datetime = None):
-        self._base = to_utc(dt)
+        self._base = to_local(dt)
         self._lower, self._upper = self._window_period.get_window(dt=self._base)
 
     @property
     def lower(self) -> datetime:
         if not self.base:
             raise BaseDatetimeNotSet(
-                "Base datetime is None, set the base datetime " "before accessing attr lower"
+                "Base datetime is None, set the base datetime before accessing attr lower"
             )
         return self._lower
 
@@ -88,7 +88,7 @@ class VisitDate:
     def upper(self) -> datetime:
         if not self.base:
             raise BaseDatetimeNotSet(
-                "Base datetime is None, set the base datetime " "before accessing attr upper"
+                "Base datetime is None, set the base datetime before accessing attr upper"
             )
         return self._upper
 
@@ -159,8 +159,7 @@ class Visit:
         self.grouping = grouping
         if not code or isinstance(code, int) or not re.match(self.code_regex, code):
             raise VisitCodeError(f"Invalid visit code. Got '{code}'")
-        else:
-            self.code = code  # unique
+        self.code = code  # unique
         self.dates = self.visit_date_cls(
             rlower=rlower,
             rupper=rupper,
@@ -272,7 +271,7 @@ class Visit:
 
     @timepoint_datetime.setter
     def timepoint_datetime(self, dt=None):
-        self.dates.base = to_utc(dt)
+        self.dates.base = to_local(dt)
 
     def to_dict(self):
         return dict(

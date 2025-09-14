@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
-from typing import TYPE_CHECKING, Type, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from dateutil.relativedelta import relativedelta
 from django import template
@@ -56,16 +56,16 @@ if TYPE_CHECKING:
 
 __all__ = [
     "appointment_in_progress",
-    "render_appointment_status_icon",
     "print_requisition_popover",
-    "render_prn_button",
     "render_appointment_button",
+    "render_appointment_status_icon",
     "render_crf_button_group",
-    "render_gotoforms_button",
-    "requisition_panel_actions",
     "render_crf_totals",
+    "render_gotoforms_button",
+    "render_prn_button",
     "render_subject_consent_dashboard_button",
     "render_unscheduled_appointment_button",
+    "requisition_panel_actions",
 ]
 
 register = template.Library()
@@ -302,7 +302,7 @@ def render_related_visit_button(context, appointment: Appointment = None):
     # from model_wrapper
     appointment = getattr(appointment, "object", appointment)
     related_visit: VisitModel = appointment.related_visit
-    related_visit_model_cls: Type[VisitModel] = appointment.related_visit_model_cls()
+    related_visit_model_cls: type[VisitModel] = appointment.related_visit_model_cls()
     btn = RelatedVisitButton(
         model_obj=related_visit,
         model_cls=related_visit_model_cls,
@@ -322,7 +322,7 @@ def render_gotoforms_button(context, appointment: Appointment = None):
     # from model_wrapper
     appointment: Appointment = getattr(appointment, "object", appointment)
     related_visit: VisitModel = appointment.related_visit
-    related_visit_model_cls: Type[VisitModel] = appointment.related_visit_model_cls()
+    related_visit_model_cls: type[VisitModel] = appointment.related_visit_model_cls()
     btn = GotToFormsButton(
         model_obj=related_visit,
         model_cls=related_visit_model_cls,
@@ -424,8 +424,7 @@ def render_unscheduled_appointment_button(
     ):
         show_button = True
         anchor_id = (
-            f"unscheduled_appt_btn_{appointment.visit_code}_"
-            f"{appointment.visit_code_sequence}"
+            f"unscheduled_appt_btn_{appointment.visit_code}_{appointment.visit_code_sequence}"
         )
         if view_appointment and appointment.site.id == context["request"].site.id:
             url = get_unscheduled_appointment_url(appointment)
@@ -482,9 +481,9 @@ def render_refresh_appointments_button(
     visit_schedule_name: str = None,
     schedule_name: str = None,
 ) -> dict:
-    if context["request"].user.userprofile.is_multisite_viewer:
-        url = None
-    elif context["request"].user.userprofile.roles.filter(name=AUDITOR_ROLE):
+    if context["request"].user.userprofile.is_multisite_viewer or context[
+        "request"
+    ].user.userprofile.roles.filter(name=AUDITOR_ROLE):
         url = None
     else:
         url = reverse(
@@ -508,11 +507,11 @@ def render_refresh_data_collection_schedule_button(
     visit_schedule_name: str = None,
     schedule_name: str = None,
 ) -> dict:
-    if context["request"].user.userprofile.is_multisite_viewer:
-        url = None
-    elif context["request"].user.userprofile.roles.filter(name=AUDITOR_ROLE):
-        url = None
-    elif not related_visit_id:
+    if (
+        context["request"].user.userprofile.is_multisite_viewer
+        or context["request"].user.userprofile.roles.filter(name=AUDITOR_ROLE)
+        or not related_visit_id
+    ):
         url = None
     else:
         url = reverse(

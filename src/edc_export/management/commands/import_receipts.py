@@ -31,7 +31,7 @@ class Command(BaseCommand):
         error_filepath = os.path.join(
             os.path.expanduser(self.export_plan.target_path) or "", self.error_filename
         )
-        with open(self.ack_filename, "r") as f, open(error_filepath, "w") as error_file:
+        with open(self.ack_filename) as f, open(error_filepath, "w") as error_file:
             rows = csv.reader(f, delimiter="|")
             writer = csv.writer(error_file, delimiter="|")
             for row in rows:
@@ -42,8 +42,8 @@ class Command(BaseCommand):
                 try:
                     export_uuid = row[header.index("export_UUID")]
                 except ValueError as e:
-                    writer.writerow("error reading file. Got {0}".format(e))
-                    print("Failed to process file {0}".format(self.ack_filename))
+                    writer.writerow(f"error reading file. Got {e}")
+                    print(f"Failed to process file {self.ack_filename}")
                     raise ValueError(e)
                 if ExportTransaction.objects.filter(export_uuid=export_uuid):
                     for export_transaction in ExportTransaction.objects.filter(
@@ -79,7 +79,7 @@ class Command(BaseCommand):
         except ValueError:
             CommandError(
                 "Invalid file name. Expected format xxx_app_label_objectname_timestamp.xxx. "
-                "Got {0}".format(self.ack_filename)
+                f"Got {self.ack_filename}"
             )
         return error_filename
 
@@ -91,9 +91,9 @@ class Command(BaseCommand):
             )
         except ExportPlan.DoesNotExist as e:
             CommandError(
-                "ExportPlan not found for {0}, {1}. "
+                f"ExportPlan not found for {self.app_label}, {self.object_name}. "
                 "Check filename format or create an ExportPlan. "
-                "Got {2}".format(self.app_label, self.object_name, e)
+                f"Got {e}"
             )
         return export_plan
 

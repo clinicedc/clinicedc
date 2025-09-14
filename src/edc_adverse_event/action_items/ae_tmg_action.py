@@ -13,7 +13,7 @@ class AeTmgAction(ActionWithNotification):
     name = AE_TMG_ACTION
     display_name = "TMG AE Report pending"
     notification_display_name = "TMG AE Report"
-    parent_action_names = [AE_INITIAL_ACTION, AE_FOLLOWUP_ACTION, AE_TMG_ACTION]
+    parent_action_names = (AE_INITIAL_ACTION, AE_FOLLOWUP_ACTION, AE_TMG_ACTION)
     reference_model = f"{ADVERSE_EVENT_APP_LABEL}.aetmg"
     related_reference_model = f"{ADVERSE_EVENT_APP_LABEL}.aeinitial"
     related_reference_fk_attr = "ae_initial"

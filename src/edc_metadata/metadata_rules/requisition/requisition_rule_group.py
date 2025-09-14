@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import namedtuple
-from typing import TYPE_CHECKING, Any, Tuple
+from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ValidationError
 
@@ -97,7 +97,7 @@ class RequisitionRuleGroup(RuleGroup, metaclass=RequisitionMetaclass):
         cls: Any,
         related_visit: RelatedVisitModel = None,
         allow_create: bool | None = None,
-    ) -> Tuple[dict[str, dict[str, list[RuleResult]]], dict[str, RequisitionMetadata]]:
+    ) -> tuple[dict[str, dict[str, list[RuleResult]]], dict[str, RequisitionMetadata]]:
         """Returns a tuple of (rule_results, metadata_objects) where
         rule_results ...
 

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from dateutil.relativedelta import relativedelta
 from django.utils.translation import gettext as _
 
-from edc_utils import formatted_date, to_utc
+from edc_utils import formatted_date
 from edc_utils.date import floor_secs, to_local
 from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
@@ -38,7 +38,7 @@ class WindowPeriodFormValidatorMixin:
             and appointment.visit_code_sequence > 0
             and appointment.next
             and appointment.next.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
-            and to_utc(proposed_appt_datetime) < appointment.next.appt_datetime
+            and to_local(proposed_appt_datetime) < to_local(appointment.next.appt_datetime)
         ):
             value = True
         return value
@@ -50,14 +50,15 @@ class WindowPeriodFormValidatorMixin:
         form_field: str,
     ):
         if proposed_appt_datetime:
-            proposed_appt_datetime = to_utc(proposed_appt_datetime)
             try:
                 appointment.schedule.datetime_in_window(
-                    timepoint_datetime=appointment.timepoint_datetime,
-                    dt=proposed_appt_datetime,
+                    timepoint_datetime=to_local(appointment.timepoint_datetime),
+                    dt=to_local(proposed_appt_datetime),
                     visit_code=appointment.visit_code,
                     visit_code_sequence=appointment.visit_code_sequence,
-                    baseline_timepoint_datetime=self.baseline_timepoint_datetime(appointment),
+                    baseline_timepoint_datetime=to_local(
+                        self.baseline_timepoint_datetime(appointment)
+                    ),
                 )
             except UnScheduledVisitWindowError:
                 if not self.ignore_window_period_for_unscheduled(

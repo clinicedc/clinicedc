@@ -98,7 +98,7 @@ class Rx(
         return f"{self.subject_identifier}"
 
     def natural_key(self):
-        return (self.rx_identifier,)  # noqa
+        return (self.rx_identifier,)
 
     def save(self, *args, **kwargs):
         self.registered_subject = RegisteredSubject.objects.get(
@@ -144,4 +144,4 @@ class Rx(
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Prescription"
         verbose_name_plural = "Prescriptions"
-        indexes = [Index(fields=["rando_sid"])]
+        indexes = (Index(fields=["rando_sid"]),)

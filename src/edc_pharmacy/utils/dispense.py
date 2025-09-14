@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.contrib import messages
@@ -21,9 +21,9 @@ def dispense(
     dispensed_by: str,
     request: WSGIRequest,
 ) -> QuerySet[DispenseItem] | None:
-    stock_model_cls: Type[Stock] = django_apps.get_model("edc_pharmacy.stock")
-    dispense_model_cls: Type[Dispense] = django_apps.get_model("edc_pharmacy.dispense")
-    dispense_item_model_cls: Type[DispenseItem] = django_apps.get_model(
+    stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
+    dispense_model_cls: type[Dispense] = django_apps.get_model("edc_pharmacy.dispense")
+    dispense_item_model_cls: type[DispenseItem] = django_apps.get_model(
         "edc_pharmacy.dispenseitem"
     )
 
@@ -33,10 +33,7 @@ def dispense(
             messages.add_message(
                 request,
                 messages.ERROR,
-                (
-                    "Stock not allocated to subject. "
-                    f"Got {stock.code}. Dispensing cancelled."
-                ),
+                (f"Stock not allocated to subject. Got {stock.code}. Dispensing cancelled."),
             )
             assignment_mismatch = True
             break

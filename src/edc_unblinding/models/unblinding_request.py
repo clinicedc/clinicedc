@@ -66,6 +66,6 @@ class UnblindingRequest(
     class Meta(BaseUuidModel.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
         verbose_name = "Unblinding Request"
         verbose_name_plural = "Unblinding Requests"
-        indexes = [
-            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])
-        ]
+        indexes = (
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"]),
+        )

@@ -15,11 +15,10 @@ class Manager(models.Manager):
 
 
 class Receive(BaseUuidModel):
-
     receive_identifier = models.CharField(
         max_length=36,
         unique=True,
-        null=True,
+        default="",
         blank=True,
         help_text="A sequential unique identifier set by the EDC",
     )
@@ -46,11 +45,11 @@ class Receive(BaseUuidModel):
         blank=False,
     )
 
-    invoice_number = models.CharField(max_length=50, null=True, blank=True)
+    invoice_number = models.CharField(max_length=50, default="", blank=True)
 
     invoice_date = models.DateField(null=True, blank=True)
 
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(default="", blank=True)
 
     objects = Manager()
 

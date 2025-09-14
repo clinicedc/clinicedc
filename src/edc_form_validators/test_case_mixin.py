@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.forms import ValidationError
 from django.test import TestCase
@@ -11,16 +11,16 @@ if TYPE_CHECKING:
 
 
 class FormValidatorTestCaseMixin:
-    form_validator_cls: Type[FormValidator] = None
-    form_validator_model_cls: Type[BaseUuidModel] = None
+    form_validator_cls: type[FormValidator] = None
+    form_validator_model_cls: type[BaseUuidModel] = None
 
     def validate_form_validator(
         self: FormValidatorTestCaseMixin,
         cleaned_data: dict,
         *,
         instance: BaseUuidModel | None = None,
-        model_cls: Type[BaseUuidModel] | None = None,
-        form_validator_cls: Type[FormValidator] | None = None,
+        model_cls: type[BaseUuidModel] | None = None,
+        form_validator_cls: type[FormValidator] | None = None,
     ) -> FormValidator:
         form_validator = (form_validator_cls or self.form_validator_cls)(
             cleaned_data=cleaned_data,

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable
 from copy import deepcopy
-from typing import Callable, Tuple
 from warnings import warn
 
 from django.apps import apps as django_apps
@@ -206,7 +206,7 @@ class SiteAuths:
         self.registry[key].update({name: existing_group_names})
 
     def add_custom_permissions_tuples(
-        self, model: str, codename_tuples: Tuple[Tuple[str, str], ...]
+        self, model: str, codename_tuples: tuple[tuple[str, str], ...]
     ):
         try:
             self.registry["custom_permissions_tuples"][model]
@@ -278,7 +278,7 @@ class SiteAuths:
         return self.registry["pre_update_funcs"]
 
     @property
-    def post_update_funcs(self) -> Tuple[str, Callable]:
+    def post_update_funcs(self) -> tuple[str, Callable]:
         return self.registry["post_update_funcs"]
 
     @property

@@ -55,7 +55,7 @@ class VisitTrackingCrfModelMixin(VisitMethodsModelMixin, CrfScheduleModelMixin, 
     class Meta:
         abstract = True
         # assuming subject_visit
-        indexes = [
+        indexes = (
             models.Index(fields=["subject_visit", "site", "id"]),
             models.Index(fields=["subject_visit", "report_datetime"]),
-        ]
+        )

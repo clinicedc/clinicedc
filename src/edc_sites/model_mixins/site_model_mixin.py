@@ -36,7 +36,6 @@ class SiteModelMixin(models.Model):
             pass
         else:
             self.validate_site_against_current()
-        return None
 
     def get_site_on_create(self) -> Site:
         """Returns a site model instance.
@@ -65,7 +64,7 @@ class SiteModelMixin(models.Model):
 
     def validate_site_against_current(self) -> None:
         """Validate existing site instance matches current_site."""
-        return None
+        return
 
     class Meta:
         abstract = True

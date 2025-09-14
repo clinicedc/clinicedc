@@ -1,5 +1,3 @@
-from typing import Type
-
 import numpy as np
 import pandas as pd
 from django.apps import apps as django_apps
@@ -13,7 +11,7 @@ from ..utils import convert_dates_from_model
 
 def get_subject_consent(
     model: str | None = None,
-    model_cls: Type[Model] | None = None,
+    model_cls: type[Model] | None = None,
     subject_identifiers: list[str] | None = None,
     extra_columns: list[str] | None = None,
     normalize: bool | None = None,

@@ -31,11 +31,11 @@ class VisitTrackingModelFormMixin(SiteModelFormMixin):
             raise forms.ValidationError(
                 {
                     "reason": (
-                        "Invalid. Appointment is missed. " "Expected visit to be missed also."
+                        "Invalid. Appointment is missed. Expected visit to be missed also."
                     )
                 }
             )
-        elif (
+        if (
             cleaned_data.get("reason")
             and self.appointment.appt_timing == MISSED_APPT
             and cleaned_data.get("reason") != MISSED_VISIT
@@ -43,8 +43,7 @@ class VisitTrackingModelFormMixin(SiteModelFormMixin):
             raise forms.ValidationError(
                 {
                     "reason": (
-                        "Invalid. Appointment is not missed. "
-                        "Did not expected a missed visit."
+                        "Invalid. Appointment is not missed. Did not expected a missed visit."
                     )
                 }
             )

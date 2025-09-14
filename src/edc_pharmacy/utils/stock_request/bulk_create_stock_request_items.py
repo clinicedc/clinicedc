@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import timezone
+from datetime import UTC
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -38,7 +38,7 @@ def bulk_create_stock_request_items(
         rx = rx_model_cls.objects.get(registered_subject=registered_subject)
         visit_code = str(int(row["next_visit_code"]))
         visit_code_sequence = int(10 * row["next_visit_code"] % 1)
-        appt_datetime = row["next_appt_datetime"].replace(tzinfo=timezone.utc)
+        appt_datetime = row["next_appt_datetime"].replace(tzinfo=UTC)
         assignment = rx.get_assignment()
         next_id = get_next_value(stock_request_item_model_cls._meta.label_lower)
         request_item_identifier = f"{next_id:06d}"
@@ -63,7 +63,6 @@ def bulk_create_stock_request_items(
                 obj.save()
         stock_request.item_count = len(data)
         stock_request.save(update_fields=["item_count"])
-    return None
 
 
 __all__ = ["bulk_create_stock_request_items"]

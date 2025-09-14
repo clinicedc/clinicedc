@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django import template
 
@@ -74,7 +74,7 @@ def add_action_item_popover(
     `Add action linked PRN forms`
     """
     action_item_add_url: str = "edc_action_item_admin:edc_action_item_actionitem_add"
-    add_actions: dict[str, Type[Action]] = site_action_items.get_add_actions_to_show()
+    add_actions: dict[str, type[Action]] = site_action_items.get_add_actions_to_show()
     if add_actions:
         d = {k: v.display_name for k, v in add_actions.items()}
         add_actions = {}

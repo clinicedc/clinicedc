@@ -22,8 +22,8 @@ test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 skip_condition = "django_collect_offline.apps.AppConfig" not in settings.INSTALLED_APPS
 skip_reason = "django_collect_offline not installed"
 if not skip_condition:
-    from django_collect_offline.models import OutgoingTransaction  # noqa
-    from django_collect_offline.tests import OfflineTestHelper  # noqa
+    from django_collect_offline.models import OutgoingTransaction
+    from django_collect_offline.tests import OfflineTestHelper
 
     from ...offline_models import offline_models
 

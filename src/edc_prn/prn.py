@@ -58,7 +58,7 @@ class Prn:
         try:
             return django_apps.get_model(self.model)
         except LookupError as e:
-            raise PrnError(f"{e}. See {repr(self)}")
+            raise PrnError(f"{e}. See {self!r}")
 
     def get_show_on_dashboard(self, subject_identifier=None, **kwargs):
         count = 0

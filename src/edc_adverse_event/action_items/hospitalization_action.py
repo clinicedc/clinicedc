@@ -11,7 +11,7 @@ class HospitalizationAction(ActionWithNotification):
     name = HOSPITALIZATION_ACTION
     display_name = "Submit Hospitalization Report"
     notification_display_name = "Hospitalization"
-    parent_action_names = []
+    parent_action_names = ()
     show_link_to_changelist = True
     show_link_to_add = True
     priority = HIGH_PRIORITY

@@ -14,23 +14,17 @@ class BoxForm(forms.ModelForm):
         if cleaned_data.get("specimen_types"):
             pattern = "([0-9][0-9]*[ ]*,[ ]*)*[0-9][0-9]*"
             match = re.match(pattern, cleaned_data.get("specimen_types"))
-            if not match:
+            if not match or match.group() != cleaned_data.get("specimen_types"):
                 raise forms.ValidationError(
                     {"specimen_types": "Invalid list of specimen types."},
                     code="invalid format",
                 )
-            elif match.group() != cleaned_data.get("specimen_types"):
+            specimen_types = [code.strip() for code in match.group().split(",")]
+            if len(specimen_types) != len(list(set(specimen_types))):
                 raise forms.ValidationError(
-                    {"specimen_types": "Invalid list of specimen types."},
-                    code="invalid format",
+                    {"specimen_types": "List must be unique."},
+                    code="list not unique",
                 )
-            else:
-                specimen_types = [code.strip() for code in match.group().split(",")]
-                if len(specimen_types) != len(list(set(specimen_types))):
-                    raise forms.ValidationError(
-                        {"specimen_types": "List must be unique."},
-                        code="list not unique",
-                    )
             cleaned_data["specimen_types"] = ",".join(specimen_types)
         form_validator.validate_other_specify("category")
         return cleaned_data

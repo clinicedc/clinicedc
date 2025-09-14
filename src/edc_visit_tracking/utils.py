@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Type, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -26,12 +26,12 @@ def get_related_visit_model() -> str:
     return getattr(settings, "SUBJECT_VISIT_MODEL", "edc_visit_tracking.subjectvisit")
 
 
-def get_related_visit_model_cls() -> Type[SubjectVisit]:
+def get_related_visit_model_cls() -> type[SubjectVisit]:
     model_cls = django_apps.get_model(get_related_visit_model())
     if model_cls._meta.proxy:
         # raise for now until we have a solution
         raise RelatedVisitModelError(
-            "Not allowed. Related visit model may not be a " f"proxy model. Got {model_cls}. "
+            f"Not allowed. Related visit model may not be a proxy model. Got {model_cls}. "
         )
     return model_cls
 
@@ -45,7 +45,7 @@ def get_subject_visit_model() -> str:
     return get_related_visit_model()
 
 
-def get_subject_visit_model_cls() -> Type[SubjectVisit]:
+def get_subject_visit_model_cls() -> type[SubjectVisit]:
     warnings.warn(
         "This func has been renamed to `get_related_visit_model_cls`.",
         DeprecationWarning,
@@ -75,7 +75,7 @@ def get_allow_missed_unscheduled_appts() -> bool:
     return getattr(settings, "EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED", False)
 
 
-def get_subject_visit_missed_model_cls() -> Type[SubjectVisitMissed]:
+def get_subject_visit_missed_model_cls() -> type[SubjectVisitMissed]:
     return django_apps.get_model(get_subject_visit_missed_model())
 
 

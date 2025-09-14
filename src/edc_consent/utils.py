@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
     from .model_mixins import ConsentModelMixin
 
-    class ConsentModel(ConsentModelMixin, BaseUuidModel): ...  # noqa
+    class ConsentModel(ConsentModelMixin, BaseUuidModel): ...
 
 
 class InvalidInitials(Exception):

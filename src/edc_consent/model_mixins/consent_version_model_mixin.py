@@ -69,7 +69,7 @@ class ConsentVersionModelMixin(models.Model):
                 f"to 'create' consent version '{cdef.version}'. Expected "
                 f"'{cdef.model}'. Got '{self._meta.label_lower}'."
             )
-        elif cdef.updates and self._meta.label_lower != cdef.updates.updated_by.model:
+        if cdef.updates and self._meta.label_lower != cdef.updates.updated_by.model:
             raise ConsentDefinitionModelError(
                 f"Incorrect model to update a consent. This model cannot be used "
                 f"to 'update' consent version '{cdef.version}'. Expected "

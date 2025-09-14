@@ -1,5 +1,3 @@
-from typing import Optional
-
 from django.utils import timezone
 
 from .label_template import LabelTemplate
@@ -14,8 +12,8 @@ class Label:
 
     def __init__(
         self,
-        label_template_name: Optional[str] = None,
-        static_files_path: Optional[str] = None,
+        label_template_name: str | None = None,
+        static_files_path: str | None = None,
     ):
         if label_template_name:
             self.label_template_name = label_template_name

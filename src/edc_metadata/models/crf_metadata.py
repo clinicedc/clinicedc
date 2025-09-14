@@ -57,33 +57,31 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
             )
         ]
         indexes = (
-            CrfMetadataModelMixin.Meta.indexes
-            + BaseUuidModel.Meta.indexes
-            + [
-                models.Index(
-                    fields=[
-                        "site",
-                        "entry_status",
-                        "visit_code",
-                        "visit_code_sequence",
-                        "model",
-                        "subject_identifier",
-                        "schedule_name",
-                        "visit_schedule_name",
-                    ],
-                ),
-                models.Index(
-                    fields=[
-                        "subject_identifier",
-                        "visit_schedule_name",
-                        "schedule_name",
-                        "visit_code",
-                        "visit_code_sequence",
-                        "model",
-                        "entry_status",
-                        "timepoint",
-                        "show_order",
-                    ],
-                ),
-            ]
+            *CrfMetadataModelMixin.Meta.indexes,
+            *BaseUuidModel.Meta.indexes,
+            models.Index(
+                fields=[
+                    "site",
+                    "entry_status",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "model",
+                    "subject_identifier",
+                    "schedule_name",
+                    "visit_schedule_name",
+                ],
+            ),
+            models.Index(
+                fields=[
+                    "subject_identifier",
+                    "visit_schedule_name",
+                    "schedule_name",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "model",
+                    "entry_status",
+                    "timepoint",
+                    "show_order",
+                ],
+            ),
         )

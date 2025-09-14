@@ -1,7 +1,6 @@
 import random
 import re
 from datetime import datetime
-from typing import Optional
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
@@ -12,7 +11,7 @@ safe_allowed_chars = "ABCDEFGHKMNPRTUVWXYZ2346789"
 def get_safe_random_string(length=12, safe=None, allowed_chars=None):
     safe = True if safe is None else safe
     allowed_chars = allowed_chars or (
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKL" "MNOPQRTUVWXYZ012346789!@#%^&*()?<>.,[]{}"
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRTUVWXYZ012346789!@#%^&*()?<>.,[]{}"
     )
     if safe:
         allowed_chars = "ABCDEFGHKMNPRTUVWXYZ2346789"
@@ -64,10 +63,10 @@ def convert_from_camel(name):
 
 
 def formatted_datetime(
-    aware_datetime: Optional[datetime],
-    php_dateformat: Optional[str] = None,
-    tz: Optional[str] = None,
-    format_as_date: Optional[bool] = None,
+    aware_datetime: datetime | None,
+    php_dateformat: str | None = None,
+    tz: str | None = None,
+    format_as_date: bool | None = None,
 ):
     """Returns a formatted datetime string, localized by default.
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -17,9 +17,9 @@ if TYPE_CHECKING:
 
     class PrnModel(BaseUuidModel):
         subject_identifier: str
-        ...  # noqa
+        ...
 
-    class CrfModel(CrfModelMixin): ...  # noqa
+    class CrfModel(CrfModelMixin): ...
 
 
 @dataclass
@@ -28,7 +28,7 @@ class ActionItemPopoverListItem(PrnButton):
     category: str = None
     appointment: Appointment | None = None
     model_obj: PrnModel | CrfModel | None = field(default=None, init=False)
-    model_cls: Type[PrnModel | CrfModel | None] = field(default=None, init=False)
+    model_cls: type[PrnModel | CrfModel | None] = field(default=None, init=False)
 
     def __post_init__(self):
         if self.category == "reference":

@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django.contrib import admin
 
 from ..admin_site import edc_metadata_admin
@@ -21,12 +19,12 @@ class RequisitionMetadataAdmin(MetadataModelAdminMixin):
         search_fields.append("panel_name")
         return tuple(search_fields)
 
-    def get_list_display(self, request) -> Tuple[str, ...]:
+    def get_list_display(self, request) -> tuple[str, ...]:
         list_display = list(super().get_list_display(request))
         list_display.insert(3, "panel_name")
         return tuple(list_display)
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = list(super().get_list_filter(request))
         list_filter.insert(1, "panel_name")
         return tuple(list_filter)

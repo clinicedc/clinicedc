@@ -1,5 +1,3 @@
-from typing import Optional
-
 from django.apps import apps as django_apps
 
 from edc_model.stubs import BaseUuidHistoryModelStub
@@ -17,7 +15,7 @@ class ModelNotification(Notification):
     modification or deletion.
     """
 
-    model: Optional[str] = None  # label_lower format
+    model: str | None = None  # label_lower format
 
     model_operations = [CREATE, UPDATE, DELETE]
 

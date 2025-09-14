@@ -15,7 +15,6 @@ class StockAdjustmentManager(models.Manager):
 
 
 class StockAdjustment(BaseUuidModel):
-
     stock = models.ForeignKey(
         Stock,
         # related_name="source_stock",
@@ -39,7 +38,7 @@ class StockAdjustment(BaseUuidModel):
         validators=[MinValueValidator(0)],
     )
 
-    reason = models.TextField(null=True)
+    reason = models.TextField(default="")
 
     objects = StockAdjustmentManager()
 

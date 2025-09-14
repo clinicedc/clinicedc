@@ -3,7 +3,7 @@ from .off_schedule_modelform_mixin import OffScheduleModelFormMixin
 from .visit_schedule_non_crf_modelform_mixin import VisitScheduleNonCrfModelFormMixin
 
 __all__ = [
-    "VisitScheduleCrfModelFormMixin",
     "OffScheduleModelFormMixin",
+    "VisitScheduleCrfModelFormMixin",
     "VisitScheduleNonCrfModelFormMixin",
 ]

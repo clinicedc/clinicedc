@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -43,17 +43,17 @@ class HasKeyedMetadata(Exception):
     pass
 
 
-def get_crf_metadata_model_cls() -> Type[CrfMetadata]:
+def get_crf_metadata_model_cls() -> type[CrfMetadata]:
     return django_apps.get_model("edc_metadata.crfmetadata")
 
 
-def get_requisition_metadata_model_cls() -> Type[RequisitionMetadata]:
+def get_requisition_metadata_model_cls() -> type[RequisitionMetadata]:
     return django_apps.get_model("edc_metadata.requisitionmetadata")
 
 
 def get_metadata_model_cls(
     metadata_category: str,
-) -> Type[CrfMetadata] | Type[RequisitionMetadata]:
+) -> type[CrfMetadata] | type[RequisitionMetadata]:
     if metadata_category == CRF:
         model_cls = get_crf_metadata_model_cls()
     elif metadata_category == REQUISITION:

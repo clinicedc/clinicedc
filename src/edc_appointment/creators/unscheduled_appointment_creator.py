@@ -100,7 +100,7 @@ class UnscheduledAppointmentCreator:
                 f"schedule_name='{self.schedule_name}',"
                 f"visit_code='{self.visit_code}'" + "}"
             )
-        elif not value.allow_unscheduled:
+        if not value.allow_unscheduled:
             raise UnscheduledAppointmentNotAllowed(
                 f"Not allowed. Visit {self.visit_code} is not configured for "
                 "unscheduled appointments."
@@ -241,18 +241,17 @@ class UnscheduledAppointmentCreator:
                     "visit form is not submitted. "
                     f"Got appointment '{self.visit_code}.0'."
                 )
-            else:
-                if self._parent_appointment.appt_status not in [
-                    COMPLETE_APPT,
-                    INCOMPLETE_APPT,
-                ]:
-                    raise InvalidParentAppointmentStatusError(
-                        "Unable to create unscheduled appointment. An unscheduled "
-                        "appointment cannot be created if the parent appointment "
-                        "is 'new' or 'in progress'. Got appointment "
-                        f"'{self.visit_code}' is "
-                        f"{self._parent_appointment.get_appt_status_display().lower()}."
-                    )
+            if self._parent_appointment.appt_status not in [
+                COMPLETE_APPT,
+                INCOMPLETE_APPT,
+            ]:
+                raise InvalidParentAppointmentStatusError(
+                    "Unable to create unscheduled appointment. An unscheduled "
+                    "appointment cannot be created if the parent appointment "
+                    "is 'new' or 'in progress'. Got appointment "
+                    f"'{self.visit_code}' is "
+                    f"{self._parent_appointment.get_appt_status_display().lower()}."
+                )
 
         return self._parent_appointment
 

@@ -25,7 +25,7 @@ class TestModels(TestCase):
     def test_get_absolute_url_change(self):
         obj = BasicModel.objects.create()
         self.assertEqual(
-            obj.get_absolute_url(), f"/admin/edc_model/basicmodel/{str(obj.id)}/change/"
+            obj.get_absolute_url(), f"/admin/edc_model/basicmodel/{obj.id!s}/change/"
         )
 
     def test_get_absolute_url_add(self):

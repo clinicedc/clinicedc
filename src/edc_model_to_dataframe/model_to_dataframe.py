@@ -24,7 +24,7 @@ if TYPE_CHECKING:
             pass
 
 
-__all__ = ["ModelToDataframeError", "ModelToDataframe"]
+__all__ = ["ModelToDataframe", "ModelToDataframeError"]
 
 
 class ModelToDataframeError(Exception):
@@ -124,9 +124,7 @@ class ModelToDataframe:
         try:
             row_count = self.queryset.count()
         except OperationalError as e:
-            if "The user specified as a definer" in str(e) and getattr(
-                self.model_cls, "recreate_db_view"
-            ):
+            if "The user specified as a definer" in str(e) and self.model_cls.recreate_db_view:
                 self.model_cls.recreate_db_view()
                 row_count = self.queryset.count()
             else:

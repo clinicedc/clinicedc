@@ -106,7 +106,7 @@ class DispenseView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Template
             )
             return HttpResponseRedirect(url)
 
-        elif stock_codes and location and formulation and rx and container_count:
+        if stock_codes and location and formulation and rx and container_count:
             dispense_qs = dispense(
                 stock_codes,
                 location,

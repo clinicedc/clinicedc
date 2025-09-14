@@ -15,7 +15,7 @@ class ProtocolDeviationViolationAction(ActionWithNotification):
     name = PROTOCOL_DEVIATION_VIOLATION_ACTION
     display_name = "Submit Protocol Deviation / Violation Report"
     notification_display_name = "Protocol Deviation / Violation Report"
-    parent_action_names = []
+    parent_action_names = ()
     show_link_to_changelist = True
     show_link_to_add = True
     priority = HIGH_PRIORITY
@@ -31,7 +31,7 @@ class ProtocolIncidentAction(ActionWithNotification):
     name = PROTOCOL_INCIDENT_ACTION
     display_name = "Submit Protocol Incident Report"
     notification_display_name = "Protocol Incident Report"
-    parent_action_names = []
+    parent_action_names = ()
     show_link_to_changelist = True
     show_link_to_add = True
     priority = HIGH_PRIORITY

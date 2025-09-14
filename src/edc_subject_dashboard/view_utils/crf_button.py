@@ -19,9 +19,7 @@ class CrfButton(DashboardModelButton):
     @property
     def disabled(self) -> str:
         disabled = "disabled"
-        if not self.model_obj and self.perms.add:
-            disabled = ""
-        elif self.perms.change:
+        if (not self.model_obj and self.perms.add) or self.perms.change:
             disabled = ""
         elif self.perms.view:
             if self.model_obj:

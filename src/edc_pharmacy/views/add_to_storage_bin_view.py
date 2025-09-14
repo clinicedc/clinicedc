@@ -186,7 +186,7 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
                 },
             )
             return HttpResponseRedirect(url)
-        elif items_to_scan and stock_codes:
+        if items_to_scan and stock_codes:
             try:
                 codes_created, codes_not_created = update_bin(
                     storage_bin,
