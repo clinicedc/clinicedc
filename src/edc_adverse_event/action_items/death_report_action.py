@@ -22,7 +22,6 @@ class DeathReportAction(ActionWithNotification):
     show_link_to_add = True
     priority = HIGH_PRIORITY
     singleton = True
-    dirty_fields = ["cause_of_death"]
     enable_tmg_workflow = True
 
     reference_model = f"{ADVERSE_EVENT_APP_LABEL}.deathreport"

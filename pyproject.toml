@@ -186,7 +186,17 @@ select = [
     "W",
     # "FIX",
 ]
-ignore = ["DJ008", "DJ007", "DJ006", "COM812", "PLC0206"]
+ignore = [
+    "DJ008",
+    "DJ007",
+    "DJ006",
+    "COM812",
+    "PLC0206",
+    "TRY003", # temporarily
+    "PLR0913", # temporarily
+    "ARG001", # temporarily
+    "DJ012", # temporarily
+]
 
 [tool.ruff.lint.per-file-ignores]
     "__init__.py" = ["F401"]

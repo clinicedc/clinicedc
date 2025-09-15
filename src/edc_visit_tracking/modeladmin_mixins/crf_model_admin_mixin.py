@@ -42,8 +42,10 @@ class CrfModelAdminMixin:
             "visit_code",
             "visit_reason",
         )
-        return fields_first + tuple(
-            f for f in list_display if f not in fields_first + ("__str__",)
+        return (
+            *fields_first,
+            *[f for f in list_display if f not in fields_first],
+            "__str__",
         )
 
     def get_search_fields(self, request: WSGIRequest) -> tuple[str, ...]:

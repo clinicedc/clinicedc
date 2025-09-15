@@ -11,7 +11,7 @@ class ScheduleStatusListFilter(SimpleListFilter):
     title = "Schedule status"
     parameter_name = "schedule_status"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         names = []
         qs = (
             SubjectScheduleHistory.objects.values(
@@ -20,13 +20,15 @@ class ScheduleStatusListFilter(SimpleListFilter):
             .order_by("schedule_name", "onschedule_model", "offschedule_model")
             .annotate(cnt=Count("schedule_name"))
         )
-        for obj in qs:
-            names.append(
-                (f"{obj.get('schedule_name')}__on", f"On: {obj.get('schedule_name')}")
-            )
-        for obj in qs:
-            names.append(
-                (f"{obj.get('schedule_name')}__off", f"Off: {obj.get('schedule_name')}")
+        for s in ["on", "off"]:
+            names.extend(
+                [
+                    (
+                        f"{obj.get('schedule_name')}__{s}",
+                        f"{s.title()}: {obj.get('schedule_name')}",
+                    )
+                    for obj in qs
+                ]
             )
         return tuple(names)
 
@@ -37,7 +39,7 @@ class ScheduleStatusListFilter(SimpleListFilter):
             schedule_name=schedule_name, offschedule_datetime__isnull=status == "on"
         ).values_list("subject_identifier", flat=True)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         if self.value() and self.value() != "none":
             queryset = queryset.filter(subject_identifier__in=self.subject_identifiers)
         return queryset

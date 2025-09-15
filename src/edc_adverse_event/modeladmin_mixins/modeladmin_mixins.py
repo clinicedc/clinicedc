@@ -65,7 +65,7 @@ class AdverseEventModelAdminMixin:
         """Returns formatted usernames and creation/modification dates."""
         return format_html(
             "{}",
-            mark_safe(
+            mark_safe(  # noqa: S308
                 "<BR>".join(
                     [
                         obj.user_created,

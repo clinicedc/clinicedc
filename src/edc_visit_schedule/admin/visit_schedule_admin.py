@@ -47,7 +47,8 @@ class VisitScheduleAdmin(SimpleHistoryAdmin):
             "visit_name",
             "timepoint",
             "active",
-        ) + list_display
+            *list_display,
+        )
 
     def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
@@ -56,9 +57,10 @@ class VisitScheduleAdmin(SimpleHistoryAdmin):
             "visit_schedule_name",
             "schedule_name",
             "visit_code",
-        ) + list_filter
+            *list_filter,
+        )
 
     @staticmethod
-    def populate_visit_schedule(request, queryset) -> None:
+    def populate_visit_schedule(request, queryset) -> None:  # noqa: ARG004
         VisitSchedule.objects.update(active=False)
         site_visit_schedules.to_model(VisitSchedule)

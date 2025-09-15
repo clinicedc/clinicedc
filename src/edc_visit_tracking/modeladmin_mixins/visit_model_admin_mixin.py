@@ -56,7 +56,7 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
         audit_fieldset_tuple,
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "reason": admin.VERTICAL,
         "reason_unscheduled": admin.VERTICAL,
         "reason_missed": admin.VERTICAL,
@@ -113,7 +113,7 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
             "status",
             "scheduled_data",
         )
-        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
+        return *custom_fields, *tuple(f for f in list_display if f not in custom_fields)
 
     def get_list_filter(self, request: WSGIRequest) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
@@ -124,7 +124,7 @@ class VisitModelAdminMixin(DocumentStatusModelAdminMixin):
             "reason",
             "require_crfs",
         )
-        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
+        return *custom_fields, *tuple(f for f in list_filter if f not in custom_fields)
 
     def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)

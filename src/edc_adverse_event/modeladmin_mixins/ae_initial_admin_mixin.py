@@ -88,8 +88,8 @@ class AeInitialModelAdminMixin(
     additional_instructions = format_html(  # nosec B308, B703
         "Complete the initial AE report and forward to the TMG. "
         'Email to <a href="mailto:{}">{}</a>',
-        mark_safe(email_contact),  # nosec B308, B703
-        mark_safe(email_contact),  # nosec B308, B703
+        mark_safe(email_contact),  # noqa: S308
+        mark_safe(email_contact),  # noqa: S308
     )
 
     fieldsets = (

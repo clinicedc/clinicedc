@@ -160,13 +160,13 @@ class Sites:
                     single_site = dataclasses.replace(single_site, domain=domain)
 
                 if single_site.site_id in self._registry:
-                    raise AlreadyRegistered(f"Site already registered. Got `{single_site}`.")
+                    raise AlreadyRegistered(f"Site already registered. Got `{single_site}`.")  # noqa: TRY003
                 if single_site.name in [s.name for s in self._registry.values()]:
-                    raise AlreadyRegisteredName(
+                    raise AlreadyRegisteredName(  # noqa: TRY003
                         f"Site with this name is already registered. Got `{single_site}`."
                     )
                 if single_site.domain in [s.domain for s in self._registry.values()]:
-                    raise AlreadyRegisteredDomain(
+                    raise AlreadyRegisteredDomain(  # noqa: TRY003
                         f"Site with this domain is already registered. Got `{single_site}`."
                     )
                 self._registry.update({single_site.site_id: single_site})
@@ -187,7 +187,7 @@ class Sites:
                 msg = "In fact, no sites have been registered!"
             else:
                 msg = f"Expected one of {[s.site_id for s in self.all(aslist=True)]}."
-            raise SiteNotRegistered(
+            raise SiteNotRegistered(  # noqa: TRY003
                 f"Site not registered. {msg} See {self!r}. Got `{site_id}`."
             )
         return self._registry.get(site_id)
@@ -196,7 +196,7 @@ class Sites:
         for single_site in self._registry.values():
             if getattr(single_site, attrname) == value:
                 return single_site
-        raise SiteDoesNotExist(f"No site exists with `{attrname}`==`{value}`.")
+        raise SiteDoesNotExist(f"No site exists with `{attrname}`==`{value}`.")  # noqa: TRY003
 
     def all(self, aslist: bool | None = None) -> dict[int, SingleSite] | list[SingleSite]:
         if aslist:
@@ -237,9 +237,10 @@ class Sites:
         if request:
             user = request.user
             site_id = request.site.id
-        return [site_id] + self.get_view_only_site_ids_for_user(
-            request=request, user=user, site_id=site_id
-        )
+        return [
+            site_id,
+            *self.get_view_only_site_ids_for_user(request=request, user=user, site_id=site_id),
+        ]
 
     @staticmethod
     def get_view_only_site_ids_for_user(
@@ -276,14 +277,6 @@ class Sites:
                     add_to_messages_once(
                         request, messages.WARNING, get_message_text(messages.WARNING)
                     )
-        # else:
-        #     if self.has_viewallsites_permission(request):
-        #         site_ids = [
-        #             s.id
-        #             for s in request.user.userprofile.sites.all()
-        #             if s.id != request.site.id
-        #         ]
-
         return site_ids
 
     def user_may_view_other_sites(
@@ -291,25 +284,24 @@ class Sites:
         request: WSGIRequest = None,
         user: User = None,
         site_id: int = None,
-    ) -> bool:
-        if self.get_view_only_site_ids_for_user(
+    ) -> list[int]:
+        return self.get_view_only_site_ids_for_user(
             request=request,
             user=user,
             site_id=site_id,
-        ):
-            return True
-        return False
+        )
 
     @staticmethod
     def site_in_profile_or_raise(user: User, site_id: int) -> None:
         """Raises if user does not have site in their UserProfile."""
         try:
-            user.userprofile.sites.get(id=site_id).id
-        except ObjectDoesNotExist:
-            raise InvalidSiteForUser(
+            user.userprofile.sites.get(id=site_id).id  # noqa: B018
+        except ObjectDoesNotExist as e:
+            errmsg = (
                 "User is not configured to access this site. See also UserProfile. "
                 f"Got {site_id}."
             )
+            raise InvalidSiteForUser(errmsg) from e
 
     def get_language_choices_tuple(
         self, site: Site | None = None, site_id: int | None = None, other=None
@@ -363,7 +355,7 @@ class Sites:
                 except ImportError as e:
                     sites._registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SitesError(str(e))
+                        raise SitesError(str(e)) from e
             except ImportError:
                 pass
 

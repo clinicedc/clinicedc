@@ -61,25 +61,23 @@ class SubjectScheduleHistoryAdmin(
             "offschedule_datetime",
             "visit_schedule_name",
             "schedule_name",
-        ) + list_filter
+            *list_filter,
+        )
 
     def get_readonly_fields(self, request, obj=None) -> tuple:
         fields = super().get_readonly_fields(request, obj=obj)
-        fields = (
-            fields
-            + (
-                "subject_identifier",
-                "visit_schedule_name",
-                "schedule_name",
-                "schedule_status",
-                "onschedule_datetime",
-                "offschedule_datetime",
-                "onschedule_model",
-                "offschedule_model",
-            )
-            + audit_fields
+        return (
+            *fields,
+            "subject_identifier",
+            "visit_schedule_name",
+            "schedule_name",
+            "schedule_status",
+            "onschedule_datetime",
+            "offschedule_datetime",
+            "onschedule_model",
+            "offschedule_model",
+            *audit_fields,
         )
-        return fields
 
     def dashboard(self, obj=None, label=None) -> str:
         try:
