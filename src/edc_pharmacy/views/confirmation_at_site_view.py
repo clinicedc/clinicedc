@@ -94,7 +94,7 @@ class ConfirmationAtSiteView(
 
     def get_adjusted_unconfirmed_count(self, stock_transfer):
         unconfirmed_count = self.get_unconfirmed_count(stock_transfer)
-        return 12 if unconfirmed_count > 12 else unconfirmed_count
+        return min(unconfirmed_count, 12)
 
     def get_stock_codes(self, stock_transfer):
         stock_codes = [
@@ -199,7 +199,6 @@ class ConfirmationAtSiteView(
         return stock_transfer
 
     def post(self, request, *args, **kwargs) -> HttpResponseRedirect:
-
         # cancel
         if request.POST.get("cancel") and request.POST.get("cancel") == "cancel":
             url = reverse("edc_pharmacy:home_url")
@@ -230,7 +229,7 @@ class ConfirmationAtSiteView(
             )
             return HttpResponseRedirect(url)
 
-        elif stock_codes:
+        if stock_codes:
             # you have scanned codes, process them
             confirmed, already_confirmed, invalid = confirm_stock_at_site(
                 stock_transfer, stock_codes, location_id, request=request

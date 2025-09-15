@@ -22,6 +22,9 @@ class WeightHeightBmiModelMixin(models.Model):
         help_text="system calculated",
     )
 
+    class Meta:
+        abstract = True
+
     def save(self, *args, **kwargs):
         bmi = calculate_bmi(
             weight_kg=self.weight,
@@ -36,7 +39,4 @@ class WeightHeightBmiModelMixin(models.Model):
 
     def get_dob(self):
         """Override to provides DoB if not on the model"""
-        return None
-
-    class Meta:
-        abstract = True
+        return

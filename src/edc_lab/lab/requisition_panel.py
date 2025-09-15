@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Type
-
 from django.apps import apps as django_apps
 from django.db import models
 
@@ -85,7 +83,7 @@ class RequisitionPanel:
         return self._panel_model_obj
 
     @property
-    def requisition_model_cls(self) -> Type[models.Model]:
+    def requisition_model_cls(self) -> type[models.Model]:
         """Returns the requisition model class associated with this
         panel (set by it's lab profile).
         """
@@ -95,7 +93,7 @@ class RequisitionPanel:
             raise RequisitionPanelLookupError(
                 f"Invalid requisition model. requisition model="
                 f"'{self.requisition_model}'. "
-                f"See {repr(self)} or the lab profile {self.lab_profile_name}."
+                f"See {self!r} or the lab profile {self.lab_profile_name}."
                 f"Got {e}"
             )
         return requisition_model_cls

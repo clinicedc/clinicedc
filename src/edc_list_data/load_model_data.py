@@ -1,5 +1,3 @@
-from typing import Optional
-
 from django.apps import AppConfig
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -10,7 +8,7 @@ class LoadModelDataError(Exception):
     pass
 
 
-def load_model_data(model_data: dict, apps: Optional[AppConfig] = None) -> int:
+def load_model_data(model_data: dict, apps: AppConfig | None = None) -> int:
     """Loads data into a model, creates or updates existing.
 
     Must have a unique field

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import csv
 import os
-from typing import Any, Optional
+from typing import Any
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -93,9 +93,9 @@ def generate_fake_randomization_list(
     all_sites=None,
     country=None,
     site_name=None,
-    assignment: Optional[list] = None,
-    slots: Optional[int] = None,
-    write_header: Optional[bool] = None,
+    assignment: list | None = None,
+    slots: int | None = None,
+    write_header: bool | None = None,
     filename=None,
     assignment_map=None,
 ):
@@ -137,7 +137,7 @@ def generate_fake_randomization_list(
 
 
 def export_randomization_list(
-    randomizer_name: str, path: Optional[str] = None, username: Optional[str] = None
+    randomizer_name: str, path: str | None = None, username: str | None = None
 ):
     randomizer_cls = site_randomizers.get(randomizer_name)
 

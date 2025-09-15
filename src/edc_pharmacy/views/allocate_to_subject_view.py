@@ -33,9 +33,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
 
     def get_context_data(self, **kwargs):
         remaining_count, total_count = self.get_counts(self.stock_request)
-        show_count = (
-            self.items_per_page if remaining_count >= self.items_per_page else remaining_count
-        )
+        show_count = min(self.items_per_page, remaining_count)
         kwargs.update(
             stock_request=self.stock_request,
             assignment=self.selected_assignment,
@@ -255,7 +253,6 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     def redirect_on_all_allocated_for_assignment(
         self, stock_request: StockRequest, assignment: Assignment
     ) -> str | None:
-
         if not stock_request.stockrequestitem_set.filter(
             allocation__isnull=True, assignment=assignment
         ).exists():
@@ -284,7 +281,6 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         stock_request: StockRequest,
         assignment: Assignment,
     ) -> str | None:
-
         if stock_codes and Stock.objects.filter(
             code__in=stock_codes, lot__assignment=assignment
         ).count() != len(stock_codes):
@@ -347,7 +343,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             return HttpResponseRedirect(url)
 
         if stock_codes and subject_identifiers and assignment:
-            allocation_data = dict(zip(stock_codes, subject_identifiers))
+            allocation_data = dict(zip(stock_codes, subject_identifiers, strict=False))
             try:
                 allocated, not_allocated = allocate_stock(
                     stock_request,

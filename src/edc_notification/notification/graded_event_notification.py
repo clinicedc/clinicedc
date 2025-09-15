@@ -1,11 +1,9 @@
-from typing import Optional
-
 from .model_notification import ModelNotification
 
 
 class GradedEventNotification(ModelNotification):
-    grade: Optional[int] = None
-    model: Optional[str] = None
+    grade: int | None = None
+    model: str | None = None
     create_fields = ["ae_grade"]
     update_fields = ["ae_grade"]
 

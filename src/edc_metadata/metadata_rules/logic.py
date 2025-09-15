@@ -33,7 +33,7 @@ class Logic:
         alternative: str = None,
         comment: str | None = None,
     ) -> None:
-        if not hasattr(predicate, "__call__"):
+        if not callable(predicate):
             raise RuleLogicError(
                 "Predicate must be a callable. For example a "
                 'predicate class such as "P" or "PF"'

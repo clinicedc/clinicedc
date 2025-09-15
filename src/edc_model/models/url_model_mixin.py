@@ -31,7 +31,7 @@ class UrlModelMixin(models.Model):
             f"{self.admin_site_name}:{self._meta.label_lower.replace('.', '_')}_changelist"
         )
         if search_term:
-            url = f"{url}?q={str(search_term)}"
+            url = f"{url}?q={search_term!s}"
         return url
 
     @property

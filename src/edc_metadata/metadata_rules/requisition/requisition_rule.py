@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from ...constants import REQUISITION
 from ..rule import Rule
@@ -10,7 +10,7 @@ class RequisitionRuleEvaluatorError(Exception):
 
 
 class RequisitionRuleEvaluator(RuleEvaluator):
-    def __init__(self, source_panel: Optional[Any] = None, **kwargs) -> None:
+    def __init__(self, source_panel: Any | None = None, **kwargs) -> None:
         self.source_panel = source_panel
         super().__init__(**kwargs)
 
@@ -20,8 +20,8 @@ class RequisitionRule(Rule):
 
     def __init__(
         self,
-        source_panel: Optional[Any] = None,
-        target_panels: Optional[list] = None,
+        source_panel: Any | None = None,
+        target_panels: list | None = None,
         **kwargs,
     ) -> None:
         self.metadata_category = REQUISITION

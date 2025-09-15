@@ -41,9 +41,10 @@ class VerifyBoxModelMixin(VerifyModelMixin, models.Model):
 
     @property
     def is_verified(self):
-        if self.boxitem_set.all().count() == 0:
-            return False
-        elif self.boxitem_set.filter(verified=False).exists():
+        if (
+            self.boxitem_set.all().count() == 0
+            or self.boxitem_set.filter(verified=False).exists()
+        ):
             return False
         return True
 

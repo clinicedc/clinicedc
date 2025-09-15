@@ -198,6 +198,6 @@ class MetadataModelAdminMixin(
     def get_view_on_site_url(self, obj=None):
         if obj is None or not self.view_on_site:
             return None
-        elif hasattr(obj, "get_absolute_url"):
+        if hasattr(obj, "get_absolute_url"):
             url = reverse(self.changelist_url)
             return f"{url}?q={obj.subject_identifier}"

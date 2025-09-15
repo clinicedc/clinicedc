@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Type
 from uuid import uuid4
 
 from django.conf import settings
@@ -48,7 +47,7 @@ class Report(ABC):
         header_line: str | None = None,
         filename: str | None = None,
         request: WSGIRequest | None = None,
-        numbered_canvas: Type[NumberedCanvas] | None = None,
+        numbered_canvas: type[NumberedCanvas] | None = None,
         footer_row_height: int | None = None,
     ):
         self._styles = None
@@ -77,12 +76,12 @@ class Report(ABC):
         return self._numbered_canvas
 
     @numbered_canvas.setter
-    def numbered_canvas(self, value: Type[NumberedCanvas]):
+    def numbered_canvas(self, value: type[NumberedCanvas]):
         self._numbered_canvas = value
         if self.watermark_word:
-            setattr(self._numbered_canvas, "watermark_word", self.watermark_word)
+            self._numbered_canvas.watermark_word = self.watermark_word
             if self.watermark_font:
-                setattr(self._numbered_canvas, "watermark_font", self.watermark_font)
+                self._numbered_canvas.watermark_font = self.watermark_font
 
     @property
     def report_filename(self) -> str:

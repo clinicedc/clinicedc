@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Type
-
 from .metadata_getter import MetadataGetter, MetadataValidator
 
 
@@ -14,4 +12,4 @@ class RequisitionMetadataValidator(MetadataValidator):
 class RequisitionMetadataGetter(MetadataGetter):
     metadata_model: str = "edc_metadata.requisitionmetadata"
 
-    metadata_validator_cls: Type[RequisitionMetadataValidator] = RequisitionMetadataValidator
+    metadata_validator_cls: type[RequisitionMetadataValidator] = RequisitionMetadataValidator

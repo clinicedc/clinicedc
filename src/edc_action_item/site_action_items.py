@@ -4,7 +4,7 @@ import copy
 import sys
 from dataclasses import InitVar, dataclass, field
 from importlib import import_module
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
@@ -36,12 +36,12 @@ class SiteActionError(Exception):
 
 @dataclass
 class ActionButton:
-    action_cls: InitVar[Type[Action] | Type[ActionWithNotification]] = None
+    action_cls: InitVar[type[Action] | type[ActionWithNotification]] = None
     name: str = field(init=False)
     display_name: str = field(init=False)
     action_type_id: str = field(init=False)
 
-    def __post_init__(self, action_cls: Type[Action] | Type[ActionWithNotification]):
+    def __post_init__(self, action_cls: type[Action] | type[ActionWithNotification]):
         self.name = action_cls.name
         self.display_name = action_cls.display_name
         self.action_type_id = str(get_action_type(action_cls).pk)
@@ -49,7 +49,7 @@ class ActionButton:
 
 class SiteActionItemCollection:
     def __init__(self):
-        self.registry: dict[str, Type[Action] | Type[ActionWithNotification]] = {}
+        self.registry: dict[str, type[Action] | type[ActionWithNotification]] = {}
         self.updated_action_types: bool | None = None
         prn = Prn(model="edc_action_item.actionitem", url_namespace="edc_action_item_admin")
         site_prn_forms.register(prn)
@@ -63,7 +63,7 @@ class SiteActionItemCollection:
     def __iter__(self):
         return iter(self.registry.values())
 
-    def unregister(self, action_cls: Type[Action] | Type[ActionWithNotification]) -> None:
+    def unregister(self, action_cls: type[Action] | type[ActionWithNotification]) -> None:
         if action_cls.name in self.registry:
             del self.registry[action_cls.name]
             prn = Prn(
@@ -72,14 +72,13 @@ class SiteActionItemCollection:
             )
             site_prn_forms.unregister(prn)
 
-    def register(self, action_cls: Type[Action] | Type[ActionWithNotification] = None) -> None:
+    def register(self, action_cls: type[Action] | type[ActionWithNotification] = None) -> None:
         if action_cls.name in self.registry:
             raise AlreadyRegistered(
                 f"Action class is already registered. Got name='{action_cls.name}' "
                 f"for {action_cls.__name__}"
             )
-        else:
-            self.registry.update({action_cls.name: action_cls})
+        self.registry.update({action_cls.name: action_cls})
         if action_cls.show_link_to_changelist:
             prn = Prn(
                 model=action_cls.get_reference_model(),
@@ -97,7 +96,7 @@ class SiteActionItemCollection:
             self.register_notifications(action_cls)
 
     @staticmethod
-    def register_notifications(action_cls: Type[Action] | Type[ActionWithNotification]):
+    def register_notifications(action_cls: type[Action] | type[ActionWithNotification]):
         """Registers a new model notification and an updated model
         notification for this action cls.
 
@@ -110,10 +109,10 @@ class SiteActionItemCollection:
                 pass
 
     @property
-    def all(self) -> dict[str, Type[Action] | Type[ActionWithNotification]]:
+    def all(self) -> dict[str, type[Action] | type[ActionWithNotification]]:
         return self.registry
 
-    def get(self, name) -> Type[Action] | Type[ActionWithNotification]:
+    def get(self, name) -> type[Action] | type[ActionWithNotification]:
         """Returns an action class."""
         if name not in self.registry:
             raise SiteActionError(
@@ -122,14 +121,14 @@ class SiteActionItemCollection:
             )
         return self.registry.get(name)
 
-    def get_by_model(self, model=None) -> Type[Action] | Type[ActionWithNotification] | None:
+    def get_by_model(self, model=None) -> type[Action] | type[ActionWithNotification] | None:
         """Returns the action_cls linked to this reference model."""
         for action_cls in self.registry.values():
             if action_cls.get_reference_model() == model:
                 return self.get(action_cls.name)
         return None
 
-    def get_add_actions_to_show(self) -> dict[str, Type[Action]]:
+    def get_add_actions_to_show(self) -> dict[str, type[Action]]:
         actions = {
             action_cls.name: action_cls
             for action_cls in self.registry.values()
@@ -164,7 +163,7 @@ class SiteActionItemCollection:
                 except ImportError as e:
                     site_action_items.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SiteActionError(str(e))
+                        raise SiteActionError(str(e)) from e
             except ImportError:
                 pass
             # except Exception as e:

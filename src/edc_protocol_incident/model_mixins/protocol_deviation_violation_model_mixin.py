@@ -32,7 +32,7 @@ class ProtocolDeviationViolationModelMixin(models.Model):
     )
 
     safety_impact = models.CharField(
-        verbose_name="Could this occurrence have an impact on safety of the " "participant?",
+        verbose_name="Could this occurrence have an impact on safety of the participant?",
         max_length=25,
         choices=YES_NO_NA,
         default=NOT_APPLICABLE,
@@ -78,7 +78,7 @@ class ProtocolDeviationViolationModelMixin(models.Model):
         null=True,
         blank=True,
         help_text=(
-            "Describe in full. Explain how the violation " "happened, what occurred, etc."
+            "Describe in full. Explain how the violation happened, what occurred, etc."
         ),
     )
 
@@ -135,4 +135,4 @@ class ProtocolDeviationViolationModelMixin(models.Model):
         abstract = True
         verbose_name = "Protocol Deviation/Violation"
         verbose_name_plural = "Protocol Deviations/Violations"
-        indexes = [models.Index(fields=["subject_identifier", "action_identifier", "site"])]
+        indexes = (models.Index(fields=["subject_identifier", "action_identifier", "site"]),)

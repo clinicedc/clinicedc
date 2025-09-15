@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from functools import cache
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -42,7 +42,7 @@ def get_issue_model_cls() -> Issue:
 
 
 @cache
-def get_modeladmins_from_admin_sites() -> dict[str, Type[ModelAdmin]]:
+def get_modeladmins_from_admin_sites() -> dict[str, type[ModelAdmin]]:
     registry = {}
     for admin_site in admin.sites.all_sites:
         registry.update(**get_modeladmins_from_admin_site(admin_site))
@@ -50,7 +50,7 @@ def get_modeladmins_from_admin_sites() -> dict[str, Type[ModelAdmin]]:
 
 
 @cache
-def get_modelforms_from_admin_site(admin_site) -> dict[str, Type[ModelForm]]:
+def get_modelforms_from_admin_site(admin_site) -> dict[str, type[ModelForm]]:
     registry = {}
     for admin_class in admin_site._registry.values():
         registry.update({admin_class.model._meta.label_lower: admin_class.form})
@@ -58,14 +58,14 @@ def get_modelforms_from_admin_site(admin_site) -> dict[str, Type[ModelForm]]:
 
 
 @cache
-def get_modeladmins_from_admin_site(admin_site) -> dict[str, Type[ModelAdmin]]:
+def get_modeladmins_from_admin_site(admin_site) -> dict[str, type[ModelAdmin]]:
     registry = {}
     for admin_class in admin_site._registry.values():
         registry.update({admin_class.model._meta.label_lower: admin_class})
     return registry
 
 
-def get_modeladmin_cls(model_name: str) -> Type[ModelAdmin]:
+def get_modeladmin_cls(model_name: str) -> type[ModelAdmin]:
     return get_modeladmins_from_admin_sites().get(model_name)
 
 

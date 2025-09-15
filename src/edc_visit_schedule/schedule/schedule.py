@@ -4,7 +4,7 @@ import re
 from copy import deepcopy
 from datetime import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 
@@ -64,7 +64,7 @@ class Schedule:
 
     name_regex = r"[a-z0-9\_\-]+$"
     visit_cls = Visit
-    visit_collection_cls: Type[VisitCollection] = VisitCollection
+    visit_collection_cls: type[VisitCollection] = VisitCollection
     window_cls = Window
 
     def __init__(
@@ -87,8 +87,7 @@ class Schedule:
                 f"Invalid name. Got '{name}'. May only contains numbers, "
                 "lower case letters and '_'."
             )
-        else:
-            self.name = name
+        self.name = name
 
         self.consent_definitions = consent_definitions
 
@@ -250,8 +249,8 @@ class Schedule:
         if schedule.name != self.name:
             raise ValueError(
                 f"Site visit schedules return the wrong schedule object. "
-                f"Expected {repr(self)} for onschedule_model={self.onschedule_model}. "
-                f"Got {repr(schedule)}."
+                f"Expected {self!r} for onschedule_model={self.onschedule_model}. "
+                f"Got {schedule!r}."
             )
         return SubjectSchedule(
             subject_identifier, visit_schedule=visit_schedule, schedule=self
@@ -283,7 +282,7 @@ class Schedule:
         ]
         if not consent_definition:
             raise ScheduleError(
-                "Consent definition may not be None. Expected one of " f"{formatted_cdefs}."
+                f"Consent definition may not be None. Expected one of {formatted_cdefs}."
             )
 
         if consent_definition not in self.consent_definitions:
@@ -324,11 +323,11 @@ class Schedule:
         return self.window_cls(name=self.name, visits=self.visits, **kwargs).datetime_in_window
 
     @property
-    def onschedule_model_cls(self) -> Type[OnSchedule]:
+    def onschedule_model_cls(self) -> type[OnSchedule]:
         return django_apps.get_model(self.onschedule_model)
 
     @property
-    def offschedule_model_cls(self) -> Type[OffSchedule]:
+    def offschedule_model_cls(self) -> type[OffSchedule]:
         return django_apps.get_model(self.offschedule_model)
 
     @property
@@ -340,15 +339,15 @@ class Schedule:
         return self.loss_to_followup_model_cls
 
     @property
-    def history_model_cls(self) -> Type[SubjectScheduleHistory]:
+    def history_model_cls(self) -> type[SubjectScheduleHistory]:
         return django_apps.get_model(self.history_model)
 
     @property
-    def appointment_model_cls(self) -> Type[Appointment]:
+    def appointment_model_cls(self) -> type[Appointment]:
         return django_apps.get_model(self.appointment_model)
 
     @property
-    def visit_model_cls(self) -> Type[RelatedVisitModel]:
+    def visit_model_cls(self) -> type[RelatedVisitModel]:
         return self.appointment_model_cls.related_visit_model_cls()
 
     def get_consent_definition(

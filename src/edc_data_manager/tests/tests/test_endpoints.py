@@ -157,8 +157,8 @@ class AdminSiteTest(WebTest):
         url = reverse("edc_data_manager_admin:edc_data_manager_dataquery_add")
         url = (
             f"{url}?subject_identifier={self.subject_identifier}&"
-            f"registered_subject={str(registered_subject.pk)}&"
-            f"sender={str(DataManagerUser.objects.get(username=self.user.username).pk)}"
+            f"registered_subject={registered_subject.pk!s}&"
+            f"sender={DataManagerUser.objects.get(username=self.user.username).pk!s}"
         )
         form = self.app.get(url, user=self.user).forms[1]
         form["title"] = "My first query"

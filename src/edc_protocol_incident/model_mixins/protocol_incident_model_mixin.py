@@ -19,10 +19,8 @@ class ProtocolIncidentModelMixin(models.Model):
         null=True,
         blank=False,
         help_text=(
-            (
-                "Max 35 characters. Note: there is additional space below for "
-                "a more detailed description"
-            )
+            "Max 35 characters. Note: there is additional space below for "
+            "a more detailed description"
         ),
     )
 
@@ -132,4 +130,4 @@ class ProtocolIncidentModelMixin(models.Model):
         abstract = True
         verbose_name = "Protocol Incident"
         verbose_name_plural = "Protocol Incident"
-        indexes = [models.Index(fields=["subject_identifier", "action_identifier", "site"])]
+        indexes = (models.Index(fields=["subject_identifier", "action_identifier", "site"]),)

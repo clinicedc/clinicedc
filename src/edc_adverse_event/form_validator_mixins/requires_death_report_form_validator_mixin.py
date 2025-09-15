@@ -56,7 +56,7 @@ class BaseRequiresDeathReportFormValidatorMixin:
         instance.
         """
         death_report = self.death_report_or_raises
-        value = getattr(death_report, getattr(death_report, "death_date_field"))
+        value = getattr(death_report, death_report.death_date_field)
 
         try:
             death_report_date = value.astimezone(ZoneInfo("UTC")).date()
@@ -105,7 +105,7 @@ class RequiresDeathReportFormValidatorMixin(BaseRequiresDeathReportFormValidator
                         "death report form first."
                     }
                 )
-            elif (
+            if (
                 self.cleaned_data.get(self.offschedule_reason_field).name != DEAD
                 and self.death_report
             ):
@@ -125,7 +125,7 @@ class RequiresDeathReportFormValidatorMixin(BaseRequiresDeathReportFormValidator
                     )
                 }
             )
-        elif self.cleaned_data.get(self.death_date_field) and self.death_report:
+        if self.cleaned_data.get(self.death_date_field) and self.death_report:
             self.match_date_of_death_or_raise()
 
     def match_date_of_death_or_raise(self) -> None:
@@ -153,4 +153,3 @@ class RequiresDeathReportFormValidatorMixin(BaseRequiresDeathReportFormValidator
                         )
                     }
                 )
-        return None

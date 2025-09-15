@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.db import models
@@ -68,7 +68,7 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         return REQUIRED if requisition.required else NOT_REQUIRED
 
     @property
-    def metadata_model(self: RequisitionModel) -> Type[RequisitionMetadata]:
+    def metadata_model(self: RequisitionModel) -> type[RequisitionMetadata]:
         """Returns the metadata model associated with self."""
         metadata_model = "edc_metadata.requisitionmetadata"
         return django_apps.get_model(metadata_model)

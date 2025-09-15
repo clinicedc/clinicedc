@@ -80,11 +80,8 @@ class Holidays:
         if not self._holidays:
             if holidays_disabled():
                 self._holidays = self.model_cls.objects.none()
-            else:
-                if not self.model_cls.objects.filter(country=self.country).exists():
-                    raise HolidayError(
-                        f"No holidays found for '{self.country}. See {self.model}."
-                    )
+            elif not self.model_cls.objects.filter(country=self.country).exists():
+                raise HolidayError(f"No holidays found for '{self.country}. See {self.model}.")
             self._holidays = self.model_cls.objects.filter(country=self.country)
         return self._holidays
 

@@ -1,5 +1,5 @@
 import sys
-from typing import Any, List, Optional
+from typing import Any
 from warnings import warn
 
 from django.apps import apps as django_apps
@@ -36,13 +36,13 @@ class GroupUpdater:
 
     def __init__(
         self,
-        groups: Optional[dict] = None,
+        groups: dict | None = None,
         apps=None,
         verbose=None,
-        pii_models: Optional[list] = None,
-        custom_permissions_tuples: Optional[dict] = None,
+        pii_models: list | None = None,
+        custom_permissions_tuples: dict | None = None,
         warn_only=None,
-        codename_prefixes: Optional[list] = None,
+        codename_prefixes: list | None = None,
     ):
         self.apps = apps or django_apps
         self.content_type_model_cls = self.apps.get_model("contenttypes.contenttype")
@@ -102,7 +102,7 @@ class GroupUpdater:
                 group.permissions.add(permission)
 
     def get_permissions_qs_from_codenames(
-        self, codenames: List[Any], allow_multiple_objects: Optional[bool] = None
+        self, codenames: list[Any], allow_multiple_objects: bool | None = None
     ):
         """Returns a list of permission model instances for the given
         codenames.
@@ -281,8 +281,8 @@ class GroupUpdater:
     def remove_permissions_by_codenames(
         self,
         group: Any = None,
-        codenames: List[str] = None,
-        allow_multiple_objects: Optional[bool] = None,
+        codenames: list[str] = None,
+        allow_multiple_objects: bool | None = None,
     ):
         """Remove the given codenames from the given group."""
         permissions = self.get_permissions_qs_from_codenames(

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from tempfile import mkdtemp
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from edc_pdutils.df_exporters import CsvModelExporter
 from edc_sites.site import sites
@@ -32,9 +32,9 @@ class ArchiveExporter:
     """
 
     date_format: str = "%Y%m%d%H%M%S"
-    csv_exporter_cls: Type[CsvModelExporter] = CsvModelExporter
-    files_emailer_cls: Type[FilesEmailer] = FilesEmailer
-    files_archiver_cls: Type[FilesArchiver] = FilesArchiver
+    csv_exporter_cls: type[CsvModelExporter] = CsvModelExporter
+    files_emailer_cls: type[FilesEmailer] = FilesEmailer
+    files_archiver_cls: type[FilesArchiver] = FilesArchiver
 
     def __init__(
         self,
@@ -65,29 +65,28 @@ class ArchiveExporter:
             self.exported.append(csv_exporter.to_csv())
         if not self.exported:
             raise ArchiveExporterNothingExported(f"Nothing exported. Got models={models}.")
-        else:
-            if archive:
-                archiver = self.files_archiver_cls(
+        if archive:
+            archiver = self.files_archiver_cls(
+                path=tmp_folder,
+                user=user,
+                exported_datetime=self.exported_datetime,
+                date_format=self.date_format,
+            )
+            self.archive_filename = archiver.archive_filename
+            self.exported_datetime = archiver.exported_datetime
+        if email_to_user:
+            summary = [str(x) for x in self.exported]
+            summary.sort()
+            try:
+                self.files_emailer_cls(
                     path=tmp_folder,
                     user=user,
-                    exported_datetime=self.exported_datetime,
-                    date_format=self.date_format,
+                    file_ext=".zip" if archive else ".csv",
+                    summary="\n".join(summary),
                 )
-                self.archive_filename = archiver.archive_filename
-                self.exported_datetime = archiver.exported_datetime
-            if email_to_user:
-                summary = [str(x) for x in self.exported]
-                summary.sort()
-                try:
-                    self.files_emailer_cls(
-                        path=tmp_folder,
-                        user=user,
-                        file_ext=".zip" if archive else ".csv",
-                        summary="\n".join(summary),
-                    )
-                except FilesEmailerError as e:
-                    raise ArchiveExporterEmailError(e)
-                else:
-                    self.emailed_to = user.email
-                    self.emailed_datetime = get_utcnow()
-                    self.exported_datetime = self.exported_datetime or self.emailed_datetime
+            except FilesEmailerError as e:
+                raise ArchiveExporterEmailError(e)
+            else:
+                self.emailed_to = user.email
+                self.emailed_datetime = get_utcnow()
+                self.exported_datetime = self.exported_datetime or self.emailed_datetime

@@ -74,7 +74,7 @@ class MetadataRefresher:
             except AttributeError:
                 try:
                     instance.metadata_update()
-                except (AttributeError,) as e:
+                except AttributeError as e:
                     self._message(f"      skipping (got {e})     \n")
                     break
 

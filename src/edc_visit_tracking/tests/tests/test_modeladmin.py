@@ -126,7 +126,7 @@ class TestModelAdmin(TestCase):
     def test_extends_fk_none(self):
         factory = RequestFactory()
         request = factory.get(
-            "/?next=my_url_name,arg1,arg2&arg1=value1&" "arg2=value2&arg3=value3&arg4=value4"
+            "/?next=my_url_name,arg1,arg2&arg1=value1&arg2=value2&arg3=value3&arg4=value4"
         )
         modeladmin = edc_visit_tracking_admin._registry.get(CrfThree)
 
@@ -152,7 +152,7 @@ class TestModelAdmin(TestCase):
         factory = RequestFactory()
         request = factory.get(
             f"/?next=my_url_name,arg1,arg2&arg1=value1&arg2=value2&"
-            f"subject_visit={str(subject_visit.id)}&arg4=value4"
+            f"subject_visit={subject_visit.id!s}&arg4=value4"
         )
         modeladmin = edc_visit_tracking_admin._registry.get(CrfThree)
 
@@ -179,7 +179,7 @@ class TestModelAdmin(TestCase):
         factory = RequestFactory()
         request = factory.get(
             f"/?next=my_url_name,arg1,arg2&arg1=value1&arg2=value2"
-            f"&appointment={str(appointment.id)}"
+            f"&appointment={appointment.id!s}"
         )
         modeladmin = edc_visit_tracking_admin._registry.get(SubjectVisit)
 
@@ -208,7 +208,7 @@ class TestModelAdmin(TestCase):
         factory = RequestFactory()
         request = factory.get(
             f"/?next=my_url_name,arg1,arg2&arg1=value1&arg2=value2"
-            f"&subject_visit={str(subject_visit.id)}"
+            f"&subject_visit={subject_visit.id!s}"
         )
         modeladmin = edc_visit_tracking_admin._registry.get(CrfThree)
         for field in audit_fields:
@@ -225,7 +225,7 @@ class TestModelAdmin(TestCase):
         factory = RequestFactory()
         request = factory.get(
             f"/?next=my_url_name,arg1,arg2&arg1=value1&arg2=value2"
-            f"&appointment={str(appointment.id)}"
+            f"&appointment={appointment.id!s}"
         )
         modeladmin = edc_visit_tracking_admin._registry.get(SubjectVisit)
         for field in audit_fields:

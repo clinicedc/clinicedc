@@ -1,6 +1,5 @@
 from datetime import datetime
 from importlib.metadata import version
-from typing import Optional
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -54,8 +53,8 @@ class FormsReference:
 
     def to_file(
         self,
-        path: Optional[str] = None,
-        overwrite: Optional[bool] = None,
+        path: str | None = None,
+        overwrite: bool | None = None,
         pad: int | None = None,
     ):
         pad = pad if pad is not None else 2
@@ -77,9 +76,8 @@ class FormsReference:
             if anchor not in self._anchors:
                 self._anchors.append(anchor)
                 break
-            else:
-                index += 1
-                anchor = anchor_orig + f"-{index}"
+            index += 1
+            anchor = anchor_orig + f"-{index}"
         return anchor
 
     @property
@@ -108,8 +106,7 @@ class FormsReference:
                         describer.markdown.append("\n")
                         anchor = f"{self.get_anchor(describer.anchor)}"
                         toc.append(
-                            f'{index + 1}. <a href="#{anchor}">'
-                            f"{describer.verbose_name}</a>"
+                            f'{index + 1}. <a href="#{anchor}">{describer.verbose_name}</a>'
                         )
                         markdown.extend(describer.markdown)
                     markdown.append(f"{self.h4} Requisitions\n")

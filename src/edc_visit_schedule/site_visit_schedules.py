@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import sys
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -77,7 +77,7 @@ class SiteVisitSchedules:
             visit_schedule_names = "', '".join(self.registry.keys())
             raise SiteVisitScheduleError(
                 f"Invalid visit schedule name. Got '{visit_schedule_name}'. "
-                f"Expected one of '{visit_schedule_names}'. See {repr(self)}."
+                f"Expected one of '{visit_schedule_names}'. See {self!r}."
             )
         return visit_schedule
 
@@ -116,7 +116,7 @@ class SiteVisitSchedules:
             raise SiteVisitScheduleError(
                 f"Schedule not found. No schedule exists for {attr}={cdef}."
             )
-        elif len(ret) > 1:
+        if len(ret) > 1:
             raise SiteVisitScheduleError(
                 f"Schedule is ambiguous. More than one schedule exists for "
                 f"{attr}={cdef}. Got {ret}"
@@ -126,7 +126,7 @@ class SiteVisitSchedules:
 
     def get_by_onschedule_model(
         self, onschedule_model: str = None
-    ) -> Tuple[VisitSchedule, Schedule]:
+    ) -> tuple[VisitSchedule, Schedule]:
         """Returns a tuple of (visit_schedule, schedule)
         for the given onschedule model.
 
@@ -136,7 +136,7 @@ class SiteVisitSchedules:
 
     def get_by_offschedule_model(
         self, offschedule_model: str = None
-    ) -> Tuple[VisitSchedule, Schedule]:
+    ) -> tuple[VisitSchedule, Schedule]:
         """Returns a tuple of visit_schedule, schedule
         for the given offschedule model.
 
@@ -146,7 +146,7 @@ class SiteVisitSchedules:
 
     def get_by_loss_to_followup_model(
         self, loss_to_followup_model: str = None
-    ) -> Tuple[VisitSchedule, Schedule]:
+    ) -> tuple[VisitSchedule, Schedule]:
         """Returns a tuple of visit_schedule, schedule
         for the given loss_to_followup model.
 
@@ -156,7 +156,7 @@ class SiteVisitSchedules:
 
     def get_by_model(
         self, attr: str = None, model: str = None
-    ) -> Tuple[VisitSchedule, Schedule]:
+    ) -> tuple[VisitSchedule, Schedule]:
         ret = []
         model = model.lower()
         for visit_schedule in self.visit_schedules.values():
@@ -173,7 +173,7 @@ class SiteVisitSchedules:
             raise SiteVisitScheduleError(
                 f"Schedule not found. No schedule exists for {attr}={model}."
             )
-        elif len(ret) > 1:
+        if len(ret) > 1:
             raise SiteVisitScheduleError(
                 f"Schedule is ambiguous. More than one schedule exists for "
                 f"{attr}={model}. Got {ret}"
@@ -313,7 +313,7 @@ class SiteVisitSchedules:
                     before_import_registry = copy.copy(site_visit_schedules._registry)
                     import_module(f"{app}.{module_name}")
                     if verbose:
-                        sys.stdout.write("   - registered visit schedule from " f"'{app}'\n")
+                        sys.stdout.write(f"   - registered visit schedule from '{app}'\n")
                 except Exception as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         raise

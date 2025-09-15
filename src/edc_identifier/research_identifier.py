@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from string import Formatter
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 
@@ -22,22 +22,20 @@ class IdentifierMissingTemplateValue(Exception):
 
 class ResearchIdentifier:
     label: str = None  # e.g. subject_identifier, plot_identifier, etc
-    identifier_type: Optional[str] = (
-        None  # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
-    )
-    template: Optional[str] = None
+    identifier_type: str | None = None  # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
+    template: str | None = None
     padding: int = 5
     checkdigit = LuhnMixin()
 
     def __init__(
         self,
-        identifier_type: Optional[str] = None,
-        template: Optional[str] = None,
-        device_id: Optional[str] = None,
-        protocol_number: Optional[str] = None,
-        site: Optional[Site] = None,
-        requesting_model: Optional[str] = None,
-        identifier: Optional[str] = None,
+        identifier_type: str | None = None,
+        template: str | None = None,
+        device_id: str | None = None,
+        protocol_number: str | None = None,
+        site: Site | None = None,
+        requesting_model: str | None = None,
+        identifier: str | None = None,
     ) -> None:
         self._identifier = None
         self.requesting_model = requesting_model

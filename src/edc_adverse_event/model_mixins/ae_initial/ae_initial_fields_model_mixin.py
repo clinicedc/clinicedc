@@ -50,7 +50,6 @@ class AeInitialFieldsModelMixin(models.Model):
         verbose_name="Relation to study drug:",
         max_length=25,
         choices=STUDY_DRUG_RELATIONSHIP,
-        null=True,
     )
 
     class Meta:

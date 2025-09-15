@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from ..models import CrfMetadata, RequisitionMetadata
 else:
 
-    class VisitScheduleFieldsProtocol: ...  # noqa
+    class VisitScheduleFieldsProtocol: ...
 
 
 class MetadataHelperMixin(VisitScheduleFieldsProtocol):
@@ -30,8 +30,7 @@ class MetadataHelperMixin(VisitScheduleFieldsProtocol):
     def metadata_helper_instance(self):
         if self.metadata_helper_instance_attr:
             return getattr(self, self.metadata_helper_instance_attr)
-        else:
-            return self
+        return self
 
     @property
     def crf_metadata_exists(self) -> bool:

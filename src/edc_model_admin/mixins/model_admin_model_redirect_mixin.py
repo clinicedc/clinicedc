@@ -29,11 +29,7 @@ class ModelAdminModelRedirectMixin(BaseModelAdminRedirectMixin):
         namespace = namespace or self.redirect_namespace
         return "{}?q={}".format(
             reverse(
-                "{namespace}:{app_label}_{model_name}_changelist".format(
-                    namespace=namespace,
-                    app_label=self.redirect_app_label,
-                    model_name=self.redirect_model_name,
-                )
+                f"{namespace}:{self.redirect_app_label}_{self.redirect_model_name}_changelist"
             ),
             self.search_value(obj) or "",
         )
@@ -41,9 +37,5 @@ class ModelAdminModelRedirectMixin(BaseModelAdminRedirectMixin):
     def redirect_url_on_delete(self, request, obj_display, obj_id, namespace=None):
         namespace = namespace or self.redirect_namespace
         return reverse(
-            "{namespace}:{app_label}_{model_name}_changelist".format(
-                namespace=namespace,
-                app_label=self.redirect_app_label,
-                model_name=self.redirect_model_name,
-            )
+            f"{namespace}:{self.redirect_app_label}_{self.redirect_model_name}_changelist"
         )

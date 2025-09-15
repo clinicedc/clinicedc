@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.contrib.admin.utils import NotRelationField, get_model_from_relation
@@ -57,7 +57,7 @@ class VisitMethodsModelMixin(models.Model):
         return related_visit_field_cls
 
     @classmethod
-    def related_visit_model_cls(cls) -> Type[VisitModelMixin]:
+    def related_visit_model_cls(cls) -> type[VisitModelMixin]:
         """Returns the 'model' class of the related visit foreign
         key attribute.
         """
@@ -109,8 +109,7 @@ class VisitMethodsModelMixin(models.Model):
                             "Perhaps catch this in the form."
                         )
                     break
-                else:
-                    related_model = None
+                related_model = None
         if not related_model:
             raise ImproperlyConfigured(
                 f"Model is missing a FK to a related visit model. See {self.__class__}."

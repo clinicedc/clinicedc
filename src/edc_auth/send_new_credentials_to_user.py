@@ -1,4 +1,3 @@
-from typing import Optional
 from urllib.parse import urlparse
 
 from django.core.mail.message import EmailMessage
@@ -10,7 +9,7 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from .import_users import change_user_template
 
 
-def change_password(user, nwords: Optional[int] = None) -> str:
+def change_password(user, nwords: int | None = None) -> str:
     nwords = nwords or 4
     pwdgen = PasswordGenerator(nwords=nwords)
     password = pwdgen.get_password()
@@ -19,7 +18,7 @@ def change_password(user, nwords: Optional[int] = None) -> str:
     return password
 
 
-def send_new_credentials_to_user(user, nwords: Optional[int] = None) -> EmailMessage:
+def send_new_credentials_to_user(user, nwords: int | None = None) -> EmailMessage:
     body = change_user_template
     site_names = "\n - ".join([s.name for s in user.userprofile.sites.all()])
     role_names = "\n - ".join([r.display_name for r in user.userprofile.roles.all()])

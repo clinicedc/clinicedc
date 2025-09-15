@@ -7,7 +7,7 @@ from edc_constants.constants import FEMALE, MALE
 
 from .adult_age_options import adult_age_options
 
-__all__ = ["Formula", "formula", "dummy_formula", "FormulaError"]
+__all__ = ["Formula", "FormulaError", "dummy_formula", "formula"]
 
 from .exceptions import FormulaError
 

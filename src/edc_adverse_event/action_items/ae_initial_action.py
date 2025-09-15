@@ -15,7 +15,7 @@ class AeInitialAction(ActionWithNotification):
     name = AE_INITIAL_ACTION
     display_name = "Submit AE Initial Report"
     notification_display_name = "AE Initial Report"
-    parent_action_names = []
+    parent_action_names = ()
     reference_model = f"{ADVERSE_EVENT_APP_LABEL}.aeinitial"
     show_link_to_changelist = True
     show_link_to_add = True

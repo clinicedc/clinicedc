@@ -21,15 +21,15 @@ class Plan(BaseUuidModel):
 
     model = models.CharField(max_length=50)
 
-    field_names = models.TextField(max_length=500, blank=True, null=True)
+    field_names = models.TextField(max_length=500, blank=True, default="")
 
-    header_labels = models.TextField(max_length=500, blank=True, null=True)
+    header_labels = models.TextField(max_length=500, blank=True, default="")
 
-    lookups = models.TextField(max_length=500, blank=True, null=True)
+    lookups = models.TextField(max_length=500, blank=True, default="")
 
     model_type = models.CharField(max_length=25, choices=MODEL_TYPES, default="plain")
 
-    excluded_field_names = models.TextField(max_length=500, blank=True, null=True)
+    excluded_field_names = models.TextField(max_length=500, blank=True, default="")
 
     header = models.BooleanField(verbose_name="Include header", default=True)
 

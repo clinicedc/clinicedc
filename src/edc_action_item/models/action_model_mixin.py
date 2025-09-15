@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 from django.db import models
 from django.db.models.deletion import PROTECT
@@ -53,6 +53,19 @@ class ActionNoManagersModelMixin(models.Model):
 
     action_item_reason = models.TextField(null=True, editable=False)
 
+    class Meta:
+        abstract = True
+        indexes = (
+            models.Index(
+                fields=[
+                    "action_identifier",
+                    "action_item",
+                    "related_action_item",
+                    "parent_action_item",
+                ]
+            ),
+        )
+
     def __str__(self) -> str:
         if self.action_identifier:
             return f"{self.action_identifier[-9:]}"
@@ -61,7 +74,7 @@ class ActionNoManagersModelMixin(models.Model):
     def save(self: Any, *args, **kwargs):
         # ensure action class is defined
         if not self.get_action_cls():
-            raise ActionClassNotDefined(f"Action class name not defined. See {repr(self)}")
+            raise ActionClassNotDefined(f"Action class name not defined. See {self!r}")
 
         # ensure subject_identifier
         if not self.subject_identifier:
@@ -98,13 +111,13 @@ class ActionNoManagersModelMixin(models.Model):
         super().save(*args, **kwargs)  # type: ignore
 
     def natural_key(self: Any) -> tuple:
-        return (self.action_identifier,)  # noqa
+        return (self.action_identifier,)
 
     # noinspection PyTypeHints
     natural_key.dependencies = ["edc_action_item.actionitem"]  # type:ignore
 
     @classmethod
-    def get_action_cls(cls) -> Type[Action]:
+    def get_action_cls(cls) -> type[Action]:
         return site_action_items.get(cls.action_name)
 
     @property
@@ -122,19 +135,6 @@ class ActionNoManagersModelMixin(models.Model):
     def identifier(self):
         """Returns a shortened action_identifier"""
         return self.action_identifier[-9:]
-
-    class Meta:
-        abstract = True
-        indexes = [
-            models.Index(
-                fields=[
-                    "action_identifier",
-                    "action_item",
-                    "related_action_item",
-                    "parent_action_item",
-                ]
-            )
-        ]
 
 
 class ActionModelMixin(ActionNoManagersModelMixin):

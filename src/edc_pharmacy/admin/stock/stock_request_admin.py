@@ -1,5 +1,3 @@
-from typing import Optional
-
 from celery.result import AsyncResult
 from celery.states import SUCCESS
 from django.contrib import admin
@@ -46,16 +44,16 @@ class StatusListFilter(admin.SimpleListFilter):
                     .exclude(item_count=0)
                     .distinct()
                 )
-            elif self.value() == COMPLETE:
+            if self.value() == COMPLETE:
                 return (
                     queryset.filter(cancel__isnull=True)
                     .exclude(stockrequestitem__allocation__isnull=True)
                     .exclude(item_count=0)
                     .distinct()
                 )
-            elif self.value() == CANCELLED:
+            if self.value() == CANCELLED:
                 return queryset.filter(cancel__isnull=False)
-            elif self.value() == "ZERO":
+            if self.value() == "ZERO":
                 return queryset.filter(item_count=0, cancel__isnull=True)
         return None
 
@@ -148,7 +146,7 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     readonly_fields = ("item_count",)
 
-    def redirect_url(self, request, obj, post_url_continue=None) -> Optional[str]:
+    def redirect_url(self, request, obj, post_url_continue=None) -> str | None:
         """Redirect to the review page immediately after saving model."""
         redirect_url = super().redirect_url(request, obj, post_url_continue)
         if obj.cancel == "CANCEL":

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -32,7 +32,7 @@ class SourceModelMetadataMixin:
         return self._source_model
 
     @property
-    def source_model_cls(self) -> Type[CrfModelMixin]:
+    def source_model_cls(self) -> type[CrfModelMixin]:
         return django_apps.get_model(self.source_model)
 
     @property

@@ -4,8 +4,7 @@ from edc_qareports.model_mixins import QaReportModelMixin, qa_reports_permission
 
 
 class StockAvailability(QaReportModelMixin, models.Model):
-
-    subject_identifier = models.CharField(max_length=50, null=True)
+    subject_identifier = models.CharField(max_length=50, default="")
 
     visit_code = models.DecimalField(max_digits=8, decimal_places=1, null=True)
 
@@ -15,9 +14,9 @@ class StockAvailability(QaReportModelMixin, models.Model):
 
     relative_days = models.IntegerField(null=True)
 
-    codes = models.TextField(null=True)
+    codes = models.TextField(default="")
 
-    bins = models.TextField(null=True)
+    bins = models.TextField(default="")
 
     class Meta(QaReportModelMixin.Meta):
         verbose_name = "Stock availability"

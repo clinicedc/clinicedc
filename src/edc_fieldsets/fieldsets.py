@@ -65,7 +65,7 @@ class Fieldsets:
         try:
             fields = copy.copy(self.fieldsets_asdict[section]["fields"])
         except KeyError:
-            raise FieldsetError("Invalid fieldset section. Got {}".format(section))
+            raise FieldsetError(f"Invalid fieldset section. Got {section}")
         return list(fields)
 
     @staticmethod

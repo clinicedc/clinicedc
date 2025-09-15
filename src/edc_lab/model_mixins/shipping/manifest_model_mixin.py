@@ -20,13 +20,13 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
 
     manifest_datetime = models.DateTimeField(default=timezone.now)
 
-    export_datetime = models.DateTimeField(null=True, blank=True)
+    export_datetime = models.DateTimeField(blank=True)
 
-    export_references = models.TextField(null=True, blank=True)
+    export_references = models.TextField(blank=True, default="")
 
     description = models.TextField(
         verbose_name="Description of contents",
-        null=True,
+        default="",
         help_text="If blank will be automatically generated",
     )
 
@@ -36,7 +36,7 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
 
     category_other = models.CharField(max_length=25, null=True, blank=True)
 
-    comment = models.TextField(verbose_name="Comment", null=True)
+    comment = models.TextField(verbose_name="Comment", blank=True, default="")
 
     shipped = models.BooleanField(default=False)
 
@@ -56,14 +56,14 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.manifest_identifier,)  # noqa
+        return (self.manifest_identifier,)
 
     natural_key.dependencies = ["sites.Site"]
 
     @property
     def human_readable_identifier(self):
         x = self.manifest_identifier
-        return "{}-{}-{}".format(x[0:4], x[4:8], x[8:12])
+        return f"{x[0:4]}-{x[4:8]}-{x[8:12]}"
 
     class Meta:
         abstract = True

@@ -1,4 +1,4 @@
-from typing import Optional, Protocol, Type
+from typing import Optional, Protocol
 from uuid import UUID
 
 from django.db import models
@@ -8,20 +8,20 @@ class ActionStub(Protocol):
     def __init__(
         self,
         action_item: Optional["ActionItemStub"] = None,
-        reference_obj: Optional[models.Model] = None,
+        reference_obj: models.Model | None = None,
         subject_identifier: str = None,
         action_identifier: str = None,
         parent_action_item: Optional["ActionItemStub"] = None,
         related_action_item: Optional["ActionItemStub"] = None,
-        using: Optional[str] = None,
-        readonly: Optional[bool] = None,
+        using: str | None = None,
+        readonly: bool | None = None,
     ) -> None: ...
 
     name: str
     action_item: "ActionItemStub"
     action_identifier: str
-    related_reference_model: Optional[str]
-    related_reference_fk_attr: Optional[str]
+    related_reference_model: str | None
+    related_reference_fk_attr: str | None
     subject_identifier: str
     related_action_item: Optional["ActionItemStub"]
     ...
@@ -30,8 +30,8 @@ class ActionStub(Protocol):
 class ActionTypeStub(Protocol):
     name: str
     display_name: str
-    reference_model: Optional[str]
-    related_reference_model: Optional[str]
+    reference_model: str | None
+    related_reference_model: str | None
     ...
 
 
@@ -53,7 +53,7 @@ class ActionItemStub(Protocol):
 
     def get_status_display(self) -> str: ...
 
-    def get_action_cls(self) -> Type[ActionStub]: ...
+    def get_action_cls(self) -> type[ActionStub]: ...
 
 
 class ActionItemWithNotificationStub(ActionItemStub, Protocol):

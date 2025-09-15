@@ -1,6 +1,3 @@
-from typing import Optional
-
-
 class PrefixLengthError(Exception):
     pass
 
@@ -17,8 +14,8 @@ class Prefix:
 
     def __init__(
         self,
-        template: Optional[str] = None,
-        length: Optional[int] = None,
+        template: str | None = None,
+        length: int | None = None,
         **template_opts,
     ):
         self.template: str = template or self.template

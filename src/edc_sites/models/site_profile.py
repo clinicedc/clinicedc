@@ -9,13 +9,13 @@ from django.db import models
 class SiteProfile(models.Model):
     id = models.BigAutoField(primary_key=True)
 
-    country = models.CharField(max_length=250, null=True)
+    country = models.CharField(max_length=250, default="")
 
-    country_code = models.CharField(max_length=15, null=True)
+    country_code = models.CharField(max_length=15, default="")
 
-    languages = models.TextField(null=True)
+    languages = models.TextField(default="")
 
-    title = models.CharField(max_length=250, null=True)
+    title = models.CharField(max_length=250, default="")
 
     site = models.OneToOneField(Site, on_delete=models.PROTECT)
 

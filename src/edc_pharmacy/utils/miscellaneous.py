@@ -11,4 +11,4 @@ def get_rx_model_cls():
     return django_apps.get_model("edc_pharmacy.rx")
 
 
-__all__ = ["get_rxrefill_model_cls", "get_rx_model_cls"]
+__all__ = ["get_rx_model_cls", "get_rxrefill_model_cls"]

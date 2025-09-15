@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.db import models
 
@@ -74,7 +74,7 @@ class UpdatesMetadataModelMixin(models.Model):
     @property
     def metadata_model(
         self: CrfModel | RequisitionModel,
-    ) -> Type[CrfMetadata] | Type[RequisitionMetadata]:
+    ) -> type[CrfMetadata] | type[RequisitionMetadata]:
         """Returns the metadata model associated with self.
 
         Override

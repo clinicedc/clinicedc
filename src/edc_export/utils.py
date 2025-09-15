@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Iterable
+from collections.abc import Iterable
 
 from django import forms
 from django.utils.html import format_html

@@ -16,7 +16,6 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 @override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
 class TestExport(TestCase):
-
     def setUp(self):
         helper = Helper()
         import_holidays()
@@ -61,7 +60,7 @@ class TestExport(TestCase):
             export_folder=get_export_folder(),
         )
         exported = model_exporter.to_csv()
-        with open(exported.path, "r") as f:
+        with open(exported.path) as f:
             csv_reader = csv.DictReader(f, delimiter="|")
             rows = [row for row in enumerate(csv_reader)]
         self.assertEqual(len(rows), 4)

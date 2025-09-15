@@ -5,7 +5,7 @@ from uuid import UUID
 
 __all__ = ["SubjectConsentDashboardButton"]
 
-from typing import TYPE_CHECKING, Type, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from edc_view_utils import ModelButton
 
@@ -21,7 +21,7 @@ class SubjectConsentDashboardButton(ModelButton):
     """For the subject dashboard"""
 
     model_obj: ConsentModel = None
-    model_cls: Type[ConsentModel] = None
+    model_cls: type[ConsentModel] = None
     appointment: Appointment = None
 
     def __post_init__(self):

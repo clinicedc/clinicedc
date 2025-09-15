@@ -46,10 +46,9 @@ def valid_site_for_subject_or_raise(
                     "Site not defined for registered subject! "
                     f"Subject identifier=`{subject_identifier}`. "
                 )
-            else:
-                raise InvalidSiteForSubjectError(
-                    f"Invalid site for subject. Subject identifier=`{subject_identifier}`. "
-                    f"Expected `{registered_subject.site.name}`. "
-                    f"Got site_id=`{site_obj.id}`"
-                )
+            raise InvalidSiteForSubjectError(
+                f"Invalid site for subject. Subject identifier=`{subject_identifier}`. "
+                f"Expected `{registered_subject.site.name}`. "
+                f"Got site_id=`{site_obj.id}`"
+            )
     return site_obj

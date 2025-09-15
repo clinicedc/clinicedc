@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import copy
 import sys
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -53,7 +53,7 @@ class SiteLabs:
     def registry(self):
         if not self.loaded:
             raise RegistryNotLoaded(
-                "Registry not loaded. Is AppConfig for 'edc_lab' " "declared in settings?."
+                "Registry not loaded. Is AppConfig for 'edc_lab' declared in settings?."
             )
         return self._registry
 
@@ -112,7 +112,7 @@ class SiteLabs:
                     f"before attempting to creating new Panel model instances."
                 )
 
-    def update_panel_model(self, panel_model_cls: Type[Panel] = None) -> None:
+    def update_panel_model(self, panel_model_cls: type[Panel] = None) -> None:
         """Updates or creates panel mode instances.
 
         Initially called in the post_migrate signal.

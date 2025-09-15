@@ -1,6 +1,3 @@
-from typing import Optional
-
-
 class AliquotIdentifierLengthError(Exception):
     pass
 
@@ -17,10 +14,10 @@ class AliquotIdentifier:
 
     def __init__(
         self,
-        identifier_prefix: Optional[str] = None,
-        parent_segment: Optional[str] = None,
-        numeric_code: Optional[str] = None,
-        count: Optional[int] = None,
+        identifier_prefix: str | None = None,
+        parent_segment: str | None = None,
+        numeric_code: str | None = None,
+        count: int | None = None,
     ):
         """
         A class to generate aliquot identifiers:
@@ -30,7 +27,7 @@ class AliquotIdentifier:
             * numeric_code: aliquot type numeric code (2 digits segment)
             * count: sequence in aliquoting history relative to primary. (01 for primary)
         """
-        self.count: Optional[int] = count
+        self.count: int | None = count
         self.identifier_prefix: str = identifier_prefix or ""
         self.is_primary: bool = True
         self.numeric_code: str = numeric_code or ""

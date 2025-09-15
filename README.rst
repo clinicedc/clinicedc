@@ -1,20 +1,4 @@
-
-.. attention::
-
-    2025/08/06
-
-    We are in the process of merging all edc modules into this one repo.
-
-    This is a work in progress.
-
-    the stable version of clinicedc / edc is edc v1.2.7
-
-
-As of 2025/08/06, the stable version of edc is `edc v1.2.7 <https://github.com/clinicedc/edc>`_
-
-
-
-|pypi| |actions| |uv| |black| |downloads| |django-packages|
+|pypi| |actions| |uv| |ruff| |downloads| |django-packages|
 
 clinicedc -  A clinical trials data management framework built on Django
 ========================================================================
@@ -46,12 +30,22 @@ The implementations we develop with this framework are mostly eSource systems ra
 
 The ``clinicedc's`` listed below consist of a subset of trial-specific modules that make heavy use of modules in this framework.
 
-(python 3.12+, Django 5.2+, MySQL 8+, see setup.cfg)
+Contacts
+--------
 
-|django| |jet-brains|
+For further information go to https://github.com/erikvw.
 
-Thanks to `JetBrains <https://www.jetbrains.com>`_ for support with an opensource PyCharm IDE license.
+|jet-brains| Thanks to `JetBrains <https://www.jetbrains.com>`_ for support with an opensource PyCharm IDE license.
 
+|django|
+
+Framework stack
+---------------
+============ ============ =========
+python       Django       mysql
+============ ============ =========
+python 3.12+ Django 5.2+  mysql 8+
+============ ============ =========
 
 
 How we describe the EDC in our protocol documents
@@ -159,18 +153,6 @@ https://aids.harvard.edu/tag/bcpp/
 
 Start with main repo `bcpp`
 
-Contacts
---------
-
-For further information go to https://github.com/erikvw.
-
-Testing modules
----------------
-=========================== ============================= ==================================
-clinicedc-tests_            |clinicedc-tests|             |pypi-clinicedc-tests|
-edc-test-settings_          |edc-test-settings|           |pypi-edc-test-settings|
-edc-test-utils_             |edc-test-utils|              |pypi-edc-test-utils|
-=========================== ============================= ==================================
 
 Optional modules
 ----------------
@@ -188,22 +170,37 @@ edc-phq9_                   |edc-phq9|                    |pypi-edc-phq9|
 edc-qol_                    |edc-qol|                     |pypi-edc-qol|
 =========================== ============================= ==================================
 
+Testing modules
+---------------
+=========================== ============================= ==================================
+clinicedc-tests_            |clinicedc-tests|             |pypi-clinicedc-tests|
+edc-test-settings_          |edc-test-settings|           |pypi-edc-test-settings|
+=========================== ============================= ==================================
 
-Tests
-=====
+
+Env
+---
 
 .. code-block:: bash
 
     uv venv
     source .venv/bin/activate
-    uv sync --group lint --group test
-    uv run runtests.py --settings=tests.test_settings
+    uv sync --no-sources
 
-or just
+Tests
+-----
 
 .. code-block:: bash
 
-    uv run --group lint --group test runtests.py --settings=tests.test_settings
+    uv run --group test runtests.py
+
+
+Lint and format
+---------------
+
+.. code-block:: bash
+
+    uvx ruff check
 
 
 .. |pypi| image:: https://img.shields.io/pypi/v/clinicedc.svg
@@ -228,7 +225,6 @@ or just
 .. _edc-phq9: https://github.com/clinicedc/edc-phq9
 .. _edc-qol: https://github.com/clinicedc/edc-qol
 .. _edc-test-settings: https://github.com/clinicedc/edc-test-settings
-.. _edc-test-utils: https://github.com/clinicedc/edc-test-utils
 .. _clinicedc-tests: https://github.com/clinicedc/clinicedc-tests
 
 .. |edc-csf| image:: https://github.com/clinicedc/edc-csf/actions/workflows/build.yml/badge.svg
@@ -255,8 +251,6 @@ or just
   :target: https://github.com/clinicedc/edc-rx/actions/workflows/build.yml
 .. |edc-test-settings| image:: https://github.com/clinicedc/edc-test-settings/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-test-settings/actions/workflows/build.yml
-.. |edc-test-utils| image:: https://github.com/clinicedc/edc-test-utils/actions/workflows/build.yml/badge.svg
-  :target: https://github.com/clinicedc/edc-test-utils/actions/workflows/build.yml
 .. |clinicedc-tests| image:: https://github.com/clinicedc/clinicedc-tests/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/clinicedc-tests/actions/workflows/build.yml
 
@@ -283,9 +277,7 @@ or just
 .. |pypi-edc-rx| image:: https://img.shields.io/pypi/v/edc-rx.svg
     :target: https://pypi.python.org/pypi/edc-rx
 .. |pypi-edc-test-settings| image:: https://img.shields.io/pypi/v/edc-test-settings.svg
-    :target: https://pypi.python.org/pypi/edc-test-utils
-.. |pypi-edc-test-utils| image:: https://img.shields.io/pypi/v/edc-test-utils.svg
-    :target: https://pypi.python.org/pypi/edc-test-utils
+    :target: https://pypi.python.org/pypi/edc-test-settings
 .. |pypi-clinicedc-tests| image:: https://img.shields.io/pypi/v/clinicedc-tests.svg
     :target: https://pypi.python.org/pypi/clinicedc-tests
 
@@ -305,3 +297,7 @@ or just
 
 .. |uv| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json
   :target: https://github.com/astral-sh/uv
+
+.. |ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+    :target: https://github.com/astral-sh/ruff
+    :alt: Ruff

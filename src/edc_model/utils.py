@@ -15,7 +15,6 @@ from django.urls import reverse
 from .constants import REPORT_DATETIME_FIELD_NAME
 
 if TYPE_CHECKING:
-
     from edc_visit_tracking.model_mixins import VisitTrackingCrfModelMixin
 
     from .models import BaseUuidModel
@@ -136,7 +135,6 @@ def raise_on_invalid_field_name(data: dict | models.Model, attrname: str) -> Non
                 raise InvalidFieldName(f"{e} Got {data}")
     else:
         raise InvalidFieldName(f"Field name cannot be None. Got {data}")
-    return None
 
 
 def model_exists_or_raise(

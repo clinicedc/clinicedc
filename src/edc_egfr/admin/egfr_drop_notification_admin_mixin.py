@@ -1,5 +1,3 @@
-from typing import Dict, Optional, Tuple
-
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
 
@@ -15,7 +13,7 @@ class EgfrDropNotificationAdminMixin:
 
     def get_fieldsets(
         self, request, obj=None
-    ) -> Tuple[Tuple[Optional[str], Dict[str, Tuple[str, ...]]], ...]:
+    ) -> tuple[tuple[str | None, dict[str, tuple[str, ...]]], ...]:
         fieldsets = [
             (None, {"fields": ("subject_visit", "report_datetime")}),
             (
@@ -40,7 +38,7 @@ class EgfrDropNotificationAdminMixin:
         fieldsets.append(audit_fieldset_tuple)
         return tuple(fieldsets)
 
-    def get_search_fields(self, request) -> Tuple[str, ...]:
+    def get_search_fields(self, request) -> tuple[str, ...]:
         fields = super().get_search_fields(request)
         custom_fields = (
             "subject_visit__subject_identifier",
@@ -48,7 +46,7 @@ class EgfrDropNotificationAdminMixin:
         )
         return tuple(f for f in fields if f not in custom_fields) + custom_fields
 
-    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
         fields = super().get_readonly_fields(request, obj)
         return (
             "creatinine_date",
@@ -57,11 +55,11 @@ class EgfrDropNotificationAdminMixin:
             "egfr_percent_change",
         ) + fields
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         return ("report_status", "creatinine_date") + list_filter
 
-    def get_list_display(self, request) -> Tuple[str, ...]:
+    def get_list_display(self, request) -> tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "report_status",

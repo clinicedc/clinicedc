@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django import forms
 from django.apps import apps as django_apps
@@ -77,11 +77,11 @@ class ReferenceRangeEvaluator:
         return self.reference_range_collection.grades(utest_id)
 
     @property
-    def reference_range_collection_model_cls(self) -> Type[ReferenceRangeCollection]:
+    def reference_range_collection_model_cls(self) -> type[ReferenceRangeCollection]:
         return django_apps.get_model("edc_reportable.referencerangecollection")
 
     @property
-    def normal_data_model_cls(self) -> Type[NormalData]:
+    def normal_data_model_cls(self) -> type[NormalData]:
         return django_apps.get_model("edc_reportable.normaldata")
 
     def validate_reportable_fields(self):

@@ -3,7 +3,7 @@ from __future__ import annotations
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -195,7 +195,7 @@ class Randomizer:
         return {self.identifier_attr: getattr(self, self.identifier_attr)}
 
     @classmethod
-    def get_registration_model_cls(cls) -> Type[RegisteredSubject]:
+    def get_registration_model_cls(cls) -> type[RegisteredSubject]:
         return get_registered_subject_model_cls()
 
     @property

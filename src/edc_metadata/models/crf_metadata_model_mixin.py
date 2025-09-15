@@ -48,7 +48,7 @@ class CrfMetadataModelMixin(
 
     report_datetime = models.DateTimeField(null=True, blank=True)
 
-    entry_comment = models.TextField(max_length=250, null=True, blank=True)
+    entry_comment = models.TextField(max_length=250, default="", blank=True)
 
     close_datetime = models.DateTimeField(null=True, blank=True)
 

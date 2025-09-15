@@ -8,7 +8,7 @@ Clinic EDC
 
 Homepage: https://github.com/clinicedc
 
-Meta-repo: https://github.com/clinicedc/edc
+Source code: https://github.com/clinicedc/clinicedc
 
 Clinic EDC is a data management framework built on Django for multisite randomized longitudinal clinical trials.
 

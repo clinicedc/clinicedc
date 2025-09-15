@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from edc_utils import to_local
+
 from ..ordered_collection import OrderedCollection
 
 if TYPE_CHECKING:
@@ -33,11 +35,10 @@ class VisitCollection(OrderedCollection):
         timepoint_dates = {}
         for visit in self.values():
             try:
-                timepoint_datetime = dt + visit.rbase
+                timepoint_datetime = to_local(dt) + visit.rbase
             except TypeError as e:
                 raise VisitCollectionError(
-                    f"Invalid visit.rbase. visit.rbase={visit.rbase}. "
-                    f"See {repr(visit)}. Got {e}."
+                    f"Invalid visit.rbase. visit.rbase={visit.rbase}. See {visit!r}. Got {e}."
                 )
             else:
                 visit.timepoint_datetime = timepoint_datetime

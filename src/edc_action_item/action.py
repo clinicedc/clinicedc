@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, List, Optional, Type
+from contextlib import suppress
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -27,6 +28,29 @@ logger = logging.getLogger(__name__)
 style = color_style()
 
 REFERENCE_MODEL_ERROR_CODE = "reference_model"
+ACTION_CLASS_MISMATCH = (
+    "Action class mismatch for given ActionItem. "
+    "{action_item_action_cls} incorrectly passed "
+    "to Action {action_cls}."
+)
+ACTION_GOT_UNLISTED_PARENT_ACTION_ITEM = (
+    "Action class received an unlisted parent_action_item. "
+    "Expected one of {parent_action_names}. "
+    "Got '{parent_action_cls_name}' "
+    "subject_identifier `{subject_identifier}`."
+    "See Action {action_cls}."
+)
+
+ACTION_EXPECTS_RELATED_ACTION_ITEM = (
+    "Action class expects a related_action_item. "
+    "related_reference_fk_attr=`{related_reference_fk_attr}`. "
+    "Got None for action based on action_item `{action_item}`. "
+    "See Action {action_cls}."
+)
+
+ACTION_ITEM_DOES_NOT_EXIST = "{err} Got action_identifier={action_identifier}."
+ACTION_ITEM_GET_OR_CREATE_FAILED = "Unable to get or create ActionItem. Got {opts}."
+ACTION_NAME_IS_NONE = "Action name cannot be None. See {action_cls}."
 
 
 class Action:
@@ -45,7 +69,7 @@ class Action:
     help_text: str = None
     instructions = None
     name: str = None
-    parent_action_names: Optional[List[str]] = None
+    parent_action_names: tuple[str] | None = None
     enforce_parent_action_names: bool = True
     priority: bool = None
     reference_model: str = None
@@ -63,23 +87,23 @@ class Action:
     action_type_model: str = "edc_action_item.actiontype"
     next_actions: list[str] | None = None  # a list of Action classes which may include 'self'
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         action_item: ActionItemStub = None,
         reference_obj: models.Model = None,
-        subject_identifier: str = None,
-        action_identifier: str = None,
-        parent_action_item: Optional[ActionItemStub] = None,
-        related_action_item: Optional[ActionItemStub] = None,
-        using: Optional[str] = None,
-        readonly: Optional[bool] = None,
+        subject_identifier: str | None = None,
+        action_identifier: str | None = None,
+        parent_action_item: ActionItemStub | None = None,
+        related_action_item: ActionItemStub | None = None,
+        using: str | None = None,
+        readonly: bool | None = None,
         skip_get_current_site: bool | None = None,
         site_id: int | None = None,
     ) -> None:
         self._action_item = action_item
         self._reference_obj = reference_obj
 
-        self.parent_action_names = self.parent_action_names or []
+        self.parent_action_names = self.parent_action_names or ()
 
         self.messages: dict = {}
 
@@ -94,9 +118,10 @@ class Action:
 
         if self.action_item.action_cls != self.__class__:
             raise ActionError(
-                f"Action class mismatch for given ActionItem. "
-                f"{self.action_item.action_cls} incorrectly passed "
-                f"to Action {self.__class__}",
+                ACTION_CLASS_MISMATCH.format(
+                    action_item_action_cls=self.action_item.action_cls,
+                    action_cls=self.__class__,
+                ),
                 code="class type mismatch",
             )
         self.action_identifier = self.action_item.action_identifier
@@ -112,18 +137,20 @@ class Action:
             and self.parent_action_item.action_cls.name not in self.parent_action_names
         ):
             raise ActionError(
-                f"Action class received an unlisted parent_action_item. "
-                f"Expected one of {self.parent_action_names}. "
-                f"Got '{self.parent_action_item.action_cls.name}' "
-                f"subject_identifier `{self.subject_identifier}`."
-                f"See Action {self.__class__}."
+                ACTION_GOT_UNLISTED_PARENT_ACTION_ITEM.format(
+                    parent_action_names=self.parent_action_names,
+                    parent_action_cls_name=self.parent_action_item.action_cls.name,
+                    subject_identifier=self.subject_identifier,
+                    action_cls=self.__class__,
+                )
             )
         if not self.related_action_item and self.related_reference_fk_attr:
             raise ActionError(
-                "Action class expects a related_action_item. "
-                f"related_reference_fk_attr=`{self.related_reference_fk_attr}`. "
-                f"Got None for action based on action_item `{self.action_item}`. "
-                f"See `{repr(self)}`"
+                ACTION_EXPECTS_RELATED_ACTION_ITEM.format(
+                    related_reference_fk_attr=self.related_reference_fk_attr,
+                    action_item=self.action_item,
+                    action_cls=self.__class__,
+                )
             )
 
         if self.reference_obj and not self.readonly:
@@ -157,19 +184,18 @@ class Action:
         The reference model instance "should" exist if
         action item exists and is CLOSED. If not, re-open.
         """
-        if not self._reference_obj:
-            if self.action_identifier:
-                try:
-                    self._reference_obj = (
-                        self.reference_model_cls()
-                        .objects.using(self.using)
-                        .get(action_identifier=self.action_identifier)
-                    )
-                except ObjectDoesNotExist:
-                    if self.action_item and self.action_item.status == CLOSED:
-                        self.action_item.status = OPEN
-                        self.action_item.save(update_fields=["status"], using=self.using)
-                        self.action_item.refresh_from_db()
+        if not self._reference_obj and self.action_identifier:
+            try:
+                self._reference_obj = (
+                    self.reference_model_cls()
+                    .objects.using(self.using)
+                    .get(action_identifier=self.action_identifier)
+                )
+            except ObjectDoesNotExist:
+                if self.action_item and self.action_item.status == CLOSED:
+                    self.action_item.status = OPEN
+                    self.action_item.save(update_fields=["status"], using=self.using)
+                    self.action_item.refresh_from_db()
         return self._reference_obj
 
     @property
@@ -188,8 +214,10 @@ class Action:
                     )
                 except ObjectDoesNotExist as e:
                     raise ObjectDoesNotExist(
-                        f"{e} Got action_identifier={self.action_identifier}."
-                    )
+                        ACTION_ITEM_DOES_NOT_EXIST.format(
+                            err=str(e), action_identifier=self.action_identifier
+                        )
+                    ) from e
             elif self.reference_obj:
                 self._action_item = self.reference_obj.action_item
             else:
@@ -221,10 +249,10 @@ class Action:
                     parent_action_item=self.parent_action_item,
                     related_action_item=self.related_action_item,
                 )
-                raise ActionError(f"Unable to get or create ActionItem. Got {opts}.")
+                raise ActionError(ACTION_ITEM_GET_OR_CREATE_FAILED.format(opts=opts))
         return self._action_item
 
-    def _create_new_action_item(self, subject_identifier: str = None, **opts):
+    def _create_new_action_item(self, subject_identifier: str | None = None, **opts):
         """Create a new action item.
 
         Called only after checking.
@@ -254,12 +282,12 @@ class Action:
             )
 
     @classmethod
-    def action_item_model_cls(cls) -> Type[ActionItem]:
+    def action_item_model_cls(cls) -> type[ActionItem]:
         """Returns the ActionItem model class."""
         return django_apps.get_model(cls.action_item_model)
 
     @classmethod
-    def action_type_model_cls(cls) -> Type[ActionType]:
+    def action_type_model_cls(cls) -> type[ActionType]:
         """Returns the ActionType model class."""
         return django_apps.get_model(cls.action_type_model)
 
@@ -282,14 +310,10 @@ class Action:
     def as_dict(cls) -> dict:
         """Returns select class attrs as a dictionary."""
         dct = {k: v for k, v in cls.__dict__.items() if not k.startswith("_")}
-        try:
+        with suppress(AttributeError):
             dct.update(reference_model=cls.get_reference_model().lower())
-        except AttributeError:
-            pass
-        try:
+        with suppress(AttributeError):
             dct.update(related_reference_model=cls.related_reference_model.lower())
-        except AttributeError:
-            pass
         dct.update(
             name=cls.name,
             display_name=cls.display_name,
@@ -305,7 +329,7 @@ class Action:
         )
         return dct
 
-    def get_next_actions(self) -> List[str]:
+    def get_next_actions(self) -> list[str]:
         """Returns a list of action classes to be created
         again by this model if the first has been closed on post_save.
         """
@@ -376,7 +400,7 @@ class Action:
                             self.reference_obj.action_identifier
                         )
                     )
-                    | models.Q(related_action_item=self.reference_obj.action_item)  # noqa
+                    | models.Q(related_action_item=self.reference_obj.action_item)
                 ),
                 status=CLOSED,
             )
@@ -445,12 +469,10 @@ class Action:
         Will not append if the ActionItem for the next action
         already exists.
         """
-        try:
+        with suppress(AttributeError):
             action_name = action_cls.name
-        except AttributeError:
-            pass
         if not action_name:
-            raise ActionError(f"Action name cannot be None. See {self}.")
+            raise ActionError(ACTION_NAME_IS_NONE.format(action_cls=self))
         next_actions = next_actions or []
         required = True if required is None else required
         opts = dict(
@@ -491,7 +513,7 @@ class Action:
             parent_action_item=parent_action_item,
             status=NEW,
         )
-        for index, obj in enumerate(
+        for index, obj in enumerate(  # noqa: B007
             self.action_item_model_cls().objects.using(self.using).filter(**opts)
         ):
             obj.delete(using=self.using)

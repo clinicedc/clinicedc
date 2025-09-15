@@ -114,9 +114,8 @@ class Identifier:
         """
         if not identifier:
             return identifier
-        else:
-            self.identifier_as_list = identifier.split(self.separator)
-            return "".join(self.identifier_as_list)
+        self.identifier_as_list = identifier.split(self.separator)
+        return "".join(self.identifier_as_list)
 
     def insert_separator(self, identifier):
         """Returns the identifier by reinserting the separator."""

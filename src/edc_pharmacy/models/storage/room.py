@@ -15,7 +15,7 @@ class Room(BaseUuidModel):
 
     name = models.CharField(max_length=25, unique=True)
 
-    description = models.TextField(null=True)
+    description = models.TextField(default="")
 
     location = models.ForeignKey(Location, on_delete=models.PROTECT)
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import InitVar, dataclass, field
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_permission_codename
 
@@ -60,7 +60,7 @@ class Perms:
     """
 
     user: User = None
-    model_cls: InitVar[Type[models.Model]] = None
+    model_cls: InitVar[type[models.Model]] = None
     current_site: Site = None
     site: Site = None
     add: bool = field(default=False, init=False)
@@ -70,7 +70,7 @@ class Perms:
     view_only: bool = field(default=False, init=False)
     _site_perms: SitePerms = field(default=None, init=False)
 
-    def __post_init__(self, model_cls: Type[models.Model]):
+    def __post_init__(self, model_cls: type[models.Model]):
         # self.user = get_object_or_404(User, pk=self.user.id)
         # set add, change, delete, view attrs for this user
         # based on the model class

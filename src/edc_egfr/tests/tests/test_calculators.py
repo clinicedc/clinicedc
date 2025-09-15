@@ -31,7 +31,7 @@ class TestCalculators(TestCase):
         value = round_half_away_from_zero(
             convert_units(
                 label="creatinine",
-                value=float(0.84),
+                value=0.84,
                 units_from=MILLIGRAMS_PER_DECILITER,
                 units_to=MICROMOLES_PER_LITER,
             ),
@@ -42,7 +42,7 @@ class TestCalculators(TestCase):
             round_half_away_from_zero(
                 convert_units(
                     label="creatinine",
-                    value=float(1.21),
+                    value=1.21,
                     units_from=MILLIGRAMS_PER_DECILITER,
                     units_to=MICROMOLES_PER_LITER,
                 ),
@@ -54,7 +54,7 @@ class TestCalculators(TestCase):
             round_half_away_from_zero(
                 convert_units(
                     label="creatinine",
-                    value=float(74.3),
+                    value=74.3,
                     units_from=MICROMOLES_PER_LITER,
                     units_to=MILLIGRAMS_PER_DECILITER,
                 ),
@@ -66,7 +66,7 @@ class TestCalculators(TestCase):
             round_half_away_from_zero(
                 convert_units(
                     label="creatinine",
-                    value=float(107.0),
+                    value=107.0,
                     units_from=MICROMOLES_PER_LITER,
                     units_to=MILLIGRAMS_PER_DECILITER,
                 ),
@@ -292,7 +292,6 @@ class TestCalculators(TestCase):
         self.assertEqual(round_half_away_from_zero(egfr.value, 2), 65.33)
 
     def test_egfr_cockcroft_gault_calculator2(self):
-
         egfr2 = EgfrCockcroftGault(
             gender=MALE,
             creatinine_value=0.9,

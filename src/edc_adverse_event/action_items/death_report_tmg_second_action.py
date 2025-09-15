@@ -13,7 +13,7 @@ class DeathReportTmgSecondAction(ActionWithNotification):
     name = DEATH_REPORT_TMG_SECOND_ACTION
     display_name = "TMG Death Report (2nd) pending"
     notification_display_name = "TMG Death Report (2nd)"
-    parent_action_names = [DEATH_REPORT_TMG_ACTION]
+    parent_action_names = (DEATH_REPORT_TMG_ACTION,)
     related_reference_fk_attr = "death_report"
     priority = HIGH_PRIORITY
     create_by_user = False

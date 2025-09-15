@@ -1,23 +1,23 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Tuple
+from typing import TYPE_CHECKING, Any
 
 from django_audit_fields import audit_fieldset_tuple
 
 if TYPE_CHECKING:
     from edc_lab import RequisitionPanel
 
-panel_conclusion_fieldset: Tuple[str, dict] = (
+panel_conclusion_fieldset: tuple[str, dict] = (
     "Conclusion",
     {"fields": ("results_abnormal", "results_reportable")},
 )
-panel_summary_fieldset: Tuple[str, dict] = (
+panel_summary_fieldset: tuple[str, dict] = (
     "Summary",
     {"fields": ("reportable_summary", "abnormal_summary", "errors")},
 )
 
 
-calculate_egfr_fieldset: Tuple[str, dict] = (
+calculate_egfr_fieldset: tuple[str, dict] = (
     "Calculated eGFR",
     {
         # "classes": ("collapse",),
@@ -26,7 +26,7 @@ calculate_egfr_fieldset: Tuple[str, dict] = (
     },
 )
 
-calculate_egfr_drop_fieldset: Tuple[str, dict] = (
+calculate_egfr_drop_fieldset: tuple[str, dict] = (
     "Calculated eGFR Drop",
     {
         # "classes": ("collapse",),
@@ -50,7 +50,7 @@ class BloodResultFieldset:
         panel: RequisitionPanel,
         title: str = None,
         model_cls: Any = None,
-        extra_fieldsets: list[Tuple[int, Tuple[str, dict]]] | None = None,
+        extra_fieldsets: list[tuple[int, tuple[str, dict]]] | None = None,
         excluded_utest_ids: list[str] = None,
         exclude_units: bool = None,
         exclude_reportable: bool = None,

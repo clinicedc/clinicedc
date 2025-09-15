@@ -520,11 +520,11 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside " "associated child proxy for a visit.",
+            "Proxy root model class appears alongside associated child proxy for a visit.",
             fc_errors[0].msg,
         )
-        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=clinicedc_tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=clinicedc_tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_required_proxy_root_crf_with_not_required_child_proxy_crf_raises(self):
         site_visit_schedules._registry = {}
@@ -557,11 +557,11 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside " "associated child proxy for a visit.",
+            "Proxy root model class appears alongside associated child proxy for a visit.",
             fc_errors[0].msg,
         )
-        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=clinicedc_tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=clinicedc_tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_required_proxy_root_crf_with_child_proxy_prn_raises(self):
         site_visit_schedules._registry = {}
@@ -597,11 +597,11 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside " "associated child proxy for a visit.",
+            "Proxy root model class appears alongside associated child proxy for a visit.",
             fc_errors[0].msg,
         )
-        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=clinicedc_tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=clinicedc_tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_required_proxy_child_crf_with_proxy_root_prn_raises(self):
         site_visit_schedules._registry = {}
@@ -637,11 +637,11 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside " "associated child proxy for a visit.",
+            "Proxy root model class appears alongside associated child proxy for a visit.",
             fc_errors[0].msg,
         )
-        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=clinicedc_tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=clinicedc_tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_not_required_crf_also_in_prns_ok(self):
         """e.g. CRF not required (toggled by metadata rule) but
@@ -1274,11 +1274,11 @@ class TestSystemChecks(TestCase):
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
         self.assertIn(
-            "Proxy root model class appears alongside " "associated child proxy for a visit.",
+            "Proxy root model class appears alongside associated child proxy for a visit.",
             fc_errors[0].msg,
         )
-        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=clinicedc_tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=clinicedc_tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_unscheduled_visit_crf_proxy_shares_root_true_with_proxy_not_defined_raises(
         self,
@@ -1396,8 +1396,8 @@ class TestSystemChecks(TestCase):
         fc_errors = check_form_collections(app_configs=django_apps.get_app_configs())
         self.assertEqual(len(fc_errors), 1)
         self.assertEqual("edc_visit_schedule.E006", fc_errors[0].id)
-        self.assertIn("proxy_root_model=tests.crfone", fc_errors[0].msg)
-        self.assertIn("proxy_model=tests.crfoneproxyone", fc_errors[0].msg)
+        self.assertIn("proxy_root_model=clinicedc_tests.crfone", fc_errors[0].msg)
+        self.assertIn("proxy_model=clinicedc_tests.crfoneproxyone", fc_errors[0].msg)
 
     def test_missed_visit_crf_proxy_shares_root_true_with_proxy_not_defined_raises(
         self,

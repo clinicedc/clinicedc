@@ -47,7 +47,7 @@ class ConfirmStockFromInstanceView(
             )
             .count()
         )
-        unconfirmed_count = 12 if unconfirmed_count > 12 else unconfirmed_count
+        unconfirmed_count = min(unconfirmed_count, 12)
 
         kwargs.update(
             source_identifier=dct.get("source_identifier"),
@@ -83,12 +83,12 @@ class ConfirmStockFromInstanceView(
     @property
     def source_changelist_url(self):
         return reverse(
-            f"edc_pharmacy_admin:edc_pharmacy_{self.kwargs.get("model")}_changelist"
+            f"edc_pharmacy_admin:edc_pharmacy_{self.kwargs.get('model')}_changelist"
         )
 
     @property
     def model_cls(self):
-        return django_apps.get_model(f"edc_pharmacy.{self.kwargs.get("model")}")
+        return django_apps.get_model(f"edc_pharmacy.{self.kwargs.get('model')}")
 
     def post(self, request, *args, **kwargs):
         dct = self.get_values_dict(**kwargs)
@@ -114,5 +114,5 @@ class ConfirmStockFromInstanceView(
         ):
             url = reverse("edc_pharmacy:confirm_stock_from_instance_url", kwargs=kwargs)
         else:
-            url = f"{self.source_changelist_url}?q={dct.get("obj").pk}"
+            url = f"{self.source_changelist_url}?q={dct.get('obj').pk}"
         return HttpResponseRedirect(url)

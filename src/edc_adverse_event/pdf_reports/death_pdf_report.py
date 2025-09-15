@@ -95,16 +95,15 @@ class DeathPdfReport(CrfPdfReport):
         row = ["Main cause of death:"]
         if not self.model_obj.cause_of_death:
             row.append(self.not_reported_text)
-        else:
-            if self.cause_of_death == OTHER:
-                row.append(
-                    fill(
-                        f"{self.cause_of_death}: " f"{self.cause_of_death_other}",
-                        width=80,
-                    )
+        elif self.cause_of_death == OTHER:
+            row.append(
+                fill(
+                    f"{self.cause_of_death}: {self.cause_of_death_other}",
+                    width=80,
                 )
-            else:
-                row.append(fill(self.cause_of_death))
+            )
+        else:
+            row.append(fill(self.cause_of_death))
         rows.append(row)
 
         t = Table(rows, (4 * cm, 14 * cm))

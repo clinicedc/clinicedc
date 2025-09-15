@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Type
-
 from django.apps import apps as django_apps
 from django.db import models
 
@@ -38,9 +36,7 @@ class Crf:
             )
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}({self.show_order}, " f"{self.model}, {self.required})"
-        )
+        return f"{self.__class__.__name__}({self.show_order}, {self.model}, {self.required})"
 
     def __str__(self) -> str:
         required = "Required" if self.required else ""
@@ -57,11 +53,11 @@ class Crf:
         except LookupError as e:
             raise CrfLookupError(e) from e
 
-    def get_model_cls(self) -> Type[models.Model]:
+    def get_model_cls(self) -> type[models.Model]:
         return self.model_cls
 
     @property
-    def model_cls(self) -> Type[models.Model]:
+    def model_cls(self) -> type[models.Model]:
         return django_apps.get_model(self.model)
 
     @property

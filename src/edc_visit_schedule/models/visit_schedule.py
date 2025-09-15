@@ -56,7 +56,7 @@ class VisitSchedule(VisitScheduleMethodsModelMixin, edc_models.BaseUuidModel):
             ("visit_schedule_name", "schedule_name", "visit_code"),
             ("visit_schedule_name", "schedule_name", "timepoint"),
         )
-        indexes = [
+        indexes = (
             models.Index(
                 fields=[
                     "visit_schedule_name",
@@ -67,4 +67,4 @@ class VisitSchedule(VisitScheduleMethodsModelMixin, edc_models.BaseUuidModel):
                 ]
             ),
             models.Index(fields=["visit_schedule_name", "schedule_name", "timepoint"]),
-        ]
+        )

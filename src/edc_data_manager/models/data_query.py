@@ -193,7 +193,7 @@ class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidM
         verbose_name = "Data Query"
         verbose_name_plural = "Data Queries"
         unique_together = ["registered_subject", "rule_reference", "visit_schedule"]
-        indexes = [
+        indexes = (
             models.Index(
                 fields=[
                     "subject_identifier",
@@ -203,5 +203,5 @@ class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidM
                     "registered_subject",
                     "visit_schedule",
                 ]
-            )
-        ]
+            ),
+        )

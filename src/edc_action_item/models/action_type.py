@@ -11,6 +11,13 @@ from edc_model.models import BaseUuidModel
 from ..choices import PRIORITY
 from ..exceptions import ActionTypeError
 
+MISSING_ACTION_CLASS = "Model missing an action class. See {reference_model_cls!r}"
+NOT_CONFIGURED_FOR_ACTIONS = (
+    "Model not configured for Actions. Are you using the model mixin? "
+    "See {reference_model_cls!r}. Got {err}"
+)
+REFERENCE_MODEL_LOOKUP_ERROR = "{err}. Got reference_model=`{reference_model}`"
+
 
 class ActionTypeManager(models.Manager):
     use_in_migrations = True
@@ -25,11 +32,17 @@ class ActionType(BaseUuidModel):
     display_name = models.CharField(max_length=100)
 
     reference_model = models.CharField(
-        max_length=100, null=True, blank=True, help_text="reference model"
+        max_length=100,
+        blank=True,
+        default="",
+        help_text="reference model",
     )
 
     related_reference_model = models.CharField(
-        max_length=100, null=True, blank=True, help_text="origin reference model"
+        max_length=100,
+        blank=True,
+        default="",
+        help_text="origin reference model",
     )
 
     priority = models.CharField(max_length=25, choices=PRIORITY, default=HIGH_PRIORITY)
@@ -46,7 +59,7 @@ class ActionType(BaseUuidModel):
         default=True, help_text="This action may be created by the user"
     )
 
-    instructions = models.TextField(max_length=250, null=True, blank=True)
+    instructions = models.TextField(max_length=250, blank=True, default="")
 
     objects = ActionTypeManager()
 
@@ -54,7 +67,7 @@ class ActionType(BaseUuidModel):
         return self.display_name
 
     def natural_key(self) -> tuple:
-        return (self.name,)  # noqa
+        return (self.name,)
 
     @property
     def reference_model_cls(self) -> Any:
@@ -63,7 +76,11 @@ class ActionType(BaseUuidModel):
             try:
                 model_cls = django_apps.get_model(self.reference_model)
             except (LookupError, ValueError) as e:
-                raise ActionTypeError(f"{e}. Got reference_model=`{self.reference_model}`")
+                raise ActionTypeError(
+                    REFERENCE_MODEL_LOOKUP_ERROR.format(
+                        err=str(e), reference_model=self.reference_model
+                    )
+                ) from e
         return model_cls
 
     def save(self, *args, **kwargs):
@@ -72,20 +89,23 @@ class ActionType(BaseUuidModel):
             try:
                 if not self.reference_model_cls.action_name:
                     raise ActionTypeError(
-                        f"Model missing an action class. See {repr(self.reference_model_cls)}"
+                        MISSING_ACTION_CLASS.format(
+                            reference_model_cls=self.reference_model_cls
+                        )
                     )
             except AttributeError as e:
                 if "action_name" in str(e):
                     raise ActionTypeError(
-                        f"Model not configured for Actions. Are you using the model mixin? "
-                        f"See {repr(self.reference_model_cls)}. Got {e}"
-                    )
-                else:
-                    raise
+                        NOT_CONFIGURED_FOR_ACTIONS.format(
+                            reference_model_cls=self.reference_model_cls, err=str(e)
+                        )
+                    ) from e
+                raise
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
-        indexes = BaseUuidModel.Meta.indexes + [
+        indexes = (
+            *BaseUuidModel.Meta.indexes,
             models.Index(fields=["id", "name"]),
-        ]
+        )
         default_permissions = ("add", "change", "delete", "view", "export", "import")

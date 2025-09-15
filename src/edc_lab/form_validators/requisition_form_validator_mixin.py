@@ -24,7 +24,7 @@ class RequisitionFormValidatorMixin:
         if self.instance:
             if self.cleaned_data.get("packed") != self.instance.packed:
                 raise forms.ValidationError({"packed": "Value may not be changed here."})
-            elif self.cleaned_data.get("processed") != self.instance.processed:
+            if self.cleaned_data.get("processed") != self.instance.processed:
                 if self.aliqout_model_cls.objects.filter(
                     requisition_identifier=self.instance.requisition_identifier
                 ).exists():
@@ -42,8 +42,7 @@ class RequisitionFormValidatorMixin:
                 )
             elif self.instance.received:
                 raise forms.ValidationError(
-                    "Requisition may not be changed. The specimen has "
-                    "already been received."
+                    "Requisition may not be changed. The specimen has already been received."
                 )
 
         self.applicable_if(NO, field="is_drawn", field_applicable="reason_not_drawn")

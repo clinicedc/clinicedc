@@ -35,7 +35,7 @@ class TransferStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             stock_transfer=stock_transfer
         ).count()
         item_count = stock_transfer.item_count - transferred_count
-        item_count = 12 if item_count > 12 else item_count
+        item_count = min(item_count, 12)
         kwargs.update(
             stock_transfer=stock_transfer,
             source_model_name=self.model_cls._meta.verbose_name_plural,

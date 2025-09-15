@@ -102,7 +102,7 @@ class RxRefill(
 
     notes = models.TextField(
         max_length=250,
-        null=True,
+        default="",
         blank=True,
         help_text="Additional information for patient",
     )
@@ -137,7 +137,7 @@ class RxRefill(
         )
 
     def natural_key(self):
-        return (self.refill_identifier,)  # noqa
+        return (self.refill_identifier,)
 
     def save(self, *args, **kwargs):
         self.adjust_end_datetimes()
@@ -167,7 +167,7 @@ class RxRefill(
         ).dosage
         if self.roundup_dose:
             return math.ceil(dosage)
-        elif self.round_dose:
+        if self.round_dose:
             return round_half_away_from_zero(dosage, self.round_dose)
         return dosage
 
@@ -179,13 +179,11 @@ class RxRefill(
             return (
                 math.ceil(
                     (
-                        (
-                            float(self.get_dose())
-                            * float(self.frequency)
-                            * float(self.number_of_days)
-                        )
-                        / self.roundup_divisible_by
+                        float(self.get_dose())
+                        * float(self.frequency)
+                        * float(self.number_of_days)
                     )
+                    / self.roundup_divisible_by
                 )
                 * self.roundup_divisible_by
             )

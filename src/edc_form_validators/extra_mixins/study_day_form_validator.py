@@ -29,7 +29,7 @@ class StudyDayFormValidatorMixin:
             except AttributeError:
                 pass
             if not subject_identifier or self.subject_identifier:
-                raise ValueError(f"Subject identifier cannot be None. See {repr(self)}")
+                raise ValueError(f"Subject identifier cannot be None. See {self!r}")
             registered_subject_model_cls = django_apps.get_model(
                 "edc_registration.registeredsubject"
             )

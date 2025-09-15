@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from .model_button import ModelButton
@@ -15,9 +15,9 @@ if TYPE_CHECKING:
     from edc_metadata.models import CrfMetadata, RequisitionMetadata
     from edc_model.models import BaseUuidModel
 
-    class CrfModel(CrfModelMixin, BaseUuidModel): ...  # noqa
+    class CrfModel(CrfModelMixin, BaseUuidModel): ...
 
-    class RequisitionModel(RequisitionModelMixin, BaseUuidModel): ...  # noqa
+    class RequisitionModel(RequisitionModelMixin, BaseUuidModel): ...
 
 
 __all__ = ["DashboardModelButton"]
@@ -38,7 +38,7 @@ class DashboardModelButton(ModelButton):
     metadata_model_obj: CrfMetadata | RequisitionMetadata = None
     appointment: Appointment = None
     next_url_name: str = field(default="subject_dashboard_url")
-    model_cls: Type[CrfModel | RequisitionModel] = field(default=None, init=False)
+    model_cls: type[CrfModel | RequisitionModel] = field(default=None, init=False)
 
     def __post_init__(self):
         self.model_cls = self.metadata_model_obj.model_cls

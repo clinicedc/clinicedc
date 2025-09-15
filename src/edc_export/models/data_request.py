@@ -13,14 +13,14 @@ from ..model_options import ModelOptions
 class DataRequest(SiteModelMixin, BaseUuidModel):
     name = models.CharField(max_length=25)
 
-    description = models.TextField(null=True)
+    description = models.TextField(default="")
 
     decrypt = models.BooleanField(default=False)
 
     export_format = models.CharField(max_length=25, choices=EXPORT_FORMATS, default=CSV)
 
     models = models.TextField(
-        help_text='List one table per line, no commas. Use "label lower" format.'
+        default="", help_text='List one table per line, no commas. Use "label lower" format.'
     )
 
     history = HistoricalRecords()
@@ -41,4 +41,4 @@ class DataRequest(SiteModelMixin, BaseUuidModel):
         return [ModelOptions(x) for x in models_as_list]
 
     class Meta:
-        indexes = [Index(fields=["name"])]
+        indexes = (Index(fields=["name"]),)

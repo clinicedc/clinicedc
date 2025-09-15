@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Self, Tuple
+from typing import TYPE_CHECKING, Any, Self
 
 from edc_visit_schedule.visit import CrfCollection
 
@@ -52,7 +52,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
         cls: Any,
         related_visit: RelatedVisitModel = None,
         allow_create: bool | None = None,
-    ) -> Tuple[dict[str, dict[str, dict]], dict[str, CrfMetadata]]:
+    ) -> tuple[dict[str, dict[str, dict]], dict[str, CrfMetadata]]:
         rule_results = {}
         metadata_objects = {}
         for rule in cls._meta.options.get("rules"):
@@ -70,9 +70,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
                         f"Target model and visit model are the same! "
                         f"Got {target_model}=={related_visit._meta.label_lower}"
                     )
-                elif (
-                    target_model.split(".")[1] == related_visit._meta.label_lower.split(".")[1]
-                ):
+                if target_model.split(".")[1] == related_visit._meta.label_lower.split(".")[1]:
                     raise TargetModelConflict(
                         f"Target model and visit model might be the same. "
                         f"Got {target_model}~={related_visit._meta.label_lower}"

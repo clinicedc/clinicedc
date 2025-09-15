@@ -42,4 +42,4 @@ class SearchSlugModelMixin(models.Model):
 
     class Meta:
         abstract = True
-        indexes = [models.Index(fields=["slug"])]
+        indexes = (models.Index(fields=["slug"]),)

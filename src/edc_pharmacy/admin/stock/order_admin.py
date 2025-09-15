@@ -80,7 +80,7 @@ class OrderAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         if obj.item_count > OrderItem.objects.filter(order=obj).count():
             url = reverse("edc_pharmacy_admin:edc_pharmacy_orderitem_add")
             next_url = "edc_pharmacy_admin:edc_pharmacy_order_changelist"
-            url = f"{url}?next={next_url}&order={str(obj.id)}&q={str(obj.order_identifier)}"
+            url = f"{url}?next={next_url}&order={obj.id!s}&q={obj.order_identifier!s}"
             context = dict(url=url, label="Add order item")
             add_order_items_button = render_to_string(
                 "edc_pharmacy/stock/items_as_button.html", context=context
@@ -112,7 +112,7 @@ class OrderAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             pass
         else:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_receive_changelist")
-            url = f"{url}?q={str(rcv_obj.receive_identifier)}"
+            url = f"{url}?q={rcv_obj.receive_identifier!s}"
             context = dict(url=url, label=rcv_obj.receive_identifier, title="Receive #")
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None

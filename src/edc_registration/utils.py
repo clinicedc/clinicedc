@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -27,7 +27,7 @@ def get_registered_subject_model_name() -> str:
     )
 
 
-def get_registered_subject_model_cls() -> Type[RegisteredSubject]:
+def get_registered_subject_model_cls() -> type[RegisteredSubject]:
     return django_apps.get_model(get_registered_subject_model_name())
 
 
@@ -62,6 +62,5 @@ def valid_subject_identifier_or_raise(
                 f"See `edc_protocol.ResearchProtocolConfig().subject_identifier_pattern`. "
                 f"Got `{subject_identifier}`."
             )
-        else:
-            return False
+        return False
     return True

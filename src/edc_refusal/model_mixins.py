@@ -29,7 +29,7 @@ class SubjectRefusalModelMixin(models.Model):
         return self.screening_identifier
 
     def natural_key(self):
-        return (self.screening_identifier,)  # noqa
+        return (self.screening_identifier,)
 
     @staticmethod
     def get_search_slug_fields():

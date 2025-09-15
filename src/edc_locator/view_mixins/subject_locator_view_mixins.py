@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
@@ -67,7 +67,7 @@ class SubjectLocatorViewMixin:
             action_cls(subject_identifier=subject_identifier)
 
     @property
-    def subject_locator_model_cls(self) -> Type[SubjectLocator]:
+    def subject_locator_model_cls(self) -> type[SubjectLocator]:
         return django_apps.get_model(self.subject_locator_model)
 
     @property

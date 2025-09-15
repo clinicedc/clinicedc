@@ -14,7 +14,7 @@ from .numbered_canvas import NumberedCanvas
 if TYPE_CHECKING:
     from .model_mixins import PdfReportModelMixin
 
-    class Model(PdfReportModelMixin, models.Model): ...  # noqa
+    class Model(PdfReportModelMixin, models.Model): ...
 
 
 mkdtemp()

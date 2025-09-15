@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 from unittest import skip
 
 from clinicedc_tests.consents import consent_v1
@@ -88,7 +87,7 @@ class TestQueryRules(TestCase):
     def create_subject_visit(
         self,
         visit_code: str,
-        report_datetime: Optional[datetime] = None,
+        report_datetime: datetime | None = None,
         visit_code_sequence: int | None = None,
     ):
         appointment = Appointment.objects.get(

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import KW_ONLY, dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -27,9 +27,7 @@ if TYPE_CHECKING:
     from .consent_definition_extension import ConsentDefinitionExtension
     from .stubs import ConsentLikeModel
 
-    class SubjectScreening(
-        ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel
-    ): ...  # noqa
+    class SubjectScreening(ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel): ...
 
 
 @dataclass(order=True)
@@ -84,13 +82,13 @@ class ConsentDefinition:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
         if not self.start.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
-        elif str(self.start.tzinfo).upper() != "UTC":
+        if str(self.start.tzinfo).upper() != "UTC":
             raise ConsentDefinitionError(
                 f"Start date must be UTC. Got {self.start} / {self.start.tzinfo}."
             )
         if not self.end.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed Got {self.end}.")
-        elif str(self.end.tzinfo).upper() != "UTC":
+        if str(self.end.tzinfo).upper() != "UTC":
             raise ConsentDefinitionError(
                 f"End date must be UTC. Got {self.end} / {self.start.tzinfo}."
             )
@@ -110,13 +108,13 @@ class ConsentDefinition:
             raise ConsentDefinitionError(
                 f"Model class must be a proxy. See {self.name}. Got {model_cls}"
             )
-        elif not isinstance(model_cls.objects, (ConsentObjectsByCdefManager,)):
+        if not isinstance(model_cls.objects, (ConsentObjectsByCdefManager,)):
             raise ConsentDefinitionError(
                 "Incorrect 'objects' model manager for consent model. "
                 f"Expected {ConsentObjectsByCdefManager}. See {self.name}.  "
                 f"Got {model_cls.objects.__class__}"
             )
-        elif not isinstance(model_cls.on_site, (CurrentSiteByCdefManager,)):
+        if not isinstance(model_cls.on_site, (CurrentSiteByCdefManager,)):
             raise ConsentDefinitionError(
                 "Incorrect 'on_site' model manager for consent model. "
                 f"Expected {CurrentSiteByCdefManager}. See {self.name}.  "
@@ -170,7 +168,7 @@ class ConsentDefinition:
         return consent_obj
 
     @property
-    def model_cls(self) -> Type[ConsentLikeModel]:
+    def model_cls(self) -> type[ConsentLikeModel]:
         return django_apps.get_model(self.model)
 
     @property
@@ -229,5 +227,4 @@ class ConsentDefinition:
         )
         if previous_consent.count() > 0:
             return previous_consent.last()
-        else:
-            raise ObjectDoesNotExist("Previous consent does not exist")
+        raise ObjectDoesNotExist("Previous consent does not exist")

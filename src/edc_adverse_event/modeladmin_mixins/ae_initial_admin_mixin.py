@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django.contrib import admin
 from django.contrib.admin import display
 from django.template.loader import render_to_string
@@ -90,8 +88,8 @@ class AeInitialModelAdminMixin(
     additional_instructions = format_html(  # nosec B308, B703
         "Complete the initial AE report and forward to the TMG. "
         'Email to <a href="mailto:{}">{}</a>',
-        mark_safe(email_contact),  # nosec B308, B703
-        mark_safe(email_contact),  # nosec B308, B703
+        mark_safe(email_contact),  # noqa: S308
+        mark_safe(email_contact),  # noqa: S308
     )
 
     fieldsets = (
@@ -114,7 +112,7 @@ class AeInitialModelAdminMixin(
         "ae_classification_other",
     )
 
-    def get_list_display(self, request) -> Tuple[str, ...]:
+    def get_list_display(self, request) -> tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "subject_identifier_column",
@@ -125,7 +123,7 @@ class AeInitialModelAdminMixin(
         )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = (
             AeAwarenessListFilter,

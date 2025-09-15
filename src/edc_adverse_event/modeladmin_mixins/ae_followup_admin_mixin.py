@@ -45,7 +45,7 @@ class AeFollowupModelAdminMixin(
         audit_fieldset_tuple,
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "outcome": admin.VERTICAL,
         "followup": admin.VERTICAL,
         "ae_grade": admin.VERTICAL,
@@ -54,14 +54,12 @@ class AeFollowupModelAdminMixin(
     def get_search_fields(self, request) -> tuple[str, ...]:
         search_fields = super().get_search_fields(request)
         return tuple(
-            set(
-                search_fields
-                + (
-                    "action_identifier",
-                    "ae_initial__subject_identifier",
-                    "ae_initial__action_identifier",
-                )
-            )
+            {
+                *search_fields,
+                "action_identifier",
+                "ae_initial__subject_identifier",
+                "ae_initial__action_identifier",
+            }
         )
 
     def get_list_display(self, request) -> tuple[str, ...]:
@@ -72,7 +70,7 @@ class AeFollowupModelAdminMixin(
             "description_column",
             "documents_column",
         )
-        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
+        return tuple({*list_display, *custom_fields})
 
     def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
@@ -83,7 +81,7 @@ class AeFollowupModelAdminMixin(
             "outcome",
             "report_datetime",
         )
-        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
+        return tuple({*list_filter, *custom_fields})
 
     @display(description="Description", ordering="-report_datetime")
     def description_column(self, obj):

@@ -84,7 +84,7 @@ def recreate_db_view(model_cls, drop: bool | None = None, verbose: bool | None =
     """
     drop = True if drop is None else drop
     try:
-        sql = model_cls.view_definition.get(settings.DATABASES["default"]["ENGINE"])  # noqa
+        sql = model_cls.view_definition.get(settings.DATABASES["default"]["ENGINE"])
     except AttributeError as e:
         raise AttributeError(
             f"Is this model linked to a view? Declare model with `DBView`. Got {e}"
@@ -107,7 +107,6 @@ def recreate_db_view(model_cls, drop: bool | None = None, verbose: bool | None =
 
 
 def recreate_dbview_for_all():
-
     from .model_mixins import QaReportModelMixin
 
     for model_cls in django_apps.get_models():

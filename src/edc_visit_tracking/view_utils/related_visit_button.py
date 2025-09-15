@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Type, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from django.utils.translation import gettext as _
 
@@ -31,7 +31,7 @@ class RelatedVisitButton(DashboardModelButton):
     appointment: Appointment = None
     model_obj: RelatedVisitModel = None
     labels: tuple[str, str, str] = field(default=("Start", "Visit Report", "Visit Report"))
-    model_cls: Type[RelatedVisitModel] = field(default=None)
+    model_cls: type[RelatedVisitModel] = field(default=None)
 
     def __post_init__(self):
         pass
@@ -55,9 +55,9 @@ class RelatedVisitButton(DashboardModelButton):
         """
         color = self.colors[VIEW]
         if self.appointment.appt_status == IN_PROGRESS_APPT:
-            if self.model_obj and self.model_obj.document_status == INCOMPLETE:
-                color = self.colors[ADD]
-            elif not self.model_obj:
+            if (
+                self.model_obj and self.model_obj.document_status == INCOMPLETE
+            ) or not self.model_obj:
                 color = self.colors[ADD]
             else:
                 color = self.colors[VIEW]  # default / grey

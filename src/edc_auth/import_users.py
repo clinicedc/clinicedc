@@ -3,7 +3,7 @@ import os
 import re
 from datetime import datetime
 from string import Template
-from typing import Any, List, Optional
+from typing import Any
 
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -67,12 +67,12 @@ fieldnames = [
 
 def import_users(
     path: str,
-    resource_name: Optional[str] = None,
-    send_email_to_user: Optional[Any] = None,
-    resend_as_newly_created: Optional[Any] = None,
-    verbose: Optional[Any] = None,
-    export_to_file: Optional[Any] = None,
-    limit_to_username: Optional[str] = None,
+    resource_name: str | None = None,
+    send_email_to_user: Any | None = None,
+    resend_as_newly_created: Any | None = None,
+    verbose: Any | None = None,
+    export_to_file: Any | None = None,
+    limit_to_username: str | None = None,
     **kwargs,
 ):
     """Import users from a CSV file with columns:
@@ -140,20 +140,20 @@ class UserImporter:
         email: str = None,
         alternate_email: str = None,
         mobile: str = None,
-        site_names: List[str] = None,
-        role_names: List[str] = None,
+        site_names: list[str] = None,
+        role_names: list[str] = None,
         is_active: bool = None,
         is_staff: bool = None,
         resource_name: str = None,
-        created_email_template: Optional[Template] = None,
-        updated_email_template: Optional[Template] = None,
-        send_email_to_user: Optional[Any] = None,
-        test_email_address: Optional[Any] = None,
-        resend_as_new: Optional[Any] = None,
-        nwords: Optional[int] = None,
+        created_email_template: Template | None = None,
+        updated_email_template: Template | None = None,
+        send_email_to_user: Any | None = None,
+        test_email_address: Any | None = None,
+        resend_as_new: Any | None = None,
+        nwords: int | None = None,
         **kwargs,
     ):
-        self._messages: List[str] = []
+        self._messages: list[str] = []
         self._user = None
         self.created = False
         self.password = None
@@ -236,7 +236,7 @@ class UserImporter:
                 self._user.save()
         return self._user
 
-    def update_user_sites(self, site_names: List[str]) -> None:
+    def update_user_sites(self, site_names: list[str]) -> None:
         self.user.userprofile.sites.clear()
         for site_name in site_names:
             try:
@@ -250,7 +250,7 @@ class UserImporter:
             else:
                 self.user.userprofile.sites.add(site)
 
-    def update_user_roles(self, role_names: List[str]) -> None:
+    def update_user_roles(self, role_names: list[str]) -> None:
         self.user.userprofile.roles.clear()
         role_names.extend(required_role_names)
         for role_name in role_names:
@@ -277,7 +277,7 @@ class UserImporter:
             to=(self.test_email_address or self.user.email,),
         )
 
-    def get_username(self) -> Optional[str]:
+    def get_username(self) -> str | None:
         if self.first_name and self.last_name:
             last_name = "".join(self.last_name.split(" ")).lower()
             return f"{self.first_name.lower()[0]}{last_name}"

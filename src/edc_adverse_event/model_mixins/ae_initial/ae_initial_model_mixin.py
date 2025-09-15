@@ -44,7 +44,7 @@ class AeInitialModelMixin(
         abstract = True
         verbose_name = "AE Initial Report"
         indexes = (
-            NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
-            + ActionModelMixin.Meta.indexes
-            + [models.Index(fields=["subject_identifier", "action_identifier", "site"])]
+            *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
+            *ActionModelMixin.Meta.indexes,
+            models.Index(fields=["subject_identifier", "action_identifier", "site"]),
         )

@@ -60,8 +60,7 @@ class ActionView(TemplateView):
         action = slugify(self.request.POST.get("action", "").lower())
         if action not in self.valid_form_actions:
             raise InvalidPostError(f"Invalid form action in POST. Got {action}")
-        else:
-            self.action = action
+        self.action = action
         self.process_form_action(request=request)
         url_name = url_names.get(self.post_action_url)
         url = reverse(url_name, kwargs=self.url_kwargs)

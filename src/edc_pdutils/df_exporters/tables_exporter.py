@@ -48,7 +48,7 @@ class TablesExporter:
     ):
         self.app_label = app_label or self.app_label
         if not self.app_label:
-            raise TablesExporterError(f"Missing app_label. Got None. See {repr(self)}")
+            raise TablesExporterError(f"Missing app_label. Got None. See {self!r}")
         self.export_folder = export_folder or get_export_folder()
         self.with_columns = with_columns or []
         self.without_columns = without_columns or []
@@ -63,7 +63,7 @@ class TablesExporter:
         self.table_names = self.get_table_names()
         if not self.table_names:
             raise TablesExporterError(
-                f"No tables found for app_label. Got {self.app_label}. See {repr(self)}"
+                f"No tables found for app_label. Got {self.app_label}. See {self!r}"
             )
         for hint in exclude_table_hints:
             for table_name in self.get_table_names():

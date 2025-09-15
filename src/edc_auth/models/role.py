@@ -50,6 +50,7 @@ class Role(BaseUuidModel):
         return (self.name,)
 
     class Meta(BaseUuidModel.Meta):
-        indexes = BaseUuidModel.Meta.indexes + [
-            models.Index(fields=["display_name", "display_index"])
-        ]
+        indexes = (
+            *BaseUuidModel.Meta.indexes,
+            models.Index(fields=["display_name", "display_index"]),
+        )

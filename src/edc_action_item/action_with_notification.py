@@ -1,4 +1,4 @@
-from typing import Type, cast
+from typing import cast
 
 from django.db import models
 
@@ -14,7 +14,7 @@ class ActionWithNotification(Action):
     notification_email_to: list[str] = None
     notification_display_name: str = None
     notification_fields: list[str] = None
-    notification_super_cls: Type[ActionItemNotification] = ActionItemNotification
+    notification_super_cls: type[ActionItemNotification] = ActionItemNotification
     notify_on_changed_reference_obj: models.Model = True
     notify_on_close: bool = False
     notify_on_new: bool = False
@@ -22,10 +22,10 @@ class ActionWithNotification(Action):
     notify_on_open: bool = False
 
     @classmethod
-    def notification_cls(cls) -> Type[ActionItemNotification]:
+    def notification_cls(cls) -> type[ActionItemNotification]:
         """Returns a subclass of ActionItemModelNotification."""
         return cast(
-            Type[ActionItemNotification],
+            type[ActionItemNotification],
             type(
                 f"{cls.__name__}Notification",
                 (cls.notification_super_cls,),

@@ -28,25 +28,24 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
     number_to_process = repack_request.requested_qty - repack_request.processed_qty
     if not getattr(repack_request.from_stock, "confirmation", None):
         raise RepackError("Source stock item not confirmed")
-    else:
-        stock_model_cls = repack_request.from_stock.__class__
-        for index in range(0, int(number_to_process)):
-            try:
-                stock_model_cls.objects.create(
-                    receive_item=None,
-                    qty_in=1,
-                    qty_out=0,
-                    qty=1,
-                    from_stock=repack_request.from_stock,
-                    container=repack_request.container,
-                    location=repack_request.from_stock.location,
-                    repack_request=repack_request,
-                    lot=repack_request.from_stock.lot,
-                    user_created=username,
-                    created=get_utcnow(),
-                )
-            except InsufficientStockError:
-                break
+    stock_model_cls = repack_request.from_stock.__class__
+    for index in range(0, int(number_to_process)):
+        try:
+            stock_model_cls.objects.create(
+                receive_item=None,
+                qty_in=1,
+                qty_out=0,
+                qty=1,
+                from_stock=repack_request.from_stock,
+                container=repack_request.container,
+                location=repack_request.from_stock.location,
+                repack_request=repack_request,
+                lot=repack_request.from_stock.lot,
+                user_created=username,
+                created=get_utcnow(),
+            )
+        except InsufficientStockError:
+            break
     repack_request.processed_qty = stock_model_cls.objects.filter(
         repack_request=repack_request
     ).count()

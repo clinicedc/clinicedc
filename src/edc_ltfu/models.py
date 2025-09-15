@@ -22,8 +22,8 @@ class Ltfu(
         verbose_name = "Loss to Follow Up"
         verbose_name_plural = "Loss to Follow Ups"
         indexes = (
-            NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
-            + ActionModelMixin.Meta.indexes
-            + BaseUuidModel.Meta.indexes
-            + [models.Index(fields=["subject_identifier", "action_identifier", "site"])]
+            *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
+            *ActionModelMixin.Meta.indexes,
+            *BaseUuidModel.Meta.indexes,
+            models.Index(fields=["subject_identifier", "action_identifier", "site"]),
         )

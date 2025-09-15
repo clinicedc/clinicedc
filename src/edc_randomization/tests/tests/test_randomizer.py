@@ -115,7 +115,7 @@ class TestRandomizer(TestCase):
                 user=subject_consent.user_created,
             ).randomize()
         except Exception as e:
-            self.fail(f"Exception unexpectedly raised. Got {str(e)}.")
+            self.fail(f"Exception unexpectedly raised. Got {e!s}.")
 
     @override_settings(ETC_DIR=tmpdir, DEBUG=False)
     def test_with_gender_and_consent(self):
@@ -144,7 +144,7 @@ class TestRandomizer(TestCase):
                 user=subject_consent.user_created,
             ).randomize()
         except Exception as e:
-            self.fail(f"Exception unexpectedly raised. Got {str(e)}.")
+            self.fail(f"Exception unexpectedly raised. Got {e!s}.")
 
     @override_settings(ETC_DIR=tmpdir, DEBUG=False)
     def test_with_list_selects_first(self):

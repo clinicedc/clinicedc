@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from django.urls import reverse
@@ -16,7 +16,7 @@ def get_appointment_url(appointment_pk: str, subject_identifier: str) -> str:
         args=(appointment_pk,),
     )
     rev_url = (
-        f'{rev_url}?next={url_names.get("subject_dashboard_url")},'
+        f"{rev_url}?next={url_names.get('subject_dashboard_url')},"
         f"subject_identifier"
         f"&subject_identifier={subject_identifier}"
     )
@@ -27,7 +27,7 @@ def validate_appt_datetime_unique(
     form_validator: Any,
     appointment: Any,
     appt_datetime: datetime,
-    form_field: Optional[str] = None,
+    form_field: str | None = None,
 ):
     """Assert one visit report per day"""
     if appt_datetime:
@@ -45,7 +45,7 @@ def validate_appt_datetime_unique(
                 {form_field: "An appointment already exists for this date (M)"},
                 INVALID_ERROR,
             )
-        elif other_appts.count() == 1:
+        if other_appts.count() == 1:
             if appointment and other_appts[0].id != appointment.id:
                 appointment_url = get_appointment_url(
                     (

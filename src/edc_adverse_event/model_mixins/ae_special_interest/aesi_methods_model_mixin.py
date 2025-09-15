@@ -2,6 +2,9 @@ from django.db import models
 
 
 class AesiMethodsModelMixin(models.Model):
+    class Meta:
+        abstract = True
+
     def __str__(self):
         return f"{self.action_identifier[-9:]}"
 
@@ -10,7 +13,4 @@ class AesiMethodsModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.action_identifier,)  # noqa
-
-    class Meta:
-        abstract = True
+        return (self.action_identifier,)

@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django import forms
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
@@ -30,14 +28,14 @@ class AssignmentAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display: Tuple[str, ...] = (
+    list_display: tuple[str, ...] = (
         "name",
         "display_name",
         "created",
         "modified",
     )
 
-    search_fields: Tuple[str, ...] = ("name", "display_name")
+    search_fields: tuple[str, ...] = ("name", "display_name")
 
     def get_readonly_fields(self, request, obj=None):
         if obj:

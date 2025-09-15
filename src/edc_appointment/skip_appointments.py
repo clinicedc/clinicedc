@@ -177,12 +177,11 @@ class SkipAppointments:
             raise AppointmentAlreadyStarted(
                 f"Unable update as next. Appointment already started. Got {appointment}."
             )
-        else:
-            appointment.appt_status = NEW_APPT
-            appointment.appt_datetime = self.next_appt_datetime
-            appointment.comment = ""
-            self.validate_appointment_as_next(appointment)
-            appointment.save(update_fields=["appt_status", "appt_datetime", "comment"])
+        appointment.appt_status = NEW_APPT
+        appointment.appt_datetime = self.next_appt_datetime
+        appointment.comment = ""
+        self.validate_appointment_as_next(appointment)
+        appointment.save(update_fields=["appt_status", "appt_datetime", "comment"])
 
     @property
     def last_crf_obj(self):

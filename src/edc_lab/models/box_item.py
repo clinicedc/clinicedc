@@ -45,7 +45,7 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
         if self.identifier:
             x = self.identifier
             if re.match(aliquot_pattern, self.identifier):
-                return "{}-{}-{}-{}-{}".format(x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
+                return f"{x[0:3]}-{x[3:6]}-{x[6:10]}-{x[10:14]}-{x[14:18]}"
         return self.identifier
 
     def get_slugs(self):

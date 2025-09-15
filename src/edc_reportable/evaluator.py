@@ -94,8 +94,8 @@ class Evaluator:
         if upper and upper >= float(HIGH_VALUE):
             upper = ""
         return (
-            f'{lower}{self.lower_operator or ""}{value}'
-            f'{self.upper_operator or ""}{upper} {self.units}'
+            f"{lower}{self.lower_operator or ''}{value}"
+            f"{self.upper_operator or ''}{upper} {self.units}"
         )
 
     def in_bounds_or_raise(self, value: int | float, units: str = None) -> bool:
@@ -111,10 +111,10 @@ class Evaluator:
         """
         value = float(value)
         if units != self.units:
-            raise InvalidUnits(f"Expected {self.units}. See {repr(self)}")
+            raise InvalidUnits(f"Expected {self.units}. See {self!r}")
         condition_str = (
-            f'{"" if self.lower is None else self.lower}{self.lower_operator or ""}{value}'
-            f'{self.upper_operator or ""}{"" if self.upper is None else self.upper}'
+            f"{'' if self.lower is None else self.lower}{self.lower_operator or ''}{value}"
+            f"{self.upper_operator or ''}{'' if self.upper is None else self.upper}"
         )
         if not eval(condition_str):  # nosec B307
             raise ValueBoundryError(condition_str)

@@ -72,8 +72,7 @@ class ModelAdminSiteTest(WebTest):
             if form.action == "/i18n/setlang/":
                 # exclude the locale form
                 continue
-            else:
-                break
+            break
         form["username"] = self.user.username
         form["password"] = "pass"  # nosec B105
         return form.submit()
@@ -229,7 +228,7 @@ class ModelAdminSiteTest(WebTest):
         query_string = (
             "next=dashboard_app:dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}&"
-            f"subject_visit={str(self.subject_visit.id)}"
+            f"subject_visit={self.subject_visit.id!s}"
         )
 
         panel_one = Panel.objects.get(name="one")
@@ -237,7 +236,7 @@ class ModelAdminSiteTest(WebTest):
 
         # got to add and cancel
         add_url = reverse(f"tests_admin:tests_{model}_add")
-        url = add_url + f"?{query_string}&panel={str(panel_one.id)}"
+        url = add_url + f"?{query_string}&panel={panel_one.id!s}"
         response = self.app.get(url, user=self.user)
         form = get_webtest_form(response)
         response = form.submit(name="_cancel").follow()
@@ -257,10 +256,10 @@ class ModelAdminSiteTest(WebTest):
         }
 
         # add and save
-        url = add_url + f"?{query_string}&panel={str(panel_one.id)}"
+        url = add_url + f"?{query_string}&panel={panel_one.id!s}"
         response = self.app.get(url, user=self.user)
         self.assertIn("Add requisition", response)
-        self.assertIn(f'value="{str(panel_one.id)}"', response)
+        self.assertIn(f'value="{panel_one.id!s}"', response)
         form = get_webtest_form(response)
         for key, value in form_data.items():
             form[key] = value
@@ -271,10 +270,10 @@ class ModelAdminSiteTest(WebTest):
 
         # add panel one and save_next ->
         # add panel two and save_next -> dashboard
-        url = add_url + f"?{query_string}&panel={str(panel_one.id)}"
+        url = add_url + f"?{query_string}&panel={panel_one.id!s}"
         response = self.app.get(url, user=self.user)
         self.assertIn("Add requisition", response)
-        self.assertIn(f'value="{str(panel_one.id)}"', response)
+        self.assertIn(f'value="{panel_one.id!s}"', response)
         self.assertIn("_savenext", response)
         form = get_webtest_form(response)
         for key, value in form_data.items():
@@ -282,7 +281,7 @@ class ModelAdminSiteTest(WebTest):
         form["requisition_identifier"] = "ABCDE0001"
         response = form.submit(name="_savenext").follow()
         self.assertIn("Add requisition", response)
-        self.assertIn(f'value="{str(panel_two.id)}"', response)
+        self.assertIn(f'value="{panel_two.id!s}"', response)
         form = get_webtest_form(response)
         for key, value in form_data.items():
             form[key] = value
@@ -299,12 +298,12 @@ class ModelAdminSiteTest(WebTest):
                 f"tests_admin:tests_{model}_change",
                 args=(requisition.id,),
             )
-            + f"?{query_string}&panel={str(panel_one.id)}"
+            + f"?{query_string}&panel={panel_one.id!s}"
         )
         response = self.app.get(url, user=self.user)
         self.assertIn("requisition change-form", response)
         self.assertIn("ABCDE0001", response)
-        self.assertIn(f'{str(panel_one.id)}" selected>One</option>', response)
+        self.assertIn(f'{panel_one.id!s}" selected>One</option>', response)
         form = get_webtest_form(response)
         response = form.submit(name="_savenext").follow()
 

@@ -122,7 +122,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="Order #")
     def order_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_order_changelist")
-        url = f"{url}?q={str(obj.order_item.order.order_identifier)}"
+        url = f"{url}?q={obj.order_item.order.order_identifier!s}"
         context = dict(
             url=url, label=obj.order_item.order.order_identifier, title="Back to order"
         )
@@ -131,7 +131,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="Order item #")
     def order_items_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_orderitem_changelist")
-        url = f"{url}?q={str(obj.order_item.id)}"
+        url = f"{url}?q={obj.order_item.id!s}"
         context = dict(
             url=url,
             label=obj.order_item.order_item_identifier,

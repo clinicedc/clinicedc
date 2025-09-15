@@ -223,14 +223,13 @@ class Command(BaseCommand):
         countries = options["countries"] or []
         if not countries:
             raise CommandError("Expected country.")
+        if countries == ALL_COUNTRIES:
+            countries = sites.countries
         else:
-            if countries == ALL_COUNTRIES:
-                countries = sites.countries
-            else:
-                countries = options["countries"].lower().split(",")
-                for country in countries:
-                    if country not in sites.countries:
-                        raise CommandError(f"Invalid country. Got {country}.")
+            countries = options["countries"].lower().split(",")
+            for country in countries:
+                if country not in sites.countries:
+                    raise CommandError(f"Invalid country. Got {country}.")
         return countries
 
     def get_models(

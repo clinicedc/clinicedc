@@ -27,7 +27,7 @@ def create_or_update_action_type(
     if options:
         fields = [f.name for f in action_type_model_cls._meta.get_fields() if f.name != "name"]
         for attr, value in options.items():
-            if attr in fields:
+            if attr in fields and value is not None:
                 opts.update({attr: value})
     try:
         action_type = action_type_model_cls.objects.get(name=name)

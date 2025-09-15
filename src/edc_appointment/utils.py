@@ -4,7 +4,7 @@ import calendar
 import sys
 import warnings
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
@@ -23,9 +23,8 @@ from django.db.models import Count, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from edc_constants.constants import CLINIC
+from edc_constants.constants import CLINIC, NOT_APPLICABLE, OK
 from edc_constants.constants import ERROR as ERROR_CODE
-from edc_constants.constants import NOT_APPLICABLE, OK
 from edc_dashboard.url_names import url_names
 from edc_form_validators import INVALID_ERROR
 from edc_metadata.constants import CRF, REQUIRED, REQUISITION
@@ -89,7 +88,7 @@ def get_appointment_model_name() -> str:
     return "edc_appointment.appointment"
 
 
-def get_appointment_model_cls() -> Type[Appointment]:
+def get_appointment_model_cls() -> type[Appointment]:
     return django_apps.get_model(get_appointment_model_name())
 
 
@@ -97,7 +96,7 @@ def get_appointment_type_model_name() -> str:
     return "edc_appointment.appointmenttype"
 
 
-def get_appointment_type_model_cls() -> Type[AppointmentType]:
+def get_appointment_type_model_cls() -> type[AppointmentType]:
     return django_apps.get_model(get_appointment_type_model_name())
 
 
@@ -369,7 +368,6 @@ def delete_appointment_in_sequence(appointment: Any, from_post_delete=None) -> N
             schedule_name=appointment.schedule_name,
             visit_code=appointment.visit_code,
         )
-    return None
 
 
 def update_appt_status(appointment: Appointment, save: bool | None = None):
@@ -383,14 +381,13 @@ def update_appt_status(appointment: Appointment, save: bool | None = None):
         pass
     elif not appointment.related_visit:
         appointment.appt_status = NEW_APPT
+    elif (
+        appointment.crf_metadata_required_exists
+        or appointment.requisition_metadata_required_exists
+    ):
+        appointment.appt_status = INCOMPLETE_APPT
     else:
-        if (
-            appointment.crf_metadata_required_exists
-            or appointment.requisition_metadata_required_exists
-        ):
-            appointment.appt_status = INCOMPLETE_APPT
-        else:
-            appointment.appt_status = COMPLETE_APPT
+        appointment.appt_status = COMPLETE_APPT
     if save:
         appointment.save_base(update_fields=["appt_status"])
         appointment.refresh_from_db()
@@ -578,7 +575,7 @@ def appt_datetime_in_next_window_adjusted_for_gap(
     in_window = False
     gap_days = get_window_gap_days(appointment)
     max_gap = get_max_window_gap_to_lower(appointment)
-    gap_days = max_gap if gap_days > max_gap else gap_days
+    gap_days = min(gap_days, max_gap)
     if gap_days > 0:
         next_lower_datetime = (
             appointment.next.timepoint_datetime
@@ -639,22 +636,21 @@ def get_appointment_by_datetime(
                     f"Date falls in a `window period gap` between {appointment.visit_code} "
                     f"and {appointment.next.visit_code}. Got {dt}."
                 )
-            elif (
+            if (
                 in_gap
                 and in_next_window_adjusted
                 and appointment.next.visit.add_window_gap_to_lower
             ):
                 appointment = appointment.next
                 break
-            elif (
+            if (
                 in_gap
                 and not in_next_window_adjusted
                 and appointment.next.visit.add_window_gap_to_lower
             ):
                 appointment = None
                 break
-            else:
-                appointment = appointment.next
+            appointment = appointment.next
         else:
             break
     return appointment
@@ -674,27 +670,26 @@ def reset_appointment(appointment: Appointment, **kwargs):
         raise AppointmentAlreadyStarted(
             f"Unable to reset. Appointment already started. Got {appointment}."
         )
-    else:
-        defaults = dict(
-            appt_status=appointment._meta.get_field("appt_status").default,
-            appt_timing=appointment._meta.get_field("appt_timing").default,
-            appt_type=None,
-            appt_type_other=None,
-            appt_datetime=appointment.timepoint_datetime,
-            comment="",
-        )
-        defaults.update(**kwargs)
-        for k, v in defaults.items():
+    defaults = dict(
+        appt_status=appointment._meta.get_field("appt_status").default,
+        appt_timing=appointment._meta.get_field("appt_timing").default,
+        appt_type=None,
+        appt_type_other=None,
+        appt_datetime=appointment.timepoint_datetime,
+        comment="",
+    )
+    defaults.update(**kwargs)
+    for k, v in defaults.items():
+        try:
+            related_model = get_model_from_relation(appointment._meta.get_field(k))
+        except NotRelationField:
+            setattr(appointment, k, v)
+        else:
             try:
-                related_model = get_model_from_relation(appointment._meta.get_field(k))
-            except NotRelationField:
-                setattr(appointment, k, v)
-            else:
-                try:
-                    setattr(appointment, k, related_model.objects.get(name=v))
-                except ObjectDoesNotExist:
-                    setattr(appointment, k, None)
-        appointment.save_base(update_fields=[*defaults.keys()])
+                setattr(appointment, k, related_model.objects.get(name=v))
+            except ObjectDoesNotExist:
+                setattr(appointment, k, None)
+    appointment.save_base(update_fields=[*defaults.keys()])
 
 
 def skip_appointment(appointment: Appointment, comment: str | None = None):
@@ -705,14 +700,13 @@ def skip_appointment(appointment: Appointment, comment: str | None = None):
         raise AppointmentAlreadyStarted(
             f"Unable to skip. Appointment already started. Got {appointment}."
         )
-    else:
-        reset_appointment(
-            appointment,
-            appt_status=SKIPPED_APPT,
-            appt_timing=NOT_APPLICABLE,
-            appt_type=NOT_APPLICABLE,
-            comment=comment,
-        )
+    reset_appointment(
+        appointment,
+        appt_status=SKIPPED_APPT,
+        appt_timing=NOT_APPLICABLE,
+        appt_type=NOT_APPLICABLE,
+        comment=comment,
+    )
 
 
 def get_unscheduled_appointment_url(appointment: Appointment = None) -> str:
@@ -820,7 +814,7 @@ def validate_date_is_on_clinic_day(
             raise raise_validation_error(
                 {"appt_date": "Cannot be equal to the report datetime"}, INVALID_ERROR
             )
-        elif appt_date <= report_date:
+        if appt_date <= report_date:
             raise raise_validation_error(
                 {"appt_date": "Cannot be before the report datetime"}, INVALID_ERROR
             )

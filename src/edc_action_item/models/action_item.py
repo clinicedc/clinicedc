@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -29,9 +29,27 @@ if TYPE_CHECKING:
 
     class PrnModel(BaseUuidModel):
         subject_identifier: str
-        ...  # noqa
+        ...
 
-    class CrfModel(CrfModelMixin): ...  # noqa
+    class CrfModel(CrfModelMixin): ...
+
+
+RELATED_ACTION_ITEM_DOES_NOT_EXIST = (
+    "Related ActionItem does not exist. Got {action_identifier}."
+)
+PARENT_ACTION_ITEM_DOES_NOT_EXIST = (
+    "Parent ActionItem does not exist. Got {action_identifier}."
+)
+INVALID_ACTION_ITEM_STATUS = (
+    "Invalid action item status. Reference model exists. "
+    "Got `{status}`. Perhaps catch this in the form"
+)
+
+INVALID_SUBJECT_IDENTIFIER = (
+    "Invalid subject identifier. Attempt to create {class_name} failed. "
+    "Subject does not exist in '{subject_identifier_model}'. "
+    "Got '{subject_identifier}'."
+)
 
 
 class CurrentSiteManager(BaseCurrentSiteManager):
@@ -82,17 +100,14 @@ class ActionItem(
 
     related_action_identifier = models.CharField(
         max_length=50,
-        null=True,
         blank=True,
         help_text=(
-            "May be left blank. e.g. action identifier from "
-            "source model that opened the item."
+            "May be left blank. e.g. action identifier from source model that opened the item."
         ),
     )
 
     parent_action_identifier = models.CharField(
         max_length=50,
-        null=True,
         blank=True,
         help_text=(
             "May be left blank. e.g. action identifier from "
@@ -103,7 +118,6 @@ class ActionItem(
     priority = models.CharField(
         max_length=25,
         choices=PRIORITY,
-        null=True,
         blank=True,
         help_text="Leave blank to use default for this action type.",
     )
@@ -128,13 +142,11 @@ class ActionItem(
 
     status = models.CharField(max_length=25, default=NEW, choices=ACTION_STATUS)
 
-    instructions = models.TextField(
-        null=True, blank=True, help_text="populated by action class"
-    )
+    instructions = models.TextField(blank=True, help_text="populated by action class")
 
     auto_created = models.BooleanField(default=False)
 
-    auto_created_comment = models.CharField(max_length=25, null=True, blank=True)
+    auto_created_comment = models.CharField(max_length=25, blank=True)
 
     objects = ActionItemManager()
 
@@ -168,29 +180,28 @@ class ActionItem(
                 subject_identifier_model_cls.objects.get(
                     subject_identifier=self.subject_identifier
                 )
-            except ObjectDoesNotExist:
+            except ObjectDoesNotExist as e:
                 raise SubjectDoesNotExist(
-                    f"Attempt to create {self.__class__.__name__} failed. "
-                    f"Invalid subject identifier. Subject does not exist "
-                    f"in '{self.subject_identifier_model}'. "
-                    f"Got '{self.subject_identifier}'."
-                )
+                    INVALID_SUBJECT_IDENTIFIER.format(
+                        class_name=self.__class__.__name__,
+                        subject_identifier_model=self.subject_identifier_model,
+                        subject_identifier=self.subject_identifier,
+                    )
+                ) from e
             self.priority = self.priority or self.action_type.priority
-        else:
-            if (
-                self.status in [NEW, CANCELLED]
-                and django_apps.get_model(self.reference_model)
-                .objects.filter(action_identifier=self.action_identifier)
-                .exists()
-            ):
-                raise ActionItemStatusError(
-                    "Invalid action item status. Reference model exists. "
-                    f"Got `{self.get_status_display()}`. Perhaps catch this in the form"
-                )
+        elif (
+            self.status in [NEW, CANCELLED]
+            and django_apps.get_model(self.reference_model)
+            .objects.filter(action_identifier=self.action_identifier)
+            .exists()
+        ):
+            raise ActionItemStatusError(
+                INVALID_ACTION_ITEM_STATUS.format(status=self.get_status_display())
+            )
         super().save(*args, **kwargs)
 
     def natural_key(self) -> tuple[str]:
-        return (self.action_identifier,)  # noqa
+        return (self.action_identifier,)
 
     @property
     def last_updated(self) -> datetime | str:
@@ -201,7 +212,7 @@ class ActionItem(
         return None if self.status == NEW else self.user_modified or self.user_created
 
     @property
-    def action_cls(self) -> Type[Action]:
+    def action_cls(self) -> type[Action]:
         """Returns the action_cls."""
         return site_action_items.get(self.action_type.name)
 
@@ -219,7 +230,7 @@ class ActionItem(
         return self.action_type.reference_model
 
     @property
-    def reference_model_cls(self) -> Type[PrnModel | CrfModel]:
+    def reference_model_cls(self) -> type[PrnModel | CrfModel]:
         return django_apps.get_model(self.action_type.reference_model)
 
     @property
@@ -230,7 +241,9 @@ class ActionItem(
     def parent_reference_obj(self) -> PrnModel | CrfModel:
         if not self.parent_action_item:
             raise ObjectDoesNotExist(
-                f"Parent ActionItem does not exist for {self.action_identifier}."
+                PARENT_ACTION_ITEM_DOES_NOT_EXIST.format(
+                    action_identifier=self.action_identifier
+                )
             )
         return self.parent_action_item.reference_obj
 
@@ -242,7 +255,9 @@ class ActionItem(
     def related_reference_obj(self) -> PrnModel | CrfModel:
         if not self.related_action_item:
             raise ObjectDoesNotExist(
-                f"Related ActionItem does not exist for {self.action_identifier}."
+                RELATED_ACTION_ITEM_DOES_NOT_EXIST.format(
+                    action_identifier=self.action_identifier
+                )
             )
         return self.related_action_item.reference_obj
 
@@ -266,9 +281,9 @@ class ActionItem(
         verbose_name = "Action Item"
         verbose_name_plural = "Action Items"
         indexes = (
-            BaseUuidModel.Meta.indexes
-            + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
-            + [
+            *BaseUuidModel.Meta.indexes,
+            *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
+            *[
                 models.Index(
                     fields=[
                         "subject_identifier",
@@ -279,5 +294,5 @@ class ActionItem(
                         "report_datetime",
                     ],
                 ),
-            ]
+            ],
         )

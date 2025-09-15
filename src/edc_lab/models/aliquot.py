@@ -42,7 +42,7 @@ class Aliquot(
     def human_readable_identifier(self):
         """Returns a human readable aliquot identifier."""
         x = self.aliquot_identifier
-        return "{}-{}-{}-{}-{}".format(x[0:3], x[3:6], x[6:10], x[10:14], x[14:18])
+        return f"{x[0:3]}-{x[3:6]}-{x[6:10]}-{x[10:14]}-{x[14:18]}"
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Aliquot"

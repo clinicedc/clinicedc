@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.db import models
@@ -44,7 +44,7 @@ class UpdatesCrfMetadataModelMixin(UpdatesMetadataModelMixin):
         return super().metadata_query_options
 
     @property
-    def metadata_model(self: CrfModel) -> Type[CrfMetadata]:
+    def metadata_model(self: CrfModel) -> type[CrfMetadata]:
         """Returns the metadata model associated with self."""
         metadata_model = "edc_metadata.crfmetadata"
         return django_apps.get_model(metadata_model)

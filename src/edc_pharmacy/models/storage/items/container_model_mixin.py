@@ -19,7 +19,7 @@ class ContainerModelMixin(models.Model):
 
     box = models.ForeignKey(Box, on_delete=models.PROTECT, null=True)
 
-    description = models.TextField(null=True)
+    description = models.TextField(default="")
 
     contains_uniquely_identifiable_items = models.BooleanField(default=True)
 

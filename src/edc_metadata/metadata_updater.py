@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from .constants import CRF, KEYED
 from .metadata_handler import MetadataHandler
@@ -25,7 +25,7 @@ class MetadataUpdater(SourceModelMetadataMixin):
     the related_visit, source model name and desired entry status.
     """
 
-    metadata_handler_cls: Type[MetadataHandler] = MetadataHandler
+    metadata_handler_cls: type[MetadataHandler] = MetadataHandler
     metadata_category: str = CRF
     metadata_model: str = "edc_metadata.crfmetadata"
 

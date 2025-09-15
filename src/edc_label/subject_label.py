@@ -1,5 +1,3 @@
-from typing import Optional
-
 from django.apps import apps as django_apps
 
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
@@ -11,7 +9,7 @@ class SubjectLabel(Label):
     template_name = None
     registered_subject_model = "edc_registration.registeredsubject"
 
-    def __init__(self, subject_identifier: Optional[str] = None, site=None, **kwargs):
+    def __init__(self, subject_identifier: str | None = None, site=None, **kwargs):
         super().__init__(**kwargs)
         self._registered_subject = None
         self.subject_identifier = subject_identifier

@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django.contrib import admin
 from django_audit_fields.admin import audit_fields
 
@@ -25,11 +23,10 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
         if self.fieldsets:
             if self.show_pii(request):
                 return self.fieldsets
-            else:
-                return self.fieldsets_no_pii
+            return self.fieldsets_no_pii
         return [(None, {"fields": self.get_fields(request, obj)})]
 
-    def get_readonly_fields(self, request, obj=None) -> Tuple[str, ...]:
+    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
         return (
             readonly_fields
@@ -85,7 +82,7 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
             )
         return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = (
             "subject_type",
@@ -98,7 +95,7 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
         )
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
-    def get_search_fields(self, request) -> Tuple[str, ...]:
+    def get_search_fields(self, request) -> tuple[str, ...]:
         search_fields = super().get_search_fields(request)
         pii_fields = (
             "first_name",

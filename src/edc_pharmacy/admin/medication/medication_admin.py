@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
 
@@ -23,8 +21,8 @@ class MedicationAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display: Tuple[str, ...] = ("name", "display_name", "created", "modified")
+    list_display: tuple[str, ...] = ("name", "display_name", "created", "modified")
 
-    search_fields: Tuple[str, ...] = ("name",)
+    search_fields: tuple[str, ...] = ("name",)
 
-    ordering: Tuple[str, ...] = ("name",)
+    ordering: tuple[str, ...] = ("name",)

@@ -57,7 +57,8 @@ class Issue(BaseUuidModel):
                 name="unique_label_lower_subject_identifier_etc",
             )
         ]
-        indexes = BaseUuidModel.Meta.indexes + [
+        indexes = (
+            *BaseUuidModel.Meta.indexes,
             Index(fields=["label_lower", "field_name", "panel_name", "short_message"]),
             Index(
                 fields=[
@@ -69,4 +70,4 @@ class Issue(BaseUuidModel):
                     "short_message",
                 ],
             ),
-        ]
+        )

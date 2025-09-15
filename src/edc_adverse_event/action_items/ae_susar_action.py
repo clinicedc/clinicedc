@@ -13,7 +13,7 @@ class AeSusarAction(ActionWithNotification):
     name = AE_SUSAR_ACTION
     display_name = "Submit AE SUSAR Report"
     notification_display_name = "AE SUSAR Report"
-    parent_action_names = [AE_INITIAL_ACTION]
+    parent_action_names = (AE_INITIAL_ACTION,)
     reference_model = f"{ADVERSE_EVENT_APP_LABEL}.aesusar"
     related_reference_model = f"{ADVERSE_EVENT_APP_LABEL}.aeinitial"
     related_reference_fk_attr = "ae_initial"

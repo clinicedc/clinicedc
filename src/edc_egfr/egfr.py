@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
@@ -63,8 +63,7 @@ class Egfr:
                 f"Invalid formula_name. Expected one of {list(self.calculators.keys())}. "
                 f"Got {formula_name}."
             )
-        else:
-            self.calculator_cls = self.calculators.get(formula_name)
+        self.calculator_cls = self.calculators.get(formula_name)
         self.age_in_years = age_in_years
         self.dob = dob
         self.weight_in_kgs = weight_in_kgs
@@ -153,7 +152,7 @@ class Egfr:
         return self._egfr_value
 
     @property
-    def egfr_grade(self) -> Optional[int]:
+    def egfr_grade(self) -> int | None:
         if self._egfr_grade is None:
             grading_data, _ = get_grade_for_value(
                 self.reference_range_collection,
@@ -178,11 +177,11 @@ class Egfr:
                 )
             else:
                 egfr_drop_value = 0.0000
-            self._egfr_drop_value = 0.0000 if egfr_drop_value < 0.0000 else egfr_drop_value
+            self._egfr_drop_value = max(egfr_drop_value, 0.0)
         return self._egfr_drop_value
 
     @property
-    def egfr_drop_grade(self) -> Optional[int]:
+    def egfr_drop_grade(self) -> int | None:
         if self._egfr_drop_grade is None:
             grading_data, _ = get_grade_for_value(
                 self.reference_range_collection,
@@ -198,7 +197,7 @@ class Egfr:
                 self._egfr_drop_grade = grading_data.grade
         return self._egfr_drop_grade
 
-    def get_weight_in_kgs(self) -> Optional[float]:
+    def get_weight_in_kgs(self) -> float | None:
         return self.weight_in_kgs
 
     def create_or_update_egfr_drop_notification(self):

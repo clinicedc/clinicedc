@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import copy
 import sys
+from collections.abc import Callable
 from importlib import import_module
-from typing import Any, Callable
+from typing import Any
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
@@ -67,10 +68,9 @@ class SiteLabelConfigs:
     ) -> None:
         if name in self.registry:
             raise AlreadyRegistered(f"Already registered. Got name='{name}' ")
-        else:
-            self.registry.update(
-                {name: LabelConfig(name, drawing_callable, label_cls, test_data_func)}
-            )
+        self.registry.update(
+            {name: LabelConfig(name, drawing_callable, label_cls, test_data_func)}
+        )
 
     def all(self) -> dict[str, LabelConfig]:
         return self.registry

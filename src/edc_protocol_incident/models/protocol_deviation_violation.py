@@ -23,12 +23,12 @@ class ProtocolDeviationViolation(
     objects = ActionIdentifierModelManager()
 
     def natural_key(self):
-        return (self.action_identifier,)  # noqa
+        return (self.action_identifier,)
 
     class Meta(ProtocolDeviationViolationModelMixin.Meta, BaseUuidModel.Meta):
         indexes = (
-            ProtocolDeviationViolationModelMixin.Meta.indexes
-            + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
-            + ActionModelMixin.Meta.indexes
-            + BaseUuidModel.Meta.indexes
+            *ProtocolDeviationViolationModelMixin.Meta.indexes,
+            *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
+            *ActionModelMixin.Meta.indexes,
+            *BaseUuidModel.Meta.indexes,
         )

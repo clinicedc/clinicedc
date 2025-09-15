@@ -108,5 +108,6 @@ class SubjectScheduleHistory(
             )
         ]
         indexes = (
-            BaseUuidModel.Meta.indexes + NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
+            *BaseUuidModel.Meta.indexes,
+            *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
         )

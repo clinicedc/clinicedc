@@ -20,7 +20,7 @@ class WindowPeriodModelMixin(models.Model):
     window_period_checks_enabled: bool = True
 
     def save(self: Any, *args, **kwargs) -> None:
-        if not kwargs.get("update_fields", None):
+        if not kwargs.get("update_fields"):
             self.raise_on_appt_datetime_not_in_window()
         super().save(*args, **kwargs)
 

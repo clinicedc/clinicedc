@@ -1,5 +1,3 @@
-from typing import List
-
 from django.core.exceptions import ObjectDoesNotExist
 
 from edc_constants.constants import CLOSED, NEW, OPEN
@@ -35,7 +33,7 @@ class ActionItemNotification(Notification):
     notification_action_name: str = None
     # set by class user, list of field(s) from
     # the action_item.reference_obj
-    notification_fields: List[str] = []
+    notification_fields: list[str] = []
 
     # TODO: not sure what this does?
     notify_on_new: bool = False

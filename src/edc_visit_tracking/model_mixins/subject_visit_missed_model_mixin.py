@@ -58,8 +58,7 @@ class SubjectVisitMissedModelMixin(models.Model):
 
     contact_attempts_count = models.IntegerField(
         verbose_name=_(
-            "Number of attempts made to contact participant"
-            "since the expected appointment date"
+            "Number of attempts made to contact participantsince the expected appointment date"
         ),
         validators=[MinValueValidator(1)],
         help_text=_(
@@ -112,4 +111,4 @@ class SubjectVisitMissedModelMixin(models.Model):
 
     class Meta:
         abstract = True
-        indexes = [models.Index(fields=["action_identifier", "site", "id"])]
+        indexes = (models.Index(fields=["action_identifier", "site", "id"]),)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from dateutil.relativedelta import relativedelta
@@ -67,7 +67,7 @@ class AppointmentModelMixin(
         return f"{self.subject_identifier} {self.visit_code}.{self.visit_code_sequence}"
 
     def save(self: Appointment, *args, **kwargs):
-        if not kwargs.get("update_fields", None):
+        if not kwargs.get("update_fields"):
             if self.id and is_baseline(instance=self):
                 visit_schedule = site_visit_schedules.get_visit_schedule(
                     self.visit_schedule_name
@@ -116,7 +116,7 @@ class AppointmentModelMixin(
         )
 
     @property
-    def str_pk(self: Appointment) -> Union[str, uuid.UUID]:
+    def str_pk(self: Appointment) -> str | uuid.UUID:
         if isinstance(self.id, UUID):
             return str(self.pk)
         return self.pk
@@ -193,7 +193,7 @@ class AppointmentModelMixin(
                 name="unique_%(app_label)s_%(class)s_200",
             ),
         ]
-        indexes = [
+        indexes = (
             models.Index(fields=["appt_datetime"]),
             models.Index(fields=["appt_status"]),
             models.Index(fields=["timepoint", "visit_code_sequence"]),
@@ -217,4 +217,4 @@ class AppointmentModelMixin(
                     "visit_code_sequence",
                 ]
             ),
-        ]
+        )

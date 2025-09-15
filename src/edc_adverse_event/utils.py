@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django import forms
 from django.apps import apps as django_apps
@@ -71,7 +71,7 @@ def get_hospitalization_model_app_label() -> str:
 
 def get_ae_model(
     model_name,
-) -> Type[DeathReportModelMixin] | Type[AeInitialModelMixin] | Type[AeFollowupModelMixin]:
+) -> type[DeathReportModelMixin] | type[AeInitialModelMixin] | type[AeFollowupModelMixin]:
     return django_apps.get_model(f"{get_adverse_event_app_label()}.{model_name}")
 
 

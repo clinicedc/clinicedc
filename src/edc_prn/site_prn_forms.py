@@ -38,8 +38,7 @@ class PrnFormsCollection:
     def register(self, prn: Prn = None) -> None:
         if prn.model in self.registry:
             raise AlreadyRegistered(f"PRN form {prn.model} is already registered.")
-        else:
-            self.registry.update({prn.model: prn})
+        self.registry.update({prn.model: prn})
         self.reorder_registry()
 
     def unregister(self, prn: Prn = None) -> None:

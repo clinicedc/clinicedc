@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django.conf import settings
 from django.contrib import admin
 from django.template.loader import render_to_string
@@ -21,7 +19,7 @@ from ..model_admin_mixin import ModelAdminMixin
 class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_object_tools = True
 
-    ordering: Tuple[str, ...] = ("refill_start_datetime",)
+    ordering: tuple[str, ...] = ("refill_start_datetime",)
 
     autocomplete_fields = ["dosage_guideline", "formulation"]
 
@@ -65,7 +63,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display: Tuple[str, ...] = (
+    list_display: tuple[str, ...] = (
         "subject_identifier",
         "dashboard",
         "duration",
@@ -79,7 +77,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "verified_datetime",
     )
 
-    list_filter: Tuple[str, ...] = (
+    list_filter: tuple[str, ...] = (
         "active",
         "refill_start_datetime",
         "refill_end_datetime",
@@ -89,7 +87,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "site",
     )
 
-    search_fields: Tuple[str, ...] = (
+    search_fields: tuple[str, ...] = (
         "id",
         "site__id",
         "rx__id",
@@ -178,7 +176,7 @@ class RxRefillInlineAdmin(admin.StackedInline):
 
     model = RxRefill
 
-    fields: Tuple[str, ...] = (
+    fields: tuple[str, ...] = (
         "dosage_guideline",
         "formulation",
         "refill_start_datetime",
@@ -189,8 +187,8 @@ class RxRefillInlineAdmin(admin.StackedInline):
         "frequency_units",
     )
 
-    search_fields: Tuple[str, ...] = "dosage_guideline__medication__name"
+    search_fields: tuple[str, ...] = "dosage_guideline__medication__name"
 
-    ordering: Tuple[str, ...] = ("refill_start_datetime",)
+    ordering: tuple[str, ...] = ("refill_start_datetime",)
 
     extra = 0

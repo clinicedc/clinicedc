@@ -1,6 +1,6 @@
 import copy
 import sys
-from typing import Any, Optional
+from typing import Any
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
@@ -23,14 +23,14 @@ class SiteMetadataRules:
     def __init__(self) -> None:
         self.registry = {}
 
-    def register(self, rule_group_cls: Optional[Any] = None) -> None:
+    def register(self, rule_group_cls: Any | None = None) -> None:
         """Register MetadataRules to a list per app_label
         for the module the rule groups were declared in.
         """
         if rule_group_cls:
             if not rule_group_cls._meta.options.get("rules"):
                 raise SiteMetadataNoRulesError(
-                    f"The metadata rule group {rule_group_cls.name} " f"has no rule!"
+                    f"The metadata rule group {rule_group_cls.name} has no rule!"
                 )
 
             if rule_group_cls._meta.app_label not in self.registry:
@@ -39,8 +39,7 @@ class SiteMetadataRules:
             for rgroup in self.registry.get(rule_group_cls._meta.app_label):
                 if rgroup.name == rule_group_cls.name:
                     raise SiteMetadataRulesAlreadyRegistered(
-                        f"The metadata rule group {rule_group_cls.name} "
-                        f"is already registered"
+                        f"The metadata rule group {rule_group_cls.name} is already registered"
                     )
             self.registry.get(rule_group_cls._meta.app_label).append(rule_group_cls)
 
@@ -51,11 +50,11 @@ class SiteMetadataRules:
     def validate(self) -> None:
         for rule_groups in self.registry.values():
             for rule_group in rule_groups:
-                sys.stdout.write(f"{repr(rule_group)}\n")
+                sys.stdout.write(f"{rule_group!r}\n")
                 rule_group.validate()
 
     @staticmethod
-    def autodiscover(module_name: Optional[str] = None) -> None:
+    def autodiscover(module_name: str | None = None) -> None:
         """Autodiscovers rules in the metadata_rules.py file
         of any INSTALLED_APP.
         """

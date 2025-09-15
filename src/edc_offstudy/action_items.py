@@ -14,11 +14,11 @@ class EndOfStudyAction(ActionWithNotification):
     name = END_OF_STUDY_ACTION
     display_name = "Submit End of Study Report"
     notification_display_name = "End of Study Report"
-    parent_action_names = [
+    parent_action_names = (
         UNBLINDING_REVIEW_ACTION,
         DEATH_REPORT_ACTION,
         LTFU_ACTION,
-    ]
+    )
     show_link_to_changelist = True
     priority = HIGH_PRIORITY
     singleton = True

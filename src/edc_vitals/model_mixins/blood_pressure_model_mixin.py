@@ -65,9 +65,11 @@ class BloodPressureModelMixin(models.Model):
         max_length=15,
         choices=YES_NO,
         help_text="Based on the above readings. Severe HTN is any BP reading > 180/110mmHg",
-        null=True,
         blank=True,
     )
+
+    class Meta:
+        abstract = True
 
     def save(self, *args, **kwargs):
         (
@@ -75,6 +77,3 @@ class BloodPressureModelMixin(models.Model):
             self.dia_blood_pressure_avg,
         ) = calculate_avg_bp(**self.__dict__)
         super().save(*args, **kwargs)
-
-    class Meta:
-        abstract = True

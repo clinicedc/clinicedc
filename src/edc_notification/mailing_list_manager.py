@@ -47,8 +47,7 @@ class MailingListManager:
         """Returns the api_url or None."""
         if not self._api_url:
             error_msg = (
-                f"Email is enabled but API_URL is not set. "
-                f"See settings.{self.api_url_attr}"
+                f"Email is enabled but API_URL is not set. See settings.{self.api_url_attr}"
             )
             try:
                 self._api_url = getattr(settings, self.api_url_attr)
@@ -64,8 +63,7 @@ class MailingListManager:
         """Returns the api_key or None."""
         if not self._api_key:
             error_msg = (
-                f"Email is enabled but API_KEY is not set. "
-                f"See settings.{self.api_key_attr}"
+                f"Email is enabled but API_KEY is not set. See settings.{self.api_key_attr}"
             )
             try:
                 self._api_key = getattr(settings, self.api_key_attr)
@@ -91,7 +89,7 @@ class MailingListManager:
                 "subscribed": True,
                 "address": user.email,
                 "name": f"{user.first_name} {user.last_name}",
-                "description": f'{user.userprofile.job_title or ""}',
+                "description": f"{user.userprofile.job_title or ''}",
                 "upsert": "yes",
             },
             timeout=10,
@@ -124,7 +122,7 @@ class MailingListManager:
         except KeyError:
             sys.stdout.write(
                 f"{action.title()} failed. Got response={response.status_code} "
-                f"{str(response.json())}"
+                f"{response.json()!s}"
             )
         else:
             sys.stdout.write(
@@ -149,8 +147,7 @@ class MailingListManager:
         )
         if verbose:
             sys.stdout.write(
-                f"Creating mailing list {self.address}. "
-                f"Got response={response.status_code}.\n"
+                f"Creating mailing list {self.address}. Got response={response.status_code}.\n"
             )
         return response
 

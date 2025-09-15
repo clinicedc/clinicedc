@@ -1,5 +1,3 @@
-from typing import Dict, List
-
 from ..constants import (
     ACCOUNT_MANAGER,
     ACCOUNT_MANAGER_ROLE,
@@ -20,7 +18,7 @@ from ..constants import (
 )
 
 # Format {ROLE_NAME: [GROUP_NAME, GROUP_NAME, ...]
-default_roles: Dict[str, List[str]] = {
+default_roles: dict[str, list[str]] = {
     ACCOUNT_MANAGER_ROLE: [ACCOUNT_MANAGER],
     AUDITOR_ROLE: [
         AUDITOR,

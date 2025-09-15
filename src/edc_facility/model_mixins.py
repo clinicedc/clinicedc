@@ -72,7 +72,7 @@ class HealthFacilityModelMixin(models.Model):
     sat = models.BooleanField()
     sun = models.BooleanField()
 
-    notes = models.TextField(null=True, blank=True)
+    notes = models.TextField(default="", blank=True)
 
     objects = Manager()
 

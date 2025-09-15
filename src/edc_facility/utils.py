@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -16,7 +16,7 @@ def get_holiday_model() -> str:
     return getattr(settings, "EDC_FACILITY_HOLIDAY_MODEL", "edc_facility.holiday")
 
 
-def get_holiday_model_cls() -> Type[Holiday]:
+def get_holiday_model_cls() -> type[Holiday]:
     return django_apps.get_model(get_holiday_model())
 
 
@@ -44,7 +44,7 @@ def get_facility(name: str = None) -> Facility:
     return facility
 
 
-def get_health_facility_model_cls() -> Type[HealthFacility]:
+def get_health_facility_model_cls() -> type[HealthFacility]:
     return django_apps.get_model(get_health_facility_model())
 
 

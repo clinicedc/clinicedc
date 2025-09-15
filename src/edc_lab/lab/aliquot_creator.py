@@ -37,8 +37,7 @@ class AliquotCreator:
                 "Cannot create child aliquot without parent aliquot identifier. "
                 f"Got is_primary={is_primary}."
             )
-        else:
-            self.parent_identifier = parent_identifier
+        self.parent_identifier = parent_identifier
         self.identifier_prefix = (
             identifier_prefix
             or f"{ResearchProtocolConfig().protocol_number}{self.requisition_identifier}"

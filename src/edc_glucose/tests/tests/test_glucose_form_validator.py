@@ -1,8 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
+from edc_appointment.tests.helper import Helper as BaseHelper
 
 from edc_appointment.models import Appointment
-from edc_appointment.tests.helper import Helper as BaseHelper
 from edc_consent import site_consents
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_glucose.form_validators import GlucoseFormValidator

@@ -1,5 +1,4 @@
 import re
-from typing import Union
 from uuid import uuid4
 
 from django.apps import apps as django_apps
@@ -21,7 +20,7 @@ class NonUniqueSubjectIdentifierFieldMixin(models.Model):
 
     class Meta:
         abstract = True
-        indexes = [models.Index(fields=["subject_identifier"])]
+        indexes = (models.Index(fields=["subject_identifier"]),)
 
 
 class UniqueSubjectIdentifierFieldMixin(models.Model):
@@ -66,11 +65,9 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
             self.subject_identifier = self.update_subject_identifier_on_save()
         super().save(*args, **kwargs)
 
-    def update_subject_identifier_on_save(self) -> Union[str, models.CharField]:
+    def update_subject_identifier_on_save(self) -> str | models.CharField:
         """Returns a subject_identifier if not already set."""
-        if not self.subject_identifier:
-            self.subject_identifier = self.get_or_create_identifier()
-        elif re.match(UUID_PATTERN, self.subject_identifier):
+        if not self.subject_identifier or re.match(UUID_PATTERN, self.subject_identifier):
             self.subject_identifier = self.get_or_create_identifier()
         return self.subject_identifier
 
@@ -115,7 +112,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
         except MultipleObjectsReturned as e:
             raise IdentifierError(
                 "Cannot lookup a unique RegisteredSubject instance. "
-                "Identity {} is not unique. Got {}".format(self.identity, e)
+                f"Identity {self.identity} is not unique. Got {e}"
             )
         return obj
 
@@ -139,7 +136,7 @@ class UniqueSubjectIdentifierModelMixin(
 
     def get_subject_identifier_as_pk(self):
         """Returns the subject_identifier_as_pk"""
-        return self.subject_identifier_as_pk  # noqa
+        return self.subject_identifier_as_pk
 
     class Meta:
         abstract = True

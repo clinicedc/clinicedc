@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -33,7 +33,7 @@ class SubjectScreeningFormValidatorMixin:
         return get_subject_screening_model()
 
     @property
-    def subject_screening_model_cls(self) -> Type[ScreeningModelMixin]:
+    def subject_screening_model_cls(self) -> type[ScreeningModelMixin]:
         return django_apps.get_model(self.subject_screening_model)
 
     @property

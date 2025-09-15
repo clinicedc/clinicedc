@@ -70,9 +70,7 @@ def get_codename(
     autocomplete_models = autocomplete_models or []
     label_lower: str = model_cls._meta.label_lower
     model_name: str = model_cls._meta.model_name
-    if "historical" in label_lower:
-        codenames.append(f"{app_name}.view_{model_name}")
-    elif label_lower in autocomplete_models:
+    if "historical" in label_lower or label_lower in autocomplete_models:
         codenames.append(f"{app_name}.view_{model_name}")
     else:
         permissions = override_permissions or model_cls._meta.default_permissions

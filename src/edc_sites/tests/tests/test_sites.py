@@ -280,7 +280,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
             country_code="bw",
             language_codes=["tn"],
             domain="mochudi.bw.xxx",
-        ),
+        )
 
     @override_settings(LANGUAGES=[])
     def test_site_language_code_and_no_settings_languages_raises(self):
@@ -295,7 +295,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
             country_code="bw",
             language_codes=["sw"],
             domain="mochudi.bw.xxx",
-        ),
+        )
 
     @override_settings(LANGUAGES={"en": "English", "tn": "Setswana"})
     def test_site_languages_codes_ok(self):
@@ -405,8 +405,12 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request.user.userprofile.sites.add(Site.objects.get(id=40))
         self.assertTrue(site_sites.user_may_view_other_sites(request))
         self.assertEqual(
-            [request.site.id] + site_sites.get_view_only_site_ids_for_user(request=request),
-            [30, 40],
+            [
+                request.site.id,
+                *site_sites.get_view_only_site_ids_for_user(request=request),
+                30,
+                40,
+            ]
         )
 
         rf = RequestFactory()
@@ -441,7 +445,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site_sites.register(*self.default_sites)
         add_or_update_django_sites()
         c = Client()
-        c.login(username="user_login", password="pass")  # nosec B106
+        c.login(username="user_login", password="pass")  # nosec B106  # noqa: S106
         response = c.get("/admin/")
 
         # the default site id is 30

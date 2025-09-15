@@ -6,7 +6,6 @@ from ...models import Allocation, StockRequest
 
 
 class StockRequestForm(forms.ModelForm):
-
     def clean(self):
         cleaned_data = super().clean()
 
@@ -41,8 +40,7 @@ class StockRequestForm(forms.ModelForm):
                 raise forms.ValidationError(
                     {
                         "excluded_subject_identifiers": (
-                            "Not all subject identifiers are valid. "
-                            "Type one subject per line."
+                            "Not all subject identifiers are valid. Type one subject per line."
                         )
                     }
                 )
@@ -64,7 +62,7 @@ class StockRequestForm(forms.ModelForm):
 
         if not self.instance.id and cleaned_data.get("cancel") == "CANCEL":
             raise forms.ValidationError("Leave this blank")
-        elif cleaned_data.get("cancel") == "CANCEL":
+        if cleaned_data.get("cancel") == "CANCEL":
             if Allocation.objects.filter(
                 stock_request_item__stock_request=self.instance
             ).exists():

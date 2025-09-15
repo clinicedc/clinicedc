@@ -21,7 +21,7 @@ def check_for_edc_appconfig(app_configs, **kwargs) -> list[CheckMessage]:
                     id="edc_appconfig.E001",
                 )
             )
-        if "edc_appconfig.apps.AppConfig" != settings.INSTALLED_APPS[-1:][0]:
+        if settings.INSTALLED_APPS[-1:][0] != "edc_appconfig.apps.AppConfig":
             errors.append(
                 Error(
                     "edc_appconfig should be the last app in INSTALLED_APPS. "

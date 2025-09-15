@@ -42,15 +42,15 @@ if TYPE_CHECKING:
         DeathReportTmgModelMixin,
     )
 
-    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel): ...  # noqa
+    class DeathReportTmgModel(DeathReportTmgModelMixin, BaseUuidModel): ...
 
-    class DeathReportTmgSecondModel(DeathReportTmgModelMixin, BaseUuidModel): ...  # noqa
+    class DeathReportTmgSecondModel(DeathReportTmgModelMixin, BaseUuidModel): ...
 
-    class AeInitialModel(AeInitialModelMixin, BaseUuidModel): ...  # noqa
+    class AeInitialModel(AeInitialModelMixin, BaseUuidModel): ...
 
-    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel): ...  # noqa
+    class AeFollowupModel(AeFollowupModelMixin, BaseUuidModel): ...
 
-    class DeathReportModel(DeathReportModelMixin, BaseUuidModel): ...  # noqa
+    class DeathReportModel(DeathReportModelMixin, BaseUuidModel): ...
 
 
 register = template.Library()
@@ -89,17 +89,13 @@ def format_ae_description(context, ae_initial, wrap_length):
     try:
         context["sae_reason"] = format_html(
             "{}",
-            mark_safe(
-                wrapx(escape_braces(ae_initial.sae_reason.name), wrap_length)
-            ),  # nosec B703, B308
+            mark_safe(wrapx(escape_braces(ae_initial.sae_reason.name), wrap_length)),  # nosec B703, B308
         )
     except AttributeError:
         context["sae_reason"] = ""
     context["ae_description"] = format_html(
         "{}",
-        mark_safe(
-            wrapx(escape_braces(ae_initial.ae_description), wrap_length)
-        ),  # nosec B703, B308
+        mark_safe(wrapx(escape_braces(ae_initial.ae_description), wrap_length)),  # nosec B703, B308
     )
     return context
 
@@ -124,15 +120,11 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
         context["sae_reason"] = ""
     context["relevant_history"] = format_html(
         "{}",
-        mark_safe(
-            wrapx(escape_braces(ae_followup.relevant_history), wrap_length)
-        ),  # nosec B703, B308
+        mark_safe(wrapx(escape_braces(ae_followup.relevant_history), wrap_length)),  # nosec B703, B308
     )
     context["ae_description"] = format_html(
         "{}",
-        mark_safe(
-            wrapx(escape_braces(ae_followup.ae_initial.ae_description), wrap_length)
-        ),  # nosec B703, B308
+        mark_safe(wrapx(escape_braces(ae_followup.ae_initial.ae_description), wrap_length)),  # nosec B703, B308
     )
     return context
 
@@ -158,9 +150,7 @@ def format_ae_susar_description(context, ae_susar, wrap_length):
     )
     context["ae_description"] = format_html(
         "{}",
-        mark_safe(
-            wrapx(escape_braces(ae_susar.ae_initial.ae_description), wrap_length)
-        ),  # nosec B703, B308
+        mark_safe(wrapx(escape_braces(ae_susar.ae_initial.ae_description), wrap_length)),  # nosec B703, B308
     )
     return context
 

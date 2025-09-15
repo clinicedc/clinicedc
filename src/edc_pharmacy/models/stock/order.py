@@ -13,7 +13,6 @@ class Manager(models.Manager):
 
 
 class Order(BaseUuidModel):
-
     order_identifier = models.CharField(
         max_length=36,
         unique=True,
@@ -40,7 +39,7 @@ class Order(BaseUuidModel):
         null=True,
         blank=False,
     )
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(default="", blank=True)
 
     sent = models.BooleanField(default=False)
 

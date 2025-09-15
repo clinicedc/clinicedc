@@ -29,7 +29,7 @@ class FileHistoryUpdater:
     def update(self):
         exported_pks = []
         export_uuids = []
-        with open(self.path, "r") as f:
+        with open(self.path) as f:
             csv_reader = csv.DictReader(f, delimiter=self.delimiter)
             for row in csv_reader:
                 exported_pks.append(row["id"])

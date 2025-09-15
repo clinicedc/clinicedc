@@ -25,4 +25,4 @@ class SubjectOffstudy(
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Subject Offstudy"
         verbose_name_plural = "Subject Offstudy"
-        indexes = ActionNoManagersModelMixin.Meta.indexes + BaseUuidModel.Meta.indexes
+        indexes = (*ActionNoManagersModelMixin.Meta.indexes, *BaseUuidModel.Meta.indexes)

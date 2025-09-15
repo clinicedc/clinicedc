@@ -36,7 +36,7 @@ class Device:
                 f"Central server ID may not be included with node IDs. "
                 f"Got {self.central_server_id}, nodes={self.nodes}."
             )
-        elif central_server_id in self.middlemen:
+        if central_server_id in self.middlemen:
             raise DeviceIdError(
                 f"Central server ID may not be included with middleman IDs. "
                 f"Got {self.central_server_id}, middlemen={self.middlemen}."

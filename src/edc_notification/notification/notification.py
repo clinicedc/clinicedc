@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -27,13 +25,13 @@ class Notification:
     """A generic class to generate a notification on a condition"""
 
     # app_name: str = None
-    name: Optional[str] = None
-    display_name: Optional[str] = None
+    name: str | None = None
+    display_name: str | None = None
 
     sms_client = Client
 
-    email_from: List[str] = get_email_contacts("data_manager")
-    email_to: Optional[List[str]] = None  # usually a mailing list address
+    email_from: list[str] = get_email_contacts("data_manager")
+    email_to: list[str] | None = None  # usually a mailing list address
     email_message_cls = EmailMessage
 
     email_body_template: str = (
@@ -50,7 +48,7 @@ class Notification:
         "Thanks."
     )
     email_subject_template: str = (
-        "{test_subject_line}{protocol_name}: " "{display_name} " "for {subject_identifier}"
+        "{test_subject_line}{protocol_name}: {display_name} for {subject_identifier}"
     )
     email_footer_template: str = (
         "\n\n-----------------\n"
@@ -72,7 +70,7 @@ class Notification:
     sms_test_line: str = "TEST MESSAGE. NO ACTION REQUIRED - "
 
     def __init__(self) -> None:
-        self._notification_enabled: Optional[bool] = None
+        self._notification_enabled: bool | None = None
         self._template_opts: dict = {}
         self.email_to = self.email_to or self.default_email_to
         self.test_message: bool = False
@@ -90,7 +88,7 @@ class Notification:
         return f"{self.name}: {self.display_name}"
 
     @property
-    def default_email_to(self) -> List[str]:
+    def default_email_to(self) -> list[str]:
         return [f"{self.name}.{settings.APP_NAME}@mg.clinicedc.org"]
 
     def notify(
@@ -113,8 +111,8 @@ class Notification:
             * instance
             * user
         """
-        email_sent: Optional[int] = None
-        sms_sent: Optional[dict] = None
+        email_sent: int | None = None
+        sms_sent: dict | None = None
         use_email = use_email or get_email_enabled()
         use_sms = use_sms or getattr(settings, "TWILIO_ENABLED", False)
         if force_notify or self._notify_on_condition(**kwargs):
@@ -140,8 +138,7 @@ class Notification:
         """Returns the value of `notify_on_condition` or False."""
         if test_message:
             return True
-        else:
-            return self.enabled and self.notify_on_condition(**kwargs)
+        return self.enabled and self.notify_on_condition(**kwargs)
 
     def post_notification_actions(self, **kwargs):
         pass
@@ -217,8 +214,8 @@ class Notification:
 
     def send_email(
         self,
-        fail_silently: Optional[bool] = None,
-        email_to: List[str] = None,
+        fail_silently: bool | None = None,
+        email_to: list[str] = None,
         email_body_template: str = None,
         **kwargs,
     ) -> int:
@@ -232,8 +229,8 @@ class Notification:
 
     def send_sms(
         self,
-        fail_silently: Optional[bool] = None,
-        sms_recipient: Optional[str] = None,
+        fail_silently: bool | None = None,
+        sms_recipient: str | None = None,
         **kwargs,
     ) -> dict:
         status = {}

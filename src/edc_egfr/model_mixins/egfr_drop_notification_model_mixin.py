@@ -44,8 +44,8 @@ class EgfrDropNotificationModelMixin(
 
     narrative = models.TextField(
         verbose_name="Narrative",
-        null=True,
         blank=True,
+        default="",
     )
 
     report_status = models.CharField(max_length=15, choices=REPORT_STATUS, default=NEW)

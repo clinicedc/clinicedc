@@ -89,11 +89,10 @@ class VisitTrackingCrfModelFormMixin:
         if not self.related_visit:
             if self.related_visit_model_attr in self.cleaned_data:
                 raise forms.ValidationError({self.related_visit_model_attr: ""})
-            else:
-                raise forms.ValidationError(
-                    f"Field `{self.related_visit_model_attr}` is required (1)."
-                )
-        elif self.cleaned_data.get(self.report_datetime_field_attr):
+            raise forms.ValidationError(
+                f"Field `{self.related_visit_model_attr}` is required (1)."
+            )
+        if self.cleaned_data.get(self.report_datetime_field_attr):
             try:
                 self.crf_date_validator_cls(
                     report_datetime_allowance=self.report_datetime_allowance,

@@ -12,14 +12,8 @@ from ..utils import get_ae_model
 
 
 @receiver(m2m_changed, weak=False, dispatch_uid="update_ae_notifications_for_tmg_group")
-def update_ae_notifications_for_tmg_group(
-    action, instance, reverse, model, pk_set, using, **kwargs
-):
-    try:
-        instance.userprofile
-    except AttributeError:
-        pass
-    else:
+def update_ae_notifications_for_tmg_group(action, instance, **kwargs):  # noqa: ARG001
+    if getattr(instance, "userprofile", None):
         try:
             tmg_ae_notification = Notification.objects.get(name=AE_TMG_ACTION)
         except ObjectDoesNotExist:
@@ -35,7 +29,7 @@ def update_ae_notifications_for_tmg_group(
 
 
 @receiver(post_save, weak=False, dispatch_uid="update_ae_initial_for_susar")
-def update_ae_initial_for_susar(sender, instance, raw, update_fields, **kwargs):
+def update_ae_initial_for_susar(sender, instance, raw, update_fields, **kwargs):  # noqa: ARG001
     if not raw and not update_fields:
         try:
             ae_susar_model_cls = get_ae_model("AeSusar")
@@ -61,7 +55,7 @@ def update_ae_initial_for_susar(sender, instance, raw, update_fields, **kwargs):
     weak=False,
     dispatch_uid="update_ae_initial_susar_reported",
 )
-def update_ae_initial_susar_reported(sender, instance, raw, update_fields, **kwargs):
+def update_ae_initial_susar_reported(sender, instance, raw, update_fields, **kwargs):  # noqa: ARG001
     if not raw and not update_fields:
         try:
             ae_initial_model_cls = get_ae_model("AeInitial")
@@ -83,7 +77,7 @@ def update_ae_initial_susar_reported(sender, instance, raw, update_fields, **kwa
 
 
 @receiver(post_delete, weak=False, dispatch_uid="post_delete_ae_susar")
-def post_delete_ae_susar(instance, **kwargs):
+def post_delete_ae_susar(instance, **kwargs):  # noqa: ARG001
     try:
         ae_susar_model_cls = get_ae_model("AeSusar")
     except LookupError:
@@ -99,14 +93,8 @@ def post_delete_ae_susar(instance, **kwargs):
 
 
 @receiver(m2m_changed, weak=False, dispatch_uid="update_death_notifications_for_tmg_group")
-def update_death_notifications_for_tmg_group(
-    action, instance, reverse, model, pk_set, using, **kwargs
-):
-    try:
-        instance.userprofile
-    except AttributeError:
-        pass
-    else:
+def update_death_notifications_for_tmg_group(action, instance, **kwargs):  # noqa: ARG001
+    if getattr(instance, "userprofile", None):
         try:
             tmg_death_notification = Notification.objects.get(name=DEATH_REPORT_TMG_ACTION)
         except ObjectDoesNotExist:

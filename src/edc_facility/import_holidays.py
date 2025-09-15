@@ -4,7 +4,7 @@ import csv
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -54,7 +54,7 @@ def import_holidays(verbose: bool | None = None, test: bool | None = None) -> No
 
 def check_for_duplicates_in_file(path) -> list:
     """Returns a list of records."""
-    with open(path, "r") as f:
+    with open(path) as f:
         reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
         recs = [(row["local_date"], row["country"]) for row in reader]
     if len(recs) != len(list(set(recs))):
@@ -63,7 +63,7 @@ def check_for_duplicates_in_file(path) -> list:
 
 
 def import_file(path: str, recs: list, model_cls: Holiday):
-    with open(path, "r") as f:
+    with open(path) as f:
         reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
         for index, row in tqdm(enumerate(reader), total=len(recs)):
             if index == 0:
@@ -72,7 +72,7 @@ def import_file(path: str, recs: list, model_cls: Holiday):
                 local_date = datetime.strptime(row["local_date"], "%Y-%m-%d").date()
             except ValueError as e:
                 raise HolidayImportError(
-                    f"Invalid format when importing from " f"{path}. Got '{e}'"
+                    f"Invalid format when importing from {path}. Got '{e}'"
                 )
             else:
                 try:
@@ -86,7 +86,7 @@ def import_file(path: str, recs: list, model_cls: Holiday):
                     obj.save()
 
 
-def import_for_tests(model_cls: Type[Holiday]):
+def import_for_tests(model_cls: type[Holiday]):
     year = get_utcnow().year
     country = sites.get_current_country()
     if not country:
@@ -115,7 +115,7 @@ def import_for_tests(model_cls: Type[Holiday]):
             local_date = datetime.strptime(row[LOCAL_DATE], "%Y-%m-%d").date()
         except ValueError as e:
             raise HolidayImportError(
-                f"Invalid format when importing holidays (test). " f"Got '{e}'"
+                f"Invalid format when importing holidays (test). Got '{e}'"
             )
         else:
             objs.append(

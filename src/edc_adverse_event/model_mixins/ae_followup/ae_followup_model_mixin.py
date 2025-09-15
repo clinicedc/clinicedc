@@ -35,7 +35,7 @@ class AeFollowupModelMixin(
         abstract = True
         verbose_name = "AE Follow-up Report"
         indexes = (
-            NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
-            + ActionModelMixin.Meta.indexes
-            + [models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])]
+            *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
+            *ActionModelMixin.Meta.indexes,
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"]),
         )

@@ -121,8 +121,7 @@ class ConsentModelFormValidationMixin:
                 )
                 if "identity" in self.cleaned_data:
                     raise forms.ValidationError({"identity": msg})
-                else:
-                    raise forms.ValidationError({"__all__": msg})
+                raise forms.ValidationError({"__all__": msg})
 
     def validate_identity_plus_version_is_unique(self) -> None:
         """Enforce a unique constraint on personal identity number
@@ -146,8 +145,7 @@ class ConsentModelFormValidationMixin:
             )
             if "identity" in self.cleaned_data:
                 raise forms.ValidationError({"identity": msg})
-            else:
-                raise forms.ValidationError({"__all__": msg})
+            raise forms.ValidationError({"__all__": msg})
 
     def validate_identity_with_unique_fields(self) -> None:
         cleaned_data = self.cleaned_data
@@ -189,7 +187,7 @@ class ConsentModelFormValidationMixin:
         gender = self.cleaned_data.get("gender")
         if gender not in self.consent_definition.gender:
             raise forms.ValidationError(
-                "Gender of consent can only be " "'%(gender_of_consent)s'. Got '%(gender)s'.",
+                "Gender of consent can only be '%(gender_of_consent)s'. Got '%(gender)s'.",
                 params={
                     "gender_of_consent": "' or '".join(self.consent_definition.gender),
                     "gender": gender,

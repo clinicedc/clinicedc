@@ -236,10 +236,8 @@ class AppointmentFormValidator(
                     self.raise_validation_error(
                         {
                             "appt_datetime": (
-                                (
-                                    "Invalid. Cannot be before consent date. "
-                                    f"Got consented on {formatted_date}"
-                                )
+                                "Invalid. Cannot be before consent date. "
+                                f"Got consented on {formatted_date}"
                             )
                         },
                         INVALID_APPT_DATE,

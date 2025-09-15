@@ -47,7 +47,7 @@ repos.sort()
 
 print(f"Found {len(repos)} repos:")
 print(", ".join(repos))
-print("")
+print()
 
 for repo in repos:
     repo_path = os.path.join(base_dir, repo)
@@ -55,7 +55,7 @@ for repo in repos:
 
     print(f"**** {repo} ****")
 
-    subprocess.run(["git", "pull"], cwd=repo_path)  # nosec #B607
+    subprocess.run(["git", "pull"], check=False, cwd=repo_path)  # nosec #B607
 
     subprocess.run(
         [
@@ -80,9 +80,9 @@ for repo in repos:
         check=True,
     )  # nosec #B607
 
-    subprocess.run(["git", "add", ".pre-commit-config.yaml"], cwd=repo_path)  # nosec #B607
+    subprocess.run(["git", "add", ".pre-commit-config.yaml"], check=False, cwd=repo_path)  # nosec #B607
     subprocess.run(
-        ["git", "commit", "-m", "Update pre-commit-config.yaml"], cwd=repo_path
+        ["git", "commit", "-m", "Update pre-commit-config.yaml"], check=False, cwd=repo_path
     )  # nosec #B607
-    subprocess.run(["git", "push"], cwd=repo_path)  # nosec #B607
-    subprocess.run(["pre-commit", "run", "--all-files"], cwd=repo_path)  # nosec #B607
+    subprocess.run(["git", "push"], check=False, cwd=repo_path)  # nosec #B607
+    subprocess.run(["pre-commit", "run", "--all-files"], check=False, cwd=repo_path)  # nosec #B607

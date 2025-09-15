@@ -6,7 +6,7 @@ def calculate_avg_bp(
     sys_blood_pressure_two=None,
     dia_blood_pressure_one=None,
     dia_blood_pressure_two=None,
-    **kwargs,
+    **kwargs,  # noqa: ARG001
 ):
     avg_sys = None
     avg_dia = None

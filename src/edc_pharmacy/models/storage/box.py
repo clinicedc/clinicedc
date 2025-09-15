@@ -15,7 +15,7 @@ class Box(BaseUuidModel):
 
     name = models.CharField(max_length=25, unique=True)
 
-    description = models.TextField(null=True)
+    description = models.TextField(default="")
 
     shelf = models.ForeignKey(Shelf, on_delete=models.PROTECT, null=True)
 

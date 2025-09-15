@@ -4,7 +4,7 @@ import usb.util
 from django.http import JsonResponse
 
 
-class FindDevices(object):
+class FindDevices:
     def __init__(self, class_):
         self._class = class_
 

@@ -35,7 +35,9 @@ class RequisitionVerifier:
         return f"{self.requisition_identifier} {self.verified}"
 
     def __repr__(self):
-        return f"<{self.__class__.__name__}(" "{self.requisition_identifier}) {self.verified}>"
+        return (
+            f"<{self.__class__.__name__}({{self.requisition_identifier}}) {{self.verified}}>"
+        )
 
     @property
     def requisition(self):
@@ -60,7 +62,7 @@ class RequisitionVerifier:
         visit_model_cls = self.appointment.related_visit.__class__
         for attr in dir(visit_model_cls):
             try:
-                obj = getattr(getattr(visit_model_cls, attr), "rel")
+                obj = getattr(visit_model_cls, attr).rel
             except AttributeError:
                 pass
             else:

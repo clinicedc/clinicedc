@@ -129,11 +129,10 @@ class CsvExporter:
             record_count = len(dataframe)
             if self.verbose:
                 sys.stdout.write(
-                    f'({style.SUCCESS("*")}) {self.model_name} {record_count}       \n'
+                    f"({style.SUCCESS('*')}) {self.model_name} {record_count}       \n"
                 )
-        else:
-            if self.verbose:
-                sys.stdout.write(f"(?) {self.model_name} empty  \n")
+        elif self.verbose:
+            sys.stdout.write(f"(?) {self.model_name} empty  \n")
         return Exported(path, self.model_name, record_count)
 
     def to_csv(self, dataframe: pd.DataFrame = None, export_folder: str = None) -> Exported:
@@ -244,14 +243,13 @@ class CsvExporter:
                 if fname in list(dataframe.columns):
                     for stored, displayed in responses:
                         labels.append(f'"{stored}" "{displayed}"')
-                    commands.append(f'label define {fname}l {" ".join(labels)}')
+                    commands.append(f"label define {fname}l {' '.join(labels)}")
                     commands.append(f"encode {fname}, generate({fname}_encoded) {fname}l")
                     commands.append(f"ren {fname} {fname}_edc")
                     commands.append(f"ren {fname}_encoded {fname}")
                     commands.append("")
             with open(f"{self.get_path()}.do", "w") as f:
-                for command in commands:
-                    f.write(f"{command}\n")
+                f.writelines(f"{command}\n" for command in commands)
         return commands
 
     def data_dictionary_qs(self, dataframe: pd.DataFrame) -> QuerySet:

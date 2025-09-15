@@ -1,6 +1,4 @@
-from typing import Dict, Tuple
-
-requisition_fieldset: Tuple[str, Dict[str, Tuple[str, ...]]] = (
+requisition_fieldset: tuple[str, dict[str, tuple[str, ...]]] = (
     "Requisition",
     {
         "fields": (
@@ -17,7 +15,7 @@ requisition_fieldset: Tuple[str, Dict[str, Tuple[str, ...]]] = (
 )
 
 
-requisition_status_fields: Tuple[str, ...] = (
+requisition_status_fields: tuple[str, ...] = (
     "received",
     "received_datetime",
     "processed",
@@ -28,29 +26,29 @@ requisition_status_fields: Tuple[str, ...] = (
     "shipped_datetime",
 )
 
-requisition_verify_fields: Tuple[str, ...] = (
+requisition_verify_fields: tuple[str, ...] = (
     "clinic_verified",
     "clinic_verified_datetime",
 )
 
-requisition_status_fieldset: Tuple[str, Dict[str, Tuple[str, ...]]] = (
+requisition_status_fieldset: tuple[str, dict[str, tuple[str, ...]]] = (
     "Status (For laboratory use only)",
     {"classes": ("collapse",), "fields": requisition_status_fields},
 )
 
 
-requisition_identifier_fields: Tuple[str, ...] = (
+requisition_identifier_fields: tuple[str, ...] = (
     "requisition_identifier",
     "identifier_prefix",
     "primary_aliquot_identifier",
 )
 
-requisition_identifier_fieldset: Tuple[str, Dict[str, Tuple[str, ...]]] = (
+requisition_identifier_fieldset: tuple[str, dict[str, tuple[str, ...]]] = (
     "Identifiers",
     {"classes": ("collapse",), "fields": requisition_identifier_fields},
 )
 
-requisition_verify_fieldset: Tuple[str, Dict[str, Tuple[str, ...]]] = (
+requisition_verify_fieldset: tuple[str, dict[str, tuple[str, ...]]] = (
     "Verification",
     {"classes": ("collapse",), "fields": requisition_verify_fields},
 )

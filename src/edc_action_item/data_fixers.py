@@ -64,7 +64,7 @@ def fix_null_action_item_fk(apps, app_label, models):
                     try:
                         obj.save()
                     except MultipleObjectsReturned:
-                        sys.stdout.write(f"Failed to resave {repr(obj)}")
+                        sys.stdout.write(f"Failed to resave {obj!r}")
 
 
 def fix_null_action_items(apps):
@@ -114,8 +114,7 @@ def fix_null_action_items(apps):
                     .update(related_action_item=related_action_item)
                 )
                 sys.stdout.write(
-                    f" setting related_action_items for "
-                    f"{related_action_item}. Got {updated}\n"
+                    f" setting related_action_items for {related_action_item}. Got {updated}\n"
                 )
 
 
@@ -157,7 +156,7 @@ def fix_null_related_action_items(apps):  # noqa
                     action_item.related_action_item = related_action_item
                     action_item.save()
                     if reference_obj:
-                        reference_obj.related_action_item = related_action_item  # noqa
+                        reference_obj.related_action_item = related_action_item
                         reference_obj.save()
             if (
                 action_item_cls.objects.filter(
@@ -239,7 +238,7 @@ def fix_duplicate_singleton_action_items(apps, name=None):
                     ).delete()
 
 
-def fix_null_related_action_items2(delete_orphans=None):  # noqa
+def fix_null_related_action_items2(delete_orphans=None):
     """Used for early action items where related_action_item
     was not set, e.g. v0.1.1
 

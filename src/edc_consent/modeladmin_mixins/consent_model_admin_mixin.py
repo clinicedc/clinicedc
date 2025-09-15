@@ -72,8 +72,7 @@ class ConsentModelAdminMixin:
             return (
                 fields + ("consent_datetime", "identity", "confirm_identity") + readonly_fields
             )
-        else:
-            return fields + readonly_fields
+        return fields + readonly_fields
 
     def get_search_fields(self, request) -> tuple[str, ...]:
         search_fields: tuple[str] = super().get_search_fields(request)

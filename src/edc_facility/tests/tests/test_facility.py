@@ -85,7 +85,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
         facility = Facility(name="clinic", days=[WE], slots=[100])
         suggested_date = get_utcnow() + relativedelta(months=3)
         available_arr = facility.available_arr(suggested_date)
-        self.assertEqual(available_arr.datetime.weekday(), WE.weekday)  # noqa
+        self.assertEqual(available_arr.datetime.weekday(), WE.weekday)
 
     @override_settings(SITE_ID=20)
     def test_available_arr_with_holiday(self):

@@ -41,13 +41,13 @@ class AeTmgFieldsModelMixin(models.Model):
         verbose_name="Date and time of clinical review: ",
     )
 
-    ae_description = models.TextField(blank=True, null=True, verbose_name="Description of AE:")
+    ae_description = models.TextField(blank=True, verbose_name="Description of AE:")
 
     investigator_comments = models.TextField(
-        blank=True, null=True, verbose_name="This investigator's comments:"
+        blank=True, verbose_name="This investigator's comments:"
     )
 
-    ae_classification = models.CharField(max_length=150, blank=True, null=True)
+    ae_classification = models.CharField(max_length=150, blank=True)
 
     ae_classification_other = OtherCharField(max_length=250, blank=True, null=True)
 
@@ -56,11 +56,10 @@ class AeTmgFieldsModelMixin(models.Model):
         max_length=15,
         choices=YES_NO,
         blank=False,
-        null=True,
         help_text="If No, explain in the narrative below",
     )
 
-    investigator_narrative = models.TextField(verbose_name="Narrative", blank=True, null=True)
+    investigator_narrative = models.TextField(verbose_name="Narrative", blank=True)
 
     investigator_ae_classification_agreed = models.CharField(
         verbose_name=(

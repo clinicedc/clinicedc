@@ -18,11 +18,11 @@ class DataRequestHistory(SiteModelMixin, BaseUuidModel):
 
     emailed_datetime = models.DateTimeField(null=True)
 
-    summary = models.TextField(null=True)
+    summary = models.TextField(default="")
 
     exported_datetime = models.DateTimeField(default=get_utcnow)
 
     class Meta:
         verbose_name = "Data Request History"
         verbose_name_plural = "Data Request History"
-        indexes = [Index(fields=["exported_datetime"])]
+        indexes = (Index(fields=["exported_datetime"]),)

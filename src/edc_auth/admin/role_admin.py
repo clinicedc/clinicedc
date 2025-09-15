@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -14,15 +12,15 @@ from ..models import Role
 class RoleAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
     fieldsets = ((None, ({"fields": ("display_name", "name", "display_index", "groups")})),)
 
-    list_display_links: Tuple[str, ...] = ("display_name", "group_list")
+    list_display_links: tuple[str, ...] = ("display_name", "group_list")
 
-    list_display: Tuple[str, ...] = ("display_name", "name", "group_list")
+    list_display: tuple[str, ...] = ("display_name", "name", "group_list")
 
-    filter_horizontal: Tuple[str, ...] = ("groups",)
+    filter_horizontal: tuple[str, ...] = ("groups",)
 
-    search_fields: Tuple[str, ...] = ("display_name", "name", "groups__name")
+    search_fields: tuple[str, ...] = ("display_name", "name", "groups__name")
 
-    ordering: Tuple[str, ...] = ("display_index", "display_name")
+    ordering: tuple[str, ...] = ("display_index", "display_name")
 
     list_filter = ("groups__name",)
 

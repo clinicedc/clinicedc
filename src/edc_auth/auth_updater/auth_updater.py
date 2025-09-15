@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sys
-from typing import Callable
+from collections.abc import Callable
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -89,9 +89,8 @@ class AuthUpdater:
             for func in pre_updates:
                 sys.stdout.write(f"   * {func.__name__}\n")
                 func(self)
-        else:
-            if self.verbose:
-                sys.stdout.write("   * nothing to do\n")
+        elif self.verbose:
+            sys.stdout.write("   * nothing to do\n")
         if self.verbose:
             sys.stdout.write("   Done.\n")
 
@@ -103,9 +102,8 @@ class AuthUpdater:
             for app_label, func in post_updates:
                 sys.stdout.write(f"   * {func.__name__}({app_label})\n")
                 func(self, app_label)
-        else:
-            if self.verbose:
-                sys.stdout.write("   * nothing to do\n")
+        elif self.verbose:
+            sys.stdout.write("   * nothing to do\n")
         if self.verbose:
             sys.stdout.write("   Done.\n")
 

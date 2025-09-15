@@ -1,5 +1,5 @@
 from secrets import choice
-from typing import Any, Optional, Type
+from typing import Any
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -26,12 +26,12 @@ class SimpleIdentifier:
 
     def __init__(
         self,
-        template: Optional[str] = None,
-        random_string_length: Optional[int] = None,
-        identifier_prefix: Optional[str] = None,
-        device_id: Optional[str] = None,
+        template: str | None = None,
+        random_string_length: int | None = None,
+        identifier_prefix: str | None = None,
+        device_id: str | None = None,
     ) -> None:
-        self._identifier: Optional[str] = None
+        self._identifier: str | None = None
         self.template = template or self.template
         self.random_string_length = random_string_length or self.random_string_length
         self.device_id = device_id or django_apps.get_app_config("edc_device").device_id
@@ -80,14 +80,14 @@ class SimpleTimestampIdentifier(SimpleIdentifier):
 
 
 class SimpleSequentialIdentifier:
-    prefix: Optional[str] = None
+    prefix: str | None = None
 
     def __init__(self):
         sequence: int = int(get_utcnow().timestamp())
         random_number: int = choice(range(1000, 9999))  # nosec B311
         sequence: str = f"{sequence}{random_number}"
         chk: int = int(sequence) % 11
-        self.identifier: str = f'{self.prefix or ""}{sequence}{chk}'
+        self.identifier: str = f"{self.prefix or ''}{sequence}{chk}"
 
     def __str__(self) -> str:
         return self.identifier
@@ -107,26 +107,26 @@ class SimpleUniqueIdentifier:
     identifier_attr: str = "identifier"
     model: str = "edc_identifier.identifiermodel"
     template: str = "{device_id}{random_string}"
-    identifier_prefix: Optional[str] = None
+    identifier_prefix: str | None = None
     identifier_cls = SimpleIdentifier
-    make_human_readable: Optional[bool] = None
+    make_human_readable: bool | None = None
 
     def __init__(
         self,
         model: str = None,
-        identifier_attr: Optional[str] = None,
-        identifier_type: Optional[str] = None,
-        identifier_prefix: Optional[str] = None,
-        make_human_readable: Optional[bool] = None,
-        linked_identifier: Optional[str] = None,
-        protocol_number: Optional[str] = None,
-        source_model: Optional[str] = None,
-        subject_identifier: Optional[str] = None,
+        identifier_attr: str | None = None,
+        identifier_type: str | None = None,
+        identifier_prefix: str | None = None,
+        make_human_readable: bool | None = None,
+        linked_identifier: str | None = None,
+        protocol_number: str | None = None,
+        source_model: str | None = None,
+        subject_identifier: str | None = None,
         name: str | None = None,
-        site: Optional[Any] = None,
-        site_id: Optional[str] = None,
+        site: Any | None = None,
+        site_id: str | None = None,
     ):
-        self._identifier: Optional[str] = None
+        self._identifier: str | None = None
         self.site_id = site_id
         self.name = name or ""
         self.model = model or self.model
@@ -194,7 +194,7 @@ class SimpleUniqueIdentifier:
         return identifier.identifier
 
     @property
-    def model_cls(self) -> Type[models.Model]:
+    def model_cls(self) -> type[models.Model]:
         return django_apps.get_model(self.model)
 
     def update_identifier_model(self, **kwargs) -> bool:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 
@@ -38,7 +38,7 @@ def update_mailing_lists_in_m2m(
         and site_notifications.loaded
         and userprofile.email_notifications.through == sender
     ):
-        notification_model_cls: Type[Notification] = django_apps.get_model(
+        notification_model_cls: type[Notification] = django_apps.get_model(
             "edc_notification.Notification"
         )
         for notification_obj in notification_model_cls.objects.filter(

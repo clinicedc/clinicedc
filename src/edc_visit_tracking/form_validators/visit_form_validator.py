@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
 from django import forms
@@ -144,14 +144,14 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                 visit_schedule_name=self.instance.visit_schedule_name,
                 schedule_name=self.instance.schedule_name,
             )
-            if getattr(self.instance, "id"):
+            if self.instance.id:
                 qs = qs.exclude(id=self.instance.id)
             if qs.count() > 1:
                 raise self.raise_validation_error(
                     {"report_datetime": "Visit report already exist for this date (M)"},
                     INVALID_ERROR,
                 )
-            elif qs.count() == 1:
+            if qs.count() == 1:
                 raise self.raise_validation_error(
                     {
                         "report_datetime": (
@@ -284,8 +284,8 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
     def metadata_exists_for(
         self,
         entry_status: str = None,
-        filter_models: Optional[List[str]] = None,
-        exclude_models: Optional[List[str]] = None,
+        filter_models: list[str] | None = None,
+        exclude_models: list[str] | None = None,
     ) -> int:
         """Returns True if metadata exists for this visit for
         the given entry_status.

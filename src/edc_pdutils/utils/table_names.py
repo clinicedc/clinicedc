@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Type
-
 from ..database import Database
 
 
@@ -9,7 +7,7 @@ def get_table_names(
     app_label: str,
     with_columns: list[str] | None = None,
     without_columns: list[str] | None = None,
-    db_cls: Type[Database] | None = None,
+    db_cls: type[Database] | None = None,
 ) -> list[str]:
     """Returns a list of table names for this app_label."""
     db = (db_cls or Database)()
@@ -28,7 +26,7 @@ def get_model_names(
     app_label: str,
     with_columns: list[str] | None = None,
     without_columns: list[str] | None = None,
-    db_cls: Type[Database] | None = None,
+    db_cls: type[Database] | None = None,
     exclude_historical: bool | None = None,
     exclude_views: bool | None = None,
 ) -> list[str]:

@@ -33,7 +33,7 @@ class AdditionalValues:
         self.export_change_type = None
 
 
-class ModelExporter(object):
+class ModelExporter:
     delimiter = "|"
     file_history_updater_cls = FileHistoryUpdater
     object_history_helper_cls = ObjectHistoryHelper

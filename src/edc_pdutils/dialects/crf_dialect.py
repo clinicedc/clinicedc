@@ -19,7 +19,7 @@ class CrfDialect:
             f"LEFT JOIN {self.obj.visit_tbl} as V on A.id=V.appointment_id "  # nosec
             f"LEFT JOIN {self.obj.registered_subject_tbl} as R "  # nosec
             "on A.subject_identifier=R.subject_identifier "  # nosec
-        )  # noqa
+        )
         return sql, None
 
     @property
@@ -46,7 +46,7 @@ class CrfDialect:
             "on A.visit_definition_id=VDEF.id "  # nosec
             f"LEFT JOIN {self.obj.registered_subject_tbl} as R "  # nosec
             "on A.registered_subject_id=R.id "  # nosec
-        )  # noqa
+        )
         return sql, None
 
     @property
@@ -69,5 +69,5 @@ class CrfDialect:
             "on A.visit_definition_id=VDEF.id "  # nosec
             f"LEFT JOIN {self.obj.registered_subject_tbl} as R "  # nosec
             "on A.registered_subject_id=R.id "  # nosec
-        )  # noqa
+        )
         return sql, None

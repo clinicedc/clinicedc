@@ -24,7 +24,6 @@ class NextAppointmentCrfFormValidatorMixin(FormValidator):
         super().__init__(**kwargs)
 
     def clean(self):
-
         self.required_if(
             NO,
             field="offschedule_today",
@@ -119,8 +118,7 @@ class NextAppointmentCrfFormValidatorMixin(FormValidator):
         except ValidationError as e:
             if e.message_dict.get("appt_datetime"):
                 raise ValidationError({"appt_date": e.message_dict["appt_datetime"]})
-            else:
-                raise
+            raise
 
     @property
     def appt_datetime(self) -> datetime:

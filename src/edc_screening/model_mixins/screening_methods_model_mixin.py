@@ -12,7 +12,7 @@ class ScreeningMethodsModeMixin(models.Model):
         return f"{self.screening_identifier} {self.gender} {self.age_in_years}"
 
     def natural_key(self: SubjectScreeningModelStub):
-        return (self.screening_identifier,)  # noqa
+        return (self.screening_identifier,)
 
     @staticmethod
     def get_search_slug_fields():

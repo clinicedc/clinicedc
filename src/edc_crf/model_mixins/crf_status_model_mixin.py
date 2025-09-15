@@ -29,8 +29,8 @@ class CrfStatusModelMixin(models.Model):
 
     crf_status_comments = models.TextField(
         verbose_name=_("Any comments related to status of this CRF"),
-        null=True,
         blank=True,
+        default="",
         help_text=_("for example, why some data is still pending"),
     )
 

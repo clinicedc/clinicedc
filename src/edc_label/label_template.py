@@ -39,7 +39,7 @@ class LabelTemplate:
                     f"Looking for  template '{template_name}'. "
                     f"Got {path}. See edc_label.app_config."
                 )
-            with open(path, "r") as f:
+            with open(path) as f:
                 self.template = f.read()
         else:
             self.template = zpl_label_template.zpl_data.strip()

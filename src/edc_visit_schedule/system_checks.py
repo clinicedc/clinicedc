@@ -86,7 +86,7 @@ def check_onschedule_exists_in_subject_schedule_history(app_configs, **kwargs) -
         for visit_schedule in site_visit_schedules.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
                 try:
-                    onschedule_model_cls = getattr(schedule, "onschedule_model_cls")
+                    onschedule_model_cls = schedule.onschedule_model_cls
                 except LookupError:
                     pass
                 else:

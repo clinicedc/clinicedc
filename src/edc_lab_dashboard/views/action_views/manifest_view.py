@@ -24,15 +24,14 @@ class ManifestView(EdcViewMixin, ManifestViewMixin, LabPrintersMixin, ActionView
         if not self.selected_items:
             message = "Nothing to do. No items have been selected."
             messages.warning(request, message)
-        else:
-            if self.action == "remove_selected_items":
-                self.remove_selected_items()
-            elif self.action == "print_labels":
-                job_result = self.print_labels(pks=self.selected_items, request=request)
-                if job_result:
-                    add_job_results_to_messages(request, [job_result])
-            elif self.action == "ship_selected_items":
-                self.ship_selected_items()
+        elif self.action == "remove_selected_items":
+            self.remove_selected_items()
+        elif self.action == "print_labels":
+            job_result = self.print_labels(pks=self.selected_items, request=request)
+            if job_result:
+                add_job_results_to_messages(request, [job_result])
+        elif self.action == "ship_selected_items":
+            self.ship_selected_items()
 
     def remove_selected_items(self):
         """Deletes the selected items, if allowed."""
@@ -51,8 +50,7 @@ class ManifestView(EdcViewMixin, ManifestViewMixin, LabPrintersMixin, ActionView
         for manifest in Manifest.objects.filter(pk__in=self.selected_items):
             if manifest.shipped:
                 message = (
-                    f"Manifest has already been shipped. "
-                    f"Got {manifest.manifest_identifier}."
+                    f"Manifest has already been shipped. Got {manifest.manifest_identifier}."
                 )
                 messages.error(self.request, message)
             else:

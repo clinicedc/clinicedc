@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
 from django import forms
@@ -56,7 +56,7 @@ class DeathReportFormValidatorMixin:
 
     def validate_study_day_with_death_report_date(
         self: Any,
-        subject_identifier: Optional[str] = None,
+        subject_identifier: str | None = None,
     ) -> None:
         """Raises an exception if study day does not match
         calculation against ZoneInfo.
@@ -73,7 +73,7 @@ class DeathReportFormValidatorMixin:
                 or self.instance.subject_identifier
             )
             if not subject_identifier:
-                raise ValueError(f"Subject identifier cannot be None. See {repr(self)}")
+                raise ValueError(f"Subject identifier cannot be None. See {self!r}")
             registered_subject_model_cls = django_apps.get_model(
                 "edc_registration.registeredsubject"
             )

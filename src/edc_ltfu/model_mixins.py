@@ -59,7 +59,6 @@ class LtfuModelMixin(models.Model):
 
     home_visit_detail = models.TextField(
         verbose_name="If YES, provide any further details of the home visit",
-        null=True,
         blank=True,
     )
 
@@ -76,7 +75,6 @@ class LtfuModelMixin(models.Model):
             "If any, please give additional details of the "
             "circumstances that led to this decision."
         ),
-        null=True,
         blank=True,
     )
 

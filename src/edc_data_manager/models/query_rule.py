@@ -207,7 +207,7 @@ class QueryRule(BaseUuidModel):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.title,)  # noqa
+        return (self.title,)
 
     natural_key.dependencies = [
         "edc_data_manager.CrfDataDictionary",
@@ -238,4 +238,4 @@ class QueryRule(BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Query Rule"
         verbose_name_plural = "Query Rules"
-        indexes = [models.Index(fields=["title", "active"])]
+        indexes = (models.Index(fields=["title", "active"]),)

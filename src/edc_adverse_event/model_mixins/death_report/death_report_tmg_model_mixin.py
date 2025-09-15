@@ -59,7 +59,7 @@ class DeathReportTmgFieldsModelMixin(models.Model):
         on_delete=PROTECT,
         verbose_name="Main cause of death",
         help_text=(
-            "Main cause of death in the opinion of the " "local study doctor and local PI"
+            "Main cause of death in the opinion of the local study doctor and local PI"
         ),
         null=True,
     )
@@ -68,24 +68,25 @@ class DeathReportTmgFieldsModelMixin(models.Model):
         verbose_name='If "Other" above, please specify',
         max_length=100,
         blank=True,
-        null=True,
     )
 
     cause_of_death_agreed = models.CharField(
         verbose_name="Is the cause of death agreed between study doctor and TMG member?",
         max_length=15,
         choices=YES_NO,
-        null=True,
         help_text="If No, explain in the narrative below",
     )
 
-    narrative = models.TextField(verbose_name="Narrative", blank=True, null=True)
+    narrative = models.TextField(verbose_name="Narrative", blank=True)
 
     class Meta:
         abstract = True
 
 
 class DeathReportTmgMethodsModelMixin(models.Model):
+    class Meta:
+        abstract = True
+
     def __str__(self):
         return str(self.death_report)
 
@@ -94,12 +95,9 @@ class DeathReportTmgMethodsModelMixin(models.Model):
         super().save(*args, **kwargs)
 
     def natural_key(self):
-        return (self.action_identifier,)  # noqa
+        return (self.action_identifier,)
 
     natural_key.dependencies = ["edc_adverse_event.causeofdeath"]
-
-    class Meta:
-        abstract = True
 
 
 class DeathReportTmgModelMixin(
@@ -126,7 +124,7 @@ class DeathReportTmgModelMixin(
         verbose_name = "Death Report TMG (1st)"
         verbose_name_plural = "Death Report TMG (1st)"
         indexes = (
-            NonUniqueSubjectIdentifierFieldMixin.Meta.indexes
-            + ActionModelMixin.Meta.indexes
-            + [models.Index(fields=["subject_identifier", "action_identifier", "site", "id"])]
+            *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
+            *ActionModelMixin.Meta.indexes,
+            models.Index(fields=["subject_identifier", "action_identifier", "site", "id"]),
         )

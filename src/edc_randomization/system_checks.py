@@ -1,7 +1,6 @@
 import os
 import sys
 from dataclasses import dataclass
-from typing import Type
 
 from django.conf import settings
 from django.core.checks import Error, Warning
@@ -15,7 +14,7 @@ from .site_randomizers import site_randomizers
 @dataclass(frozen=True)
 class Err:
     id: str
-    cls: Type[Warning | Error]
+    cls: type[Warning | Error]
 
 
 error_configs = dict(

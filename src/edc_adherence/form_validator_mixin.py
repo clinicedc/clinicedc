@@ -7,7 +7,7 @@ from edc_constants.constants import NEVER, OTHER, YES
 
 class MedicationAdherenceFormValidatorMixin:
     def clean(self: Any):
-        # super()._clean()  # noqa
+        # super()._clean()
         self.confirm_visual_scores_match()
         self.required_if(
             YES,

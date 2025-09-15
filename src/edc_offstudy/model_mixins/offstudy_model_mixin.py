@@ -56,7 +56,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         verbose_name="Please provide further details if possible",
         max_length=500,
         blank=True,
-        null=True,
+        default="",
     )
 
     def __str__(self):

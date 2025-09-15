@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional, Protocol, TypeVar, Union
+from typing import Any, Protocol, TypeVar
 from uuid import UUID
 
 from django.db import models
@@ -8,23 +8,23 @@ from edc_visit_schedule.schedule import Schedule
 
 
 class AppointmentModelStub(Protocol):
-    id: Union[UUID, models.UUIDField]
-    pk: Union[UUID, models.UUIDField]
-    subject_identifier: Union[str, models.CharField]
-    appt_datetime: Union[datetime, models.DateTimeField]
-    visit_code: Union[str, models.CharField]
-    visit_code_sequence: Union[int, models.IntegerField]
-    visit_schedule_name: Union[str, models.CharField]
-    schedule_name: Union[str, models.CharField]
-    facility_name: Union[str, models.CharField]
-    timepoint: Union[int, models.IntegerField]
+    id: UUID | models.UUIDField
+    pk: UUID | models.UUIDField
+    subject_identifier: str | models.CharField
+    appt_datetime: datetime | models.DateTimeField
+    visit_code: str | models.CharField
+    visit_code_sequence: int | models.IntegerField
+    visit_schedule_name: str | models.CharField
+    schedule_name: str | models.CharField
+    facility_name: str | models.CharField
+    timepoint: int | models.IntegerField
     timepoint_datetime: datetime
     schedule: Schedule
     _meta: Any
 
     objects: models.Manager
 
-    last_visit_code_sequence: Optional[int]
+    last_visit_code_sequence: int | None
     next: "AppointmentModelStub"
     previous: "AppointmentModelStub"
     get_next: "AppointmentModelStub"

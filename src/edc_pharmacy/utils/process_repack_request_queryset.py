@@ -18,7 +18,5 @@ def process_repack_request_queryset(
     for pk in repack_request_pks:
         run_task_sync_or_async(process_repack_request, repack_request_id=pk, username=username)
 
-    return None
-
 
 __all__ = ["process_repack_request_queryset"]

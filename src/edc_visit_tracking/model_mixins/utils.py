@@ -31,7 +31,7 @@ def get_related_visit_model_attr(model_cls) -> str:
             f"More than one field is related to the visit model. See {model_cls}. "
             f"Got {attrs}. "
         )
-    elif len(attrs) == 0:
+    if len(attrs) == 0:
         raise RelatedVisitFieldError(
             f"{model_cls} has no related visit model. "
             f"Expected the related visit model to be an instance "

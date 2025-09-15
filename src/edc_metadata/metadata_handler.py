@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -48,7 +48,7 @@ class MetadataHandler:
         self.creator = self.creator_cls(related_visit=self.related_visit, update_keyed=True)
 
     @property
-    def metadata_model_cls(self) -> Type[CrfMetadata] | Type[RequisitionMetadata]:
+    def metadata_model_cls(self) -> type[CrfMetadata] | type[RequisitionMetadata]:
         return django_apps.get_model(self.metadata_model)
 
     @property

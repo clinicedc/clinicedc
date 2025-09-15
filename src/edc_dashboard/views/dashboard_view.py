@@ -18,7 +18,7 @@ class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, Templat
         if not self.dashboard_template and not self.dashboard_template_name:
             raise ImproperlyConfigured(
                 f"Both 'dashboard_template' and 'dashboard_template_name' "
-                f"cannot be None. See {repr(self)}."
+                f"cannot be None. See {self!r}."
             )
         super().__init__(**kwargs)
 

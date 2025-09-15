@@ -71,14 +71,14 @@ class SiteConsents:
                     f"Updates unregistered consent definition. See {cdef.name}. "
                     f"Got {cdef.updates.name}"
                 )
-            elif cdef.updates and cdef.updates.updated_by is None:
+            if cdef.updates and cdef.updates.updated_by is None:
                 raise ConsentDefinitionError(
                     f"Cdef mismatch with consent definition configured to update another. "
                     f"'{cdef.name}' is configured to update "
                     f"'{cdef.updates.name}' but '{cdef.updates.name}' "
                     f"updated_by is None. "
                 )
-            elif cdef.updates and cdef.updates.updated_by != cdef:
+            if cdef.updates and cdef.updates.updated_by != cdef:
                 raise ConsentDefinitionError(
                     f"Cdef mismatch with consent definition configured to update another. "
                     f"'{cdef.name}' is configured to update "
@@ -164,7 +164,7 @@ class SiteConsents:
                     f"'{consent_definition.version}' "
                     f"of consent on or after report_datetime='{dte}'?"
                 )
-            elif consent_definition.start <= to_utc(report_datetime) <= consent_definition.end:
+            if consent_definition.start <= to_utc(report_datetime) <= consent_definition.end:
                 # ensures the higher version is returned if there is overlap
                 pass
             elif (
@@ -284,8 +284,7 @@ class SiteConsents:
                 raise ConsentDefinitionDoesNotExist(
                     f"There are no consent definitions using this model. Got {model}."
                 )
-            else:
-                errror_messages.append(f"model={model}")
+            errror_messages.append(f"model={model}")
         return cdefs, errror_messages
 
     @staticmethod
@@ -303,16 +302,13 @@ class SiteConsents:
                         if model == screening_model:
                             if cdef not in cdefs:
                                 cdefs.append(cdef)
-                else:
-                    if model == cdef.screening_model:
-                        cdefs.append(cdef)
+                elif model == cdef.screening_model:
+                    cdefs.append(cdef)
             if not cdefs:
                 raise ConsentDefinitionDoesNotExist(
-                    "There are no consent definitions using this screening model."
-                    f"Got {model}."
+                    f"There are no consent definitions using this screening model.Got {model}."
                 )
-            else:
-                errror_messages.append(f"model={model}")
+            errror_messages.append(f"model={model}")
         return cdefs, errror_messages
 
     def _filter_cdefs_by_report_datetime_or_raise(
@@ -336,9 +332,8 @@ class SiteConsents:
                     f"consent definition. Got {date_string}. {using_msg}. "
                     f"Possible consent definitions are: {consent_definitions}. "
                 )
-            else:
-                date_string = formatted_date(report_datetime)
-                errror_messages.append(f"report_datetime={date_string}")
+            date_string = formatted_date(report_datetime)
+            errror_messages.append(f"report_datetime={date_string}")
         return cdefs, errror_messages
 
     def _filter_cdefs_by_version_or_raise(

@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
@@ -91,7 +89,7 @@ class RandomizationListModelAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
             qs = qs.order_by(*ordering)
         return qs
 
-    def get_list_display(self, request) -> Tuple[str, ...]:
+    def get_list_display(self, request) -> tuple[str, ...]:
         list_display = [
             "sid",
             "assignment",
@@ -114,7 +112,7 @@ class RandomizationListModelAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
         return tuple(list_display)
 
     @staticmethod
-    def get_fieldnames(request) -> Tuple[str, ...]:
+    def get_fieldnames(request) -> tuple[str, ...]:
         fields = [
             "subject_identifier",
             "sid",
@@ -132,7 +130,7 @@ class RandomizationListModelAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
             fields.remove("assignment")
         return tuple(fields)
 
-    def get_list_filter(self, request) -> Tuple[str, ...]:
+    def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = [
             "assignment",
             "allocated_datetime",

@@ -35,7 +35,7 @@ class ManifestItem(SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseU
     @property
     def human_readable_identifier(self):
         x = self.identifier
-        return "{}-{}-{}".format(x[0:4], x[4:8], x[8:12])
+        return f"{x[0:4]}-{x[4:8]}-{x[8:12]}"
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Manifest Item"

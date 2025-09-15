@@ -3,6 +3,9 @@ from django.db import models
 
 
 class AeInitialMethodsModelMixin(models.Model):
+    class Meta:
+        abstract = True
+
     def __str__(self):
         return f"{self.action_identifier[-9:]} Grade {self.ae_grade}"
 
@@ -26,6 +29,3 @@ class AeInitialMethodsModelMixin(models.Model):
     def description(self):
         """Returns a description."""
         return f"{self.action_identifier[-9:]} Grade-{self.ae_grade}. {self.ae_description}"
-
-    class Meta:
-        abstract = True
