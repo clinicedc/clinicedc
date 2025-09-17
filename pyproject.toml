@@ -210,16 +210,6 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
-#[tool.black]
-#line-length = 95
-#target-version = ["py312"]
-#extend-exclude = '''^(.*\/)*\b(migrations|\.venv)\b($|\/.*$)'''
-#
-#[tool.isort]
-#profile = "black"
-#py_version = "312"
-#skip = [".tox", ".eggs", "migrations", "_version.py", ".venv"]
-
 [tool.coverage.run]
 parallel = false
 branch = true

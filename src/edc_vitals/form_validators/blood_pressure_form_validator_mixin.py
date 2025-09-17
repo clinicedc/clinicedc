@@ -24,7 +24,9 @@ class BloodPressureFormValidatorMixin:
             raise forms.ValidationError(errmsg)
 
     @staticmethod
-    def raise_on_systolic_lt_diastolic_bp(sys_field: str, dia_field: str, **kwargs) -> None:
+    def raise_on_systolic_lt_diastolic_bp(
+        sys_field: str | None = None, dia_field: str | None = None, **kwargs
+    ) -> None:
         """Raise if systolic BP is < diastolic BP."""
         sys_field = sys_field or "sys_blood_pressure"
         dia_field = dia_field or "dia_blood_pressure"
