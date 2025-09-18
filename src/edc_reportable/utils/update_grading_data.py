@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 from ..exceptions import NotEvaluated
 from ..formula import Formula
@@ -55,7 +55,7 @@ def update_grading_data(
                                     value=value,
                                     units=formula_opts.get("units"),
                                     gender=gender,
-                                    dob=get_utcnow()
+                                    dob=timezone.now()
                                     - relativedelta(
                                         **{
                                             age_opts.get("age_units"): age_opts.get(
@@ -63,12 +63,12 @@ def update_grading_data(
                                             )
                                         }
                                     ),
-                                    report_datetime=get_utcnow(),
+                                    report_datetime=timezone.now(),
                                     age_units=age_opts.get("age_units"),
                                     create_missing_normal=create_missing_normal,
                                 )
                             except NotEvaluated as e:
-                                print(e)
+                                sys.stdout.write(f"{e}\n")
 
 
 def get_reportable_grades(

@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import QuerySet
 from django.http import FileResponse, HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 from pylabels import Sheet, Specification
@@ -16,7 +17,6 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 from edc_pylabels.models import LabelConfiguration
 from edc_pylabels.site_label_configs import site_label_configs
-from edc_utils import get_utcnow
 
 from ..models import Stock
 
@@ -118,7 +118,7 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
                 return HttpResponseRedirect(request.META.get("HTTP_REFERER", ""))
             else:
                 buffer = sheet.save_to_buffer()
-                now = get_utcnow()
+                now = timezone.now()
                 return FileResponse(
                     buffer,
                     as_attachment=True,

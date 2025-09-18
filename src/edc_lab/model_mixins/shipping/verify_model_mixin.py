@@ -1,7 +1,7 @@
 from django.db import models
+from django.utils import timezone
 
 from edc_constants.constants import OPEN
-from edc_utils import get_utcnow
 
 from ...constants import VERIFIED
 
@@ -27,7 +27,7 @@ class VerifyBoxModelMixin(VerifyModelMixin, models.Model):
             if self.is_verified:
                 self.verified = 1
                 self.status = VERIFIED
-                self.verified_datetime = get_utcnow()
+                self.verified_datetime = timezone.now()
             else:
                 self.verified = 0
                 self.verified_datetime = None
@@ -41,12 +41,10 @@ class VerifyBoxModelMixin(VerifyModelMixin, models.Model):
 
     @property
     def is_verified(self):
-        if (
+        return not (
             self.boxitem_set.all().count() == 0
             or self.boxitem_set.filter(verified=False).exists()
-        ):
-            return False
-        return True
+        )
 
     class Meta:
         abstract = True

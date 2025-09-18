@@ -16,6 +16,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 from faker import Faker
 from model_bakery import baker
 
@@ -29,7 +30,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -65,7 +65,7 @@ class TestConsentModel(TestCase):
             "clinicedc_tests.subjectconsentv1",
             first_name="ERIK",
             consent_datetime=self.study_open_datetime,
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.first_name, "ERIK")
 
@@ -77,7 +77,7 @@ class TestConsentModel(TestCase):
             "clinicedc_tests.subjectconsentv1",
             subject_identifier=None,
             consent_datetime=self.study_open_datetime,
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
             site=Site.objects.get_current(),
         )
         self.assertIsNotNone(consent.subject_identifier)
@@ -95,7 +95,7 @@ class TestConsentModel(TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=1),
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         subject_consent = site_consents.get_consent_or_raise(
             subject_identifier="123456789",
@@ -109,7 +109,7 @@ class TestConsentModel(TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=60),
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         subject_consent = site_consents.get_consent_or_raise(
             subject_identifier="123456789",
@@ -131,7 +131,7 @@ class TestConsentModel(TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime,
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(consent.version, "1.0")
         consent = baker.make_recipe(
@@ -140,7 +140,7 @@ class TestConsentModel(TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=51),
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(consent.version, "2.0")
         consent = baker.make_recipe(
@@ -149,7 +149,7 @@ class TestConsentModel(TestCase):
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=101),
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(consent.version, "3.0")
 
@@ -170,11 +170,11 @@ class TestConsentModel(TestCase):
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.version, "1.0")
-        cdef = site_consents.get_consent_definition(report_datetime=get_utcnow())
+        cdef = site_consents.get_consent_definition(report_datetime=timezone.now())
         traveller.stop()
 
         traveller = time_machine.travel(self.study_open_datetime + timedelta(days=102))
@@ -186,18 +186,18 @@ class TestConsentModel(TestCase):
             subject_identifier=subject_consent.subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
 
-        cdef = site_consents.get_consent_definition(report_datetime=get_utcnow())
+        cdef = site_consents.get_consent_definition(report_datetime=timezone.now())
         consent = baker.make_recipe(
             cdef.model,
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
             consent_datetime=self.study_open_datetime + timedelta(days=101),
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(consent.version, "3.0")
         traveller.stop()
@@ -216,8 +216,8 @@ class TestConsentModel(TestCase):
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(consent.version, "3.0")
 
@@ -235,14 +235,14 @@ class TestConsentModel(TestCase):
         # travel to V1 validity period
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        cdef = site_consents.get_consent_definition(report_datetime=get_utcnow())
+        cdef = site_consents.get_consent_definition(report_datetime=timezone.now())
         subject_consent = baker.make_recipe(
             cdef.model,
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.version, "1.0")
         self.assertEqual(subject_consent.subject_identifier, subject_identifier)
@@ -256,13 +256,13 @@ class TestConsentModel(TestCase):
         # create second consent for the same individual
         traveller = time_machine.travel(self.study_open_datetime + timedelta(days=51))
         traveller.start()
-        cdef = site_consents.get_consent_definition(report_datetime=get_utcnow())
+        cdef = site_consents.get_consent_definition(report_datetime=timezone.now())
         subject_consent = cdef.model_cls(
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
         subject_consent.save()
         subject_consent.refresh_from_db()
@@ -280,15 +280,15 @@ class TestConsentModel(TestCase):
         subject_identifier = "123456789"
         identity = "987654321"
 
-        cdef = site_consents.get_consent_definition(report_datetime=get_utcnow())
+        cdef = site_consents.get_consent_definition(report_datetime=timezone.now())
         self.assertEqual(cdef.version, "2.0")
         subject_consent = baker.make_recipe(
             cdef.model,
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.subject_identifier, subject_identifier)
         self.assertEqual(subject_consent.identity, identity)
@@ -302,15 +302,15 @@ class TestConsentModel(TestCase):
         subject_identifier = "123456789"
         identity = "987654321"
 
-        cdef = site_consents.get_consent_definition(report_datetime=get_utcnow())
+        cdef = site_consents.get_consent_definition(report_datetime=timezone.now())
         self.assertEqual(cdef.version, "3.0")
         subject_consent = baker.make_recipe(
             cdef.model,
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.subject_identifier, subject_identifier)
         self.assertEqual(subject_consent.identity, identity)
@@ -326,7 +326,7 @@ class TestConsentModel(TestCase):
         self.assertRaises(
             ConsentDefinitionDoesNotExist,
             site_consents.get_consent_definition,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
         )
         self.assertRaises(
             ConsentDefinitionDoesNotExist,
@@ -335,12 +335,11 @@ class TestConsentModel(TestCase):
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
 
-    def test_saving_with_date_past_any_consent_period_without_consent_raises(self):
-
+    def test_saving_with_date_past_any_consent_period_without_consent_raises(self):  # noqa: PLR0915
         datetime_within_consent_v1 = self.study_open_datetime + timedelta(days=10)
         cdef_v1 = site_consents.get_consent_definition(
             report_datetime=datetime_within_consent_v1
@@ -377,7 +376,7 @@ class TestConsentModel(TestCase):
         try:
             subject_visit = SubjectVisit.objects.create(
                 appointment=Appointment.objects.all().order_by("appt_datetime")[0],
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
                 subject_identifier=subject_consent.subject_identifier,
                 visit_schedule_name=visit_schedule.name,
                 schedule_name=schedule.name,
@@ -386,7 +385,7 @@ class TestConsentModel(TestCase):
             subject_visit.save()
             crf_one = CrfEight.objects.create(
                 subject_visit=subject_visit,
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
             )
             crf_one.save()
         except NotConsentedError:
@@ -402,7 +401,7 @@ class TestConsentModel(TestCase):
             NotConsentedError,
             SubjectVisit.objects.create,
             appointment=Appointment.objects.all().order_by("appt_datetime")[1],
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
@@ -414,7 +413,7 @@ class TestConsentModel(TestCase):
             subject_identifier=subject_consent.subject_identifier,
             identity=subject_consent.identity,
             confirm_identity=subject_consent.identity,
-            consent_datetime=get_utcnow(),
+            consent_datetime=timezone.now(),
             dob=subject_consent.dob,
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v2.name)
@@ -424,7 +423,7 @@ class TestConsentModel(TestCase):
         try:
             subject_visit = SubjectVisit.objects.create(
                 appointment=Appointment.objects.all().order_by("appt_datetime")[1],
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
                 subject_identifier=subject_consent.subject_identifier,
                 visit_schedule_name=visit_schedule.name,
                 schedule_name=schedule.name,
@@ -433,7 +432,7 @@ class TestConsentModel(TestCase):
             subject_visit.save()
             crf_one = CrfEight.objects.create(
                 subject_visit=subject_visit,
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
             )
             crf_one.save()
         except NotConsentedError:
@@ -449,7 +448,7 @@ class TestConsentModel(TestCase):
             NotConsentedError,
             SubjectVisit.objects.create,
             appointment=Appointment.objects.all().order_by("appt_datetime")[2],
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
@@ -462,8 +461,8 @@ class TestConsentModel(TestCase):
             subject_identifier=subject_consent.subject_identifier,
             identity=subject_consent.identity,
             confirm_identity=subject_consent.identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v3.name)
         self.assertEqual(subject_consent.version, "3.0")
@@ -472,7 +471,7 @@ class TestConsentModel(TestCase):
         try:
             subject_visit = SubjectVisit.objects.create(
                 appointment=Appointment.objects.all().order_by("appt_datetime")[2],
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
                 subject_identifier=subject_consent.subject_identifier,
                 visit_schedule_name=visit_schedule.name,
                 schedule_name=schedule.name,
@@ -481,17 +480,16 @@ class TestConsentModel(TestCase):
             subject_visit.save()
             crf_one = CrfEight.objects.create(
                 subject_visit=subject_visit,
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
             )
             crf_one.save()
         except NotConsentedError:
             self.fail("NotConsentedError unexpectedly raised")
         traveller.stop()
 
-    def test_save_crf_with_consent_end_shortened_to_before_existing_subject_visit_raises(
+    def test_save_crf_with_consent_end_shortened_to_before_existing_subject_visit_raises(  # noqa: PLR0915
         self,
     ):
-
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
 
@@ -529,7 +527,7 @@ class TestConsentModel(TestCase):
         # create two visits within consent v3 period
         subject_visit_1 = SubjectVisit.objects.create(
             appointment=Appointment.objects.all().order_by("appt_datetime")[0],
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
@@ -562,7 +560,7 @@ class TestConsentModel(TestCase):
         traveller.stop()
         traveller = time_machine.travel(cdef_v3.end + relativedelta(days=20))
         traveller.start()
-        cdef_v4 = site_consents.get_consent_definition(report_datetime=get_utcnow())
+        cdef_v4 = site_consents.get_consent_definition(report_datetime=timezone.now())
         self.assertEqual(cdef_v4.version, "4.0")
 
         # try saving CRF within already consented (v3) period
@@ -579,7 +577,7 @@ class TestConsentModel(TestCase):
             self.fail("NotConsentedError unexpectedly raised")
 
         # now try to save CRF at within v4 period
-        crf_one.report_datetime = get_utcnow()
+        crf_one.report_datetime = timezone.now()
         self.assertRaises(NotConsentedError, crf_one.save)
 
         # consent v4 and try again
@@ -588,8 +586,8 @@ class TestConsentModel(TestCase):
             subject_identifier=subject_consent.subject_identifier,
             identity=subject_consent.identity,
             confirm_identity=subject_consent.identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v4.name)
         self.assertEqual(subject_consent.version, "4.0")
@@ -598,7 +596,7 @@ class TestConsentModel(TestCase):
         try:
             crf_one = CrfEight.objects.create(
                 subject_visit=subject_visit_1,
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
             )
             crf_one.save()
         except NotConsentedError:
@@ -610,7 +608,7 @@ class TestConsentModel(TestCase):
         traveller.start()
         subject_identifier = "123456789"
         identity = "987654321"
-        cdef = site_consents.get_consent_definition(report_datetime=get_utcnow())
+        cdef = site_consents.get_consent_definition(report_datetime=timezone.now())
         self.assertEqual(cdef.model, "clinicedc_tests.subjectconsentv3")
         self.assertRaises(
             ConsentDefinitionDoesNotExist,
@@ -619,8 +617,8 @@ class TestConsentModel(TestCase):
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
 
     def test_model_str_repr_etc(self):
@@ -669,15 +667,15 @@ class TestConsentModel(TestCase):
             subject_identifier=subject_identifier,
             identity=identity,
             confirm_identity=identity,
-            consent_datetime=get_utcnow(),
-            dob=get_utcnow() - relativedelta(years=25),
+            consent_datetime=timezone.now(),
+            dob=timezone.now() - relativedelta(years=25),
         )
         self.assertEqual(subject_consent.consent_definition_name, cdef_v1.name)
         self.assertEqual(subject_consent.version, "1.0")
 
         # try subject visit before consenting
         obj = SubjectVisitWithoutAppointment.objects.create(
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             subject_identifier=subject_identifier,
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
@@ -712,7 +710,7 @@ class TestConsentModel(TestCase):
         traveller = time_machine.travel(self.study_open_datetime + relativedelta(days=10))
         traveller.start()
 
-        cdef_v1 = site_consents.get_consent_definition(report_datetime=get_utcnow())
+        cdef_v1 = site_consents.get_consent_definition(report_datetime=timezone.now())
         helper = Helper()
         subject_consent = helper.consent_and_put_on_schedule(
             visit_schedule_name=visit_schedule.name,
@@ -724,8 +722,8 @@ class TestConsentModel(TestCase):
         #     subject_identifier=subject_identifier,
         #     identity=identity,
         #     confirm_identity=identity,
-        #     consent_datetime=get_utcnow(),
-        #     dob=get_utcnow() - relativedelta(years=25),
+        #     consent_datetime=timezone.now(),
+        #     dob=timezone.now() - relativedelta(years=25),
         # )
         # # make appointments
         # schedule.put_on_schedule(
@@ -742,7 +740,7 @@ class TestConsentModel(TestCase):
 
         subject_visit1 = SubjectVisit.objects.create(
             appointment=appointments[0],
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
             reason=SCHEDULED,
@@ -754,7 +752,7 @@ class TestConsentModel(TestCase):
         traveller.start()
         SubjectConsentV1Ext.objects.create(
             subject_consent=subject_consent,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             agrees_to_extension=YES,
             site=subject_consent.site,
         )
@@ -767,7 +765,7 @@ class TestConsentModel(TestCase):
 
         subject_visit2 = SubjectVisit.objects.create(
             appointment=appointments[1],
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             visit_schedule_name=visit_schedule.name,
             schedule_name=schedule.name,
             reason=SCHEDULED,

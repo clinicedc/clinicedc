@@ -41,8 +41,8 @@ class Formula:
     age_lower_inclusive: bool | None = None
     age_upper_inclusive: bool | None = None
     grade: int | None = None
-    lln: str | None = field(default=None, init=False, repr=False)
-    uln: str | None = field(default=None, init=False, repr=False)
+    lln: str | None = field(default="", init=False, repr=False)
+    uln: str | None = field(default="", init=False, repr=False)
     lower_operator: str = field(default="", init=False, repr=False)
     upper_operator: str = field(default="", init=False, repr=False)
     age_lower_operator: str = field(default="", init=False, repr=False)
@@ -108,8 +108,8 @@ class Formula:
 
     @staticmethod
     def parse_fragment(fragment: str) -> tuple[float, bool, str | None]:
-        limit_normal: str | None = None
-        inclusive = True if "=" in fragment else False
+        limit_normal: str = ""
+        inclusive = "=" in fragment
         try:
             value = float(
                 fragment.replace("<", "")
@@ -130,7 +130,7 @@ def formula(phrase, **kwargs):
     return Formula(phrase, **kwargs).description
 
 
-def dummy_formula(phrase: str = None, units: str = None) -> Formula:
+def dummy_formula(phrase: str, units: str) -> Formula:
     return Formula(
         phrase or "0<=x",
         units=units,

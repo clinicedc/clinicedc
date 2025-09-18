@@ -25,21 +25,21 @@ class IdentifierModel(SiteModelMixin, BaseUuidModel):
 
     name = models.CharField(max_length=100)
 
-    subject_identifier = models.CharField(max_length=50, null=True)
+    subject_identifier = models.CharField(max_length=50, default="")
 
     sequence_number = models.IntegerField(default=1)
 
-    linked_identifier = models.CharField(max_length=50, null=True)
+    linked_identifier = models.CharField(max_length=50, default="")
 
     device_id = models.IntegerField()
 
-    protocol_number = models.CharField(max_length=25, null=True)
+    protocol_number = models.CharField(max_length=25, default="")
 
-    model = models.CharField(max_length=100, null=True)
+    model = models.CharField(max_length=100, default="")
 
-    identifier_type = models.CharField(max_length=100, null=True)
+    identifier_type = models.CharField(max_length=100, default="")
 
-    identifier_prefix = models.CharField(max_length=25, null=True)
+    identifier_prefix = models.CharField(max_length=25, default="")
 
     objects = IdentifierModelManager()
 
@@ -51,9 +51,9 @@ class IdentifierModel(SiteModelMixin, BaseUuidModel):
 
     class Meta(BaseUuidModel.Meta):
         app_label = "edc_identifier"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["name", "identifier"], name="%(app_label)s_%(class)s_name_uniq"
-            )
-        ]
+            ),
+        )
         indexes = BaseUuidModel.Meta.indexes

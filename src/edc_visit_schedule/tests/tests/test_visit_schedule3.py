@@ -6,6 +6,7 @@ from clinicedc_tests.models import OnScheduleThree, SubjectConsent
 from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -18,7 +19,6 @@ from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.constants import ON_SCHEDULE
 from edc_visit_schedule.exceptions import (
     InvalidOffscheduleDate,
@@ -107,7 +107,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
         self.schedule.put_on_schedule(
-            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
+            subject_identifier=self.subject_identifier, onschedule_datetime=timezone.now()
         )
         self.assertEqual(
             SubjectScheduleHistory.objects.filter(
@@ -122,7 +122,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         traveller.start()
 
         OnSchedule.objects.put_on_schedule(
-            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
+            subject_identifier=self.subject_identifier, onschedule_datetime=timezone.now()
         )
         self.assertEqual(
             SubjectScheduleHistory.objects.filter(
@@ -150,12 +150,12 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
         OnSchedule.objects.put_on_schedule(
-            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
+            subject_identifier=self.subject_identifier, onschedule_datetime=timezone.now()
         )
         try:
             OffSchedule.objects.create(
                 subject_identifier=self.subject_identifier,
-                offschedule_datetime=get_utcnow(),
+                offschedule_datetime=timezone.now(),
             )
         except Exception as e:
             self.fail(f"Exception unexpectedly raised. Got {e}.")
@@ -165,7 +165,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         # signal puts on schedule
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        onschedule_datetime = get_utcnow()
+        onschedule_datetime = timezone.now()
         OnSchedule.objects.put_on_schedule(
             subject_identifier=self.subject_identifier,
             onschedule_datetime=onschedule_datetime,
@@ -207,13 +207,13 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         traveller = time_machine.travel(self.study_open_datetime + relativedelta(days=28))
         traveller.start()
         OnSchedule.objects.put_on_schedule(
-            subject_identifier=self.subject_identifier, onschedule_datetime=get_utcnow()
+            subject_identifier=self.subject_identifier, onschedule_datetime=timezone.now()
         )
         self.assertRaises(
             InvalidOffscheduleDate,
             OffSchedule.objects.create,
             subject_identifier=self.subject_identifier,
-            offschedule_datetime=get_utcnow() - relativedelta(days=1),
+            offschedule_datetime=timezone.now() - relativedelta(days=1),
         )
         traveller.stop()
 
@@ -225,7 +225,7 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
         )
         schedule.put_on_schedule(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow(),
+            onschedule_datetime=timezone.now(),
         )
         appointments = Appointment.objects.all()
         traveller.stop()

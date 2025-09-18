@@ -17,6 +17,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,
@@ -33,7 +34,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from edc_visit_tracking.exceptions import RelatedVisitReasonError
@@ -91,7 +91,7 @@ class TestAppointment(TestCase):
         both visit_schedule_name and schedule_name provided.
         """
         schedule = self.visit_schedule2.schedules.get("schedule2")
-        schedule.put_on_schedule(self.subject_identifier, get_utcnow())
+        schedule.put_on_schedule(self.subject_identifier, timezone.now())
 
         self.assertEqual(get_appointment_model_cls().objects.all().count(), 8)
 
@@ -403,10 +403,12 @@ class TestAppointment(TestCase):
             appointment=appointments[0]
         )
         appts = [first]
-        for appointment in appointments:
-            appts.append(
+        appts.extend(
+            [
                 get_appointment_model_cls().objects.next_appointment(appointment=appointment)
-            )
+                for appointment in appointments
+            ]
+        )
         self.assertIsNotNone(appts[0])
         self.assertEqual(appts[0], first)
         self.assertEqual(appts[-1], None)

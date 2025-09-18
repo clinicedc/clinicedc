@@ -1,6 +1,6 @@
 from django.db import models
+from django.utils import timezone
 
-from edc_utils import get_utcnow
 from edc_vitals.model_mixins import (
     BloodPressureModelMixin,
     SimpleBloodPressureModelMixin,
@@ -39,6 +39,6 @@ class Temperature(models.Model):
 
 
 class WeightHeightBmi(WeightHeightBmiModelMixin, models.Model):
-    report_datetime = models.DateTimeField(default=get_utcnow)
+    report_datetime = models.DateTimeField(default=timezone.now)
 
     dob = models.DateField(null=True)

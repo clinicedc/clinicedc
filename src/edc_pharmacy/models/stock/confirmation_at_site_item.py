@@ -1,9 +1,9 @@
 from django.db import models
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from ...exceptions import ConfirmAtSiteError
 from .confirmation_at_site import ConfirmationAtSite
@@ -15,7 +15,6 @@ class Manager(models.Manager):
 
 
 class ConfirmationAtSiteItem(SiteModelMixin, BaseUuidModel):
-
     confirmation_at_site = models.ForeignKey(ConfirmationAtSite, on_delete=models.PROTECT)
 
     transfer_confirmation_item_identifier = models.CharField(
@@ -26,13 +25,13 @@ class ConfirmationAtSiteItem(SiteModelMixin, BaseUuidModel):
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    transfer_confirmation_item_datetime = models.DateTimeField(default=get_utcnow)
+    transfer_confirmation_item_datetime = models.DateTimeField(default=timezone.now)
 
     stock = models.OneToOneField(Stock, on_delete=models.PROTECT)
 
     confirmed_datetime = models.DateTimeField(null=True, blank=True)
 
-    confirmed_by = models.CharField(max_length=150, null=True, blank=True)
+    confirmed_by = models.CharField(max_length=150, default="", blank=True)
 
     objects = Manager()
 

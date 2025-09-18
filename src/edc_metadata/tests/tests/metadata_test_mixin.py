@@ -6,13 +6,13 @@ from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.models import SubjectConsentV1
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models import Panel
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
@@ -43,7 +43,7 @@ class TestMetadataMixin(TestCase):
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
         subject_consent = SubjectConsentV1.objects.create(
-            subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
+            subject_identifier=self.subject_identifier, consent_datetime=timezone.now()
         )
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_visit_schedule.onschedule"

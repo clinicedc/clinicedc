@@ -1,8 +1,8 @@
 from django.db import models
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_utils import get_utcnow
 
 
 class Manager(models.Manager):
@@ -32,9 +32,9 @@ class Confirmation(BaseUuidModel):
         null=True,
     )
 
-    confirmed_datetime = models.DateTimeField(default=get_utcnow)
+    confirmed_datetime = models.DateTimeField(default=timezone.now)
 
-    confirmed_by = models.CharField(max_length=100, null=True, blank=True)
+    confirmed_by = models.CharField(max_length=100, default="", blank=True)
 
     objects = Manager()
 

@@ -1,8 +1,8 @@
 from django.db import models
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_utils import get_utcnow
 
 from ..model_mixins import AddressModelMixin, ContactModelMixin
 
@@ -12,14 +12,13 @@ class Manager(models.Manager):
 
 
 class Supplier(AddressModelMixin, ContactModelMixin, BaseUuidModel):
-
     supplier_identifier = models.CharField(max_length=36, unique=True, null=True, blank=True)
 
     name = models.CharField(max_length=255, unique=True)
 
-    contact = models.CharField(max_length=255, null=True, blank=True)
+    contact = models.CharField(max_length=255, default="", blank=True)
 
-    supplier_datetime = models.DateTimeField(default=get_utcnow)
+    supplier_datetime = models.DateTimeField(default=timezone.now)
 
     objects = Manager()
 

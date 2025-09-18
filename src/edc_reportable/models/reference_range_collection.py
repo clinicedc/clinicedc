@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 
 
 class ReferenceRangeCollection(BaseUuidModel):
-
     name = models.CharField(max_length=50, unique=True)
 
     grade1 = models.BooleanField(default=False)
@@ -60,13 +59,13 @@ class ReferenceRangeCollection(BaseUuidModel):
 
     def get_grade(
         self,
-        value: float | int = None,
-        label: str = None,
-        units: str = None,
+        value: float | int | None = None,
+        label: str | None = None,
+        units: str | None = None,
         subject_identifier: str | None = None,
-        report_datetime: datetime = None,
-        gender: str = None,
-        dob: date = None,
+        report_datetime: datetime | None = None,
+        gender: str | None = None,
+        dob: date | None = None,
         age_units: str | None = None,
         site: Site | None = None,
     ) -> tuple[GradingData | None, str | None]:
@@ -89,13 +88,13 @@ class ReferenceRangeCollection(BaseUuidModel):
 
     def is_normal(
         self,
-        value: float | int = None,
-        label: str = None,
-        units: str = None,
+        value: float | int | None = None,
+        label: str | None = None,
+        units: str | None = None,
         subject_identifier: str | None = None,
-        report_datetime: datetime = None,
-        gender: str = None,
-        dob: date = None,
+        report_datetime: datetime | None = None,
+        gender: str | None = None,
+        dob: date | None = None,
         age_units: str | None = None,
         site: Site | None = None,
     ) -> tuple[bool, NormalData]:

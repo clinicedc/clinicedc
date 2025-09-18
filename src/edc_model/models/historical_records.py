@@ -16,10 +16,7 @@ class SerializableModel(models.Model):
         return (self.history_id,)
 
     def related_visit_model_attr(self):
-        try:
-            return self.history_object.related_visit_model_attr()
-        except AttributeError:
-            raise
+        return self.history_object.related_visit_model_attr()
 
     @property
     def related_visit(self):
@@ -61,10 +58,6 @@ class HistoricalRecords(SimpleHistoricalRecords):
         super().__init__(**kwargs)
 
     def contribute_to_class(self, cls, name):
-        try:
-            cls.related_visit_model_attr
-        except AttributeError:
-            pass
-        else:
+        if getattr(cls, "related_visit_model_attr", None):
             self.model_cls = SerializableCrfModel
         return super().contribute_to_class(cls, name)

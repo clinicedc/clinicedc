@@ -41,7 +41,7 @@ class Manifest(ManifestModelMixin, PdfReportModelMixin, SearchSlugModelMixin, Ba
     def natural_key(self):
         return (self.manifest_identifier,)
 
-    natural_key.dependencies = ["edc_lab.shipper", "edc_lab.consignee"]
+    natural_key.dependencies = ("edc_lab.shipper", "edc_lab.consignee")
 
     def __str__(self):
         return "{} created on {} by {}".format(

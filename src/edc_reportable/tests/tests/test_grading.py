@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
+from django.utils import timezone
 
 from edc_constants.constants import FEMALE, MALE
 from edc_reportable import Formula
@@ -20,12 +21,10 @@ from edc_reportable.utils import (
     update_grading_data,
     update_normal_data,
 )
-from edc_utils import get_utcnow
 
 
 @tag("reportable")
 class TestGrading(TestCase):
-
     def setUp(self):
         self.reference_range_collection = ReferenceRangeCollection.objects.create(
             name="my_references"
@@ -261,8 +260,8 @@ class TestGrading(TestCase):
         )
 
     def test_grading_with_limits_normal(self):
-        dob = get_utcnow() - relativedelta(years=25)
-        report_datetime = get_utcnow()
+        dob = timezone.now() - relativedelta(years=25)
+        report_datetime = timezone.now()
 
         update_normal_data(
             self.reference_range_collection,

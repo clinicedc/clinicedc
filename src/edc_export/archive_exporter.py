@@ -3,9 +3,10 @@ from __future__ import annotations
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING
 
+from django.utils import timezone
+
 from edc_pdutils.df_exporters import CsvModelExporter
 from edc_sites.site import sites
-from edc_utils import get_utcnow
 
 from .files_archiver import FilesArchiver
 from .files_emailer import FilesEmailer, FilesEmailerError
@@ -85,8 +86,8 @@ class ArchiveExporter:
                     summary="\n".join(summary),
                 )
             except FilesEmailerError as e:
-                raise ArchiveExporterEmailError(e)
+                raise ArchiveExporterEmailError(e) from e
             else:
                 self.emailed_to = user.email
-                self.emailed_datetime = get_utcnow()
+                self.emailed_datetime = timezone.now()
                 self.exported_datetime = self.exported_datetime or self.emailed_datetime

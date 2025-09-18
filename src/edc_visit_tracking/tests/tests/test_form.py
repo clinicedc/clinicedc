@@ -12,6 +12,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.models import Appointment
@@ -29,7 +30,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_metadata.constants import MISSED
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.exceptions import RelatedVisitReasonError
@@ -272,7 +272,7 @@ class TestForm(TestCase):
                 "f1": "1",
                 "f2": "2",
                 "f3": "3",
-                "report_datetime": get_utcnow(),
+                "report_datetime": timezone.now(),
                 "subject_visit": subject_visit.pk,
                 "site": Site.objects.get(id=settings.SITE_ID).id,
                 "crf_status": COMPLETE,
@@ -301,7 +301,7 @@ class TestForm(TestCase):
                 "f1": "1",
                 "f2": "2",
                 "f3": "3",
-                "report_datetime": get_utcnow(),
+                "report_datetime": timezone.now(),
                 "site": Site.objects.get(id=settings.SITE_ID).id,
                 "crf_status": COMPLETE,
             }
@@ -326,7 +326,7 @@ class TestForm(TestCase):
                 "f1": "1",
                 "f2": "2",
                 "f3": "3",
-                "report_datetime": get_utcnow(),
+                "report_datetime": timezone.now(),
                 "site": Site.objects.get(id=settings.SITE_ID).id,
                 "crf_status": COMPLETE,
             }
@@ -377,8 +377,8 @@ class TestForm(TestCase):
         appointment = Appointment.objects.all()[0]
         subject_visit = SubjectVisit.objects.create(appointment=appointment, reason=SCHEDULED)
         for report_datetime in [
-            get_utcnow() - relativedelta(months=1),
-            get_utcnow() + relativedelta(months=1),
+            timezone.now() - relativedelta(months=1),
+            timezone.now() + relativedelta(months=1),
         ]:
             form = CrfForm(
                 {
@@ -411,9 +411,9 @@ class TestForm(TestCase):
         subject_visit = SubjectVisit.objects.create(
             appointment=appointment,
             reason=SCHEDULED,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
         )
-        dte = get_utcnow().astimezone(ZoneInfo("Africa/Dar_es_Salaam"))
+        dte = timezone.now().astimezone(ZoneInfo("Africa/Dar_es_Salaam"))
         for report_datetime in [
             dte - relativedelta(months=1),
             dte + relativedelta(months=1),

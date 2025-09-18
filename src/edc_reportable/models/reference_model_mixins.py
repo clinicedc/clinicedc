@@ -12,26 +12,25 @@ from .reference_range_collection import ReferenceRangeCollection
 
 
 class ReferenceModelMixin(models.Model):
-
     reference_range_collection = models.ForeignKey(
         ReferenceRangeCollection, on_delete=models.PROTECT
     )
 
     label = models.CharField(max_length=25)
 
-    description = models.CharField(max_length=255, null=True)
+    description = models.CharField(max_length=255, default="")
 
-    reference_group = models.CharField(max_length=25, null=True)
+    reference_group = models.CharField(max_length=25, default="")
 
     lower = models.FloatField(null=True)
-    lower_operator = models.CharField(max_length=15, null=True)
+    lower_operator = models.CharField(max_length=15, default="")
     lower_inclusive = models.BooleanField(default=False)
-    lln = models.CharField(default=None, max_length=15, null=True)
+    lln = models.CharField(max_length=15, default="")
 
     upper = models.FloatField(null=True)
-    upper_operator = models.CharField(max_length=2, null=True)
+    upper_operator = models.CharField(max_length=2, default="")
     upper_inclusive = models.BooleanField(default=False)
-    uln = models.CharField(default=None, max_length=15, null=True)
+    uln = models.CharField(max_length=15, default="")
 
     gender = models.CharField(max_length=1, validators=[RegexValidator(r"[MF]{1}")])
     units = models.CharField(max_length=15)
@@ -43,19 +42,19 @@ class ReferenceModelMixin(models.Model):
     age_lower_inclusive = models.BooleanField(default=False)
 
     age_upper = models.IntegerField(null=True)
-    age_upper_operator = models.CharField(max_length=15, null=True)
+    age_upper_operator = models.CharField(max_length=15, default="")
     age_upper_inclusive = models.BooleanField(null=True)
 
     fasting = models.BooleanField(default=False)
 
     phrase = models.CharField(
         max_length=50,
-        null=True,
+        default="",
         verbose_name="Value phrase",
         help_text="calculated by the formula instance",
     )
 
-    age_phrase = models.CharField(max_length=25, null=True, help_text="calculated in save()")
+    age_phrase = models.CharField(max_length=25, default="", help_text="calculated in save()")
 
     grade = models.IntegerField(
         null=True, validators=[MinValueValidator(1), MaxValueValidator(5)]
@@ -113,7 +112,7 @@ class ReferenceModelMixin(models.Model):
         age_units = age_units or "years"
         if age_units not in ["days", "months", "years"]:
             raise ValueError(
-                f'Invalid age units. Expected one of {["days", "months", "years"]}. '
+                f"Invalid age units. Expected one of {['days', 'months', 'years']}. "
                 f"Got {age_units}"
             )
         rdelta = age(dob, report_datetime)

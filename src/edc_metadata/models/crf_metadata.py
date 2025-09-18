@@ -29,7 +29,7 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
         )
 
     # noinspection PyTypeHints
-    natural_key.dependencies = ["sites.Site"]  # type: ignore
+    natural_key.dependencies = ("sites.Site",)
 
     @property
     def verbose_name(self) -> str:
@@ -42,8 +42,8 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
     class Meta(CrfMetadataModelMixin.Meta, BaseUuidModel.Meta):
         verbose_name = "Crf collection status"
         verbose_name_plural = "Crf collection status"
-        unique_together = []
-        constraints = [
+        unique_together = ()
+        constraints = (
             UniqueConstraint(
                 fields=[
                     "subject_identifier",
@@ -54,8 +54,8 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
                     "model",
                 ],
                 name="%(app_label)s_%(class)s_subject_iden_visit_uniq",
-            )
-        ]
+            ),
+        )
         indexes = (
             *CrfMetadataModelMixin.Meta.indexes,
             *BaseUuidModel.Meta.indexes,

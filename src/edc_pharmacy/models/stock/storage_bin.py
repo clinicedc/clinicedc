@@ -3,17 +3,16 @@ from __future__ import annotations
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import PROTECT
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from .location import Location
 
 
 class StorageBin(SiteModelMixin, BaseUuidModel):
-
     bin_identifier = models.CharField(
         max_length=36,
         unique=True,
@@ -22,7 +21,7 @@ class StorageBin(SiteModelMixin, BaseUuidModel):
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    bin_datetime = models.DateTimeField(default=get_utcnow)
+    bin_datetime = models.DateTimeField(default=timezone.now)
 
     name = models.CharField(
         max_length=10,
@@ -38,7 +37,7 @@ class StorageBin(SiteModelMixin, BaseUuidModel):
 
     in_use = models.BooleanField(default=True)
 
-    description = models.CharField(max_length=100, null=True, blank=True)
+    description = models.CharField(max_length=100, default="", blank=True)
 
     history = HistoricalRecords()
 

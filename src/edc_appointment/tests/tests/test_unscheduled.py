@@ -11,6 +11,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 )
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.constants import (
     CANCELLED_APPT,
@@ -29,7 +30,6 @@ from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
-from edc_utils import get_utcnow
 from edc_visit_schedule.exceptions import ScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
@@ -44,9 +44,9 @@ INC = INCOMPLETE_APPT
 def get_appointment(
     visit_code: str,
     visit_code_sequence: int,
-    subject_identifier=None,
-    visit_schedule_name=None,
-    schedule_name=None,
+    subject_identifier: str,
+    visit_schedule_name: str,
+    schedule_name: str,
 ):
     return Appointment.objects.get(
         subject_identifier=subject_identifier,
@@ -134,7 +134,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         site_visit_schedules.register(self.visit_schedule1)
         site_visit_schedules.register(self.visit_schedule2)
         self.helper = self.helper_cls(
-            now=get_utcnow(),
+            now=timezone.now(),
         )
         self.subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name,
@@ -167,7 +167,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         # add a subject_visit and expect exception to be raises because
         # of appt_status
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
         appointment.refresh_from_db()
         self.assertEqual(appointment.related_visit, subject_visit)
@@ -214,9 +214,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         )
         traveller.stop()
         for visit in self.visit_schedule1.schedules.get(self.schedule1.name).visits.values():
-            # with self.subTest(visit=visit):
             # get parent appointment
-            new_appointment = None
             appointment = Appointment.objects.get(
                 subject_identifier=self.subject_consent.subject_identifier,
                 visit_code=visit.code,
@@ -251,7 +249,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             appointment.save()
             appointment.refresh_from_db()
 
-            print(visit, appointment, appointment.related_visit, appointment.appt_status)
+            # print(visit, appointment, appointment.related_visit, appointment.appt_status)
 
             traveller.stop()
             traveller = time_machine.travel(appointment.appt_datetime + relativedelta(days=1))
@@ -270,12 +268,12 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             new_appointment.appt_status = IN_PROGRESS_APPT
             new_appointment.save()
             new_appointment.refresh_from_db()
-            print(
-                visit,
-                new_appointment,
-                new_appointment.related_visit,
-                new_appointment.appt_status,
-            )
+            # print(
+            #     visit,
+            #     new_appointment,
+            #     new_appointment.related_visit,
+            #     new_appointment.appt_status,
+            # )
             if new_appointment.appt_status != IN_PROGRESS_APPT:
                 new_appointment.appt_status = IN_PROGRESS_APPT
                 new_appointment.save()
@@ -286,7 +284,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
             # submit subject visit for the unscheduled appt
             subject_visit = SubjectVisit.objects.create(
                 appointment=new_appointment,
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
                 reason=UNSCHEDULED,
                 visit_code=new_appointment.visit_code,
                 visit_code_sequence=new_appointment.visit_code_sequence,
@@ -306,7 +304,6 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
 
     @tag("2004")
     def test_appt_status2(self):
-
         subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name,
             schedule_name=self.schedule1.name,
@@ -573,7 +570,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         )
         self.assertEqual(appointment.timepoint, Decimal("0.0"))
         SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
@@ -598,7 +595,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
                 )
                 SubjectVisit.objects.create(
                     appointment=creator.appointment,
-                    report_datetime=get_utcnow(),
+                    report_datetime=timezone.now(),
                     reason=UNSCHEDULED,
                 )
                 creator.appointment.appt_status = INCOMPLETE_APPT
@@ -618,7 +615,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         self.assertEqual(appointment.title, "Day 1")
 
         SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
@@ -635,7 +632,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
 
         SubjectVisit.objects.create(
             appointment=creator.appointment,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reason=UNSCHEDULED,
         )
         creator.appointment.appt_status = INCOMPLETE_APPT
@@ -649,7 +646,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         )
 
         SubjectVisit.objects.create(
-            appointment=next_appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=next_appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
         next_appointment.appt_status = INCOMPLETE_APPT
         next_appointment.save()
@@ -678,7 +675,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         self.assertEqual(appointment.title, "Day 1")
 
         SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
@@ -691,7 +688,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         )
 
         SubjectVisit.objects.create(
-            appointment=next_appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=next_appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
         next_appointment.appt_status = INCOMPLETE_APPT
         next_appointment.visit_code = "1111"
@@ -710,7 +707,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         self.assertEqual(appointment.title, "Day 1")
 
         SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()

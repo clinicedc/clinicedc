@@ -24,6 +24,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.constants import (
     COMPLETE_APPT,
@@ -40,7 +41,6 @@ from edc_appointment.skip_appointments import (
 from edc_appointment.utils import get_allow_skipped_appt_using
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_utils import get_utcnow
 from edc_visit_schedule.models import VisitSchedule
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -68,7 +68,7 @@ class TestSkippedAppt(TestCase):
         site_visit_schedules.register(get_visit_schedule2(consent_v1))
         site_visit_schedules.register(get_visit_schedule5(consent_v1))
         self.helper = self.helper_cls(
-            now=get_utcnow(),
+            now=timezone.now(),
         )
         populate_visit_schedule()
 
@@ -405,7 +405,7 @@ class TestSkippedAppt(TestCase):
             "clinicedc_tests.crfthree": ("appt_date", "f1"),
         }
     )
-    def test_skip2(self):
+    def test_skip2(self):  # noqa: PLR0915
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule5", schedule_name="monthly_schedule"
         )

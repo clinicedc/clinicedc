@@ -2,6 +2,7 @@ from clinicedc_tests.reportables import grading_data, normal_data
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count
 from django.test import TestCase, tag
+from django.utils import timezone
 
 from edc_constants.constants import FEMALE, MALE
 from edc_reportable import (
@@ -20,12 +21,10 @@ from edc_reportable.utils import (
 from edc_reportable.utils.get_normal_data_or_raise import (
     create_obj_for_new_units_or_raise,
 )
-from edc_utils import get_utcnow
 
 
 @tag("reportable")
 class TestLoadData(TestCase):
-
     def test_load_data(self):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
@@ -82,12 +81,11 @@ class TestLoadData(TestCase):
         )
 
     def test_bounds_for_existing_units(self):
-
         reference_range_collection = load_reference_ranges(
             "test_ranges", normal_data=normal_data, grading_data=grading_data
         )
 
-        report_datetime = get_utcnow()
+        report_datetime = timezone.now()
         dob = report_datetime - relativedelta(years=25)
 
         for gender in [MALE, FEMALE]:
@@ -141,12 +139,11 @@ class TestLoadData(TestCase):
             )
 
     def test_normal_data_bounds_for_non_existing_units(self):
-
         reference_range_collection = load_reference_ranges(
             "test_ranges", normal_data=normal_data, grading_data=grading_data
         )
 
-        report_datetime = get_utcnow()
+        report_datetime = timezone.now()
         dob = report_datetime - relativedelta(years=25)
 
         for gender in [MALE, FEMALE]:
@@ -211,7 +208,7 @@ class TestLoadData(TestCase):
             )
 
     def test_auto_create_new_normal_data(self):
-        report_datetime = get_utcnow()
+        report_datetime = timezone.now()
         dob = report_datetime - relativedelta(years=25)
         reference_range_collection = load_reference_ranges(
             "test_ranges", normal_data=normal_data, grading_data=grading_data
@@ -240,7 +237,7 @@ class TestLoadData(TestCase):
         )
 
     def test_auto_create_new_normal_data2(self):
-        report_datetime = get_utcnow()
+        report_datetime = timezone.now()
         dob = report_datetime - relativedelta(years=25)
         reference_range_collection = load_reference_ranges(
             "test_ranges", normal_data=normal_data, grading_data=grading_data
@@ -279,7 +276,7 @@ class TestLoadData(TestCase):
         )
 
     def test_normal_data_raises_if_no_mw(self):
-        report_datetime = get_utcnow()
+        report_datetime = timezone.now()
         dob = report_datetime - relativedelta(years=25)
         reference_range_collection = load_reference_ranges(
             "test_ranges", normal_data=normal_data, grading_data=grading_data
@@ -308,7 +305,7 @@ class TestLoadData(TestCase):
         )
 
     def test_normal_data_creates_for_missing_units(self):
-        report_datetime = get_utcnow()
+        report_datetime = timezone.now()
         dob = report_datetime - relativedelta(years=25)
         reference_range_collection = load_reference_ranges(
             "test_ranges", normal_data=normal_data, grading_data=grading_data
@@ -344,7 +341,7 @@ class TestLoadData(TestCase):
         self.assertEqual(NormalData.objects.filter(label="tbil").count(), starting_count + 1)
 
     def test_normal_data_creates_for_missing_units_and_evaluates(self):
-        report_datetime = get_utcnow()
+        report_datetime = timezone.now()
         dob = report_datetime - relativedelta(years=25)
         reference_range_collection = load_reference_ranges(
             "test_ranges", normal_data=normal_data, grading_data=grading_data

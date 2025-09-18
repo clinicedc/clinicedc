@@ -5,6 +5,7 @@ from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_consent import site_consents
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
@@ -15,7 +16,6 @@ from edc_lab.form_validators.requisition_form_validator import (
 from edc_lab.forms import BoxForm, BoxTypeForm, ManifestForm
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -37,7 +37,6 @@ class TestForms(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule)
 
     def setUp(self):
-
         self.helper = self.helper_cls()
         subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
@@ -139,7 +138,7 @@ class TestForms(TestCase):
         data = {
             "is_drawn": YES,
             "drawn_datetime": None,
-            "requisition_datetime": get_utcnow(),
+            "requisition_datetime": timezone.now(),
         }
         form_validator = MyRequisitionFormValidator(
             cleaned_data=data, model=SubjectRequisition
@@ -153,7 +152,7 @@ class TestForms(TestCase):
             "This field is required.",
         )
 
-        data = {"is_drawn": NO, "drawn_datetime": get_utcnow()}
+        data = {"is_drawn": NO, "drawn_datetime": timezone.now()}
         form_validator = MyRequisitionFormValidator(
             cleaned_data=data, model=SubjectRequisition
         )

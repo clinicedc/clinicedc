@@ -1,8 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 from .choices import TIMEPOINT_STATUS
 from .constants import CLOSED_TIMEPOINT, FEEDBACK, OPEN_TIMEPOINT
@@ -12,8 +11,15 @@ from .timepoint_lookup import TimepointLookup
 from .utils import get_enable_timepoint_checks
 
 
-class UnableToCloseTimepoint(Exception):
+class UnableToCloseTimepoint(Exception):  # noqa: N818
     pass
+
+
+MODEL_NOT_REGISTERED = (
+    "Model not registered. Model '{label_lower}' is not registered "
+    "in AppConfig as a timepoint. "
+    "See AppConfig for 'edc_timepoint'."
+)
 
 
 class TimepointLookupModelMixin(models.Model):
@@ -59,15 +65,14 @@ class TimepointModelMixin(models.Model):
     timepoint_closed_datetime = models.DateTimeField(null=True, editable=False)
 
     def save(self, *args, **kwargs):
-        if self.enabled_as_timepoint:
-            if (
-                kwargs.get("update_fields") != ["timepoint_status"]
-                and kwargs.get("update_fields")
-                != ["timepoint_opened_datetime", "timepoint_status"]
-                and kwargs.get("update_fields")
-                != ["timepoint_closed_datetime", "timepoint_status"]
-            ):
-                self.timepoint_open_or_raise()
+        if self.enabled_as_timepoint and (
+            kwargs.get("update_fields") != ["timepoint_status"]
+            and kwargs.get("update_fields")
+            != ["timepoint_opened_datetime", "timepoint_status"]
+            and kwargs.get("update_fields")
+            != ["timepoint_closed_datetime", "timepoint_status"]
+        ):
+            self.timepoint_open_or_raise()
         super().save(*args, **kwargs)
 
     def update_timepoint(self):
@@ -95,12 +100,10 @@ class TimepointModelMixin(models.Model):
             app_config = django_apps.get_app_config("edc_timepoint")
             try:
                 timepoint = app_config.timepoints.get(self._meta.label_lower)
-            except KeyError:
+            except KeyError as e:
                 raise TimepointConfigError(
-                    f"Model '{self._meta.label_lower}' is not registered "
-                    f"in AppConfig as a timepoint. "
-                    f"See AppConfig for 'edc_timepoint'."
-                )
+                    MODEL_NOT_REGISTERED.format(label_lower=self._meta.label_lower)
+                ) from e
         if getattr(self, timepoint.status_field) != timepoint.closed_status:
             self.timepoint_status = OPEN_TIMEPOINT
             self.timepoint_closed_datetime = None
@@ -122,7 +125,7 @@ class TimepointModelMixin(models.Model):
         status = getattr(self, timepoint.status_field)
         if status == timepoint.closed_status:
             self.timepoint_status = CLOSED_TIMEPOINT
-            self.timepoint_closed_datetime = get_utcnow()
+            self.timepoint_closed_datetime = timezone.now()
             self.save(update_fields=["timepoint_status"])
         else:
             raise UnableToCloseTimepoint(
@@ -146,8 +149,7 @@ class TimepointModelMixin(models.Model):
             return '<span style="color:red;">Closed</span>'
         if self.timepoint_status == FEEDBACK:
             return '<span style="color:orange;">Feedback</span>'
-
-    # timepoint.allow_tags = True
+        return None
 
     class Meta:
         abstract = True

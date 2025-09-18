@@ -1,10 +1,10 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 from edc_constants.choices import YES_NO
 from edc_model import models as edc_models
 from edc_protocol.validators import date_not_before_study_start
-from edc_utils.date import get_utcnow
 
 from .choices import LTFU_CHOICES
 
@@ -12,7 +12,7 @@ from .choices import LTFU_CHOICES
 class LtfuModelMixin(models.Model):
     report_datetime = models.DateTimeField(
         verbose_name="Report Date and Time",
-        default=get_utcnow,
+        default=timezone.now,
         validators=[date_not_before_study_start],
     )
 
@@ -33,7 +33,7 @@ class LtfuModelMixin(models.Model):
 
     ltfu_date = models.DateField(
         verbose_name="Date participant considered lost to follow up",
-        default=get_utcnow,
+        default=timezone.now,
         null=True,
         blank=False,
     )
@@ -42,12 +42,12 @@ class LtfuModelMixin(models.Model):
         verbose_name="Was contact by phone attempted",
         max_length=15,
         choices=YES_NO,
-        null=True,
+        default="",
         blank=False,
     )
     phone_attempts = models.IntegerField(
         verbose_name=(
-            "If YES, how many attempts were made to contact the participant by phone",
+            "If YES, how many attempts were made to contact the participant by phone"
         ),
         validators=[MinValueValidator(0)],
         default=0,
@@ -60,6 +60,7 @@ class LtfuModelMixin(models.Model):
     home_visit_detail = models.TextField(
         verbose_name="If YES, provide any further details of the home visit",
         blank=True,
+        default="",
     )
 
     ltfu_category = models.CharField(
@@ -76,6 +77,7 @@ class LtfuModelMixin(models.Model):
             "circumstances that led to this decision."
         ),
         blank=True,
+        default="",
     )
 
     class Meta:

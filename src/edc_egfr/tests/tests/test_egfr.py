@@ -6,6 +6,7 @@ from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_consent import site_consents
 from edc_constants.constants import BLACK, MALE
@@ -22,7 +23,6 @@ from edc_reportable.models import ReferenceRangeCollection
 from edc_reportable.utils import load_reference_ranges
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -65,7 +65,7 @@ class TestEgfr(TestCase):
             ethnicity=BLACK,
             creatinine_value=52.0,
             creatinine_units=MICROMOLES_PER_LITER,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reference_range_collection=ReferenceRangeCollection.objects.get(
                 name="my_reference_list"
             ),
@@ -101,7 +101,7 @@ class TestEgfr(TestCase):
             ethnicity=BLACK,
             creatinine_value=10.15,
             creatinine_units=MILLIGRAMS_PER_DECILITER,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reference_range_collection_name="my_reference_list",
         )
 
@@ -113,7 +113,7 @@ class TestEgfr(TestCase):
             ethnicity=BLACK,
             creatinine_value=10.15,
             creatinine_units=MILLIGRAMS_PER_DECILITER,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reference_range_collection_name="my_reference_list",
             formula_name="ckd-epi",
         )
@@ -127,7 +127,7 @@ class TestEgfr(TestCase):
             ethnicity=BLACK,
             creatinine_value=10.15,
             creatinine_units=MILLIGRAMS_PER_DECILITER,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             percent_drop_threshold=0.25,
             reference_range_collection_name="my_reference_list",
             formula_name="ckd-epi",
@@ -142,8 +142,8 @@ class TestEgfr(TestCase):
             ethnicity=BLACK,
             creatinine_value=10.15,
             creatinine_units=MILLIGRAMS_PER_DECILITER,
-            report_datetime=get_utcnow(),
-            assay_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
+            assay_datetime=timezone.now(),
             percent_drop_threshold=0.25,
             reference_range_collection_name="my_reference_list",
             formula_name="ckd-epi",
@@ -156,7 +156,7 @@ class TestEgfr(TestCase):
             ethnicity=BLACK,
             creatinine_value=275,
             creatinine_units=MICROMOLES_PER_LITER,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reference_range_collection_name="my_reference_list",
             formula_name="ckd-epi",
         )
@@ -166,11 +166,11 @@ class TestEgfr(TestCase):
     def test_egfr_dob(self):
         egfr = Egfr(
             gender=MALE,
-            dob=get_utcnow() - relativedelta(years=30),
+            dob=timezone.now() - relativedelta(years=30),
             ethnicity=BLACK,
             creatinine_value=275,
             creatinine_units=MICROMOLES_PER_LITER,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reference_range_collection_name="my_reference_list",
             formula_name="ckd-epi",
         )
@@ -183,7 +183,7 @@ class TestEgfr(TestCase):
             ethnicity=BLACK,
             creatinine_value=10.15,
             creatinine_units=MILLIGRAMS_PER_DECILITER,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reference_range_collection_name="my_reference_list",
             formula_name="ckd-epi",
         )
@@ -220,7 +220,7 @@ class TestEgfr(TestCase):
             gender=MALE,
             age_in_years=30,
             ethnicity=BLACK,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reference_range_collection_name="my_reference_list",
             formula_name="ckd-epi",
         )

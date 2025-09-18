@@ -1,3 +1,4 @@
+import contextlib
 from datetime import datetime
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
@@ -12,6 +13,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_visit_tracking.visit_schedul
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -20,7 +22,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_form_validators import APPLICABLE_ERROR, REQUIRED_ERROR
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.form_validators import VisitFormValidator
@@ -65,7 +66,7 @@ class TestSubjectVisitFormValidator(TestCase):
             reason=SCHEDULED,
             is_present=YES,
             survival_status=ALIVE,
-            last_alive_date=get_utcnow().date(),
+            last_alive_date=timezone.now().date(),
         )
         form_validator = VisitFormValidator(cleaned_data=cleaned_data, instance=subject_visit)
         form_validator.validate()
@@ -73,10 +74,8 @@ class TestSubjectVisitFormValidator(TestCase):
     def test_visit_code_reason_with_visit_code_sequence_0(self):
         cleaned_data = {"appointment": self.appointment, "reason": UNSCHEDULED}
         form_validator = VisitFormValidator(cleaned_data=cleaned_data)
-        try:
+        with contextlib.suppress(forms.ValidationError):
             form_validator.validate()
-        except forms.ValidationError:
-            pass
         self.assertIn("reason", form_validator._errors)
 
     @patch("edc_appointment.form_validators.utils.get_appointment_url")
@@ -97,10 +96,8 @@ class TestSubjectVisitFormValidator(TestCase):
 
         cleaned_data = {"appointment": appointment, "reason": SCHEDULED}
         form_validator = VisitFormValidator(cleaned_data=cleaned_data)
-        try:
+        with contextlib.suppress(forms.ValidationError):
             form_validator.validate()
-        except forms.ValidationError:
-            pass
         self.assertIn("reason", form_validator._errors)
 
     def test_visit_code_reason_with_visit_code_sequence_2(self):
@@ -124,10 +121,8 @@ class TestSubjectVisitFormValidator(TestCase):
 
         cleaned_data = {"appointment": appointment, "reason": SCHEDULED}
         form_validator = VisitFormValidator(cleaned_data=cleaned_data)
-        try:
+        with contextlib.suppress(forms.ValidationError):
             form_validator.validate()
-        except forms.ValidationError:
-            pass
         self.assertIn(
             "Previous visit report required",
             ",".join([str(e) for e in form_validator._errors.values()]),
@@ -141,10 +136,8 @@ class TestSubjectVisitFormValidator(TestCase):
             "reason_missed": None,
         }
         form_validator = VisitFormValidator(cleaned_data=options)
-        try:
+        with contextlib.suppress(forms.ValidationError):
             form_validator.validate()
-        except forms.ValidationError:
-            pass
         self.assertIn("reason_missed", form_validator._errors)
 
     @patch("edc_appointment.form_validators.utils.get_appointment_url")
@@ -170,10 +163,8 @@ class TestSubjectVisitFormValidator(TestCase):
             "reason_unscheduled": None,
         }
         form_validator = VisitFormValidator(cleaned_data=options)
-        try:
+        with contextlib.suppress(forms.ValidationError):
             form_validator.validate()
-        except forms.ValidationError:
-            pass
         self.assertIn("reason_unscheduled", form_validator._errors)
         self.assertIn(APPLICABLE_ERROR, form_validator._error_codes)
 
@@ -200,10 +191,8 @@ class TestSubjectVisitFormValidator(TestCase):
             "reason_unscheduled_other": None,
         }
         form_validator = VisitFormValidator(cleaned_data=options)
-        try:
+        with contextlib.suppress(forms.ValidationError):
             form_validator.validate()
-        except forms.ValidationError:
-            pass
         self.assertIn("reason_unscheduled_other", form_validator._errors)
         self.assertIn(REQUIRED_ERROR, form_validator._error_codes)
 
@@ -214,9 +203,7 @@ class TestSubjectVisitFormValidator(TestCase):
             "info_source_other": None,
         }
         form_validator = VisitFormValidator(cleaned_data=options)
-        try:
+        with contextlib.suppress(forms.ValidationError):
             form_validator.validate()
-        except forms.ValidationError:
-            pass
         self.assertIn("info_source_other", form_validator._errors)
         self.assertIn(REQUIRED_ERROR, form_validator._error_codes)

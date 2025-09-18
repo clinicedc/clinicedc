@@ -1,9 +1,9 @@
 from django.db import models
+from django.utils import timezone
 
 from edc_constants.choices import YES_NO
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_model.validators import date_not_future
-from edc_utils import get_utcnow
 
 from ...choices import AE_GRADE_SIMPLE, AE_OUTCOME
 from ...utils import get_adverse_event_app_label
@@ -15,7 +15,7 @@ class AeFollowupFieldsModelMixin(models.Model):
     )
 
     report_datetime = models.DateTimeField(
-        verbose_name="Report date and time", default=get_utcnow
+        verbose_name="Report date and time", default=timezone.now
     )
 
     outcome = models.CharField(blank=False, null=False, max_length=25, choices=AE_OUTCOME)

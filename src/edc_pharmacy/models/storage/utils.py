@@ -23,7 +23,7 @@ def get_shelf(item):
 
 def repackage(
     new_container_model_cls=None,
-    unit_qty: int = None,
+    unit_qty: int | None = None,
     source_container=None,
     box=None,
     **kwargs,

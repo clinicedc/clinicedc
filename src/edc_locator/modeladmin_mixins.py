@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django_audit_fields.admin import audit_fieldset_tuple
 
 from edc_consent import site_consents
 from edc_constants.constants import NO, YES
 from edc_model_admin.mixins import ModelAdminProtectPiiMixin
 from edc_sites import site_sites
-from edc_utils import age, get_utcnow
+from edc_utils.age import age
 
 from .fieldsets import (
     indirect_contacts_fieldset,
@@ -19,7 +20,7 @@ from .forms import SubjectLocatorForm
 class SubjectLocatorModelAdminMixin(ModelAdminProtectPiiMixin):
     form = SubjectLocatorForm
 
-    extra_pii_attrs: list[str] = ["contacts"]
+    extra_pii_attrs: list[str] = ("contacts",)
 
     fieldsets = (
         (None, {"fields": ("subject_identifier",)}),
@@ -29,7 +30,7 @@ class SubjectLocatorModelAdminMixin(ModelAdminProtectPiiMixin):
         audit_fieldset_tuple,
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "may_visit_home": admin.VERTICAL,
         "may_call": admin.VERTICAL,
         "may_sms": admin.VERTICAL,
@@ -74,7 +75,7 @@ class SubjectLocatorModelAdminMixin(ModelAdminProtectPiiMixin):
         context = dict(
             subject_identifier=obj.subject_identifier,
             gender=consent.gender.upper(),
-            age_in_years=age(born=consent.dob, reference_dt=get_utcnow()).years,
+            age_in_years=age(born=consent.dob, reference_dt=timezone.now()).years,
             initials=consent.initials,
         )
         return render_to_string("edc_locator/changelist_locator_subject.html", context=context)

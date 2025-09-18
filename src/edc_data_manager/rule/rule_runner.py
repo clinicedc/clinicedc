@@ -5,9 +5,10 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
+from django.utils import timezone
+
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_inspector import MetaDataInspector
-from edc_utils import get_utcnow
 
 from ..models import QueryVisitSchedule
 from .query_rule_wrapper import QueryRuleWrapper
@@ -24,7 +25,7 @@ class RuleRunner:
         verbose: bool | None = None,
     ):
         self.query_rule_obj = query_rule_obj  # query rule model instance
-        self.now = now or get_utcnow()
+        self.now = now or timezone.now()
         self.verbose = verbose
 
     @property
@@ -39,7 +40,7 @@ class RuleRunner:
         created_counter = 0
         resolved_counter = 0
         query_rules_data = query_rules_data or self.query_rules_data
-        for key, wrapped_query_rules in query_rules_data.items():
+        for _, wrapped_query_rules in query_rules_data.items():
             for wrapped_query_rule in wrapped_query_rules:
                 if self.verbose:
                     sys.stdout.write(f"     - running {wrapped_query_rule}\n")

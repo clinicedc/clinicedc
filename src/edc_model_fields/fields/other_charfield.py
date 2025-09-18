@@ -12,7 +12,7 @@ class OtherCharField(CharField):
     def __init__(self, metadata=None, *args, **kwargs):
         self.metadata = metadata
         kwargs.update(blank=True)
-        kwargs.update(null=True)
+        kwargs.update(default="")
         kwargs.setdefault("max_length", self.DEFAULT_MAX_LENGTH)
         kwargs.setdefault("verbose_name", _("If other, please specify ..."))
         self.max_length = kwargs["max_length"]
@@ -25,7 +25,7 @@ class OtherCharField(CharField):
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
         kwargs.update(blank=True)
-        kwargs.update(null=True)
+        kwargs.update(default="")
         kwargs.update(max_length=self.max_length)
         kwargs.update(verbose_name=self.verbose_name)
         if self.metadata is not None:

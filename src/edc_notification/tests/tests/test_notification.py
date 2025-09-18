@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import timezone
 
 from edc_notification.constants import CREATE, UPDATE
 from edc_notification.decorators import RegisterNotificationError, register
@@ -19,7 +20,6 @@ from edc_notification.notification import (
     Notification,
     UpdatedModelNotification,
 )
-from edc_utils import get_utcnow
 
 from ...site_notifications import (
     AlreadyRegistered,
@@ -405,14 +405,14 @@ class TestNotification(TestCase):
         death.save()
         self.assertEqual(len(mail.outbox), 1)
 
-        death.report_datetime = get_utcnow() - timedelta(days=1)
+        death.report_datetime = timezone.now() - timedelta(days=1)
         death.save()
         self.assertEqual(len(mail.outbox), 2)
 
         death.save()
         self.assertEqual(len(mail.outbox), 2)
 
-        death.report_datetime = get_utcnow()
+        death.report_datetime = timezone.now()
         death.save()
         self.assertEqual(len(mail.outbox), 3)
 
@@ -437,14 +437,14 @@ class TestNotification(TestCase):
         death.save()
         self.assertEqual(len(mail.outbox), 0)
 
-        death.report_datetime = get_utcnow() - timedelta(days=1)
+        death.report_datetime = timezone.now() - timedelta(days=1)
         death.save()
         self.assertEqual(len(mail.outbox), 1)
 
         death.save()
         self.assertEqual(len(mail.outbox), 1)
 
-        death.report_datetime = get_utcnow()
+        death.report_datetime = timezone.now()
         death.save()
         self.assertEqual(len(mail.outbox), 2)
 
@@ -468,11 +468,11 @@ class TestNotification(TestCase):
         self.assertNotIn("UPDATE*", mail.outbox[0].subject)
         self.assertNotIn("DELETED*", mail.outbox[0].subject)
 
-        death.report_datetime = get_utcnow() - timedelta(days=1)
+        death.report_datetime = timezone.now() - timedelta(days=1)
         death.save()
         self.assertIn("UPDATE*", mail.outbox[1].subject)
 
-        death.report_datetime = get_utcnow()
+        death.report_datetime = timezone.now()
         death.save()
         self.assertIn("UPDATE*", mail.outbox[2].subject)
 

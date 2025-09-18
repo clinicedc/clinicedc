@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from edc_appointment.constants import (
@@ -13,7 +14,6 @@ from edc_appointment.constants import (
     SKIPPED_APPT,
 )
 from edc_appointment.view_utils import AppointmentButton
-from edc_utils import get_utcnow
 
 if TYPE_CHECKING:
     from edc_visit_tracking.model_mixins import VisitModelMixin
@@ -79,7 +79,7 @@ class TimepointStatusButton(AppointmentButton):
         elif self.model_obj.appt_status == INCOMPLETE_APPT:
             color = self.colors[INCOMPLETE]  # default / grey
         elif self.model_obj.appt_status == NEW_APPT:
-            if self.model_obj.appt_datetime <= get_utcnow():
+            if self.model_obj.appt_datetime <= timezone.now():
                 color = self.colors[NEW_LATE]  # warning / orange
             else:
                 color = self.colors[NEW]

@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase
+from django.utils import timezone
 
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
@@ -17,12 +18,10 @@ from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 class TestCaseMixin(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -44,7 +43,7 @@ class TestCaseMixin(TestCase):
 
         site_consents.registry = {}
         site_consents.register(cdef or consent_v1)
-        consent_datetime = consent_datetime or get_utcnow()
+        consent_datetime = consent_datetime or timezone.now()
         cdef = site_consents.get_consent_definition(report_datetime=consent_datetime)
         identity = str(uuid4())
         subject_consent = cdef.model_create(

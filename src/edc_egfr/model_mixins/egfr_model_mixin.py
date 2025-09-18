@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from decimal import Decimal
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -104,13 +105,8 @@ class EgfrModelMixin(
                 appointment__timepoint=self.baseline_timepoint,
                 visit_code_sequence=0,
             )
-        with transaction.atomic():
-            try:
-                egfr_value = self.__class__.objects.get(
-                    subject_visit=baseline_visit
-                ).egfr_value
-            except ObjectDoesNotExist:
-                pass
+        with transaction.atomic(), contextlib.suppress(ObjectDoesNotExist):
+            egfr_value = self.__class__.objects.get(subject_visit=baseline_visit).egfr_value
         return egfr_value
 
     def get_weight_in_kgs_for_egfr(self) -> Decimal | None:

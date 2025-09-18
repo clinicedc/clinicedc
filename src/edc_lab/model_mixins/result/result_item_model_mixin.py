@@ -7,15 +7,15 @@ from edc_sites.model_mixins import SiteModelMixin
 class ResultItemModelMixin(SiteModelMixin, models.Model):
     report_datetime = models.DateTimeField(null=True)
 
-    utestid = models.CharField(max_length=25, null=True)
+    utestid = models.CharField(max_length=25, default="")
 
-    value = models.CharField(max_length=25, null=True)
+    value = models.CharField(max_length=25, default="")
 
-    quantifier = models.CharField(max_length=25, null=True)
+    quantifier = models.CharField(max_length=25, default="")
 
     value_datetime = models.DateTimeField(null=True)
 
-    reference = models.CharField(max_length=25, null=True)
+    reference = models.CharField(max_length=25, default="")
 
     pending_datetime = models.DateTimeField(default=timezone.now)
 

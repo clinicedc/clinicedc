@@ -53,7 +53,7 @@ class StudyMedicationRefillModelMixin(models.Model):
 
     stock_codes = models.TextField(
         max_length=30,
-        null=True,
+        default="",
         blank=True,
         validators=[
             RegexValidator(
@@ -65,7 +65,7 @@ class StudyMedicationRefillModelMixin(models.Model):
         help_text="Enter the medication bottle barcode or barcodes. Type one code per line",
     )
 
-    special_instructions = models.TextField(null=True, blank=True)
+    special_instructions = models.TextField(blank=True, default="")
 
     class Meta:
         verbose_name = "Study Medication"

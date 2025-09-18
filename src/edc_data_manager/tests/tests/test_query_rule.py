@@ -20,6 +20,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule imp
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, OPEN, YES
@@ -36,7 +37,6 @@ from edc_lab.constants import TUBE
 from edc_lab.models.panel import Panel
 from edc_lab.site_labs import site_labs
 from edc_metadata.metadata_inspector import MetaDataInspector
-from edc_utils.date import get_utcnow
 from edc_visit_schedule.constants import HOURS
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -69,10 +69,10 @@ class TestQueryRules(TestCase):
         identity = "123456789"
         subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow() - relativedelta(days=10),
+            consent_datetime=timezone.now() - relativedelta(days=10),
             identity=identity,
             confirm_identity=identity,
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
 
         # put subject on schedule

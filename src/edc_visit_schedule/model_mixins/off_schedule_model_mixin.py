@@ -6,13 +6,14 @@ from zoneinfo import ZoneInfo
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
+from django.utils import timezone
 
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.managers import CurrentSiteManager as BaseCurrentSiteManager
-from edc_utils import convert_php_dateformat, get_utcnow
+from edc_utils import convert_php_dateformat
 
 from ..site_visit_schedules import site_visit_schedules
 
@@ -36,7 +37,7 @@ class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     offschedule_datetime = models.DateTimeField(
         verbose_name="Date and time subject taken off schedule",
         validators=[datetime_not_before_study_start, datetime_not_future],
-        default=get_utcnow,
+        default=timezone.now,
     )
 
     report_datetime = models.DateTimeField(editable=False)
@@ -62,11 +63,11 @@ class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
             self.offschedule_datetime = getattr(self, self.offschedule_datetime_field_attr)
         try:
             self.offschedule_datetime.date()
-        except AttributeError:
+        except AttributeError as e:
             raise ImproperlyConfigured(
                 f"Field class must be DateTimeField. See {self.__class__}."
                 f"{self.offschedule_datetime_field_attr}."
-            )
+            ) from e
 
         datetime_not_before_study_start(self.offschedule_datetime)
         datetime_not_future(self.offschedule_datetime)

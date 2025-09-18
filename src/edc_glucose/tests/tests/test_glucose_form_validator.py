@@ -1,6 +1,7 @@
+from clinicedc_tests.helper import Helper as BaseHelper
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
-from edc_appointment.tests.helper import Helper as BaseHelper
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -8,7 +9,6 @@ from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_glucose.form_validators import GlucoseFormValidator
 from edc_lab.constants import EQ
 from edc_reportable import MILLIMOLES_PER_LITER
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -29,23 +29,16 @@ class TestGlucose(TestCase):
     helper_cls = Helper
 
     def setUp(self):
-        SubjectScreening.objects.create(
-            screening_identifier="ABCD",
-            screening_datetime=get_utcnow(),
-            subject_identifier="12345",
-        )
-        self.subject_identifier = "12345"
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule)
-        self.helper = self.helper_cls(
-            subject_identifier=self.subject_identifier,
-        )
-        self.helper.consent_and_put_on_schedule(
+        self.helper = self.helper_cls()
+        subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
         )
+        self.subject_identifier = subject_consent.subject_identifier
 
         appointment_baseline = Appointment.objects.all().order_by(
             "timepoint", "visit_code_sequence"
@@ -117,7 +110,7 @@ class TestGlucose(TestCase):
             glucose_performed=YES,
             glucose_fasting=YES,
             glucose_fasting_duration_str="12h",
-            glucose_date=get_utcnow().date,
+            glucose_date=timezone.now().date,
             glucose_units=NOT_APPLICABLE,
         )
         form_validator = MyGlucoseFormValidator(cleaned_data=cleaned_data)
@@ -130,7 +123,7 @@ class TestGlucose(TestCase):
             glucose_performed=YES,
             glucose_fasting=YES,
             glucose_fasting_duration_str="12h",
-            glucose_date=get_utcnow().date,
+            glucose_date=timezone.now().date,
             glucose_value=5.3,
             glucose_units=MILLIMOLES_PER_LITER,
             glucose_quantifier=None,
@@ -145,7 +138,7 @@ class TestGlucose(TestCase):
             glucose_performed=YES,
             glucose_fasting=YES,
             glucose_fasting_duration_str="12h",
-            glucose_date=get_utcnow().date,
+            glucose_date=timezone.now().date,
             glucose_value=5.3,
             glucose_units=NOT_APPLICABLE,
             glucose_quantifier=EQ,
@@ -160,7 +153,7 @@ class TestGlucose(TestCase):
             glucose_performed=YES,
             glucose_fasting=YES,
             glucose_fasting_duration_str="12h",
-            glucose_date=get_utcnow().date,
+            glucose_date=timezone.now().date,
             glucose_value=5.3,
             glucose_units=MILLIMOLES_PER_LITER,
             glucose_quantifier=EQ,

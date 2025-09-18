@@ -36,7 +36,6 @@ class AppointmentFieldsModelMixin(models.Model):
         "edc_appointment.AppointmentType",
         verbose_name="Appointment type",
         on_delete=models.PROTECT,
-        default=None,
         null=True,
         blank=False,
         help_text="",
@@ -82,7 +81,7 @@ class AppointmentFieldsModelMixin(models.Model):
         ),
     )
 
-    comment = models.CharField("Comment", max_length=250, blank=True, null=True)
+    comment = models.CharField("Comment", max_length=250, blank=True, default="")
 
     is_confirmed = models.BooleanField(default=False, editable=False)
 

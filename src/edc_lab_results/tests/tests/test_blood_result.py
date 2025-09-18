@@ -4,6 +4,7 @@ from clinicedc_tests.models import BloodResultsFbc
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.apps import apps as django_apps
 from django.test import TestCase
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -11,7 +12,6 @@ from edc_constants.constants import GRADE3, NO, NOT_APPLICABLE, YES
 from edc_lab.models import Panel
 from edc_lab_results.get_summary import get_summary
 from edc_reportable import GRAMS_PER_DECILITER, PERCENT, TEN_X_9_PER_LITER
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -38,7 +38,7 @@ class TestBloodResult(TestCase):
         subject_visit = django_apps.get_model(
             "edc_visit_tracking.subjectvisit"
         ).objects.create(
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             appointment=appointment,
             reason=SCHEDULED,
         )

@@ -5,8 +5,9 @@ import shutil
 import sys
 from typing import TYPE_CHECKING
 
+from django.utils import timezone
+
 from edc_export.utils import get_base_dir
-from edc_utils import get_utcnow
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -25,7 +26,7 @@ class FilesArchiver:
         date_format: str = None,
         verbose: bool | None = None,
     ):
-        self.exported_datetime: datetime = exported_datetime or get_utcnow()
+        self.exported_datetime: datetime = exported_datetime or timezone.now()
         formatted_date: str = self.exported_datetime.strftime(date_format)
         base_dir: str = get_base_dir()
         archive_name: str = os.path.join(path, f"{user.username}_{formatted_date}")

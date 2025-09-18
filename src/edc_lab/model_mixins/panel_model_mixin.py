@@ -3,6 +3,17 @@ from django.db.models.deletion import PROTECT
 
 from ..site_labs import site_labs
 
+UNDEFINED_PANEL_OR_GROUP_NAME = (
+    "Undefined `panel` name or `panel group` name. "
+    "Got {panel_name}. See LabProfile and model Panel. Got {err}"
+)
+UNDEFINED_LAP_PROFILE_NAME = (
+    "Undefined lab profile name detected from panel {panel}. "
+    "Expected one of {lab_profiles}. "
+    "Got '{lab_profile_name}'. "
+    "See stored values in panel model."
+)
+
 
 class PanelModelError(Exception):
     pass
@@ -32,9 +43,8 @@ class PanelModelMixin(models.Model):
                 panel_object = self.lab_profile_object.panels[panel_name]
             except KeyError as e:
                 raise PanelModelError(
-                    "Undefined `panel` name or `panel group` name. "
-                    f"Got {panel_name}. See LabProfile and model Panel. Got {e}"
-                )
+                    UNDEFINED_PANEL_OR_GROUP_NAME.format(panel_name=panel_name, err=str(e))
+                ) from e
         return panel_object
 
     @property
@@ -42,10 +52,11 @@ class PanelModelMixin(models.Model):
         lab_profile_object = site_labs.get(self.panel.lab_profile_name)
         if not lab_profile_object:
             raise LabProfileError(
-                f"Undefined lab profile name detected from panel {self.panel}. "
-                f"Expected one of {site_labs.lab_profiles}. "
-                f"Got '{self.panel.lab_profile_name}'. "
-                "See stored values in panel model."
+                UNDEFINED_LAP_PROFILE_NAME.format(
+                    panel_name=self.panel,
+                    lab_profiles=site_labs.lab_profiles,
+                    lab_profile_name=self.panel.lab_profile_name,
+                )
             )
         return lab_profile_object
 

@@ -3,11 +3,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages import SUCCESS
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.views import View
 
 from edc_appointment.utils import update_appt_status_for_timepoint
 from edc_dashboard.url_names import url_names
-from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
@@ -34,7 +34,7 @@ class RefreshMetadataActionsView(LoginRequiredMixin, View):
         return related_visit
 
     def get(self, request, *args, **kwargs):
-        dte1 = get_utcnow()
+        dte1 = timezone.now()
         related_visit = self.refresh_metadata_for_timepoint(**kwargs)
         url_name = url_names.get("subject_dashboard_url")
         args = (
@@ -47,7 +47,7 @@ class RefreshMetadataActionsView(LoginRequiredMixin, View):
             SUCCESS,
             f"The data collection schedule for {related_visit.visit_code}."
             f"{related_visit.visit_code_sequence} has been refreshed "
-            f"({round_half_away_from_zero((get_utcnow()-dte1).microseconds/1000000, 2)} "
+            f"({round_half_away_from_zero((timezone.now() - dte1).microseconds / 1000000, 2)} "
             "seconds)",
         )
         return HttpResponseRedirect(url)

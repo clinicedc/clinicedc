@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django_crypto_fields.fields import EncryptedTextField
 
 from edc_action_item.models import ActionModelMixin
@@ -8,7 +9,6 @@ from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model import models as edc_models
 from edc_sites.model_mixins import SiteModelMixin
 from edc_utils import convert_php_dateformat
-from edc_utils.date import get_utcnow
 
 from .choices import TRANSFER_INITIATORS
 from .constants import SUBJECT_TRANSFER_ACTION
@@ -23,10 +23,10 @@ class SubjectTransferModelMixin(
     action_name = SUBJECT_TRANSFER_ACTION
 
     report_datetime = models.DateTimeField(
-        verbose_name="Report Date and Time", default=get_utcnow
+        verbose_name="Report Date and Time", default=timezone.now
     )
 
-    transfer_date = models.DateField(verbose_name="Transfer date", default=get_utcnow)
+    transfer_date = models.DateField(verbose_name="Transfer date", default=timezone.now)
 
     initiated_by = models.CharField(
         verbose_name="Who initiated the transfer request",
@@ -53,7 +53,7 @@ class SubjectTransferModelMixin(
     )
 
     may_contact = models.CharField(
-        verbose_name=("Is the participant willing to be contacted at the end of the study?"),
+        verbose_name="Is the participant willing to be contacted at the end of the study?",
         max_length=15,
         choices=YES_NO,
     )

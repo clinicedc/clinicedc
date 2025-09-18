@@ -3,6 +3,7 @@ from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_adverse_event.form_validators import DeathReportFormValidator as Base
 from edc_constants.constants import OTHER, UNKNOWN
@@ -12,7 +13,6 @@ from edc_form_validators import FormValidatorTestCaseMixin
 from edc_form_validators.tests.mixins import FormValidatorTestMixin
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 
 
 class DeathReportFormValidator(FormValidatorTestMixin, Base):
@@ -36,7 +36,7 @@ class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
 
     @staticmethod
     def get_cleaned_data() -> dict:
-        report_datetime = get_utcnow()
+        report_datetime = timezone.now()
         return {
             "report_datetime": report_datetime,
             "death_datetime": report_datetime - relativedelta(days=3),
@@ -60,10 +60,10 @@ class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
                     death_report_date_field=death_report_date_field,
                     days_after=days_after,
                 ):
-                    report_datetime = get_utcnow()
+                    report_datetime = timezone.now()
                     death_datetime = report_datetime + relativedelta(days=days_after)
                     cleaned_data = {
-                        "report_datetime": get_utcnow(),
+                        "report_datetime": timezone.now(),
                         death_report_date_field: (
                             death_datetime
                             if death_report_date_field == "death_datetime"
@@ -91,7 +91,7 @@ class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
                     death_report_date_field=death_report_date_field,
                     days_before=days_before,
                 ):
-                    report_datetime = get_utcnow()
+                    report_datetime = timezone.now()
                     death_datetime = report_datetime - relativedelta(days=days_before)
                     cleaned_data = {
                         "report_datetime": report_datetime,

@@ -8,6 +8,7 @@ from django.core.validators import (
     RegexValidator,
 )
 from django.db import models
+from django.utils import timezone
 from django_crypto_fields.fields import EncryptedCharField
 
 from edc_constants.choices import GENDER, YES_NO, YES_NO_NA
@@ -15,7 +16,6 @@ from edc_constants.constants import NO, NOT_APPLICABLE
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils.date import get_utcnow
 
 
 class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
@@ -34,7 +34,7 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
     report_datetime = models.DateTimeField(
         verbose_name="Report Date and Time",
         validators=[datetime_not_before_study_start, datetime_not_future],
-        default=get_utcnow,
+        default=timezone.now,
         help_text="Date and time of report.",
     )
 
@@ -54,7 +54,7 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
         validators=[MinValueValidator(0), MaxValueValidator(110)]
     )
 
-    ethnicity = models.CharField(max_length=25, null=True, blank=True)
+    ethnicity = models.CharField(max_length=25, default="", blank=True)
 
     consent_ability = models.CharField(
         verbose_name="Participant or legal guardian/representative able and "
@@ -65,8 +65,7 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
 
     unsuitable_for_study = models.CharField(
         verbose_name=(
-            "Is there any other reason the patient is "
-            "deemed to not be suitable for the study?"
+            "Is there any other reason the patient is deemed to not be suitable for the study?"
         ),
         max_length=5,
         choices=YES_NO,
@@ -77,14 +76,13 @@ class ScreeningFieldsModeMixin(SiteModelMixin, models.Model):
     reasons_unsuitable = models.TextField(
         verbose_name="Reason not suitable for the study",
         max_length=150,
-        null=True,
+        default="",
         blank=True,
     )
 
     unsuitable_agreed = models.CharField(
         verbose_name=(
-            "Does the study coordinator agree that the patient "
-            "is not suitable for the study?"
+            "Does the study coordinator agree that the patient is not suitable for the study?"
         ),
         max_length=5,
         choices=YES_NO_NA,

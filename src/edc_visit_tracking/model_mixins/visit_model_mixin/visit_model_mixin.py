@@ -80,7 +80,7 @@ class VisitModelMixin(
             self.visit_code_sequence,
         )
 
-    natural_key.dependencies = ["edc_appointment.appointment"]  # type:ignore
+    natural_key.dependencies = ("edc_appointment.appointment",)  # type:ignore
 
     @property
     def timepoint(self) -> int:

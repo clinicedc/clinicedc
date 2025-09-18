@@ -20,6 +20,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
+from django.utils import timezone
 from django_webtest import WebTest
 
 from edc_appointment.models import Appointment
@@ -28,7 +29,6 @@ from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_lab.tests import SiteLabsTestHelper
-from edc_utils.date import get_utcnow
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
@@ -59,11 +59,11 @@ class ModelAdminSiteTest(WebTest):
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
             age_in_years=25,
-            report_datetime=get_utcnow() - relativedelta(days=1),
+            report_datetime=timezone.now() - relativedelta(days=1),
         )
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
 
     def login(self):
@@ -89,7 +89,7 @@ class ModelAdminSiteTest(WebTest):
             status=200,
         )
 
-        CrfOne.objects.create(subject_visit=self.subject_visit, report_datetime=get_utcnow())
+        CrfOne.objects.create(subject_visit=self.subject_visit, report_datetime=timezone.now())
 
         model = "redirectnextmodel"
         query_string = (
@@ -139,7 +139,7 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("Add crf two", response)
         form_data = {
             "subject_visit": str(self.subject_visit.id),
-            "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
+            "report_datetime_0": timezone.now().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
             "site": Site.objects.get(id=settings.SITE_ID).id,
         }
@@ -152,7 +152,7 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("Add crf three", response)
         form_data = {
             "subject_visit": str(self.subject_visit.id),
-            "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
+            "report_datetime_0": timezone.now().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
             "site": Site.objects.get(id=settings.SITE_ID).id,
         }
@@ -178,7 +178,7 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("crftwo change-form", response)
         form_data = {
             "subject_visit": str(self.subject_visit.id),
-            "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
+            "report_datetime_0": timezone.now().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
             "site": Site.objects.get(id=settings.SITE_ID).id,
         }
@@ -200,7 +200,7 @@ class ModelAdminSiteTest(WebTest):
 
         form_data = {
             "subject_visit": str(self.subject_visit.id),
-            "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
+            "report_datetime_0": timezone.now().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
             "site": Site.objects.get(id=settings.SITE_ID).id,
         }
@@ -242,7 +242,7 @@ class ModelAdminSiteTest(WebTest):
         response = form.submit(name="_cancel").follow()
         self.assertIn("You are at the subject dashboard", response)
 
-        dte = get_utcnow()
+        dte = timezone.now()
         form_data = {
             "item_count": 1,
             "estimated_volume": 5,
@@ -328,7 +328,7 @@ class ModelAdminSiteTest(WebTest):
 
         form_data = {
             "subject_visit": str(self.subject_visit.id),
-            "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
+            "report_datetime_0": timezone.now().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
             "site": Site.objects.get(id=settings.SITE_ID).id,
         }
@@ -364,7 +364,7 @@ class ModelAdminSiteTest(WebTest):
         self.login()
 
         crffive = CrfFive.objects.create(
-            subject_visit=self.subject_visit, report_datetime=get_utcnow()
+            subject_visit=self.subject_visit, report_datetime=timezone.now()
         )
 
         model = "crffive"
@@ -381,7 +381,7 @@ class ModelAdminSiteTest(WebTest):
         self.login()
 
         crfsix = CrfSix.objects.create(
-            subject_visit=self.subject_visit, report_datetime=get_utcnow()
+            subject_visit=self.subject_visit, report_datetime=timezone.now()
         )
 
         model = "crfsix"
@@ -407,7 +407,7 @@ class ModelAdminSiteTest(WebTest):
         add_url = reverse(f"tests_admin:tests_{model}_add")
 
         form_data = {
-            "report_datetime_0": get_utcnow().strftime("%Y-%m-%d"),
+            "report_datetime_0": timezone.now().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
             "site": Site.objects.get(id=settings.SITE_ID).id,
         }

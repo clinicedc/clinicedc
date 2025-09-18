@@ -6,8 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 from ..exceptions import ConfirmAtSiteError
 
@@ -76,10 +75,10 @@ def confirm_stock_at_site(
                 obj = confirmation_at_site_item_model_cls(
                     confirmation_at_site=confirmation_at_site,
                     stock=stock,
-                    confirmed_datetime=get_utcnow(),
+                    confirmed_datetime=timezone.now(),
                     confirmed_by=confirmed_by,
                     user_created=confirmed_by,
-                    created=get_utcnow(),
+                    created=timezone.now(),
                 )
                 try:
                     obj.save()

@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from django.utils import timezone
+
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
-from edc_utils import get_utcnow
 
 from ...constants import (
     AE_FOLLOWUP_ACTION,
@@ -57,7 +58,7 @@ class SummaryListboardView(
     ]
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        kwargs.update(AE_TMG_ACTION=AE_TMG_ACTION, utc_date=get_utcnow().date())
+        kwargs.update(AE_TMG_ACTION=AE_TMG_ACTION, utc_date=timezone.now().date())
         return super().get_context_data(**kwargs)
 
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:

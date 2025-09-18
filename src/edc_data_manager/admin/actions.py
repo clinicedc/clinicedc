@@ -4,11 +4,12 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from edc_constants.constants import CLOSED, OPEN
-from edc_utils import formatted_datetime, get_utcnow
+from edc_utils import formatted_datetime
 
 from ..models import QueryRule
 from ..rule import update_query_rules
@@ -65,14 +66,13 @@ def copy_query_rule_action(modeladmin, request, queryset):
 def update_query_rules_action(modeladmin, request, queryset):
     if not DATA_MANAGER_ENABLED:
         msg = (
-            "Data manager features are currently disabled. "
-            "See settings.DATA_MANAGER_ENABLED."
+            "Data manager features are currently disabled. See settings.DATA_MANAGER_ENABLED."
         )
         messages.add_message(request, messages.ERROR, msg)
     elif queryset:
         if settings.CELERY_ENABLED:
             update_query_rules.delay(pks=[o.pk for o in queryset])
-            dte = get_utcnow()
+            dte = timezone.now()
             taskresult_url = reverse("admin:django_celery_results_taskresult_changelist")
             msg = format_html(
                 "Updating data queries in the background. "
@@ -86,7 +86,7 @@ def update_query_rules_action(modeladmin, request, queryset):
         else:
             results = update_query_rules(pks=[o.pk for o in queryset])
             msg = format_html(
-                "Done updating data queries. Created {}, " "resolved {}.",
+                "Done updating data queries. Created {}, resolved {}.",
                 mark_safe(results.get("created")),  # nosec B703, B308
                 mark_safe(results.get("resolved")),  # nosec B703, B308
             )

@@ -9,6 +9,7 @@ from clinicedc_tests.models import SubjectRequisition
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -22,7 +23,6 @@ from edc_lab.lab import SpecimenNotDrawnError, SpecimenProcessor
 from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -47,7 +47,6 @@ utc_tz = ZoneInfo("UTC")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestSpecimen(SiteTestCaseMixin, TestCase):
-
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -76,7 +75,7 @@ class TestSpecimen(SiteTestCaseMixin, TestCase):
         self.subject_identifier = subject_consent.subject_identifier
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
 
         # use the viral load panel from the lap profile for these tests

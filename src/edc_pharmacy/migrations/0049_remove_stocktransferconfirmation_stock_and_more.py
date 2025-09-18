@@ -16,11 +16,11 @@ from django.db import migrations, models
 
 import edc_pharmacy.models.stock.confirmation_at_site
 import edc_pharmacy.models.stock.confirmation_at_site_item
-import edc_utils.date
+import django.utils.timezone
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_pharmacy", "0048_historicalorderitem_unit_qty_ordered_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -49,14 +49,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -238,14 +238,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -403,14 +403,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -501,7 +501,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "confirmation_item_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("confirmed_datetime", models.DateTimeField(blank=True, null=True)),
                 (
@@ -584,14 +584,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -683,7 +683,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "confirmation_item_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("confirmed_datetime", models.DateTimeField(blank=True, null=True)),
                 (

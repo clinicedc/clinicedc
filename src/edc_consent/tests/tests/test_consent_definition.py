@@ -1,3 +1,6 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 
@@ -5,13 +8,14 @@ from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import SiteConsentError
 from edc_consent.site_consents import site_consents
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
 
 
 @tag("consent")
 @override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime.now().astimezone(tz=ZoneInfo("UTC"))
+    - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime.now().astimezone(tz=ZoneInfo("UTC"))
+    + relativedelta(years=1),
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
 )

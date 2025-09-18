@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
-from edc_utils import get_utcnow
 from edc_visit_schedule.models import VisitSchedule
 
 if TYPE_CHECKING:
@@ -46,8 +47,8 @@ class SubjectVisitViewMixin:
                     self._related_visit = self.appointment.related_visit
                 except AttributeError as e:
                     raise SubjectVisitViewMixinError(
-                        "Visit model must have a OneToOne relation to appointment. " f"Got {e}"
-                    )
+                        f"Visit model must have a OneToOne relation to appointment. Got {e}"
+                    ) from e
         return self._related_visit
 
     def get_visit_schedule(self) -> VisitSchedule | None:
@@ -60,10 +61,8 @@ class SubjectVisitViewMixin:
                 schedule_name=self.appointment.schedule_name,
                 visit_code=self.appointment.visit_code,
             )
-            try:
+            with contextlib.suppress(ObjectDoesNotExist):
                 visit_schedule = VisitSchedule.objects.get(**opts)
-            except ObjectDoesNotExist:
-                pass
         return visit_schedule
 
     @property
@@ -76,7 +75,7 @@ class SubjectVisitViewMixin:
                 try:
                     self._report_datetime = self.appointment.appt_datetime
                 except AttributeError:
-                    self._report_datetime = get_utcnow()
+                    self._report_datetime = timezone.now()
         return self._report_datetime
 
     def has_appointment_attr_or_raise(self) -> None:
@@ -89,5 +88,5 @@ class SubjectVisitViewMixin:
             if "appointment" in str(e):
                 raise SubjectVisitViewMixinError(
                     f"Mixin must be declared together with AppointmentViewMixin. Got {e}"
-                )
+                ) from e
             raise

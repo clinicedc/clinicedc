@@ -23,14 +23,14 @@ class ManifestItem(SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseU
 
     identifier = models.CharField(max_length=25)
 
-    comment = models.CharField(max_length=25, null=True, blank=True)
+    comment = models.CharField(max_length=25, default="", blank=True)
 
     objects = ManifestItemManager()
 
     def natural_key(self):
-        return (self.identifier,) + self.manifest.natural_key()
+        return self.identifier, *self.manifest.natural_key()
 
-    natural_key.dependencies = ["edc_lab.manifest", "sites.Site"]
+    natural_key.dependencies = ("edc_lab.manifest", "sites.Site")
 
     @property
     def human_readable_identifier(self):
@@ -39,9 +39,9 @@ class ManifestItem(SiteModelMixin, SearchSlugModelMixin, VerifyModelMixin, BaseU
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Manifest Item"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["manifest", "identifier"],
                 name="%(app_label)s_%(class)s_manifest_uniq",
-            )
-        ]
+            ),
+        )

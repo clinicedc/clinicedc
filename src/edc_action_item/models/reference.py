@@ -1,9 +1,9 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+from django.utils import timezone
 
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
-from edc_utils import get_utcnow
 
 from .action_model_mixin import ActionModelMixin
 from .action_type import ActionType
@@ -24,7 +24,7 @@ class Reference(NonUniqueSubjectIdentifierFieldMixin, ActionModelMixin, BaseUuid
 
     action_identifier = models.CharField(max_length=25, unique=True)
 
-    report_datetime = models.DateTimeField(default=get_utcnow)
+    report_datetime = models.DateTimeField(default=timezone.now)
 
     action_type = models.ForeignKey(
         ActionType, on_delete=PROTECT, related_name="action", verbose_name="Action"

@@ -7,6 +7,7 @@ from clinicedc_tests.helper import Helper
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
+from django.utils import timezone
 
 from edc_consent import site_consents
 from edc_pharmacy.models import (
@@ -20,7 +21,6 @@ from edc_pharmacy.models import (
     Units,
 )
 from edc_pharmacy.refill import RefillCreator
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -67,15 +67,15 @@ class TestDispense(TestCase):
         self.rx = Rx.objects.create(
             subject_identifier=self.subject_identifier,
             weight_in_kgs=40,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
         )
         self.rx.medications.add(self.medication)
 
     def test_dispense(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=7),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=7),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
         )

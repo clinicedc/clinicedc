@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from edc_utils import age, get_utcnow
+from django.utils import timezone
+
+from edc_utils import age
 
 from .evaluator import Evaluator
 
@@ -38,7 +40,7 @@ class AgeEvaluator(Evaluator):
         report_datetime: datetime = None,
         age_units: str | None = None,
     ) -> bool:
-        report_datetime = report_datetime or get_utcnow()
+        report_datetime = report_datetime or timezone.now()
         age_units = age_units or "years"
         rdelta = age(dob, report_datetime)
         value = getattr(rdelta, self.units)

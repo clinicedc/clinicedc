@@ -1,13 +1,13 @@
 from datetime import date
 
 from django.db import models
+from django.utils import timezone
 
 from edc_consent.managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_registration.model_mixins import UpdatesOrCreatesRegistrationModelMixin
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 
 class SubjectScreening(
@@ -17,9 +17,9 @@ class SubjectScreening(
 ):
     screening_identifier = models.CharField(max_length=50)
 
-    screening_datetime = models.DateTimeField(default=get_utcnow)
+    screening_datetime = models.DateTimeField(default=timezone.now)
 
-    report_datetime = models.DateTimeField(default=get_utcnow)
+    report_datetime = models.DateTimeField(default=timezone.now)
 
     age_in_years = models.IntegerField(default=25)
 
@@ -30,7 +30,7 @@ class SubjectConsent(
     UpdatesOrCreatesRegistrationModelMixin,
     BaseUuidModel,
 ):
-    consent_datetime = models.DateTimeField(default=get_utcnow)
+    consent_datetime = models.DateTimeField(default=timezone.now)
 
     version = models.CharField(max_length=25, default="1")
 

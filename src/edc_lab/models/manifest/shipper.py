@@ -1,7 +1,6 @@
 from django.db import models
 
-from edc_model import models as edc_models
-from edc_model.models import BaseUuidModel
+from edc_model.models import AddressMixin, BaseUuidModel, HistoricalRecords
 
 
 class ShipperManager(models.Manager):
@@ -9,12 +8,12 @@ class ShipperManager(models.Manager):
         return self.get(name=name)
 
 
-class Shipper(edc_models.AddressMixin, BaseUuidModel):
+class Shipper(AddressMixin, BaseUuidModel):
     name = models.CharField(unique=True, max_length=50)
 
     objects = ShipperManager()
 
-    history = edc_models.HistoricalRecords()
+    history = HistoricalRecords()
 
     def natural_key(self):
         return (self.name,)

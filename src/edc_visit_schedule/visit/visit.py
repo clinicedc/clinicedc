@@ -5,9 +5,10 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
+from django.utils import timezone
 
 from edc_facility.utils import get_default_facility_name, get_facility
-from edc_utils import get_utcnow, to_local
+from edc_utils import to_local
 
 from .crf_collection import CrfCollection
 from .forms_collection import FormsCollection
@@ -172,7 +173,7 @@ class Visit:
             timepoint=self.timepoint,
             base_timepoint=self.base_timepoint,
         )
-        utcnow = get_utcnow()
+        utcnow = timezone.now()
         self.validate_rlower_late(utcnow)
         self.validate_rupper_late(utcnow)
         self.title = title or f"Visit {self.code}"

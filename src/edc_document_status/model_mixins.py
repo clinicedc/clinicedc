@@ -17,7 +17,7 @@ class DocumentStatusModelMixin(models.Model):
 
     document_status_comments = models.TextField(
         verbose_name="Any comments related to status of this document",
-        null=True,
+        default="",
         blank=True,
         help_text="for example, why some data is still pending",
     )

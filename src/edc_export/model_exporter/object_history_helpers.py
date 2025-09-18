@@ -1,9 +1,9 @@
 from django.apps import apps as django_apps
 from django.core import serializers
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.utils import timezone
 
 from edc_constants.constants import NEW
-from edc_utils import get_utcnow
 
 from ..constants import EXPORTED, INSERT, UPDATE
 
@@ -24,7 +24,7 @@ class ObjectHistoryCreator(Base):
     def create(self, model_obj=None, change_type=None, using=None):
         if not change_type:
             change_type = self.get_change_type(model_obj=model_obj)
-        export_datetime = get_utcnow()
+        export_datetime = timezone.now()
         if model_obj._meta.proxy_for_model:  # if proxy model, get main model
             model_obj = model_obj._meta.proxy_for_model.objects.get(id=model_obj.id)
         obj = self.model_cls.objects.using(using).create(

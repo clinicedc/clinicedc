@@ -44,7 +44,7 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
         validators=[
             RegexValidator(
                 regex=r"^[A-Z]{2,3}$",
-                message=("Ensure initials consist of letters only in upper case, no spaces."),
+                message="Ensure initials consist of letters only in upper case, no spaces.",
             )
         ],
         null=True,
@@ -62,27 +62,27 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
     )
 
     gender = models.CharField(
-        verbose_name="Gender", max_length=1, choices=GENDER, null=True, blank=False
+        verbose_name="Gender", max_length=1, choices=GENDER, default="", blank=False
     )
 
     ethnicity = models.CharField(
         max_length=15,
-        null=True,
+        default="",
         blank=True,
     )
 
-    subject_consent_id = models.CharField(max_length=100, null=True, blank=True)
+    subject_consent_id = models.CharField(max_length=100, default="", blank=True)
 
-    registration_identifier = models.CharField(max_length=36, null=True, blank=True)
+    registration_identifier = models.CharField(max_length=36, default="", blank=True)
 
-    sid = models.CharField(verbose_name="SID", max_length=15, null=True, blank=True)
+    sid = models.CharField(verbose_name="SID", max_length=15, default="", blank=True)
 
-    subject_type = models.CharField(max_length=25, null=True, blank=True)
+    subject_type = models.CharField(max_length=25, default="", blank=True)
 
     relative_identifier = models.CharField(
         verbose_name="Identifier of immediate relation",
         max_length=36,
-        null=True,
+        default="",
         blank=True,
         help_text="For example, mother's identifier, if available / appropriate",
     )
@@ -91,7 +91,7 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
 
     identity_type = IdentityTypeField(null=True, blank=True)
 
-    screening_identifier = models.CharField(max_length=36, null=True, blank=True)
+    screening_identifier = models.CharField(max_length=36, default="", blank=True)
 
     screening_datetime = models.DateTimeField(null=True, blank=True)
 
@@ -104,19 +104,18 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
     randomization_datetime = models.DateTimeField(null=True, blank=True)
 
     registration_status = models.CharField(
-        verbose_name="Registration status", max_length=25, null=True, blank=True
+        verbose_name="Registration status", max_length=25, default="", blank=True
     )
 
     consent_datetime = models.DateTimeField(null=True, blank=True)
 
-    comment = models.TextField(verbose_name="Comment", max_length=250, null=True, blank=True)
+    comment = models.TextField(verbose_name="Comment", max_length=250, default="", blank=True)
 
     additional_key = models.CharField(
         max_length=36,
         verbose_name="-",
         editable=False,
-        default=None,
-        null=True,
+        default="",
         help_text=(
             "A uuid (or some other text value) to be added to bypass the "
             "unique constraint of just firstname, initials, and dob."
@@ -130,11 +129,11 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
     dm_comment = models.CharField(
         verbose_name="Data Management comment",
         max_length=150,
-        null=True,
+        default="",
         editable=False,
     )
 
-    randomization_list_model = models.CharField(max_length=150, null=True)
+    randomization_list_model = models.CharField(max_length=150, default="")
 
     objects = RegisteredSubjectManager()
 
@@ -157,7 +156,7 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
     def __str__(self):
         return self.masked_subject_identifier
 
-    natural_key.dependencies = ["sites.Site"]
+    natural_key.dependencies = ("sites.Site",)
 
     def update_subject_identifier_on_save(self):
         """Overridden to not set the subject identifier on save."""
@@ -202,13 +201,15 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
         if self.id and self.subject_identifier_is_set:
             with transaction.atomic():
                 obj = self.__class__.objects.get(pk=self.id)
-                if obj.subject_identifier != self.subject_identifier_as_pk.hex:
-                    if self.subject_identifier != obj.subject_identifier:
-                        raise RegisteredSubjectError(
-                            "Subject identifier cannot be changed for "
-                            "existing registered subject. "
-                            f"Got {self.subject_identifier} <> {obj.subject_identifier}."
-                        )
+                if obj.subject_identifier not in (
+                    self.subject_identifier_as_pk.hex,
+                    self.subject_identifier,
+                ):
+                    raise RegisteredSubjectError(
+                        "Subject identifier cannot be changed for "
+                        "existing registered subject. "
+                        f"Got {self.subject_identifier} <> {obj.subject_identifier}."
+                    )
 
     def raise_on_duplicate(self, attrname):
         """Checks if the subject identifier (or other attr) is in use,
@@ -246,12 +247,12 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
     class Meta(UniqueSubjectIdentifierModelMixin.Meta, BaseUuidModel.Meta):
         verbose_name = "Registered Subject"
         verbose_name_plural = "Registered Subjects"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["first_name", "dob", "initials", "additional_key"],
                 name="%(app_label)s_%(class)s_first_name_uniq",
-            )
-        ]
+            ),
+        )
         indexes = (
             *BaseUuidModel.Meta.indexes,
             models.Index(fields=["first_name", "dob", "initials", "additional_key"]),

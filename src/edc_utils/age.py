@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import contextlib
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
-
-from .date import get_utcnow
+from django.utils import timezone
 
 
 class AgeValueError(Exception):
@@ -22,19 +22,13 @@ def get_dob(age_in_years: int, now: date | datetime | None = None) -> date:
 
     Used in tests.
     """
-    now = now or get_utcnow()
-    try:
+    now = now or timezone.now()
+    with contextlib.suppress(AttributeError):
         now = now.date()
-    except AttributeError:
-        pass
     return now - relativedelta(years=age_in_years)
 
 
-def age(
-    born: date | datetime,
-    reference_dt: date | datetime,
-    timezone: str | None = None,
-) -> relativedelta:
+def age(born: date | datetime, reference_dt: date | datetime) -> relativedelta:
     """Returns a relative delta.
 
     Convert dates or datetimes to UTC datetimes.
@@ -61,14 +55,14 @@ def age(
 def formatted_age(
     born: date | datetime | None,
     reference_dt: date | datetime,
-    timezone: str | None = None,
+    tz: str | None = None,
 ) -> str:
     age_as_str = "?"
     if born:
-        timezone = timezone or getattr(settings, "TIME_ZONE", "UTC")
-        born = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo(timezone))
-        reference_dt = reference_dt or get_utcnow()
-        age_delta = age(born, reference_dt or get_utcnow())
+        tz = tz or getattr(settings, "TIME_ZONE", "UTC")
+        born = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo(tz))
+        reference_dt = reference_dt or timezone.now()
+        age_delta = age(born, reference_dt or timezone.now())
         if age_delta.years == 0 and age_delta.months <= 0:
             age_as_str = f"{age_delta.days}d"
         elif age_delta.years == 0 and 0 < age_delta.months <= 2:

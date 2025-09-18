@@ -64,7 +64,7 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
             requisitions = (
                 self.metadata_visit_object.requisitions.forms + requisitions_prn.forms
             )
-        requisition = [r for r in requisitions if r.panel.name == self.panel.name][0]
+        requisition = next(r for r in requisitions if r.panel.name == self.panel.name)
         return REQUIRED if requisition.required else NOT_REQUIRED
 
     @property

@@ -4,6 +4,7 @@ import django_audit_fields.fields.hostname_modification_field
 import django_audit_fields.fields.userfield
 import django_audit_fields.models.audit_model_mixin
 from django.db import migrations, models
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -13,9 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalregisteredsubject",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalregisteredsubject",
@@ -29,9 +28,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalregisteredsubject",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalregisteredsubject",
@@ -56,9 +53,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="registeredsubject",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="registeredsubject",
@@ -72,9 +67,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="registeredsubject",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="registeredsubject",

@@ -1,10 +1,10 @@
 from decimal import Decimal
 
 from django.db import models
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_utils import get_utcnow
 
 from ...exceptions import InvalidContainer, ReceiveError, ReceiveItemError
 from .container import Container
@@ -26,7 +26,7 @@ class ReceiveItem(BaseUuidModel):
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    receive_item_datetime = models.DateTimeField(default=get_utcnow)
+    receive_item_datetime = models.DateTimeField(default=timezone.now)
 
     receive = models.ForeignKey(Receive, on_delete=models.PROTECT, null=True, blank=False)
 
@@ -49,7 +49,7 @@ class ReceiveItem(BaseUuidModel):
     )
 
     name = models.CharField(
-        max_length=200, null=True, blank=True, help_text="Leave blank to use default"
+        max_length=200, default="", blank=True, help_text="Leave blank to use default"
     )
 
     qty = models.DecimalField(
@@ -93,7 +93,7 @@ class ReceiveItem(BaseUuidModel):
             raise ReceiveItemError("OrderItem may not be null.")
         if not self.lot:
             raise ReceiveItemError("Lot may not be null.")
-        if self.container.qty > Decimal(1.0):
+        if self.container.qty > Decimal("1.0"):
             self.unit_qty = self.qty * self.container.qty
         else:
             self.unit_qty = self.qty

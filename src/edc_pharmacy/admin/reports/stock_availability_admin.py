@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.db.models import QuerySet
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from rangefilter.filters import DateRangeFilterBuilder, NumericRangeFilterBuilder
 
@@ -8,7 +9,6 @@ from edc_model_admin.dashboard import ModelAdminDashboardMixin
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 from edc_qareports.modeladmin_mixins import QaReportModelAdminMixin
 from edc_sites.admin import SiteModelAdminMixin
-from edc_utils import get_utcnow
 
 from ...admin_site import edc_pharmacy_admin
 from ...analytics.dataframes.no_stock_for_subjects_df import stock_for_subjects_df
@@ -21,7 +21,8 @@ def wrap_html(s, url):
 
 
 def update_report(modeladmin, request):
-    now = get_utcnow()
+    now = timezone.now()
+    created = 0
     modeladmin.model.objects.all().delete()
 
     df = stock_for_subjects_df()
@@ -50,9 +51,8 @@ def update_report(modeladmin, request):
             )
             for _, row in df.iterrows()
         ]
-        created = len(modeladmin.model.objects.bulk_create(data))
-        # messages.success(request, "{} records were successfully created.".format(created))
-        return created
+        return len(modeladmin.model.objects.bulk_create(data))
+    return created
 
 
 @admin.register(StockAvailability, site=edc_pharmacy_admin)
@@ -63,7 +63,6 @@ class StockAvailabilityModelAdmin(
     TemplatesModelAdminMixin,
     admin.ModelAdmin,
 ):
-
     queryset_filter: dict | None = None
     qa_report_list_display_insert_pos = 3
     include_note_column = False

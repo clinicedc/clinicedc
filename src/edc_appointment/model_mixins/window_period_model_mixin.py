@@ -30,13 +30,12 @@ class WindowPeriodModelMixin(models.Model):
             and self.appt_status != CANCELLED_APPT
             and self.appt_datetime
             and self.timepoint_datetime
-        ):
-            if not self.ignore_window_period:
-                try:
-                    raise_on_appt_datetime_not_in_window(self)
-                except AppointmentWindowError as e:
-                    msg = f"{e} Perhaps catch this in the form"
-                    raise AppointmentWindowError(msg)
+        ) and not self.ignore_window_period:
+            try:
+                raise_on_appt_datetime_not_in_window(self)
+            except AppointmentWindowError as e:
+                msg = f"{e} Perhaps catch this in the form"
+                raise AppointmentWindowError(msg) from e
 
     class Meta:
         abstract = True

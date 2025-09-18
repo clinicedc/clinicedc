@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils import timezone
 from django_audit_fields import ModelAdminAuditFieldsMixin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 
@@ -11,7 +12,6 @@ from edc_model_admin.mixins import (
     TemplatesModelAdminMixin,
 )
 from edc_sites.admin import SiteModelAdminMixin
-from edc_utils import get_utcnow
 
 from ..admin_site import edc_export_admin
 from ..forms import DataRequestForm
@@ -66,7 +66,7 @@ class DataRequestAdmin(
     def export_selected(self, request, queryset):
         for obj in queryset:
             DataRequestHistory.objects.create(data_request=obj)
-            rows_updated = queryset.update(exported_datetime=get_utcnow())
+            rows_updated = queryset.update(exported_datetime=timezone.now())
             if rows_updated == 1:
                 message_bit = "1 data request was"
             else:

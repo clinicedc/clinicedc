@@ -11,6 +11,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 )
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -21,7 +22,6 @@ from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.models import CrfMetadata
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -50,7 +50,7 @@ class TestMoveAppointment(TestCase):
         subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule.name,
             schedule_name="schedule1",
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
         )
         self.subject_identifier = subject_consent.subject_identifier
         appointments = Appointment.objects.filter(subject_identifier=self.subject_identifier)
@@ -70,7 +70,7 @@ class TestMoveAppointment(TestCase):
         import_holidays()
 
     @staticmethod
-    def create_unscheduled(appointment: Appointment, days: int = None):
+    def create_unscheduled(appointment: Appointment, days: int | None = None):
         creator = UnscheduledAppointmentCreator(
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -85,7 +85,11 @@ class TestMoveAppointment(TestCase):
         return appointment
 
     @staticmethod
-    def get_visit_codes(by: str = None, visit_schedule_name: str | None = None, **kwargs):
+    def get_visit_codes(
+        by: str | None = None,
+        visit_schedule_name: str | None = None,
+        **kwargs,  # noqa: ARG004
+    ):
         opts = dict(visit_schedule_name=visit_schedule_name)
         return [
             f"{o.visit_code}.{o.visit_code_sequence}"

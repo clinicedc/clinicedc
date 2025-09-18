@@ -1,6 +1,5 @@
 from django.db import models
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 from ..screening_eligibility import ScreeningEligibility
 
@@ -9,7 +8,7 @@ class EligibilityFieldsModelMixin(models.Model):
     eligible = models.BooleanField(default=False)
 
     reasons_ineligible = models.TextField(
-        verbose_name="Reason not eligible", max_length=150, null=True
+        verbose_name="Reason not eligible", max_length=150, default=""
     )
 
     eligibility_datetime = models.DateTimeField(
@@ -52,7 +51,7 @@ class EligibilityModelMixin(EligibilityFieldsModelMixin, models.Model):
             self.screening_identifier = self.identifier_cls().identifier
         if self.eligible:
             self.eligibility_datetime = self.get_report_datetime_for_eligibility_datetime()
-            self.real_eligibility_datetime = get_utcnow()
+            self.real_eligibility_datetime = timezone.now()
         else:
             self.eligibility_datetime = None
             self.real_eligibility_datetime = None

@@ -14,10 +14,10 @@ from django.conf import settings
 from django.db import migrations, models
 
 import edc_pharmacy.models.stock.location
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_pharmacy", "0052_formulation_imp_formulation_imp_description_and_more"),
         ("sites", "0002_alter_domain_unique"),
@@ -72,14 +72,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (

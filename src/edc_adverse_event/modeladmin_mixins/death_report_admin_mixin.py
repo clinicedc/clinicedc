@@ -4,6 +4,7 @@ from django.contrib import admin
 from django.contrib.admin import display
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
+from django.utils import timezone
 from django_audit_fields.admin import audit_fieldset_tuple
 
 from edc_action_item.fieldsets import action_fieldset_tuple
@@ -12,7 +13,6 @@ from edc_constants.constants import CANCELLED, OTHER
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.list_filters import ReportDateListFilter
 from edc_pdf_reports.admin import PdfButtonModelAdminMixin, print_selected_to_pdf_action
-from edc_utils import get_utcnow
 
 from ..utils import get_adverse_event_app_label
 from .list_filters import CauseOfDeathListFilter, DeathDateListFilter
@@ -111,14 +111,14 @@ class DeathReportModelAdminMixin(
     def report_datetime_with_ago(self, obj=None):
         return render_to_string(
             "edc_adverse_event/datetime_with_ago.html",
-            dict(utc_date=get_utcnow().date, report_datetime=obj.report_datetime),
+            dict(utc_date=timezone.now().date, report_datetime=obj.report_datetime),
         )
 
     @display(description="Death date", ordering="death_datetime")
     def death_datetime_with_ago(self, obj=None):
         return render_to_string(
             "edc_adverse_event/datetime_with_ago.html",
-            dict(utc_date=get_utcnow().date, report_datetime=obj.death_datetime),
+            dict(utc_date=timezone.now().date, report_datetime=obj.death_datetime),
         )
 
     @display(description="Action item", ordering="action_identifier")

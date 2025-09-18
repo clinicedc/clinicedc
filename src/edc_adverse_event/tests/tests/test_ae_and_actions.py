@@ -13,6 +13,7 @@ from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 from model_bakery import baker
 
 from edc_action_item.get_action_type import get_action_type
@@ -27,7 +28,6 @@ from edc_registration.models import RegisteredSubject
 from edc_registration.utils import RegisteredSubjectDoesNotExist
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import OnScheduleError
 
@@ -540,7 +540,7 @@ class TestAeAndActions(TestCase):
             "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             outcome=LOST_TO_FOLLOWUP,
         )
         try:
@@ -571,7 +571,7 @@ class TestAeAndActions(TestCase):
             "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             outcome=LOST_TO_FOLLOWUP,
         )
 
@@ -589,7 +589,7 @@ class TestAeAndActions(TestCase):
             "clinicedc_tests.aefollowup",
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             outcome=DEAD,
         )
 
@@ -672,7 +672,7 @@ class TestAeAndActions(TestCase):
         baker.make_recipe(
             "clinicedc_tests.aesusar",
             subject_identifier=self.subject_identifier,
-            submitted_datetime=get_utcnow(),
+            submitted_datetime=timezone.now(),
             ae_initial=ae_initial,
         )
 

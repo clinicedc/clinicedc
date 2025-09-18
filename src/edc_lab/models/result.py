@@ -27,9 +27,9 @@ class Result(ResultModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def natural_key(self):
-        return (self.report_datetime, self.order.order_identifier)
+        return self.report_datetime, self.order.order_identifier
 
-    natural_key.dependencies = ["edc_lab.order", "edc_lab.panel", "sites.Site"]
+    natural_key.dependencies = ("edc_lab.order", "edc_lab.panel", "sites.Site")
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Result"

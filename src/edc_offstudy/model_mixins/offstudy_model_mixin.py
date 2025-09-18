@@ -3,12 +3,13 @@ from zoneinfo import ZoneInfo
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.validators import datetime_not_future
 from edc_model_fields.fields import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_utils import convert_php_dateformat, get_utcnow
+from edc_utils import convert_php_dateformat
 from edc_visit_schedule.utils import (
     off_all_schedules_or_raise,
     offstudy_datetime_after_all_offschedule_datetimes,
@@ -39,7 +40,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     offstudy_datetime = models.DateTimeField(
         verbose_name="Off-study date and time",
         validators=[datetime_not_before_study_start, datetime_not_future],
-        default=get_utcnow,
+        default=timezone.now,
     )
 
     report_datetime = models.DateTimeField(null=True, editable=False)

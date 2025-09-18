@@ -2,6 +2,7 @@ from clinicedc_tests.models import TestModel
 from dateutil.relativedelta import relativedelta
 from django.core.paginator import Paginator
 from django.test import TestCase, tag
+from django.utils import timezone
 
 from edc_dashboard.templatetags.edc_dashboard_extras import (
     age_in_years,
@@ -9,7 +10,6 @@ from edc_dashboard.templatetags.edc_dashboard_extras import (
     page_numbers,
     paginator_row,
 )
-from edc_utils.date import get_utcnow
 
 
 @tag("dashboard")
@@ -88,17 +88,17 @@ class TestTags(TestCase):
 
     def test_age(self):
         context = {"reference_datetime": None}
-        born = get_utcnow() - relativedelta(years=25)
+        born = timezone.now() - relativedelta(years=25)
         self.assertEqual(25, age_in_years(context, born))
 
-        reference_datetime = get_utcnow() - relativedelta(years=25)
+        reference_datetime = timezone.now() - relativedelta(years=25)
         context = {"reference_datetime": reference_datetime}
         born = reference_datetime - relativedelta(years=5)
         self.assertEqual(5, age_in_years(context, born))
 
-        reference_datetime = get_utcnow() - relativedelta(years=25)
+        reference_datetime = timezone.now() - relativedelta(years=25)
         context = {"reference_datetime": reference_datetime}
-        born = get_utcnow()
+        born = timezone.now()
         self.assertEqual(born, age_in_years(context, born))
 
     def test_human(self):

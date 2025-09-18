@@ -14,8 +14,7 @@ class Manager(models.Manager):
 
 
 class Lot(BaseUuidModel):
-
-    lot_identifier = models.CharField(
+    lot_identifier = models.CharField(  # noqa: DJ001
         max_length=25,
         unique=True,
         null=True,
@@ -35,15 +34,15 @@ class Lot(BaseUuidModel):
 
     expiration_date = models.DateField()
 
-    manufactured_by = models.CharField(max_length=50, null=True, blank=True)
+    manufactured_by = models.CharField(max_length=50, default="", blank=True)
 
-    country_of_origin = models.CharField(max_length=50, null=True, blank=True)
+    country_of_origin = models.CharField(max_length=50, default="", blank=True)
 
-    storage_conditions = models.CharField(max_length=50, null=True, blank=True)
+    storage_conditions = models.CharField(max_length=50, default="", blank=True)
 
-    reference = models.CharField(max_length=50, null=True, blank=True)
+    reference = models.CharField(max_length=50, default="", blank=True)
 
-    comment = models.CharField(max_length=250, null=True, blank=True)
+    comment = models.CharField(max_length=250, default="", blank=True)
 
     objects = Manager()
 

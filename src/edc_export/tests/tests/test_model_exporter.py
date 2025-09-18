@@ -6,11 +6,11 @@ from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import Crf, CrfEncrypted, SubjectVisit
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from edc_export.utils import get_export_folder
 from edc_facility.import_holidays import import_holidays
 from edc_pdutils.df_exporters import CsvModelExporter
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -26,7 +26,7 @@ class TestExport(TestCase):
             helper.consent_and_put_on_schedule(
                 visit_schedule_name=visit_schedule.name,
                 schedule_name="schedule1",
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
             )
             helper.create_crfs()
         self.subject_visit = SubjectVisit.objects.all()[0]

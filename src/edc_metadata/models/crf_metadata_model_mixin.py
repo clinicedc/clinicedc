@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
@@ -38,7 +39,7 @@ class CrfMetadataModelMixin(
 
     model = models.CharField(max_length=50)
 
-    document_name = models.CharField(verbose_name=_("Document"), max_length=250, null=True)
+    document_name = models.CharField(verbose_name=_("Document"), max_length=250, default="")
 
     show_order = models.IntegerField()  # must always be provided!
 
@@ -54,7 +55,7 @@ class CrfMetadataModelMixin(
 
     fill_datetime = models.DateTimeField(null=True, blank=True)
 
-    document_user = models.CharField(verbose_name=_("User"), max_length=50, null=True)
+    document_user = models.CharField(verbose_name=_("User"), max_length=50, default="")
 
     def natural_key(self):
         return (
@@ -92,10 +93,8 @@ class CrfMetadataModelMixin(
     def model_instance(self: Any) -> Any:
         """Returns the CRF/Requisition model instance or None"""
         instance = None
-        try:
+        with contextlib.suppress(ObjectDoesNotExist):
             instance = self.model_cls.objects.get(**self.model_instance_query_opts())
-        except ObjectDoesNotExist:
-            pass
         return instance
 
     def refresh_entry_status(self) -> str:

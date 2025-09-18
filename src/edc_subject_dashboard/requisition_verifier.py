@@ -1,10 +1,12 @@
+import contextlib
+
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_constants.constants import NO, YES
 from edc_lab.constants import TUBE
 from edc_lab.model_mixins import RequisitionModelMixin
-from edc_utils import get_utcnow
 
 
 class RequisitionVerifier:
@@ -22,12 +24,12 @@ class RequisitionVerifier:
         if self.requisition and self.requisition.is_drawn != NO:
             # verification fields
             self.requisition.clinic_verified = YES
-            self.requisition.clinic_verified_datetime = get_utcnow()
+            self.requisition.clinic_verified_datetime = timezone.now()
             # other fields for label printing
             self.requisition.is_drawn = self.requisition.is_drawn or YES
             self.requisition.item_count = self.requisition.item_count or 1
             self.requisition.item_type = self.requisition.item_type or TUBE
-            self.requisition.drawn_datetime = self.requisition.drawn_datetime or get_utcnow()
+            self.requisition.drawn_datetime = self.requisition.drawn_datetime or timezone.now()
             self.requisition.save()
             self.verified = self.requisition.clinic_verified
 
@@ -43,12 +45,10 @@ class RequisitionVerifier:
     def requisition(self):
         """Returns a requisition model instance."""
         if not self._requisition:
-            try:
+            with contextlib.suppress(ObjectDoesNotExist):
                 self._requisition = self.requisition_model_cls.objects.get(
                     requisition_identifier=self.requisition_identifier.strip()
                 )
-            except ObjectDoesNotExist:
-                pass
         return self._requisition
 
     @property

@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from django.apps import apps as django_apps
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from edc_utils import get_utcnow
 from edc_view_utils.dashboard_model_button import DashboardModelButton
 from edc_view_utils.model_button import ADD
 
@@ -51,7 +51,7 @@ class AppointmentButton(DashboardModelButton):
         color = super().color
         if (
             self.model_obj
-            and self.model_obj.appt_datetime <= get_utcnow()
+            and self.model_obj.appt_datetime <= timezone.now()
             and not self.model_obj.related_visit
         ):
             color = self.colors[ADD]

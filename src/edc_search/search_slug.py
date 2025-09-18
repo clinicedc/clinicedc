@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
 from django.utils.text import slugify
+from django_crypto_fields.fields import BaseField
 
 from .constants import SEARCH_SLUG_SEP
 
@@ -20,7 +21,9 @@ if TYPE_CHECKING:
 
 
 class SearchSlug:
-    def __init__(self, obj: Model | SearchSlugModelMixin = None, fields: list[str] = None):
+    def __init__(
+        self, obj: Model | SearchSlugModelMixin = None, fields: tuple[str] | None = None
+    ):
         self.warning = None
         self.slug = ""
         self.model_cls = None
@@ -41,10 +44,8 @@ class SearchSlug:
                 sys.stdout.write(style.WARNING(self.warning))
             self.slug = slug[:250]
 
-    def get_safe_fields(self, fields):
-        from django_crypto_fields.fields import BaseField
-
-        encrypted_fields = [
-            fld.name for fld in self.model_cls._meta.fields if isinstance(fld, BaseField)
-        ]
-        return [f for f in fields if f not in encrypted_fields]
+    def get_safe_fields(self, fields) -> tuple[str]:
+        encrypted_fields = tuple(
+            [fld.name for fld in self.model_cls._meta.fields if isinstance(fld, BaseField)]
+        )
+        return tuple([f for f in fields if f not in encrypted_fields])

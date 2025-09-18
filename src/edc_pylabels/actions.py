@@ -6,10 +6,9 @@ from django.apps import apps as django_apps
 from django.contrib import admin, messages
 from django.db.models import Count, QuerySet
 from django.http import FileResponse
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from pylabels import Sheet, Specification
-
-from edc_utils import get_utcnow
 
 from .site_label_configs import LabelConfig, site_label_configs
 
@@ -19,7 +18,6 @@ if TYPE_CHECKING:
 
 @admin.action(description="Test print sheet of labels")
 def print_test_label_sheet_action(modeladmin, request, queryset: QuerySet[LabelConfiguration]):
-
     if queryset.count() > 1 or queryset.count() == 0:
         messages.add_message(
             request,
@@ -74,10 +72,10 @@ def print_label_sheet(modeladmin, request, queryset):
         sheet = Sheet(specs, drawing_callable, border=config.label_specification.border)
         sheet.add_labels(label_data)
         buffer = sheet.save_to_buffer()
-        now = get_utcnow()
+        now = timezone.now()
         return FileResponse(
             buffer,
             as_attachment=True,
-            filename=f"{config.name}_{now.strftime("%Y-%m-%d %H:%M")}.pdf",
+            filename=f"{config.name}_{now.strftime('%Y-%m-%d %H:%M')}.pdf",
         )
     return None

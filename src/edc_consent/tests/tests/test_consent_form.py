@@ -14,6 +14,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.forms import model_to_dict
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 from faker import Faker
 from model_bakery import baker
 
@@ -23,7 +24,7 @@ from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import age, get_utcnow
+from edc_utils.age import age
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 fake = Faker()
@@ -203,7 +204,7 @@ class TestConsentForm(TestCase):
             consent_definition=consent1_v1,
             dob=self.study_open_datetime - relativedelta(years=25),
             guardian_name="",
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now()(),
         )
         mock_subject_screening = self.get_mock_screening(subject_consent)
         with patch(

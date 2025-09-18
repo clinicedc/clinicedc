@@ -34,7 +34,7 @@ class RandomizationListModelMixin(models.Model):
 
     randomizer_name = models.CharField(max_length=50, default="default")
 
-    subject_identifier = models.CharField(
+    subject_identifier = models.CharField(  # noqa: DJ001
         verbose_name="Subject Identifier", max_length=50, null=True, unique=True
     )
 
@@ -48,7 +48,7 @@ class RandomizationListModelMixin(models.Model):
 
     allocated_datetime = models.DateTimeField(null=True)
 
-    allocated_user = models.CharField(max_length=50, null=True)
+    allocated_user = models.CharField(max_length=50, default="")
 
     allocated_site = models.ForeignKey(
         Site, null=True, on_delete=models.PROTECT, related_name="+"
@@ -58,7 +58,7 @@ class RandomizationListModelMixin(models.Model):
 
     verified_datetime = models.DateTimeField(null=True)
 
-    verified_user = models.CharField(max_length=50, null=True)
+    verified_user = models.CharField(max_length=50, default="")
 
     objects = RandomizationListManager()
 
@@ -74,14 +74,14 @@ class RandomizationListModelMixin(models.Model):
         try:
             self.assignment_description
         except RandomizationError as e:
-            raise RandomizationListModelError(e)
+            raise RandomizationListModelError(e) from e
         try:
             Site.objects.get(name=self.site_name)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             site_names = [obj.name for obj in Site.objects.all()]
             raise RandomizationListModelError(
                 f"Invalid site name. Got {self.site_name}. Expected one of {site_names}."
-            )
+            ) from e
         super().save(*args, **kwargs)
 
     @property
@@ -109,10 +109,10 @@ class RandomizationListModelMixin(models.Model):
 
     class Meta:
         abstract = True
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["site_name", "sid"],
                 name="%(app_label)s_%(class)s_site_sid_uniq",
-            )
-        ]
+            ),
+        )
         permissions = (("display_assignment", "Can display assignment"),)

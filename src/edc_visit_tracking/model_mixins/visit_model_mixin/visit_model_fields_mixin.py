@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from edc_constants.choices import ALIVE_DEAD_UNKNOWN_NA_MISSED, YES_NO
 from edc_constants.constants import ALIVE, NOT_APPLICABLE, YES
@@ -8,7 +9,6 @@ from edc_protocol.validators import (
     date_not_before_study_start,
     datetime_not_before_study_start,
 )
-from edc_utils import get_utcnow
 
 from ...choices import VISIT_REASON_UNSCHEDULED
 
@@ -17,7 +17,7 @@ class VisitModelFieldsMixin(models.Model):
     report_datetime = models.DateTimeField(
         verbose_name="Report date and time",
         validators=[datetime_not_before_study_start, datetime_not_future],
-        default=get_utcnow,
+        default=timezone.now,
         help_text="Date and time of this report",
     )
 
@@ -27,7 +27,7 @@ class VisitModelFieldsMixin(models.Model):
     )
 
     reason_unscheduled = models.CharField(
-        verbose_name="If 'unscheduled', provide the reason for " "the unscheduled visit",
+        verbose_name="If 'unscheduled', provide the reason for the unscheduled visit",
         max_length=25,
         choices=VISIT_REASON_UNSCHEDULED,
         default=NOT_APPLICABLE,
@@ -44,20 +44,20 @@ class VisitModelFieldsMixin(models.Model):
         verbose_name="If 'missed', provide the reason for the missed visit",
         max_length=35,
         blank=True,
-        null=True,
+        default="",
     )
 
     reason_missed_other = OtherCharField(
         verbose_name='If the reason for the missed visit is "other", specify',
         max_length=25,
         blank=True,
-        null=True,
+        default="",
     )
 
     study_status = models.CharField(
         verbose_name="What is the participant's current study status",
         max_length=50,
-        null=True,
+        default="",
     )
 
     require_crfs = models.CharField(
@@ -79,7 +79,6 @@ class VisitModelFieldsMixin(models.Model):
         max_length=10,
         verbose_name="Participant's survival status",
         choices=ALIVE_DEAD_UNKNOWN_NA_MISSED,
-        null=True,
         default=ALIVE,
         help_text="If YES, submit Death report",
     )
@@ -93,12 +92,10 @@ class VisitModelFieldsMixin(models.Model):
     )
 
     comments = models.TextField(
-        verbose_name=(
-            "Comment if any additional pertinent information " "about the participant"
-        ),
+        verbose_name=("Comment if any additional pertinent information about the participant"),
         max_length=250,
         blank=True,
-        null=True,
+        default="",
     )
 
     class Meta:

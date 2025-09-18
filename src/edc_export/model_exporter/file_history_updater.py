@@ -1,8 +1,8 @@
 import csv
+from pathlib import Path
 
 from django.apps import apps as django_apps
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 
 class FileHistoryUpdater:
@@ -10,15 +10,15 @@ class FileHistoryUpdater:
 
     def __init__(
         self,
-        model=None,
-        filename=None,
-        notification_plan_name=None,
-        path=None,
-        delimiter=None,
+        path: Path,
+        delimiter: str,
+        model: str,
+        filename: str,
+        notification_plan_name: str | None = None,
     ):
         self.model = model
         self.filename = filename
-        self.notification_plan_name = notification_plan_name
+        self.notification_plan_name = notification_plan_name or "Notification plan"
         self.path = path
         self.delimiter = delimiter
 
@@ -29,7 +29,7 @@ class FileHistoryUpdater:
     def update(self):
         exported_pks = []
         export_uuids = []
-        with open(self.path) as f:
+        with self.path.open("r") as f:
             csv_reader = csv.DictReader(f, delimiter=self.delimiter)
             for row in csv_reader:
                 exported_pks.append(row["id"])
@@ -39,7 +39,7 @@ class FileHistoryUpdater:
             pk_list="|".join(exported_pks),
             export_uuid_list="|".join(export_uuids),
             exported=True,
-            exported_datetime=get_utcnow(),
+            exported_datetime=timezone.now(),
             filename=self.filename,
             notification_plan_name=self.notification_plan_name,
         )

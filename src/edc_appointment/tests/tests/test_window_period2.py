@@ -8,6 +8,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 )
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_appointment.utils import (
@@ -17,7 +18,6 @@ from edc_appointment.utils import (
 )
 from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc = ZoneInfo("UTC")
@@ -39,7 +39,7 @@ class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule4)
         self.helper = self.helper_cls(
-            now=get_utcnow() - relativedelta(years=2),
+            now=timezone.now() - relativedelta(years=2),
         )
 
     @override_settings(EDC_VISIT_SCHEDULE_DEFAULT_MAX_VISIT_GAP_ALLOWED=0)

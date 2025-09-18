@@ -1,6 +1,5 @@
 from clinicedc_tests.models import CrfWithInline, ListOne, ListTwo
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 
 def create_crf_with_inlines(subject_visit):
@@ -16,5 +15,5 @@ def create_crf_with_inlines(subject_visit):
         subject_visit=subject_visit,
         list_one=list_one,
         list_two=list_two,
-        dte=get_utcnow(),
+        dte=timezone.now(),
     )

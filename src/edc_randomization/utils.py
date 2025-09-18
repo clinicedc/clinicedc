@@ -7,11 +7,11 @@ from typing import Any
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 from django_pandas.io import read_frame
 
 from edc_pdutils.constants import SYSTEM_COLUMNS
 from edc_sites.site import sites
-from edc_utils import get_utcnow
 
 from .site_randomizers import site_randomizers
 
@@ -151,7 +151,7 @@ def export_randomization_list(
             f"permission to view '{randomizer_cls.model_cls()._meta.label_lower}'"
         )
     path = path or settings.EXPORT_FOLDER
-    timestamp = get_utcnow().strftime("%Y%m%d%H%M")
+    timestamp = timezone.now().strftime("%Y%m%d%H%M")
     filename = os.path.expanduser(
         f"~/{settings.APP_NAME}_{randomizer_cls.name}_"
         f"randomizationlist_exported_{timestamp}.csv"

@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.test import TestCase
 from django.test.utils import override_settings, tag
+from django.utils import timezone
 
 from edc_facility.facility import Facility
 from edc_facility.import_holidays import import_holidays
@@ -11,7 +12,6 @@ from edc_facility.models import Holiday
 from edc_sites.site import sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 
 
 @tag("facility")
@@ -41,7 +41,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
             (SA, MO),
             (SU, MO),
         ]:
-            dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
+            dt = timezone.now() + relativedelta(weekday=suggested.weekday)
             rdate = facility.available_arr(dt, schedule_on_holidays=True)
             self.assertEqual(available.weekday, rdate.weekday())
 
@@ -56,7 +56,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
             (SA, TU),
             (SU, TU),
         ]:
-            dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
+            dt = timezone.now() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
                 available.weekday,
                 facility.available_arr(dt, schedule_on_holidays=True).datetime.weekday(),
@@ -73,7 +73,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
             (SA, TU),
             (SU, TU),
         ]:
-            dt = get_utcnow() + relativedelta(weekday=suggested.weekday)
+            dt = timezone.now() + relativedelta(weekday=suggested.weekday)
             self.assertEqual(
                 available.weekday,
                 facility.available_arr(dt, schedule_on_holidays=True).datetime.weekday(),
@@ -83,7 +83,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
     def test_available_arr(self):
         """Asserts finds available_arr on first clinic day after holiday."""
         facility = Facility(name="clinic", days=[WE], slots=[100])
-        suggested_date = get_utcnow() + relativedelta(months=3)
+        suggested_date = timezone.now() + relativedelta(months=3)
         available_arr = facility.available_arr(suggested_date)
         self.assertEqual(available_arr.datetime.weekday(), WE.weekday)
 

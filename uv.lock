@@ -630,7 +630,7 @@ requires-dist = [
     { name = "boto3", specifier = ">=1.39.16" },
     { name = "celery", specifier = ">=5.5.3" },
     { name = "cryptography", specifier = ">=45.0.7" },
-    { name = "django", specifier = ">=5.2.4,<5.3" },
+    { name = "django", specifier = ">=5.2.4" },
     { name = "django-admin-rangefilter", specifier = ">=0.13.3" },
     { name = "django-audit-fields", editable = "../django-audit-fields" },
     { name = "django-crypto-fields", editable = "../django-crypto-fields" },

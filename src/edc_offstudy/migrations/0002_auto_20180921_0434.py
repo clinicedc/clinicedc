@@ -14,7 +14,7 @@ import edc_model_fields.fields.other_charfield
 import edc_model_fields.fields.userfield
 import edc_protocol.validators
 import edc_sites.models
-import edc_utils
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -30,11 +30,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(blank=True, default=django.utils.timezone.now),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(blank=True, default=django.utils.timezone.now),
                 ),
                 (
                     "user_created",
@@ -102,7 +102,7 @@ class Migration(migrations.Migration):
                 (
                     "offstudy_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
                             edc_model.validators.date.datetime_not_future,

@@ -11,9 +11,9 @@ style = color_style()
 class PreloadData:
     def __init__(
         self,
-        list_data: dict[str, list[tuple[str | int, str]]] = None,
-        model_data: dict = None,
-        list_data_model_name: str = None,
+        list_data: dict[str, list[tuple[str | int, str]]] | None = None,
+        model_data: dict | None = None,
+        list_data_model_name: str | None = None,
         apps: AppConfig = None,
     ) -> None:
         self.list_data = list_data

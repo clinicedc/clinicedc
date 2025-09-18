@@ -3,8 +3,8 @@ from datetime import timedelta
 from clinicedc_tests.consents import consent_v1
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
+from django.utils import timezone
 
-from edc_utils import get_utcnow
 from edc_visit_schedule.models import OffSchedule, OnSchedule
 from edc_visit_schedule.schedule import AlreadyRegisteredVisit, Schedule
 from edc_visit_schedule.schedule.schedule import ScheduleNameError, VisitTimepointError
@@ -438,7 +438,7 @@ class TestScheduleWithVisits(TestCase):
         self.assertIsNone(self.schedule.visits.next("5"))
 
     def test_visit_dates(self):
-        dt = get_utcnow()
+        dt = timezone.now()
         for index, seq in enumerate(range(0, 5)):
             visit = Visit(
                 code=str(seq),

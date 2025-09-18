@@ -1,12 +1,12 @@
 import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
 from edc_constants.constants import NO, OPEN, RESOLVED
 from edc_lab.utils import get_requisition_model
 from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
-from edc_utils import get_utcnow
 from edc_visit_tracking.utils import (
     get_related_visit_model_cls,
     get_subject_visit_missed_model_cls,
@@ -20,15 +20,15 @@ class QueryRuleHandlerError(Exception):
     pass
 
 
-class RequisitionNotKeyed(Exception):
+class RequisitionNotKeyed(Exception):  # noqa: N818
     pass
 
 
-class SpecimenNotDrawn(Exception):
+class SpecimenNotDrawn(Exception):  # noqa: N818
     pass
 
 
-class CrfInspectionFailed(Exception):
+class CrfInspectionFailed(Exception):  # noqa: N818
     pass
 
 
@@ -180,8 +180,7 @@ class QueryRuleHandler:
             visit_code_sequence=self.related_visit.visit_code_sequence,
             entry_status__in=[REQUIRED, KEYED],
         )
-        exists = RequisitionMetadata.objects.filter(**opts).exists()
-        return exists
+        return RequisitionMetadata.objects.filter(**opts).exists()
 
     @property
     def crf_is_required(self):
@@ -252,7 +251,7 @@ class QueryRuleHandler:
         return getattr(
             self.model_obj,
             "modified",
-            getattr(self.requisition_obj, "modified", get_utcnow()),
+            getattr(self.requisition_obj, "modified", timezone.now()),
         )
 
     def resolve_existing_data_query(self, missed_visit_obj=None):

@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
@@ -16,7 +17,6 @@ from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
-from edc_utils import get_utcnow
 
 from ..exceptions import AllocationError, InsufficientStockError
 from ..models import Assignment, Stock, StockRequest, StockRequestItem
@@ -350,7 +350,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     allocation_data,
                     allocated_by=request.user.username,
                     user_created=request.user.username,
-                    created=get_utcnow(),
+                    created=timezone.now(),
                 )
             except AllocationError as e:
                 messages.add_message(request, messages.ERROR, str(e))

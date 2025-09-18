@@ -1,5 +1,7 @@
 import string
+from datetime import datetime
 from secrets import choice
+from zoneinfo import ZoneInfo
 
 from clinicedc_tests.models import SubjectConsentV1
 from clinicedc_tests.sites import all_sites
@@ -16,7 +18,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 
 from ..consent_test_utils import consent_definition_factory
 
@@ -25,8 +26,10 @@ fake = Faker()
 
 @tag("consent")
 @override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime.now().astimezone(ZoneInfo("UTC"))
+    - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime.now().astimezone(ZoneInfo("UTC"))
+    + relativedelta(years=1),
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
     SITE_ID=10,

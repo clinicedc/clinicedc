@@ -10,11 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-
-from edc_utils import get_utcnow
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -191,10 +191,10 @@ MIDDLEWARE.extend(
 DJANGO_REVISION_IGNORE_WORKING_DIR = True
 DJANGO_CRYPTO_FIELDS_KEY_PATH = BASE_DIR.parent.parent / "tests" / "etc"
 AUTO_CREATE_KEYS = True
-EDC_PROTOCOL_STUDY_OPEN_DATETIME = get_utcnow().replace(
+EDC_PROTOCOL_STUDY_OPEN_DATETIME = datetime.now().astimezone(ZoneInfo("UTC")).replace(
     microsecond=0, second=0, minute=0, hour=0
 ) - relativedelta(years=6)
-EDC_PROTOCOL_STUDY_CLOSE_DATETIME = get_utcnow().replace(
+EDC_PROTOCOL_STUDY_CLOSE_DATETIME = datetime.now().astimezone(ZoneInfo("UTC")).replace(
     microsecond=999999, second=59, minute=59, hour=11
 ) + relativedelta(years=6)
 

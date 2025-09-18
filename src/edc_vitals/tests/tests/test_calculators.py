@@ -1,10 +1,10 @@
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, tag
+from django.utils import timezone
 
 from edc_constants.constants import BLACK, MALE
 from edc_form_validators import FormValidator
-from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
 from edc_vitals.calculators import BMI, CalculatorError, calculate_bmi
 from edc_vitals.form_validators import BmiFormValidatorMixin
@@ -13,7 +13,7 @@ from edc_vitals.form_validators import BmiFormValidatorMixin
 @tag("vitals")
 class TestCalculators(TestCase):
     def test_bmi_calculator(self):
-        dob = get_utcnow() - relativedelta(years=25)
+        dob = timezone.now() - relativedelta(years=25)
         self.assertRaises(CalculatorError, BMI, weight_kg=56, height_cm=None)
         try:
             calculate_bmi(weight_kg=56, height_cm=None, dob=dob)
@@ -28,14 +28,14 @@ class TestCalculators(TestCase):
                     weight_kg=56,
                     height_cm=1.50,
                     dob=dob,
-                    report_datetime=get_utcnow(),
+                    report_datetime=timezone.now(),
                 )
                 try:
                     bmi = func(
                         weight_kg=56,
                         height_cm=150,
                         dob=dob,
-                        report_datetime=get_utcnow(),
+                        report_datetime=timezone.now(),
                     )
                 except CalculatorError as e:
                     self.fail(f"CalculatorError unexpectedly raises. Got {e}")
@@ -62,8 +62,8 @@ class TestCalculators(TestCase):
         data.update(
             weight=56,
             height=150,
-            dob=get_utcnow() - relativedelta(years=30),
-            report_datetime=get_utcnow(),
+            dob=timezone.now() - relativedelta(years=30),
+            report_datetime=timezone.now(),
         )
         form_validator = BmiFormValidator(cleaned_data=data)
         bmi = form_validator.validate_bmi()
@@ -73,8 +73,8 @@ class TestCalculators(TestCase):
         data.update(
             weight=56,
             height=1.5,
-            dob=get_utcnow() - relativedelta(years=25),
-            report_datetime=get_utcnow(),
+            dob=timezone.now() - relativedelta(years=25),
+            report_datetime=timezone.now(),
         )
         form_validator = BmiFormValidator(cleaned_data=data)
         self.assertRaises(forms.ValidationError, form_validator.validate_bmi)

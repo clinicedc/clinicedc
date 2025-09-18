@@ -1,17 +1,16 @@
 from uuid import uuid4
 
 from django.db import models
+from django.utils import timezone
 
-from edc_utils import get_utcnow
-
+from ...stock import ContainerType
 from ..box import Box
-from ..container_type import ContainerType
 
 
 class ContainerModelMixin(models.Model):
     container_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
-    container_datetime = models.DateTimeField(default=get_utcnow)
+    container_datetime = models.DateTimeField(default=timezone.now)
 
     name = models.CharField(max_length=25, unique=True)
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -64,10 +65,8 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
 
         Converts UUID to string using .hex.
         """
-        try:
+        with contextlib.suppress(AttributeError):
             value = str(value.hex)
-        except AttributeError:
-            pass
         return value
 
     @property

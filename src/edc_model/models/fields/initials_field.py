@@ -12,6 +12,7 @@ class InitialsField(CharField):
         kwargs.setdefault("editable", True)
         kwargs.setdefault("verbose_name", _("Initials"))
         kwargs.setdefault("max_length", 3)
+        kwargs.setdefault("default", "")
         kwargs.setdefault("help_text", _("Type 2-3 letters, all in uppercase and no spaces"))
         CharField.__init__(self, *args, **kwargs)
 
@@ -31,4 +32,4 @@ class InitialsField(CharField):
             },
         }
         defaults.update(kwargs)
-        return super(InitialsField, self).formfield(**defaults)
+        return super().formfield(**defaults)

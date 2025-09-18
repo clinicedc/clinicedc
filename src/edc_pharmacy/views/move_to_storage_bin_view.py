@@ -4,9 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
-
-from edc_utils import get_utcnow
 
 from ..models import Stock, StorageBin, StorageBinItem
 from .add_to_storage_bin_view import AddToStorageBinView, StorageBinError
@@ -58,7 +57,7 @@ def move_to_bin(
             else:
                 obj.storage_bin = storage_bin
                 obj.user_modified = user_modified
-                obj.modified = get_utcnow()
+                obj.modified = timezone.now()
                 obj.save()
                 codes_moved.append(code)
     return codes_moved, codes_not_moved

@@ -2,12 +2,13 @@ from django.conf import settings
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 
 from edc_appointment.models import Appointment
-from edc_utils import convert_php_dateformat, formatted_age, get_utcnow
+from edc_utils import convert_php_dateformat, formatted_age
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import RxRefillForm
@@ -21,7 +22,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
 
     ordering: tuple[str, ...] = ("refill_start_datetime",)
 
-    autocomplete_fields = ["dosage_guideline", "formulation"]
+    autocomplete_fields = ("dosage_guideline", "formulation")
 
     form = RxRefillForm
 
@@ -140,7 +141,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
             "initials": obj.rx.registered_subject.initials,
             "gender": obj.rx.registered_subject.gender,
             "age_in_years": formatted_age(
-                born=obj.rx.registered_subject.dob, reference_dt=get_utcnow()
+                born=obj.rx.registered_subject.dob, reference_dt=timezone.now()
             ),
             "number_of_days": obj.number_of_days,
             "remaining": obj.remaining,

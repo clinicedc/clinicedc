@@ -18,6 +18,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.exceptions import AppointmentWindowError
 from edc_appointment.models import Appointment, InfoSources
@@ -29,7 +30,6 @@ from edc_facility.utils import get_health_facility_model_cls
 from edc_metadata.metadata_handler import MetadataHandlerError
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites, get_site_model_cls
-from edc_utils import get_utcnow
 from edc_visit_schedule.models import VisitSchedule
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -88,10 +88,10 @@ class TestNextAppointmentCrf(TestCase):
         identity = "123456789"
         subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow() - relativedelta(days=10),
+            consent_datetime=timezone.now() - relativedelta(days=10),
             identity=identity,
             confirm_identity=identity,
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
 
         # put subject on schedule
@@ -181,7 +181,7 @@ class TestNextAppointmentCrf(TestCase):
     )
     @time_machine.travel(dt.datetime(2025, 6, 10, 8, 00, tzinfo=utc))
     def test_next_appt_with_health_facility(self):
-        self.assertEqual(get_utcnow().weekday(), 1)  # tues
+        self.assertEqual(timezone.now().weekday(), 1)  # tues
         health_facility_type = HealthFacilityTypes.objects.create(
             name="Integrated", display_name="Integrated"
         )
@@ -240,7 +240,7 @@ class TestNextAppointmentCrf(TestCase):
     )
     @time_machine.travel(dt.datetime(2025, 6, 10, 8, 00, tzinfo=tz))
     def test_next_appt_with_health_facility_tz(self):
-        self.assertEqual(get_utcnow().weekday(), 1)  # tues
+        self.assertEqual(timezone.now().weekday(), 1)  # tues
         health_facility_type = HealthFacilityTypes.objects.create(
             name="Integrated", display_name="Integrated"
         )

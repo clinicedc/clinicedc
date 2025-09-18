@@ -5,13 +5,14 @@ from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.models import HistoricalRecords
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_utils import convert_php_dateformat, get_utcnow
+from edc_utils import convert_php_dateformat
 
 from ..site_visit_schedules import site_visit_schedules
 
@@ -25,8 +26,8 @@ if TYPE_CHECKING:
 class OnScheduleManager(SubjectIdentifierManager):
     def put_on_schedule(
         self,
-        subject_identifier: str = None,
-        onschedule_datetime: datetime = None,
+        subject_identifier: str,
+        onschedule_datetime: datetime,
         skip_get_current_site: bool | None = None,
     ) -> None:
         """Puts a subject on the schedule associated with this
@@ -51,7 +52,7 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     onschedule_datetime = models.DateTimeField(
         validators=[datetime_not_before_study_start, datetime_not_future],
-        default=get_utcnow,
+        default=timezone.now,
     )
 
     report_datetime = models.DateTimeField(editable=False)

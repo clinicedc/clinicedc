@@ -7,8 +7,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 if TYPE_CHECKING:
     from ..models import Dispense, DispenseItem, Location, Stock
@@ -33,7 +32,7 @@ def dispense(
             messages.add_message(
                 request,
                 messages.ERROR,
-                (f"Stock not allocated to subject. Got {stock.code}. Dispensing cancelled."),
+                f"Stock not allocated to subject. Got {stock.code}. Dispensing cancelled.",
             )
             assignment_mismatch = True
             break
@@ -50,7 +49,7 @@ def dispense(
                     dispense=dispense_obj,
                     stock=stock,
                     user_created=request.user.username,
-                    created=get_utcnow(),
+                    created=timezone.now(),
                 )
             else:
                 messages.add_message(

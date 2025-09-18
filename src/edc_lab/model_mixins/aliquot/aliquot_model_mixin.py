@@ -46,7 +46,7 @@ class AliquotModelMixin(SiteModelMixin, models.Model):
 
     condition = models.CharField(max_length=25, choices=ALIQUOT_CONDITIONS, default="10")
 
-    comment = models.CharField(max_length=50, null=True, blank=True)
+    comment = models.CharField(max_length=50, blank=True, default="")
 
     def __str__(self: Any):
         return self.aliquot_identifier
@@ -54,7 +54,7 @@ class AliquotModelMixin(SiteModelMixin, models.Model):
     def natural_key(self: Any):
         return (self.aliquot_identifier,)
 
-    natural_key.dependencies = ["sites.Site"]
+    natural_key.dependencies = ("sites.Site",)
 
     class Meta:
         abstract = True

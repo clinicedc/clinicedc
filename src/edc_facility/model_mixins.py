@@ -2,10 +2,10 @@ import calendar
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 from edc_model.models import BaseUuidModel
 from edc_model_fields.fields import OtherCharField
-from edc_utils import get_utcnow
 
 
 class HealthFacilityCalendarError(Exception):
@@ -28,11 +28,11 @@ class HealthFacilityModelMixin(models.Model):
     See also edc_appointment.
     """
 
-    report_datetime = models.DateTimeField(default=get_utcnow)
+    report_datetime = models.DateTimeField(default=timezone.now)
 
     name = models.CharField(max_length=25, unique=True)
 
-    title = models.CharField(max_length=150, null=True, blank=True)
+    title = models.CharField(max_length=150, default="", blank=True)
 
     health_facility_type = models.ForeignKey(
         "edc_facility.HealthFacilityTypes",
@@ -45,7 +45,7 @@ class HealthFacilityModelMixin(models.Model):
 
     gps = models.CharField(
         max_length=50,
-        null=True,
+        default="",
         blank=True,
         help_text="copy and paste directly from google maps",
     )
@@ -115,7 +115,7 @@ class HealthFacilityModelMixin(models.Model):
         days = []
         mapping = {k: v for k, v in enumerate(calendar.weekheader(3).split(" "))}
         for day_int in self.clinic_days:
-            days.append(mapping.get(day_int))
+            days.append(mapping.get(day_int))  # noqa: PERF401
         return ",".join(days)
 
     class Meta(BaseUuidModel.Meta):

@@ -1,10 +1,10 @@
 from django.db import models
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_randomization.site_randomizers import site_randomizers
 from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
 
 from ...exceptions import AllocationError
 from .. import Assignment, Rx
@@ -28,7 +28,7 @@ class Allocation(BaseUuidModel):
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    allocation_datetime = models.DateTimeField(default=get_utcnow)
+    allocation_datetime = models.DateTimeField(default=timezone.now)
 
     registered_subject = models.ForeignKey(
         RegisteredSubject,
@@ -48,7 +48,7 @@ class Allocation(BaseUuidModel):
         blank=False,
     )
 
-    allocated_by = models.CharField(max_length=50, null=True, blank=True)
+    allocated_by = models.CharField(max_length=50, default="", blank=True)
 
     objects = Manager()
 

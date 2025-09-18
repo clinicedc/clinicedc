@@ -12,6 +12,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.constants import INCOMPLETE_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
 from edc_appointment.exceptions import AppointmentDatetimeError
@@ -19,7 +20,6 @@ from edc_appointment.utils import get_appointment_model_cls, get_appt_reason_cho
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
@@ -58,8 +58,8 @@ class TestAppointment(TestCase):
             subject_consent = helper.consent_and_put_on_schedule(
                 visit_schedule_name=self.visit_schedule1.name,
                 schedule_name="schedule1",
-                report_datetime=get_utcnow(),
-                onschedule_datetime=get_utcnow()
+                report_datetime=timezone.now(),
+                onschedule_datetime=timezone.now()
                 + relativedelta(weeks=2)
                 + relativedelta(weekday=day(-1)),
                 consent_definition=consent_v1,
@@ -80,14 +80,14 @@ class TestAppointment(TestCase):
                     last = appt_datetime
 
     def test_attempt_to_change(self):
-        for day in [MO, TU, WE, TH, FR, SA, SU]:
+        for _ in [MO, TU, WE, TH, FR, SA, SU]:
             helper = self.helper_cls(
                 now=ResearchProtocolConfig().study_open_datetime,
             )
             subject_consent = helper.consent_and_put_on_schedule(
                 visit_schedule_name=self.visit_schedule1.name,
                 schedule_name="schedule1",
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
                 consent_definition=consent_v1,
             )
         subject_identifier = subject_consent.subject_identifier
@@ -158,7 +158,7 @@ class TestAppointment(TestCase):
         )
 
         schedule = self.visit_schedule1.schedules.get("schedule1")
-        schedule.put_on_schedule(subject_consent.subject_identifier, get_utcnow())
+        schedule.put_on_schedule(subject_consent.subject_identifier, timezone.now())
 
         first_appointment = get_appointment_model_cls().objects.first_appointment(
             subject_identifier=subject_consent.subject_identifier,

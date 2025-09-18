@@ -58,10 +58,10 @@ def load_all_reference_ranges() -> None:
 
 def load_reference_ranges(
     collection_name: str,
-    normal_data: dict[str, list[Formula]] = None,
-    grading_data: dict[str, list[Formula]] = None,
-    reportable_grades: list[int] = None,
-    reportable_grades_exceptions: dict[str, list[int]] = None,
+    normal_data: dict[str, list[Formula]],
+    grading_data: dict[str, list[Formula]],
+    reportable_grades: list[int],
+    reportable_grades_exceptions: dict[str, list[int]] | None = None,
     keep_existing: bool | None = None,
     create_missing_normal: bool | None = None,
 ) -> ReferenceRangeCollection:

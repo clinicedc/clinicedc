@@ -20,18 +20,16 @@ __all__ = ["convert_units"]
 def get_mw(label):
     try:
         molecular_weight = molecular_weight_model_cls().objects.get(label=label)
-    except ObjectDoesNotExist:
+    except ObjectDoesNotExist as e:
         raise ConversionNotHandled(
             f"Conversion not handled. Molecular weight not found for {label}."
-        )
+        ) from e
     else:
         mw = molecular_weight.mw
     return mw
 
 
-def micromoles_per_liter_to(
-    *, label: str = None, value: float | int = None, units_to: str = None
-) -> dict:
+def micromoles_per_liter_to(*, label: str, value: float | int, units_to: str) -> dict:
     if units_to == MICROMOLES_PER_LITER:
         return {MICROMOLES_PER_LITER: float(value)}
     if units_to == MILLIMOLES_PER_LITER:
@@ -44,8 +42,8 @@ def micromoles_per_liter_to(
 
 
 def milligrams_per_deciliter_to(
-    *, label: str = None, value: float | int = None, units_to: str = None
-) -> dict[str:float]:
+    *, label: str, value: float | int, units_to: str
+) -> dict[str, float]:
     if units_to == MILLIGRAMS_PER_DECILITER:
         return {MILLIGRAMS_PER_DECILITER: float(value)}
     if units_to == MILLIMOLES_PER_LITER:
@@ -63,10 +61,10 @@ class UnitsConverter:
     def __init__(
         self,
         *,
-        label: str = None,
-        value: int | float | None = None,
-        units_from: str | None = None,
-        units_to: str | None = None,
+        label: str,
+        value: int | float,
+        units_from: str,
+        units_to: str,
         places: int | None = None,
     ):
         self.label = label
@@ -97,7 +95,7 @@ class UnitsConverter:
                 f"Conversion not handled. Tried {self.label} from {self.units_from} "
                 f"to {self.units_to}. "
                 f"Got {e} when rounding {converted_value} to {self.places} places."
-            )
+            ) from e
         return converted_value
 
     def from_milligrams_per_deciliter(self) -> float | int:
@@ -106,14 +104,6 @@ class UnitsConverter:
                 label=self.label, value=float(self.value), units_to=self.units_to
             )[self.units_to]
         return self.value
-        # converted_value = None
-        # if self.units_to == MILLIMOLES_PER_LITER:
-        #     converted_value = (float(self.value) * 10.00) / self.get_mw()
-        # elif self.units_to == MICROMOLES_PER_LITER:
-        #     converted_value = (float(self.value) * 10.00**3) / self.get_mw()
-        # elif self.units_to == GRAMS_PER_LITER:
-        #     converted_value = float(self.value) / 100.00
-        # return converted_value
 
     def from_grams_per_liter(self) -> float | int:
         if self.units_to != GRAMS_PER_LITER:
@@ -123,14 +113,6 @@ class UnitsConverter:
                 units_to=self.units_to,
             )[self.units_to]
         return self.value
-        # converted_value = None
-        # if self.units_to == MILLIMOLES_PER_LITER:
-        #     converted_value = (self.value * 1000.00) / self.get_mw()
-        # elif self.units_to == MICROMOLES_PER_LITER:
-        #     converted_value = (self.value * 10.00**6) / self.get_mw()
-        # elif self.units_to == MILLIGRAMS_PER_DECILITER:
-        #     converted_value = float(self.value) * 100.00
-        # return converted_value
 
     def from_millimoles_per_liter(self) -> float | int:
         if self.units_to != MILLIMOLES_PER_LITER:
@@ -138,14 +120,6 @@ class UnitsConverter:
                 label=self.label, value=self.value / 1000, units_to=self.units_to
             )[self.units_to]
         return self.value
-        # converted_value = None
-        # if self.units_to == MICROMOLES_PER_LITER:
-        #     converted_value = self.value * 1000.00
-        # elif self.units_to == GRAMS_PER_LITER:
-        #     converted_value = (self.value * self.get_mw()) / 1000.00
-        # elif self.units_to == MILLIGRAMS_PER_DECILITER:
-        #     converted_value = (self.value * self.get_mw()) / 10.00
-        # return converted_value
 
     def from_micromoles_per_liter(self):
         if self.units_to != MICROMOLES_PER_LITER:
@@ -153,14 +127,6 @@ class UnitsConverter:
                 label=self.label, value=self.value, units_to=self.units_to
             )[self.units_to]
         return self.value
-        # converted_value = None
-        # if self.units_to == MILLIMOLES_PER_LITER:
-        #     converted_value = self.value / 1000.00
-        # elif self.units_to == GRAMS_PER_LITER:
-        #     converted_value = (self.value * self.get_mw()) / 10**6
-        # elif self.units_to == MILLIGRAMS_PER_DECILITER:
-        #     converted_value = (self.value * self.get_mw()) / 10**4
-        # return converted_value
 
     def get_converted_value(self) -> int | float:
         converted_value = None
@@ -182,7 +148,7 @@ class UnitsConverter:
 
 def convert_units(
     *,
-    label: str = None,
+    label: str | None = None,
     value: int | float | None = None,
     units_from: str | None = None,
     units_to: str | None = None,

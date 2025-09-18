@@ -10,18 +10,18 @@ class Hba1cModelMixin(BaseHba1cModelMixin, models.Model):
         verbose_name="Was a point-of-care test used?",
         max_length=15,
         choices=YES_NO,
-        null=True,
+        default="",
     )
 
     hba1c_abnormal = models.CharField(
-        verbose_name="abnormal", choices=YES_NO, max_length=25, null=True, blank=True
+        verbose_name="abnormal", choices=YES_NO, max_length=25, default="", blank=True
     )
 
     hba1c_reportable = models.CharField(
         verbose_name="reportable",
         choices=REPORTABLE,
         max_length=25,
-        null=True,
+        default="",
         blank=True,
     )
 

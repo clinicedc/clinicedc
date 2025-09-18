@@ -7,6 +7,7 @@ from clinicedc_tests.helper import Helper
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
+from django.utils import timezone
 
 from edc_consent import site_consents
 from edc_pharmacy.exceptions import PrescriptionNotStarted
@@ -27,7 +28,6 @@ from edc_pharmacy.refill import (
     deactivate_refill,
     get_active_refill,
 )
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -91,8 +91,8 @@ class TestRefill(TestCase):
             rx=self.rx,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=10),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=10),
             weight_in_kgs=65,
         )
         self.assertTrue(str(obj))
@@ -103,8 +103,8 @@ class TestRefill(TestCase):
             rx=self.rx,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=10),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=10),
             weight_in_kgs=65,
         )
         self.assertEqual(obj.dose, 6.5)
@@ -117,8 +117,8 @@ class TestRefill(TestCase):
             rx=self.rx,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline_no_weight,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=56),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=56),
         )
         self.assertEqual(obj.total, 112)
 
@@ -127,8 +127,8 @@ class TestRefill(TestCase):
             rx=self.rx,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline_no_weight,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=56),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=56),
             roundup_divisible_by=32,
         )
         self.assertEqual(obj.total, 128)
@@ -138,8 +138,8 @@ class TestRefill(TestCase):
             rx=self.rx,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=10),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=10),
             weight_in_kgs=65,
         )
         self.assertEqual(obj.dose, 6.5)  # 65kg * 50mg / 500mg = 6.5 pills
@@ -150,8 +150,8 @@ class TestRefill(TestCase):
             rx=self.rx,
             formulation=self.formulation,
             dosage_guideline=self.dosage_guideline,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=10),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=10),
             weight_in_kgs=65,
             roundup_divisible_by=12,
         )
@@ -161,8 +161,8 @@ class TestRefill(TestCase):
     def test_refill_gets_rx(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             weight_in_kgs=65,
@@ -175,8 +175,8 @@ class TestRefill(TestCase):
             PrescriptionNotStarted,
             RefillCreator,
             subject_identifier=self.subject_identifier,
-            refill_start_datetime=(get_utcnow() - relativedelta(years=1)),
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_start_datetime=(timezone.now() - relativedelta(years=1)),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             weight_in_kgs=65,
@@ -185,8 +185,8 @@ class TestRefill(TestCase):
     def test_refill_create_and_no_active_refill(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=False,
@@ -197,8 +197,8 @@ class TestRefill(TestCase):
     def test_refill_create_and_gets_active_refill(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             weight_in_kgs=65,
@@ -211,8 +211,8 @@ class TestRefill(TestCase):
     def test_refill_create_activates_by_default(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             weight_in_kgs=65,
@@ -222,8 +222,8 @@ class TestRefill(TestCase):
     def test_refill_create_does_not_activate_if_false(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=False,
@@ -233,7 +233,7 @@ class TestRefill(TestCase):
 
     def test_refill_create_duplicate_updates(self):
         # create a refill
-        refill_start_datetime_one = get_utcnow()
+        refill_start_datetime_one = timezone.now()
         RefillCreator(
             subject_identifier=self.subject_identifier,
             refill_start_datetime=refill_start_datetime_one,
@@ -267,8 +267,8 @@ class TestRefill(TestCase):
     def test_refill_create_finds_active(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=True,
@@ -281,8 +281,8 @@ class TestRefill(TestCase):
     def test_refill_create_activates_next(self):
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
-            refill_start_datetime=get_utcnow(),
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_start_datetime=timezone.now(),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             weight_in_kgs=65,
@@ -291,8 +291,8 @@ class TestRefill(TestCase):
 
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
-            refill_start_datetime=get_utcnow() + relativedelta(months=1),
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_start_datetime=timezone.now() + relativedelta(months=1),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=True,
@@ -304,11 +304,11 @@ class TestRefill(TestCase):
         )
 
     def test_refill_create_refill_start_datetime(self):
-        refill_start_datetime = get_utcnow()
+        refill_start_datetime = timezone.now()
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
             refill_start_datetime=refill_start_datetime,
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             weight_in_kgs=65,
@@ -317,11 +317,11 @@ class TestRefill(TestCase):
         self.assertEqual(refill_creator.rx_refill.refill_start_datetime, refill_start_datetime)
 
     def test_refill_create_and_make_active(self):
-        refill_start_datetime = get_utcnow()
+        refill_start_datetime = timezone.now()
         refill_creator = RefillCreator(
             subject_identifier=self.subject_identifier,
             refill_start_datetime=refill_start_datetime,
-            refill_end_datetime=get_utcnow() + relativedelta(days=32),
+            refill_end_datetime=timezone.now() + relativedelta(days=32),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=False,
@@ -333,11 +333,11 @@ class TestRefill(TestCase):
         self.assertEqual(RxRefill.objects.all().count(), 1)
 
     def test_refill_count(self):
-        refill_start_datetime = get_utcnow()
+        refill_start_datetime = timezone.now()
         RefillCreator(
             subject_identifier=self.subject_identifier,
             refill_start_datetime=refill_start_datetime,
-            refill_end_datetime=get_utcnow() + relativedelta(days=11),
+            refill_end_datetime=timezone.now() + relativedelta(days=11),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=True,
@@ -351,11 +351,11 @@ class TestRefill(TestCase):
         self.assertEqual(rx_refill.remaining, 71.5)
 
     def test_refill_on_change(self):
-        refill_start_datetime = get_utcnow()
+        refill_start_datetime = timezone.now()
         RefillCreator(
             subject_identifier=self.subject_identifier,
             refill_start_datetime=refill_start_datetime,
-            refill_end_datetime=get_utcnow() + relativedelta(days=11),
+            refill_end_datetime=timezone.now() + relativedelta(days=11),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=True,
@@ -364,11 +364,11 @@ class TestRefill(TestCase):
         )
         rx_refill = RxRefill.objects.get(rx__subject_identifier=self.subject_identifier)
         self.assertEqual(rx_refill.number_of_days, 11)
-        refill_start_datetime = get_utcnow() + relativedelta(days=4)
+        refill_start_datetime = timezone.now() + relativedelta(days=4)
         RefillCreator(
             subject_identifier=self.subject_identifier,
             refill_start_datetime=refill_start_datetime,
-            refill_end_datetime=get_utcnow() + relativedelta(days=11),
+            refill_end_datetime=timezone.now() + relativedelta(days=11),
             dosage_guideline=self.dosage_guideline,
             formulation=self.formulation,
             make_active=True,

@@ -21,11 +21,11 @@ class Note(NonUniqueSubjectIdentifierFieldMixin, NoteModelMixin):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Note"
         verbose_name_plural = "Notes"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["report_model", "subject_identifier"],
                 name="%(app_label)s_%(class)s_report_model_subj_uniq",
-            )
-        ]
+            ),
+        )
         indexes = BaseUuidModel.Meta.indexes
-        default_permissions = default_permissions + ("viewallsites",)
+        default_permissions = *default_permissions, "viewallsites"

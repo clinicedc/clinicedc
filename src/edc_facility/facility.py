@@ -10,14 +10,15 @@ from arrow import Arrow
 from dateutil._common import weekday
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
+from django.utils import timezone
 
-from edc_utils import convert_php_dateformat, get_utcnow, to_utc
+from edc_utils import convert_php_dateformat, to_utc
 
 from .exceptions import FacilityError
 from .holidays import Holidays
 
 if TYPE_CHECKING:
-    from django.contrib.sites.models import Site
+    pass
 
 
 class Facility:
@@ -34,9 +35,9 @@ class Facility:
 
     def __init__(
         self,
-        name: str = None,
-        days: list = None,
-        slots: list[int] = None,
+        name: str | None = None,
+        days: list | None = None,
+        slots: list[int] | None = None,
         best_effort_available_datetime: datetime | None = None,
     ):
         self.days = []
@@ -47,11 +48,7 @@ class Facility:
             True if best_effort_available_datetime is None else best_effort_available_datetime
         )
         for day in days:
-            try:
-                day.weekday
-            except AttributeError:
-                day = weekday(day)
-            self.days.append(day)
+            self.days.append(getattr(day, "weekday", weekday(day)))
         self.slots = slots or [99999 for _ in self.days]
         self.config = dict(zip([str(d) for d in self.days], self.slots, strict=False))
         self.holidays = self.holiday_cls()
@@ -112,7 +109,7 @@ class Facility:
         span_gt = [arw for arw in span if arw.date() > suggested_arr.date()]
         arr_span = []
         max_len = max(len(span_lt), len(span_gt))
-        for i in range(0, max_len):
+        for _ in range(0, max_len):
             try:
                 item = span_lt.pop()
             except IndexError:
@@ -135,7 +132,6 @@ class Facility:
         reverse_delta=None,
         taken_datetimes=None,
         schedule_on_holidays=None,
-        site: Site = None,
     ):
         """Returns an arrow object for a datetime equal to or
         close to the suggested datetime.
@@ -153,7 +149,7 @@ class Facility:
         if suggested_datetime:
             suggested_arr = arrow.Arrow.fromdatetime(suggested_datetime)
         else:
-            suggested_arr = arrow.Arrow.fromdatetime(get_utcnow())
+            suggested_arr = arrow.Arrow.fromdatetime(timezone.now())
         arr_span_range, min_arr, max_arr = self.get_arr_span(
             suggested_arr,
             forward_delta,
@@ -185,7 +181,6 @@ class Facility:
                     f"{forward_delta.days} days of {formatted_date}. "
                     f"Facility is {self!r}."
                 )
-        available_arr = arrow.Arrow.fromdatetime(
+        return arrow.Arrow.fromdatetime(
             datetime.combine(available_arr.date(), suggested_arr.time())
         )
-        return available_arr

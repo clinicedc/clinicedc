@@ -72,12 +72,12 @@ class RequisitionModelMixin(
 
     reason_not_drawn_other = OtherCharField()
 
-    protocol_number = models.CharField(max_length=10, null=True, editable=False)
+    protocol_number = models.CharField(max_length=10, default="", editable=False)
 
-    clinician_initials = InitialsField(null=True, blank=True)
+    clinician_initials = InitialsField(default="", blank=True)
 
     specimen_type = models.CharField(
-        verbose_name="Specimen type", max_length=25, null=True, blank=True
+        verbose_name="Specimen type", max_length=25, default="", blank=True
     )
 
     item_type = models.CharField(
@@ -132,7 +132,7 @@ class RequisitionModelMixin(
     def natural_key(self):
         return (self.requisition_identifier,)
 
-    natural_key.dependencies = [settings.SUBJECT_VISIT_MODEL, "sites.Site"]
+    natural_key.dependencies = (settings.SUBJECT_VISIT_MODEL, "sites.Site")
 
     def get_search_slug_fields(self):
         fields = super().get_search_slug_fields()
@@ -148,13 +148,12 @@ class RequisitionModelMixin(
 
     class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["panel", "subject_visit"],
                 name="%(app_label)s_%(class)s_panel_uniq",
-            )
-        ]
-
+            ),
+        )
         indexes = (
             *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,
             models.Index(fields=["subject_visit", "site", "panel"]),
