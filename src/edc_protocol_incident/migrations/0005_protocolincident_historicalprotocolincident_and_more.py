@@ -15,7 +15,6 @@ from django.db import migrations, models
 
 import edc_action_item.managers
 import edc_model.validators.date
-import edc_utils.date
 import django.utils.timezone
 
 
@@ -128,7 +127,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         verbose_name="Report Date and Time",
                     ),
                 ),
@@ -450,7 +449,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         verbose_name="Report Date and Time",
                     ),
                 ),

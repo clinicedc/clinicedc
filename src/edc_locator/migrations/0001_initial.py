@@ -14,7 +14,7 @@ from django.db import migrations, models
 import edc_model.validators.phone
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
-import edc_utils
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -31,11 +31,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(blank=True, default=django.utils.timezone.now),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(blank=True, default=django.utils.timezone.now),
                 ),
                 (
                     "user_created",
@@ -293,7 +293,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("history_date", models.DateTimeField()),
                 ("history_change_reason", models.CharField(max_length=100, null=True)),
@@ -342,11 +342,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(blank=True, default=django.utils.timezone.now),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(blank=True, default=django.utils.timezone.now),
                 ),
                 (
                     "user_created",
@@ -605,7 +605,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "site",

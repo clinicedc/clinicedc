@@ -6,7 +6,7 @@ from django.core.management.color import color_style
 style = color_style()
 
 
-def post_migrate_user_groups_and_roles(sender=None, **kwargs):  # noqa
+def post_migrate_user_groups_and_roles(sender=None, **kwargs):
     """Update Groups, Role model with EDC defaults."""
 
     from .auth_updater import AuthUpdater

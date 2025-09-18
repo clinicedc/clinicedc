@@ -8,7 +8,7 @@ class RegisterRandomizerError(Exception):
     pass
 
 
-def register(site=None, **kwargs) -> Any:  # noqa
+def register(site=None, **kwargs) -> Any:
     """Registers a randomizer class."""
     site = site or site_randomizers
 

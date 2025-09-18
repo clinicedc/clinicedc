@@ -17,7 +17,6 @@ import edc_identifier.managers
 import edc_model.validators.date
 import edc_protocol.validators
 import edc_sites.managers
-import edc_utils.date
 import django.utils.timezone
 
 
@@ -137,7 +136,7 @@ class Migration(migrations.Migration):
                 (
                     "onschedule_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
                             edc_model.validators.date.datetime_not_future,
@@ -302,7 +301,7 @@ class Migration(migrations.Migration):
                 (
                     "offschedule_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
                             edc_model.validators.date.datetime_not_future,
@@ -454,7 +453,7 @@ class Migration(migrations.Migration):
                 (
                     "onschedule_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
                             edc_model.validators.date.datetime_not_future,

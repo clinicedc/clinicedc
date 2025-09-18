@@ -8,7 +8,7 @@ from django.db import migrations, models
 
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
-import edc_utils
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -20,11 +20,11 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "created",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+                    models.DateTimeField(default=django.utils.timezone.now, editable=False),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+                    models.DateTimeField(default=django.utils.timezone.now, editable=False),
                 ),
                 (
                     "user_created",

@@ -160,13 +160,13 @@ class Sites:
                     single_site = dataclasses.replace(single_site, domain=domain)
 
                 if single_site.site_id in self._registry:
-                    raise AlreadyRegistered(f"Site already registered. Got `{single_site}`.")  # noqa: TRY003
+                    raise AlreadyRegistered(f"Site already registered. Got `{single_site}`.")
                 if single_site.name in [s.name for s in self._registry.values()]:
-                    raise AlreadyRegisteredName(  # noqa: TRY003
+                    raise AlreadyRegisteredName(
                         f"Site with this name is already registered. Got `{single_site}`."
                     )
                 if single_site.domain in [s.domain for s in self._registry.values()]:
-                    raise AlreadyRegisteredDomain(  # noqa: TRY003
+                    raise AlreadyRegisteredDomain(
                         f"Site with this domain is already registered. Got `{single_site}`."
                     )
                 self._registry.update({single_site.site_id: single_site})
@@ -187,7 +187,7 @@ class Sites:
                 msg = "In fact, no sites have been registered!"
             else:
                 msg = f"Expected one of {[s.site_id for s in self.all(aslist=True)]}."
-            raise SiteNotRegistered(  # noqa: TRY003
+            raise SiteNotRegistered(
                 f"Site not registered. {msg} See {self!r}. Got `{site_id}`."
             )
         return self._registry.get(site_id)
@@ -196,7 +196,7 @@ class Sites:
         for single_site in self._registry.values():
             if getattr(single_site, attrname) == value:
                 return single_site
-        raise SiteDoesNotExist(f"No site exists with `{attrname}`==`{value}`.")  # noqa: TRY003
+        raise SiteDoesNotExist(f"No site exists with `{attrname}`==`{value}`.")
 
     def all(self, aslist: bool | None = None) -> dict[int, SingleSite] | list[SingleSite]:
         if aslist:

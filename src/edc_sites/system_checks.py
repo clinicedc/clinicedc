@@ -10,7 +10,7 @@ from edc_sites.site import sites as site_sites
 from edc_sites.utils import get_site_model_cls
 
 
-def sites_check(app_configs, **kwargs):  # noqa
+def sites_check(app_configs, **kwargs):
     errors = []
     if "migrate" not in sys.argv and "makemigrations" not in sys.argv:
         try:

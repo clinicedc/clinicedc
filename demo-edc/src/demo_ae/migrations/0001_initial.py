@@ -12,7 +12,6 @@ import django_revision.revision_field
 import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
-from django.utils import timezone
 
 import edc_action_item.managers
 import edc_adverse_event.model_mixins.death_report.death_report_tmg_model_mixin
@@ -20,6 +19,7 @@ import edc_model.validators.date
 import edc_model_fields.fields.other_charfield
 import edc_pdf_reports.model_mixins
 import edc_protocol.validators
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -51,14 +51,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -407,14 +407,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -662,14 +662,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -994,14 +994,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1248,14 +1248,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1535,14 +1535,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1816,14 +1816,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2202,14 +2202,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2562,14 +2562,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2839,14 +2839,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -3125,14 +3125,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (

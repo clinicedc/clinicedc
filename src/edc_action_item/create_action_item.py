@@ -21,7 +21,7 @@ def create_action_item(
     priority: bool | None = None,
     using: str | None = None,
     site_id: int | None = None,
-    **kwargs,  # noqa
+    **kwargs,
 ) -> ActionItem:
     action_item = None
     if action_cls.singleton:

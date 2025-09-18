@@ -14,7 +14,6 @@ from django.conf import settings
 from django.db import migrations, models
 
 import edc_pharmacy.models.stock.dispense_item
-import edc_utils.date
 import django.utils.timezone
 
 
@@ -204,7 +203,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "dispense_item_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "history_id",
@@ -396,7 +395,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "dispense_item_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "dispense",

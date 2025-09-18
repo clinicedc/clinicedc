@@ -21,7 +21,6 @@ import edc_model.validators.date
 import edc_model_fields.fields.other_charfield
 import edc_protocol.validators
 import edc_sites.models
-import edc_utils.date
 import edc_visit_tracking.managers
 import django.utils.timezone
 
@@ -147,7 +146,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         help_text="Date and time of this report",
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
@@ -484,7 +483,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         help_text="If reporting today, use today's date/time, otherwise use the date/time this information was reported.",
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
@@ -767,7 +766,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         help_text="Date and time of this report",
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
@@ -1104,7 +1103,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         help_text="If reporting today, use today's date/time, otherwise use the date/time this information was reported.",
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,

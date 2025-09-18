@@ -13,7 +13,7 @@ from ..model_mixins import SubjectVisitMissedModelMixin
 
 @receiver(post_save, weak=False, dispatch_uid="visit_tracking_check_in_progress_on_post_save")
 def visit_tracking_check_in_progress_on_post_save(
-    sender, instance, raw, created, using, update_fields, **kwargs  # noqa
+    sender, instance, raw, created, using, update_fields, **kwargs
 ):
     """Calls method on the visit tracking instance"""
     if not raw and not update_fields:

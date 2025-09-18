@@ -19,7 +19,7 @@ def load_mw():
         model_cls.objects.get_or_create(label=label, mw=mw)
 
 
-def post_migrate_load_reference_ranges(sender=None, **kwargs):  # noqa
+def post_migrate_load_reference_ranges(sender=None, **kwargs):
     sys.stdout.write(style.MIGRATE_HEADING("Loading reference ranges (reportables):\n"))
     load_mw()
     load_all_reference_ranges()

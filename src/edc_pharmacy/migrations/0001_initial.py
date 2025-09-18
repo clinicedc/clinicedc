@@ -18,7 +18,8 @@ import edc_pharmacy.models.medication
 import edc_pharmacy.models.prescription
 import edc_registration.models.managers
 import edc_sites.models
-import edc_utils.date
+
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -173,7 +174,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "dispensed_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("dispensed", models.DecimalField(decimal_places=1, max_digits=6)),
                 (
@@ -633,7 +634,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "dispensed_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("dispensed", models.DecimalField(decimal_places=1, max_digits=6)),
                 (
@@ -1723,7 +1724,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "return_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("returned", models.DecimalField(decimal_places=1, max_digits=6)),
                 (
@@ -1872,12 +1873,12 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "rx_date",
                     models.DateField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         verbose_name="Date RX written",
                     ),
                 ),
@@ -2074,7 +2075,7 @@ class Migration(migrations.Migration):
                 (
                     "refill_date",
                     models.DateField(
-                        default=edc_utils.date.get_utcnow_as_date,
+                        default=django.utils.timezone.now,
                         verbose_name="Refill date",
                     ),
                 ),
@@ -2923,7 +2924,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "return_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("returned", models.DecimalField(decimal_places=1, max_digits=6)),
             ],
@@ -3121,12 +3122,12 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "rx_date",
                     models.DateField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         verbose_name="Date RX written",
                     ),
                 ),
@@ -3327,7 +3328,7 @@ class Migration(migrations.Migration):
                 (
                     "refill_date",
                     models.DateField(
-                        default=edc_utils.date.get_utcnow_as_date,
+                        default=django.utils.timezone.now,
                         verbose_name="Refill date",
                     ),
                 ),

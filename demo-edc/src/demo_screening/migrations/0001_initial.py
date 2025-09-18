@@ -19,11 +19,10 @@ import edc_model.validators.date
 import edc_protocol.validators
 import edc_screening.model_mixins.screening_model_mixin
 import edc_sites.managers
-import edc_utils.date
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -50,14 +49,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -205,7 +204,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         help_text="Date and time of report.",
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
@@ -384,14 +383,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -540,7 +539,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         help_text="Date and time of report.",
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,

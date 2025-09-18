@@ -19,7 +19,6 @@ from django.db import migrations, models
 import edc_action_item.models.action_item
 import edc_registration.models.managers
 import edc_sites.models
-import edc_utils.date
 import django.utils.timezone
 
 
@@ -532,7 +531,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Query date"
+                        default=django.utils.timezone.now, verbose_name="Query date"
                     ),
                 ),
                 (
@@ -721,7 +720,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         blank=True,
                         db_constraint=False,
-                        help_text="Select a name from the list",
+                        help_text="Please select a name from the list",
                         null=True,
                         on_delete=django.db.models.deletion.DO_NOTHING,
                         related_name="+",
@@ -746,7 +745,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         blank=True,
                         db_constraint=False,
-                        help_text="select a name from the list",
+                        help_text="Please select a name from the list",
                         null=True,
                         on_delete=django.db.models.deletion.DO_NOTHING,
                         related_name="+",
@@ -992,7 +991,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow, verbose_name="Query date"
+                        default=django.utils.timezone.now, verbose_name="Query date"
                     ),
                 ),
                 (
@@ -1169,7 +1168,7 @@ class Migration(migrations.Migration):
                 (
                     "sender",
                     models.ForeignKey(
-                        help_text="Select a name from the list",
+                        help_text="Please select a name from the list",
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="+",
                         to="edc_data_manager.DataManagerUser",
@@ -1189,7 +1188,7 @@ class Migration(migrations.Migration):
                     "tcc_user",
                     models.ForeignKey(
                         blank=True,
-                        help_text="select a name from the list",
+                        help_text="Please select a name from the list",
                         null=True,
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="tcc_user",

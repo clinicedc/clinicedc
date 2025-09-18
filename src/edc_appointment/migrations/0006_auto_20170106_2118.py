@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
-import edc_utils
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="appointment",
             name="created",
-            field=models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="appointment",
@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="appointment",
             name="modified",
-            field=models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="appointment",
@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalappointment",
             name="created",
-            field=models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalappointment",
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalappointment",
             name="modified",
-            field=models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalappointment",
