@@ -1,12 +1,12 @@
 from django.apps import apps as django_apps
 from django.contrib import messages
+from django.utils import timezone
 
 from edc_constants.constants import YES
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import Specimen
 from edc_lab.labels import AliquotLabel
 from edc_lab.site_labs import site_labs
-from edc_utils import get_utcnow
 
 from ...view_mixins import ProcessRequisitionViewMixin
 from .action_view import ActionView
@@ -38,7 +38,7 @@ class ReceiveView(EdcViewMixin, ProcessRequisitionViewMixin, ActionView):
             updated += (
                 model_cls.objects.filter(pk__in=self.selected_items, is_drawn=YES)
                 .exclude(received=True)
-                .update(received=True, received_datetime=get_utcnow())
+                .update(received=True, received_datetime=timezone.now())
             )
         if updated:
             message = f"{updated} requisitions received."

@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test.testcases import TestCase
+from django.utils import timezone
 
 from edc_action_item.site_action_items import site_action_items
 from edc_consent import site_consents
@@ -24,7 +25,6 @@ from edc_protocol_incident.models import (
     ProtocolIncident,
     ProtocolViolations,
 )
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -33,7 +33,6 @@ utc_tz = ZoneInfo("UTC")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestProtocolIncident(TestCase):
     def setUp(self):
-
         site_action_items.registry = {}
         action_cls = ProtocolIncidentAction
         site_action_items.register(action_cls)
@@ -66,7 +65,7 @@ class TestProtocolIncident(TestCase):
         data.update(
             {
                 "subject_identifier": self.subject_identifier,
-                "report_datetime": get_utcnow(),
+                "report_datetime": timezone.now(),
                 "report_status": OPEN,
                 "reasons_withdrawn": None,
                 "report_type": DEVIATION,
@@ -83,14 +82,14 @@ class TestProtocolIncident(TestCase):
         data.update(
             {
                 "subject_identifier": "1234",
-                "report_datetime": get_utcnow(),
+                "report_datetime": timezone.now(),
                 "report_status": OPEN,
                 "reasons_withdrawn": None,
                 "report_type": DEVIATION,
                 "safety_impact": NO,
                 "short_description": "sdasd asd asdasd ",
                 "study_outcomes_impact": NO,
-                "incident_datetime": get_utcnow() - relativedelta(days=3),
+                "incident_datetime": timezone.now() - relativedelta(days=3),
                 "incident": ProtocolViolations.objects.get(name=OTHER),
                 "incident_other": "blah blah",
                 "incident_description": "blah blah",
@@ -108,14 +107,14 @@ class TestProtocolIncident(TestCase):
         data.update(
             {
                 "subject_identifier": "1234",
-                "report_datetime": get_utcnow() - relativedelta(days=1),
+                "report_datetime": timezone.now() - relativedelta(days=1),
                 "report_status": OPEN,
                 "reasons_withdrawn": None,
                 "report_type": DEVIATION,
                 "safety_impact": NO,
                 "short_description": "sdasd asd asdasd ",
                 "study_outcomes_impact": NO,
-                "incident_datetime": get_utcnow() - relativedelta(days=3),
+                "incident_datetime": timezone.now() - relativedelta(days=3),
                 "incident": ProtocolViolations.objects.get(name=OTHER),
                 "incident_other": "blah blah",
                 "incident_description": "blah blah",
@@ -127,7 +126,7 @@ class TestProtocolIncident(TestCase):
         form = ProtocolIncidentForm(data=data, instance=ProtocolIncident())
         form.is_valid()
         # self.assertIn("corrective_action_datetime", form._errors)
-        data.update(corrective_action_datetime=get_utcnow())
+        data.update(corrective_action_datetime=timezone.now())
         form = ProtocolIncidentForm(data=data, instance=ProtocolIncident())
         form.is_valid()
         self.assertIn("corrective_action", form._errors)
@@ -137,7 +136,7 @@ class TestProtocolIncident(TestCase):
         form.is_valid()
         # self.assertIn("preventative_action_datetime", form._errors)
 
-        data.update(preventative_action_datetime=get_utcnow())
+        data.update(preventative_action_datetime=timezone.now())
         form = ProtocolIncidentForm(data=data, instance=ProtocolIncident())
         form.is_valid()
         self.assertIn("preventative_action", form._errors)
@@ -152,7 +151,7 @@ class TestProtocolIncident(TestCase):
         form.is_valid()
         self.assertIn("report_closed_datetime", form._errors)
 
-        data.update(report_closed_datetime=get_utcnow())
+        data.update(report_closed_datetime=timezone.now())
         form = ProtocolIncidentForm(data=data, instance=ProtocolIncident())
         form.is_valid()
         self.assertEqual({}, form._errors)

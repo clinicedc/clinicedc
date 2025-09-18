@@ -11,6 +11,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 from tqdm import tqdm
 
 from edc_appointment.constants import (
@@ -32,7 +33,6 @@ from edc_appointment.utils import (
 )
 from edc_facility.import_holidays import import_holidays
 from edc_sites.tests import SiteTestCaseMixin
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -54,7 +54,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(get_visit_schedule3())
         self.helper = self.helper_cls(
-            now=get_utcnow()
+            now=timezone.now()
             - relativedelta(years=2),  # ResearchProtocolConfig().study_open_datetime,
         )
 
@@ -348,11 +348,13 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
                 break
 
         # attempt to hit lower bound of 1060 window raises exception
-        self.assertRaises(
-            UnscheduledAppointmentError,
-            self.create_unscheduled,
-            unscheduled_appointment,
-        ),
+        (
+            self.assertRaises(
+                UnscheduledAppointmentError,
+                self.create_unscheduled,
+                unscheduled_appointment,
+            ),
+        )
 
         self.assertEqual(
             (

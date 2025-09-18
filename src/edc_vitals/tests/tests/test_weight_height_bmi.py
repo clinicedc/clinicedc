@@ -3,8 +3,8 @@ from decimal import Decimal
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, tag
+from django.utils import timezone
 
-from edc_utils import get_utcnow
 from edc_utils.round_up import round_half_away_from_zero
 from edc_vitals.form_validators import WeightHeightBmiFormValidatorMixin
 
@@ -27,7 +27,7 @@ class TestWeightHeightBmi(TestCase):
         obj = WeightHeightBmi(
             weight=Decimal("65.0"),
             height=Decimal("180.0"),
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         obj.save()
         self.assertEqual(round_half_away_from_zero(obj.calculated_bmi_value, 4), 20.0617)
@@ -55,7 +55,7 @@ class TestWeightHeightBmi(TestCase):
             form_validator.validate_weight_height_with_bmi,
             weight_kg=cleaned_data.get("weight"),
             height_cm=cleaned_data.get("height"),
-            dob=get_utcnow() - relativedelta(years=10),
+            dob=timezone.now() - relativedelta(years=10),
         )
 
         cleaned_data = dict(weight=65, height=180)
@@ -63,7 +63,7 @@ class TestWeightHeightBmi(TestCase):
             form_validator.validate_weight_height_with_bmi(
                 weight_kg=cleaned_data.get("weight"),
                 height_cm=cleaned_data.get("height"),
-                dob=get_utcnow() - relativedelta(years=18),
+                dob=timezone.now() - relativedelta(years=18),
             )
         except forms.ValidationError as e:
             self.fail(f"forms.ValidationError unexpectedly raised. Got {e}")

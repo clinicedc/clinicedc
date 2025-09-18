@@ -3,9 +3,8 @@ from datetime import datetime
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
-from edc_utils import get_utcnow
 
 from .address import Address
 
@@ -112,7 +111,7 @@ class ResearchProtocolConfig:
 
     @property
     def copyright(self) -> str:
-        return f"2010-{get_utcnow().year}"
+        return f"2010-{timezone.now().year}"
 
     @property
     def license(self) -> str:

@@ -6,9 +6,8 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from celery import shared_task
 from django.apps import apps as django_apps
+from django.utils import timezone
 from sequences import get_next_value
-
-from edc_utils import get_utcnow
 
 if TYPE_CHECKING:
     from uuid import UUID
@@ -29,7 +28,7 @@ def bulk_create_stock_request_items(
 
     stock_request = stock_request_model_cls.objects.get(pk=stock_request_pk)
     df_nostock = pd.DataFrame(nostock_as_dict)
-    now = get_utcnow()
+    now = timezone.now()
     data = []
     for i, row in df_nostock[df_nostock.stock_qty == 0].iterrows():
         registered_subject = registered_subject_model_cls.objects.get(

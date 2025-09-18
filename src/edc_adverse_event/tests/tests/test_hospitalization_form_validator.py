@@ -4,6 +4,7 @@ from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.sites import all_sites
 from django import forms
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_adverse_event.form_validators import HospitalizationFormValidator as Base
 from edc_constants.constants import NO, NOT_APPLICABLE, UNKNOWN, YES
@@ -12,7 +13,7 @@ from edc_form_validators import FormValidatorTestCaseMixin
 from edc_form_validators.tests.mixins import FormValidatorTestMixin
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow, get_utcnow_as_date
+from edc_utils import get_utcnow_as_date
 
 
 class HospitalizationFormValidator(FormValidatorTestMixin, Base):
@@ -39,7 +40,7 @@ class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
     @staticmethod
     def get_cleaned_data() -> dict:
         return {
-            "report_datetime": get_utcnow(),
+            "report_datetime": timezone.now(),
             "have_details": YES,
             "admitted_date": get_utcnow_as_date() - timedelta(days=3),
             "admitted_date_estimated": NO,
@@ -59,7 +60,7 @@ class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
 
     def test_minimal_details_ok(self):
         cleaned_data = {
-            "report_datetime": get_utcnow(),
+            "report_datetime": timezone.now(),
             "have_details": NO,
             "admitted_date": get_utcnow_as_date(),
             "admitted_date_estimated": NO,

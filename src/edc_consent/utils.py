@@ -76,7 +76,7 @@ def verify_initials_against_full_name(
     first_name: str | None = None,
     last_name: str | None = None,
     initials: str | None = None,
-    **kwargs,  # noqa
+    **kwargs,
 ) -> None:
     if first_name and initials and last_name:
         try:

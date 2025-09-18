@@ -8,12 +8,12 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 )
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_model_to_dataframe.constants import SYSTEM_COLUMNS
 from edc_model_to_dataframe.model_to_dataframe import ModelToDataframe
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -36,7 +36,7 @@ class TestExport(TestCase):
             helper.consent_and_put_on_schedule(
                 visit_schedule_name=visit_schedule1.name,
                 schedule_name="schedule1",
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
             )
             helper.create_crfs()
         self.subject_visit = SubjectVisit.objects.all()[0]

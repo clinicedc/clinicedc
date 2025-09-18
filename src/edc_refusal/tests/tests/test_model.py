@@ -2,10 +2,10 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from edc_refusal.forms import SubjectRefusalForm
 from edc_refusal.models import RefusalReasons, SubjectRefusal
-from edc_utils.date import get_utcnow
 
 from ...utils import get_subject_refusal_model, get_subject_refusal_model_cls
 from ..models import SubjectScreening
@@ -17,7 +17,7 @@ class TestForms(TestCase):
         refusal_reason = RefusalReasons.objects.all()[0]
         return {
             "screening_identifier": "12345",
-            "report_datetime": get_utcnow(),
+            "report_datetime": timezone.now(),
             "reason": refusal_reason,
             "other_reason": None,
             "comment": None,
@@ -33,7 +33,7 @@ class TestForms(TestCase):
     def test_subject_refusal_ok(self):
         SubjectScreening.objects.create(
             screening_identifier="12345",
-            report_datetime=get_utcnow() - relativedelta(days=1),
+            report_datetime=timezone.now() - relativedelta(days=1),
             age_in_years=25,
             eligible=True,
             refused=False,
@@ -48,7 +48,7 @@ class TestForms(TestCase):
     def test_add_subject_refusal_set_subject_screening_refused_true(self):
         subject_screening = SubjectScreening.objects.create(
             screening_identifier="12345",
-            report_datetime=get_utcnow() - relativedelta(days=1),
+            report_datetime=timezone.now() - relativedelta(days=1),
             age_in_years=25,
             eligible=True,
             refused=False,
@@ -64,7 +64,7 @@ class TestForms(TestCase):
     def test_delete_subject_refusal_sets_subject_screening_refused_false(self):
         subject_screening = SubjectScreening.objects.create(
             screening_identifier="12345",
-            report_datetime=get_utcnow() - relativedelta(days=1),
+            report_datetime=timezone.now() - relativedelta(days=1),
             age_in_years=25,
             eligible=True,
             refused=False,

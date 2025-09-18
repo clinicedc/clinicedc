@@ -8,6 +8,7 @@ from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 from faker import Faker
 from model_bakery import baker
 
@@ -17,7 +18,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 
 from ..consent_test_utils import consent_factory
 
@@ -54,7 +54,7 @@ class TestConsentModel(TestCase):
         # travel to consent v1 validity period and consent subject
         traveller = time_machine.travel(travel_datetime or self.study_open_datetime)
         traveller.start()
-        consent_datetime = get_utcnow()
+        consent_datetime = timezone.now()
         cdef = site_consents.get_consent_definition(report_datetime=consent_datetime)
         baker.make_recipe(
             cdef.model,
@@ -62,7 +62,7 @@ class TestConsentModel(TestCase):
             identity=self.identity,
             confirm_identity=self.identity,
             consent_datetime=consent_datetime,
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         traveller.stop()
         return consent_datetime
@@ -75,7 +75,7 @@ class TestConsentModel(TestCase):
             travel_datetime or self.study_open_datetime + timedelta(days=52)
         )
         traveller.start()
-        consent_datetime = get_utcnow()
+        consent_datetime = timezone.now()
         cdef = site_consents.get_consent_definition(report_datetime=consent_datetime)
         baker.make_recipe(
             cdef.model,
@@ -83,7 +83,7 @@ class TestConsentModel(TestCase):
             identity=self.identity,
             confirm_identity=self.identity,
             consent_datetime=consent_datetime,
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         traveller.stop()
         return consent_datetime
@@ -96,7 +96,7 @@ class TestConsentModel(TestCase):
             travel_datetime or self.study_open_datetime + timedelta(days=101)
         )
         traveller.start()
-        consent_datetime = get_utcnow()  # cdef.enf + xx days
+        consent_datetime = timezone.now()  # cdef.enf + xx days
         cdef = site_consents.get_consent_definition(report_datetime=consent_datetime)
         baker.make_recipe(
             cdef.model,
@@ -104,7 +104,7 @@ class TestConsentModel(TestCase):
             identity=self.identity,
             confirm_identity=self.identity,
             consent_datetime=consent_datetime,
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         traveller.stop()
         return consent_datetime
@@ -173,7 +173,7 @@ class TestConsentModel(TestCase):
         # cannot consent, date does not fall within a consent period
         traveller = time_machine.travel(consent1_v3_new.start - relativedelta(days=10))
         traveller.start()
-        consent_datetime = get_utcnow()
+        consent_datetime = timezone.now()
         self.assertRaises(
             ConsentDefinitionDoesNotExist,
             site_consents.get_consent_definition,
@@ -184,7 +184,7 @@ class TestConsentModel(TestCase):
         # ok, date does falls within a consent period
         traveller = time_machine.travel(consent1_v3_new.start)
         traveller.start()
-        consent_datetime = get_utcnow()
+        consent_datetime = timezone.now()
         cdef = site_consents.get_consent_definition(report_datetime=consent_datetime)
         baker.make_recipe(
             cdef.model,
@@ -192,7 +192,7 @@ class TestConsentModel(TestCase):
             identity=self.identity,
             confirm_identity=self.identity,
             consent_datetime=consent_datetime,
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
         )
         traveller.stop()
 

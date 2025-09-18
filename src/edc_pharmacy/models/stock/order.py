@@ -27,7 +27,7 @@ class Order(BaseUuidModel):
 
     title = models.CharField(
         max_length=50,
-        null=True,
+        default="",
         blank=False,
         help_text="A short description of this order",
     )

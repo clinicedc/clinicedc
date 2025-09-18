@@ -8,9 +8,8 @@ from bs4 import BeautifulSoup
 from django.apps import apps as django_apps
 from django.db.models import ForeignKey, ManyToManyField, Model, OneToOneField, QuerySet
 from django.forms import ModelForm
+from django.utils import timezone
 from tqdm import tqdm
-
-from edc_utils import get_utcnow
 
 from .exceptions import FormRunnerModelAdminNotFound, FormRunnerModelFormNotFound
 from .utils import get_modeladmin_cls
@@ -37,7 +36,7 @@ class FormRunner:
     ) -> None:
         self.messages = {}
         self.session_id = uuid.uuid4()
-        self.session_datetime = get_utcnow()
+        self.session_datetime = timezone.now()
         self.verbose = verbose
         self.model_name = self.model_name or model_name
         self.modeladmin_cls = get_modeladmin_cls(self.model_name)
@@ -48,8 +47,7 @@ class FormRunner:
             )
         if self.modeladmin_cls.form == ModelForm:
             raise FormRunnerModelFormNotFound(
-                "ModelAdmin does not have a custom form. Nothing to do. "
-                f"Got `{model_name}`."
+                f"ModelAdmin does not have a custom form. Nothing to do. Got `{model_name}`."
             )
         self.src_model_cls = self.modeladmin_cls.model
 

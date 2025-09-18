@@ -11,6 +11,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_appointment.utils import refresh_appointments
@@ -22,7 +23,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -35,7 +35,6 @@ tz = ZoneInfo("Africa/Dar_es_Salaam")
 @tag("appointment")
 @override_settings(SITE_ID=10)
 class TestNextAppointmentCrf(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -117,7 +116,7 @@ class TestNextAppointmentCrf(TestCase):
         traveller.start()
         SubjectConsentV1Ext.objects.create(
             subject_consent=self.subject_consent,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             site_id=self.subject_consent.site_id,
             agrees_to_extension=YES,
         )
@@ -134,7 +133,7 @@ class TestNextAppointmentCrf(TestCase):
         traveller = time_machine.travel(appointment.appt_datetime)
         traveller.start()
         subject_visit = subject_visit_model_cls.objects.create(
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             appointment=appointment,
             reason=SCHEDULED,
         )

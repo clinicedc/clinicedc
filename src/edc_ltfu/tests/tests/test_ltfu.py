@@ -8,6 +8,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
@@ -21,7 +22,7 @@ from edc_ltfu.models import Ltfu
 from edc_ltfu.utils import get_ltfu_model_cls, get_ltfu_model_name
 from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
 from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
-from edc_utils import get_dob, get_utcnow
+from edc_utils import get_dob
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -54,7 +55,7 @@ class TestLtfu(TestCase):
             "333333333",
             "444444444",
         ]
-        self.consent_datetime = get_utcnow() - relativedelta(weeks=4)
+        self.consent_datetime = timezone.now() - relativedelta(weeks=4)
         dob = get_dob(age_in_years=25, now=self.consent_datetime)
         for subject_identifier in self.subject_identifiers:
             subject_consent = SubjectConsent.objects.create(
@@ -109,7 +110,7 @@ class TestLtfu(TestCase):
         self.register_actions()
         Ltfu.objects.create(
             subject_identifier=self.subject_identifier,
-            last_seen_datetime=get_utcnow(),
+            last_seen_datetime=timezone.now(),
             phone_attempts=3,
             home_visited=YES,
             ltfu_category="lost",

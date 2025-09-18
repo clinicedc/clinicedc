@@ -1,8 +1,8 @@
 from django.db import models
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_utils import get_utcnow
 
 from ...exceptions import ReceiveError
 from .location import Location
@@ -18,12 +18,12 @@ class Receive(BaseUuidModel):
     receive_identifier = models.CharField(
         max_length=36,
         unique=True,
-        default="",
+        null=True,
         blank=True,
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    receive_datetime = models.DateTimeField(default=get_utcnow)
+    receive_datetime = models.DateTimeField(default=timezone.now)
 
     item_count = models.IntegerField(verbose_name="Item count", null=True)
 

@@ -28,16 +28,16 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
 
     identifier = models.CharField(max_length=25)
 
-    comment = models.CharField(max_length=25, null=True, blank=True)
+    comment = models.CharField(max_length=25, default="", blank=True)
 
     objects = BoxItemManager()
 
     history = HistoricalRecords()
 
     def natural_key(self):
-        return (self.position, self.identifier) + self.box.natural_key()
+        return self.position, self.identifier, *self.box.natural_key()
 
-    natural_key.dependencies = ["edc_lab.box", "edc_lab.boxtype", "sites.Site"]
+    natural_key.dependencies = ("edc_lab.box", "edc_lab.boxtype", "sites.Site")
 
     @property
     def human_readable_identifier(self):
@@ -49,12 +49,11 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
         return self.identifier
 
     def get_slugs(self):
-        slugs = [self.identifier, self.human_readable_identifier]
-        return slugs
+        return self.identifier, self.human_readable_identifier
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Box Item"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["box", "position"], name="%(app_label)s_%(class)s_box_pos_uniq"
             ),
@@ -62,4 +61,4 @@ class BoxItem(SearchSlugModelMixin, VerifyModelMixin, BaseUuidModel):
                 fields=["box", "identifier"],
                 name="%(app_label)s_%(class)s_box_ide_uniq",
             ),
-        ]
+        )

@@ -35,11 +35,10 @@ import edc_pharmacy.models.stock.stock_request_item
 import edc_pharmacy.models.stock.stock_transfer
 import edc_pharmacy.models.stock.stock_transfer_item
 import edc_pharmacy.models.stock.supplier
-import edc_utils.date
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_pharmacy", "0023_remove_rx_edc_pharmac_modifie_986021_idx_and_more"),
         ("edc_registration", "0031_alter_historicalregisteredsubject_site_and_more"),
@@ -66,14 +65,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -165,7 +164,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "allocation_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "allocated_by",
@@ -208,14 +207,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -416,14 +415,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -515,7 +514,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "dispense_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("to_clinician", models.BooleanField(default=False)),
                 ("to_clinician_datetime", models.DateTimeField(blank=True, null=True)),
@@ -567,14 +566,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -679,14 +678,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -777,7 +776,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "allocation_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "allocated_by",
@@ -828,14 +827,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -977,14 +976,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1148,14 +1147,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1246,7 +1245,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "dispense_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("to_clinician", models.BooleanField(default=False)),
                 ("to_clinician_datetime", models.DateTimeField(blank=True, null=True)),
@@ -1306,14 +1305,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1448,14 +1447,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1614,14 +1613,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1712,7 +1711,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "receive_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "item_count",
@@ -1764,14 +1763,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1862,7 +1861,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "receive_item_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "name",
@@ -1938,14 +1937,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2036,7 +2035,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "repack_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "qty",
@@ -2094,14 +2093,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2192,7 +2191,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "request_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "containers_per_subject",
@@ -2287,14 +2286,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2399,7 +2398,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "request_item_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("appt_datetime", models.DateTimeField(blank=True, null=True)),
                 ("in_stock", models.BooleanField(default=False)),
@@ -2453,14 +2452,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2551,7 +2550,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "transfer_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("item_count", models.PositiveIntegerField(null=True)),
                 (
@@ -2599,14 +2598,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2697,7 +2696,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "transfer_item_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "history_id",
@@ -2744,14 +2743,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2863,7 +2862,7 @@ class Migration(migrations.Migration):
                 ("contact", models.CharField(blank=True, max_length=255, null=True)),
                 (
                     "supplier_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "history_id",
@@ -2910,14 +2909,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -3045,14 +3044,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -3204,14 +3203,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -3303,7 +3302,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "receive_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "item_count",
@@ -3347,14 +3346,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -3446,7 +3445,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "receive_item_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "name",
@@ -3514,14 +3513,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -3613,7 +3612,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "repack_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "qty",
@@ -3663,14 +3662,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -3762,7 +3761,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "request_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
                     "containers_per_subject",
@@ -3849,14 +3848,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -3962,7 +3961,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "request_item_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("appt_datetime", models.DateTimeField(blank=True, null=True)),
                 ("in_stock", models.BooleanField(default=False)),
@@ -4008,14 +4007,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -4107,7 +4106,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "transfer_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("item_count", models.PositiveIntegerField(null=True)),
             ],
@@ -4147,14 +4146,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -4246,7 +4245,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "transfer_item_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
             ],
             options={
@@ -4285,14 +4284,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -4405,7 +4404,7 @@ class Migration(migrations.Migration):
                 ("contact", models.CharField(blank=True, max_length=255, null=True)),
                 (
                     "supplier_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
             ],
             options={
@@ -4842,9 +4841,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="container",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AddField(
             model_name="container",
@@ -4938,9 +4935,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="container",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AddField(
             model_name="container",
@@ -5175,7 +5170,7 @@ class Migration(migrations.Migration):
             model_name="historicalstock",
             name="stock_datetime",
             field=models.DateTimeField(
-                default=edc_utils.date.get_utcnow, help_text="date stock record created"
+                default=django.utils.timezone.now, help_text="date stock record created"
             ),
         ),
         migrations.AddField(
@@ -5433,7 +5428,7 @@ class Migration(migrations.Migration):
             model_name="stock",
             name="stock_datetime",
             field=models.DateTimeField(
-                default=edc_utils.date.get_utcnow, help_text="date stock record created"
+                default=django.utils.timezone.now, help_text="date stock record created"
             ),
         ),
         migrations.AddField(

@@ -8,6 +8,7 @@ import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_revision.revision_field
 from django.db import migrations, models
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -36,14 +37,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (

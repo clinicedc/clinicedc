@@ -11,6 +11,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.db.models import Sum
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_consent import site_consents
@@ -50,7 +51,6 @@ from edc_pharmacy.utils import (
 )
 from edc_randomization.constants import ACTIVE, PLACEBO
 from edc_randomization.models import RandomizationList
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -64,7 +64,6 @@ class TestOrderReceive(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-        # pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
 
     def setUp(self):
         self.helper = self.helper_cls()
@@ -96,13 +95,13 @@ class TestOrderReceive(TestCase):
         self.lot_active = Lot.objects.create(
             lot_no="1234",
             assignment=self.assignment_active,
-            expiration_date=get_utcnow() + relativedelta(years=1),
+            expiration_date=timezone.now() + relativedelta(years=1),
             product=self.product_active,
         )
         self.lot_placebo = Lot.objects.create(
             lot_no="4321",
             assignment=self.assignment_placebo,
-            expiration_date=get_utcnow() + relativedelta(years=1),
+            expiration_date=timezone.now() + relativedelta(years=1),
             product=self.product_placebo,
         )
         self.location = Location.objects.create(name="central_pharmacy")
@@ -122,7 +121,7 @@ class TestOrderReceive(TestCase):
     def make_order(self, container, qty: int | None = None):
         qty = qty or 100
         # product_active, product_placebo = self.make_products()
-        order = Order.objects.create(order_datetime=get_utcnow(), item_count=20)
+        order = Order.objects.create(order_datetime=timezone.now(), item_count=20)
         for i in range(0, 10):
             OrderItem.objects.create(
                 order=order,
@@ -310,7 +309,7 @@ class TestOrderReceive(TestCase):
             units=container_units,
             may_order_as=True,
         )
-        order = Order.objects.create(order_datetime=get_utcnow())
+        order = Order.objects.create(order_datetime=timezone.now())
         OrderItem.objects.create(
             order=order,
             product=self.product_active,
@@ -371,9 +370,7 @@ class TestOrderReceive(TestCase):
             self.assertEqual(0, order_item.unit_qty_received)
 
     def get_container_5000(self) -> Container:
-        container_units, _ = ContainerUnits.objects.get_or_create(
-            name="tablet", plural_name="tablets"
-        )
+        ContainerUnits.objects.get_or_create(name="tablet", plural_name="tablets")
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container_5000, _ = Container.objects.get_or_create(
             qty=5000, container_type=container_type
@@ -381,9 +378,7 @@ class TestOrderReceive(TestCase):
         return container_5000
 
     def get_container_128(self) -> Container:
-        container_units, _ = ContainerUnits.objects.get_or_create(
-            name="tablet", plural_name="tablets"
-        )
+        ContainerUnits.objects.get_or_create(name="tablet", plural_name="tablets")
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container_128, _ = Container.objects.get_or_create(
             qty=128, container_type=container_type
@@ -596,8 +591,8 @@ class TestOrderReceive(TestCase):
 
         # user creates in Admin
         stock_request = StockRequest.objects.create(
-            request_datetime=get_utcnow(),
-            start_datetime=get_utcnow() - relativedelta(years=5),
+            request_datetime=timezone.now(),
+            start_datetime=timezone.now() - relativedelta(years=5),
             location=location,
             formulation=Formulation.objects.all()[0],
             container=Container.objects.get(name="bottle of 128"),
@@ -621,8 +616,8 @@ class TestOrderReceive(TestCase):
     ):
         subjects = {}
         products = []
-        for i in range(0, subject_count):
-            products.append(choice([self.product_placebo, self.product_active]))
+        for _ in range(0, subject_count):
+            products.append(choice([self.product_placebo, self.product_active]))  # noqa: PERF401
         for product in products:
             subject_consent = self.helper.consent_and_put_on_schedule(
                 visit_schedule_name="visit_schedule", schedule_name="schedule"
@@ -637,7 +632,7 @@ class TestOrderReceive(TestCase):
                 allocated_site=site,
                 site_name=site.name,
                 allocated=True,
-                allocated_datetime=get_utcnow(),
+                allocated_datetime=timezone.now(),
             )
             if add_prescription:
                 create_prescription(

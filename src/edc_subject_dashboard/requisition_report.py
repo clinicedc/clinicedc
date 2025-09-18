@@ -1,6 +1,7 @@
 from tempfile import mkdtemp
 
 from django.contrib import messages
+from django.utils import timezone
 from reportlab.graphics.barcode import code39
 from reportlab.lib import colors
 from reportlab.lib.units import cm, mm
@@ -11,7 +12,6 @@ from edc_identifier.utils import convert_to_human_readable
 from edc_lab.model_mixins import RequisitionModelMixin
 from edc_lab.models.manifest.shipper import Shipper
 from edc_pdf_reports import Report
-from edc_utils import get_utcnow
 
 
 class RequisitionReport(Report):
@@ -33,7 +33,7 @@ class RequisitionReport(Report):
         self.consignee = consignee
         self.contact_name = f"{self.user.first_name} {self.user.last_name}"
         self.image_folder = mkdtemp()
-        self.timestamp = get_utcnow().strftime("%Y%m%d%H%M%S")
+        self.timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
         self.report_filename = f"requisition_{self.timestamp}.pdf"
 
     @property
@@ -60,7 +60,9 @@ class RequisitionReport(Report):
                 Paragraph("REFERENCE", self.styles["line_label"]),
             ],
             [
-                Paragraph(get_utcnow().strftime("%Y-%m-%d"), self.styles["line_data_largest"]),
+                Paragraph(
+                    timezone.now().strftime("%Y-%m-%d"), self.styles["line_data_largest"]
+                ),
                 Paragraph(
                     convert_to_human_readable(self.timestamp),
                     self.styles["line_data_largest"],
@@ -173,7 +175,7 @@ class RequisitionReport(Report):
                 Paragraph(self.contact_name, self.styles["line_data_large"]),
                 "",
                 Paragraph(
-                    get_utcnow().strftime("%Y-%m-%d %H:%M"),
+                    timezone.now().strftime("%Y-%m-%d %H:%M"),
                     self.styles["line_data_large"],
                 ),
             ],

@@ -33,7 +33,7 @@ class ListModelMaker:
         try:
             self.name, self.display_name = row
         except ValueError as e:
-            raise ListModelMakerError(e)
+            raise ListModelMakerError(e) from e
         except TypeError as e:
             if "Row" not in str(e):
                 raise
@@ -46,7 +46,7 @@ class ListModelMaker:
         opts = dict(
             display_index=self.display_index,
             display_name=self.display_name,
-            extra_value=self.extra_value,
+            extra_value=self.extra_value or "",
         )
         if "custom_name" in [f.name for f in self.model_cls._meta.get_fields()]:
             opts.update(custom_name=self.custom_name)

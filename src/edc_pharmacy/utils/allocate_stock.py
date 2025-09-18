@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 from ..exceptions import AllocationError
 
@@ -69,7 +68,7 @@ def allocate_stock(
                 allocation = allocation_model_cls.objects.create(
                     stock_request_item=stock_request_item,
                     registered_subject=rs_obj,
-                    allocation_datetime=get_utcnow(),
+                    allocation_datetime=timezone.now(),
                     allocated_by=allocated_by,
                     user_created=user_created,
                     created=created,

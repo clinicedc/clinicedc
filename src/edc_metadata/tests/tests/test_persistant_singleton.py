@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from model_bakery import baker
 
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
@@ -32,7 +33,6 @@ from edc_metadata.metadata_rules import (
     site_metadata_rules,
 )
 from edc_metadata.models import CrfMetadata
-from edc_utils import get_utcnow
 from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -133,8 +133,8 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         consent_v1 = ConsentDefinition(
             "edc_metadata.subjectconsentv1",
             version="1",
-            start=get_utcnow(),
-            end=get_utcnow() + relativedelta(years=3),
+            start=timezone.now(),
+            end=timezone.now() + relativedelta(years=3),
             age_min=18,
             age_is_adult=18,
             age_max=64,
@@ -155,7 +155,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
 
         subject_consent = SubjectConsent.objects.create(
             subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow(),
+            consent_datetime=timezone.now(),
         )
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_visit_schedule.onschedule"

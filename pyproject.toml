@@ -79,7 +79,7 @@ namespace = false
 
 [project]
 name = "clinicedc"
-version = "2.0.6"
+version = "2.0.7"
 description = "A clinical trials data management framework built on Django"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -111,7 +111,7 @@ dependencies = [
     "boto3>=1.39.16",
     "celery>=5.5.3",
     "cryptography>=45.0.7",
-    "django>=5.2.4,<5.3",
+    "django>=5.2.4",
     "django-admin-rangefilter>=0.13.3",
     "django-audit-fields>=2.0.0",
     "django-crypto-fields>=1.0.1",

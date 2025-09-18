@@ -7,10 +7,10 @@ import django_audit_fields.fields.uuid_auto_field
 import django_audit_fields.models.audit_model_mixin
 import django_revision.revision_field
 from django.db import migrations, models
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("django_pylabels", "0003_rename_updated_labelspecification_modified"),
         ("edc_pylabels", "0001_initial"),
@@ -36,9 +36,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="label",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AddField(
             model_name="label",
@@ -96,9 +94,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="label",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AddField(
             model_name="label",

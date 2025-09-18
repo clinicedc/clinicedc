@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from datetime import date, datetime
 
@@ -10,9 +12,6 @@ from .reference_model_mixins import ReferenceModelMixin
 
 
 class NormalData(ReferenceModelMixin, BaseUuidModel):
-
-    # sites = models.ManyToManyField(Site, blank=True)
-
     auto_created = models.BooleanField(default=False)
 
     history = HistoricalRecords()
@@ -54,8 +53,8 @@ class NormalData(ReferenceModelMixin, BaseUuidModel):
 
     def get_eval_phrase(self, value) -> str:
         return (
-            f'{"" if not self.lower else self.lower}{self.lower_operator or ""}{value}'
-            f'{self.upper_operator or ""}{"" if not self.upper else self.upper}'
+            f"{'' if not self.lower else self.lower}{self.lower_operator or ''}{value}"
+            f"{self.upper_operator or ''}{'' if not self.upper else self.upper}"
         )
 
     class Meta:

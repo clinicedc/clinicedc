@@ -9,6 +9,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
+from django.utils import timezone
 
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.models import Appointment
@@ -19,7 +20,6 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.single_site import SingleSite
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.constants import DAY01
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Crf, CrfCollection
@@ -166,7 +166,7 @@ class TestFieldsetAdmin(TestCase):
         appointment.refresh_from_db()
 
         SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save()
@@ -183,7 +183,7 @@ class TestFieldsetAdmin(TestCase):
         appointment.refresh_from_db()
 
         subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
 
         for model, model_admin in admin.site._registry.items():

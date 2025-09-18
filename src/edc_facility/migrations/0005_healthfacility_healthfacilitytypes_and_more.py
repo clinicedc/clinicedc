@@ -17,7 +17,8 @@ from django.db import migrations, models
 import edc_facility.model_mixins
 import edc_model_fields.fields.other_charfield
 import edc_sites.models
-import edc_utils.date
+import django.utils.timezone
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -46,14 +47,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -105,7 +106,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("name", models.CharField(max_length=25, unique=True)),
                 (
@@ -265,14 +266,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -323,7 +324,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("name", models.CharField(db_index=True, max_length=25)),
                 (

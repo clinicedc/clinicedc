@@ -3,11 +3,10 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
-import edc_utils.date
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("sites", "0002_alter_domain_unique"),
         ("edc_qareports", "0005_edcpermissions"),
@@ -28,7 +27,7 @@ class Migration(migrations.Migration):
                 ),
                 ("username", models.CharField(max_length=100)),
                 ("report_model", models.CharField(max_length=100)),
-                ("accessed", models.DateTimeField(default=edc_utils.date.get_utcnow)),
+                ("accessed", models.DateTimeField(default=django.utils.timezone.now)),
                 (
                     "site",
                     models.ForeignKey(

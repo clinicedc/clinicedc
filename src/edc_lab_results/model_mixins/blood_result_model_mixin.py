@@ -16,12 +16,12 @@ class BloodResultsFieldsModelMixin(models.Model):
         choices=YES_NO,
         max_length=25,
         help_text=(
-            "Abnormal results present at baseline or continuing from " "baseline not included."
+            "Abnormal results present at baseline or continuing from baseline not included."
         ),
     )
 
     results_reportable = models.CharField(
-        verbose_name=("If any results are abnormal, are results within grade 3 or above?"),
+        verbose_name="If any results are abnormal, are results within grade 3 or above?",
         max_length=25,
         choices=YES_NO_NA,
         help_text=(
@@ -30,13 +30,13 @@ class BloodResultsFieldsModelMixin(models.Model):
         ),
     )
 
-    summary = models.TextField(null=True, blank=True)
+    summary = models.TextField(default="", blank=True)
 
-    reportable_summary = models.TextField(null=True, blank=True)
+    reportable_summary = models.TextField(default="", blank=True)
 
-    abnormal_summary = models.TextField(null=True, blank=True)
+    abnormal_summary = models.TextField(default="", blank=True)
 
-    errors = models.TextField(null=True, blank=True)
+    errors = models.TextField(default="", blank=True)
 
     missing_count = models.IntegerField(
         default=0,
@@ -45,7 +45,7 @@ class BloodResultsFieldsModelMixin(models.Model):
     )
 
     missing = models.TextField(
-        null=True,
+        default="",
         editable=False,
         help_text="calculated string of field names that have been left blank",
     )

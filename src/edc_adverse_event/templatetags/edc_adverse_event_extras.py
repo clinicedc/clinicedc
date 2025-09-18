@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.messages import ERROR
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import select_template
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -17,7 +18,7 @@ from django.utils.translation import gettext as _
 from edc_action_item.utils import get_reference_obj
 from edc_constants.constants import CLOSED, OPEN, OTHER, YES
 from edc_model_admin.utils import add_to_messages_once
-from edc_utils import escape_braces, get_utcnow
+from edc_utils import escape_braces
 
 from ..constants import (
     AE_TMG_ACTION,
@@ -81,7 +82,7 @@ def select_description_template(model):
 
 @register.inclusion_tag(select_description_template("aeinitial"), takes_context=True)
 def format_ae_description(context, ae_initial, wrap_length):
-    context["utc_date"] = get_utcnow().date()
+    context["utc_date"] = timezone.now().date()
     context["SHORT_DATE_FORMAT"] = settings.SHORT_DATE_FORMAT
     context["OTHER"] = OTHER
     context["YES"] = YES
@@ -103,7 +104,7 @@ def format_ae_description(context, ae_initial, wrap_length):
 @register.inclusion_tag(select_description_template("aefollowup"), takes_context=True)
 def format_ae_followup_description(context, ae_followup, wrap_length):
     context["AE_WITHDRAWN"] = AE_WITHDRAWN
-    context["utc_date"] = get_utcnow().date()
+    context["utc_date"] = timezone.now().date()
     context["SHORT_DATE_FORMAT"] = settings.SHORT_DATE_FORMAT
     context["OTHER"] = OTHER
     context["YES"] = YES
@@ -131,7 +132,7 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
 
 @register.inclusion_tag(select_description_template("aesusar"), takes_context=True)
 def format_ae_susar_description(context, ae_susar, wrap_length):
-    context["utc_date"] = get_utcnow().date()
+    context["utc_date"] = timezone.now().date()
     context["SHORT_DATE_FORMAT"] = settings.SHORT_DATE_FORMAT
     context["OTHER"] = OTHER
     context["YES"] = YES

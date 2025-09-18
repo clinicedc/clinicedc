@@ -6,6 +6,8 @@ from django.db import migrations, models
 
 import edc_model_fields.fields.hostname_modification_field
 import edc_model_fields.fields.userfield
+import django.utils.timezone
+
 import edc_utils
 
 
@@ -16,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="registeredsubject",
             name="created",
-            field=models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="registeredsubject",
@@ -51,7 +53,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="registeredsubject",
             name="modified",
-            field=models.DateTimeField(blank=True, default=edc_utils.date.get_utcnow),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="registeredsubject",

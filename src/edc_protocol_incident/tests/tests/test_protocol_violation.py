@@ -9,6 +9,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test.testcases import TestCase
+from django.utils import timezone
 
 from edc_action_item.site_action_items import site_action_items
 from edc_consent import site_consents
@@ -23,7 +24,6 @@ from edc_protocol_incident.models import (
     ProtocolDeviationViolation,
     ProtocolViolations,
 )
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -62,7 +62,7 @@ class TestProtocolViolation(TestCase):
         data.update(
             {
                 "subject_identifier": self.subject_identifier,
-                "report_datetime": get_utcnow(),
+                "report_datetime": timezone.now(),
                 "report_status": OPEN,
                 "report_type": DEVIATION,
                 "safety_impact": NOT_APPLICABLE,
@@ -78,7 +78,7 @@ class TestProtocolViolation(TestCase):
         data.update(
             {
                 "subject_identifier": "1234",
-                "report_datetime": get_utcnow(),
+                "report_datetime": timezone.now(),
                 "report_status": OPEN,
                 "report_type": DEVIATION,
                 "safety_impact": NOT_APPLICABLE,
@@ -97,7 +97,7 @@ class TestProtocolViolation(TestCase):
         data.update(
             {
                 "subject_identifier": "1234",
-                "report_datetime": get_utcnow(),
+                "report_datetime": timezone.now(),
                 "report_status": CLOSED,
                 "report_type": DEVIATION,
                 "safety_impact": NOT_APPLICABLE,
@@ -110,7 +110,7 @@ class TestProtocolViolation(TestCase):
         form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("corrective_action_datetime", form._errors)
-        data.update(corrective_action_datetime=get_utcnow())
+        data.update(corrective_action_datetime=timezone.now())
         form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("corrective_action", form._errors)
@@ -120,7 +120,7 @@ class TestProtocolViolation(TestCase):
         form.is_valid()
         self.assertIn("preventative_action_datetime", form._errors)
 
-        data.update(preventative_action_datetime=get_utcnow())
+        data.update(preventative_action_datetime=timezone.now())
         form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("preventative_action", form._errors)
@@ -135,7 +135,7 @@ class TestProtocolViolation(TestCase):
         form.is_valid()
         self.assertIn("report_closed_datetime", form._errors)
 
-        data.update(report_closed_datetime=get_utcnow())
+        data.update(report_closed_datetime=timezone.now())
         form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertEqual({}, form._errors)
@@ -145,7 +145,7 @@ class TestProtocolViolation(TestCase):
         data.update(
             {
                 "subject_identifier": "1234",
-                "report_datetime": get_utcnow(),
+                "report_datetime": timezone.now(),
                 "report_status": CLOSED,
                 "report_type": VIOLATION,
                 "short_description": "sdasd asd asdasd ",
@@ -178,7 +178,7 @@ class TestProtocolViolation(TestCase):
         form.is_valid()
         self.assertIn("violation_datetime", form._errors)
 
-        data.update({"violation_datetime": get_utcnow()})
+        data.update({"violation_datetime": timezone.now()})
         form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("violation", form._errors)
@@ -203,7 +203,7 @@ class TestProtocolViolation(TestCase):
         form.is_valid()
         self.assertIn("corrective_action_datetime", form._errors)
 
-        data.update(corrective_action_datetime=get_utcnow())
+        data.update(corrective_action_datetime=timezone.now())
         form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("corrective_action", form._errors)
@@ -213,7 +213,7 @@ class TestProtocolViolation(TestCase):
         form.is_valid()
         self.assertIn("preventative_action_datetime", form._errors)
 
-        data.update(preventative_action_datetime=get_utcnow())
+        data.update(preventative_action_datetime=timezone.now())
         form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertIn("preventative_action", form._errors)
@@ -228,7 +228,7 @@ class TestProtocolViolation(TestCase):
         form.is_valid()
         self.assertIn("report_closed_datetime", form._errors)
 
-        data.update(report_closed_datetime=get_utcnow())
+        data.update(report_closed_datetime=timezone.now())
         form = ProtocolDeviationViolationForm(data=data, instance=ProtocolDeviationViolation())
         form.is_valid()
         self.assertEqual({}, form._errors)

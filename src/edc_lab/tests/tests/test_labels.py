@@ -7,17 +7,18 @@ from clinicedc_tests.models import SubjectRequisition
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import YES
+from edc_constants.date_constants import timezone
 from edc_facility.import_holidays import import_holidays
 from edc_lab import AliquotCreator, site_labs
 from edc_lab.labels.aliquot_label import AliquotLabel, AliquotLabelError
 from edc_lab.models import Panel
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -26,7 +27,6 @@ from edc_visit_tracking.models import SubjectVisit
 @tag("lab")
 @override_settings(SITE_ID=10)
 class TestLabels(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -36,7 +36,6 @@ class TestLabels(TestCase):
         add_or_update_django_sites()
 
     def setUp(self):
-
         site_labs.initialize()
         site_labs.register(lab_profile=lab_profile)
 
@@ -63,7 +62,7 @@ class TestLabels(TestCase):
 
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
 
         # use the viral load panel from the lap profile for these tests
@@ -73,8 +72,8 @@ class TestLabels(TestCase):
 
         self.subject_requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            requisition_datetime=get_utcnow(),
-            drawn_datetime=get_utcnow(),
+            requisition_datetime=timezone.now(),
+            drawn_datetime=timezone.now(),
             is_drawn=YES,
             panel=Panel.objects.get(name=self.panel.name),
         )

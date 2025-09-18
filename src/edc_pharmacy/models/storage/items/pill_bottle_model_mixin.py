@@ -2,7 +2,8 @@ from django.db import models
 
 from edc_model.models import BaseUuidModel
 
-from ...medication import Formulation, Lot
+from ...medication import Formulation
+from ...stock import Lot
 from .container_model_mixin import ContainerModelMixin
 
 
@@ -11,7 +12,6 @@ class PillBottleError(Exception):
 
 
 class PillBottleModelMixin(ContainerModelMixin, BaseUuidModel):
-
     formulation = models.ForeignKey(Formulation, on_delete=models.PROTECT, blank=True)
 
     lot = models.ForeignKey(Lot, on_delete=models.PROTECT)

@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import Q, UniqueConstraint
+from django.utils import timezone
 
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
@@ -8,7 +9,6 @@ from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from ..choices import SCHEDULE_STATUS
 from ..model_mixins import VisitScheduleFieldsModelMixin
@@ -32,7 +32,7 @@ class SubjectScheduleModelManager(models.Manager):
         relative to the report_datetime.
         """
         onschedules = []
-        report_datetime = report_datetime or get_utcnow()
+        report_datetime = report_datetime or timezone.now()
         qs = self.filter(
             Q(subject_identifier=subject_identifier),
             Q(onschedule_datetime__lte=report_datetime),
@@ -67,7 +67,7 @@ class SubjectScheduleHistory(
         validators=[datetime_not_before_study_start, datetime_not_future], null=True
     )
 
-    schedule_status = models.CharField(max_length=15, choices=SCHEDULE_STATUS, null=True)
+    schedule_status = models.CharField(max_length=15, choices=SCHEDULE_STATUS, default="")
 
     objects = SubjectScheduleModelManager()
 
@@ -101,12 +101,12 @@ class SubjectScheduleHistory(
         return django_apps.get_model(self.offschedule_model)
 
     class Meta(BaseUuidModel.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["subject_identifier", "visit_schedule_name", "schedule_name"],
                 name="%(app_label)s_%(class)s_subject_uniq",
-            )
-        ]
+            ),
+        )
         indexes = (
             *BaseUuidModel.Meta.indexes,
             *NonUniqueSubjectIdentifierFieldMixin.Meta.indexes,

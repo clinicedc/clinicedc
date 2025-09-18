@@ -8,6 +8,7 @@ from django import template
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.urls import reverse
+from django.utils import timezone
 
 from edc_appointment.constants import (
     CANCELLED_APPT,
@@ -26,7 +27,6 @@ from edc_appointment.view_utils import AppointmentButton
 from edc_auth.constants import AUDITOR_ROLE
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_helper import MetadataHelper
-from edc_utils import get_utcnow
 from edc_view_utils import PrnButton, render_history_and_query_buttons
 from edc_visit_tracking.view_utils import RelatedVisitButton
 
@@ -171,7 +171,7 @@ def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
         skipped = True
     elif (
         appointment.appt_status == NEW_APPT
-        and appointment.appt_datetime.date() < get_utcnow().date()
+        and appointment.appt_datetime.date() < timezone.now().date()
     ):
         overdue = True
     else:

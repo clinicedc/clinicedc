@@ -23,16 +23,14 @@ class CrfWithRequisitionModelMixin(models.Model):
     For example:
         from edc_lab.model_mixins import (
             CrfWithRequisitionModelMixin,
-            requisition_fk_options,
-            )
+            requisition_fk_options)
 
         class MyRequisition(CrfWithRequisitionModelMixin, etc):
             ...
             lab_panel = fbc_panel
             requisition = models.ForeignKey(
                 limit_choices_to={"panel__name": fbc_panel.name},
-                **requisition_fk_options,
-            )
+                **requisition_fk_options)
             ...
     """
 

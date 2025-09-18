@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.utils import timezone
 
 from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 from edc_appointment.creators import AppointmentsCreator
@@ -14,7 +15,7 @@ from edc_consent.exceptions import ConsentDefinitionError
 from edc_consent.site_consents import site_consents
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import valid_site_for_subject_or_raise
-from edc_utils import convert_php_dateformat, formatted_datetime, get_utcnow
+from edc_utils import convert_php_dateformat, formatted_datetime
 from edc_utils.date import to_local
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
@@ -112,7 +113,7 @@ class SubjectSchedule:
         Appointment are created here by calling the
         appointments_creator_cls.
         """
-        onschedule_datetime = onschedule_datetime or get_utcnow()
+        onschedule_datetime = onschedule_datetime or timezone.now()
         if not consent_definition and len(self.schedule.consent_definitions) == 1:
             consent_definition = self.schedule.consent_definitions[0]
         elif not consent_definition:
@@ -375,13 +376,13 @@ class SubjectSchedule:
             in_date_range = (
                 onschedule_obj.onschedule_datetime
                 <= report_datetime
-                <= (offschedule_datetime or get_utcnow())
+                <= (offschedule_datetime or timezone.now())
             )
         else:
             in_date_range = (
                 onschedule_obj.onschedule_datetime.date()
                 <= report_datetime.date()
-                <= (offschedule_datetime or get_utcnow()).date()
+                <= (offschedule_datetime or timezone.now()).date()
             )
 
         if offschedule_datetime and not in_date_range:

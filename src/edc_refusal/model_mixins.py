@@ -1,14 +1,14 @@
 from django.db import models
+from django.utils import timezone
 
 from edc_model.models import OtherCharField
-from edc_utils import get_utcnow
 
 
 class SubjectRefusalModelMixin(models.Model):
     screening_identifier = models.CharField(max_length=50, unique=True)
 
     report_datetime = models.DateTimeField(
-        verbose_name="Report Date and Time", default=get_utcnow
+        verbose_name="Report Date and Time", default=timezone.now
     )
 
     reason = models.ForeignKey(
@@ -21,7 +21,7 @@ class SubjectRefusalModelMixin(models.Model):
 
     comment = models.TextField(
         verbose_name="Additional Comments",
-        null=True,
+        default="",
         blank=True,
     )
 

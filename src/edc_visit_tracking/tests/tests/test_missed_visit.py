@@ -12,6 +12,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.constants import MISSED_APPT, ONTIME_APPT, SCHEDULED_APPT
 from edc_appointment.exceptions import AppointmentBaselineError
@@ -31,7 +32,6 @@ from edc_list_data import load_list_data
 from edc_metadata.models import CrfMetadata
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.constants import DAY1
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -240,7 +240,7 @@ class TestVisit(TestCase):
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1",
             schedule_name="schedule1",
-            report_datetime=get_utcnow() - relativedelta(months=6),
+            report_datetime=timezone.now() - relativedelta(months=6),
         )
         appointment, _ = self.get_subject_visit()
         appointment = appointment.next
@@ -280,7 +280,7 @@ class TestVisit(TestCase):
             contact_attempted=YES,
             contact_attempts_count=4,
             contact_attempts_explained=None,
-            contact_last_date=get_utcnow(),
+            contact_last_date=timezone.now(),
             missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
             contact_made=YES,
             ltfu=YES,
@@ -312,7 +312,7 @@ class TestVisit(TestCase):
             survival_status=ALIVE,
             contact_attempted=YES,
             contact_attempts_count=1,
-            contact_last_date=get_utcnow(),
+            contact_last_date=timezone.now(),
             missed_reasons=[SubjectVisitMissedReasons.objects.get(name=HOSPITALIZED)],
             contact_made=YES,
             ltfu=NO,

@@ -5,10 +5,10 @@ from decimal import Decimal
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import PROTECT
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_utils import get_utcnow
 
 from ...choices import STOCK_STATUS
 from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
@@ -48,7 +48,7 @@ class Stock(BaseUuidModel):
     )
 
     stock_datetime = models.DateTimeField(
-        default=get_utcnow, help_text="date stock record created"
+        default=timezone.now, help_text="date stock record created"
     )
 
     receive_item = models.ForeignKey(
@@ -75,7 +75,7 @@ class Stock(BaseUuidModel):
     )
     confirmed_datetime = models.DateTimeField(null=True, blank=True)
 
-    confirmed_by = models.CharField(max_length=150, null=True, blank=True)
+    confirmed_by = models.CharField(max_length=150, default="", blank=True)
 
     allocation = models.OneToOneField(
         Allocation,
@@ -100,7 +100,7 @@ class Stock(BaseUuidModel):
         blank=False,
         decimal_places=2,
         max_digits=20,
-        default=Decimal(0.0),
+        default=Decimal("0.0"),
         help_text="Difference of qty_in and qty_out",
     )
 
@@ -109,7 +109,7 @@ class Stock(BaseUuidModel):
         blank=False,
         decimal_places=2,
         max_digits=20,
-        default=Decimal(0.0),
+        default=Decimal("0.0"),
         validators=[MinValueValidator(0), MaxValueValidator(1)],
         help_text="Container qty, e.g. 1 bucket, 1 bottle, etc",
     )
@@ -117,7 +117,7 @@ class Stock(BaseUuidModel):
     qty_out = models.DecimalField(
         decimal_places=2,
         max_digits=20,
-        default=Decimal(0.0),
+        default=Decimal("0.0"),
         validators=[MinValueValidator(0), MaxValueValidator(1)],
         help_text="Container qty, e.g. 1 bucket, 1 bottle, etc",
     )
@@ -125,7 +125,7 @@ class Stock(BaseUuidModel):
     unit_qty_in = models.DecimalField(
         decimal_places=2,
         max_digits=20,
-        default=Decimal(0.0),
+        default=Decimal("0.0"),
         validators=[MinValueValidator(0)],
         help_text="Number of units in this container, e.g. 128 tablets. See post-save signal",
     )
@@ -133,22 +133,18 @@ class Stock(BaseUuidModel):
     unit_qty_out = models.DecimalField(
         decimal_places=2,
         max_digits=20,
-        default=Decimal(0.0),
+        default=Decimal("0.0"),
         validators=[MinValueValidator(0)],
         help_text="Number of units from this container, e.g. 128 tablets",
     )
 
     status = models.CharField(max_length=25, choices=STOCK_STATUS, default=AVAILABLE)
 
-    description = models.CharField(max_length=100, null=True, blank=True)
-
-    # transferred = models.BooleanField(default=False)
-
-    # confirmed_at_site = models.BooleanField(default=False)
+    description = models.CharField(max_length=100, default="", blank=True)
 
     stored_at_site = models.BooleanField(default=False)
 
-    subject_identifier = models.CharField(max_length=50, null=True, blank=True)
+    subject_identifier = models.CharField(max_length=50, default="", blank=True)
 
     objects = StockManager()
 
@@ -173,13 +169,11 @@ class Stock(BaseUuidModel):
         super().save(*args, **kwargs)
 
     def update_transferred(self) -> bool:
-        if (
+        return (
             self.allocation
             and self.allocation.stock_request_item.stock_request.location == self.location
             and self.container.may_request_as
-        ):
-            return True
-        return False
+        )
 
     def verify_assignment_or_raise(
         self, stock: models.ForeignKey[Stock] | None = None

@@ -1,9 +1,9 @@
 from uuid import uuid4
 
 from django.db import models
+from django.utils import timezone
 
 from edc_model.models import BaseUuidModel
-from edc_utils import get_utcnow
 
 from .shelf import Shelf
 
@@ -11,7 +11,7 @@ from .shelf import Shelf
 class Box(BaseUuidModel):
     box_identifier = models.CharField(max_length=36, default=uuid4, unique=True)
 
-    box_datetime = models.DateTimeField(default=get_utcnow)
+    box_datetime = models.DateTimeField(default=timezone.now)
 
     name = models.CharField(max_length=25, unique=True)
 

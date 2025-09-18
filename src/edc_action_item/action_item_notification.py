@@ -1,8 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_notification.notification import Notification
-from edc_utils import get_utcnow
 
 NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ = "notify_on_new_and_no_reference_obj"
 NOTIFY_ON_NEW = "notify_on_new"
@@ -217,5 +217,5 @@ class ActionItemNotification(Notification):
         action_item = kwargs.get("action_item")
         if email_sent and not action_item.emailed:
             action_item.emailed = True
-            action_item.emailed_datetime = get_utcnow()
+            action_item.emailed_datetime = timezone.now()
             action_item.save_without_historical_record()

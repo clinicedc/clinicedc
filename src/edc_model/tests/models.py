@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.db import models
+from django.utils import timezone
 
 from edc_model.models import (
     BaseModel,
@@ -17,18 +18,17 @@ from edc_model.validators import (
     telephone_number,
 )
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 
 def get_future_date():
-    return get_utcnow() + relativedelta(days=10)
+    return timezone.now() + relativedelta(days=10)
 
 
 class SimpleModel(BaseModel):
-    f1 = models.CharField(max_length=10, null=True)
+    f1 = models.CharField(max_length=10, default="")
     dt1 = models.DateTimeField(null=True)
     d1 = models.DateField(null=True)
-    ago = models.CharField(max_length=25, null=True)
+    ago = models.CharField(max_length=25, default="")
     report_datetime = models.DateTimeField(null=True)
 
 
@@ -49,10 +49,10 @@ class ModelWithHistory(SiteModelMixin, BaseUuidModel):
 
 class ModelWithDateValidators(BaseModel):
     datetime_not_future = models.DateTimeField(
-        validators=[datetime_not_future], default=get_utcnow
+        validators=[datetime_not_future], default=timezone.now()
     )
 
-    date_not_future = models.DateField(validators=[date_not_future], default=get_utcnow)
+    date_not_future = models.DateField(validators=[date_not_future], default=timezone.now)
 
     datetime_is_future = models.DateTimeField(
         validators=[datetime_is_future], default=get_future_date
@@ -66,5 +66,5 @@ class ModelWithDHDurationValidators(BaseModel):
 
 
 class ModelWithPhoneValidators(BaseModel):
-    cell = models.CharField(max_length=25, null=True, validators=[cell_number])
-    tel = models.CharField(max_length=25, null=True, validators=[telephone_number])
+    cell = models.CharField(max_length=25, default="", validators=[cell_number])
+    tel = models.CharField(max_length=25, default="", validators=[telephone_number])

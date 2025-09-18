@@ -1,9 +1,9 @@
+import django.utils.timezone
 from django.db import models
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 from edc_visit_schedule.model_mixins import VisitCodeFieldsModelMixin
 
 from .dispense import Dispense
@@ -25,7 +25,7 @@ class DispenseItem(SiteModelMixin, VisitCodeFieldsModelMixin, BaseUuidModel):
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    dispense_item_datetime = models.DateTimeField(default=get_utcnow)
+    dispense_item_datetime = models.DateTimeField(default=django.utils.timezone.now)
 
     dispense = models.ForeignKey(
         Dispense,

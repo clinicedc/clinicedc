@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.db.models import Min
+from django.utils import timezone
 
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -10,7 +11,6 @@ from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMi
 from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
 from edc_navbar.get_default_navbar import get_default_navbar
-from edc_utils import get_utcnow
 
 from ...constants import (
     AE_TMG_ACTION,
@@ -69,7 +69,7 @@ class TmgAeListboardViewMixin(
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
             AE_TMG_ACTION=AE_TMG_ACTION,
-            utc_date=get_utcnow().date(),
+            utc_date=timezone.now().date(),
             subject_identifier=self.kwargs.get("subject_identifier"),
         )
         return super().get_context_data(**kwargs)

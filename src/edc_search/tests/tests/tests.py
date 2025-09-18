@@ -1,11 +1,11 @@
 from django.db import models
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from django.utils.text import slugify
 
 from edc_search.model_mixins import SearchSlugModelMixin
 from edc_search.search_slug import SearchSlug
 from edc_search.updater import SearchSlugDuplicateFields
-from edc_utils import get_utcnow
 
 from ..models import TestModel, TestModelDuplicate, TestModelExtra
 
@@ -28,7 +28,7 @@ class TestSearchSlug(TestCase):
         self.assertEqual(search_slug.slug, "1|2")
 
     def test_gets_slug(self):
-        dt = get_utcnow()
+        dt = timezone.now()
         obj = TestModel(f1="erik is", f2=dt, f3=1234)
         obj.save()
         self.assertEqual(obj.slug, f"erik-is|{slugify(dt)}|1234|attr|dummy|dummy_attr")

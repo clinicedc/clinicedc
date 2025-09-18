@@ -5,10 +5,11 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
 
+from django.utils import timezone
+
 from edc_consent import site_consents
 from edc_pdutils.site import Site
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
 from edc_view_utils import ModelButton
 
 if TYPE_CHECKING:
@@ -42,7 +43,7 @@ class SubjectConsentListboardButton(ModelButton):
 
     def __post_init__(self):
         cdef = site_consents.get_consent_definition(
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             screening_model=self.screening_obj._meta.label_lower,
         )
         self.model_cls = cdef.model_cls

@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-import edc_utils
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -14,21 +14,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="crfmetadata",
             name="created",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+            field=models.DateTimeField(default=django.utils.timezone.now, editable=False),
         ),
         migrations.AlterField(
             model_name="crfmetadata",
             name="modified",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+            field=models.DateTimeField(default=django.utils.timezone.now, editable=False),
         ),
         migrations.AlterField(
             model_name="requisitionmetadata",
             name="created",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+            field=models.DateTimeField(default=django.utils.timezone.now, editable=False),
         ),
         migrations.AlterField(
             model_name="requisitionmetadata",
             name="modified",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow, editable=False),
+            field=models.DateTimeField(default=django.utils.timezone.now, editable=False),
         ),
     ]

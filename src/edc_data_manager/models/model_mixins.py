@@ -1,8 +1,8 @@
 from django.db import models
 from django.db.models import PROTECT
+from django.utils import timezone
 
 from edc_constants.constants import CLOSED, NEW, NORMAL, OPEN, RESOLVED
-from edc_utils import get_utcnow
 
 from ..choices import DM_STATUS, QUERY_PRIORITY, RESPONSE_STATUS
 from ..constants import CLOSED_WITH_ACTION
@@ -10,16 +10,16 @@ from .user import DataManagerUser, QueryUser
 
 
 class DataQueryModelMixin(models.Model):
-    report_datetime = models.DateTimeField(verbose_name="Query date", default=get_utcnow)
+    report_datetime = models.DateTimeField(verbose_name="Query date", default=timezone.now)
 
-    title = models.CharField(max_length=150, null=True, blank=False)
+    title = models.CharField(max_length=150, default="", blank=False)
 
     sender = models.ForeignKey(
         DataManagerUser,
         related_name="+",
         on_delete=PROTECT,
         verbose_name="Query raised by",
-        help_text="Select a name from the list",
+        help_text="Please select a name from the list",
     )
 
     recipients = models.ManyToManyField(
@@ -43,7 +43,7 @@ class DataQueryModelMixin(models.Model):
         verbose_name="Site resolved on", null=True, blank=True
     )
 
-    site_response_text = models.TextField(null=True, blank=True)
+    site_response_text = models.TextField(default="", blank=True)
 
     site_response_status = models.CharField(
         verbose_name="Site status", max_length=25, choices=RESPONSE_STATUS, default=NEW
@@ -60,7 +60,7 @@ class DataQueryModelMixin(models.Model):
         on_delete=PROTECT,
         null=True,
         blank=True,
-        help_text="select a name from the list",
+        help_text="Please select a name from the list",
     )
 
     resolved_datetime = models.DateTimeField(
@@ -70,7 +70,7 @@ class DataQueryModelMixin(models.Model):
     auto_resolved = models.BooleanField(default=False)
 
     plan_of_action = models.TextField(
-        null=True, blank=True, help_text="If required, provide a plan of action"
+        default="", blank=True, help_text="If required, provide a plan of action"
     )
 
     locked = models.BooleanField(
@@ -80,7 +80,7 @@ class DataQueryModelMixin(models.Model):
 
     locked_reason = models.TextField(
         verbose_name="Reason query locked",
-        null=True,
+        default="",
         blank=True,
         help_text="If required, the reason the query cannot be resolved.",
     )

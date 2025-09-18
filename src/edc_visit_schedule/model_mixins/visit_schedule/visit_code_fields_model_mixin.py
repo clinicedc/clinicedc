@@ -2,7 +2,7 @@ from django.db import models
 
 
 class VisitCodeFieldsModelMixin(models.Model):
-    visit_code = models.CharField(max_length=25, null=True, editable=False)
+    visit_code = models.CharField(max_length=25, default="", editable=False)
 
     visit_code_sequence = models.IntegerField(
         verbose_name="Sequence",

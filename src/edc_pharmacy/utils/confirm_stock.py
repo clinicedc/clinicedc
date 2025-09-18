@@ -4,8 +4,7 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 if TYPE_CHECKING:
     from ..models import Confirmation, Receive, RepackRequest, Stock
@@ -47,7 +46,7 @@ def confirm_stock(
             except ObjectDoesNotExist:
                 confirmation_model_cls.objects.create(
                     stock=stock,
-                    confirmed_datetime=get_utcnow(),
+                    confirmed_datetime=timezone.now(),
                     confirmed_by=confirmed_by or user_created,
                 )
                 confirmed.append(stock.code)

@@ -27,7 +27,7 @@ class VisitMethodsModelMixin(models.Model):
     def natural_key(self) -> tuple:
         return tuple(getattr(self, self.related_visit_model_attr()).natural_key())
 
-    natural_key.dependencies = [settings.SUBJECT_VISIT_MODEL]
+    natural_key.dependencies = (settings.SUBJECT_VISIT_MODEL,)
 
     @classmethod
     def related_visit_model_attr(cls) -> str:
@@ -103,11 +103,11 @@ class VisitMethodsModelMixin(models.Model):
                 if issubclass(related_model, (VisitModelMixin,)):
                     try:
                         related_visit = getattr(self, field.name)
-                    except ObjectDoesNotExist:
+                    except ObjectDoesNotExist as e:
                         raise RelatedVisitFieldError(
                             f"Related visit cannot be None. See {self.__class__}. "
                             "Perhaps catch this in the form."
-                        )
+                        ) from e
                     break
                 related_model = None
         if not related_model:

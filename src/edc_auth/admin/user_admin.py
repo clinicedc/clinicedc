@@ -15,7 +15,7 @@ from .user_profile_admin import UserProfileInline
 admin.site.unregister(User)
 
 
-def send_new_credentials_to_user_action(modeladmin, request, queryset):  # noqa
+def send_new_credentials_to_user_action(modeladmin, request, queryset):
     if request.user.has_perm("auth.change_user"):
         for obj in queryset:
             send_new_credentials_to_user(user=obj)

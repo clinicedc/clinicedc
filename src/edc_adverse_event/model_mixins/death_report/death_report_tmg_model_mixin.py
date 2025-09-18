@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+from django.utils import timezone
 
 from edc_action_item.managers import (
     ActionIdentifierModelManager,
@@ -12,7 +13,6 @@ from edc_model.models import ReportStatusModelMixin
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_TMG_ACTION, DEATH_REPORT_TMG_SECOND_ACTION
 from ...models import CauseOfDeath
@@ -51,7 +51,7 @@ class DeathReportTmgFieldsModelMixin(models.Model):
     report_datetime = models.DateTimeField(
         verbose_name="Report Date",
         validators=[datetime_not_before_study_start, datetime_not_future],
-        default=get_utcnow,
+        default=timezone.now,
     )
 
     cause_of_death = models.ForeignKey(
@@ -62,22 +62,25 @@ class DeathReportTmgFieldsModelMixin(models.Model):
             "Main cause of death in the opinion of the local study doctor and local PI"
         ),
         null=True,
+        default="",
     )
 
     cause_of_death_other = models.CharField(
         verbose_name='If "Other" above, please specify',
         max_length=100,
         blank=True,
+        default="",
     )
 
     cause_of_death_agreed = models.CharField(
         verbose_name="Is the cause of death agreed between study doctor and TMG member?",
         max_length=15,
         choices=YES_NO,
+        default="",
         help_text="If No, explain in the narrative below",
     )
 
-    narrative = models.TextField(verbose_name="Narrative", blank=True)
+    narrative = models.TextField(verbose_name="Narrative", blank=True, default="")
 
     class Meta:
         abstract = True

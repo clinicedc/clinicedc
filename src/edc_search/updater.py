@@ -13,14 +13,14 @@ if TYPE_CHECKING:
         pass
 
 
-class SearchSlugDuplicateFields(Exception):
+class SearchSlugDuplicateFields(Exception):  # noqa: N818
     pass
 
 
 class SearchSlugUpdater:
     search_slug_cls = SearchSlug
 
-    def __init__(self, fields: list[str], model_obj: Model | SearchSlugModelMixin = None):
+    def __init__(self, fields: tuple[str], model_obj: Model | SearchSlugModelMixin = None):
         if len(fields) > len(list(set(fields))):
             raise SearchSlugDuplicateFields(
                 f"Duplicate search slug fields detected. Got {fields}. See {self!r}"

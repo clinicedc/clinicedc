@@ -11,7 +11,6 @@ class Manager(models.Manager):
 
 
 class Location(ListModelMixin, BaseUuidModel):
-
     display_name = models.CharField(
         verbose_name="Name",
         max_length=250,
@@ -23,14 +22,14 @@ class Location(ListModelMixin, BaseUuidModel):
 
     site = models.ForeignKey(Site, on_delete=models.PROTECT, null=True, blank=True)
 
-    contact_name = models.CharField(max_length=150, null=True, blank=True)
+    contact_name = models.CharField(max_length=150, default="", blank=True)
     contact_tel = models.CharField(
         max_length=150,
         validators=[RegexValidator("[0-9]{1,15}")],
-        null=True,
+        default="",
         blank=True,
     )
-    contact_email = models.EmailField(max_length=150, null=True, blank=True)
+    contact_email = models.EmailField(max_length=150, default="", blank=True)
 
     objects = Manager()
 

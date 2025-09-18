@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING
 
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
+from django.utils import timezone
 
 from edc_model_to_dataframe.constants import SYSTEM_COLUMNS
 from edc_utils import age as get_age
-from edc_utils import get_utcnow
 
 from ..exceptions import NotEvaluated
 from .convert_units import convert_units
@@ -135,7 +135,7 @@ def create_obj_for_new_units_or_raise(
         )
         opts["units"] = units
         opts["auto_created"] = True
-        opts["created"] = get_utcnow()
+        opts["created"] = timezone.now()
         opts["modified"] = opts["created"]
         break
     if opts:

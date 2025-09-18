@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from unittest import skip
+from zoneinfo import ZoneInfo
 
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import CrfEight, SubjectVisitWithoutAppointment
@@ -24,7 +25,6 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -34,8 +34,10 @@ from ..consent_test_utils import consent_definition_factory
 
 @tag("consent")
 @override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=5),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+    EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime.now().astimezone(tz=ZoneInfo("UTC"))
+    - relativedelta(years=5),
+    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime.now().astimezone(tz=ZoneInfo("UTC"))
+    + relativedelta(years=1),
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
     SITE_ID=10,

@@ -2,10 +2,10 @@ from decimal import Decimal
 
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_utils import get_utcnow
 
 from ...exceptions import RepackRequestError
 from ...utils import get_related_or_none
@@ -34,7 +34,7 @@ class RepackRequest(BaseUuidModel):
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    repack_datetime = models.DateTimeField(default=get_utcnow)
+    repack_datetime = models.DateTimeField(default=timezone.now)
 
     from_stock = models.ForeignKey(
         "edc_pharmacy.stock",

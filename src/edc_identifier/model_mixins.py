@@ -44,7 +44,7 @@ class SubjectIdentifierAdditionalFieldsModelMixin(models.Model):
     subject_identifier_aka = models.CharField(
         verbose_name="Subject Identifier a.k.a",
         max_length=50,
-        null=True,
+        default="",
         editable=False,
         help_text="track a previously allocated identifier.",
     )

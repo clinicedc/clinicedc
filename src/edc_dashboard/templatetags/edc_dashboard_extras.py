@@ -5,8 +5,9 @@ from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django.urls.base import reverse
+from django.utils import timezone
 
-from edc_utils import AgeValueError, age, get_utcnow
+from edc_utils.age import AgeValueError, age
 
 register = template.Library()
 
@@ -39,7 +40,7 @@ class UrlMaker:
 @register.simple_tag(takes_context=True)
 def age_in_years(context, born):
     if born:
-        reference_datetime = context.get("reference_datetime") or get_utcnow()
+        reference_datetime = context.get("reference_datetime") or timezone.now()
         try:
             _age_in_years = age(born, reference_datetime).years
         except AgeValueError:

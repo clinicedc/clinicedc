@@ -4,12 +4,12 @@ from clinicedc_tests.utils import login
 from django.contrib.auth.models import User
 from django.test import tag
 from django.urls import reverse
+from django.utils import timezone
 from django_webtest import WebTest
 
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
 from edc_facility.auths import codenames
 from edc_facility.models import HealthFacility, HealthFacilityTypes
-from edc_utils import get_utcnow
 
 
 @tag("facility")
@@ -25,14 +25,14 @@ class TestAdmin(WebTest):
     def login(self):
         form = self.app.get(reverse("admin:index")).maybe_follow().form
         form["username"] = self.user.username
-        form["password"] = "pass"  # nosec B105
+        form["password"] = "pass"  # noqa: S105
         return form.submit()
 
     @staticmethod
     def get_obj(**kwargs):
         health_facility_type = HealthFacilityTypes.objects.all()[0]
         opts = dict(
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             name="HealthFacility",
             health_facility_type=health_facility_type,
             mon=False,

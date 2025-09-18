@@ -1,6 +1,7 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.deletion import PROTECT
+from django.utils import timezone
 
 from edc_action_item.managers import (
     ActionIdentifierModelManager,
@@ -18,7 +19,6 @@ from edc_protocol.validators import (
     datetime_not_before_study_start,
 )
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_ACTION
 from ...models import CauseOfDeath
@@ -41,7 +41,7 @@ class DeathReportModelMixin(
     report_datetime = models.DateTimeField(
         verbose_name="Report Date",
         validators=[datetime_not_before_study_start, datetime_not_future],
-        default=get_utcnow,
+        default=timezone.now,
     )
 
     death_datetime = models.DateTimeField(
@@ -70,6 +70,7 @@ class DeathReportModelMixin(
         max_length=5,
         verbose_name="Death as inpatient",
         blank=False,
+        default="",
     )
 
     cause_of_death = models.ForeignKey(
@@ -83,9 +84,9 @@ class DeathReportModelMixin(
         blank=False,
     )
 
-    cause_of_death_other = OtherCharField(max_length=100, blank=True, null=True)
+    cause_of_death_other = OtherCharField(max_length=100, blank=True, default="")
 
-    narrative = models.TextField(verbose_name="Narrative", blank=False)
+    narrative = models.TextField(verbose_name="Narrative", default="")
 
     objects = ActionIdentifierModelManager()
 

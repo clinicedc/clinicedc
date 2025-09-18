@@ -11,6 +11,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase
 from django.test.client import RequestFactory
+from django.utils import timezone
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.forms import AppointmentForm
@@ -21,7 +22,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_form_label.custom_label_condition import CustomLabelCondition
 from edc_form_label.form_label import FormLabel
 from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
 from edc_visit_schedule.constants import DAY01, MONTH2
 from edc_visit_schedule.models import OnSchedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -62,12 +62,12 @@ class TestFormLabel(TestCase):
 
         SubjectConsentV1.objects.create(
             subject_identifier=self.subject_identifier,
-            consent_datetime=get_utcnow() - timedelta(days=15),
+            consent_datetime=timezone.now() - timedelta(days=15),
         )
 
         OnSchedule.objects.put_on_schedule(
             subject_identifier=self.subject_identifier,
-            onschedule_datetime=get_utcnow() - timedelta(days=15),
+            onschedule_datetime=timezone.now() - timedelta(days=15),
         )
         self.appointment_one = Appointment.objects.get(visit_code=DAY01)
 

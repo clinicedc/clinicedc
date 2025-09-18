@@ -28,9 +28,9 @@ class ResultItem(ResultItemModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def natural_key(self):
-        return (self.report_datetime,) + self.result.natural_key()
+        return self.report_datetime, *self.result.natural_key()
 
-    natural_key.dependencies = ["edc_lab.result", "sites.Site"]
+    natural_key.dependencies = ("edc_lab.result", "sites.Site")
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Result Item"

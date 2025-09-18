@@ -9,6 +9,7 @@ from clinicedc_tests.models import SubjectRequisition
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -22,7 +23,6 @@ from edc_lab.models import Aliquot
 from edc_lab.site_labs import site_labs
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils.date import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -47,7 +47,6 @@ utc_tz = ZoneInfo("UTC")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestSpecimen2(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -78,7 +77,7 @@ class TestSpecimen2(TestCase):
         self.subject_identifier = subject_consent.subject_identifier
         appointment = Appointment.objects.get(visit_code="1000")
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
 
         # use the viral load panel from the lap profile for these tests
@@ -88,7 +87,7 @@ class TestSpecimen2(TestCase):
 
         self.requisition = SubjectRequisition.objects.create(
             subject_visit=self.subject_visit,
-            requisition_datetime=get_utcnow(),
+            requisition_datetime=timezone.now(),
             panel=self.panel.panel_model_obj,
             protocol_number="999",
             is_drawn=YES,
@@ -194,19 +193,23 @@ class TestSpecimen2(TestCase):
         pl_aliquots = []
         for aliquot in self.specimen.aliquots.order_by("-aliquot_identifier"):
             if aliquot.aliquot_identifier[-4:].startswith("36"):
-                pl_aliquots.append(aliquot)
+                pl_aliquots.append(aliquot)  # noqa: PERF401
         pl_aliquots.reverse()
         for i in range(0, 3):
             self.assertFalse(pl_aliquots[i].is_primary)
-            self.assertEqual(f"36{str(i+2).zfill(2)}", pl_aliquots[i].aliquot_identifier[-4:])
+            self.assertEqual(
+                f"36{str(i + 2).zfill(2)}", pl_aliquots[i].aliquot_identifier[-4:]
+            )
 
         # buffy coat: 2 aliquots where seq fragment start w/ 12
         # ending in 6,7
         bc_aliquots = []
         for aliquot in self.specimen.aliquots.order_by("-aliquot_identifier"):
             if aliquot.aliquot_identifier[-4:].startswith("12"):
-                bc_aliquots.append(aliquot)
+                bc_aliquots.append(aliquot)  # noqa: PERF401
         bc_aliquots.reverse()
         for i in range(0, 2):
             self.assertFalse(bc_aliquots[i].is_primary)
-            self.assertEqual(f"12{str(i+6).zfill(2)}", bc_aliquots[i].aliquot_identifier[-4:])
+            self.assertEqual(
+                f"12{str(i + 6).zfill(2)}", bc_aliquots[i].aliquot_identifier[-4:]
+            )

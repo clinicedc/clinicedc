@@ -1,8 +1,7 @@
 from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models import DO_NOTHING, Index
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 from ..utils import recreate_db_view
 from .qa_reports_permissions import qa_reports_permissions
@@ -15,7 +14,7 @@ class QaReportModelMixin(models.Model):
 
     site = models.ForeignKey(Site, on_delete=DO_NOTHING)
 
-    created = models.DateTimeField(default=get_utcnow)
+    created = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.subject_identifier}: {self.report_model}"

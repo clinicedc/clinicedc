@@ -3,6 +3,7 @@ from __future__ import annotations
 from dateutil.relativedelta import MO, relativedelta
 from django.contrib.admin import SimpleListFilter
 from django.db.models import QuerySet
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from edc_constants.constants import (
@@ -17,7 +18,6 @@ from edc_constants.constants import (
     TODAY,
     YESTERDAY,
 )
-from edc_utils import get_utcnow
 
 
 class PastDateListFilter(SimpleListFilter):
@@ -45,9 +45,9 @@ class PastDateListFilter(SimpleListFilter):
         return {}
 
     def queryset(self, request, queryset) -> QuerySet | None:
-        morning = get_utcnow().replace(second=0, hour=0, minute=0)
+        morning = timezone.now().replace(second=0, hour=0, minute=0)
         monday = morning + relativedelta(weekday=MO(-1))
-        night = get_utcnow().replace(second=59, hour=23, minute=59)
+        night = timezone.now().replace(second=59, hour=23, minute=59)
         qs = None
         if self.value() == THIS_WEEK:
             qs = queryset.filter(

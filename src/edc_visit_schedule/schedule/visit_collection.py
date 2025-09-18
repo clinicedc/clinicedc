@@ -39,7 +39,7 @@ class VisitCollection(OrderedCollection):
             except TypeError as e:
                 raise VisitCollectionError(
                     f"Invalid visit.rbase. visit.rbase={visit.rbase}. See {visit!r}. Got {e}."
-                )
+                ) from e
             else:
                 visit.timepoint_datetime = timepoint_datetime
             timepoint_dates.update({visit: visit.timepoint_datetime})

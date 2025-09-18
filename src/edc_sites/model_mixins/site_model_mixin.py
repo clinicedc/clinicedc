@@ -28,7 +28,7 @@ class SiteModelMixin(models.Model):
         self.update_site_on_save(*args, **kwargs)
         super().save(*args, **kwargs)
 
-    def update_site_on_save(self, *args, **kwargs) -> None:
+    def update_site_on_save(self, *args, **kwargs) -> None:  # noqa: ARG002
         if not self.id:
             if not self.site_id and not self.site:
                 self.site = self.get_site_on_create()
@@ -59,7 +59,7 @@ class SiteModelMixin(models.Model):
                         "Exception raised when trying manager method `get_current()`. "
                         f"Sites registered with `sites` global are {site_ids}. "
                         f"settings.SITE_ID={settings.SITE_ID}. Got {e}."
-                    )
+                    ) from e
         return site_obj
 
     def validate_site_against_current(self) -> None:

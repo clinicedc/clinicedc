@@ -6,8 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 
-from edc_utils import get_utcnow
-
 from .utils import convert_to_human_readable
 
 
@@ -83,7 +81,7 @@ class SimpleSequentialIdentifier:
     prefix: str | None = None
 
     def __init__(self):
-        sequence: int = int(get_utcnow().timestamp())
+        sequence: int = int(timezone.now().timestamp())
         random_number: int = choice(range(1000, 9999))  # nosec B311
         sequence: str = f"{sequence}{random_number}"
         chk: int = int(sequence) % 11

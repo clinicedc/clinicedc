@@ -1,11 +1,10 @@
 import csv
-import os
 import uuid
+from pathlib import Path
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ValidationError
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 from ..utils import get_export_folder
 from .file_history_updater import FileHistoryUpdater
@@ -17,11 +16,11 @@ class ModelExporterError(Exception):
     pass
 
 
-class ModelExporterInvalidLookup(Exception):
+class ModelExporterInvalidLookup(Exception):  # noqa: N818
     pass
 
 
-class ModelExporterUnknownField(ValidationError):
+class ModelExporterUnknownField(ValidationError):  # noqa: N818
     pass
 
 
@@ -40,14 +39,14 @@ class ModelExporter:
     value_getter_cls = ValueGetter
     additional_values_cls = AdditionalValues
 
-    export_fields = [
+    export_fields = (
         "export_uuid",
         "timestamp",
         "export_datetime",
         "export_change_type",
-    ]
-    required_fields = ["subject_identifier", "report_datetime"]
-    audit_fields = [
+    )
+    required_fields = ("subject_identifier", "report_datetime")
+    audit_fields = (
         "hostname_created",
         "hostname_modified",
         "created",
@@ -55,7 +54,7 @@ class ModelExporter:
         "user_created",
         "user_modified",
         "revision",
-    ]
+    )
 
     def __init__(
         self,
@@ -117,13 +116,13 @@ class ModelExporter:
                 self._model_cls = self.queryset.model
         return self._model_cls
 
-    def export(self, queryset=None):
+    def export(self, queryset=None) -> Path:
         """Writes the export file and returns the file name."""
         self.queryset = queryset or self.queryset
-        exported_datetime = get_utcnow()
+        exported_datetime = timezone.now()
         filename = self.get_filename(exported_datetime)
-        path = os.path.join(get_export_folder(), filename)
-        with open(path, "w") as f:
+        path = get_export_folder() / filename
+        with path.open("w") as f:
             csv_writer = csv.DictWriter(
                 f, fieldnames=self.field_names, delimiter=self.delimiter
             )

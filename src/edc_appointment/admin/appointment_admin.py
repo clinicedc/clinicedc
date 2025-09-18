@@ -7,6 +7,7 @@ from django.contrib import admin
 from django.db.models import DurationField, ExpressionWrapper, F
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 from django_audit_fields.admin import audit_fieldset_tuple
@@ -19,7 +20,6 @@ from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin
-from edc_utils import get_utcnow
 from edc_visit_schedule.admin import ScheduleStatusListFilter
 from edc_visit_schedule.exceptions import OnScheduleError
 from edc_visit_schedule.fieldsets import (
@@ -290,7 +290,7 @@ class AppointmentAdmin(
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        now = get_utcnow().replace(second=59, hour=23, minute=59)
+        now = timezone.now().replace(second=59, hour=23, minute=59)
         return qs.annotate(
             appt_timepoint_delta=ExpressionWrapper(
                 (F("appt_datetime") - F("timepoint_datetime")),

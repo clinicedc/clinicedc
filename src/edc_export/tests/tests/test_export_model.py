@@ -1,5 +1,4 @@
 import csv
-import os
 import uuid
 from tempfile import mkdtemp
 from time import sleep
@@ -11,6 +10,7 @@ from clinicedc_tests.models import Crf, CrfEncrypted, ListModel, SubjectVisit
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -18,7 +18,6 @@ from edc_export.constants import EXPORTED, INSERT, UPDATE
 from edc_export.model_exporter import ModelExporter, ValueGetterInvalidLookup
 from edc_export.models import FileHistory, ObjectHistory
 from edc_facility.import_holidays import import_holidays
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -33,12 +32,12 @@ class TestExportModel(TestCase):
         site_visit_schedules._registry = {}
         viist_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules.register(get_visit_schedule(consent_v1))
-        for i in range(0, 7):
+        for _ in range(0, 7):
             helper = self.helper_cls()
             helper.consent_and_put_on_schedule(
                 visit_schedule_name=viist_schedule.name,
                 schedule_name="schedule1",
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
             )
         for appointment in Appointment.objects.all().order_by(
             "timepoint", "visit_code_sequence"
@@ -46,7 +45,7 @@ class TestExportModel(TestCase):
             SubjectVisit.objects.create(
                 appointment=appointment,
                 subject_identifier=appointment.subject_identifier,
-                report_datetime=get_utcnow(),
+                report_datetime=timezone.now(),
             )
         self.subject_visit = SubjectVisit.objects.all()[0]
         self.thing_one = ListModel.objects.create(display_name="thing_one", name="thing_one")
@@ -54,7 +53,7 @@ class TestExportModel(TestCase):
         self.crf = Crf.objects.create(
             subject_visit=self.subject_visit,
             char1="char",
-            date1=get_utcnow(),
+            date1=timezone.now(),
             int1=1,
             uuid1=uuid.uuid4(),
         )
@@ -81,8 +80,8 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        self.assertTrue(os.path.exists(path))
-        self.assertIn("export_app_crf_", path)
+        self.assertTrue(path.exists())
+        self.assertIn("export_app_crf_", str(path))
 
     def test_field_names(self):
         Crf.objects.all().delete()
@@ -151,7 +150,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path) as f:
+        with path.open() as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
             self.assertEqual(len(rows), 2)
@@ -166,7 +165,7 @@ class TestExportModel(TestCase):
             },
         )
         path = model_exporter.export()
-        with open(path) as f:
+        with path.open() as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         header = rows[0][1][0]
@@ -182,7 +181,7 @@ class TestExportModel(TestCase):
             },
         )
         path = model_exporter.export()
-        with open(path) as f:
+        with path.open() as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[1][1][0]
@@ -215,7 +214,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path) as f:
+        with path.open() as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[1][1][0]
@@ -231,7 +230,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path) as f:
+        with path.open() as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[1][1][0]
@@ -248,7 +247,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path) as f:
+        with path.open() as f:
             csv_reader = csv.reader(f)
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[1][1][0]
@@ -263,7 +262,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        obj = FileHistory.objects.get(filename=os.path.basename(path))
+        obj = FileHistory.objects.get(filename=path.name)
         self.assertTrue(obj.exported)
         self.assertTrue(obj.exported_datetime)
         self.assertFalse(obj.sent)
@@ -281,7 +280,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        file_history_obj = FileHistory.objects.get(filename=os.path.basename(path))
+        file_history_obj = FileHistory.objects.get(filename=path.name)
         tx_obj = ObjectHistory.objects.get(tx_pk=self.crf.pk)
         self.assertIn(str(tx_obj.export_uuid), file_history_obj.export_uuid_list)
         self.assertEqual(tx_obj.status, EXPORTED)
@@ -305,7 +304,7 @@ class TestExportModel(TestCase):
         ObjectHistory.objects.all().delete()
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
-        self.crf.date1 = get_utcnow()
+        self.crf.date1 = timezone.now()
         self.crf.save()
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
@@ -329,7 +328,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path) as f:
+        with path.open("r") as f:
             csv_reader = csv.DictReader(f, delimiter="|")
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[0][1]
@@ -338,7 +337,7 @@ class TestExportModel(TestCase):
     def test_export_change_type_in_csv_update(self):
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
-        self.crf.date1 = get_utcnow()
+        self.crf.date1 = timezone.now()
         self.crf.save()
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
@@ -346,7 +345,7 @@ class TestExportModel(TestCase):
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
         path = model_exporter.export()
-        with open(path) as f:
+        with path.open() as f:
             csv_reader = csv.DictReader(f, delimiter="|")
             rows = [row for row in enumerate(csv_reader)]
         values_row = rows[0][1]

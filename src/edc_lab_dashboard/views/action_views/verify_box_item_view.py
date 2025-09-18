@@ -1,8 +1,8 @@
 from django.contrib import messages
+from django.utils import timezone
 
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import SHIPPED
-from edc_utils import get_utcnow
 
 from ...view_mixins import BoxViewMixin
 from .action_view import ActionView
@@ -48,7 +48,7 @@ class VerifyBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
                 if self.box_item:
                     if self.box_item == box_item_in_position:
                         box_item_in_position.verified = 1
-                        box_item_in_position.verified_datetime = get_utcnow()
+                        box_item_in_position.verified_datetime = timezone.now()
                         self.next_position()
                         self.redirect_querystring.pop("alert")
                     else:

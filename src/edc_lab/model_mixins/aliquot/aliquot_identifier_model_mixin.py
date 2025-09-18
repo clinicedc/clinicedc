@@ -11,9 +11,9 @@ class AliquotIdentifierModelMixin(models.Model):
 
     identifier_prefix = models.CharField(max_length=50, editable=False)
 
-    subject_identifier = models.CharField(max_length=50, null=True, editable=False)
+    subject_identifier = models.CharField(max_length=50, default="", editable=False)
 
-    requisition_identifier = models.CharField(max_length=50, null=True, editable=False)
+    requisition_identifier = models.CharField(max_length=50, default="", editable=False)
 
     class Meta:
         abstract = True

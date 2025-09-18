@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
@@ -11,7 +12,6 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
-from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_ACTION
 from ...pdf_reports import DeathPdfReport
@@ -40,25 +40,23 @@ class DeathReportListboardViewMixin(
     listboard_view_permission_codename = "edc_adverse_event.view_ae_listboard"
     listboard_instructions = format_html(
         "{}",
-        mark_safe(
-            "edc_adverse_event/ae/death_report_listboard_instructions.html"
-        ),  # nosec B703 B308
+        mark_safe("edc_adverse_event/ae/death_report_listboard_instructions.html"),  # nosec B703 B308
     )
 
     navbar_selected_item = "ae_home"
     ordering = "-report_datetime"
     paginate_by = 25
     search_form_url = "death_report_listboard_url"
-    action_type_names = [DEATH_REPORT_ACTION]
+    action_type_names = (DEATH_REPORT_ACTION,)
 
-    search_fields = [
+    search_fields = (
         "subject_identifier",
         "action_identifier",
         "parent_action_item__action_identifier",
         "related_action_item__action_identifier",
         "user_created",
         "user_modified",
-    ]
+    )
 
     def get(self, request, *args, **kwargs):
         if request.GET.get("pdf"):
@@ -71,7 +69,7 @@ class DeathReportListboardViewMixin(
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
             DEATH_REPORT_ACTION=DEATH_REPORT_ACTION,
-            utc_date=get_utcnow().date(),
+            utc_date=timezone.now().date(),
             **self.add_url_to_context(
                 new_key="ae_home_url",
                 existing_key=self.home_url,

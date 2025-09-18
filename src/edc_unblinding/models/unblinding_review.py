@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.choices import YES_NO_TBD
@@ -8,7 +9,6 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models.base_uuid_model import BaseUuidModel
 from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils.date import get_utcnow
 
 from ..constants import UNBLINDING_REVIEW_ACTION
 from .unblinding_user import UnblindingReviewerUser
@@ -23,7 +23,7 @@ class UnblindingReview(
     action_name = UNBLINDING_REVIEW_ACTION
 
     report_datetime = models.DateTimeField(
-        verbose_name="Report Date and Time", default=get_utcnow
+        verbose_name="Report Date and Time", default=timezone.now
     )
 
     reviewer = models.ForeignKey(
@@ -36,7 +36,7 @@ class UnblindingReview(
 
     approved = models.CharField(max_length=15, default=TBD, choices=YES_NO_TBD)
 
-    comment = models.TextField(verbose_name="Comment", null=True)
+    comment = models.TextField(verbose_name="Comment", default="")
 
     objects = SubjectIdentifierManager()
 

@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
 from django.urls.base import reverse
+from django.utils import timezone
 
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.constants import CLOSED, RESOLVED
@@ -13,7 +14,6 @@ from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 from edc_model.models import BaseUuidModel
 from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils.date import get_utcnow
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from ..action_items import DATA_QUERY_ACTION
@@ -28,7 +28,7 @@ from .requisition_panel import RequisitionPanel
 class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidModel):
     action_name = DATA_QUERY_ACTION
 
-    subject_identifier = models.CharField(max_length=50, null=True, editable=False)
+    subject_identifier = models.CharField(max_length=50, default="", editable=False)
 
     registered_subject = models.ForeignKey(
         QuerySubject,
@@ -83,7 +83,7 @@ class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidM
     )
 
     rule_reference = models.CharField(
-        verbose_name="Query rule reference", max_length=150, null=True, default=uuid4
+        verbose_name="Query rule reference", max_length=150, default=uuid4
     )
 
     objects = models.Manager()
@@ -107,7 +107,7 @@ class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidM
             and self.site_response_text.strip() == AUTO_RESOLVED
         ):
             self.status = CLOSED
-            self.resolved_datetime = get_utcnow()
+            self.resolved_datetime = timezone.now()
             self.dm_user = self.sender
 
     def form_and_numbers_to_string(self):
@@ -192,7 +192,7 @@ class DataQuery(DataQueryModelMixin, ActionModelMixin, SiteModelMixin, BaseUuidM
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Data Query"
         verbose_name_plural = "Data Queries"
-        unique_together = ["registered_subject", "rule_reference", "visit_schedule"]
+        unique_together = ("registered_subject", "rule_reference", "visit_schedule")
         indexes = (
             models.Index(
                 fields=[

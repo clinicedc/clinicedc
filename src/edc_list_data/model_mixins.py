@@ -18,7 +18,11 @@ class BaseListModelMixin(models.Model):
         help_text="This is the stored value, required",
     )
 
-    plural_name = models.CharField(verbose_name="Plural name", max_length=250, null=True)
+    plural_name = models.CharField(
+        verbose_name="Plural name",
+        max_length=250,
+        default="",
+    )
 
     display_name = models.CharField(
         verbose_name="Name",
@@ -34,10 +38,14 @@ class BaseListModelMixin(models.Model):
     )
 
     field_name = models.CharField(
-        max_length=25, editable=False, null=True, blank=True, help_text="Not required"
+        max_length=25,
+        editable=False,
+        default="",
+        blank=True,
+        help_text="Not required",
     )
 
-    extra_value = models.CharField(max_length=250, null=True)
+    extra_value = models.CharField(max_length=250, default="")
 
     version = models.CharField(max_length=35, editable=False, default="1.0")
 
@@ -85,7 +93,7 @@ class ListModelMixin2(BaseListModelMixin):
 
     custom_name = models.CharField(
         max_length=25,
-        null=True,
+        default="",
         blank=True,
         help_text="A custom name/value to use on export instead of or in addition to `name`",
     )

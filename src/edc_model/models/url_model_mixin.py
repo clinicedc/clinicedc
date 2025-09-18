@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
 
-class UrlModelMixinNoReverseMatch(Exception):
+class UrlModelMixinNoReverseMatch(Exception):  # noqa: N818
     pass
 
 
@@ -23,7 +23,7 @@ class UrlModelMixin(models.Model):
                 f"Tried {self.admin_url_name}. Got {e}. "
                 "Check urls and confirm app is in INSTALLED_APPS. If running tests, "
                 "you may need to set `use_test_urls=True`."
-            )
+            ) from e
         return absolute_url
 
     def get_changelist_url(self, search_term=None) -> str:

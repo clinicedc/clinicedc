@@ -1,17 +1,21 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
 
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
 
-opendte = get_utcnow() - relativedelta(years=2)
-closedte = get_utcnow() + relativedelta(years=1)
+opendte = datetime.now().astimezone(tz=ZoneInfo("UTC")) - relativedelta(years=2)
+closedte = datetime.now().astimezone(tz=ZoneInfo("UTC")) + relativedelta(years=1)
 
 
 class TestProtocol(TestCase):
     @override_settings(
-        EDC_PROTOCOL_STUDY_OPEN_DATETIME=get_utcnow() - relativedelta(years=2),
-        EDC_PROTOCOL_STUDY_CLOSE_DATETIME=get_utcnow() + relativedelta(years=1),
+        EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime.now().astimezone(tz=ZoneInfo("UTC"))
+        - relativedelta(years=2),
+        EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime.now().astimezone(tz=ZoneInfo("UTC"))
+        + relativedelta(years=1),
     )
     def test_protocol(self):
         self.assertEqual(ResearchProtocolConfig().study_open_datetime.date(), opendte.date())

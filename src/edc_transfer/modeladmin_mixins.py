@@ -30,7 +30,7 @@ class SubjectTransferModelAdminMixin:
 
     filter_horizontal = ("transfer_reason",)
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "initiated_by": admin.VERTICAL,
         "may_return": admin.VERTICAL,
         "may_contact": admin.VERTICAL,

@@ -1,5 +1,6 @@
+from django.utils import timezone
+
 from edc_registration import get_registered_subject_model_cls
-from edc_utils import get_utcnow
 
 from .research_identifier import ResearchIdentifier
 
@@ -26,5 +27,5 @@ class SubjectIdentifier(ResearchIdentifier):
             site=self.site,
             subject_type=self.identifier_type,
             last_name=self.last_name,
-            registration_datetime=get_utcnow(),
+            registration_datetime=timezone.now(),
         )

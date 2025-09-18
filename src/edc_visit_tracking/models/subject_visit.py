@@ -37,7 +37,7 @@ class SubjectVisit(
         max_length=35,
         choices=VISIT_REASON_MISSED,
         blank=True,
-        null=True,
+        default="",
     )
 
     info_source = models.CharField(

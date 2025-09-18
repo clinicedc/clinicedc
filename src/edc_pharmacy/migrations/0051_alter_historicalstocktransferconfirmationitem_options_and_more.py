@@ -2,11 +2,10 @@
 
 from django.db import migrations, models
 
-import edc_utils.date
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_pharmacy", "0050_remove_stocktransferconfirmation2_location_and_more"),
     ]
@@ -78,11 +77,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="historicalstocktransferconfirmation",
             name="transfer_confirmation_datetime",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow),
+            field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AddField(
             model_name="stocktransferconfirmation",
             name="transfer_confirmation_datetime",
-            field=models.DateTimeField(default=edc_utils.date.get_utcnow),
+            field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]

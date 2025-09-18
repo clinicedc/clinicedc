@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.http.request import HttpRequest
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
+from django.utils import timezone
 from django.views.generic.base import ContextMixin, View
 
 from edc_appointment.constants import INCOMPLETE_APPT
@@ -24,7 +25,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_metadata.view_mixins import MetadataViewMixin
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -89,8 +89,8 @@ class TestViewMixin(TestCase):
         consent_v1 = ConsentDefinition(
             "edc_metadata.subjectconsentv1",
             version="1",
-            start=get_utcnow(),
-            end=get_utcnow() + relativedelta(years=3),
+            start=timezone.now(),
+            end=timezone.now() + relativedelta(years=3),
             age_min=18,
             age_is_adult=18,
             age_max=64,
@@ -106,7 +106,7 @@ class TestViewMixin(TestCase):
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
 
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier, consent_datetime=get_utcnow()
+            subject_identifier=self.subject_identifier, consent_datetime=timezone.now()
         )
         _, self.schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_visit_schedule.onschedule"

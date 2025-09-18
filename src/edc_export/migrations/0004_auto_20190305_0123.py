@@ -4,6 +4,7 @@ import django_audit_fields.fields.hostname_modification_field
 import django_audit_fields.fields.userfield
 import django_audit_fields.models.audit_model_mixin
 from django.db import migrations, models
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
@@ -13,9 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="datarequest",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="datarequest",
@@ -29,9 +28,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="datarequest",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="datarequest",
@@ -56,9 +53,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="datarequesthistory",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="datarequesthistory",
@@ -72,9 +67,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="datarequesthistory",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="datarequesthistory",
@@ -99,9 +92,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="exportreceipt",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="exportreceipt",
@@ -115,9 +106,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="exportreceipt",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="exportreceipt",
@@ -142,9 +131,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="filehistory",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="filehistory",
@@ -158,9 +145,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="filehistory",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="filehistory",
@@ -185,9 +170,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicaldatarequest",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicaldatarequest",
@@ -201,9 +184,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicaldatarequest",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicaldatarequest",
@@ -228,9 +209,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalexportreceipt",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalexportreceipt",
@@ -244,9 +223,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalexportreceipt",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalexportreceipt",
@@ -271,9 +248,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalfilehistory",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalfilehistory",
@@ -287,9 +262,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalfilehistory",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalfilehistory",
@@ -314,9 +287,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalobjecthistory",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalobjecthistory",
@@ -330,9 +301,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalobjecthistory",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalobjecthistory",
@@ -357,9 +326,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalplan",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalplan",
@@ -373,9 +340,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="historicalplan",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="historicalplan",
@@ -400,9 +365,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="objecthistory",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="objecthistory",
@@ -416,9 +379,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="objecthistory",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="objecthistory",
@@ -443,9 +404,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="plan",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="plan",
@@ -459,9 +418,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="plan",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="plan",
@@ -486,9 +443,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="uploadexportreceiptfile",
             name="created",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="uploadexportreceiptfile",
@@ -502,9 +457,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="uploadexportreceiptfile",
             name="modified",
-            field=models.DateTimeField(
-                blank=True, default=django_audit_fields.models.audit_model_mixin.utcnow
-            ),
+            field=models.DateTimeField(blank=True, default=django.utils.timezone.now),
         ),
         migrations.AlterField(
             model_name="uploadexportreceiptfile",

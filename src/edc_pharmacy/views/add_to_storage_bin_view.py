@@ -9,13 +9,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
-from edc_utils import get_utcnow
 
 from ..exceptions import StorageBinError
 from ..models import Stock, StorageBin, StorageBinItem
@@ -192,7 +192,7 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
                     storage_bin,
                     stock_codes,
                     user_created=request.user.username,
-                    created=get_utcnow(),
+                    created=timezone.now(),
                 )
             except StorageBinError as e:
                 messages.add_message(request, messages.ERROR, str(e))

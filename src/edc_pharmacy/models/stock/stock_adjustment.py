@@ -3,9 +3,9 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
+from django.utils import timezone
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
-from edc_utils import get_utcnow
 
 from .stock import Stock
 
@@ -22,19 +22,19 @@ class StockAdjustment(BaseUuidModel):
         null=True,
     )
 
-    adjustment_datetime = models.DateTimeField(default=get_utcnow)
+    adjustment_datetime = models.DateTimeField(default=timezone.now)
 
     unit_qty_in_old = models.DecimalField(
         decimal_places=2,
         max_digits=20,
-        default=Decimal(0.0),
+        default=Decimal("0.0"),
         validators=[MinValueValidator(0)],
     )
 
     unit_qty_in_new = models.DecimalField(
         decimal_places=2,
         max_digits=20,
-        default=Decimal(0.0),
+        default=Decimal("0.0"),
         validators=[MinValueValidator(0)],
     )
 

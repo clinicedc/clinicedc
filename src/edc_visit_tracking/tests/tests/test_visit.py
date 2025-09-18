@@ -17,6 +17,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -25,7 +26,6 @@ from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -160,7 +160,7 @@ class TestVisit(TestCase):
         ):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() + relativedelta(months=index),
+                report_datetime=timezone.now() + relativedelta(months=index),
                 reason=SCHEDULED,
             )
         subject_visits = SubjectVisit.objects.all().order_by(
@@ -188,7 +188,7 @@ class TestVisit(TestCase):
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() + relativedelta(months=index),
+                report_datetime=timezone.now() + relativedelta(months=index),
                 reason=SCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT

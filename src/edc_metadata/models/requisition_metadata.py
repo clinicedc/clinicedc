@@ -10,7 +10,7 @@ from .crf_metadata_model_mixin import CrfMetadataModelMixin
 
 
 class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
-    panel_name = models.CharField(max_length=50, null=True)
+    panel_name = models.CharField(max_length=50, default="")
 
     objects = RequisitionMetadataManager()
 
@@ -26,7 +26,7 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
 
     @property
     def verbose_name(self) -> str:
-        from edc_lab.site_labs import site_labs
+        from edc_lab.site_labs import site_labs  # noqa: PLC0415
 
         return site_labs.panel_names.get(self.panel_name) or self.panel_name
 
@@ -42,7 +42,7 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
         )
 
     # noinspection PyTypeHints
-    natural_key.dependencies = ["sites.Site"]  # type: ignore
+    natural_key.dependencies = ("sites.Site",)  # type: ignore
 
     def model_instance_query_opts(self) -> dict:
         opts = super().model_instance_query_opts()
@@ -71,7 +71,7 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
         app_label = "edc_metadata"
         verbose_name = "Requisition collection status"
         verbose_name_plural = "Requisition collection status"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=[
                     "subject_identifier",
@@ -83,8 +83,8 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
                     "panel_name",
                 ],
                 name="%(app_label)s_%(class)s_subject_iden_visit_uniq",
-            )
-        ]
+            ),
+        )
         indexes = (
             *CrfMetadataModelMixin.Meta.indexes,
             *BaseUuidModel.Meta.indexes,

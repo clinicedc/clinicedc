@@ -8,13 +8,13 @@ from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_consent.site_consents import site_consents
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.exceptions import SubjectScheduleError
 from edc_visit_schedule.models import OffSchedule, OnSchedule, SubjectScheduleHistory
 from edc_visit_schedule.schedule import Schedule
@@ -97,7 +97,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         """Asserts returns the correct instances for the schedule."""
         helper = Helper()
         subject_screening, first_name, last_name = helper.screen_subject(
-            report_datetime=get_utcnow()
+            report_datetime=timezone.now()
         )
         for onschedule_model, schedule_name, cdef in [
             ("clinicedc_tests.onscheduletwo", "schedule_two", consent1_v1),
@@ -118,7 +118,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
                     schedule=schedule,
                 )
                 subject_schedule.put_on_schedule(
-                    onschedule_datetime=get_utcnow(),
+                    onschedule_datetime=timezone.now(),
                     # consent_definition=subject_consent.consent_definition,
                 )
                 try:
@@ -129,7 +129,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
                 except ObjectDoesNotExist:
                     self.fail("ObjectDoesNotExist unexpectedly raised")
 
-        traveller = time_machine.travel(get_utcnow() + relativedelta(days=52))
+        traveller = time_machine.travel(timezone.now() + relativedelta(days=52))
         traveller.start()
         for onschedule_model, schedule_name, cdef in [
             ("clinicedc_tests.onschedulefour", "schedule_four", consent1_v2),
@@ -138,7 +138,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
                 subject_consent = helper.consent_subject(
                     consent_definition=cdef,
                     subject_screening=subject_screening,
-                    consent_datetime=get_utcnow(),
+                    consent_datetime=timezone.now(),
                     first_name=first_name,
                     last_name=last_name,
                 )
@@ -151,7 +151,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
                     schedule=schedule,
                 )
                 subject_schedule.put_on_schedule(
-                    onschedule_datetime=get_utcnow(),
+                    onschedule_datetime=timezone.now(),
                     # consent_definition=subject_consent.consent_definition,
                 )
                 try:
@@ -169,7 +169,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         """
         helper = Helper()
         subject_screening, first_name, last_name = helper.screen_subject(
-            report_datetime=get_utcnow()
+            report_datetime=timezone.now()
         )
         helper.consent_subject(
             consent_definition=consent2_v1,
@@ -178,7 +178,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             last_name=last_name,
         )
         # updates
-        traveller = time_machine.travel(get_utcnow() + relativedelta(days=52))
+        traveller = time_machine.travel(timezone.now() + relativedelta(days=52))
         traveller.start()
         subject_consent = helper.consent_subject(
             consent_definition=consent2_v2,
@@ -197,7 +197,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         )
         try:
             subject_schedule.put_on_schedule(
-                onschedule_datetime=get_utcnow(),
+                onschedule_datetime=timezone.now(),
                 # consent_definition=subject_consent.consent_definition,
             )
         except SubjectScheduleError:
@@ -208,7 +208,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         """Asserts returns the correct instances for the schedule."""
         helper = Helper()
         subject_screening, first_name, last_name = helper.screen_subject(
-            report_datetime=get_utcnow()
+            report_datetime=timezone.now()
         )
         subject_consent = helper.consent_subject(
             consent_definition=consent2_v1,
@@ -224,14 +224,14 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             visit_schedule=visit_schedule,
             schedule=schedule,
         )
-        onschedule_datetime: datetime = get_utcnow()
+        onschedule_datetime: datetime = timezone.now()
         subject_schedule.put_on_schedule(onschedule_datetime)
         subject_schedule.put_on_schedule(onschedule_datetime)
 
     def test_put_on_schedule(self):
         helper = Helper()
         subject_screening, first_name, last_name = helper.screen_subject(
-            report_datetime=get_utcnow()
+            report_datetime=timezone.now()
         )
         subject_consent = helper.consent_subject(
             consent_definition=consent2_v1,
@@ -249,7 +249,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         )
         schedule.put_on_schedule(
             subject_identifier=subject_consent.subject_identifier,
-            onschedule_datetime=get_utcnow(),
+            onschedule_datetime=timezone.now(),
             # consent_definition=subject_consent.consent_definition,
         )
         try:
@@ -268,17 +268,17 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             visit_schedule_name="visit_schedule"
         )
         schedule = visit_schedule.schedules.get("schedule")
-        traveller = time_machine.travel(get_utcnow() + relativedelta(hours=+2))
+        traveller = time_machine.travel(timezone.now() + relativedelta(hours=+2))
         traveller.start()
         schedule.put_on_schedule(
             subject_consent.subject_identifier,
-            get_utcnow(),
+            timezone.now(),
             # consent_definition=subject_consent.consent_definition,
         )
         traveller.stop()
-        traveller = time_machine.travel(get_utcnow() + relativedelta(months=+1))
+        traveller = time_machine.travel(timezone.now() + relativedelta(months=+1))
         traveller.start()
-        schedule.take_off_schedule(subject_consent.subject_identifier, get_utcnow())
+        schedule.take_off_schedule(subject_consent.subject_identifier, timezone.now())
         try:
             OffSchedule.objects.get(subject_identifier=subject_consent.subject_identifier)
         except ObjectDoesNotExist:

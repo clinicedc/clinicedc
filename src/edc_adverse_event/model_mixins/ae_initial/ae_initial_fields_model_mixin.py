@@ -1,9 +1,9 @@
+import django.utils.timezone
 from django.db import models
 
 from edc_constants.constants import NOT_APPLICABLE
 from edc_model.validators import date_not_future
 from edc_model_fields.fields.other_charfield import OtherCharField
-from edc_utils.date import get_utcnow
 
 from ...choices import AE_GRADE, STUDY_DRUG_RELATIONSHIP
 from ...models import AeClassification
@@ -17,7 +17,7 @@ class AeInitialFieldsModelMixin(models.Model):
     )
 
     report_datetime = models.DateTimeField(
-        verbose_name="Report Date and Time", default=get_utcnow
+        verbose_name="Report Date and Time", default=django.utils.timezone.now
     )
 
     ae_classification = models.ForeignKey(
@@ -34,22 +34,23 @@ class AeInitialFieldsModelMixin(models.Model):
 
     ae_awareness_date = models.DateField(
         verbose_name="AE Awareness date",
-        default=get_utcnow,
+        default=django.utils.timezone.now,
         validators=[date_not_future],
     )
 
     ae_start_date = models.DateField(
         verbose_name="Actual Start Date of AE",
-        default=get_utcnow,
+        default=django.utils.timezone.now,
         validators=[date_not_future],
     )
 
     ae_grade = models.CharField(verbose_name="Severity of AE", max_length=25, choices=AE_GRADE)
 
-    study_drug_relation = models.CharField(
+    study_drug_relation = models.CharField(  # noqa: DJ001
         verbose_name="Relation to study drug:",
         max_length=25,
         choices=STUDY_DRUG_RELATIONSHIP,
+        null=True,
     )
 
     class Meta:

@@ -7,7 +7,7 @@ from .pill_bottle_model_mixin import PillBottleModelMixin
 class SubjectPillBottle(PillBottleModelMixin):
     rando_sid = models.CharField(max_length=25)
 
-    subject_identifier = models.CharField(max_length=50, null=True)
+    subject_identifier = models.CharField(max_length=50, default="")
 
     source_container = models.ForeignKey(
         PillBottle, on_delete=models.PROTECT, blank=True, null=True

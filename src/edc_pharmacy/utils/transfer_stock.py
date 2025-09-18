@@ -6,8 +6,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 if TYPE_CHECKING:
     from ..models import StockTransfer
@@ -35,7 +34,7 @@ def transfer_stock(
                     stock=stock,
                     stock_transfer=stock_transfer,
                     user_created=request.user.username,
-                    created=get_utcnow(),
+                    created=timezone.now(),
                 )
                 stock.location = stock_transfer.to_location
                 stock.save()

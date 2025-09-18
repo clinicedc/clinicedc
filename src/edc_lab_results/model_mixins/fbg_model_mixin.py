@@ -37,13 +37,13 @@ class FbgModelMixin(
         verbose_name="Was a point-of-care test used?",
         max_length=15,
         choices=YES_NO,
-        null=True,
+        default="",
     )
     fasting = models.CharField(
         verbose_name="Was this fasting or non-fasting?",
         max_length=25,
         choices=FASTING_CHOICES,
-        null=True,
+        default="",
         blank=False,
     )
 
@@ -55,7 +55,7 @@ class FbgModelMixin(
 
     def get_summary_options(self) -> dict:
         opts = super().get_summary_options()
-        fasting = True if self.fasting == FASTING else False
+        fasting = self.fasting == FASTING
         opts.update(fasting=fasting)
         return opts
 

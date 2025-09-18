@@ -8,6 +8,7 @@ from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.managers import AppointmentDeleteError
@@ -17,7 +18,6 @@ from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.model_mixins import PreviousVisitError
@@ -86,7 +86,7 @@ class TestPreviousVisit(TestCase):
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         SubjectVisit.objects.create(
             appointment=appointments[0],
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reason=SCHEDULED,
         )
         visit_sequence = VisitSequence(appointment=appointments[1])
@@ -105,26 +105,26 @@ class TestPreviousVisit(TestCase):
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         SubjectVisit.objects.create(
             appointment=appointments[0],
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reason=SCHEDULED,
         )
         self.assertRaises(
             PreviousVisitError,
             SubjectVisit.objects.create,
             appointment=appointments[2],
-            report_datetime=get_utcnow() + relativedelta(months=2),
+            report_datetime=timezone.now() + relativedelta(months=2),
             reason=SCHEDULED,
         )
         SubjectVisit.objects.create(
             appointment=appointments[1],
-            report_datetime=get_utcnow() + relativedelta(months=1),
+            report_datetime=timezone.now() + relativedelta(months=1),
             reason=SCHEDULED,
         )
         self.assertRaises(
             PreviousVisitError,
             SubjectVisit.objects.create,
             appointment=appointments[3],
-            report_datetime=get_utcnow() + relativedelta(months=3),
+            report_datetime=timezone.now() + relativedelta(months=3),
             reason=SCHEDULED,
         )
 
@@ -133,7 +133,7 @@ class TestPreviousVisit(TestCase):
 
         SubjectVisit.objects.create(
             appointment=appointments[0],
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reason=SCHEDULED,
         )
 
@@ -141,7 +141,7 @@ class TestPreviousVisit(TestCase):
             PreviousVisitError,
             SubjectVisit.objects.create,
             appointment=appointments[2],
-            report_datetime=get_utcnow() + relativedelta(months=2),
+            report_datetime=timezone.now() + relativedelta(months=2),
         )
 
     def test_previous_appointment(self):
@@ -158,7 +158,7 @@ class TestPreviousVisit(TestCase):
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() + relativedelta(months=index),
+                report_datetime=timezone.now() + relativedelta(months=index),
                 reason=SCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT
@@ -167,7 +167,7 @@ class TestPreviousVisit(TestCase):
             unscheduled_appointment = self.helper.add_unscheduled_appointment(appointment)
             SubjectVisit.objects.create(
                 appointment=unscheduled_appointment,
-                report_datetime=get_utcnow()
+                report_datetime=timezone.now()
                 + relativedelta(months=index)
                 + relativedelta(days=1),
                 reason=UNSCHEDULED,
@@ -192,7 +192,7 @@ class TestPreviousVisit(TestCase):
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() + relativedelta(months=index),
+                report_datetime=timezone.now() + relativedelta(months=index),
                 reason=SCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT
@@ -201,7 +201,7 @@ class TestPreviousVisit(TestCase):
             unscheduled_appointment = self.helper.add_unscheduled_appointment(appointment)
             SubjectVisit.objects.create(
                 appointment=unscheduled_appointment,
-                report_datetime=get_utcnow()
+                report_datetime=timezone.now()
                 + relativedelta(months=index)
                 + relativedelta(days=1),
                 reason=UNSCHEDULED,
@@ -211,13 +211,13 @@ class TestPreviousVisit(TestCase):
 
             unscheduled_appointment = self.helper.add_unscheduled_appointment(
                 appointment,
-                suggested_appt_datetime=get_utcnow()
+                suggested_appt_datetime=timezone.now()
                 + relativedelta(months=index)
                 + relativedelta(days=2),
             )
             SubjectVisit.objects.create(
                 appointment=unscheduled_appointment,
-                report_datetime=get_utcnow()
+                report_datetime=timezone.now()
                 + relativedelta(months=index)
                 + relativedelta(days=2),
                 reason=UNSCHEDULED,
@@ -246,7 +246,7 @@ class TestPreviousVisit(TestCase):
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() + relativedelta(months=index),
+                report_datetime=timezone.now() + relativedelta(months=index),
                 reason=SCHEDULED,
             )
 
@@ -255,7 +255,7 @@ class TestPreviousVisit(TestCase):
         for index, appointment in enumerate(appointments):
             SubjectVisit.objects.create(
                 appointment=appointment,
-                report_datetime=get_utcnow() + relativedelta(months=index),
+                report_datetime=timezone.now() + relativedelta(months=index),
                 reason=SCHEDULED,
             )
             appointment.appt_status = INCOMPLETE_APPT
@@ -263,7 +263,7 @@ class TestPreviousVisit(TestCase):
             unscheduled_appointment = self.helper.add_unscheduled_appointment(appointment)
             SubjectVisit.objects.create(
                 appointment=unscheduled_appointment,
-                report_datetime=get_utcnow()
+                report_datetime=timezone.now()
                 + relativedelta(months=index)
                 + relativedelta(days=1),
                 reason=UNSCHEDULED,
@@ -278,7 +278,7 @@ class TestPreviousVisit(TestCase):
         appointments = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
         SubjectVisit.objects.create(
             appointment=appointments[0],
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             reason=SCHEDULED,
         )
 
@@ -287,7 +287,7 @@ class TestPreviousVisit(TestCase):
         try:
             SubjectVisit.objects.create(
                 appointment=appointments[2],
-                report_datetime=get_utcnow() + relativedelta(months=2),
+                report_datetime=timezone.now() + relativedelta(months=2),
                 reason=SCHEDULED,
             )
         except PreviousVisitError:
@@ -299,6 +299,6 @@ class TestPreviousVisit(TestCase):
             PreviousVisitError,
             SubjectVisit.objects.create,
             appointment=appointments[2],
-            report_datetime=get_utcnow() + relativedelta(months=2),
+            report_datetime=timezone.now() + relativedelta(months=2),
             reason=SCHEDULED,
         )

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
@@ -12,7 +13,6 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
-from edc_utils import get_utcnow
 
 from ...constants import AE_INITIAL_ACTION
 from ...pdf_reports import AePdfReport
@@ -43,9 +43,7 @@ class AeListboardViewMixin(
 
     listboard_instructions = format_html(
         "{}",
-        mark_safe(
-            render_to_string("edc_adverse_event/ae/ae_listboard_instructions.html")
-        ),  # nosec B703 B308,
+        mark_safe(render_to_string("edc_adverse_event/ae/ae_listboard_instructions.html")),  # nosec B703 B308,
     )
     navbar_selected_item = "ae_home"
     ordering = "-report_datetime"
@@ -78,7 +76,7 @@ class AeListboardViewMixin(
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
             AE_INITIAL_ACTION=AE_INITIAL_ACTION,
-            utc_date=get_utcnow().date(),
+            utc_date=timezone.now().date(),
             **self.add_url_to_context(
                 new_key="ae_home_url",
                 existing_key=self.home_url,

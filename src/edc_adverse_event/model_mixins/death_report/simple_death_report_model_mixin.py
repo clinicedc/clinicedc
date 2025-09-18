@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from edc_action_item.managers import (
     ActionIdentifierModelManager,
@@ -9,7 +10,6 @@ from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.validators import date_not_future, datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from ...constants import DEATH_REPORT_ACTION
 
@@ -27,7 +27,7 @@ class SimpleDeathReportModelMixin(
     report_datetime = models.DateTimeField(
         verbose_name="Report Date",
         validators=[datetime_not_before_study_start, datetime_not_future],
-        default=get_utcnow,
+        default=timezone.now,
     )
 
     death_datetime = models.DateTimeField(

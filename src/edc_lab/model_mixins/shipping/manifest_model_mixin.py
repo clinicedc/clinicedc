@@ -3,7 +3,6 @@ from django.utils import timezone
 
 from edc_constants.constants import CLOSED, OPEN, OTHER
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from ...constants import STORAGE, TESTING
 from ...identifiers import ManifestIdentifier
@@ -20,7 +19,7 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
 
     manifest_datetime = models.DateTimeField(default=timezone.now)
 
-    export_datetime = models.DateTimeField(blank=True)
+    export_datetime = models.DateTimeField(blank=True, null=True)
 
     export_references = models.TextField(blank=True, default="")
 
@@ -34,7 +33,7 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
 
     category = models.CharField(max_length=25, default=TESTING, choices=MANIFEST_CATEGORY)
 
-    category_other = models.CharField(max_length=25, null=True, blank=True)
+    category_other = models.CharField(max_length=25, default="", blank=True)
 
     comment = models.TextField(verbose_name="Comment", blank=True, default="")
 
@@ -49,7 +48,7 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
             identifier = ManifestIdentifier()
             self.manifest_identifier = identifier.identifier
         if self.shipped and not self.export_datetime:
-            self.export_datetime = get_utcnow()
+            self.export_datetime = timezone.now()
         elif not self.shipped:
             self.export_datetime = None
             self.printed = False
@@ -58,7 +57,7 @@ class ManifestModelMixin(SiteModelMixin, models.Model):
     def natural_key(self):
         return (self.manifest_identifier,)
 
-    natural_key.dependencies = ["sites.Site"]
+    natural_key.dependencies = ("sites.Site",)
 
     @property
     def human_readable_identifier(self):

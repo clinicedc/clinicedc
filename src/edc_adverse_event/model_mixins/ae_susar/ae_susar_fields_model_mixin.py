@@ -1,7 +1,7 @@
 from django.db import models
+from django.utils import timezone
 
 from edc_model.validators import datetime_not_future
-from edc_utils import get_utcnow
 
 from ...utils import get_adverse_event_app_label
 
@@ -14,7 +14,7 @@ class AeSusarFieldsModelMixin(models.Model):
     report_datetime = models.DateTimeField(
         verbose_name="Report date and time",
         validators=[datetime_not_future],
-        default=get_utcnow,
+        default=timezone.now,
     )
 
     submitted_datetime = models.DateTimeField(

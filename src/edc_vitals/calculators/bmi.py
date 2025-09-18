@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
+from django.utils import timezone
 
-from edc_utils import age, get_utcnow
+from edc_utils.age import age
 from edc_utils.round_up import round_half_away_from_zero
 
 __all__ = ["BMI", "CalculatorError", "calculate_bmi"]
@@ -8,6 +9,9 @@ __all__ = ["BMI", "CalculatorError", "calculate_bmi"]
 
 class CalculatorError(Exception):
     pass
+
+
+MIN_BMI_AGE = 18
 
 
 class BMI:
@@ -21,11 +25,10 @@ class BMI:
         upper_bmi_value=None,
         dob=None,
         report_datetime=None,
-        **kwargs,
     ):
         if not weight_kg or not height_cm:
             raise CalculatorError(f"Unable to calculate BMI. Got {weight_kg}kg, {height_cm}cm")
-        if age(dob, report_datetime).years < 18:
+        if age(dob, report_datetime).years < MIN_BMI_AGE:
             raise CalculatorError("Unable to calculate BMI. Got age<18")
         self.lower = float(lower_bmi_value or 5.0)
         self.upper = float(upper_bmi_value or 75.0)
@@ -57,7 +60,7 @@ def calculate_bmi(
     Assumes adult dob (18) if dob not provided."""
     bmi = None
     if height_cm and weight_kg:
-        report_datetime = report_datetime or get_utcnow()
+        report_datetime = report_datetime or timezone.now()
         bmi = BMI(
             weight_kg=weight_kg,
             height_cm=height_cm,
@@ -65,6 +68,5 @@ def calculate_bmi(
             upper_bmi_value=upper_bmi_value,
             dob=dob or report_datetime - relativedelta(years=18),
             report_datetime=report_datetime,
-            **kwargs,
         )
     return bmi

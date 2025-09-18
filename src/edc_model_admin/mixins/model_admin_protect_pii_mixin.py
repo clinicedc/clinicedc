@@ -21,16 +21,15 @@ class ModelAdminProtectPiiMixin:
     the changelist, add the method name to `extra_pii_attrs`.
     """
 
-    extra_pii_attrs: list[str] | None = []
+    extra_pii_attrs: tuple[str] | None = ()
 
     def get_extra_pii_attrs(self) -> list[str | tuple[str, str]]:
         return self.extra_pii_attrs or []
 
-    def get_encrypted_fields(self) -> list[str]:
+    def get_encrypted_fields(self) -> tuple[str, ...]:
         encrypted_fields = [f.name for f in get_encrypted_fields(self.model)]
-        encrypted_fields.extend(self.get_extra_pii_attrs())
-        encrypted_fields = list(set(encrypted_fields))
-        return encrypted_fields
+        encrypted_fields.extend(*self.get_extra_pii_attrs())
+        return tuple(set(encrypted_fields))
 
     def get_list_display(self, request) -> tuple[str]:
         list_display = super().get_list_display(request)

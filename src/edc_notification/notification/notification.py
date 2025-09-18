@@ -1,13 +1,15 @@
+import contextlib
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
+from django.utils import timezone
 from twilio.base.exceptions import TwilioException, TwilioRestException
 from twilio.rest import Client
 
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import SiteNotRegistered, sites
-from edc_utils import get_utcnow
 
 from ..site_notifications import site_notifications
 from ..stubs import NotificationModelStub
@@ -30,7 +32,7 @@ class Notification:
 
     sms_client = Client
 
-    email_from: list[str] = get_email_contacts("data_manager")
+    email_from: str = get_email_contacts("data_manager")
     email_to: list[str] | None = None  # usually a mailing list address
     email_message_cls = EmailMessage
 
@@ -124,9 +126,9 @@ class Notification:
             if use_sms:
                 sms_sent = self.send_sms(**kwargs)
             self.post_notification_actions(email_sent=email_sent, sms_sent=sms_sent, **kwargs)
-        return True if email_sent or sms_sent else False
+        return bool(email_sent or sms_sent)
 
-    def notify_on_condition(self, **kwargs) -> bool:
+    def notify_on_condition(self, **kwargs) -> bool:  # noqa: ARG002
         """Override to conditionally return True if the notification
         should be sent by email and/or sms.
 
@@ -174,7 +176,7 @@ class Notification:
             notification_model = notification_model_cls.objects.get(name=self.name)
         return notification_model
 
-    def get_display_name(self, **kwargs):
+    def get_display_name(self, **kwargs):  # noqa: ARG002
         return self.display_name
 
     def get_template_options(self, instance=None, test_message=None, **kwargs):
@@ -193,30 +195,28 @@ class Notification:
             test_subject_line=(self.email_test_subject_line if test_message else "").strip(),
             test_body_line=self.email_test_body_line if test_message else "",
             test_line=self.sms_test_line if test_message else "",
-            message_datetime=get_utcnow(),
+            message_datetime=timezone.now(),
             message_reference="",
         )
         if "subject_identifier" not in template_options:
-            try:
+            with contextlib.suppress(AttributeError):
                 template_options.update(subject_identifier=instance.subject_identifier)
-            except AttributeError:
-                pass
         if "site_name" not in template_options:
             try:
                 site_name = sites.get(instance.site.id).description
             except AttributeError:
                 pass
             except SiteNotRegistered as e:
-                raise NotificationError(e)
+                raise NotificationError(e) from e
             else:
                 template_options.update(site_name=site_name.replace("_", " ").title())
         return template_options
 
     def send_email(
         self,
+        email_to: list[str],
         fail_silently: bool | None = None,
-        email_to: list[str] = None,
-        email_body_template: str = None,
+        email_body_template: str | None = None,
         **kwargs,
     ) -> int:
         kwargs.update(**self.get_template_options(**kwargs))

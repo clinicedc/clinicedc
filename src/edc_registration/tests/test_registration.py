@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 from django.test.utils import override_settings, tag
+from django.utils import timezone
 from multisite import SiteID
 
 from edc_consent import site_consents
@@ -13,7 +14,6 @@ from edc_registration.exceptions import RegisteredSubjectError
 from edc_registration.models import RegisteredSubject
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -40,10 +40,10 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
 
     def test_updates_registered_subject2(self):
         SubjectModelOne.objects.create(
-            screening_identifier="12345", dob=get_utcnow() - relativedelta(years=5)
+            screening_identifier="12345", dob=timezone.now() - relativedelta(years=5)
         )
 
-        new_dob = get_utcnow().date()
+        new_dob = timezone.now().date()
         obj = SubjectModelOne.objects.get(screening_identifier="12345")
         obj.dob = new_dob
         obj.save()
@@ -64,10 +64,10 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
     def test_updates_registered_subject_overridden(self):
         """Assert updates RegisteredSubject with registration_unique_field overridden."""
         SubjectModelTwo.objects.create(
-            subject_identifier="12345", dob=get_utcnow() - relativedelta(years=5)
+            subject_identifier="12345", dob=timezone.now() - relativedelta(years=5)
         )
 
-        new_dob = get_utcnow().date()
+        new_dob = timezone.now().date()
         obj = SubjectModelTwo.objects.get(subject_identifier="12345")
         obj.dob = new_dob
         obj.save()
@@ -86,10 +86,10 @@ class TestRegistration(SiteTestCaseMixin, TestCase):
     def test_updates_registered_subject_overridden2(self):
         """Assert updates RegisteredSubject with registration_unique_field overridden."""
         SubjectModelThree.objects.create(
-            subject_identifier="12345", dob=get_utcnow() - relativedelta(years=5)
+            subject_identifier="12345", dob=timezone.now() - relativedelta(years=5)
         )
 
-        new_dob = get_utcnow().date()
+        new_dob = timezone.now().date()
         obj = SubjectModelThree.objects.get(subject_identifier="12345")
         obj.dob = new_dob
         obj.save()

@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from django.db import models
+from django.utils import timezone
 from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from .storage_bin import StorageBin
 
@@ -31,7 +31,7 @@ class StorageBinItem(SiteModelMixin, BaseUuidModel):
         },
     )
 
-    item_datetime = models.DateTimeField(default=get_utcnow)
+    item_datetime = models.DateTimeField(default=timezone.now)
 
     history = HistoricalRecords()
 

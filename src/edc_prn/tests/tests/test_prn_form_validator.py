@@ -5,6 +5,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django import forms
 from django.contrib.sites.models import Site
 from django.test import TestCase
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent.modelform_mixins import RequiresConsentModelFormMixin
@@ -14,7 +15,6 @@ from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_prn.modelform_mixins import PrnFormValidatorMixin
 from edc_sites.modelform_mixins import SiteModelFormMixin
 from edc_sites.utils import add_or_update_django_sites
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -42,7 +42,7 @@ class TestPrn(TestCase):
         )
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
         self.report_datetime = self.subject_visit.report_datetime
 

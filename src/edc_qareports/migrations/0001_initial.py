@@ -11,11 +11,10 @@ import django_revision.revision_field
 from django.db import migrations, models
 
 import edc_sites.managers
-import edc_utils.date
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -41,14 +40,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -132,7 +131,7 @@ class Migration(migrations.Migration):
                 ("report_model", models.CharField(max_length=150)),
                 (
                     "report_datetime",
-                    models.DateTimeField(default=edc_utils.date.get_utcnow),
+                    models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 ("note", models.TextField(null=True)),
                 (

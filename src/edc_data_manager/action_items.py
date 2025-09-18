@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.utils import timezone
 
 from edc_action_item.action import Action
 from edc_action_item.site_action_items import site_action_items
@@ -11,7 +12,6 @@ from edc_constants.constants import (
     NORMAL,
     RESOLVED,
 )
-from edc_utils.date import get_utcnow
 
 from .constants import CLOSED_WITH_ACTION
 
@@ -35,12 +35,10 @@ class DataQueryAction(Action):
         return not self.close_action_item_on_save()
 
     def close_action_item_on_save(self):
-        if self.reference_obj and self.reference_obj.status in [
+        return self.reference_obj and self.reference_obj.status in [
             CLOSED,
             CLOSED_WITH_ACTION,
-        ]:
-            return True
-        return False
+        ]
 
     def get_priority(self):
         return self.query_priority or self.priority
@@ -98,7 +96,7 @@ class DataQueryAction(Action):
             object=self.reference_obj,
             query_priority=query_priority,
             title=title,
-            utcnow=get_utcnow(),
+            utcnow=timezone.now(),
             visit_schedule=visit_schedule,
         )
         form_and_numbers_to_string = getattr(

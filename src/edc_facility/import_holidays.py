@@ -9,10 +9,10 @@ from typing import TYPE_CHECKING
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.utils import timezone
 from tqdm import tqdm
 
 from edc_sites.site import sites
-from edc_utils import get_utcnow
 
 from .exceptions import HolidayFileNotFoundError, HolidayImportError
 from .utils import get_holiday_model_cls
@@ -30,14 +30,14 @@ def import_holidays(verbose: bool | None = None, test: bool | None = None) -> No
     if test:
         import_for_tests(model_cls)
     else:
-        path = settings.HOLIDAY_FILE
+        path = Path(settings.HOLIDAY_FILE)
         try:
             if not Path(path).exists():
                 raise HolidayFileNotFoundError(path)
-        except TypeError:
+        except TypeError as e:
             raise HolidayImportError(
                 f"Invalid path importing holiday file. See settings.HOLIDAY_FILE. Got {path}."
-            )
+            ) from e
         if verbose:
             sys.stdout.write(
                 f"\nImporting holidays from '{path}' into {model_cls._meta.label_lower}\n"
@@ -52,9 +52,9 @@ def import_holidays(verbose: bool | None = None, test: bool | None = None) -> No
             sys.stdout.write("Done.\n")
 
 
-def check_for_duplicates_in_file(path) -> list:
+def check_for_duplicates_in_file(path: Path) -> list:
     """Returns a list of records."""
-    with open(path) as f:
+    with path.open("r") as f:
         reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
         recs = [(row["local_date"], row["country"]) for row in reader]
     if len(recs) != len(list(set(recs))):
@@ -62,18 +62,18 @@ def check_for_duplicates_in_file(path) -> list:
     return recs
 
 
-def import_file(path: str, recs: list, model_cls: Holiday):
-    with open(path) as f:
+def import_file(path: Path, recs: list, model_cls: Holiday):
+    with path.open("r") as f:
         reader = csv.DictReader(f, fieldnames=["local_date", "label", "country"])
         for index, row in tqdm(enumerate(reader), total=len(recs)):
             if index == 0:
                 continue
             try:
-                local_date = datetime.strptime(row["local_date"], "%Y-%m-%d").date()
+                local_date = datetime.strptime(row["local_date"], "%Y-%m-%d").date()  # noqa: DTZ007
             except ValueError as e:
                 raise HolidayImportError(
                     f"Invalid format when importing from {path}. Got '{e}'"
-                )
+                ) from e
             else:
                 try:
                     obj = model_cls.objects.get(country=row["country"], local_date=local_date)
@@ -87,7 +87,7 @@ def import_file(path: str, recs: list, model_cls: Holiday):
 
 
 def import_for_tests(model_cls: type[Holiday]):
-    year = get_utcnow().year
+    year = timezone.now().year
     country = sites.get_current_country()
     if not country:
         raise HolidayImportError(
@@ -112,11 +112,11 @@ def import_for_tests(model_cls: type[Holiday]):
         if index == 0:
             continue
         try:
-            local_date = datetime.strptime(row[LOCAL_DATE], "%Y-%m-%d").date()
+            local_date = datetime.strptime(row[LOCAL_DATE], "%Y-%m-%d").date()  # noqa: DTZ007
         except ValueError as e:
             raise HolidayImportError(
                 f"Invalid format when importing holidays (test). Got '{e}'"
-            )
+            ) from e
         else:
             objs.append(
                 model_cls(country=row[COUNTRY], local_date=local_date, name=row[LABEL])

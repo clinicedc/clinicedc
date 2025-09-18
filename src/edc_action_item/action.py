@@ -87,7 +87,7 @@ class Action:
     action_type_model: str = "edc_action_item.actiontype"
     next_actions: list[str] | None = None  # a list of Action classes which may include 'self'
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         action_item: ActionItemStub = None,
         reference_obj: models.Model = None,

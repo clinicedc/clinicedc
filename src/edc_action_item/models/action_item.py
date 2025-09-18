@@ -7,6 +7,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.deletion import PROTECT
+from django.utils import timezone
 
 from edc_constants.constants import CANCELLED, NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
@@ -14,7 +15,6 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_notification.model_mixins import NotificationModelMixin
 from edc_sites.managers import CurrentSiteManager as BaseCurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from ..choices import ACTION_STATUS, PRIORITY
 from ..exceptions import ActionItemStatusError, SubjectDoesNotExist
@@ -76,7 +76,7 @@ class ActionItem(
 
     action_identifier = models.CharField(max_length=50, unique=True)
 
-    report_datetime = models.DateTimeField(default=get_utcnow)
+    report_datetime = models.DateTimeField(default=timezone.now)
 
     action_type = models.ForeignKey(
         ActionType, on_delete=PROTECT, related_name="action_type", verbose_name="Action"
@@ -101,6 +101,7 @@ class ActionItem(
     related_action_identifier = models.CharField(
         max_length=50,
         blank=True,
+        default="",
         help_text=(
             "May be left blank. e.g. action identifier from source model that opened the item."
         ),
@@ -109,6 +110,7 @@ class ActionItem(
     parent_action_identifier = models.CharField(
         max_length=50,
         blank=True,
+        default="",
         help_text=(
             "May be left blank. e.g. action identifier from "
             "reference model that opened the item (parent)."
@@ -119,6 +121,7 @@ class ActionItem(
         max_length=25,
         choices=PRIORITY,
         blank=True,
+        default="",
         help_text="Leave blank to use default for this action type.",
     )
 
@@ -142,11 +145,13 @@ class ActionItem(
 
     status = models.CharField(max_length=25, default=NEW, choices=ACTION_STATUS)
 
-    instructions = models.TextField(blank=True, help_text="populated by action class")
+    instructions = models.TextField(
+        blank=True, default="", help_text="populated by action class"
+    )
 
     auto_created = models.BooleanField(default=False)
 
-    auto_created_comment = models.CharField(max_length=25, blank=True)
+    auto_created_comment = models.CharField(max_length=25, blank=True, default="")
 
     objects = ActionItemManager()
 

@@ -8,6 +8,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule impo
 )
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from faker import Faker
 
 from edc_appointment.models import Appointment
@@ -17,7 +18,6 @@ from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.metadata_rules import PF, P
 from edc_registration.models import RegisteredSubject
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -62,7 +62,7 @@ class TestPredicates(TestCase):
         subject_identifier = fake.credit_card_number()
         subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=subject_identifier,
-            consent_datetime=get_utcnow(),
+            consent_datetime=timezone.now(),
             gender=gender,
         )
         self.registered_subject = RegisteredSubject.objects.get(

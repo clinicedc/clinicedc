@@ -4,8 +4,7 @@ from uuid import UUID
 
 from celery import shared_task
 from django.apps import apps as django_apps
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 from ..exceptions import InsufficientStockError, RepackError
 
@@ -29,7 +28,7 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
     if not getattr(repack_request.from_stock, "confirmation", None):
         raise RepackError("Source stock item not confirmed")
     stock_model_cls = repack_request.from_stock.__class__
-    for index in range(0, int(number_to_process)):
+    for _ in range(0, int(number_to_process)):
         try:
             stock_model_cls.objects.create(
                 receive_item=None,
@@ -42,7 +41,7 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
                 repack_request=repack_request,
                 lot=repack_request.from_stock.lot,
                 user_created=username,
-                created=get_utcnow(),
+                created=timezone.now(),
             )
         except InsufficientStockError:
             break
@@ -50,7 +49,7 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
         repack_request=repack_request
     ).count()
     repack_request.user_modified = username
-    repack_request.modified = get_utcnow()
+    repack_request.modified = timezone.now()
     repack_request.save(
         update_fields=[
             "requested_qty",

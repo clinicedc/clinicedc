@@ -4,10 +4,10 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase
+from django.utils import timezone
 
 from edc_form_validators.date_validator import DateValidatorError
 from edc_form_validators.form_validator import FormValidator
-from edc_utils import get_utcnow
 
 
 class TestDateFieldValidator(TestCase):
@@ -40,7 +40,7 @@ class TestDateFieldValidator(TestCase):
     def test_date_is_before_report_datetime_or_raise(self):
         for future_days in [0, 1, 3]:
             with self.subTest(future_days=future_days):
-                now = get_utcnow()
+                now = timezone.now()
                 not_before = now + relativedelta(days=future_days)
                 form_validator = FormValidator(
                     cleaned_data=dict(my_date=not_before, report_datetime=now)
@@ -55,7 +55,7 @@ class TestDateFieldValidator(TestCase):
 
         for past_days in [1, 3]:
             with self.subTest(past_days=past_days):
-                now = get_utcnow()
+                now = timezone.now()
                 not_before = now - relativedelta(days=past_days)
                 form_validator = FormValidator(
                     cleaned_data=dict(my_date=not_before, report_datetime=now)
@@ -68,7 +68,7 @@ class TestDateFieldValidator(TestCase):
     def test_date_is_before_report_datetime_or_raise_inclusive(self):
         for future_days in [1, 3]:
             with self.subTest(future_days=future_days):
-                now = get_utcnow()
+                now = timezone.now()
                 not_before = now + relativedelta(days=future_days)
                 form_validator = FormValidator(
                     cleaned_data=dict(my_date=not_before, report_datetime=now)
@@ -86,7 +86,7 @@ class TestDateFieldValidator(TestCase):
 
         for past_days in [0, 1, 3]:
             with self.subTest(past_days=past_days):
-                now = get_utcnow()
+                now = timezone.now()
                 not_before = now - relativedelta(days=past_days)
                 form_validator = FormValidator(
                     cleaned_data=dict(my_date=not_before, report_datetime=now)
@@ -102,7 +102,7 @@ class TestDateFieldValidator(TestCase):
     def test_date_is_after_report_datetime_or_raise(self):
         for future_days in [1, 3]:
             with self.subTest(future_days=future_days):
-                now = get_utcnow()
+                now = timezone.now()
                 after = now + relativedelta(days=future_days)
                 form_validator = FormValidator(
                     cleaned_data=dict(my_date=after, report_datetime=now)
@@ -129,7 +129,7 @@ class TestDateFieldValidator(TestCase):
     def test_date_is_after_report_datetime_or_raise_inclusive(self):
         for future_days in [0, 1, 3]:
             with self.subTest(future_days=future_days):
-                now = get_utcnow()
+                now = timezone.now()
                 after = now + relativedelta(days=future_days)
                 form_validator = FormValidator(
                     cleaned_data=dict(my_date=after, report_datetime=now)
@@ -160,7 +160,7 @@ class TestDateFieldValidator(TestCase):
                 )
 
     def test_date_is_after_or_raise(self):
-        now = get_utcnow()
+        now = timezone.now()
         not_after = now - relativedelta(days=1)
         form_validator = FormValidator(
             cleaned_data=dict(my_date=not_after, report_datetime=now)
@@ -182,7 +182,7 @@ class TestDateFieldValidator(TestCase):
             self.fail("ValidationError unexpectedly raised")
 
     def test_date_is_on_or_after_or_raise(self):
-        now = get_utcnow()
+        now = timezone.now()
         not_after = now - relativedelta(days=1)
         form_validator = FormValidator(
             cleaned_data=dict(my_date=not_after, report_datetime=now)
@@ -215,7 +215,7 @@ class TestDateFieldValidator(TestCase):
             self.fail("ValidationError unexpectedly raised")
 
     def test_date_is_before_or_raise(self):
-        now = get_utcnow()
+        now = timezone.now()
         before = now - relativedelta(days=1)
         form_validator = FormValidator(cleaned_data=dict(my_date=before, report_datetime=now))
         try:
@@ -237,7 +237,7 @@ class TestDateFieldValidator(TestCase):
         self.assertIn("Expected a date before", str(cm.exception.messages))
 
     def test_date_is_equal_or_raise(self):
-        now = get_utcnow()
+        now = timezone.now()
         not_equal = now - relativedelta(days=1)
         form_validator = FormValidator(
             cleaned_data=dict(my_date=not_equal, report_datetime=now)
@@ -273,7 +273,7 @@ class TestDateFieldValidator(TestCase):
         self.assertIn("Expected a date before ", str(cm.exception.messages))
 
     def test_invalid_operator_raises(self):
-        form_validator = FormValidator(cleaned_data=dict(my_date=get_utcnow()))
+        form_validator = FormValidator(cleaned_data=dict(my_date=timezone.now()))
         with self.assertRaises(TypeError):
             form_validator._date_is(op="xEQ")
 

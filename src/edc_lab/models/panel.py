@@ -24,14 +24,14 @@ class Panel(BaseUuidModel):
         return self.display_name or self.name
 
     def natural_key(self):
-        return (self.name, self.lab_profile_name)
+        return self.name, self.lab_profile_name
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Panel"
         verbose_name_plural = "Panels"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["name", "lab_profile_name"],
                 name="%(app_label)s_%(class)s_name_uniq",
-            )
-        ]
+            ),
+        )

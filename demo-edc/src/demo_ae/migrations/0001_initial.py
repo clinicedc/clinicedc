@@ -19,11 +19,10 @@ import edc_model.validators.date
 import edc_model_fields.fields.other_charfield
 import edc_pdf_reports.model_mixins
 import edc_protocol.validators
-import edc_utils.date
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -52,14 +51,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -203,7 +202,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         verbose_name="Report Date and Time",
                     ),
                 ),
@@ -223,7 +222,7 @@ class Migration(migrations.Migration):
                 (
                     "ae_awareness_date",
                     models.DateField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[edc_model.validators.date.date_not_future],
                         verbose_name="AE Awareness date",
                     ),
@@ -231,7 +230,7 @@ class Migration(migrations.Migration):
                 (
                     "ae_start_date",
                     models.DateField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[edc_model.validators.date.date_not_future],
                         verbose_name="Actual Start Date of AE",
                     ),
@@ -408,14 +407,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -522,7 +521,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         verbose_name="Report date and time",
                     ),
                 ),
@@ -663,14 +662,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -808,7 +807,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[edc_model.validators.date.datetime_not_future],
                         verbose_name="Report date and time",
                     ),
@@ -995,14 +994,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1109,7 +1108,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
                             edc_model.validators.date.datetime_not_future,
@@ -1249,14 +1248,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1383,7 +1382,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
                             edc_model.validators.date.datetime_not_future,
@@ -1536,14 +1535,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1649,7 +1648,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         verbose_name="Report date and time",
                     ),
                 ),
@@ -1817,14 +1816,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1967,7 +1966,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         verbose_name="Report Date and Time",
                     ),
                 ),
@@ -1987,7 +1986,7 @@ class Migration(migrations.Migration):
                 (
                     "ae_awareness_date",
                     models.DateField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[edc_model.validators.date.date_not_future],
                         verbose_name="AE Awareness date",
                     ),
@@ -1995,7 +1994,7 @@ class Migration(migrations.Migration):
                 (
                     "ae_start_date",
                     models.DateField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[edc_model.validators.date.date_not_future],
                         verbose_name="Actual Start Date of AE",
                     ),
@@ -2203,14 +2202,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2347,7 +2346,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[edc_model.validators.date.datetime_not_future],
                         verbose_name="Report date and time",
                     ),
@@ -2563,14 +2562,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2676,7 +2675,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
                             edc_model.validators.date.datetime_not_future,
@@ -2840,14 +2839,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -2973,7 +2972,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
                             edc_model.validators.date.datetime_not_future,
@@ -3126,14 +3125,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=django_audit_fields.models.audit_model_mixin.utcnow,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -3259,7 +3258,7 @@ class Migration(migrations.Migration):
                 (
                     "report_datetime",
                     models.DateTimeField(
-                        default=edc_utils.date.get_utcnow,
+                        default=django.utils.timezone.now,
                         validators=[
                             edc_protocol.validators.datetime_not_before_study_start,
                             edc_model.validators.date.datetime_not_future,

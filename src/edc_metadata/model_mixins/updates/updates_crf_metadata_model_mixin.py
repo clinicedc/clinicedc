@@ -59,7 +59,7 @@ class UpdatesCrfMetadataModelMixin(UpdatesMetadataModelMixin):
             crfs = self.metadata_visit_object.crfs_unscheduled.forms + crfs_prn.forms
         else:
             crfs = self.metadata_visit_object.crfs.forms + crfs_prn.forms
-        crf = [c for c in crfs if c.model == self._meta.label_lower][0]
+        crf = next(c for c in crfs if c.model == self._meta.label_lower)
         return REQUIRED if crf.required else NOT_REQUIRED
 
     class Meta:

@@ -10,6 +10,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
+from django.utils import timezone
 
 from edc_consent import site_consents
 from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES
@@ -24,7 +25,6 @@ from edc_reportable import (
 from edc_reportable.forms import ReportablesFormValidatorMixin
 from edc_reportable.units import MILLIGRAMS_PER_DECILITER
 from edc_reportable.utils import load_reference_ranges
-from edc_utils.date import get_utcnow
 from edc_visit_schedule.constants import DAY01
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.models import SubjectVisit
@@ -40,7 +40,6 @@ class SpecimenResultFormValidator(ReportablesFormValidatorMixin, CrfFormValidato
 @tag("reportable")
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestSpecimenResultForm(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         site_consents.registry = {}
@@ -60,9 +59,9 @@ class TestSpecimenResultForm(TestCase):
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
             consent_definition=consent_v1,
-            dob=get_utcnow() - relativedelta(years=25),
+            dob=timezone.now() - relativedelta(years=25),
             guardian_name="",
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
         )
         subject_visit = SubjectVisit.objects.get(appointment__visit_code=DAY01)
         self.alt = {
@@ -115,7 +114,7 @@ class TestSpecimenResultForm(TestCase):
         }
         self.base_data = {
             "subject_visit": subject_visit,
-            "dob": get_utcnow() - relativedelta(years=25),
+            "dob": timezone.now() - relativedelta(years=25),
             "gender": FEMALE,
             "results_normal": YES,
             "results_reportable": NOT_APPLICABLE,

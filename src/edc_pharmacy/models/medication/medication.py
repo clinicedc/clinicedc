@@ -37,9 +37,9 @@ class Medication(BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Medication"
         verbose_name_plural = "Medications"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["name", "display_name"],
                 name="%(app_label)s_%(class)s_name_uniq",
-            )
-        ]
+            ),
+        )

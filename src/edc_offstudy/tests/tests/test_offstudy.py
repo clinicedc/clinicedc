@@ -2,6 +2,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from edc_action_item.site_action_items import site_action_items
 from edc_appointment.constants import INCOMPLETE_APPT
@@ -10,7 +11,7 @@ from edc_constants.constants import DEAD
 from edc_facility.import_holidays import import_holidays
 from edc_offstudy.models import SubjectOffstudy
 from edc_offstudy.utils import OffstudyError
-from edc_utils import get_dob, get_utcnow
+from edc_utils import get_dob
 from edc_visit_schedule.exceptions import OffScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -52,7 +53,7 @@ class TestOffstudy(TestCase):
             "444444444",
         ]
 
-        self.consent_datetime = get_utcnow() - relativedelta(years=4)
+        self.consent_datetime = timezone.now() - relativedelta(years=4)
         dob = get_dob(age_in_years=25, now=self.consent_datetime)
         for subject_identifier in self.subject_identifiers:
             subject_consent = SubjectConsent.objects.create(
@@ -80,7 +81,7 @@ class TestOffstudy(TestCase):
 
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             offschedule_datetime=self.consent_datetime + relativedelta(days=1),
         )
 
@@ -96,7 +97,7 @@ class TestOffstudy(TestCase):
     def test_offstudy_cls_raises_before_offstudy_date(self):
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             offschedule_datetime=self.consent_datetime + relativedelta(days=1),
         )
 
@@ -110,7 +111,7 @@ class TestOffstudy(TestCase):
     def test_offstudy_not_before_offschedule(self):
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             offschedule_datetime=self.consent_datetime + relativedelta(days=1),
         )
 
@@ -206,7 +207,7 @@ class TestOffstudy(TestCase):
         # take off schedule1
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             offschedule_datetime=appointments[1].appt_datetime,
         )
 
@@ -238,7 +239,7 @@ class TestOffstudy(TestCase):
         # take off schedule1
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             offschedule_datetime=(self.consent_datetime + relativedelta(hours=1)),
         )
 
@@ -258,14 +259,14 @@ class TestOffstudy(TestCase):
     def test_modelform_mixin_ok(self):
         data = dict(
             subject_identifier=self.subject_identifier,
-            offstudy_datetime=get_utcnow(),
+            offstudy_datetime=timezone.now(),
             offstudy_reason=DEAD,
             site=Site.objects.get(id=settings.SITE_ID).id,
         )
         # take off schedule1
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             offschedule_datetime=(self.consent_datetime + relativedelta(hours=1)),
         )
 
@@ -275,7 +276,7 @@ class TestOffstudy(TestCase):
     def test_offstudy_modelform(self):
         data = dict(
             subject_identifier=self.subject_identifier,
-            offstudy_datetime=get_utcnow(),
+            offstudy_datetime=timezone.now(),
             offstudy_reason=DEAD,
             site=Site.objects.get(id=settings.SITE_ID).id,
         )
@@ -286,7 +287,7 @@ class TestOffstudy(TestCase):
         # take off schedule1
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             offschedule_datetime=(self.consent_datetime + relativedelta(hours=1)),
         )
 
@@ -365,7 +366,7 @@ class TestOffstudy(TestCase):
         # take off schedule1 and hour after trying to submit CRF
         OffScheduleOne.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             offschedule_datetime=(self.consent_datetime + relativedelta(hours=1)),
         )
 

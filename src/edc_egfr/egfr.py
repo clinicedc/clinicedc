@@ -8,12 +8,13 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.utils import timezone
 
 from edc_constants.constants import NEW
 from edc_reportable.models import ReferenceRangeCollection
 from edc_reportable.units import EGFR_UNITS, PERCENT
 from edc_reportable.utils import get_grade_for_value
-from edc_utils import age, get_utcnow
+from edc_utils.age import age
 
 from .calculators import EgfrCkdEpi, EgfrCockcroftGault, egfr_percent_change
 from .get_drop_notification_model import get_egfr_drop_notification_model_cls
@@ -27,7 +28,7 @@ class EgfrError(Exception):
 
 
 class Egfr:
-    calculators: dict = {"ckd-epi": EgfrCkdEpi, "cockcroft-gault": EgfrCockcroftGault}
+    calculators: dict = {"ckd-epi": EgfrCkdEpi, "cockcroft-gault": EgfrCockcroftGault}  # noqa: RUF012
 
     def __init__(
         self,
@@ -78,7 +79,7 @@ class Egfr:
                     name=reference_range_collection_name
                 )
             except ObjectDoesNotExist as e:
-                raise ObjectDoesNotExist(f"{e} Got {reference_range_collection_name}")
+                raise ObjectDoesNotExist(f"{e} Got {reference_range_collection_name}") from e
         else:
             self.reference_range_collection = reference_range_collection
         self.report_datetime = report_datetime
@@ -134,9 +135,12 @@ class Egfr:
         """A hook to respond if egfr percent drop from baseline
         is at or beyond the percent drop threshold.
         """
-        if self.egfr_drop_value and self.percent_drop_threshold is not None:
-            if self.egfr_drop_value >= self.percent_drop_threshold:
-                self.create_or_update_egfr_drop_notification()
+        if (
+            self.egfr_drop_value
+            and self.percent_drop_threshold is not None
+            and self.egfr_drop_value >= self.percent_drop_threshold
+        ):
+            self.create_or_update_egfr_drop_notification()
 
     @property
     def egfr_value(self) -> float:
@@ -226,7 +230,7 @@ class Egfr:
                 obj.weight = self.get_weight_in_kgs()
                 obj.egfr_percent_change = self.egfr_drop_value
                 obj.creatinine_date = self.assay_date
-                obj.modified = get_utcnow()
+                obj.modified = timezone.now()
                 obj.save()
         obj.refresh_from_db()
         return obj

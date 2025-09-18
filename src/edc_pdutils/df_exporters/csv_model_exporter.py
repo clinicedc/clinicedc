@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from django.core.management.color import color_style
@@ -24,7 +25,7 @@ class CsvModelExporter:
         queryset: QuerySet | None = None,
         decrypt: bool | None = None,
         sort_by: list | tuple | str | None = None,
-        export_folder: str | None = None,
+        export_folder: Path | None = None,
         site_ids: list[int] | None = None,
         **kwargs,
     ):

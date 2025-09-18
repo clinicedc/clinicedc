@@ -6,13 +6,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
-from edc_utils import get_utcnow
 
 from ..models import ConfirmationAtSite, Formulation, Location, Rx
 from ..utils import dispense
@@ -61,7 +61,7 @@ class DispenseView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Template
                 f"Subject {subject_identifier} not found at {location.display_name}.",
             )
         else:
-            if rx.rx_expiration_date and rx.rx_expiration_date < get_utcnow():
+            if rx.rx_expiration_date and rx.rx_expiration_date < timezone.now():
                 messages.add_message(
                     self.request,
                     messages.WARNING,

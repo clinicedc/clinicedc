@@ -43,7 +43,7 @@ class PreviousVisitModelMixin(models.Model):
         try:
             visit_sequence.enforce_sequence()
         except VisitSequenceError as e:
-            raise PreviousVisitError(e)
+            raise PreviousVisitError(e) from e
 
     @property
     def previous_visit(self: Appointment | RelatedVisitProtocol | Self) -> Any:

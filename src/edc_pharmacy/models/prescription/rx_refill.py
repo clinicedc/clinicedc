@@ -57,7 +57,6 @@ class RxRefill(
 
     refill_start_datetime = models.DateTimeField(
         verbose_name="Refill start date/time",
-        # default=get_utcnow,
         help_text="Starting date for this refill",
     )
 

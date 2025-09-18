@@ -30,7 +30,7 @@ class SubjectContactFieldsMixin(models.Model):
     may_sms = models.CharField(
         max_length=25,
         choices=YES_NO,
-        null=True,
+        default="",
         blank=False,
         verbose_name=format_html(
             "Has the participant given permission <b>{text}</b> "

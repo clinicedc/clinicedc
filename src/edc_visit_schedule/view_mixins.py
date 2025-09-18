@@ -3,8 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.core.exceptions import ObjectDoesNotExist
-
-from edc_utils import get_utcnow
+from django.utils import timezone
 
 from .site_visit_schedules import site_visit_schedules
 
@@ -39,7 +38,7 @@ class VisitScheduleViewMixin:
                     else:
                         self.onschedule_models.append(onschedule_model_obj)
                         self.visit_schedules.update({visit_schedule.name: visit_schedule})
-                        if schedule.is_onschedule(self.subject_identifier, get_utcnow()):
+                        if schedule.is_onschedule(self.subject_identifier, timezone.now()):
                             self.current_schedule = schedule
                             self.current_visit_schedule = visit_schedule
                             self.current_onschedule_model = onschedule_model_obj

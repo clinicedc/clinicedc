@@ -9,6 +9,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule impo
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from faker import Faker
 
 from edc_appointment.models import Appointment
@@ -26,7 +27,6 @@ from edc_metadata.metadata_rules import (
     site_metadata_rules,
 )
 from edc_metadata.models import RequisitionMetadata
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -190,7 +190,7 @@ class TestRequisitionRuleGroup(TestCase):
         subject_identifier = fake.credit_card_number()
         subject_consent = SubjectConsentV1.objects.create(
             subject_identifier=subject_identifier,
-            consent_datetime=get_utcnow(),
+            consent_datetime=timezone.now(),
             gender=gender,
         )
         self.schedule.put_on_schedule(
@@ -201,7 +201,7 @@ class TestRequisitionRuleGroup(TestCase):
             subject_identifier=subject_identifier,
             visit_code=self.schedule.visits.first.code,
         )
-        subject_visit = SubjectVisit.objects.create(
+        return SubjectVisit.objects.create(
             appointment=self.appointment,
             subject_identifier=subject_identifier,
             report_datetime=self.appointment.appt_datetime,
@@ -211,7 +211,6 @@ class TestRequisitionRuleGroup(TestCase):
             schedule_name=self.appointment.schedule_name,
             reason=SCHEDULED,
         )
-        return subject_visit
 
     @time_machine.travel(test_datetime)
     def test_rule_male(self):

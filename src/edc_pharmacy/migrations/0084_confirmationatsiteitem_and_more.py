@@ -15,11 +15,9 @@ from django.db import migrations, models
 
 import edc_pharmacy.models.stock.confirmation_at_site_item
 import edc_sites.managers
-import edc_utils.date
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_pharmacy", "0083_auto_20250707_1820"),
         ("sites", "0002_alter_domain_unique"),

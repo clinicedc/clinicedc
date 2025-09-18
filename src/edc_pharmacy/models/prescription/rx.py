@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import PROTECT, Index
+from django.utils import timezone
 
 from edc_action_item.models import ActionModelMixin
 from edc_constants.constants import NEW
@@ -12,7 +13,7 @@ from edc_randomization.site_randomizers import site_randomizers
 from edc_registration.models import RegisteredSubject
 from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import formatted_age, get_utcnow
+from edc_utils import formatted_age
 
 from ...choices import PRESCRIPTION_STATUS
 from ...constants import PRESCRIPTION_ACTION
@@ -54,9 +55,9 @@ class Rx(
         blank=False,
     )
 
-    report_datetime = models.DateTimeField(default=get_utcnow)
+    report_datetime = models.DateTimeField(default=timezone.now)
 
-    rx_date = models.DateField(verbose_name="Date RX written", default=get_utcnow)
+    rx_date = models.DateField(verbose_name="Date RX written", default=timezone.now)
 
     rx_expiration_date = models.DateField(
         verbose_name="Date RX expires",
@@ -75,17 +76,17 @@ class Rx(
         help_text="Number of times this prescription may be refilled",
     )
 
-    rando_sid = models.CharField(max_length=25, null=True, blank=True)
+    rando_sid = models.CharField(max_length=25, default="", blank=True)
 
-    randomizer_name = models.CharField(max_length=25, null=True, blank=True)
+    randomizer_name = models.CharField(max_length=25, default="", blank=True)
 
     weight_in_kgs = models.DecimalField(max_digits=6, decimal_places=1, null=True, blank=True)
 
-    clinician_initials = models.CharField(max_length=3, null=True)
+    clinician_initials = models.CharField(max_length=3, default="")
 
     notes = models.TextField(
         max_length=250,
-        null=True,
+        default="",
         blank=True,
         help_text="Private notes for pharmacist only",
     )
@@ -112,18 +113,18 @@ class Rx(
                     .objects.get(subject_identifier=self.subject_identifier)
                     .sid
                 )
-            except ObjectDoesNotExist:
+            except ObjectDoesNotExist as e:
                 raise PrescriptionError(
                     "Unable to create prescription. Subject has not been "
                     f"randomized (randomizer={self.randomizer_name}"
-                )
+                ) from e
         super().save(*args, **kwargs)
 
     def description(self):
         return (
             f"{','.join([o.display_name for o in self.medications.all()])} "
             f"{self.registered_subject.subject_identifier} {self.registered_subject.initials} "
-            f"{formatted_age(born=self.registered_subject.dob, reference_dt=get_utcnow())} "
+            f"{formatted_age(born=self.registered_subject.dob, reference_dt=timezone.now())} "
             f"{self.registered_subject.gender} "
             f"Written: {self.rx_date}"
         )
@@ -134,11 +135,11 @@ class Rx(
             obj = randomizer.model_cls().objects.get(
                 subject_identifier=self.subject_identifier
             )
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             raise PrescriptionError(
                 "Unable to create prescription. Subject has not been "
                 f"randomized (randomizer={self.randomizer_name}"
-            )
+            ) from e
         return Assignment.objects.get(name=obj.assignment)
 
     class Meta(BaseUuidModel.Meta):

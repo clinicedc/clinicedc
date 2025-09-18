@@ -20,13 +20,12 @@ class SearchSlugModelMixin(models.Model):
     search_slug_warning = None
     search_slug_updater_cls = SearchSlugUpdater
 
-    def get_search_slug_fields(self) -> list[str]:
-        return []
+    def get_search_slug_fields(self) -> tuple[str] | None:
+        return None
 
     slug = models.CharField(
         max_length=250,
         default="",
-        null=True,
         editable=False,
         db_index=True,
         help_text="a field used for quick search",

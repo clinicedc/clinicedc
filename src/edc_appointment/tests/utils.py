@@ -20,9 +20,9 @@ if TYPE_CHECKING:
 
 
 def get_appointment(
-    subject_identifier: str | None = None,
-    visit_code: str | None = None,
-    visit_code_sequence: int | None = None,
+    subject_identifier: str,
+    visit_code: str,
+    visit_code_sequence: int,
     reason: str | None = None,
     appt_datetime: datetime | None = None,
     timepoint: float | Decimal | None = None,
@@ -43,7 +43,7 @@ def get_appointment(
         appointment.appt_datetime = appt_datetime
         appointment.save()
         appointment.refresh_from_db()
-    if reason == UNSCHEDULED:
+    if reason and reason == UNSCHEDULED:
         appointment = create_unscheduled_appointment(appointment)
     appointment.appt_status = IN_PROGRESS_APPT
     appointment.save()

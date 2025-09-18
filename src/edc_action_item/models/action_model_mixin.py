@@ -23,7 +23,7 @@ class ActionNoManagersModelMixin(models.Model):
 
     subject_dashboard_url: str = "subject_dashboard_url"
 
-    action_identifier = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    action_identifier = models.CharField(max_length=50, unique=True, default="", blank=True)
 
     action_item = models.ForeignKey(ActionItem, null=True, blank=True, on_delete=PROTECT)
 
@@ -38,7 +38,7 @@ class ActionNoManagersModelMixin(models.Model):
     # remove
     parent_action_identifier = models.CharField(
         max_length=30,
-        null=True,
+        default="",
         blank=True,
         help_text="action identifier that links to parent reference model instance.",
     )
@@ -46,12 +46,12 @@ class ActionNoManagersModelMixin(models.Model):
     # remove
     related_action_identifier = models.CharField(
         max_length=30,
-        null=True,
+        default="",
         blank=True,
         help_text="action identifier that links to related reference model instance.",
     )
 
-    action_item_reason = models.TextField(null=True, editable=False)
+    action_item_reason = models.TextField(default="", editable=False)
 
     class Meta:
         abstract = True

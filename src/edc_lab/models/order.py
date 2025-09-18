@@ -1,11 +1,11 @@
 from django.db import models
 from django.db.models.deletion import PROTECT
+from django.utils import timezone
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_model.validators import datetime_not_future
 from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import get_utcnow
 
 from .aliquot import Aliquot
 
@@ -25,7 +25,9 @@ class Order(SiteModelMixin, BaseUuidModel):
 
     order_identifier = models.CharField(max_length=25, editable=False, unique=True)
 
-    order_datetime = models.DateTimeField(default=get_utcnow, validators=[datetime_not_future])
+    order_datetime = models.DateTimeField(
+        default=timezone.now, validators=[datetime_not_future]
+    )
 
     panel_name = models.CharField(max_length=25)
 
@@ -36,9 +38,9 @@ class Order(SiteModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def natural_key(self):
-        return (self.report_datetime,) + self.aliquot.natural_key()
+        return self.report_datetime, *self.aliquot.natural_key()
 
-    natural_key.dependencies = ["edc_lab.aliquot", "sites.Site"]
+    natural_key.dependencies = ("edc_lab.aliquot", "sites.Site")
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Order"

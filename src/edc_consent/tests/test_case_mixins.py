@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.utils import timezone
 from model_bakery import baker
 
 from edc_consent.utils import get_consent_model_name
 from edc_constants.constants import FEMALE
-from edc_utils import get_utcnow, get_utcnow_as_date
 
 if TYPE_CHECKING:
     from clinicedc_tests.models import SubjectScreening
@@ -29,8 +29,8 @@ class ConsentTestCaseMixin:
         age_in_years: int | None = None,
         report_datetime: datetime | None = None,
     ):
-        now = get_utcnow()
-        now_as_date = get_utcnow_as_date()
+        now = timezone.now()
+        now_as_date = timezone.now().date()
         screening_identifier = getattr(
             subject_screening,
             "screening_identifier",

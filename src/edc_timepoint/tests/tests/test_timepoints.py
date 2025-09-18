@@ -1,13 +1,13 @@
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from edc_appointment.constants import COMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 
@@ -22,7 +22,7 @@ from ..visit_schedule import visit_schedule1
 class Helper:
     def __init__(self, subject_identifier=None, now=None):
         self.subject_identifier = subject_identifier
-        self.now = now or get_utcnow()
+        self.now = now or timezone.now()
 
     def consent_and_put_on_schedule(self, subject_identifier=None):
         subject_identifier = subject_identifier or self.subject_identifier
@@ -70,7 +70,7 @@ class TimepointTests(TestCase):
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         self.helper = self.helper_cls(
             subject_identifier=self.subject_identifier,
-            now=get_utcnow() - relativedelta(years=1),
+            now=timezone.now() - relativedelta(years=1),
         )
         self.helper.consent_and_put_on_schedule()
         appointments = Appointment.objects.filter(

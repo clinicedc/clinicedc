@@ -71,7 +71,7 @@ class SubjectVisitMissedModelMixin(models.Model):
 
     contact_attempts_explained = models.TextField(
         verbose_name=_("If contact not made and less than 3 attempts, please explain"),
-        null=True,
+        default="",
         blank=True,
     )
 
@@ -105,7 +105,7 @@ class SubjectVisitMissedModelMixin(models.Model):
 
     comment = models.TextField(
         verbose_name=_("Please provide further details, if any"),
-        null=True,
+        default="",
         blank=True,
     )
 

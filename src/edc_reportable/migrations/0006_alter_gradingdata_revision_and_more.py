@@ -7,15 +7,14 @@ import django.db.models.deletion
 import django_audit_fields.fields.hostname_modification_field
 import django_audit_fields.fields.userfield
 import django_audit_fields.fields.uuid_auto_field
-import django_audit_fields.utils
 import django_revision.revision_field
 import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
+import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_reportable", "0005_historicalnormaldata_auto_created_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -110,11 +109,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=django_audit_fields.utils.utcnow),
+                    models.DateTimeField(blank=True, default=django.utils.timezone.now),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=django_audit_fields.utils.utcnow),
+                    models.DateTimeField(blank=True, default=django.utils.timezone.now),
                 ),
                 (
                     "user_created",
@@ -251,11 +250,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "created",
-                    models.DateTimeField(blank=True, default=django_audit_fields.utils.utcnow),
+                    models.DateTimeField(blank=True, default=django.utils.timezone.now),
                 ),
                 (
                     "modified",
-                    models.DateTimeField(blank=True, default=django_audit_fields.utils.utcnow),
+                    models.DateTimeField(blank=True, default=django.utils.timezone.now),
                 ),
                 (
                     "user_created",

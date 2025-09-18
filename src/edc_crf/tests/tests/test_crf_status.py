@@ -8,13 +8,13 @@ from clinicedc_tests.models import CrfFour
 from clinicedc_tests.visit_schedules.visit_schedule_crf import visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_constants.constants import COMPLETE, INCOMPLETE
 from edc_crf.models import CrfStatus
 from edc_facility.import_holidays import import_holidays
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -45,7 +45,7 @@ class CrfTestCase(TestCase):
         self.subject_identifier = subject_consent.subject_identifier
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         self.subject_visit = SubjectVisit.objects.create(
-            appointment=appointment, report_datetime=get_utcnow(), reason=SCHEDULED
+            appointment=appointment, report_datetime=timezone.now(), reason=SCHEDULED
         )
 
     def test_default_incomplete(self):

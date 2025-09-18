@@ -9,6 +9,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings, tag
+from django.utils import timezone
 
 from edc_appointment.creators import AppointmentCreator
 from edc_appointment.models import Appointment
@@ -17,7 +18,6 @@ from edc_consent.site_consents import site_consents
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils import get_utcnow
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
@@ -103,13 +103,12 @@ class AppointmentCreatorTestCase(TestCase):
 
     def put_on_schedule(self, dt, consent_definition: ConsentDefinition | None = None):
         self.helper = self.helper_cls(now=dt)
-        subject_consent = self.helper.consent_and_put_on_schedule(
+        return self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             report_datetime=dt,
             consent_definition=consent_definition,
         )
-        return subject_consent
 
 
 class TestAppointmentCreator(AppointmentCreatorTestCase):
@@ -121,14 +120,14 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     def test_init(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        subject_consent = self.put_on_schedule(get_utcnow())
+        subject_consent = self.put_on_schedule(timezone.now())
         self.assertTrue(
             AppointmentCreator(
                 subject_identifier=subject_consent.subject_identifier,
                 visit_schedule_name=self.visit_schedule.name,
                 schedule_name=self.schedule.name,
                 visit=self.visit1000,
-                timepoint_datetime=get_utcnow(),
+                timepoint_datetime=timezone.now(),
             )
         )
         traveller.stop()
@@ -136,13 +135,13 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     def test_str(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        subject_consent = self.put_on_schedule(get_utcnow())
+        subject_consent = self.put_on_schedule(timezone.now())
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
-            timepoint_datetime=get_utcnow(),
+            timepoint_datetime=timezone.now(),
         )
         self.assertEqual(str(creator), subject_consent.subject_identifier)
         traveller.stop()
@@ -150,13 +149,13 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     def test_repr(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        subject_consent = self.put_on_schedule(get_utcnow())
+        subject_consent = self.put_on_schedule(timezone.now())
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
-            timepoint_datetime=get_utcnow(),
+            timepoint_datetime=timezone.now(),
         )
         self.assertTrue(creator)
         traveller.stop()
@@ -165,7 +164,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
         """test create appointment, avoids new years holidays"""
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        appt_datetime = get_utcnow()
+        appt_datetime = timezone.now()
         subject_consent = self.put_on_schedule(appt_datetime)
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
@@ -190,7 +189,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
         """Assert appt datetime moves forward to avoid holidays"""
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        appt_datetime = get_utcnow()
+        appt_datetime = timezone.now()
         subject_consent = self.put_on_schedule(appt_datetime)
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
@@ -235,10 +234,10 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             gender=[MALE, FEMALE],
         )
         site_consents.register(consent_definition)
-        subject_consent = self.put_on_schedule(get_utcnow(), consent_definition)
+        subject_consent = self.put_on_schedule(timezone.now(), consent_definition)
 
-        appt_datetime = get_utcnow()
-        expected_appt_datetime = get_utcnow() + relativedelta(days=1)
+        appt_datetime = timezone.now()
+        expected_appt_datetime = timezone.now() + relativedelta(days=1)
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
@@ -257,7 +256,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             expected_appt_datetime.date(),
         )
 
-        appt_datetime = get_utcnow() + relativedelta(days=2)
+        appt_datetime = timezone.now() + relativedelta(days=2)
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,

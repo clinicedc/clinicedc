@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -16,7 +17,7 @@ from edc_form_validators import INVALID_ERROR
 from edc_form_validators.form_validator import FormValidator
 from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_sites.form_validator_mixin import SiteFormValidatorMixin
-from edc_utils import formatted_datetime, get_utcnow, to_utc
+from edc_utils import formatted_datetime, to_utc
 from edc_utils.date import to_local
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
@@ -136,19 +137,23 @@ class AppointmentFormValidator(
             self.instance, "id", None
         ):
             previous_appt = get_previous_appointment(self.instance, include_interim=True)
-            if previous_appt and previous_appt.appt_status not in [
-                CANCELLED_APPT,
-                SKIPPED_APPT,
-            ]:
-                if not previous_appt.related_visit:
-                    self.raise_validation_error(
-                        message=(
-                            "A previous appointment requires a visit report. "
-                            f"Update appointment {previous_appt.visit_code}."
-                            f"{previous_appt.visit_code_sequence} first."
-                        ),
-                        error_code=INVALID_PREVIOUS_VISIT_MISSING,
-                    )
+            if (
+                previous_appt
+                and previous_appt.appt_status
+                not in [
+                    CANCELLED_APPT,
+                    SKIPPED_APPT,
+                ]
+                and not previous_appt.related_visit
+            ):
+                self.raise_validation_error(
+                    message=(
+                        "A previous appointment requires a visit report. "
+                        f"Update appointment {previous_appt.visit_code}."
+                        f"{previous_appt.visit_code_sequence} first."
+                    ),
+                    error_code=INVALID_PREVIOUS_VISIT_MISSING,
+                )
         return True
 
     def validate_appt_sequence(self: Any) -> bool:
@@ -158,33 +163,45 @@ class AppointmentFormValidator(
         Check if previous appointment appt_status is NEW_APPT
 
         """
-        if self.cleaned_data.get("appt_status") in [
-            IN_PROGRESS_APPT,
-            INCOMPLETE_APPT,
-            COMPLETE_APPT,
-        ]:
-            if self.instance.previous:
-                if obj := (
-                    self.appointment_model_cls.objects.filter(
-                        subject_identifier=self.subject_identifier,
-                        visit_schedule_name=self.instance.visit_schedule_name,
-                        schedule_name=self.instance.schedule_name,
-                        appt_status=NEW_APPT,
-                        appt_datetime__lt=self.instance.appt_datetime,
+        if (
+            self.cleaned_data.get("appt_status")
+            in [
+                IN_PROGRESS_APPT,
+                INCOMPLETE_APPT,
+                COMPLETE_APPT,
+            ]
+            and self.instance.previous
+        ) and (
+            obj := (
+                self.appointment_model_cls.objects.filter(
+                    subject_identifier=self.subject_identifier,
+                    visit_schedule_name=self.instance.visit_schedule_name,
+                    schedule_name=self.instance.schedule_name,
+                    appt_status=NEW_APPT,
+                    appt_datetime__lt=self.instance.appt_datetime,
+                )
+                .order_by("timepoint", "visit_code_sequence")
+                .first()
+            )
+        ):
+            errmsg = (
+                "A previous appointment requires updating. "
+                "Update appointment %(visit_code)s."
+                "%(visit_code_sequence)s first."
+            )
+
+            self.raise_validation_error(
+                {
+                    "__all__": _(
+                        errmsg
+                        % dict(
+                            visit_code=obj.visit_code,
+                            visit_code_sequence=obj.visit_code_sequence,
+                        )
                     )
-                    .order_by("timepoint", "visit_code_sequence")
-                    .first()
-                ):
-                    self.raise_validation_error(
-                        {
-                            "__all__": _(
-                                "A previous appointment requires updating. "
-                                f"Update appointment {obj.visit_code}."
-                                f"{obj.visit_code_sequence} first."
-                            )
-                        },
-                        INVALID_PREVIOUS_APPOINTMENT_NOT_UPDATED,
-                    )
+                },
+                INVALID_PREVIOUS_APPOINTMENT_NOT_UPDATED,
+            )
         return True
 
     def validate_timepoint(self: Any):
@@ -202,12 +219,15 @@ class AppointmentFormValidator(
     def validate_not_future_appt_datetime(self: Any) -> None:
         appt_datetime = self.cleaned_data.get("appt_datetime")
         appt_status = self.cleaned_data.get("appt_status")
-        if appt_datetime and appt_status != NEW_APPT:
-            if to_utc(appt_datetime) > get_utcnow():
-                self.raise_validation_error(
-                    {"appt_datetime": "Cannot be a future date/time."},
-                    INVALID_APPT_DATE,
-                )
+        if (
+            appt_datetime
+            and appt_status != NEW_APPT
+            and to_utc(appt_datetime) > timezone.now()
+        ):
+            self.raise_validation_error(
+                {"appt_datetime": "Cannot be a future date/time."},
+                INVALID_APPT_DATE,
+            )
 
     def validate_appt_datetime_not_before_consent_datetime(self: Any) -> None:
         if (
@@ -291,42 +311,46 @@ class AppointmentFormValidator(
     def validate_appt_datetime_not_before_previous_appt_datetime(self):
         appt_datetime = self.cleaned_data.get("appt_datetime")
         appt_status = self.cleaned_data.get("appt_status")
-        if appt_datetime and appt_status and appt_status != NEW_APPT:
-            if self.instance.relative_previous:
-                if to_utc(appt_datetime) < self.instance.relative_previous.appt_datetime:
-                    formatted_date = formatted_datetime(
-                        self.instance.relative_previous.appt_datetime
+        if (
+            appt_datetime
+            and appt_status
+            and appt_status != NEW_APPT
+            and self.instance.relative_previous
+            and to_utc(appt_datetime) < self.instance.relative_previous.appt_datetime
+        ):
+            formatted_date = formatted_datetime(self.instance.relative_previous.appt_datetime)
+            self.raise_validation_error(
+                {
+                    "appt_datetime": (
+                        "Cannot be before previous appointment. Previous appointment "
+                        f"is {self.instance.relative_previous.visit_label} "
+                        f"on {formatted_date}."
                     )
-                    self.raise_validation_error(
-                        {
-                            "appt_datetime": (
-                                "Cannot be before previous appointment. Previous appointment "
-                                f"is {self.instance.relative_previous.visit_label} "
-                                f"on {formatted_date}."
-                            )
-                        },
-                        INVALID_APPT_DATE,
-                    )
+                },
+                INVALID_APPT_DATE,
+            )
 
     def validate_appt_datetime_not_after_next_appt_datetime(self) -> None:
         appt_datetime = self.cleaned_data.get("appt_datetime")
         appt_status = self.cleaned_data.get("appt_status")
-        if appt_datetime and appt_status and appt_status != NEW_APPT:
-            if self.instance.relative_next:
-                if to_utc(appt_datetime) > self.instance.relative_next.appt_datetime:
-                    formatted_date = formatted_datetime(
-                        self.instance.relative_next.appt_datetime
+        if (
+            appt_datetime
+            and appt_status
+            and appt_status != NEW_APPT
+            and self.instance.relative_next
+            and to_utc(appt_datetime) > self.instance.relative_next.appt_datetime
+        ):
+            formatted_date = formatted_datetime(self.instance.relative_next.appt_datetime)
+            self.raise_validation_error(
+                {
+                    "appt_datetime": (
+                        "Cannot be after next appointment. Next appointment is "
+                        f"{self.instance.relative_next.visit_label} "
+                        f"on {formatted_date}."
                     )
-                    self.raise_validation_error(
-                        {
-                            "appt_datetime": (
-                                "Cannot be after next appointment. Next appointment is "
-                                f"{self.instance.relative_next.visit_label} "
-                                f"on {formatted_date}."
-                            )
-                        },
-                        INVALID_APPT_DATE,
-                    )
+                },
+                INVALID_APPT_DATE,
+            )
 
     def validate_appt_incomplete_and_visit_report(self: Any) -> None:
         """Require a visit report, at least, if wanting to set appt_status
@@ -502,12 +526,14 @@ class AppointmentFormValidator(
 
         Is this still used?
         """
-        if self.cleaned_data.get("facility_name"):
-            if self.cleaned_data.get("facility_name") not in get_facilities():
-                self.raise_validation_error(
-                    {"__all__": f"Facility '{self.facility_name}' does not exist."},
-                    INVALID_ERROR,
-                )
+        if (
+            self.cleaned_data.get("facility_name")
+            and self.cleaned_data.get("facility_name") not in get_facilities()
+        ):
+            self.raise_validation_error(
+                {"__all__": f"Facility '{self.facility_name}' does not exist."},
+                INVALID_ERROR,
+            )
 
     def validate_appt_type(self):
         self.not_applicable_if(SKIPPED_APPT, field="appt_status", field_applicable="appt_type")

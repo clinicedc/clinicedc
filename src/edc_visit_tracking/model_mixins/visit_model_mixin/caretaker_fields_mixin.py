@@ -16,8 +16,7 @@ class CaretakerFieldsMixin(models.Model):
 
     information_provider = models.CharField(
         verbose_name=(
-            "Please indicate who provided most of the "
-            "information for this participant's visit"
+            "Please indicate who provided most of the information for this participant's visit"
         ),
         max_length=20,
     )
@@ -26,7 +25,7 @@ class CaretakerFieldsMixin(models.Model):
         verbose_name="if information provider is Other, please specify",
         max_length=20,
         blank=True,
-        null=True,
+        default="",
     )
 
     is_present = models.CharField(

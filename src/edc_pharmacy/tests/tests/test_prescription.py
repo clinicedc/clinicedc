@@ -5,6 +5,7 @@ from clinicedc_tests.helper import Helper
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_consent import site_consents
 from edc_list_data import site_list_data
@@ -23,7 +24,6 @@ from edc_pharmacy.prescribe import create_prescription
 from edc_randomization.randomizer import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
 from edc_randomization.tests.utils import populate_randomization_list_for_tests
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -79,7 +79,7 @@ class TestPrescription(TestCase):
     def test_create_prescription(self):
         obj = Rx.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
         )
         obj.medications.add(self.medication)
         obj.save()
@@ -87,11 +87,11 @@ class TestPrescription(TestCase):
     def test_verify_prescription(self):
         obj = Rx.objects.create(
             subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
         )
         obj.medications.add(self.medication)
         obj.verified = True
-        obj.verified = get_utcnow()
+        obj.verified = timezone.now()
         obj.save()
         self.assertTrue(obj.verified)
 
@@ -129,7 +129,7 @@ class TestPrescription(TestCase):
         site_randomizers.randomize(
             "my_randomizer",
             subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             site=self.subject_consent.site,
             user="jasper",
             gender=self.subject_consent.gender,

@@ -1,21 +1,21 @@
 from django.test import TestCase, tag
+from django.utils import timezone
 
 from edc_facility.models import HealthFacility, HealthFacilityTypes, Holiday
-from edc_utils import get_utcnow
 
 
 @tag("facility")
 class TestModel(TestCase):
     def test_str(self):
         obj = Holiday.objects.create(
-            country="botswana", local_date=get_utcnow().date(), name="holiday"
+            country="botswana", local_date=timezone.now().date(), name="holiday"
         )
         self.assertTrue(str(obj))
 
     def test_str_health_facility(self):
         health_facility_type = HealthFacilityTypes.objects.all()[0]
         obj = HealthFacility.objects.create(
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             name="HealthFacility",
             health_facility_type=health_facility_type,
             mon=True,
@@ -31,7 +31,7 @@ class TestModel(TestCase):
     def test_health_facility_days(self):
         health_facility_type = HealthFacilityTypes.objects.all()[0]
         obj = HealthFacility.objects.create(
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             name="HealthFacility",
             health_facility_type=health_facility_type,
             mon=True,
@@ -48,7 +48,7 @@ class TestModel(TestCase):
     def test_health_facility_natural_key(self):
         health_facility_type = HealthFacilityTypes.objects.all()[0]
         obj = HealthFacility.objects.create(
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             name="HealthFacility",
             health_facility_type=health_facility_type,
             mon=True,
