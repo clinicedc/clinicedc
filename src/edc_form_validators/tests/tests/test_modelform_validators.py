@@ -1,6 +1,6 @@
 from clinicedc_tests.models import TestModelWithFk
 from django import forms
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_constants.constants import NO, YES
 from edc_form_validators.base_form_validator import (
@@ -11,6 +11,7 @@ from edc_form_validators.form_validator import FormValidator
 from edc_form_validators.form_validator_mixins import FormValidatorMixin
 
 
+@tag("form_validators")
 class TestFieldValidator(TestCase):
     def test_form_validator(self):
         """Asserts raises if cleaned data is None; that is, not
@@ -30,18 +31,18 @@ class TestFieldValidator(TestCase):
     def test_no_responses(self):
         """Asserts raises if no response provided."""
         form_validator = FormValidator(cleaned_data={})
-        self.assertRaises(InvalidModelFormFieldValidator, form_validator.required_if)
+        self.assertRaises(TypeError, form_validator.required_if)
 
     def test_no_field(self):
         """Asserts raises if no field provided."""
         form_validator = FormValidator(cleaned_data={})
-        self.assertRaises(InvalidModelFormFieldValidator, form_validator.required_if, YES)
+        self.assertRaises(TypeError, form_validator.required_if, YES)
 
     def test_no_field_required(self):
         """Asserts raises if "field required" not provided."""
         form_validator = FormValidator(cleaned_data={})
         self.assertRaises(
-            InvalidModelFormFieldValidator,
+            TypeError,
             form_validator.required_if,
             YES,
             field="field",
@@ -58,6 +59,7 @@ class TestFieldValidator(TestCase):
             self.fail(f"Exception unexpectedly raised. Got {e}")
 
 
+@tag("form_validators")
 class TestFormValidatorInForm(TestCase):
     def test_form(self):
         class TestFormValidator(FormValidator):

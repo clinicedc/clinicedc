@@ -41,20 +41,14 @@ class OtherSpecifyFieldValidator(BaseFormValidator):
             cleaned_data.get(field), fk_stored_field_name, cleaned_data.get(field)
         )
 
-        if (
-            field_value is not None
-            and field_value == other
-            and not cleaned_data.get(other_specify_field)
-        ):
+        if field_value and field_value == other and not cleaned_data.get(other_specify_field):
             ref = "" if not ref else f" ref: {ref}"
             message = {other_specify_field: required_msg or f"This field is required.{ref}"}
             self._errors.update(message)
             self._error_codes.append(REQUIRED_ERROR)
             raise ValidationError(message, code=REQUIRED_ERROR)
         if (
-            field_value is not None
-            and field_value != other
-            and cleaned_data.get(other_specify_field)
+            field_value and field_value != other and cleaned_data.get(other_specify_field)
         ) or (field_value is None and cleaned_data.get(other_specify_field)):
             ref = "" if not ref else f" ref: {ref}"
             message = {

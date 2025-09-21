@@ -3,13 +3,14 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase
+from django.test import tag, TestCase
 from django.utils import timezone
 
 from edc_form_validators.date_validator import DateValidatorError
 from edc_form_validators.form_validator import FormValidator
 
 
+@tag("form_validators")
 class TestDateFieldValidator(TestCase):
     def test_both_given_raises(self):
         now = datetime.now().astimezone(ZoneInfo("Africa/Gaborone"))

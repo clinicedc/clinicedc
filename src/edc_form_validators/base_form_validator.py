@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import contextlib
 from copy import copy
 from typing import Any
 
 from django.core.exceptions import NON_FIELD_ERRORS
-from django.forms import ValidationError, forms
+from django.forms import ValidationError
 
 APPLICABLE_ERROR = "applicable"
 INVALID_ERROR = "invalid"
@@ -14,7 +15,7 @@ REQUIRED_ERROR = "required"
 OUT_OF_RANGE_ERROR = "out_of_range"
 
 
-class InvalidModelFormFieldValidator(Exception):
+class InvalidModelFormFieldValidator(Exception):  # noqa: N818
     def __init__(self, message, code=None):
         message = f"Invalid field validator. Got '{message}'"
         super().__init__(message)
@@ -119,13 +120,13 @@ class BaseFormValidator:
         """
         try:
             self._clean()
-        except forms.ValidationError as e:
+        except ValidationError as e:
             self.capture_error_message(e)
             self.capture_error_code(e)
-            raise forms.ValidationError(e)
+            raise ValidationError(e) from e
         return self.cleaned_data
 
-    def capture_error_message(self, e: forms.ValidationError) -> None:
+    def capture_error_message(self, e: ValidationError) -> None:
         try:
             self._errors.update(**e.error_dict)
         except AttributeError:
@@ -134,11 +135,9 @@ class BaseFormValidator:
             except AttributeError:
                 self._errors.update({NON_FIELD_ERRORS: str(e)})
 
-    def capture_error_code(self, e: forms.ValidationError) -> None:
-        try:
+    def capture_error_code(self, e: ValidationError) -> None:
+        with contextlib.suppress(AttributeError):
             self._error_codes.append(e.code)
-        except AttributeError:
-            pass
 
     def get_inline_field_value(self, field=None, inline_set=None):
         """Returns the value of the first inline field that has a value."""

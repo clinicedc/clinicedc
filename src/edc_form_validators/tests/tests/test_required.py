@@ -1,10 +1,11 @@
 from django import forms
-from django.test import TestCase
+from django.test import TestCase, tag
 
-from edc_constants.constants import DWTA, NO, NOT_APPLICABLE, YES
+from edc_constants.constants import DWTA, NO, NOT_APPLICABLE, NULL_STRING, YES
 from edc_form_validators.form_validator import FormValidator
 
 
+@tag("form_validators")
 class TestRequiredFieldValidator(TestCase):
     """Test required_if and required_if_not_none."""
 
@@ -28,12 +29,24 @@ class TestRequiredFieldValidator(TestCase):
             field_required="field_two",
         )
 
+    @tag("form_validators1")
     def test_required_if_ok_required_value_none(self):
         form_validator = FormValidator(cleaned_data=dict(field_one=None))
         self.assertRaises(
             forms.ValidationError,
             form_validator.required_if,
             None,
+            field="field_one",
+            field_required="field_two",
+        )
+
+    @tag("form_validators1")
+    def test_required_if_ok_required_value_blank(self):
+        form_validator = FormValidator(cleaned_data=dict(field_one=NULL_STRING))
+        self.assertRaises(
+            forms.ValidationError,
+            form_validator.required_if,
+            "",
             field="field_one",
             field_required="field_two",
         )

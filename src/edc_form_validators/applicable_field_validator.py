@@ -1,6 +1,6 @@
 from typing import Any
 
-from edc_constants.constants import NOT_APPLICABLE
+from edc_constants.constants import NOT_APPLICABLE, NULL_STRING
 
 from .base_form_validator import (
     APPLICABLE_ERROR,
@@ -33,8 +33,8 @@ class ApplicableFieldValidator(BaseFormValidator):
     def applicable_if(
         self,
         *responses: Any,
-        field: str = None,
-        field_applicable: str = None,
+        field: str,
+        field_applicable: str,
         inverse: bool | None = None,
         is_instance_field: bool | None = None,
         msg: str | None = None,
@@ -95,8 +95,8 @@ class ApplicableFieldValidator(BaseFormValidator):
     def applicable(
         self,
         *responses: Any,
-        field: str = None,
-        field_applicable: str = None,
+        field: str,
+        field_applicable: str,
         inverse: bool | None = None,
         is_instance_field: bool | None = None,
         msg: str | None = None,
@@ -117,7 +117,8 @@ class ApplicableFieldValidator(BaseFormValidator):
             field_applicable_value = self.get(field_applicable)
 
             if field_value in responses and (
-                field_applicable_value is None or field_applicable_value == not_applicable
+                field_applicable_value in (NULL_STRING, not_applicable)
+                or field_applicable_value is None
             ):
                 self.raise_applicable(field_applicable, msg=msg, applicable_msg=applicable_msg)
             elif (
