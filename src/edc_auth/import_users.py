@@ -183,9 +183,9 @@ class UserImporter:
         self.update_user_sites(site_names or [])
         self.update_user_roles(role_names or [STAFF_ROLE])
         self.user.save()
-        self.user.userprofile.job_title = self.job_title
-        self.user.userprofile.mobile = self.mobile
-        self.user.userprofile.alternate_email = self.alternate_email
+        self.user.userprofile.job_title = self.job_title or ""
+        self.user.userprofile.mobile = self.mobile or ""
+        self.user.userprofile.alternate_email = self.alternate_email or ""
         self.user.userprofile.save()
 
         self.site_names = (

@@ -214,7 +214,7 @@ class Notification:
 
     def send_email(
         self,
-        email_to: list[str],
+        email_to: list[str] | None = None,
         fail_silently: bool | None = None,
         email_body_template: str | None = None,
         **kwargs,

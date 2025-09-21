@@ -9,30 +9,40 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.utils.module_loading import import_module, module_has_submodule
 
-from .auth_objects import default_groups, default_pii_models, default_roles
+from .auth_objects import default_pii_models, get_default_groups, get_default_roles
+from .constants import (
+    CUSTOM_PERMISSIONS_TUPLES_KEY,
+    GROUPS_KEY,
+    PII_MODELS_KEY,
+    POST_UPDATE_FUNCS_KEY,
+    PRE_UPDATE_FUNCS_KEY,
+    ROLES_KEY,
+    UPDATE_GROUPS_KEY,
+    UPDATE_ROLES_KEY,
+)
 
 
-class AlreadyRegistered(Exception):
+class AlreadyRegistered(Exception):  # noqa: N818
     pass
 
 
-class InvalidGroup(Exception):
+class InvalidGroup(Exception):  # noqa: N818
     pass
 
 
-class InvalidRole(Exception):
+class InvalidRole(Exception):  # noqa: N818
     pass
 
 
-class RoleAlreadyExists(Exception):
+class RoleAlreadyExists(Exception):  # noqa: N818
     pass
 
 
-class GroupAlreadyExists(Exception):
+class GroupAlreadyExists(Exception):  # noqa: N818
     pass
 
 
-class PiiModelAlreadyExists(Exception):
+class PiiModelAlreadyExists(Exception):  # noqa: N818
     pass
 
 
@@ -96,39 +106,39 @@ class SiteAuths:
 
     def initialize(self):
         self.registry = {
-            "groups": default_groups,
-            "roles": default_roles,
-            "update_groups": {},
-            "update_roles": {},
-            "custom_permissions_tuples": {},
-            "pre_update_funcs": [],
-            "post_update_funcs": [],
-            "pii_models": default_pii_models,
+            GROUPS_KEY: get_default_groups(),
+            ROLES_KEY: get_default_roles(),
+            UPDATE_GROUPS_KEY: {},
+            UPDATE_ROLES_KEY: {},
+            CUSTOM_PERMISSIONS_TUPLES_KEY: {},
+            PRE_UPDATE_FUNCS_KEY: [],
+            POST_UPDATE_FUNCS_KEY: [],
+            PII_MODELS_KEY: default_pii_models,
         }
 
     def clear(self):
         self.registry = {
-            "groups": {},
-            "roles": {},
-            "update_groups": {},
-            "update_roles": {},
-            "custom_permissions_tuples": {},
-            "pre_update_funcs": [],
-            "post_update_funcs": [],
-            "pii_models": [],
+            GROUPS_KEY: {},
+            ROLES_KEY: {},
+            UPDATE_GROUPS_KEY: {},
+            UPDATE_ROLES_KEY: {},
+            CUSTOM_PERMISSIONS_TUPLES_KEY: {},
+            PRE_UPDATE_FUNCS_KEY: [],
+            POST_UPDATE_FUNCS_KEY: [],
+            PII_MODELS_KEY: [],
         }
 
     def clear_values(self):
         registry = deepcopy(self.registry)
         self.registry = {
-            "groups": {k: [] for k in registry.get("groups")},
-            "roles": {k: [] for k in self.registry.get("roles")},
-            "update_groups": {},
-            "update_roles": {},
-            "custom_permissions_tuples": {},
-            "pre_update_funcs": [],
-            "post_update_funcs": [],
-            "pii_models": [],
+            GROUPS_KEY: {k: [] for k in registry.get(GROUPS_KEY)},
+            ROLES_KEY: {k: [] for k in self.registry.get(ROLES_KEY)},
+            UPDATE_GROUPS_KEY: {},
+            UPDATE_ROLES_KEY: {},
+            CUSTOM_PERMISSIONS_TUPLES_KEY: {},
+            PRE_UPDATE_FUNCS_KEY: [],
+            POST_UPDATE_FUNCS_KEY: [],
+            PII_MODELS_KEY: [],
         }
 
     @property
@@ -136,15 +146,15 @@ class SiteAuths:
         return getattr(settings, "EDC_AUTH_SKIP_SITE_AUTHS", False)
 
     def add_pre_update_func(self, func):
-        self.registry["pre_update_funcs"].append(func)
+        self.registry[PRE_UPDATE_FUNCS_KEY].append(func)
 
     def add_post_update_func(self, app_label: str, func: Callable):
-        self.registry["post_update_funcs"].append((app_label, func))
+        self.registry[POST_UPDATE_FUNCS_KEY].append((app_label, func))
 
     def add_pii_model(self, model_name):
-        if model_name in self.registry["pii_models"]:
+        if model_name in self.registry[PII_MODELS_KEY]:
             raise PiiModelAlreadyExists(f"PII model already exists. Got {model_name}")
-        self.registry["pii_models"].append(model_name)
+        self.registry[PII_MODELS_KEY].append(model_name)
 
     def add_groups(self, data: dict):
         for name, codenames in data.items():
@@ -162,7 +172,7 @@ class SiteAuths:
         convert_to_export=None,
         no_delete=None,
     ):
-        if name in self.registry["groups"]:
+        if name in self.registry[GROUPS_KEY]:
             raise GroupAlreadyExists(f"Group name already exists. Got {name}.")
         if no_delete:
             codenames_or_func = self.remove_delete_codenames(codenames_or_func)
@@ -170,18 +180,18 @@ class SiteAuths:
             codenames_or_func = self.get_view_only_codenames(codenames_or_func)
         if convert_to_export:
             codenames_or_func = self.convert_to_export_codenames(codenames_or_func)
-        self.registry["groups"].update({name: codenames_or_func})
+        self.registry[GROUPS_KEY].update({name: codenames_or_func})
 
     def add_role(self, *group_names, name=None):
-        if name in self.registry["roles"]:
+        if name in self.registry[ROLES_KEY]:
             raise RoleAlreadyExists(f"Role name already exists. Got {name}.")
         group_names = list(set(group_names))
-        self.registry["roles"].update({name: group_names})
+        self.registry[ROLES_KEY].update({name: group_names})
 
     def update_group(
         self, *codenames_or_func, name=None, key=None, view_only=None, no_delete=None
     ) -> None:
-        key = key or "update_groups"
+        key = key or UPDATE_GROUPS_KEY
         if no_delete:
             codenames_or_func = self.remove_delete_codenames(codenames_or_func)
         if view_only:
@@ -191,30 +201,30 @@ class SiteAuths:
         try:
             existing_codenames = list(set(existing_codenames))
         except TypeError as e:
-            raise TypeError(f"{e}. Got {name}")
+            raise TypeError(f"{e}. Got {name}") from e
         existing_codenames.extend(codenames_or_func)
         existing_codenames = list(set(existing_codenames))
         self.registry[key].update({name: existing_codenames})
 
     def update_role(self, *group_names, name=None, key=None) -> None:
-        key = key or "update_roles"
+        key = key or UPDATE_ROLES_KEY
         group_names = list(set(group_names))
-        existing_group_names = deepcopy(self.registry[key].get(name)) or []
-        existing_group_names = list(set(existing_group_names))
+        existing_group_names = [
+            name for name in self.registry[key].get(name) or [] if name not in group_names
+        ]
         existing_group_names.extend(group_names)
-        existing_group_names = list(set(existing_group_names))
         self.registry[key].update({name: existing_group_names})
 
     def add_custom_permissions_tuples(
         self, model: str, codename_tuples: tuple[tuple[str, str], ...]
     ):
         try:
-            self.registry["custom_permissions_tuples"][model]
+            self.registry[CUSTOM_PERMISSIONS_TUPLES_KEY][model]
         except KeyError:
-            self.registry["custom_permissions_tuples"].update({model: []})
+            self.registry[CUSTOM_PERMISSIONS_TUPLES_KEY].update({model: []})
         for codename_tuple in codename_tuples:
-            if codename_tuple not in self.registry["custom_permissions_tuples"][model]:
-                self.registry["custom_permissions_tuples"][model].append(codename_tuple)
+            if codename_tuple not in self.registry[CUSTOM_PERMISSIONS_TUPLES_KEY][model]:
+                self.registry[CUSTOM_PERMISSIONS_TUPLES_KEY][model].append(codename_tuple)
 
     @staticmethod
     def get_view_only_codenames(codenames):
@@ -225,7 +235,8 @@ class SiteAuths:
         Does not remove `edc_navbar`, 'nav_' or `edc_dashboard`
         codenames.
         """
-        callables = [lambda: view_only_wrapper(c) for c in codenames if callable(c)]
+        # callables = [lambda: view_only_wrapper(c) for c in codenames if callable(c)]
+        callables = [lambda c=c: view_only_wrapper(c) for c in codenames if callable(c)]
         view_only_codenames = [
             codename
             for codename in codenames
@@ -263,27 +274,27 @@ class SiteAuths:
 
     @property
     def roles(self):
-        return self.registry["roles"]
+        return self.registry[ROLES_KEY]
 
     @property
     def groups(self):
-        return self.registry["groups"]
+        return self.registry[GROUPS_KEY]
 
     @property
     def pii_models(self):
-        return self.registry["pii_models"]
+        return self.registry[PII_MODELS_KEY]
 
     @property
     def pre_update_funcs(self):
-        return self.registry["pre_update_funcs"]
+        return self.registry[PRE_UPDATE_FUNCS_KEY]
 
     @property
     def post_update_funcs(self) -> tuple[str, Callable]:
-        return self.registry["post_update_funcs"]
+        return self.registry[POST_UPDATE_FUNCS_KEY]
 
     @property
     def custom_permissions_tuples(self):
-        return self.registry["custom_permissions_tuples"]
+        return self.registry[CUSTOM_PERMISSIONS_TUPLES_KEY]
 
     def verify_and_populate(
         self, app_name: str | None = None, warn_only: bool | None = None
@@ -294,28 +305,30 @@ class SiteAuths:
         * Updates data from `update_groups` -> `groups`
         * Updates data from `update_roles` -> `roles`
         """
-        for name, codenames in self.registry["update_groups"].items():
-            if name not in self.registry["groups"]:
+        for name, codenames in self.registry[UPDATE_GROUPS_KEY].items():
+            if name not in self.registry[GROUPS_KEY]:
                 msg = (
                     f"Cannot update group. Group name does not exist. See app={app_name}"
                     f"update_groups['groups']={codenames}. Got {name}"
                 )
                 if warn_only:
-                    warn(msg)
+                    warn(msg, stacklevel=2)
                 else:
                     raise InvalidGroup(msg)
-            self.update_group(*codenames, name=name, key="groups")
-        for name, group_names in self.registry["update_roles"].items():
-            if name not in self.registry["roles"]:
+            self.update_group(*codenames, name=name, key=GROUPS_KEY)
+        self.registry[UPDATE_GROUPS_KEY] = {}
+        for name, group_names in self.registry[UPDATE_ROLES_KEY].items():
+            if name not in self.registry[ROLES_KEY]:
                 msg = (
                     f"Cannot update role. Role name does not exist. See app={app_name}. "
                     f"update_roles['groups']={group_names}. Got {name}"
                 )
                 if warn_only:
-                    warn(msg)
+                    warn(msg, stacklevel=2)
                 else:
                     raise InvalidRole(msg)
-            self.update_role(*group_names, name=name, key="roles")
+            self.update_role(*group_names, name=name, key=ROLES_KEY)
+        self.registry[UPDATE_ROLES_KEY] = {}
 
     def autodiscover(self, module_name=None, verbose=True):
         """Autodiscovers in the auths.py file of any INSTALLED_APP."""
@@ -335,7 +348,7 @@ class SiteAuths:
                     except ImportError as e:
                         site_auths.registry = before_import_registry
                         if module_has_submodule(mod, module_name):
-                            raise SiteAuthError(str(e))
+                            raise SiteAuthError(str(e)) from e
                 except ImportError:
                     pass
             self.verify_and_populate(app_name=app_name)

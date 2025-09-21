@@ -56,11 +56,11 @@ class RoleUpdater:
             for group_name in groups:
                 try:
                     group = self.group_model_cls.objects.get(name=group_name)
-                except ObjectDoesNotExist:
+                except ObjectDoesNotExist as e:
                     raise RoleUpdaterError(
                         "Invalid group specified for role. "
                         f"`{group_name}` is not a group. See role `{role}`."
-                    )
+                    ) from e
                     # group = self.group_model_cls.objects.create(name=group_name)
                 role.groups.add(group)
             index += 1

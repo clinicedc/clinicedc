@@ -1,9 +1,11 @@
-from django.test import TestCase
+from django.test import tag, TestCase, override_settings
 
 from edc_lab.models import Box, BoxItem, BoxType
 from edc_lab_dashboard.templatetags.edc_lab_extras import verified
 
 
+@tag("lab_dashboard")
+@override_settings(SITE_ID=10)
 class TestTemplateTags(TestCase):
     def test_verified(self):
         box_type, _ = BoxType.objects.get_or_create(name="9 x 9", across=9, down=9, total=81)

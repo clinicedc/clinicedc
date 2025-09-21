@@ -5,7 +5,9 @@ from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import CharField, TextField
 
+from edc_constants.constants import NULL_STRING
 from edc_model import DEFAULT_BASE_FIELDS
 
 from ..utils import get_registered_subject_model_cls
@@ -99,13 +101,20 @@ class UpdatesOrCreatesRegistrationModelMixin(models.Model):
         """
         registration_options = {}
         rs = self.registration_model()
-        for k, v in self.__dict__.items():
-            if k not in DEFAULT_BASE_FIELDS + ["_state"]:
+        for fname, value in self.__dict__.items():
+            if fname not in (*DEFAULT_BASE_FIELDS, "_state"):
                 try:
-                    getattr(rs, k)
-                    registration_options.update({k: v})
+                    getattr(rs, fname)
                 except AttributeError:
                     pass
+                else:
+                    value = (  # noqa: PLW2901
+                        NULL_STRING
+                        if value is None
+                        and isinstance(rs._meta.get_field(fname), (CharField, TextField))
+                        else value
+                    )
+                    registration_options.update({fname: value})
         registration_identifier = registration_options.get("registration_identifier")
         if registration_identifier:
             registration_options["registration_identifier"] = self.to_string(

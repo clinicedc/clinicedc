@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import csv
-import os
+import sys
+from pathlib import Path
 from typing import Any
 
 from django.conf import settings
@@ -20,13 +21,13 @@ class RandomizationListExporterError(Exception):
     pass
 
 
-class SubjectNotRandomization(Exception):
+class SubjectNotRandomization(Exception):  # noqa: N818
     pass
 
 
 def get_assignment_for_subject(
     subject_identifier: str,
-    randomizer_name: str = None,
+    randomizer_name: str,
     identifier_fld: str | None = None,
 ) -> str:
     """Returns the assignment for a randomized subject.
@@ -42,7 +43,7 @@ def get_assignment_for_subject(
 
 def get_assignment_description_for_subject(
     subject_identifier: str,
-    randomizer_name: str = None,
+    randomizer_name: str,
     identifier_fld: str | None = None,
 ) -> str:
     """Returns the assignment description for a randomized subject.
@@ -60,7 +61,7 @@ def get_assignment_description_for_subject(
 
 def get_object_for_subject(
     subject_identifier: str,
-    randomizer_name: str = None,
+    randomizer_name: str,
     identifier_fld: str | None = None,
     label: str | None = None,
 ) -> Any:
@@ -81,11 +82,11 @@ def get_object_for_subject(
     }
     try:
         obj = randomizer_cls.model_cls().objects.get(**opts)
-    except ObjectDoesNotExist:
+    except ObjectDoesNotExist as e:
         raise SubjectNotRandomization(
             f"{label.title()} not randomized. See Randomizer `{randomizer_name}`. "
             f"Got {identifier_fld}=`{subject_identifier}`."
-        )
+        ) from e
     return obj
 
 
@@ -118,7 +119,7 @@ def generate_fake_randomization_list(
 
     # get site ID and write the file
     site_id = sites.get_by_attr("name", site_name)
-    with open(filename, "a+", newline="") as f:
+    with Path(filename).open("a+", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=["sid", "assignment", "site_name", "country"])
         if write_header:
             writer.writeheader()
@@ -133,7 +134,7 @@ def generate_fake_randomization_list(
                 )
             )
 
-    print(f"(*) Added {slots} slots for {site_name}.")
+    sys.stdout.write(f"(*) Added {slots} slots for {site_name}.\n")
 
 
 def export_randomization_list(
@@ -143,20 +144,20 @@ def export_randomization_list(
 
     try:
         user = get_user_model().objects.get(username=username)
-    except ObjectDoesNotExist:
-        raise RandomizationListExporterError(f"User `{username}` does not exist")
+    except ObjectDoesNotExist as e:
+        raise RandomizationListExporterError(f"User `{username}` does not exist") from e
     if not user.has_perm(randomizer_cls.model_cls()._meta.label_lower.replace(".", ".view_")):
         raise RandomizationListExporterError(
             f"User `{username}` does not have "
             f"permission to view '{randomizer_cls.model_cls()._meta.label_lower}'"
         )
-    path = path or settings.EXPORT_FOLDER
+    path = Path(path or settings.EXPORT_FOLDER)
     timestamp = timezone.now().strftime("%Y%m%d%H%M")
-    filename = os.path.expanduser(
+    filename = Path(
         f"~/{settings.APP_NAME}_{randomizer_cls.name}_"
         f"randomizationlist_exported_{timestamp}.csv"
-    )
-    filename = os.path.join(path, filename)
+    ).expanduser()
+    filename = path / filename
 
     df = (
         read_frame(randomizer_cls.model_cls().objects.all(), verbose=False)
@@ -172,5 +173,5 @@ def export_randomization_list(
         sep="|",
     )
     df.to_csv(**opts)
-    print(filename)
+    sys.stdout.write(f"{filename!s}\n")
     return filename

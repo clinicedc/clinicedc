@@ -11,7 +11,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_lab_results.visit_schedule i
 )
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_action_item.site_action_items import site_action_items
 from edc_consent import site_consents
@@ -25,20 +25,27 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from ..forms import BloodResultsFbcForm, BloodResultsHba1cForm
 
 
+@tag("lab_results")
+@override_settings(SITE_ID=10)
 class TestBloodResultForm(TestCase):
     def setUp(self):
         helper = Helper()
+        site_labs._registry = {}
         site_labs.register(lab_profile=lab_profile)
 
         site_action_items.registry = {}
         register_actions()
         site_consents.registry = {}
         site_consents.register(consent_v1)
+
+        visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule(consent_v1))
+        site_visit_schedules.register(visit_schedule)
 
-        self.subject_visit = helper.enroll_to_baseline(consent_definition=consent_v1)
+        self.subject_visit = helper.enroll_to_baseline(
+            visit_schedule_name=visit_schedule.name, schedule_name="schedule"
+        )
         self.subject_identifier = self.subject_visit.subject_identifier
 
         fbc_panel = Panel.objects.get(name="fbc")
@@ -144,6 +151,8 @@ class TestBloodResultForm(TestCase):
         self.assertEqual({}, form._errors)
 
 
+@tag("lab_results")
+@override_settings(SITE_ID=10)
 class TestBloodResultFormForPoc(TestCase):
     def setUp(self):
         helper = Helper()
@@ -151,11 +160,16 @@ class TestBloodResultFormForPoc(TestCase):
         register_actions()
         site_consents.registry = {}
         site_consents.register(consent_v1)
+
+        visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule(consent_v1))
+        site_visit_schedules.register(visit_schedule)
 
-        self.subject_visit = helper.enroll_to_baseline(consent_definition=consent_v1)
+        self.subject_visit = helper.enroll_to_baseline(
+            visit_schedule_name=visit_schedule.name,
+            schedule_name="schedule",
+        )
         self.subject_identifier = self.subject_visit.subject_identifier
 
         self.data = dict(
@@ -167,6 +181,7 @@ class TestBloodResultFormForPoc(TestCase):
             site=Site.objects.get(id=settings.SITE_ID),
         )
 
+    @tag("lab_results1")
     def test_is_poc_does_not_require_requisition(self):
         data = deepcopy(self.data)
 

@@ -1,6 +1,9 @@
+from datetime import datetime
 from unittest.case import skip
+from zoneinfo import ZoneInfo
 
-from django.test import TestCase, override_settings
+import time_machine
+from django.test import TestCase, override_settings, tag
 from faker import Faker
 
 from edc_identifier.exceptions import IdentifierError, SubjectIdentifierError
@@ -10,8 +13,12 @@ from edc_identifier.subject_identifier import SubjectIdentifier
 from ..models import Enrollment, EnrollmentThree
 
 fake = Faker()
+utc_tz = ZoneInfo("UTC")
 
 
+@tag("identifier")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=30)
 class TestSubjectIdentifier(TestCase):
     def test_create(self):
         """Asserts raises exception if cannot find cap."""
@@ -35,12 +42,13 @@ class TestSubjectIdentifier(TestCase):
             device_id="99",
         )
 
+    @tag("identifier1")
     def test_increments(self):
         """Asserts identifier sequence increments correctly."""
         opts = dict(identifier_type="subject", requesting_model="edc_identifier.enrollment")
         for i in range(1, 10):
             subject_identifier = SubjectIdentifier(**opts)
-            self.assertEqual(subject_identifier.identifier[7:11], "000" + str(i))
+            self.assertEqual(subject_identifier.identifier[8:12], "000" + str(i))
 
     def test_create_missing_args(self):
         """Asserts raises exception for missing identifier_type."""
@@ -71,7 +79,6 @@ class TestSubjectIdentifier(TestCase):
         self.assertIsNotNone(subject_identifier.identifier)
         self.assertTrue(subject_identifier.identifier.startswith("000"))
 
-    @override_settings(SITE_ID=1)
     def test_create2(self):
         """Asserts exact first identifier required parameters"""
         subject_identifier = SubjectIdentifier(

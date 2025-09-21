@@ -85,7 +85,7 @@ class AppointmentsCreator:
             except FacilityError as e:
                 raise CreateAppointmentError(
                     f"{e} See {visit!r}. Got facility_name={visit.facility_name}"
-                )
+                ) from e
             appointment = self.update_or_create_appointment(
                 visit=visit,
                 taken_datetimes=taken_datetimes,

@@ -30,11 +30,11 @@ def create_prescription(
     for medication_name in medication_names:
         try:
             obj = medication_model_cls.objects.get(name__iexact=medication_name)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             raise PrescriptionError(
                 "Unable to create prescription. Medication does not exist. "
                 f"Got {medication_name}"
-            )
+            ) from e
         else:
             medications.append(obj)
     try:
@@ -51,7 +51,7 @@ def create_prescription(
         try:
             rx = rx_model_cls.objects.create(**opts)
         except ObjectDoesNotExist as e:
-            raise CommandError(f"Site does not exists. site_id={site_id}. Got {e}")
+            raise CommandError(f"Site does not exists. site_id={site_id}. Got {e}") from e
         for obj in medications:
             rx.medications.add(obj)
     else:

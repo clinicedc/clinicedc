@@ -45,7 +45,7 @@ class DataQueryAdmin(SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, Simpl
 
     locked_column_template_name = "edc_data_manager/columns/locked.html"
 
-    status_column_context = {
+    status_column_context = {  # noqa: RUF012
         "NEW": NEW,
         "OPEN": OPEN,
         "FEEDBACK": FEEDBACK,
@@ -61,13 +61,13 @@ class DataQueryAdmin(SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, Simpl
 
     actions = (toggle_dm_status,)
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "status": admin.VERTICAL,
         "site_response_status": admin.VERTICAL,
         "query_priority": admin.VERTICAL,
     }
 
-    autocomplete_fields = [
+    autocomplete_fields = (
         "sender",
         "recipients",
         "data_dictionaries",
@@ -75,7 +75,7 @@ class DataQueryAdmin(SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, Simpl
         "visit_schedule",
         "registered_subject",
         "dm_user",
-    ]
+    )
 
     list_display = (
         "wrapped_title",
@@ -201,11 +201,10 @@ class DataQueryAdmin(SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, Simpl
     wrapped_title.short_description = "Title"
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == "data_dictionaries":
-            if request.GET.get("title"):
-                kwargs["queryset"] = DataDictionary.objects.filter(
-                    model_verbose_name=request.GET.get("title")
-                )
+        if db_field.name == "data_dictionaries" and request.GET.get("title"):
+            kwargs["queryset"] = DataDictionary.objects.filter(
+                model_verbose_name=request.GET.get("title")
+            )
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def query_dates(self, obj):
@@ -332,7 +331,8 @@ class DataQueryAdmin(SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, Simpl
             "missed_visit",
             "auto_resolved",
             "registered_subject",
-        ) + action_fields
+            *action_fields,
+        )
         if not request.user.groups.filter(name=DATA_MANAGER):
             extra_fields = (
                 "data_dictionaries",
@@ -350,10 +350,11 @@ class DataQueryAdmin(SiteModelAdminMixin, ModelAdminSubjectDashboardMixin, Simpl
                 "title",
                 "visit_code_sequence",
                 "visit_schedule",
+                *extra_fields,
             )
         if not obj:
             extra_fields = tuple(f for f in extra_fields if f != "registered_subject")
-        return fields + extra_fields
+        return *fields, *extra_fields
 
     def get_subject_dashboard_url_kwargs(self, obj):
         def get_opts():

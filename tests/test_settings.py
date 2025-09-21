@@ -31,7 +31,7 @@ project_settings = DefaultTestSettings(
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2029, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")),
     LABEL_TEMPLATE_FOLDER=base_dir / "tests" / "label_templates",
     SUBJECT_SCREENING_MODEL="clinicedc_tests.subjectscreening",
-    SUBJECT_CONSENT_MODEL="edc_consent.subjectconsent",
+    SUBJECT_CONSENT_MODEL="clinicedc_tests.subjectconsent",
     SUBJECT_VISIT_MODEL="edc_visit_tracking.subjectvisit",
     SUBJECT_VISIT_MISSED_MODEL="edc_visit_tracking.subjectvisitmissed",
     SUBJECT_REQUISITION_MODEL="clinicedc_tests.subjectrequisition",

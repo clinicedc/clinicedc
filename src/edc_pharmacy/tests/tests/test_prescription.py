@@ -2,12 +2,14 @@ from tempfile import mkdtemp
 
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_consent import site_consents
+from edc_facility.import_holidays import import_holidays
 from edc_list_data import site_list_data
 from edc_pharmacy.exceptions import PrescriptionAlreadyExists, PrescriptionError
 from edc_pharmacy.models import (
@@ -24,6 +26,8 @@ from edc_pharmacy.prescribe import create_prescription
 from edc_randomization.randomizer import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
 from edc_randomization.tests.utils import populate_randomization_list_for_tests
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -38,6 +42,12 @@ class MyRandomizer(Randomizer):
 class TestPrescription(TestCase):
     @classmethod
     def setUpTestData(cls):
+        import_holidays()
+        sites._registry = {}
+        sites.loaded = False
+        sites.register(*all_sites)
+        add_or_update_django_sites()
+
         site_randomizers.register(MyRandomizer)
         populate_randomization_list_for_tests(
             MyRandomizer.name, site_names=["mochudi"], per_site=15
@@ -57,6 +67,16 @@ class TestPrescription(TestCase):
         self.subject_consent = helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule", schedule_name="schedule"
         )
+
+        site_randomizers.randomize(
+            "my_randomizer",
+            subject_identifier=self.subject_consent.subject_identifier,
+            report_datetime=self.subject_consent.consent_datetime,
+            site=self.subject_consent.site,
+            user=self.subject_consent.user_created or "jasper_the_dog",
+            gender=self.subject_consent.gender,
+        )
+
         self.medication = Medication.objects.create(
             name="Flucytosine",
         )
@@ -99,6 +119,7 @@ class TestPrescription(TestCase):
         create_prescription(
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=self.subject_consent.consent_datetime,
+            randomizer_name="my_randomizer",
             medication_names=[self.medication.name],
             site=self.subject_consent.site,
         )
@@ -111,6 +132,7 @@ class TestPrescription(TestCase):
         create_prescription(
             subject_identifier=self.subject_consent.subject_identifier,
             report_datetime=self.subject_consent.consent_datetime,
+            randomizer_name="my_randomizer",
             medication_names=[self.medication.name],
             site=self.subject_consent.site,
         )
@@ -120,31 +142,9 @@ class TestPrescription(TestCase):
                 subject_identifier=self.subject_consent.subject_identifier,
                 report_datetime=self.subject_consent.consent_datetime,
                 medication_names=[self.medication.name],
+                randomizer_name="my_randomizer",
                 site=self.subject_consent.site,
             )
-
-    def test_create_prescripition_from_func_for_rct(self):
-        randomizer = site_randomizers.get("my_randomizer")
-        randomizer.import_list(verbose=False, sid_count_for_tests=3)
-        site_randomizers.randomize(
-            "my_randomizer",
-            subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=timezone.now(),
-            site=self.subject_consent.site,
-            user="jasper",
-            gender=self.subject_consent.gender,
-        )
-        create_prescription(
-            subject_identifier=self.subject_consent.subject_identifier,
-            report_datetime=self.subject_consent.consent_datetime,
-            randomizer_name="my_randomizer",
-            medication_names=[self.medication.name],
-            site=self.subject_consent.site,
-        )
-        try:
-            Rx.objects.get(subject_identifier=self.subject_consent.subject_identifier)
-        except ObjectDoesNotExist:
-            self.fail("Rx unexpectedly does not exist")
 
     def test_create_prescripition_from_func_bad_medication(self):
         try:
@@ -152,6 +152,7 @@ class TestPrescription(TestCase):
                 subject_identifier=self.subject_consent.subject_identifier,
                 report_datetime=self.subject_consent.consent_datetime,
                 medication_names=[self.medication.name, "blah blah"],
+                randomizer_name="my_randomizer",
                 site=self.subject_consent.site,
             )
         except PrescriptionError:

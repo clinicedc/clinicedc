@@ -102,7 +102,10 @@ class ModelExporter:
             if f in self.export_fields or f in self.audit_fields or f in self.required_fields:
                 self._field_names.pop(self._field_names.index(f))
         self._field_names = (
-            self.export_fields + self.required_fields + self.field_names + self.audit_fields
+            *self.export_fields,
+            *self.required_fields,
+            *self.field_names,
+            *self.audit_fields,
         )
 
     @property

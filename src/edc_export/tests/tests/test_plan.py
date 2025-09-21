@@ -1,9 +1,11 @@
 import uuid
 from tempfile import mkdtemp
+from unittest import skip
 
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import Crf, ListModel
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -12,20 +14,32 @@ from edc_appointment.models import Appointment
 from edc_export.model_exporter import PlanExporter
 from edc_export.models import Plan
 from edc_facility.import_holidays import import_holidays
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.models import SubjectVisit
 
 
-@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
+@skip("plan not used")
+@override_settings(
+    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp(), SITE_ID=10
+)
 class TestPlan(TestCase):
     helper_cls = Helper
 
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
+    def setUp(self):
         visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
-        for i in range(0, 7):
+        for _ in range(0, 7):
             helper = self.helper_cls()
             helper.consent_and_put_on_schedule(
                 visit_schedule_name=visit_schedule.name,

@@ -68,14 +68,14 @@ class TestNaturalKey(TestCase):
     def test_natural_key_attrs(self):
         offline_helper = OfflineTestHelper()
         offline_helper.offline_test_natural_key_attr(
-            "tests", exclude_models=self.exclude_models
+            "clinicedc_tests", exclude_models=self.exclude_models
         )
 
     @unittest.skipIf(skip_condition, skip_reason)
     def test_get_by_natural_key_attr(self):
         offline_helper = OfflineTestHelper()
         offline_helper.offline_test_get_by_natural_key_attr(
-            "tests", exclude_models=self.exclude_models
+            "clinicedc_tests", exclude_models=self.exclude_models
         )
 
     @unittest.skipIf(skip_condition, skip_reason)

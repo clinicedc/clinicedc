@@ -11,7 +11,7 @@ from django.core.exceptions import (
 )
 from django.core.management.color import color_style
 
-from ..auth_objects import PII, PII_VIEW
+from ..constants import PII, PII_VIEW
 from ..utils import make_view_only_group_permissions
 
 style = color_style()
@@ -27,7 +27,7 @@ class PermissionsCreatorError(ValidationError):
     pass
 
 
-class CodenameDoesNotExist(Exception):
+class CodenameDoesNotExist(Exception):  # noqa: N818
     pass
 
 
@@ -87,7 +87,7 @@ class GroupUpdater:
             group = self.group_model_cls.objects.get(name=group_name)
         except ObjectDoesNotExist as e:
             if not create_group:
-                raise ObjectDoesNotExist(f"{e} Got {group_name}")
+                raise ObjectDoesNotExist(f"{e} Got {group_name}") from e
             group = self.group_model_cls.objects.create(name=group_name)
         else:
             group.permissions.clear()
@@ -122,7 +122,7 @@ class GroupUpdater:
             try:
                 app_label, codename = self.get_from_dotted_codename(dotted_codename)
             except PermissionsCodenameError as e:
-                warn(str(e))
+                warn(str(e), stacklevel=2)
             else:
                 # if you add extra codenames you must also add custom
                 # codename tuples to the Permissions model before you
@@ -138,7 +138,7 @@ class GroupUpdater:
                 except ObjectDoesNotExist as e:
                     errmsg = f"{e} Got codename={codename},app_label={app_label}"
                     if not self.warn_only:
-                        raise CodenameDoesNotExist(errmsg)
+                        raise CodenameDoesNotExist(errmsg) from e
                     warn(style.ERROR(errmsg))
                 except MultipleObjectsReturned as e:
                     if not allow_multiple_objects:
@@ -166,15 +166,17 @@ class GroupUpdater:
         try:
             app_label, _codename = codename.split(".")
         except ValueError as e:
-            raise PermissionsCodenameError(f"Invalid dotted codename. {e} Got {codename}.")
+            raise PermissionsCodenameError(
+                f"Invalid dotted codename. {e} Got {codename}."
+            ) from e
         else:
             try:
                 self.apps.get_app_config(app_label)
-            except LookupError:
+            except LookupError as e:
                 raise PermissionsCodenameError(
                     "Invalid app_label in codename. Expected format "
                     f"'<app_label>.<some_codename>'. Got {codename}."
-                )
+                ) from e
         prefix = _codename.split("_")[0]
         if prefix not in self.codename_prefixes:
             raise PermissionsCodenameError(
@@ -244,7 +246,7 @@ class GroupUpdater:
         except ObjectDoesNotExist as e:
             raise CodenameDoesNotExist(
                 f"Unable to verify codename. {e} Got '{app_label}.{codename}'"
-            )
+            ) from e
         except MultipleObjectsReturned as e:
             self.delete_and_raise_on_duplicate_codenames(codename, app_label, exception=e)
         return permission
@@ -267,7 +269,7 @@ class GroupUpdater:
         try:
             value, name = codename_tpl
         except ValueError as e:
-            raise ValueError(f"{e} Got {codename_tpl}")
+            raise ValueError(f"{e} Got {codename_tpl}") from e
         _app_label, codename = value.split(".")
         if app_label and _app_label != app_label:
             raise PermissionsCreatorError(

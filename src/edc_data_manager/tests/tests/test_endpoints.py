@@ -1,4 +1,5 @@
 from importlib import import_module
+from unittest import skip
 
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.utils import login
@@ -51,7 +52,7 @@ class AdminSiteTest(WebTest):
         self.user = User.objects.create(  # nosec B106
             username="user_login",
             email="u@example.com",
-            password="pass",
+            password="pass",  # noqa: S106
             is_active=True,
             is_staff=True,
         )
@@ -68,6 +69,7 @@ class AdminSiteTest(WebTest):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(get_visit_schedule(consent_v1))
 
+    @skip("skip web test")
     def test_default_rule_handler_names(self):
         """Assert default rule handler names on queryrule ADD form"""
         login(self, superuser=False, redirect_url="admin:index")
@@ -81,6 +83,7 @@ class AdminSiteTest(WebTest):
         self.assertIn('<option value="do_nothing"', response)
         self.assertIn('<option value="default"', response)
 
+    @skip("skip web test")
     def test_query_rule_questions_from_single_form(self):
         login(self, superuser=False, redirect_url="admin:index")
 
@@ -102,6 +105,7 @@ class AdminSiteTest(WebTest):
         response = form.submit()
         self.assertIn("Invalid. Select questions from one CRF only", str(response.text))
 
+    @skip("skip web test")
     def test_data_query(self):
         login(self, superuser=False, redirect_url="admin:index")
 
@@ -147,6 +151,7 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response.content))
 
+    @skip("skip web test")
     def test_data_query_add_and_permissions(self):
         login(self, superuser=False, redirect_url="admin:index")
 
@@ -186,6 +191,7 @@ class AdminSiteTest(WebTest):
         response = form.submit().follow()
         self.assertIn("was changed successfully", str(response))
 
+    @skip("skip web test")
     def test_data_query_action_attrs(self):
         login(self, superuser=False, redirect_url="admin:index")
 

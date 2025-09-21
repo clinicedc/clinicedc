@@ -1,11 +1,24 @@
-from django.test import TestCase, tag
+from clinicedc_tests.sites import all_sites
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
+from edc_facility.import_holidays import import_holidays
 from edc_facility.models import HealthFacility, HealthFacilityTypes, Holiday
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("facility")
+@override_settings(SITE_ID=10)
 class TestModel(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def test_str(self):
         obj = Holiday.objects.create(
             country="botswana", local_date=timezone.now().date(), name="holiday"

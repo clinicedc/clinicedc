@@ -90,18 +90,15 @@ class AliquotCreator:
             parent_segment=self.parent_segment,
         )
 
-        parent_identifier = parent_identifier or aliquot_identifier_obj.identifier
-
-        aliquot = self.aliquot_model_cls.objects.create(
+        return self.aliquot_model_cls.objects.create(
             aliquot_identifier=aliquot_identifier_obj.identifier,
             aliquot_type=aliquot_type.name,
             alpha_code=aliquot_type.alpha_code,
             count=count,
             numeric_code=aliquot_type.numeric_code,
-            parent_identifier=parent_identifier,
+            parent_identifier=parent_identifier or aliquot_identifier_obj.identifier,
             identifier_prefix=self.identifier_prefix,
-            is_primary=True if self.is_primary else False,
-            requisition_identifier=self.requisition_identifier,
-            subject_identifier=self.subject_identifier,
+            is_primary=bool(self.is_primary),
+            requisition_identifier=self.requisition_identifier or "",
+            subject_identifier=self.subject_identifier or "",
         )
-        return aliquot

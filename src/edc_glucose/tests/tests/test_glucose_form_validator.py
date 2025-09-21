@@ -1,6 +1,8 @@
-from clinicedc_tests.helper import Helper as BaseHelper
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ValidationError
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_appointment.models import Appointment
@@ -13,17 +15,8 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
-from ..consents import consent_v1
-from ..models import SubjectScreening
-from ..visit_schedules import visit_schedule
 
-
-class Helper(BaseHelper):
-    @property
-    def screening_model_cls(self):
-        return SubjectScreening
-
-
+@tag("glucose")
 @override_settings(SITE_ID=10)
 class TestGlucose(TestCase):
     helper_cls = Helper
@@ -31,28 +24,17 @@ class TestGlucose(TestCase):
     def setUp(self):
         site_consents.registry = {}
         site_consents.register(consent_v1)
+
+        visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule=visit_schedule)
         self.helper = self.helper_cls()
-        subject_consent = self.helper.consent_and_put_on_schedule(
+        self.subject_visit_baseline = self.helper.enroll_to_baseline(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
         )
-        self.subject_identifier = subject_consent.subject_identifier
+        self.subject_identifier = self.subject_visit_baseline.subject_identifier
 
-        appointment_baseline = Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        )[0]
-
-        self.subject_visit_baseline = SubjectVisit.objects.create(
-            appointment=appointment_baseline,
-            subject_identifier=self.subject_identifier,
-            visit_code=1000,
-            visit_code_sequence=0,
-            visit_schedule_name="visit_schedule",
-            schedule_name="schedule",
-            reason=SCHEDULED,
-        )
         appointment_followup = Appointment.objects.all().order_by(
             "timepoint", "visit_code_sequence"
         )[1]

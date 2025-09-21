@@ -1,19 +1,30 @@
-from unittest.mock import patch
-
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.utils import login
 from django.contrib.auth.models import User
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils import timezone
 from django_webtest import WebTest
 
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
 from edc_facility.auths import codenames
+from edc_facility.import_holidays import import_holidays
 from edc_facility.models import HealthFacility, HealthFacilityTypes
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("facility")
+@override_settings(SITE_ID=10)
 class TestAdmin(WebTest):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def setUp(self) -> None:
         super().setUp()
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
@@ -46,12 +57,8 @@ class TestAdmin(WebTest):
         opts.update(**kwargs)
         return HealthFacility.objects.create(**opts)
 
-    @patch(
-        "edc_subject_dashboard.templatetags.edc_subject_dashboard_extras."
-        "get_appointment_model_cls"
-    )
-    def test_admin_ok(self, mock_appointment_type):
-        login(self, user=self.user)
+    def test_admin_ok(self):
+        login(self, superuser=True, redirect_url="admin:index")
         obj = self.get_obj(mon=False, tue=False)
         url = reverse("edc_facility_admin:edc_facility_healthfacility_changelist")
         url = f"{url}?q={obj.name}"

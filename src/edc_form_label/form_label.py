@@ -41,5 +41,5 @@ class FormLabel:
             except KeyError as e:
                 raise CustomFormLabelError(
                     f"Custom label template has invalid keys. See {label}. Got {e}."
-                )
+                ) from e
         return label

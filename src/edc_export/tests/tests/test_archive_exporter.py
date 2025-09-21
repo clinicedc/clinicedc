@@ -2,17 +2,32 @@ import os
 import shutil
 from tempfile import mkdtemp
 
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.utils import get_user_for_tests
 from django.contrib.sites.models import Site
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 
 from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
+from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 
 
-@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
+@tag("export")
+@override_settings(
+    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp(), SITE_ID=10
+)
 class TestArchiveExporter(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def setUp(self):
         self.user = get_user_for_tests(username="erikvw")
         Site.objects.get_current()

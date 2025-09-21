@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, TypeVar
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -154,10 +155,8 @@ class AppointmentMethodsModelMixin(models.Model):
     def related_visit(self: Appointment) -> VisitModel | None:
         """Returns the related visit model for the current instance."""
         related_visit = None
-        try:
+        with contextlib.suppress(ObjectDoesNotExist):
             related_visit = getattr(self, self.related_visit_model_attr())
-        except ObjectDoesNotExist:
-            pass
         return related_visit
 
     @property

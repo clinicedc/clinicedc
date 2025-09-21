@@ -33,7 +33,7 @@ class SubjectRefusalModelMixin(models.Model):
 
     @staticmethod
     def get_search_slug_fields():
-        return ["screening_identifier"]
+        return ("screening_identifier",)
 
     class Meta:
         abstract = True

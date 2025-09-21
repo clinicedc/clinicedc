@@ -143,7 +143,7 @@ class RegisteredSubject(UniqueSubjectIdentifierModelMixin, SiteModelMixin, BaseU
 
     def save(self, *args, **kwargs):
         if self.identity:
-            self.additional_key = None
+            self.additional_key = ""
         self.set_uuid_as_subject_identifier_if_none()
         self.raise_on_duplicate("subject_identifier")
         self.raise_on_duplicate("identity")

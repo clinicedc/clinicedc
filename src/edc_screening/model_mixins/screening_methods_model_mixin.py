@@ -16,7 +16,7 @@ class ScreeningMethodsModeMixin(models.Model):
 
     @staticmethod
     def get_search_slug_fields():
-        return ["screening_identifier", "subject_identifier", "reference"]
+        return "screening_identifier", "subject_identifier", "reference"
 
     @property
     def estimated_dob(self: SubjectScreeningModelStub) -> date:

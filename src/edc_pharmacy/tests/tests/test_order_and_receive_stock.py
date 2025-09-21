@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
@@ -51,6 +52,8 @@ from edc_pharmacy.utils import (
 )
 from edc_randomization.constants import ACTIVE, PLACEBO
 from edc_randomization.models import RandomizationList
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -58,12 +61,17 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("pharmacy")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=10)
 class TestOrderReceive(TestCase):
     helper_cls = Helper
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        sites._registry = {}
+        sites.loaded = False
+        sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         self.helper = self.helper_cls()
@@ -122,14 +130,14 @@ class TestOrderReceive(TestCase):
         qty = qty or 100
         # product_active, product_placebo = self.make_products()
         order = Order.objects.create(order_datetime=timezone.now(), item_count=20)
-        for i in range(0, 10):
+        for _ in range(0, 10):
             OrderItem.objects.create(
                 order=order,
                 product=self.product_active,
                 qty=qty,
                 container=container,
             )
-        for i in range(10, 20):
+        for _ in range(10, 20):
             OrderItem.objects.create(
                 order=order,
                 product=self.product_placebo,
@@ -424,7 +432,9 @@ class TestOrderReceive(TestCase):
         # confirm stock items
         self.assertEqual(Stock.objects.filter(confirmation__isnull=True).count(), 20)
         for stock in Stock.objects.filter(container=container_5000):
-            confirm_stock(receive, [stock.code], fk_attr="receive_item__receive")
+            confirm_stock(
+                receive, [stock.code], fk_attr="receive_item__receive", user_created="aroy"
+            )
         self.assertEqual(Stock.objects.filter(confirmation__isnull=False).count(), 20)
 
         # REPACK REQUEST **********************************************
@@ -452,7 +462,7 @@ class TestOrderReceive(TestCase):
                 obj.code for obj in repack_request.stock_set.filter(confirmation__isnull=True)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
-                repack_request, codes, fk_attr="repack_request"
+                repack_request, codes, fk_attr="repack_request", user_created="aroy"
             )
 
             self.assertEqual(len(confirmed), 39)
@@ -466,7 +476,7 @@ class TestOrderReceive(TestCase):
                 for obj in repack_request.stock_set.filter(confirmation__isnull=False)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
-                repack_request, codes, fk_attr="repack_request"
+                repack_request, codes, fk_attr="repack_request", user_created="aroy"
             )
 
             self.assertEqual(len(confirmed), 0)
@@ -479,7 +489,7 @@ class TestOrderReceive(TestCase):
                 obj.code for obj in repack_request.stock_set.filter(confirmation__isnull=False)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
-                repack_request, codes, fk_attr="repack_request"
+                repack_request, codes, fk_attr="repack_request", user_created="aroy"
             )
 
             self.assertEqual(len(confirmed), 0)
@@ -545,7 +555,9 @@ class TestOrderReceive(TestCase):
 
         # confirm stock items
         for stock in Stock.objects.filter(container=container_5000):
-            confirm_stock(receive, [stock.code], fk_attr="receive_item__receive")
+            confirm_stock(
+                receive, [stock.code], fk_attr="receive_item__receive", user_created="aroy"
+            )
 
         # create a repack request from each container_5000, ask for 39 bottles of 128
         for stock in Stock.objects.filter(container=container_5000):
@@ -564,7 +576,7 @@ class TestOrderReceive(TestCase):
         EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=True,
     )
     @patch("edc_model_admin.templatetags.edc_admin_modify.get_cancel_url", return_value="/")
-    def test_create_stock_request_and_items(self, mock_cancel_url):
+    def test_create_stock_request_and_items(self, mock_cancel_url):  # noqa: ARG002
         site_consents.registry = {}
         site_consents.register(consent_v1)
 

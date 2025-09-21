@@ -9,8 +9,8 @@ from .constants import (
 
 
 class ProtocolDeviationViolationAction(ActionWithNotification):
-    reference_model = None  # "my_app.protocolincident"
-    admin_site_name = None  # "my_app_admin"
+    reference_model = "edc_protocol_incident.protocoldeviationviolation"
+    admin_site_name = "edc_protocol_incident_admin"
 
     name = PROTOCOL_DEVIATION_VIOLATION_ACTION
     display_name = "Submit Protocol Deviation / Violation Report"
@@ -25,8 +25,8 @@ class ProtocolDeviationViolationAction(ActionWithNotification):
 
 
 class ProtocolIncidentAction(ActionWithNotification):
-    reference_model = None  # "my_app.protocolincident"
-    admin_site_name = None  # "my_app"
+    reference_model = "edc_protocol_incident.protocolincident"
+    admin_site_name = "edc_protocol_incident_admin"
 
     name = PROTOCOL_INCIDENT_ACTION
     display_name = "Submit Protocol Incident Report"

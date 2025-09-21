@@ -51,8 +51,8 @@ def subject_visit_missed_on_post_delete(sender, instance, using, **kwargs) -> No
             instance.related_visit.reason = SCHEDULED
             instance.related_visit.reason_unscheduled = NOT_APPLICABLE
             instance.related_visit.info_source = PATIENT
-            instance.related_visit.info_source_other = None
-            instance.related_visit.comment = None
+            instance.related_visit.info_source_other = ""
+            instance.related_visit.comment = ""
             instance.related_visit.modified = instance.modified
             instance.related_visit.user_modified = instance.user_modified
             instance.related_visit.save_base(

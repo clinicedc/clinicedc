@@ -1,16 +1,29 @@
+from clinicedc_tests.sites import all_sites
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_facility.form_validators import HealthFacilityFormValidator
 from edc_facility.forms import HealthFacilityForm
+from edc_facility.import_holidays import import_holidays
 from edc_facility.models import HealthFacility, HealthFacilityTypes
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("facility")
+@override_settings(SITE_ID=10)
 class TestForm(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def test_form_validator_ok(self):
         form_validator = HealthFacilityFormValidator(
             cleaned_data=dict(tue=True, thu=True),

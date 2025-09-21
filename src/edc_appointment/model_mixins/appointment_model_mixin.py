@@ -87,7 +87,7 @@ class AppointmentModelMixin(
                         "Subject is not on a schedule. Using subject_identifier="
                         f"`{self.subject_identifier}` and appt_datetime=`{dte_as_str}`."
                         f"Got {e}"
-                    )
+                    ) from e
                 if self.appt_datetime > onschedule_obj.onschedule_datetime:
                     # update appointment timepoints
                     schedule.put_on_schedule(
@@ -122,33 +122,36 @@ class AppointmentModelMixin(
         return self.pk
 
     def validate_appt_datetime_not_before_previous(self) -> None:
-        if self.appt_status != CANCELLED_APPT and self.appt_datetime:
-            if (
-                self.relative_previous
-                and self.appt_datetime <= self.relative_previous.appt_datetime
-            ):
-                appt_datetime = formatted_datetime(self.appt_datetime)
-                previous_appt_datetime = formatted_datetime(
-                    self.relative_previous.appt_datetime
-                )
-                raise AppointmentDatetimeError(
-                    "Datetime cannot be on or before previous appointment datetime. "
-                    f"Got {appt_datetime} <= {previous_appt_datetime}. "
-                    f"See appointment `{self}` and "
-                    f"`{self.relative_previous}`."
-                )
+        if (
+            self.appt_status != CANCELLED_APPT
+            and self.appt_datetime
+            and self.relative_previous
+            and self.appt_datetime <= self.relative_previous.appt_datetime
+        ):
+            appt_datetime = formatted_datetime(self.appt_datetime)
+            previous_appt_datetime = formatted_datetime(self.relative_previous.appt_datetime)
+            raise AppointmentDatetimeError(
+                "Datetime cannot be on or before previous appointment datetime. "
+                f"Got {appt_datetime} <= {previous_appt_datetime}. "
+                f"See appointment `{self}` and "
+                f"`{self.relative_previous}`."
+            )
 
     def validate_appt_datetime_not_after_next(self) -> None:
-        if self.appt_status != CANCELLED_APPT and self.appt_datetime and self.relative_next:
-            if self.appt_datetime >= self.relative_next.appt_datetime:
-                appt_datetime = formatted_datetime(self.appt_datetime)
-                next_appt_datetime = formatted_datetime(self.relative_next.appt_datetime)
-                raise AppointmentDatetimeError(
-                    "Datetime cannot be on or after next appointment datetime. "
-                    f"Got {appt_datetime} >= {next_appt_datetime}. "
-                    f"See appointment `{self}` and "
-                    f"`{self.relative_next}`."
-                )
+        if (
+            self.appt_status != CANCELLED_APPT
+            and self.appt_datetime
+            and self.relative_next
+            and self.appt_datetime >= self.relative_next.appt_datetime
+        ):
+            appt_datetime = formatted_datetime(self.appt_datetime)
+            next_appt_datetime = formatted_datetime(self.relative_next.appt_datetime)
+            raise AppointmentDatetimeError(
+                "Datetime cannot be on or after next appointment datetime. "
+                f"Got {appt_datetime} >= {next_appt_datetime}. "
+                f"See appointment `{self}` and "
+                f"`{self.relative_next}`."
+            )
 
     @property
     def title(self: Appointment) -> str:
@@ -171,7 +174,7 @@ class AppointmentModelMixin(
 
     class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):
         abstract = True
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=[
                     "subject_identifier",
@@ -192,7 +195,7 @@ class AppointmentModelMixin(
                 ],
                 name="unique_%(app_label)s_%(class)s_200",
             ),
-        ]
+        )
         indexes = (
             models.Index(fields=["appt_datetime"]),
             models.Index(fields=["appt_status"]),

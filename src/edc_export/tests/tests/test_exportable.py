@@ -1,20 +1,47 @@
 import json
 from tempfile import mkdtemp
 
+from clinicedc_tests.sites import all_sites
 from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, User
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 
 from edc_appointment.models import Appointment
+from edc_auth.auth_updater import AuthUpdater
+from edc_auth.site_auths import site_auths
+from edc_export.auths import update_site_auths
 from edc_export.constants import EXPORT
 from edc_export.exportables import Exportables
 from edc_export.model_options import ModelOptions
+from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 
 
-@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
+@tag("export1")
+@override_settings(
+    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(),
+    EDC_EXPORT_UPLOAD_FOLDER=mkdtemp(),
+    SITE_ID=10,
+    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+    EDC_AUTH_SKIP_SITE_AUTHS=False,
+)
 class TestExportable(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
+        # rebuild site_auth and run authupdate
+        site_auths.initialize()
+        update_site_auths()
+        AuthUpdater(verbose=False, warn_only=True)
+
     def setUp(self):
         group = Group.objects.get(name=EXPORT)
         user = User.objects.create(username="erikvw", is_superuser=True, is_active=True)

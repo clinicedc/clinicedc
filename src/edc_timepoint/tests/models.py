@@ -59,7 +59,7 @@ class SubjectVisit(
     BaseUuidModel,
 ):
     appointment = models.OneToOneField(
-        "edc_appointment.appointment", on_delete=PROTECT, related_name="+"
+        "edc_appointment.appointment", on_delete=PROTECT, related_name="timepoint_appointment"
     )
 
     timepoint_lookup_cls = VisitTimepointLookup
@@ -71,9 +71,12 @@ class SubjectVisit(
 class CrfOne(CrfModelMixin, TimepointLookupModelMixin, BaseUuidModel):
     timepoint_lookup_cls = CrfTimepointLookup
 
+    subject_visit = models.OneToOneField(SubjectVisit, on_delete=models.PROTECT)
+
 
 class CrfTwo(CrfModelMixin, TimepointLookupModelMixin, BaseUuidModel):
     timepoint_lookup_cls = CrfTimepointLookup
+    subject_visit = models.OneToOneField(SubjectVisit, on_delete=models.PROTECT)
 
 
 class OnSchedule(SiteModelMixin, OnScheduleModelMixin, BaseUuidModel):

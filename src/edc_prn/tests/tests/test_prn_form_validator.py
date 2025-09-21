@@ -1,10 +1,11 @@
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import Prn
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django import forms
 from django.contrib.sites.models import Site
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_appointment.models import Appointment
@@ -14,18 +15,24 @@ from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidator, FormValidatorMixin
 from edc_prn.modelform_mixins import PrnFormValidatorMixin
 from edc_sites.modelform_mixins import SiteModelFormMixin
+from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
 
+@tag("prn")
+@override_settings(SITE_ID=10)
 class TestPrn(TestCase):
     helper_cls = Helper
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
         add_or_update_django_sites()
 
     def setUp(self):

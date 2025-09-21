@@ -24,13 +24,13 @@ class Aliquot(
     BaseUuidModel,
 ):
     def get_search_slug_fields(self):
-        return [
+        return (
             "aliquot_identifier",
             "human_readable_identifier",
             "subject_identifier",
             "parent_identifier",
             "requisition_identifier",
-        ]
+        )
 
     objects = Manager()
 

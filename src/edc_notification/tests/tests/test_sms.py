@@ -1,12 +1,16 @@
+from clinicedc_tests.sites import all_sites
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.testcases import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 
+from edc_facility.import_holidays import import_holidays
 from edc_notification.decorators import register
 from edc_notification.models import Notification as NotificationModel
 from edc_notification.notification import GradedEventNotification
 from edc_notification.site_notifications import site_notifications
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
 
 from ..models import AE
 
@@ -27,7 +31,17 @@ class TwillioTestClientMessages:
         return self
 
 
+@tag("notification")
+@override_settings(SITE_ID=10)
 class TestTwilio(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        sites._registry = {}
+        sites.loaded = False
+        sites.register(*all_sites)
+        add_or_update_django_sites()
+
     @override_settings(
         TWILIO_ENABLED=True,
         TWILIO_SENDER="5555555555",
@@ -63,7 +77,7 @@ class TestTwilio(TestCase):
             (
                 "TEST MESSAGE. NO ACTION REQUIRED - My Project: "
                 "Report 'Test Grade3 Event' "
-                "for patient 1 at site 'What A Site' may require your attention. "
+                "for patient 1 at site 'Mochudi' may require your attention. "
                 "Login to review. (See your user profile to unsubscribe.)"
             ),
         )

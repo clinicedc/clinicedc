@@ -2,6 +2,7 @@ from tempfile import mkdtemp
 
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_randomization.randomization_list_verifier import RandomizationListError
 from edc_randomization.randomizer import Randomizer
@@ -27,9 +28,9 @@ class MyRandomizer(Randomizer):
 @tag("randomization")
 @override_settings(
     EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=False,
+    SITE_ID=SiteID(40),
 )
 class TestRandomizer(TestCase):
-
     def setUp(self):
         site_randomizers._registry = {}
         site_randomizers.register(MyRandomizer)

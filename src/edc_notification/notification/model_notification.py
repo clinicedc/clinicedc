@@ -17,10 +17,10 @@ class ModelNotification(Notification):
 
     model: str | None = None  # label_lower format
 
-    model_operations = [CREATE, UPDATE, DELETE]
+    model_operations: tuple[str] = (CREATE, UPDATE, DELETE)
 
-    create_fields = ["created"]
-    update_fields = ["modified"]
+    create_fields: tuple[str] = ("created",)
+    update_fields: tuple[str] = ("modified",)
 
     email_body_template: str = (
         "\n\nDo not reply to this email\n\n"
@@ -177,30 +177,3 @@ class ModelNotification(Notification):
         )
 
         return opts
-
-    # @property
-    # def test_template_options(self) -> dict:
-    #     class Site:
-    #         domain = "gaborone.example.com"
-    #         name = "gaborone"
-    #         id = 99
-    #
-    #     class Meta:
-    #         label_lower = self.model
-    #
-    #     class DummyHistory:
-    #         def __init__(self, objects):
-    #             self._objects = objects
-    #
-    #         def all(self):
-    #             return self._objects
-    #
-    #     class DummyInstance:
-    #         id = 99
-    #         subject_identifier = "123456910"
-    #         site = Site()
-    #         _meta = Meta()
-    #
-    #     instance = DummyInstance()
-    #     instance.history = DummyHistory(objects=[instance])
-    #     return dict(instance=instance)

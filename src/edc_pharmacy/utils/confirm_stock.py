@@ -15,7 +15,7 @@ def confirm_stock(
     stock_codes: list[str],
     fk_attr: str | None = None,
     confirmed_by: str | None = None,
-    user_created: str = None,
+    user_created: str | None = None,
 ) -> tuple[list[str], list[str], list[str]]:
     """Confirm stock instances given a list of stock codes
     and a request/receive pk.

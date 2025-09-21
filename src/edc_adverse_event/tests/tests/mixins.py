@@ -39,8 +39,7 @@ class DeathReportTestMixin:
     ):
         causes_qs = CauseOfDeath.objects.exclude(name=OTHER)
         cause_of_death = (
-            cause_of_death
-            or causes_qs[choice([x for x in range(0, len(causes_qs))])]  # nosec B311
+            cause_of_death or causes_qs[choice([x for x in range(0, len(causes_qs))])]  # nosec B311
         )
 
         # create ae initial
@@ -65,7 +64,7 @@ class DeathReportTestMixin:
             subject_identifier=self.subject_identifier,
             action_identifier=action_item.action_identifier,
             cause_of_death=cause_of_death,
-            cause_of_death_other=cause_of_death_other,
+            cause_of_death_other=cause_of_death_other or "",
             user_created="erikvw",
         )
         return death_report

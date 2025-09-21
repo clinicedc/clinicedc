@@ -11,7 +11,7 @@ from edc_export.choices import EXPORT_FORMATS
 from edc_export.constants import CSV
 from edc_notification.model_mixins import NotificationUserProfileModelMixin
 
-from ..auth_objects import CUSTOM_ROLE, STAFF_ROLE
+from ..constants import CUSTOM_ROLE, STAFF_ROLE
 from .role import Role
 
 
@@ -32,21 +32,21 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
 
     sites = models.ManyToManyField(Site, blank=True)
 
-    job_title = models.CharField(max_length=100, null=True, blank=True)
+    job_title = models.CharField(max_length=100, default="", blank=True)
 
-    alternate_email = models.EmailField(_("Alternate email address"), blank=True, null=True)
+    alternate_email = models.EmailField(_("Alternate email address"), blank=True, default="")
 
     mobile = models.CharField(
         max_length=25,
         validators=[RegexValidator(regex=r"^\+\d+")],
-        null=True,
+        default="",
         blank=True,
         help_text="e.g. +1234567890",
     )
 
     clinic_label_printer = models.CharField(
         max_length=100,
-        null=True,
+        default="",
         blank=True,
         help_text=format_html(
             'Change in <a href="{href}">{label}</a>',
@@ -57,7 +57,7 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
 
     lab_label_printer = models.CharField(
         max_length=100,
-        null=True,
+        default="",
         blank=True,
         help_text=format_html(
             'Change in <a href="{href}">{label}</a>',
@@ -68,7 +68,7 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
 
     print_server = models.CharField(
         max_length=100,
-        null=True,
+        default="",
         blank=True,
         help_text=format_html(
             'Change in <a href="{href}">{label}</a>',
@@ -82,7 +82,6 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         max_length=25,
         choices=EXPORT_FORMATS,
         default=CSV,
-        null=True,
         blank=True,
         help_text="Note: requires export permissions",
     )
@@ -101,9 +100,13 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
             group_names = [group.name for group in self.user.groups.all()]
             add_group_names = []
             for role in self.roles.all():
-                for group in role.groups.all():
-                    if group.name not in group_names:
-                        add_group_names.append(group.name)
+                add_group_names.extend(
+                    [
+                        group.name
+                        for group in role.groups.all()
+                        if group.name not in group_names
+                    ]
+                )
             add_group_names = list(set(add_group_names))
             for name in add_group_names:
                 self.user.groups.add(Group.objects.get(name=name))

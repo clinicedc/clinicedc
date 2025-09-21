@@ -206,6 +206,7 @@ class TestModels(SiteTestCaseMixin, TestCase):
             RegistryNotLoaded,
             OnScheduleSix.objects.put_on_schedule,
             subject_identifier=consent.consent_datetime,
+            onschedule_datetime=timezone.now(),
         )
 
     def test_offschedule_raises(self):

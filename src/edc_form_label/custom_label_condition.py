@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
@@ -28,20 +29,24 @@ class CustomLabelCondition:
         """
         return
 
-    def get_additional_options(self, request=None, obj=None, model=None):
+    def get_additional_options(self, request=None, obj=None, model=None):  # noqa: ARG002
         return {}
 
     @property
     def appointment(self) -> Appointment | None:
         """Returns the appointment instance for this request or None."""
-        return django_apps.get_model(self.appointment_model).objects.get(
-            pk=self.request.GET.get("appointment")
-        )
+        with contextlib.suppress(ObjectDoesNotExist):
+            return django_apps.get_model(self.appointment_model).objects.get(
+                pk=self.request.GET.get("appointment")
+            )
+        return None
 
     @property
     def previous_appointment(self) -> Appointment | None:
         """Returns the previous appointment for this request or None."""
-        return self.appointment.previous_by_timepoint
+        with contextlib.suppress(ObjectDoesNotExist):
+            return self.appointment.previous_by_timepoint
+        return None
 
     @property
     def previous_visit(self):
@@ -73,10 +78,8 @@ class CustomLabelCondition:
         """
         previous_obj = None
         if self.previous_visit:
-            try:
+            with contextlib.suppress(ObjectDoesNotExist):
                 previous_obj = self.model.objects.get(
                     **{f"{self.model.related_visit_model_attr()}": self.previous_visit}
                 )
-            except ObjectDoesNotExist:
-                pass
         return previous_obj

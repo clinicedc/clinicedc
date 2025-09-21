@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import re
 from typing import TYPE_CHECKING, Any
 
@@ -33,14 +34,15 @@ def get_subject_screening_model_cls() -> Any:
     return django_apps.get_model(get_subject_screening_model())
 
 
-def format_reasons_ineligible(*str_values: str, delimiter=None) -> str:
+def format_reasons_ineligible(*str_values: str | None, delimiter: str | None = None) -> str:
     reasons = None
     delimiter = delimiter or "|"
-    str_values = tuple(x for x in str_values if x is not None)
+    str_values = str_values or []
+    str_values = tuple(x for x in str_values if x)
     if str_values:
         reasons = format_html(
             "{}",
-            mark_safe(delimiter.join(str_values)),  # nosec B703 B308
+            mark_safe(delimiter.join(str_values)),  # noqa: S308
         )
     return reasons
 
@@ -73,10 +75,10 @@ def get_subject_screening_or_raise(
             )
     except ObjectDoesNotExist as e:
         if is_modelform:
-            raise forms.ValidationError("Not allowed. Screening form not found.")
+            raise forms.ValidationError("Not allowed. Screening form not found.") from e
         raise ObjectDoesNotExist(
             f"{e} screening_identifier={screening_identifier}. Perhaps catch this in the form."
-        )
+        ) from e
     return subject_screening
 
 
@@ -101,10 +103,8 @@ def is_eligible_or_raise(
     )
 
     url_name = url_name or "screening_listboard_url"
-    try:
+    with contextlib.suppress(InvalidDashboardUrlName):
         url_name = url_names.get(url_name)
-    except InvalidDashboardUrlName:
-        pass
 
     if not subject_screening.eligible:
         try:
@@ -128,7 +128,7 @@ def is_eligible_or_raise(
         else:
             msg = format_html(
                 'Not allowed. Subject is not eligible. See subject <A href="{}">{}</A>',
-                mark_safe(url),  # nosec B308 B703
+                mark_safe(url),  # noqa: S308
                 subject_screening.screening_identifier,
             )
         raise forms.ValidationError(msg)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING
 
@@ -17,7 +18,7 @@ if TYPE_CHECKING:
     from django.contrib.auth.models import User
 
 
-class ArchiveExporterNothingExported(Exception):
+class ArchiveExporterNothingExported(Exception):  # noqa: N818
     pass
 
 
@@ -56,7 +57,7 @@ class ArchiveExporter:
         for model in models:
             csv_exporter = self.csv_exporter_cls(
                 model=model,
-                export_folder=tmp_folder,
+                export_folder=Path(tmp_folder),
                 decrypt=decrypt,
                 site_ids=sites.get_site_ids_for_user(
                     user=user, site_id=sites.get_current_site().site_id

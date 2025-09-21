@@ -8,7 +8,7 @@ from .get_static_file import get_static_file
 from .get_uuid import get_uuid
 from .message_in_queue import message_in_queue
 from .round_up import round_half_away_from_zero, round_half_up, round_up
-from .show_urls import show_url_names, show_urls
+from .show_urls import show_namespaces, show_url_names, show_urls, show_urls_from_patterns
 from .text import (
     convert_from_camel,
     convert_php_dateformat,
@@ -48,8 +48,10 @@ __all__ = [
     "round_half_up",
     "round_up",
     "safe_allowed_chars",
+    "show_namespaces",
     "show_url_names",
     "show_urls",
+    "show_urls_from_patterns",
     "to_local",
     "to_utc",
     "truncate_string",

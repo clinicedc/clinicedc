@@ -26,7 +26,6 @@ from .mixins import DeathReportTestMixin
 @tag("adverse_event")
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=30)
 class TestNotifications(DeathReportTestMixin, TestCase):
-
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -211,16 +210,16 @@ class TestNotifications(DeathReportTestMixin, TestCase):
         self.get_death_report()
 
         self.assertIn(
-            f"TEST/UAT --EDC TEST PROJECT: Death Report for {self.subject_identifier}",
+            f"TEST/UAT --CLINICEDC TEST PROJECT: Death Report for {self.subject_identifier}",
             [m.subject for m in mail.outbox],
         )
         self.assertIn(
-            "TEST/UAT --EDC TEST PROJECT: "
+            "TEST/UAT --CLINICEDC TEST PROJECT: "
             f"TMG Death Report (1st) for {self.subject_identifier}",
             [m.subject for m in mail.outbox],
         )
         self.assertIn(
-            "TEST/UAT --EDC TEST PROJECT:  "
+            "TEST/UAT --CLINICEDC TEST PROJECT:  "
             f"a death has been reported for {self.subject_identifier}",
             [m.subject for m in mail.outbox],
         )

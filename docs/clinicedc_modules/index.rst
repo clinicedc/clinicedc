@@ -13,12 +13,15 @@ Clinicedc modules
    edc_consent
    edc_crf
    edc_device
+   edc_facility
    edc_form_describer
+   edc_form_label
    edc_form_runners
    edc_list_data
    edc_qareports
    edc_registration
    edc_reportable
    edc_sites
+   edc_timepoint
    edc_visit_schedule
    edc_visit_tracking

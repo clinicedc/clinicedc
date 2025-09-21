@@ -204,7 +204,7 @@ class TestConsentForm(TestCase):
             consent_definition=consent1_v1,
             dob=self.study_open_datetime - relativedelta(years=25),
             guardian_name="",
-            report_datetime=timezone.now()(),
+            report_datetime=timezone.now(),
         )
         mock_subject_screening = self.get_mock_screening(subject_consent)
         with patch(

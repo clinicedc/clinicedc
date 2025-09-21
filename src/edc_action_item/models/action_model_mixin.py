@@ -113,8 +113,7 @@ class ActionNoManagersModelMixin(models.Model):
     def natural_key(self: Any) -> tuple:
         return (self.action_identifier,)
 
-    # noinspection PyTypeHints
-    natural_key.dependencies = ["edc_action_item.actionitem"]  # type:ignore
+    natural_key.dependencies = ("edc_action_item.actionitem",)
 
     @classmethod
     def get_action_cls(cls) -> type[Action]:

@@ -7,8 +7,7 @@ from zoneinfo import ZoneInfo
 
 import arrow
 from arrow import Arrow
-from dateutil._common import weekday
-from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import relativedelta, weekday
 from django.conf import settings
 from django.utils import timezone
 
@@ -36,19 +35,18 @@ class Facility:
     def __init__(
         self,
         name: str | None = None,
-        days: list | None = None,
+        days: list[weekday] | None = None,
         slots: list[int] | None = None,
         best_effort_available_datetime: datetime | None = None,
     ):
-        self.days = []
+        self.days = days
         self.name = name
         if not name:
             raise FacilityError(f"Name cannot be None. See {self!r}")
         self.best_effort_available_datetime = (
             True if best_effort_available_datetime is None else best_effort_available_datetime
         )
-        for day in days:
-            self.days.append(getattr(day, "weekday", weekday(day)))
+        self.weekdays = [d.weekday for d in self.days]
         self.slots = slots or [99999 for _ in self.days]
         self.config = dict(zip([str(d) for d in self.days], self.slots, strict=False))
         self.holidays = self.holiday_cls()
@@ -69,9 +67,9 @@ class Facility:
             slots_per_day = 0
         return slots_per_day
 
-    @property
-    def weekdays(self) -> list[int]:
-        return [d.weekday for d in self.days]
+    # @property
+    # def weekdays(self) -> list[int]:
+    #     return [d.weekday for d in self.days]
 
     @staticmethod
     def open_slot_on(arr) -> Arrow:
@@ -132,6 +130,7 @@ class Facility:
         reverse_delta=None,
         taken_datetimes=None,
         schedule_on_holidays=None,
+        **kwargs,  # noqa: ARG002
     ):
         """Returns an arrow object for a datetime equal to or
         close to the suggested datetime.

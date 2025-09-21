@@ -26,7 +26,7 @@ class TestTags(TestCase):
             paginator=paginator,
             page_obj=paginator.get_page(page),
             query_string=None,
-            paginator_url="listboard_url",
+            paginator_url="subject_listboard_url",
         )
         context = paginator_row(context)
         self.assertIsNone(context.get("first_url"))
@@ -41,7 +41,7 @@ class TestTags(TestCase):
             paginator=paginator,
             page_obj=paginator.get_page(page),
             query_string=None,
-            paginator_url="listboard_url",
+            paginator_url="subject_listboard_url",
         )
         context = paginator_row(context)
         self.assertEqual(context.get("first_url"), "/subject_listboard/1/")
@@ -56,7 +56,7 @@ class TestTags(TestCase):
             paginator=paginator,
             page_obj=paginator.get_page(page),
             query_string=None,
-            paginator_url="listboard_url",
+            paginator_url="subject_listboard_url",
         )
         context = paginator_row(context)
         self.assertEqual(context.get("first_url"), "/subject_listboard/1/")
@@ -71,7 +71,7 @@ class TestTags(TestCase):
             paginator=paginator,
             page_obj=paginator.get_page(page),
             query_string=None,
-            paginator_url="listboard_url",
+            paginator_url="subject_listboard_url",
         )
         context = paginator_row(context)
         self.assertEqual(context.get("first_url"), "/subject_listboard/1/")

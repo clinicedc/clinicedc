@@ -61,18 +61,17 @@ class Formulation(BaseUuidModel):
     def save(self, *args, **kwargs):
         self.description = self.get_description()
         if not self.imp:
-            self.imp_description = None
+            self.imp_description = ""
         else:
             self.imp_description = (
                 self.imp_description if self.imp_description else self.description
             )
         super().save(*args, **kwargs)
 
-    def get_description(self):
+    def get_description(self) -> str:
         return (
             f"{self.medication} {round_half_away_from_zero(self.strength, 0)}"
             f"{self.get_units_display()} "
-            # f"{self.get_formulation_type_display()} "
             f"{self.get_route_display()}"
         )
 
@@ -80,7 +79,6 @@ class Formulation(BaseUuidModel):
         return (
             f"{self.medication} {round_half_away_from_zero(self.strength, 0)}"
             f"{self.get_units_display()} "
-            # f"{self.get_formulation_type_display()} "
         )
 
     def get_description_with_assignment(self, assignment: Assignment) -> str:
@@ -103,9 +101,9 @@ class Formulation(BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Formulation"
         verbose_name_plural = "Formulations"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["medication", "strength", "units", "formulation_type"],
                 name="%(app_label)s_%(class)s_med_stren_uniq",
-            )
-        ]
+            ),
+        )

@@ -49,7 +49,7 @@ class ModelWithHistory(SiteModelMixin, BaseUuidModel):
 
 class ModelWithDateValidators(BaseModel):
     datetime_not_future = models.DateTimeField(
-        validators=[datetime_not_future], default=timezone.now()
+        validators=[datetime_not_future], default=timezone.now
     )
 
     date_not_future = models.DateField(validators=[date_not_future], default=timezone.now)

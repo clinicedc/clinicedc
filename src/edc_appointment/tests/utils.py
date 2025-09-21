@@ -21,8 +21,8 @@ if TYPE_CHECKING:
 
 def get_appointment(
     subject_identifier: str,
-    visit_code: str,
-    visit_code_sequence: int,
+    visit_code: str | None = None,
+    visit_code_sequence: int | None = None,
     reason: str | None = None,
     appt_datetime: datetime | None = None,
     timepoint: float | Decimal | None = None,

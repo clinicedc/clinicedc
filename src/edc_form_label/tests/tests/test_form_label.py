@@ -1,42 +1,48 @@
-from datetime import timedelta
+from datetime import datetime
 from unittest import skip
+from zoneinfo import ZoneInfo
 
-from clinicedc_tests.admin import TestModel5Admin
+import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.forms import TestModel5Form
 from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import SubjectConsentV1, TestModel5
+from clinicedc_tests.models import TestModel5
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.contrib import admin
 from django.contrib.auth.models import Permission, User
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
-from django.utils import timezone
 
 from edc_appointment.constants import INCOMPLETE_APPT
-from edc_appointment.forms import AppointmentForm
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import NO
 from edc_facility.import_holidays import import_holidays
 from edc_form_label.custom_label_condition import CustomLabelCondition
 from edc_form_label.form_label import FormLabel
-from edc_registration.models import RegisteredSubject
-from edc_visit_schedule.constants import DAY01, MONTH2
-from edc_visit_schedule.models import OnSchedule
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
+from edc_visit_schedule.constants import DAY01
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
+utc_tz = ZoneInfo("UTC")
 
+
+@tag("form_label")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestFormLabel(TestCase):
-    helper = Helper
-
     @classmethod
     def setUpTestData(cls):
-        admin.site.register(TestModel5, TestModel5Admin)
         import_holidays()
-        return super().setUpTestData()
+        # admin.site.register(TestModel5, TestModel5Admin)
+        sites._registry = {}
+        sites.loaded = False
+        sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         self.user = User.objects.create(username="erikvw", is_staff=True, is_active=True)
@@ -47,10 +53,10 @@ class TestFormLabel(TestCase):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(get_visit_schedule(consent_v1))
 
-        subject_consent = self.helper.consent_and_put_on_schedule(
+        helper = Helper()
+        subject_consent = helper.enroll_to_baseline(
             visit_schedule_name="visit_schedule",
             schedule_name="schedule",
-            age_in_years=25,
         )
         self.subject_identifier = subject_consent.subject_identifier
 
@@ -58,31 +64,26 @@ class TestFormLabel(TestCase):
             content_type__app_label="clinicedc_tests", content_type__model="testmodel5"
         ):
             self.user.user_permissions.add(permission)
-        RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
+        # RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
 
-        SubjectConsentV1.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=timezone.now() - timedelta(days=15),
-        )
-
-        OnSchedule.objects.put_on_schedule(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=timezone.now() - timedelta(days=15),
-        )
+        # SubjectConsentV1.objects.create(
+        #     subject_identifier=self.subject_identifier,
+        #     consent_datetime=timezone.now() - timedelta(days=15),
+        # )
+        #
+        # OnSchedule.objects.put_on_schedule(
+        #     subject_identifier=self.subject_identifier,
+        #     onschedule_datetime=timezone.now() - timedelta(days=15),
+        # )
         self.appointment_one = Appointment.objects.get(visit_code=DAY01)
 
-        self.subject_visit_one = SubjectVisit.objects.create(
+        self.subject_visit_one = SubjectVisit.objects.get(
             appointment=self.appointment_one,
-            visit_code=self.appointment_one.visit_code,
-            visit_code_sequence=self.appointment_one.visit_code_sequence,
-            visit_schedule_name=self.appointment_one.visit_schedule_name,
-            schedule_name=self.appointment_one.visit_schedule,
-            reason=SCHEDULED,
         )
         self.appointment_one.appt_status = INCOMPLETE_APPT
         self.appointment_one.save()
 
-        self.appointment_two = Appointment.objects.get(visit_code=MONTH2)
+        self.appointment_two = Appointment.objects.get(visit_code="2000")
 
         self.subject_visit_two = SubjectVisit.objects.create(
             appointment=self.appointment_two,
@@ -108,7 +109,7 @@ class TestFormLabel(TestCase):
         request = rf.get(f"/?appointment={self.appointment_one.id!s}")
         request.user = self.user
 
-        form = AppointmentForm()
+        form = TestModel5Form()
 
         self.assertEqual(
             form_label.get_form_label(request=request, obj=None, model=TestModel5, form=form),
@@ -118,9 +119,7 @@ class TestFormLabel(TestCase):
     def test_basics(self):
         class MyCustomLabelCondition(CustomLabelCondition):
             def check(self):
-                if self.appointment.visit_code == MONTH2:
-                    return True
-                return False
+                return self.appointment.visit_code == "2000"
 
         form_label = FormLabel(
             field="circumcised",
@@ -150,10 +149,11 @@ class TestFormLabel(TestCase):
             form_label.custom_label,
         )
 
+    @tag("form_label1")
     def test_custom_label_as_template(self):
         class MyCustomLabelCondition(CustomLabelCondition):
             def check(self):
-                return True if self.appointment.visit_code == MONTH2 else False
+                return self.appointment.visit_code == "2000"
 
         form_label = FormLabel(
             field="circumcised",
@@ -177,7 +177,7 @@ class TestFormLabel(TestCase):
             "The appointment is 2000.0. "
             "The previous appointment is 1000.0. "
             "The previous obj is None. "
-            "The previous visit is 1234 1000.0.",
+            f"The previous visit is {self.subject_identifier} 1000.0.",
         )
 
     @skip

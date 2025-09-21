@@ -1,15 +1,28 @@
+from clinicedc_tests.sites import all_sites
 from django.apps import apps as django_apps
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 from django.urls import reverse
 
 from edc_device.constants import CLIENT
 from edc_device.views import HomeView
+from edc_facility.import_holidays import import_holidays
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 
 
-@override_settings(DEBUG=False, LIVE_SYSTEM=True)
+@tag("device")
+@override_settings(DEBUG=False, LIVE_SYSTEM=True, SITE_ID=10)
 class TestHomeView(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def setUp(self):
         self.user = User.objects.create(username="erik")
         self.view = HomeView()

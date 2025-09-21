@@ -1,6 +1,10 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from faker import Faker
 
 from edc_identifier.models import IdentifierModel
@@ -12,8 +16,12 @@ from edc_identifier.short_identifier import (
 )
 
 fake = Faker()
+utc_tz = ZoneInfo("UTC")
 
 
+@tag("identifier")
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=30)
 class TestShortIdentifier(TestCase):
     def setUp(self):
         edc_device_app_config = django_apps.get_app_config("edc_device")
@@ -83,7 +91,7 @@ class TestShortIdentifier(TestCase):
     def test_short_identifier_history(self):
         short_identifier = ShortIdentifier(prefix_pattern="^[0-9]{2}$", prefix=22)
         try:
-            IdentifierModel.objects.get(identifier=short_identifier.identifier),
+            (IdentifierModel.objects.get(identifier=short_identifier.identifier),)
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised")
 

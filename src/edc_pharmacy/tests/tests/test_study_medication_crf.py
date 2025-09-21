@@ -6,6 +6,7 @@ from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.forms import StudyMedicationForm
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import StudyMedication, SubjectVisit
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -33,6 +34,8 @@ from edc_pharmacy.models import (
     Units,
 )
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 
@@ -48,6 +51,10 @@ class TestMedicationCrf(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        sites._registry = {}
+        sites.loaded = False
+        sites.register(*all_sites)
+        add_or_update_django_sites()
         site_action_items.autodiscover()
 
     def setUp(self) -> None:

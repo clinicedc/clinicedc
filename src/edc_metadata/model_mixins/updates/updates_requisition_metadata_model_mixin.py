@@ -50,7 +50,7 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
         return options
 
     @property
-    def metadata_default_entry_status(self: RequisitionModel) -> str:
+    def metadata_default_entry_status(self: RequisitionModel) -> str | None:
         """Returns a string that represents the configured
         entry status of the requisition in the visit schedule.
         """
@@ -64,7 +64,10 @@ class UpdatesRequisitionMetadataModelMixin(UpdatesMetadataModelMixin):
             requisitions = (
                 self.metadata_visit_object.requisitions.forms + requisitions_prn.forms
             )
-        requisition = next(r for r in requisitions if r.panel.name == self.panel.name)
+        try:
+            requisition = next(r for r in requisitions if r.panel.name == self.panel.name)
+        except StopIteration:
+            return None
         return REQUIRED if requisition.required else NOT_REQUIRED
 
     @property
