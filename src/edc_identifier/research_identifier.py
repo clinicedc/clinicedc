@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from .models import IdentifierModel
 
 
-class IdentifierMissingTemplateValue(Exception):
+class IdentifierMissingTemplateValue(Exception):  # noqa: N818
     pass
 
 
@@ -38,6 +38,7 @@ class ResearchIdentifier:
         identifier: str | None = None,
     ) -> None:
         self._identifier = None
+        self._sequence_number = None
         self.requesting_model = requesting_model
         if not self.requesting_model:
             raise IdentifierError("Invalid requesting_model. Got None")
@@ -121,10 +122,10 @@ class ResearchIdentifier:
         for key in keys:
             try:
                 value = getattr(self, key)
-            except AttributeError:
+            except AttributeError as e:
                 raise IdentifierMissingTemplateValue(
                     f"Required option not provided. Got '{key}'."
-                )
+                ) from e
             else:
                 if value:
                     template_opts.update({key: value})
@@ -141,15 +142,15 @@ class ResearchIdentifier:
     @property
     def sequence_number(self) -> int:
         """Returns the next sequence number to use."""
-        try:
-            identifier_model = (
+        if self._sequence_number is None:
+            if identifier_model := (
                 self.identifier_model_cls.objects.filter(
                     name=self.label, device_id=self.device_id, site=self.site
                 )
                 .order_by("-sequence_number")
                 .first()
-            )
-            sequence_number = identifier_model.sequence_number + 1
-        except AttributeError:
-            sequence_number = 1
-        return sequence_number
+            ):
+                self._sequence_number = identifier_model.sequence_number + 1
+            else:
+                self._sequence_number = 1
+        return self._sequence_number

@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from django import forms
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_model.utils import (
     InvalidFieldName,
@@ -16,6 +16,7 @@ from edc_model.utils import (
 from ..models import ModelWithDHDurationValidators, SimpleModel
 
 
+@tag("model")
 class TestUtils(TestCase):
     def test_duration_to_date(self):
         reference_date = date(2015, 6, 15)
@@ -34,9 +35,6 @@ class TestUtils(TestCase):
         self.assertRaises(InvalidFormat, duration_to_date, "24m", reference_date)
         self.assertRaises(InvalidFormat, duration_to_date, "5ym", reference_date)
         self.assertRaises(InvalidFormat, duration_to_date, "y12m", reference_date)
-        # self.assertRaises(InvalidFormat, duration_to_date, "5y 12m", reference_date)
-        # self.assertRaises(InvalidFormat, duration_to_date, "5y12m ", reference_date)
-        # self.assertRaises(InvalidFormat, duration_to_date, " 5y12m", reference_date)
 
     def test_duration_to_date_with_day(self):
         reference_date = date(2015, 6, 15)
@@ -83,7 +81,7 @@ class TestUtils(TestCase):
         estimated_date = estimated_date_from_ago(instance=obj, ago_field="ago", future=True)
         self.assertEqual(estimated_date, date(2015, 6, 20))
 
-        reference_date = datetime(2015, 6, 15)
+        reference_date = datetime(2015, 6, 15, tzinfo=ZoneInfo("UTC"))
         obj = SimpleModel.objects.create(ago="5d", d1=reference_date)
         estimated_date = estimated_date_from_ago(
             instance=obj, ago_field="ago", reference_field="d1", future=True
@@ -100,13 +98,13 @@ class TestUtils(TestCase):
             future=True,
         )
 
-        obj = SimpleModel.objects.create(ago=None, d1=reference_date)
+        obj = SimpleModel.objects.create(d1=reference_date)
         estimated_date = estimated_date_from_ago(
             instance=obj, ago_field="ago", reference_field="d1", future=True
         )
         self.assertIsNone(estimated_date)
 
-        obj = SimpleModel.objects.create(ago=None, d1=None)
+        obj = SimpleModel.objects.create(d1=None)
         estimated_date = estimated_date_from_ago(
             instance=obj, ago_field="ago", reference_field="d1", future=True
         )

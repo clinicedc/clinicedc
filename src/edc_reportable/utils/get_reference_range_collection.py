@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -21,10 +22,8 @@ def get_reference_range_collection(obj) -> ReferenceRangeCollection:
             name = obj.requisition.panel_object.reference_range_collection_name
         except AttributeError:
             name = obj.panel_object.reference_range_collection_name
-        try:
+        with contextlib.suppress(ObjectDoesNotExist):
             reference_range_collection = reference_range_colllection_model_cls().objects.get(
                 name=name
             )
-        except ObjectDoesNotExist:
-            pass
     return reference_range_collection

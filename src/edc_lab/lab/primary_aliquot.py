@@ -1,3 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from edc_lab import AliquotCreator, AliquotType
+
+
 class PrimaryAliquotError(Exception):
     pass
 
@@ -11,11 +19,12 @@ class PrimaryAliquot:
 
     def __init__(
         self,
-        aliquot_type=None,
-        subject_identifier=None,
-        requisition_identifier=None,
-        identifier_prefix=None,
-        aliquot_creator_cls=None,
+        *,
+        aliquot_creator_cls: type[AliquotCreator],
+        aliquot_type: AliquotType | None = None,
+        subject_identifier: str | None = None,
+        requisition_identifier: str | None = None,
+        identifier_prefix: str | None = None,
     ):
         self._object = None
         self.aliquot_creator_cls = aliquot_creator_cls

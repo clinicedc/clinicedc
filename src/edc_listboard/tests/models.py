@@ -15,8 +15,7 @@ class SubjectVisit(SiteModelMixin, SearchSlugModelMixin, BaseUuidModel):
     objects = SearchSlugManager()
 
     def get_search_slug_fields(self):
-        fields = ["subject_identifier", "reason"]
-        return fields
+        return "subject_identifier", "reason"
 
 
 class TestModel(models.Model):

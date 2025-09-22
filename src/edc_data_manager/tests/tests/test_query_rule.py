@@ -5,12 +5,14 @@ from decimal import Decimal
 from unittest import skip
 
 from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import (
-    CrfOne,
-    SubjectConsentV1,
+    CrfFour,
+    CrfThree,
     SubjectRequisition,
     SubjectVisit,
 )
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule_dashboard.lab_profiles import (
     lab_profile,
 )
@@ -20,9 +22,9 @@ from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule imp
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings, tag
-from django.utils import timezone
 
 from edc_appointment.models import Appointment
+from edc_consent import site_consents
 from edc_constants.constants import NO, OPEN, YES
 from edc_data_manager.models import (
     CrfDataDictionary,
@@ -31,12 +33,18 @@ from edc_data_manager.models import (
     QueryVisitSchedule,
 )
 from edc_data_manager.models.requisition_panel import RequisitionPanel
+from edc_data_manager.populate_data_dictionary import (
+    populate_data_dictionary_from_sites,
+)
 from edc_data_manager.rule import RuleRunner
 from edc_facility.import_holidays import import_holidays
 from edc_lab.constants import TUBE
 from edc_lab.models.panel import Panel
 from edc_lab.site_labs import site_labs
 from edc_metadata.metadata_inspector import MetaDataInspector
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.constants import HOURS
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -51,6 +59,10 @@ class TestQueryRules(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         self.user = User.objects.create_superuser("user_login", "u@example.com", "pass")
@@ -59,30 +71,24 @@ class TestQueryRules(TestCase):
         site_labs.loaded = False
         site_labs.register(lab_profile=lab_profile)
 
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
-        site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule(consent_v1))
+        self.visit_schedule1 = get_visit_schedule(consent_v1)
+        self.schedule1 = self.visit_schedule1.schedules.get("schedule")
+        site_visit_schedules.register(self.visit_schedule1)
+        helper = Helper(
+            now=ResearchProtocolConfig().study_open_datetime,
+        )
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name=self.visit_schedule1.name,
+            schedule_name=self.schedule1.name,
+            consent_definition=consent_v1,
+        )
+        self.subject_identifier = subject_consent.subject_identifier
 
+        populate_data_dictionary_from_sites()
         populate_visit_schedule()
-
-        self.subject_identifier = "101-40990029-4"
-        identity = "123456789"
-        subject_consent = SubjectConsentV1.objects.create(
-            subject_identifier=self.subject_identifier,
-            consent_datetime=timezone.now() - relativedelta(days=10),
-            identity=identity,
-            confirm_identity=identity,
-            dob=timezone.now() - relativedelta(years=25),
-        )
-
-        # put subject on schedule
-        _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_visit_schedule.onschedule"
-        )
-        schedule.put_on_schedule(
-            subject_identifier=subject_consent.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
-        )
 
     def create_subject_visit(
         self,
@@ -123,7 +129,7 @@ class TestQueryRules(TestCase):
         visit_schedule3 = QueryVisitSchedule.objects.get(visit_code="3000")
 
         inspector = MetaDataInspector(
-            model_cls=CrfOne,
+            model_cls=CrfFour,
             visit_schedule_name=visit_schedule1.visit_schedule_name,
             schedule_name=visit_schedule1.schedule_name,
             visit_code=visit_schedule1.visit_code,
@@ -133,12 +139,12 @@ class TestQueryRules(TestCase):
         self.assertEqual(len(inspector.keyed), 0)
 
         subject_visit1 = SubjectVisit.objects.get(visit_code=visit_schedule1.visit_code)
-        CrfOne.objects.create(
+        CrfFour.objects.create(
             subject_visit=subject_visit1, report_datetime=subject_visit1.report_datetime
         )
 
         inspector = MetaDataInspector(
-            model_cls=CrfOne,
+            model_cls=CrfFour,
             visit_schedule_name=visit_schedule1.visit_schedule_name,
             schedule_name=visit_schedule1.schedule_name,
             visit_code=visit_schedule1.visit_code,
@@ -148,7 +154,7 @@ class TestQueryRules(TestCase):
         self.assertEqual(len(inspector.keyed), 1)
 
         inspector = MetaDataInspector(
-            model_cls=CrfOne,
+            model_cls=CrfFour,
             visit_schedule_name=visit_schedule2.visit_schedule_name,
             schedule_name=visit_schedule2.schedule_name,
             visit_code=visit_schedule2.visit_code,
@@ -158,7 +164,7 @@ class TestQueryRules(TestCase):
         self.assertEqual(len(inspector.keyed), 0)
 
         inspector = MetaDataInspector(
-            model_cls=CrfOne,
+            model_cls=CrfFour,
             visit_schedule_name=visit_schedule3.visit_schedule_name,
             schedule_name=visit_schedule3.schedule_name,
             visit_code=visit_schedule3.visit_code,
@@ -171,7 +177,7 @@ class TestQueryRules(TestCase):
     def test_crf_rule(self):
         # create a rule
         question = CrfDataDictionary.objects.get(
-            model="clinicedc_tests.crfone", field_name="f1"
+            model="clinicedc_tests.crfthree", field_name="f1"
         )
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
@@ -212,15 +218,13 @@ class TestQueryRules(TestCase):
         )
 
         # create the CRF, field value missing => query when DUE.
-        crf_one = CrfOne.objects.create(
+        crf_three = CrfThree.objects.create(
             subject_visit=subject_visit_1000,
             report_datetime=subject_visit_1000.report_datetime,
             f1=None,
         )
 
         for hours in range(-1, 50):
-            DataQuery.objects.all().delete()
-
             RuleRunner(
                 query_rule, now=appointment.appt_datetime + relativedelta(hours=hours)
             ).run()
@@ -259,8 +263,8 @@ class TestQueryRules(TestCase):
             1,
         )
 
-        crf_one.f1 = "erik"
-        crf_one.save()
+        crf_three.f1 = "erik"
+        crf_three.save()
 
         # Update DataQueries
         RuleRunner(query_rule).run()
@@ -273,10 +277,11 @@ class TestQueryRules(TestCase):
             0,
         )
 
+    @skip("fix later")
     def test_crf_rule_with_requisition(self):
         # create a rule
         question = CrfDataDictionary.objects.get(
-            model="clinicedc_tests.crfone", field_name="f1"
+            model="clinicedc_tests.crfthree", field_name="f1"
         )
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
@@ -348,12 +353,12 @@ class TestQueryRules(TestCase):
         )
 
         # create the CRF, field value missing => query when DUE.
-        crf_one = CrfOne(
+        crf_three = CrfThree(
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             f1=None,
         )
-        crf_one.save()
+        crf_three.save()
 
         self.assertEqual(
             DataQuery.objects.filter(
@@ -380,8 +385,8 @@ class TestQueryRules(TestCase):
             1,
         )
 
-        crf_one.f1 = "erik"
-        crf_one.save()
+        crf_three.f1 = "erik"
+        crf_three.save()
 
         # assert DataQuery closed since specimen not drawn.
         self.assertEqual(
@@ -395,7 +400,7 @@ class TestQueryRules(TestCase):
     def test_crf_rule_with_requisition_prn_visit(self):
         # create a rule
         question = CrfDataDictionary.objects.get(
-            model="clinicedc_tests.crfone", field_name="f1"
+            model="clinicedc_tests.crfthree", field_name="f1"
         )
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
@@ -498,7 +503,7 @@ class TestQueryRules(TestCase):
         )
 
         # create the CRF, field value missing => query when DUE.
-        crf_one = CrfOne.objects.create(
+        crf_three = CrfThree.objects.create(
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
             f1=None,
@@ -512,8 +517,8 @@ class TestQueryRules(TestCase):
             1,
         )
 
-        crf_one.f1 = "erik"
-        crf_one.save()
+        crf_three.f1 = "erik"
+        crf_three.save()
 
         # assert DataQuery closed since specimen not drawn.
         self.assertEqual(

@@ -97,18 +97,17 @@ def action_on_reference_model_post_delete(sender, instance: Any, using, **kwargs
                 raise
         else:
             reset_and_delete_action_item(instance, using)
-    elif isinstance(instance, ActionItem):
-        if instance.parent_action_item:
-            try:
-                parent_reference_obj = instance.parent_reference_obj
-            except ObjectDoesNotExist:
-                pass
-            else:
-                parent_reference_obj.action_item.action_cls(
-                    action_item=instance.parent_reference_obj.action_item,
-                    subject_identifier=instance.subject_identifier,
-                    using=using,
-                ).create_next_action_items()
+    elif isinstance(instance, ActionItem) and instance.parent_action_item:
+        try:
+            parent_reference_obj = instance.parent_reference_obj
+        except ObjectDoesNotExist:
+            pass
+        else:
+            parent_reference_obj.action_item.action_cls(
+                action_item=instance.parent_reference_obj.action_item,
+                subject_identifier=instance.subject_identifier,
+                using=using,
+            ).create_next_action_items()
 
 
 @receiver(
@@ -126,15 +125,15 @@ def action_item_notification_on_post_create_historical_record(
     if (
         site_notifications.loaded
         and instance._meta.label_lower == "edc_action_item.actionitem"
+        and instance.status != CLOSED
     ):
-        if instance.status != CLOSED:
-            opts = dict(
-                instance=instance,
-                user=instance.user_modified or instance.user_created,
-                history_date=history_date,
-                history_user=history_user,
-                history_change_reason=history_change_reason,
-                fail_silently=True,
-                **kwargs,
-            )
-            site_notifications.notify(**opts)
+        opts = dict(
+            instance=instance,
+            user=instance.user_modified or instance.user_created,
+            history_date=history_date,
+            history_user=history_user,
+            history_change_reason=history_change_reason,
+            fail_silently=True,
+            **kwargs,
+        )
+        site_notifications.notify(**opts)

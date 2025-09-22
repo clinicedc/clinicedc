@@ -4,12 +4,14 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_consent import site_consents
+from edc_facility.import_holidays import import_holidays
 from edc_pharmacy.models import (
     DosageGuideline,
     Formulation,
@@ -21,6 +23,8 @@ from edc_pharmacy.models import (
     Units,
 )
 from edc_pharmacy.refill import RefillCreator
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -28,7 +32,16 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("pharmacy")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=10)
 class TestDispense(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        sites._registry = {}
+        sites.loaded = False
+        sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def setUp(self):
         site_consents.registry = {}
         site_consents.register(consent_v1)

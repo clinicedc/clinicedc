@@ -1,16 +1,20 @@
 from unittest.mock import patch
 
 import requests
+from clinicedc_tests.sites import all_sites
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 
+from edc_facility.import_holidays import import_holidays
 from edc_notification.mailing_list_manager import (
     EmailNotEnabledError,
     MailingListManager,
 )
 from edc_notification.notification import GradedEventNotification
 from edc_notification.site_notifications import site_notifications
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
 
 
 class G3EventNotification(GradedEventNotification):
@@ -21,7 +25,17 @@ class G3EventNotification(GradedEventNotification):
     email_to = ["somemailinglist@example.com"]
 
 
+@tag("notification")
+@override_settings(SITE_ID=10)
 class TestMailingList(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        sites._registry = {}
+        sites.loaded = False
+        sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def setUp(self):
         self.user = User.objects.create(
             username="erikvw",

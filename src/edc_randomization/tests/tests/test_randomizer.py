@@ -10,8 +10,6 @@ from multisite import SiteID
 from edc_constants.constants import FEMALE
 from edc_randomization.constants import ACTIVE, PLACEBO
 from edc_randomization.decorators import RegisterRandomizerError, register
-
-# from edc_randomization.models import RandomizationList
 from edc_randomization.randomization_list_importer import (
     InvalidAssignment,
     RandomizationListAlreadyImported,
@@ -240,7 +238,7 @@ class TestRandomizer(TestCase):
             user=subject_consent.user_created,
         )
         randomizer.randomize()
-        randomizer.registration_obj.sid = None
+        randomizer.registration_obj.sid = ""
         randomizer.registration_obj.save()
         with self.assertRaises(AlreadyRandomized) as cm:
             MyRandomizer(
@@ -265,7 +263,7 @@ class TestRandomizer(TestCase):
             user=subject_consent.user_created,
         )
         randomizer.randomize()
-        randomizer.registration_obj.sid = None
+        randomizer.registration_obj.sid = ""
         randomizer.registration_obj.save()
         with self.assertRaises(AlreadyRandomized) as cm:
             MyRandomizer(

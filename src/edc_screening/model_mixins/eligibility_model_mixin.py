@@ -45,8 +45,6 @@ class EligibilityModelMixin(EligibilityFieldsModelMixin, models.Model):
         """
         # if self.eligibility_cls:
         self.eligibility_cls(model_obj=self)
-        # self.eligible = eligibility_obj.is_eligible
-        # self.reasons_ineligible = eligibility_obj.reasons_ineligible
         if not self.id:
             self.screening_identifier = self.identifier_cls().identifier
         if self.eligible:

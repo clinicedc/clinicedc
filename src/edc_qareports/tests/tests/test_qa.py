@@ -33,7 +33,6 @@ utc_tz = ZoneInfo("UTC")
 @override_settings(SITE_ID=10)
 @time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestQA(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         register_actions()
@@ -80,7 +79,7 @@ class TestQA(TestCase):
         # raise for bad fld_name
         crf_case = CrfCase(
             label="F1 is missing",
-            dbtable="tests_crfthree",
+            dbtable="clinicedc_tests_crfthree",
             label_lower="clinicedc_tests.crfthree",
             fld_name="bad_fld_name",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
@@ -97,7 +96,7 @@ class TestQA(TestCase):
         # ok
         crf_case = CrfCase(
             label="F1 is missing",
-            dbtable="tests_crfthree",
+            dbtable="clinicedc_tests_crfthree",
             label_lower="clinicedc_tests.crfthree",
             fld_name="f1",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
@@ -113,7 +112,7 @@ class TestQA(TestCase):
         # raise for bad fld_name
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
-            dbtable="tests_crfthree",
+            dbtable="clinicedc_tests_crfthree",
             label_lower="clinicedc_tests.crfthree",
             where="bad_fld_name is null and f2='Yes'",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
@@ -130,7 +129,7 @@ class TestQA(TestCase):
         # ok
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
-            dbtable="tests_crfthree",
+            dbtable="clinicedc_tests_crfthree",
             label_lower="clinicedc_tests.crfthree",
             where="f1 is null and f2='Yes'",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
@@ -144,7 +143,7 @@ class TestQA(TestCase):
     def test_subquery_crfcase(self):
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
-            dbtable="tests_crfthree",
+            dbtable="clinicedc_tests_crfthree",
             label_lower="clinicedc_tests.crfthree",
             where="f1 is null and f2='Yes'",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
@@ -160,7 +159,7 @@ class TestQA(TestCase):
         CrfThree.objects.create(subject_visit=subject_visit, f1=None, f2=YES)
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
-            dbtable="tests_crfthree",
+            dbtable="clinicedc_tests_crfthree",
             label_lower="clinicedc_tests.crfthree",
             where="f1 is null and f2='Yes'",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
@@ -183,11 +182,11 @@ class TestQA(TestCase):
         # subject_requisition. Normally the defaults are correct.
         requisition_case = RequisitionCase(
             label="FBC Requisition, no results",
-            dbtable="tests_bloodresultsfbc",
+            dbtable="clinicedc_tests_bloodresultsfbc",
             label_lower="clinicedc_tests.bloodresultsfbc",
             panel=FBC,
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
-            subjectrequisition_dbtable="tests_subjectrequisition",
+            subjectrequisition_dbtable="clinicedc_tests_subjectrequisition",
             panel_dbtable="edc_lab_panel",
         )
         try:

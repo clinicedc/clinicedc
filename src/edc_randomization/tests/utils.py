@@ -21,14 +21,14 @@ default_assignments = [ACTIVE, PLACEBO]
 
 
 def make_randomization_list_for_tests(
-    full_path: Path | str = None,
+    full_path: Path | str | None = None,
     assignments=None,
     site_names=None,
     count=None,
     first_sid=None,
     per_site=None,
 ) -> Path:
-    first_sid = first_sid or 0
+    first_sid = first_sid or 1
     if per_site:
         site_names = site_names * per_site
         count = len(site_names)

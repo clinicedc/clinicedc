@@ -1,13 +1,22 @@
-from django.test import TestCase
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
+from django.test import TestCase, override_settings, tag
 
 from edc_metadata.constants import NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_rules import Logic, RuleLogicError
 
+utc_tz = ZoneInfo("UTC")
 
+
+@tag("metadata")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class MetadataRulesTests(TestCase):
     def test_logic(self):
         logic = Logic(
-            predicate=lambda x: True if x else False,
+            predicate=lambda x: bool(x),
             consequence=REQUIRED,
             alternative=NOT_REQUIRED,
         )
@@ -20,7 +29,7 @@ class MetadataRulesTests(TestCase):
         self.assertRaises(
             RuleLogicError,
             Logic,
-            predicate=lambda x: False if x else True,
+            predicate=lambda x: not x,
             consequence="blah",
             alternative=NOT_REQUIRED,
         )
@@ -29,7 +38,7 @@ class MetadataRulesTests(TestCase):
         self.assertRaises(
             RuleLogicError,
             Logic,
-            predicate=lambda x: False if x else True,
+            predicate=lambda x: not x,
             consequence=NOT_REQUIRED,
             alternative="blah",
         )

@@ -12,6 +12,7 @@ from django.test import TestCase, override_settings, tag
 from edc_data_manager.models import CrfDataDictionary, QueryRule, QueryVisitSchedule
 from edc_data_manager.models.requisition_panel import RequisitionPanel
 from edc_data_manager.models.user import DataManagerUser, QueryUser
+from edc_data_manager.populate_data_dictionary import populate_data_dictionary_from_sites
 from edc_lab.site_labs import site_labs
 from edc_visit_schedule.constants import HOURS
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
@@ -34,6 +35,7 @@ class TestSerializer(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(get_visit_schedule(consent_v1))
         populate_visit_schedule()
+        populate_data_dictionary_from_sites()
 
     def test_(self):
         self.assertGreater(QueryVisitSchedule.objects.all().count(), 0)
@@ -75,10 +77,10 @@ class TestSerializer(TestCase):
 
         # create a rule
         question1 = CrfDataDictionary.objects.get(
-            model="clinicedc_tests.crfone", field_name="f1"
+            model="clinicedc_tests.crfthree", field_name="f1"
         )
         question2 = CrfDataDictionary.objects.get(
-            model="clinicedc_tests.crftwo", field_name="f1"
+            model="clinicedc_tests.crffour", field_name="f1"
         )
 
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")

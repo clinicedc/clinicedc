@@ -1,21 +1,27 @@
-from copy import deepcopy
-from importlib import import_module
-
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 
+from edc_adverse_event.auths import update_site_auths as update_site_auths_edc_adverse_event
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
+from edc_dashboard.auths import update_site_auths as update_site_auths_edc_dashboard
+from edc_navbar.auths import update_site_auths as update_site_auths_edc_navbar
 from edc_randomization.auth_objects import (
     RANDO_BLINDED,
     RANDO_UNBLINDED,
     get_rando_permissions_tuples,
 )
+from edc_randomization.auths import (
+    update_site_auths as update_site_auths_edc_randomization,
+)
 from edc_randomization.randomizer import Randomizer
 from edc_randomization.site_randomizers import site_randomizers
+from edc_review_dashboard.auths import (
+    update_site_auths as update_site_auths_edc_review_dashboard,
+)
 
-from ...auth_objects import default_groups
+from ...constants import GROUPS_KEY
 from ..randomizers import CustomRandomizer
 
 
@@ -30,11 +36,14 @@ class TestAuthUpdater(TestCase):
         site_randomizers._registry = {}
         site_randomizers.register(Randomizer)
         site_randomizers.register(CustomRandomizer)
+
+    def setUp(self):
         site_auths.initialize()
-        import_module("edc_navbar.auths")
-        import_module("edc_dashboard.auths")
-        import_module("edc_review_dashboard.auths")
-        import_module("edc_randomization.auths")
+        update_site_auths_edc_navbar()
+        update_site_auths_edc_dashboard()
+        update_site_auths_edc_review_dashboard()
+        update_site_auths_edc_randomization()
+        update_site_auths_edc_adverse_event()
 
     def test_rando_tuples(self):
         """Given the two registered randomizers, assert view codenames are returned"""
@@ -55,8 +64,7 @@ class TestAuthUpdater(TestCase):
     def test_removes_for_apps_not_installed_by_exact_match(self):
         """The app edc_action_blah is not installed, and will
         be removed."""
-        groups = deepcopy(default_groups)
-        groups.update(
+        site_auths.registry[GROUPS_KEY].update(
             {
                 "ACTION_GROUP": [
                     "edc_action_blah.view_actionitem",
@@ -64,7 +72,7 @@ class TestAuthUpdater(TestCase):
                 ]
             }
         )
-        AuthUpdater(groups=groups, warn_only=True)
+        AuthUpdater(verbose=False, warn_only=True)
         groups = Group.objects.get(name="ACTION_GROUP")
         try:
             groups.permissions.get(
@@ -81,6 +89,7 @@ class TestAuthUpdater(TestCase):
         )
 
     def test_removes_edc_permissions_model_perms(self):
+        AuthUpdater(verbose=False, warn_only=True)
         qs = Permission.objects.filter(
             content_type__app_label="edc_auth",
             codename__in=[
@@ -127,7 +136,9 @@ class TestAuthUpdater(TestCase):
             "|".join([o.codename for o in Permission.objects.all()]),
         )
         AuthUpdater(verbose=False, warn_only=True)
-        Permission.objects.filter(content_type__app_label__in=["edc_randomization", "tests"])
+        Permission.objects.filter(
+            content_type__app_label__in=["edc_randomization", "clinicedc_tests"]
+        )
         # confirm add_, change_, delete_ codenames for rando
         # does not exist in any groups.
         for group in Group.objects.all():

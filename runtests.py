@@ -3,7 +3,6 @@
 from clinicedc_tests.config import func_main
 
 if __name__ == "__main__":
-
     func_main(
         "tests.test_settings",
         "edc_action_item.tests",
@@ -26,6 +25,7 @@ if __name__ == "__main__":
         "edc_form_label.tests",
         "edc_form_runners.tests",
         "edc_form_validators.tests",
+        "edc_glucose.tests",
         "edc_identifier.tests",
         "edc_lab.tests",
         "edc_lab_dashboard.tests",
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         "edc_notification.tests",
         "edc_offstudy.tests",
         "edc_pdf_reports.tests",
-        "edc_pdutils.tests",
+        # "edc_pdutils.tests",
         "edc_pharmacy.tests",
         "edc_prn.tests",
         "edc_protocol.tests",

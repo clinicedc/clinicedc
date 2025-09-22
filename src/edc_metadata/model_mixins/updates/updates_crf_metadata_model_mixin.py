@@ -50,16 +50,19 @@ class UpdatesCrfMetadataModelMixin(UpdatesMetadataModelMixin):
         return django_apps.get_model(metadata_model)
 
     @property
-    def metadata_default_entry_status(self: CrfModel) -> str:
+    def metadata_default_entry_status(self: CrfModel) -> str | None:
         """Returns a string that represents the default entry status
         of the CRF in the visit schedule.
         """
         crfs_prn = self.metadata_visit_object.crfs_prn
         if self.related_visit.visit_code_sequence != 0:
-            crfs = self.metadata_visit_object.crfs_unscheduled.forms + crfs_prn.forms
+            crfs = (*self.metadata_visit_object.crfs_unscheduled.forms, *crfs_prn.forms)
         else:
-            crfs = self.metadata_visit_object.crfs.forms + crfs_prn.forms
-        crf = next(c for c in crfs if c.model == self._meta.label_lower)
+            crfs = (*self.metadata_visit_object.crfs.forms, *crfs_prn.forms)
+        try:
+            crf = next(c for c in crfs if c.model == self._meta.label_lower)
+        except StopIteration:
+            return None
         return REQUIRED if crf.required else NOT_REQUIRED
 
     class Meta:

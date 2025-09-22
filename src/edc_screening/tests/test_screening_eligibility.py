@@ -1,5 +1,5 @@
 from clinicedc_tests.models import SubjectScreening
-from django.test import TestCase
+from django.test import tag, TestCase
 
 from edc_constants.constants import NO, TBD, YES
 from edc_screening.exceptions import (
@@ -14,6 +14,7 @@ from edc_screening.screening_eligibility import (
 )
 
 
+@tag("screening")
 class TestScreening(TestCase):
     def test_fc(self):
         fc = FC()

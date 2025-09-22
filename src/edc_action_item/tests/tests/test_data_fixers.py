@@ -176,4 +176,6 @@ class TestUtils(TestCaseMixin, TestCase):
         form_one = FormOne.objects.create(subject_identifier=self.subject_identifier)
         FormTwo.objects.create(subject_identifier=self.subject_identifier, form_one=form_one)
         FormTwo.objects.create(subject_identifier=self.subject_identifier, form_one=form_one)
-        fix_null_action_item_fk(django_apps, app_label="tests", models=["formone", "formtwo"])
+        fix_null_action_item_fk(
+            django_apps, app_label="clinicedc_tests", models=["formone", "formtwo"]
+        )

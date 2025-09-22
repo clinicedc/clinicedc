@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from edc_appointment.constants import MISSED_APPT
@@ -91,8 +92,6 @@ class Rule:
         try:
             field_names = [self.predicate.attr]
         except AttributeError:
-            try:
+            with contextlib.suppress(AttributeError):
                 field_names = self.predicate.attrs
-            except AttributeError:
-                pass
         return field_names

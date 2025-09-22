@@ -6,7 +6,7 @@ from clinicedc_tests.models import (
     SubjectScreeningWithoutEligibility,
 )
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_constants.constants import MALE, NO, UUID_PATTERN, YES
 from edc_identifier.models import IdentifierModel
@@ -22,11 +22,12 @@ from edc_screening.utils import (
 )
 
 
+@tag("screening")
 class TestScreening(TestCase):
     @override_settings(SUBJECT_SCREENING_MODEL="clinicedc_tests.subjectscreening")
     def test_model_funcs(self):
         self.assertEqual(get_subject_screening_model(), "clinicedc_tests.subjectscreening")
-        self.assertEqual(get_subject_screening_app_label(), "tests")
+        self.assertEqual(get_subject_screening_app_label(), "clinicedc_tests")
         self.assertEqual(get_subject_screening_model_cls(), SubjectScreening)
 
     def test_format_reasons_ineligible(self):
@@ -92,7 +93,7 @@ class TestScreening(TestCase):
         self.assertIsNone(re.match(UUID_PATTERN, obj.subject_identifier))
 
     def test_model_with_screening_eligiblity_cls_missing(self):
-        """No criteria is being assessed"""
+        """No criteria are being assessed"""
         self.assertFalse(
             SubjectScreeningSimple.objects.create(
                 age_in_years=25,

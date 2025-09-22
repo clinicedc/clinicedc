@@ -3,11 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 
-class AlreadyRegistered(Exception):
+class AlreadyRegistered(Exception):  # noqa: N818
     pass
 
 
-class InvalidDashboardUrlName(Exception):
+class InvalidDashboardUrlName(Exception):  # noqa: N818
     pass
 
 
@@ -16,12 +16,12 @@ class UrlNames:
     registry: dict[str, str] = field(default_factory=dict)
 
     def register(
-        self, name: str = None, url: str = None, namespace: str | None = None
+        self, name: str | None = None, url: str | None = None, namespace: str | None = None
     ) -> None:
         name = name or url
         complete_url = f"{namespace}:{url}" if namespace else url
         if name in self.registry:
-            raise AlreadyRegistered(f"Url already registered. Got {name}.")
+            raise AlreadyRegistered(f"Url already registered. Got {complete_url}.")
         self.registry.update({name: complete_url})
 
     def register_from_dict(self, **urldata: str) -> None:

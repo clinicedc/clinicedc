@@ -94,14 +94,13 @@ def metadata_reset_on_post_delete(sender, instance, using, **kwargs) -> None:
 def metadata_update_previous_timepoints_for_singleton_on_post_save(
     sender, instance, raw, created, using, **kwargs
 ):
-    if not raw and not kwargs.get("update_fields"):
-        if isinstance(instance, (SingletonCrfModelMixin,)):
-            appointment = (
-                instance.related_visit.appointment.relative_previous_with_related_visit
-            )
-            while appointment:
-                if appointment.related_visit:
-                    refresh_metadata_for_timepoint(
-                        appointment.related_visit, allow_create=False
-                    )
-                appointment = appointment.relative_previous_with_related_visit
+    if (
+        not raw
+        and not kwargs.get("update_fields")
+        and isinstance(instance, (SingletonCrfModelMixin,))
+    ):
+        appointment = instance.related_visit.appointment.relative_previous_with_related_visit
+        while appointment:
+            if appointment.related_visit:
+                refresh_metadata_for_timepoint(appointment.related_visit, allow_create=False)
+            appointment = appointment.relative_previous_with_related_visit

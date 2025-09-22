@@ -19,3 +19,13 @@ CUSTOM_ROLE = "custom"
 NURSE_ROLE = "research_nurse"
 STAFF_ROLE = "staff"
 STATISTICIAN = "statistician"
+
+# keys for the site_auths registry
+UPDATE_ROLES_KEY = "update_roles"
+UPDATE_GROUPS_KEY = "update_groups"
+PRE_UPDATE_FUNCS_KEY = "pre_update_funcs"
+POST_UPDATE_FUNCS_KEY = "post_update_funcs"
+GROUPS_KEY = "groups"
+ROLES_KEY = "roles"
+PII_MODELS_KEY = "pii_models"
+CUSTOM_PERMISSIONS_TUPLES_KEY = "custom_permissions_tuples"

@@ -1,3 +1,4 @@
+import contextlib
 from typing import Any
 
 
@@ -20,11 +21,10 @@ def calculate_missing(obj: Any, panel: Any) -> tuple[int, str | None]:
     missing = []
     for utest_id in panel.utest_ids:
         for field in fields:
-            try:
-                utest_id, _ = utest_id
-            except ValueError:
-                pass
-            if field == utest_id or field == f"{utest_id}_value":
-                if getattr(obj, field) is None:
-                    missing.append(field)
-    return len(missing), ",".join(missing) if missing else None
+            with contextlib.suppress(ValueError):
+                utest_id, _ = utest_id  # noqa: PLW2901
+            if field == utest_id or (
+                field == f"{utest_id}_value" and getattr(obj, field) is None
+            ):
+                missing.append(field)
+    return len(missing), ",".join(missing) if missing else ""

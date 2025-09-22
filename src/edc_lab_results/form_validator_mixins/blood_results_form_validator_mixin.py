@@ -51,13 +51,13 @@ class BloodResultsFormValidatorMixin(
                     self.required_if_not_none(
                         field=f"{utest_id}{self.value_field_suffix or ''}",
                         field_required=f"{utest_id}_abnormal",
-                        field_required_evaluate_as_int=True,
+                        field_required_evaluate_as_int=False,
                     )
                 if f"{utest_id}_reportable" in self.cleaned_data:
                     self.required_if_not_none(
                         field=f"{utest_id}{self.value_field_suffix or ''}",
                         field_required=f"{utest_id}_reportable",
-                        field_required_evaluate_as_int=True,
+                        field_required_evaluate_as_int=False,
                     )
                 self.evaluate_value(prefix=utest_id)
             self.validate_reportable_fields(

@@ -1,10 +1,11 @@
-from django.test import TestCase
+from django.test import tag, TestCase
 
 from edc_reportable.evaluator import ValueBoundryError
 
 from ..age_evaluator import AgeEvaluator
 
 
+@tag("screening")
 class TestEvaluators(TestCase):
     def test_age(self):
         evaluator = AgeEvaluator(age_lower=18, age_lower_inclusive=True)

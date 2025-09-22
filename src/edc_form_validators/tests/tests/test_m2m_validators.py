@@ -1,11 +1,12 @@
 from clinicedc_tests.models import Alphabet
 from django import forms
-from django.test import TestCase
+from django.test import tag, TestCase
 
 from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_form_validators.form_validator import FormValidator
 
 
+@tag("form_validators")
 class TestApplicableFieldValidator(TestCase):
     """Test applicable_if()."""
 

@@ -1,9 +1,10 @@
 from django import forms
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_form_validators.form_validator import FormValidator
 
 
+@tag("form_validators")
 class TestOutOfRangeFieldValidator(TestCase):
     def test_out_of_range_if(self):
         form_validator = FormValidator(cleaned_data=dict(field_one=50))

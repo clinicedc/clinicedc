@@ -1,8 +1,9 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import time_machine
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
@@ -55,10 +56,12 @@ class RuleGroupWithRules2(CrfRuleGroup):
         source_model = "edc_visit_tracking.subjectvisit"
 
 
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
-)
+utc_tz = ZoneInfo("UTC")
+
+
+@tag("metadata")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestSiteMetadataRules(TestCase):
     @classmethod
     def setUpTestData(cls):

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from secrets import choice
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -7,6 +9,9 @@ from django.db import models
 from django.utils import timezone
 
 from .utils import convert_to_human_readable
+
+if TYPE_CHECKING:
+    from edc_identifier.models import IdentifierModel
 
 
 class DuplicateIdentifierError(Exception):
@@ -195,7 +200,7 @@ class SimpleUniqueIdentifier:
     def model_cls(self) -> type[models.Model]:
         return django_apps.get_model(self.model)
 
-    def update_identifier_model(self, **kwargs) -> bool:
+    def update_identifier_model(self, **kwargs) -> bool | IdentifierModel:
         """Attempts to update identifier_model and returns True (or instance)
         if successful else False if identifier already exists.
         """
@@ -210,5 +215,6 @@ class SimpleUniqueIdentifier:
         try:
             self.model_cls.objects.get(identifier=self.identifier)
         except ObjectDoesNotExist:
+            opts = {k: v for k, v in opts.items() if v is not None}
             return self.model_cls.objects.create(**opts)
         return False

@@ -70,6 +70,8 @@ class BloodResultsMethodsModelMixin(models.Model):
         return get_summary(self)
 
     def get_summary_options(self: Any) -> dict:
+        # note: gender and dob are queried from RegisteredSubject
+        # in reportables
         return dict(
             subject_identifier=self.subject_visit.subject_identifier,
             report_datetime=self.report_datetime,

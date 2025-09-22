@@ -12,7 +12,6 @@ from django.utils import timezone
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import YES
-from edc_constants.date_constants import timezone
 from edc_facility.import_holidays import import_holidays
 from edc_lab import AliquotCreator, site_labs
 from edc_lab.labels.aliquot_label import AliquotLabel, AliquotLabelError

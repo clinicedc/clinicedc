@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import warnings
 from datetime import datetime
 from pathlib import Path
@@ -8,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db.models import Q
 
 from edc_registration.utils import get_registered_subject_model_cls
 
@@ -25,15 +27,15 @@ if TYPE_CHECKING:
     from edc_registration.models import RegisteredSubject
 
 
-class InvalidAssignmentDescriptionMap(Exception):
+class InvalidAssignmentDescriptionMap(Exception):  # noqa: N818
     pass
 
 
-class RandomizationListFileNotFound(Exception):
+class RandomizationListFileNotFound(Exception):  # noqa: N818
     pass
 
 
-class RandomizationListNotLoaded(Exception):
+class RandomizationListNotLoaded(Exception):  # noqa: N818
     pass
 
 
@@ -41,7 +43,7 @@ class RandomizationError(Exception):
     pass
 
 
-class AlreadyRandomized(ValidationError):
+class AlreadyRandomized(ValidationError):  # noqa: N818
     pass
 
 
@@ -113,10 +115,10 @@ class Randomizer:
         subject_identifier: str | None = None,
         identifier_attr: str | None = None,
         identifier_object_name: str | None = None,
-        report_datetime: datetime = None,
-        site: Any = None,
-        user: str = None,
-        **kwargs,
+        report_datetime: datetime | None = None,
+        site: Any | None = None,
+        user: str | None = None,
+        **kwargs,  # noqa: ARG002
     ):
         self._model_obj = None
         self._registration_obj = None
@@ -208,8 +210,10 @@ class Randomizer:
     @property
     def sid(self):
         """Returns the SID."""
-        if self.model_obj.sid is None:
-            raise RandomizationError(f"SID cannot be None. See {self.model_obj}.")
+        if not self.model_obj.sid:
+            raise RandomizationError(
+                f"SID cannot be None. See {self.model_obj}. Got {self.model_obj.sid}"
+            )
         return self.model_obj.sid
 
     @property
@@ -233,7 +237,7 @@ class Randomizer:
         if not self._model_obj:
             try:
                 obj = self.model_cls().objects.get(**self.identifier_opts)
-            except ObjectDoesNotExist:
+            except ObjectDoesNotExist as e:
                 opts = dict(site_name=self.site.name, **self.extra_model_obj_options)
                 self._model_obj = (
                     self.model_cls()
@@ -245,7 +249,7 @@ class Randomizer:
                     fld_str = ", ".join([f"{k}=`{v}`" for k, v in opts.items()])
                     raise AllocationError(
                         f"Randomization failed. No additional SIDs available for {fld_str}."
-                    )
+                    ) from e
             else:
                 raise AlreadyRandomized(
                     f"{self.identifier_object_name.title()} already randomized. "
@@ -282,7 +286,7 @@ class Randomizer:
         Called by `registration_obj`.
         """
         return self.get_registration_model_cls().objects.get(
-            sid__isnull=True, **self.identifier_opts
+            (Q(sid__isnull=True) | Q(sid="")), **self.identifier_opts
         )
 
     @property
@@ -298,14 +302,14 @@ class Randomizer:
         if not self._registration_obj:
             try:
                 self._registration_obj = self.get_unallocated_registration_obj()
-            except ObjectDoesNotExist:
+            except ObjectDoesNotExist as e:
                 try:
                     obj = self.get_registration_model_cls().objects.get(**self.identifier_opts)
-                except ObjectDoesNotExist:
+                except ObjectDoesNotExist as e:
                     raise RandomizationError(
                         f"{self.identifier_object_name.title()} does not exist. "
                         f"Got {getattr(self, self.identifier_attr)}"
-                    )
+                    ) from e
                 else:
                     raise AlreadyRandomized(
                         f"{self.identifier_object_name.title()} already randomized. "
@@ -313,7 +317,7 @@ class Randomizer:
                         f"Got {getattr(obj, self.identifier_attr)} "
                         f"SID={obj.sid}",
                         code=self.get_registration_model_cls()._meta.label_lower,
-                    )
+                    ) from e
         return self._registration_obj
 
     @property
@@ -347,7 +351,7 @@ class Randomizer:
                 "Randomization list file not found. "
                 f"Got `{cls.get_randomizationlist_path()}`. See Randomizer {cls.name}."
             )
-        try:
+        with contextlib.suppress(RandomizationListAlreadyImported):
             result = cls.importer_cls(
                 assignment_map=cls.assignment_map,
                 randomizationlist_path=cls.get_randomizationlist_path(),
@@ -356,8 +360,6 @@ class Randomizer:
                 extra_csv_fieldnames=cls.extra_csv_fieldnames,
                 **kwargs,
             ).import_list(**kwargs)
-        except RandomizationListAlreadyImported:
-            pass
         return result
 
     @classmethod

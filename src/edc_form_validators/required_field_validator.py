@@ -43,8 +43,8 @@ class RequiredFieldValidator(BaseFormValidator):
     def required_if(
         self,
         *responses: str | int | bool,
-        field: str = None,
-        field_required: str = None,
+        field: str,
+        field_required: str,
         required_msg: str | None = None,
         not_required_msg: str | None = None,
         optional_if_dwta: bool | None = None,
@@ -82,7 +82,7 @@ class RequiredFieldValidator(BaseFormValidator):
                 self.get(field_required, inline_set=inline_set) is not None
             )
         else:
-            field_required_has_value = self.get(field_required, inline_set=inline_set)
+            field_required_has_value = bool(self.get(field_required, inline_set=inline_set))
 
         if field in self.cleaned_data:
             if (DWTA in responses and optional_if_dwta and field_value == DWTA) or (
@@ -117,7 +117,7 @@ class RequiredFieldValidator(BaseFormValidator):
     def required_if_true(
         self,
         condition: bool,
-        field_required: str = None,
+        field_required: str,
         required_msg: str | None = None,
         not_required_msg: str | None = None,
         inverse: bool | None = None,
@@ -145,7 +145,7 @@ class RequiredFieldValidator(BaseFormValidator):
     def not_required_if_true(
         self,
         condition: bool,
-        field: str = None,
+        field: str,
         msg: str | None = None,
         is_instance_field: bool | None = None,
     ) -> bool:
@@ -170,8 +170,8 @@ class RequiredFieldValidator(BaseFormValidator):
 
     def required_if_not_none(
         self,
-        field: str = None,
-        field_required: str = None,
+        field: str,
+        field_required: str,
         required_msg: str | None = None,
         not_required_msg: str | None = None,
         optional_if_dwta: bool | None = None,
@@ -182,6 +182,9 @@ class RequiredFieldValidator(BaseFormValidator):
         """Raises an exception or returns False.
 
         If field is not none, field_required is "required".
+
+        Note: CharFields usually default to an empty string and not NULL.
+           For IntegerFields, zero is a value.
         """
         inverse = True if inverse is None else inverse
         if is_instance_field:
@@ -197,7 +200,7 @@ class RequiredFieldValidator(BaseFormValidator):
         if field_required_evaluate_as_int:
             field_required_has_value = self.cleaned_data.get(field_required) is not None
         else:
-            field_required_has_value = self.cleaned_data.get(field_required)
+            field_required_has_value = bool(self.cleaned_data.get(field_required))
 
         if field_value is not None and not field_required_has_value:
             self.raise_required(field=field_required, msg=required_msg)
@@ -221,8 +224,8 @@ class RequiredFieldValidator(BaseFormValidator):
     def not_required_if(
         self,
         *responses: str | int | bool,
-        field: str = None,
-        field_required: str = None,
+        field: str,
+        field_required: str | None = None,
         field_not_required: str | None = None,
         required_msg: str | None = None,
         not_required_msg: str | None = None,
@@ -259,8 +262,8 @@ class RequiredFieldValidator(BaseFormValidator):
 
     def require_together(
         self,
-        field: str = None,
-        field_required: str = None,
+        field: str,
+        field_required: str,
         required_msg: str | None = None,
         is_instance_field: bool | None = None,
     ) -> bool:
@@ -280,15 +283,15 @@ class RequiredFieldValidator(BaseFormValidator):
         return False
 
     @staticmethod
-    def _inspect_params(
-        *responses: str | int | bool, field: str = None, field_required: str = None
-    ) -> bool:
+    def _inspect_params(*responses: str | int | bool, field: str, field_required: str) -> bool:
         """Inspects params and raises if any are None"""
         if not field:
             errmsg = _("`field` cannot be `None`")
             raise InvalidModelFormFieldValidator(f"{errmsg}.")
         if not responses:
-            errmsg = _(f"At least one valid response for field '{field}' must be provided.")
+            errmsg = _(
+                "At least one valid response for field '{field}' must be provided."
+            ).format(field=field)
             raise InvalidModelFormFieldValidator(errmsg)
         if not field_required:
             raise InvalidModelFormFieldValidator('"field_required" cannot be None.')

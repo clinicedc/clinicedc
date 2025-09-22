@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from typing import TYPE_CHECKING, LiteralString
+from typing import TYPE_CHECKING
 
 from tqdm import tqdm
 
@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 class QueryRuleWrapper:
     def __init__(
         self,
-        query_rule_obj: QueryRule = None,
-        subject_identifiers: list[LiteralString] = None,
-        visit_schedule_obj: QueryVisitSchedule = None,
-        timepoint: Decimal = None,
-        entry_status: str = None,
-        now: datetime = None,
+        query_rule_obj: QueryRule | None = None,
+        subject_identifiers: list[str] | None = None,
+        visit_schedule_obj: QueryVisitSchedule | None = None,
+        timepoint: Decimal | None = None,
+        entry_status: str | None = None,
+        now: datetime | None = None,
         verbose: bool | None = None,
     ):
         self.now = now

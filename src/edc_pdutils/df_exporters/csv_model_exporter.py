@@ -30,6 +30,7 @@ class CsvModelExporter:
         **kwargs,
     ):
         self.model = model or queryset.model._meta.label_lower
+        self.export_folder = export_folder
         self.df_maker = self.df_maker_cls(
             model=model,
             queryset=queryset,
@@ -46,8 +47,10 @@ class CsvModelExporter:
 
     def to_csv(self):
         dataframe = self.df_maker.dataframe
-        return self.csv_exporter.to_csv(dataframe=dataframe)
+        return self.csv_exporter.to_csv(dataframe=dataframe, export_folder=self.export_folder)
 
     def to_stata(self):
         dataframe = self.df_maker.dataframe
-        return self.csv_exporter.to_stata(dataframe=dataframe)
+        return self.csv_exporter.to_stata(
+            dataframe=dataframe, export_folder=self.export_folder
+        )

@@ -1,15 +1,14 @@
 from importlib import import_module
-from unittest import skip
 
+from clinicedc_tests.list_data.list_data2 import list_data
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_list_data import LoadListDataError, site_list_data
 from edc_list_data.load_model_data import LoadModelDataError
 from edc_list_data.preload_data import PreloadData
 from edc_list_data.site_list_data import AlreadyRegistered, SiteListDataError
 
-from ..list_data import list_data
 from ..models import (
     Antibiotic,
     Customer,
@@ -19,6 +18,8 @@ from ..models import (
 )
 
 
+@tag("list_data")
+@override_settings(SITE_ID=10)
 class TestPreload(TestCase):
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=True)
     def test_autodiscover_default(self):
@@ -57,58 +58,53 @@ class TestPreload(TestCase):
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_sample_app_loads(self):
         site_list_data.initialize()
-        module = import_module("my_list_app.list_data")
+        module = import_module("clinicedc_tests.list_data.list_data2")
         site_list_data.register(module)
         site_list_data.load_data()
-        self.assertEqual(Antibiotic.objects.all().count(), 3)
+        self.assertEqual(Antibiotic.objects.all().count(), 8)
 
-    @skip
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_autodiscover_import_and_register(self):
         site_list_data.initialize()
         self.assertRaises(ModuleNotFoundError, site_list_data._import_and_register, "blah")
         site_list_data.initialize(module_name="blah")
-        site_list_data._import_and_register(app_name="my_list_app")
+        site_list_data._import_and_register(app_name="clinicedc_tests")
+        site_list_data.initialize(module_name="list_data.bad_list_data")
         self.assertRaises(
-            ModuleNotFoundError,
+            AttributeError,
             site_list_data._import_and_register,
-            app_name="my_list_app",
+            app_name="clinicedc_tests",
         )
-        site_list_data.initialize(module_name="bad_list_data")
+        site_list_data.initialize(module_name="list_data.bad_list_data2")
         self.assertRaises(
             SiteListDataError,
             site_list_data._import_and_register,
-            app_name="my_list_app",
-        )
-        site_list_data.initialize(module_name="bad_list_data2")
-        self.assertRaises(
-            SiteListDataError,
-            site_list_data._import_and_register,
-            app_name="my_list_app",
+            app_name="clinicedc_tests",
         )
 
+    @tag("list_data1")
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_data(self):
-        site_list_data.initialize(module_name="bad_list_data3")
-        site_list_data._import_and_register(app_name="my_list_app")
+        site_list_data.initialize(module_name="list_data.bad_list_data3")
+        site_list_data._import_and_register(app_name="clinicedc_tests")
         self.assertRaises(LookupError, site_list_data.load_data)
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_no_unique_field(self):
-        site_list_data.initialize(module_name="model_data")
-        site_list_data._import_and_register(app_name="my_list_app")
+        site_list_data.initialize(module_name="list_data.model_data")
+        site_list_data._import_and_register(app_name="clinicedc_tests")
         self.assertRaises(LoadModelDataError, site_list_data.load_data)
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_no_unique_field2(self):
-        site_list_data.initialize(module_name="model_data2")
-        site_list_data._import_and_register(app_name="my_list_app")
+        site_list_data.initialize(module_name="list_data.model_data2")
+        site_list_data._import_and_register(app_name="clinicedc_tests")
         self.assertRaises(LoadModelDataError, site_list_data.load_data)
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_with_unique_field(self):
-        site_list_data.initialize(module_name="model_data3")
-        site_list_data._import_and_register(app_name="my_list_app")
+        site_list_data.initialize(module_name="list_data.model_data3")
+        site_list_data._import_and_register(app_name="clinicedc_tests")
         try:
             site_list_data.load_data()
         except LoadListDataError:
@@ -116,8 +112,8 @@ class TestPreload(TestCase):
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_with_unique_field2(self):
-        site_list_data.initialize(module_name="model_data4")
-        site_list_data._import_and_register(app_name="my_list_app")
+        site_list_data.initialize(module_name="list_data.model_data4")
+        site_list_data._import_and_register(app_name="clinicedc_tests")
         try:
             site_list_data.load_data()
         except LoadListDataError:
@@ -125,8 +121,8 @@ class TestPreload(TestCase):
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_model_data_with_unique_field3(self):
-        site_list_data.initialize(module_name="model_data3")
-        site_list_data._import_and_register(app_name="my_list_app")
+        site_list_data.initialize(module_name="list_data.model_data3")
+        site_list_data._import_and_register(app_name="clinicedc_tests")
         site_list_data.load_data()
         try:
             Customer.objects.get(name="The META Trial")
@@ -136,52 +132,58 @@ class TestPreload(TestCase):
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_sample_app_raises_on_duplicate_definition_for_table(self):
         site_list_data.initialize()
-        module = import_module("my_list_app.list_data")
+        module = import_module("clinicedc_tests.list_data")
         site_list_data.register(module)
-        module = import_module("my_list_app.dup_list_data")
+        module = import_module("clinicedc_tests.list_data.dup_list_data")
         self.assertRaises(AlreadyRegistered, site_list_data.register, module)
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_edc_list_data_loads(self):
         site_list_data.initialize()
-        module = import_module("edc_list_data.tests.list_data")
+        module = import_module("clinicedc_tests.list_data.list_data2")
         site_list_data.register(module)
-        self.assertIn("edc_list_data.tests.list_data", site_list_data.registry)
+        self.assertIn("clinicedc_tests.list_data.list_data2", site_list_data.registry)
         self.assertIn(
             "edc_list_data.antibiotic",
-            site_list_data.registry.get("edc_list_data.tests.list_data").get("list_data"),
+            site_list_data.registry.get("clinicedc_tests.list_data.list_data2").get(
+                "list_data"
+            ),
         )
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
-    def test_replaced_with_definition_from_my_list_app(self):
+    def test_replaced_with_definition_from_the_main_appp(self):
         site_list_data.initialize()
 
-        module = import_module("edc_list_data.tests.list_data")
+        module = import_module("edc_adherence.list_data")
         site_list_data.register(module)
         self.assertIn(
-            "edc_list_data.antibiotic",
-            site_list_data.registry.get("edc_list_data.tests.list_data").get("list_data"),
+            "edc_adherence.nonadherencereasons",
+            site_list_data.registry.get("edc_adherence.list_data").get("list_data"),
         )
 
-        module = import_module("my_list_app.list_data")
+        module = import_module("clinicedc_tests.list_data.list_data_adherence")
         site_list_data.register(module)
         self.assertNotIn(
-            "edc_list_data.antibiotic",
-            site_list_data.registry.get("edc_list_data.tests.list_data").get("list_data"),
+            "edc_adherence.nonadherencereasons",
+            site_list_data.registry.get("clinicedc_tests.list_data.list_data_adherence").get(
+                "list_data"
+            ),
         )
         self.assertIn(
-            "edc_list_data.antibiotic",
-            site_list_data.registry.get("my_list_app.list_data").get("list_data"),
+            "clinicedc_tests.nonadherencereasons",
+            site_list_data.registry.get("clinicedc_tests.list_data.list_data_adherence").get(
+                "list_data"
+            ),
         )
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_list_data_with_site(self):
         site_list_data.initialize()
-        module = import_module("edc_list_data.tests.list_data_with_site")
+        module = import_module("clinicedc_tests.list_data.list_data_with_site")
         site_list_data.register(module)
         self.assertIn(
             "edc_list_data.antibiotic",
-            site_list_data.registry.get("edc_list_data.tests.list_data_with_site").get(
+            site_list_data.registry.get("clinicedc_tests.list_data.list_data_with_site").get(
                 "list_data"
             ),
         )

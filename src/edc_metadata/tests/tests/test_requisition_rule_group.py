@@ -8,7 +8,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule impo
 )
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 from faker import Faker
 
@@ -140,10 +140,12 @@ class MyRequisitionRuleGroup(BaseRequisitionRuleGroup):
         requisition_model = "subjectrequisition"
 
 
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
-)
+utc_tz = ZoneInfo("UTC")
+
+
+@tag("metadata")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestRequisitionRuleGroup(TestCase):
     @classmethod
     def setUpClass(cls):

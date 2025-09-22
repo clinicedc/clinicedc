@@ -18,45 +18,48 @@ from .auth_objects import (
     data_manager,
 )
 
-site_auths.add_custom_permissions_tuples(
-    model="edc_data_manager.edcpermissions", codename_tuples=custom_codename_tuples
-)
 
-site_auths.add_custom_permissions_tuples(
-    model="edc_data_manager.edcpermissions",
-    codename_tuples=[("edc_data_manager.special_bypassmodelform", "Can bypass modelform")],
-)
+def update_site_auths():
+    site_auths.add_custom_permissions_tuples(
+        model="edc_data_manager.edcpermissions", codename_tuples=custom_codename_tuples
+    )
+
+    site_auths.add_custom_permissions_tuples(
+        model="edc_data_manager.edcpermissions",
+        codename_tuples=[("edc_data_manager.special_bypassmodelform", "Can bypass modelform")],
+    )
+
+    # groups
+    site_auths.add_group(*data_manager, name=DATA_MANAGER)
+    site_auths.add_group(*data_manager, name=DATA_QUERY_VIEW, view_only=True)
+
+    site_auths.add_group(*data_manager, name=DATA_QUERY, view_only=True)
+    site_auths.update_group("edc_data_manager.change_dataquery", name=DATA_QUERY)
+
+    site_auths.add_group(
+        "edc_data_manager.export_datadictionary",
+        "edc_data_manager.export_dataquery",
+        "edc_data_manager.export_queryrule",
+        name=DATA_MANAGER_EXPORT,
+    )
+
+    site_auths.add_group(*data_manager, name=DATA_MANAGER_SUPER)
+    site_auths.update_group("edc_data_manager.change_dataquery", name=DATA_MANAGER_SUPER)
+    site_auths.update_group(
+        "edc_data_manager.export_datadictionary",
+        "edc_data_manager.export_dataquery",
+        "edc_data_manager.export_queryrule",
+        "edc_data_manager.special_bypassmodelform",
+        "edc_data_manager.change_dataquery",
+        name=DATA_MANAGER_SUPER,
+    )
+
+    # roles
+    site_auths.add_role(CELERY_MANAGER, DATA_MANAGER, name=DATA_MANAGER_ROLE)
+    site_auths.add_role(DATA_QUERY, name=SITE_DATA_MANAGER_ROLE)
+    site_auths.update_role(DATA_QUERY, name=CLINICIAN_ROLE)
+    site_auths.update_role(DATA_QUERY, name=NURSE_ROLE)
+    site_auths.update_role(DATA_QUERY, name=CLINICIAN_SUPER_ROLE)
 
 
-# groups
-site_auths.add_group(*data_manager, name=DATA_MANAGER)
-site_auths.add_group(*data_manager, name=DATA_QUERY_VIEW, view_only=True)
-
-site_auths.add_group(*data_manager, name=DATA_QUERY, view_only=True)
-site_auths.update_group("edc_data_manager.change_dataquery", name=DATA_QUERY)
-
-site_auths.add_group(
-    "edc_data_manager.export_datadictionary",
-    "edc_data_manager.export_dataquery",
-    "edc_data_manager.export_queryrule",
-    name=DATA_MANAGER_EXPORT,
-)
-
-site_auths.add_group(*data_manager, name=DATA_MANAGER_SUPER)
-site_auths.update_group("edc_data_manager.change_dataquery", name=DATA_MANAGER_SUPER)
-site_auths.update_group(
-    "edc_data_manager.export_datadictionary",
-    "edc_data_manager.export_dataquery",
-    "edc_data_manager.export_queryrule",
-    "edc_data_manager.special_bypassmodelform",
-    "edc_data_manager.change_dataquery",
-    name=DATA_MANAGER_SUPER,
-)
-
-
-# roles
-site_auths.add_role(CELERY_MANAGER, DATA_MANAGER, name=DATA_MANAGER_ROLE)
-site_auths.add_role(DATA_QUERY, name=SITE_DATA_MANAGER_ROLE)
-site_auths.update_role(DATA_QUERY, name=CLINICIAN_ROLE)
-site_auths.update_role(DATA_QUERY, name=NURSE_ROLE)
-site_auths.update_role(DATA_QUERY, name=CLINICIAN_SUPER_ROLE)
+update_site_auths()

@@ -58,19 +58,18 @@ class Prn:
         try:
             return django_apps.get_model(self.model)
         except LookupError as e:
-            raise PrnError(f"{e}. See {self!r}")
+            raise PrnError(f"{e}. See {self!r}") from e
 
-    def get_show_on_dashboard(self, subject_identifier=None, **kwargs):
+    def get_show_on_dashboard(self, subject_identifier=None, **kwargs):  # noqa: ARG002
         count = 0
-        if self.show_on_dashboard:
-            if subject_identifier:
-                opts = dict(subject_identifier=subject_identifier)
-                try:
-                    count = self.model_cls.objects.filter(**opts).count()
-                except FieldError:
-                    opts = self.get_query_opts(subject_identifier)
-                    count = self.model_cls.objects.filter(**opts).count()
-        return True if count and self.show_on_dashboard else False
+        if self.show_on_dashboard and subject_identifier:
+            opts = dict(subject_identifier=subject_identifier)
+            try:
+                count = self.model_cls.objects.filter(**opts).count()
+            except FieldError:
+                opts = self.get_query_opts(subject_identifier)
+                count = self.model_cls.objects.filter(**opts).count()
+        return count and self.show_on_dashboard
 
     def get_query_opts(self, subject_identifier):
         """Returns alternative query opts to search on

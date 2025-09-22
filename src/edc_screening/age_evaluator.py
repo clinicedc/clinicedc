@@ -8,11 +8,11 @@ from edc_reportable.exceptions import ValueBoundryError
 
 class AgeEvaluator(ReportableAgeEvaluator):
     def __init__(self, **kwargs) -> None:
-        self.reasons_ineligible: str | None = None
+        self.reasons_ineligible: str = ""
         super().__init__(**kwargs)
 
     def eligible(self, age: int | None = None) -> bool:
-        self.reasons_ineligible = None
+        self.reasons_ineligible = ""
         eligible = False
         if age:
             try:
@@ -26,7 +26,7 @@ class AgeEvaluator(ReportableAgeEvaluator):
         return eligible
 
     def in_bounds_or_raise(self, age: int = None, **kwargs):
-        self.reasons_ineligible = None
+        self.reasons_ineligible = ""
         dob = localtime(timezone.now() - relativedelta(years=age)).date()
         age_units = "years"
         report_datetime = localtime(timezone.now())

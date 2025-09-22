@@ -60,7 +60,7 @@ def load_reference_ranges(
     collection_name: str,
     normal_data: dict[str, list[Formula]],
     grading_data: dict[str, list[Formula]],
-    reportable_grades: list[int],
+    reportable_grades: list[int] | None = None,
     reportable_grades_exceptions: dict[str, list[int]] | None = None,
     keep_existing: bool | None = None,
     create_missing_normal: bool | None = None,

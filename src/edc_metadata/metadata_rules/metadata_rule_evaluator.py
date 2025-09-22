@@ -29,9 +29,11 @@ class MetadataRuleEvaluator:
         if not self.app_labels:
             for rule_groups in site_metadata_rules.registry.values():
                 for rule_group in rule_groups:
-                    if rule_group._meta.related_visit_model == self.related_visit_model:
-                        if rule_group._meta.app_label not in self.app_labels:
-                            self.app_labels.append(rule_group._meta.app_label)
+                    if (
+                        rule_group._meta.related_visit_model == self.related_visit_model
+                        and rule_group._meta.app_label not in self.app_labels
+                    ):
+                        self.app_labels.append(rule_group._meta.app_label)
 
     def evaluate_rules(self) -> None:
         for app_label in self.app_labels:

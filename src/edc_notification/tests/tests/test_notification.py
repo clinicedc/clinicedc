@@ -1,15 +1,17 @@
 from datetime import timedelta
 from unittest.mock import patch
 
+from clinicedc_tests.sites import all_sites
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.test import TestCase
-from django.test.utils import override_settings
+from django.test.utils import override_settings, tag
 from django.utils import timezone
 
+from edc_facility.import_holidays import import_holidays
 from edc_notification.constants import CREATE, UPDATE
 from edc_notification.decorators import RegisterNotificationError, register
 from edc_notification.models import Notification as NotificationModel
@@ -20,6 +22,8 @@ from edc_notification.notification import (
     Notification,
     UpdatedModelNotification,
 )
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
 
 from ...site_notifications import (
     AlreadyRegistered,
@@ -32,7 +36,17 @@ from ..models import AE, AnyModel, Condition, Death
 style = color_style()
 
 
+@tag("notification")
+@override_settings(SITE_ID=10)
 class TestNotification(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        sites._registry = {}
+        sites.loaded = False
+        sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def setUp(self):
         Condition.objects.create()
         Condition.objects.create(name="arthritis")
@@ -50,7 +64,7 @@ class TestNotification(TestCase):
             name = "g4_event"
             display_name = "a grade 4 event has occured"
             grade = 4
-            models = ["edc_notification.ae", "edc_notification.aefollowup"]
+            models = ["edc_notification.ae", "edc_notification.aefollowup"]  # noqa: RUF012
 
         site_notifications.autodiscover(verbose=True)
         site_notifications._registry = {}
@@ -350,7 +364,7 @@ class TestNotification(TestCase):
         class DeathNotification(ModelNotification):
             name = "death"
             model = "edc_notification.death"
-            model_operations = [CREATE]
+            model_operations = (CREATE,)
 
         site_notifications.update_notification_list()
         death = Death.objects.create(subject_identifier="1")
@@ -366,7 +380,7 @@ class TestNotification(TestCase):
         class DeathNotification(ModelNotification):
             name = "death"
             model = "edc_notification.death"
-            update_fields = ["cause"]
+            update_fields = ("cause",)
 
         site_notifications.update_notification_list()
 
@@ -396,7 +410,7 @@ class TestNotification(TestCase):
         class DeathNotification(ModelNotification):
             name = "death"
             model = "edc_notification.death"
-            update_fields = ["report_datetime"]
+            update_fields = ("report_datetime",)
 
         site_notifications.update_notification_list()
 
@@ -427,8 +441,8 @@ class TestNotification(TestCase):
         class DeathNotification(ModelNotification):
             name = "death"
             model = "edc_notification.death"
-            update_fields = ["report_datetime"]
-            model_operations = [UPDATE]
+            update_fields = ("report_datetime",)
+            model_operations = (UPDATE,)
 
         site_notifications.update_notification_list()
 
@@ -460,7 +474,7 @@ class TestNotification(TestCase):
         class DeathNotification(ModelNotification):
             name = "death"
             model = "edc_notification.death"
-            update_fields = ["report_datetime"]
+            update_fields = ("report_datetime",)
 
         site_notifications.update_notification_list()
 
@@ -487,7 +501,7 @@ class TestNotification(TestCase):
         class DeathNotification(UpdatedModelNotification):
             name = "death"
             model = "edc_notification.death"
-            update_fields = ["report_datetime"]
+            update_fields = ("report_datetime",)
 
         site_notifications.update_notification_list()
 
@@ -503,7 +517,7 @@ class TestNotification(TestCase):
             name = "death2"
             display_name = "Death Two"
             model = "edc_notification.death"
-            update_fields = ["report_datetime"]
+            update_fields = ("report_datetime",)
 
         site_notifications.update_notification_list()
 
@@ -527,7 +541,7 @@ class TestNotification(TestCase):
             name = "death_update"
             display_name = "Death (Updated Report)"
             model = "edc_notification.death"
-            update_fields = ["cause"]
+            update_fields = ("cause",)
 
         site_notifications.update_notification_list()
 
@@ -546,14 +560,14 @@ class TestNotification(TestCase):
         class DeathNotification(UpdatedModelNotification):
             name = "death"
             model = "edc_notification.death"
-            update_fields = ["report_datetime"]
+            update_fields = ("report_datetime",)
 
         @register()
         class DeathNotification2(UpdatedModelNotification):
             name = "death2"
             display_name = "Death Two"
             model = "edc_notification.death"
-            update_fields = ["report_datetime"]
+            update_fields = ("report_datetime",)
 
         site_notifications.update_notification_list()
 
@@ -607,7 +621,7 @@ class TestNotification(TestCase):
 
         G3EventNotification().send_test_sms(sms_recipient=settings.TWILIO_TEST_RECIPIENT)
 
-    def test_graded_event_grade3_as_test_sms_message_to_subscribed_user(self, *args):
+    def test_graded_event_grade3_as_test_sms_message_to_subscribed_user(self, *args):  # noqa: ARG002
         user = User.objects.create(username="erikvw", is_active=True, is_staff=True)
 
         class G3EventNotification(GradedEventNotification):
@@ -667,7 +681,7 @@ class TestNotification(TestCase):
     @patch("requests.post")
     @patch("requests.put")
     @patch("requests.delete")
-    def test_add_remove_notification_from_profile(self, *args):
+    def test_add_remove_notification_from_profile(self, *args):  # noqa: ARG002
         user = User.objects.create(
             username="erikvw",
             is_active=True,

@@ -45,7 +45,7 @@ class Eligibility:
         self.eligible = all([v for v in self.criteria.values()])
 
         if self.eligible:
-            self.reasons_ineligible = None
+            self.reasons_ineligible = ""
         else:
             self.reasons_ineligible = {k: v for k, v in self.criteria.items() if not v}
             for k, v in self.criteria.items():

@@ -17,27 +17,29 @@ from ..constants import (
     STATISTICIAN,
 )
 
-# Format {ROLE_NAME: [GROUP_NAME, GROUP_NAME, ...]
-default_roles: dict[str, list[str]] = {
-    ACCOUNT_MANAGER_ROLE: [ACCOUNT_MANAGER],
-    AUDITOR_ROLE: [
-        AUDITOR,
-        PII_VIEW,
-    ],
-    CLINICIAN_ROLE: [
-        CLINIC,
-        PII,
-    ],
-    CLINICIAN_SUPER_ROLE: [
-        CLINIC_SUPER,
-        CLINIC,
-        PII,
-    ],
-    CUSTOM_ROLE: [],
-    NURSE_ROLE: [
-        CLINIC,
-        PII,
-    ],
-    STAFF_ROLE: [ADMINISTRATION, EVERYONE],
-    STATISTICIAN: [AUDITOR],
-}
+
+def get_default_roles() -> dict[str, list[str]]:
+    """Format {ROLE_NAME: [GROUP_NAME, GROUP_NAME, ...]"""
+    return {
+        ACCOUNT_MANAGER_ROLE: [ACCOUNT_MANAGER],
+        AUDITOR_ROLE: [
+            AUDITOR,
+            PII_VIEW,
+        ],
+        CLINICIAN_ROLE: [
+            CLINIC,
+            PII,
+        ],
+        CLINICIAN_SUPER_ROLE: [
+            CLINIC_SUPER,
+            CLINIC,
+            PII,
+        ],
+        CUSTOM_ROLE: [],
+        NURSE_ROLE: [
+            CLINIC,
+            PII,
+        ],
+        STAFF_ROLE: [ADMINISTRATION, EVERYONE],
+        STATISTICIAN: [AUDITOR],
+    }

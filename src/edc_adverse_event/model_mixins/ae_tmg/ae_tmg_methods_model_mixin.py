@@ -18,8 +18,6 @@ class AeTmgMethodsModelMixin(models.Model):
     def get_action_item_reason(self):
         return self.ae_initial.ae_description
 
-    def get_search_slug_fields(self):
+    def get_search_slug_fields(self) -> tuple[str]:
         fields = super().get_search_slug_fields()
-        fields.append("subject_identifier")
-        fields.append("report_status")
-        return fields
+        return *fields, "subject_identifier", "report_status"

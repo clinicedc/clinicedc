@@ -5,15 +5,18 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.test import override_settings, tag
 from django.test.testcases import TestCase
 from django.utils import timezone
 
 from edc_action_item.site_action_items import site_action_items
 from edc_consent import site_consents
 from edc_constants.constants import CLOSED, NOT_APPLICABLE, OPEN, OTHER, YES
+from edc_facility.import_holidays import import_holidays
 from edc_list_data import site_list_data
 from edc_protocol_incident import list_data
 from edc_protocol_incident.action_items import ProtocolDeviationViolationAction
@@ -24,13 +27,25 @@ from edc_protocol_incident.models import (
     ProtocolDeviationViolation,
     ProtocolViolations,
 )
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
 
 
+@tag("protocol_incident")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=10)
 class TestProtocolViolation(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
+
     def setUp(self):
         site_action_items.registry = {}
         action_cls = ProtocolDeviationViolationAction
@@ -77,7 +92,7 @@ class TestProtocolViolation(TestCase):
         data = deepcopy(self.data)
         data.update(
             {
-                "subject_identifier": "1234",
+                "subject_identifier": self.subject_identifier,
                 "report_datetime": timezone.now(),
                 "report_status": OPEN,
                 "report_type": DEVIATION,
@@ -96,7 +111,7 @@ class TestProtocolViolation(TestCase):
         data = deepcopy(self.data)
         data.update(
             {
-                "subject_identifier": "1234",
+                "subject_identifier": self.subject_identifier,
                 "report_datetime": timezone.now(),
                 "report_status": CLOSED,
                 "report_type": DEVIATION,
@@ -144,7 +159,7 @@ class TestProtocolViolation(TestCase):
         data = deepcopy(self.data)
         data.update(
             {
-                "subject_identifier": "1234",
+                "subject_identifier": self.subject_identifier,
                 "report_datetime": timezone.now(),
                 "report_status": CLOSED,
                 "report_type": VIOLATION,

@@ -3,9 +3,9 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.models import SubjectConsent
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
-from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
@@ -21,8 +21,9 @@ from edc_ltfu.constants import LTFU_ACTION
 from edc_ltfu.models import Ltfu
 from edc_ltfu.utils import get_ltfu_model_cls, get_ltfu_model_name
 from edc_offstudy.action_items import EndOfStudyAction as BaseEndOfStudyAction
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_unblinding.constants import UNBLINDING_REVIEW_ACTION
-from edc_utils import get_dob
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -34,45 +35,27 @@ utc_tz = ZoneInfo("UTC")
 class TestLtfu(TestCase):
     @classmethod
     def setUpTestData(cls):
-        site_consents.register(consent_v1)
-
-        site_visit_schedules._registry = {}
-        site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule(consent_v1))
         import_holidays()
+        sites._registry = {}
+        sites.loaded = False
+        sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
-        test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
-        traveller = time_machine.travel(test_datetime)
-        traveller.start()
-        self.schedule = site_visit_schedules.get_visit_schedule(
-            "visit_schedule"
-        ).schedules.get("schedule")
-        self.subject_identifier = "111111111"
-        self.subject_identifiers = [
-            self.subject_identifier,
-            "222222222",
-            "333333333",
-            "444444444",
-        ]
-        self.consent_datetime = timezone.now() - relativedelta(weeks=4)
-        dob = get_dob(age_in_years=25, now=self.consent_datetime)
-        for subject_identifier in self.subject_identifiers:
-            subject_consent = SubjectConsent.objects.create(
-                subject_identifier=subject_identifier,
-                identity=subject_identifier,
-                confirm_identity=subject_identifier,
-                consent_datetime=self.consent_datetime,
-                dob=dob,
+        site_consents.registry = {}
+        site_consents.register(consent_v1)
+        site_visit_schedules._registry = {}
+        site_visit_schedules.loaded = False
+        visit_schedule = get_visit_schedule(consent_v1)
+        site_visit_schedules.register(visit_schedule)
+
+        helper = Helper()
+        self.subject_identifiers = []
+        for _ in range(0, 4):
+            subject_visit = helper.enroll_to_baseline(
+                visit_schedule_name=visit_schedule.name, schedule_name="schedule"
             )
-            self.schedule.put_on_schedule(
-                subject_identifier=subject_consent.subject_identifier,
-                onschedule_datetime=self.consent_datetime,
-            )
-        self.subject_consent = SubjectConsent.objects.get(
-            subject_identifier=self.subject_identifier, dob=dob
-        )
-        traveller.stop()
+            self.subject_identifiers.append(subject_visit.subject_identifier)
 
     @staticmethod
     def register_actions():
@@ -109,7 +92,7 @@ class TestLtfu(TestCase):
     def test_ltfu_creates_and_closes_action(self):
         self.register_actions()
         Ltfu.objects.create(
-            subject_identifier=self.subject_identifier,
+            subject_identifier=self.subject_identifiers[0],
             last_seen_datetime=timezone.now(),
             phone_attempts=3,
             home_visited=YES,
@@ -117,7 +100,7 @@ class TestLtfu(TestCase):
         )
         try:
             ActionItem.objects.get(
-                subject_identifier=self.subject_identifier,
+                subject_identifier=self.subject_identifiers[0],
                 action_type__name=LTFU_ACTION,
                 status=CLOSED,
             )

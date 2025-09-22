@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import uuid
 from uuid import uuid4
 
@@ -97,13 +98,12 @@ class ConfirmationAtSiteView(
         return min(unconfirmed_count, 12)
 
     def get_stock_codes(self, stock_transfer):
-        stock_codes = [
+        return [
             code
             for code in stock_transfer.stocktransferitem_set.values_list(
                 "stock__code", flat=True
             ).all()
         ]
-        return stock_codes
 
     def get_unconfirmed_count(self, stock_transfer) -> int:
         return (
@@ -120,10 +120,8 @@ class ConfirmationAtSiteView(
     def site(self) -> Site | None:
         obj = None
         if self.kwargs.get("site_id"):
-            try:
+            with contextlib.suppress(ObjectDoesNotExist):
                 obj = Site.objects.get(id=self.kwargs.get("site_id"))
-            except ObjectDoesNotExist:
-                pass
         return obj
 
     @property
@@ -169,14 +167,13 @@ class ConfirmationAtSiteView(
     def confirmation_at_site_changelist_url(self) -> str:
         if self.confirmation_at_site:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_confirmationatsite_changelist")
-            url = f"{url}?q={self.confirmation_at_site.transfer_confirmation_identifier}"
-            return url
+            return f"{url}?q={self.confirmation_at_site.transfer_confirmation_identifier}"
         return "/"
 
     def get_stock_transfer(
         self,
         stock_transfer_identifier: str,
-        suppress_msg: bool = None,
+        suppress_msg: bool | None = None,
     ) -> StockTransfer | None:
         stock_transfer = None
         try:
@@ -198,7 +195,7 @@ class ConfirmationAtSiteView(
                 )
         return stock_transfer
 
-    def post(self, request, *args, **kwargs) -> HttpResponseRedirect:
+    def post(self, request, *args, **kwargs) -> HttpResponseRedirect:  # noqa: ARG002
         # cancel
         if request.POST.get("cancel") and request.POST.get("cancel") == "cancel":
             url = reverse("edc_pharmacy:home_url")

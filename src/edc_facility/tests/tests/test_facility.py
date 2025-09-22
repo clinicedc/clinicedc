@@ -1,7 +1,8 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
+from clinicedc_tests.sites import all_sites
+from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta, weekday
 from django.test import TestCase
 from django.test.utils import override_settings, tag
 from django.utils import timezone
@@ -9,7 +10,7 @@ from django.utils import timezone
 from edc_facility.facility import Facility
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday
-from edc_sites.site import sites
+from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 
@@ -18,10 +19,11 @@ from edc_sites.utils import add_or_update_django_sites
 class TestFacility(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
-        sites.initialize()
-        sites.register(*cls.get_default_sites())
-        add_or_update_django_sites()
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         self.facility = Facility(
@@ -92,7 +94,9 @@ class TestFacility(SiteTestCaseMixin, TestCase):
         """Asserts finds available_arr on first clinic day after holiday."""
         suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
         expected_date = datetime(2017, 1, 8, tzinfo=ZoneInfo("UTC"))
-        facility = Facility(name="clinic", days=[suggested_date.weekday()], slots=[100])
+        facility = Facility(
+            name="clinic", days=[weekday(suggested_date.weekday())], slots=[100]
+        )
         available_arr = facility.available_arr(suggested_date)
         self.assertEqual(expected_date, available_arr.datetime)
 
@@ -102,6 +106,8 @@ class TestFacility(SiteTestCaseMixin, TestCase):
         suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
         expected_date = datetime(2017, 1, 8, tzinfo=ZoneInfo("UTC"))
         Holiday.objects.create(local_date=suggested_date)
-        facility = Facility(name="clinic", days=[suggested_date.weekday()], slots=[100])
+        facility = Facility(
+            name="clinic", days=[weekday(suggested_date.weekday())], slots=[100]
+        )
         available_arr = facility.available_arr(suggested_date)
         self.assertEqual(expected_date, available_arr.datetime)

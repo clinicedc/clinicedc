@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 
+from ..constants import POST_UPDATE_FUNCS_KEY, PRE_UPDATE_FUNCS_KEY
 from ..site_auths import site_auths
 from .group_updater import GroupUpdater
 from .role_updater import RoleUpdater
@@ -17,6 +18,14 @@ style = color_style()
 
 
 class AuthUpdater:
+    """A class to update auth.Group, edc_auth.Role, auth.Permissions
+    models using the site_auth registry.
+
+    Called once on application startup. For example::
+
+        AuthUpdater(verbose=False, warn_only=True)
+    """
+
     group_updater_cls = GroupUpdater
     role_updater_cls = RoleUpdater
 
@@ -38,8 +47,10 @@ class AuthUpdater:
         )
         groups = groups or site_auths.groups
         pii_models = pii_models or site_auths.pii_models
-        post_update_funcs = post_update_funcs or site_auths.post_update_funcs
-        pre_update_funcs = pre_update_funcs or site_auths.pre_update_funcs
+        post_update_funcs = post_update_funcs or [f for f in site_auths.post_update_funcs]
+        site_auths.registry[POST_UPDATE_FUNCS_KEY] = []
+        pre_update_funcs = pre_update_funcs or [f for f in site_auths.pre_update_funcs]
+        site_auths.registry[PRE_UPDATE_FUNCS_KEY] = []
         roles = roles or site_auths.roles
         self.apps = apps
         if not self.edc_auth_skip_auth_updater:

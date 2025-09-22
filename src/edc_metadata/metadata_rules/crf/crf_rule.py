@@ -14,7 +14,7 @@ if TYPE_CHECKING:
         pass
 
 
-class CrfRuleModelConflict(Exception):
+class CrfRuleModelConflict(Exception):  # noqa: N818
     pass
 
 

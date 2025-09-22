@@ -1,3 +1,5 @@
+import contextlib
+
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
@@ -65,7 +67,8 @@ class RandomizationListModelAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj=obj)
-        readonly_fields += (
+        readonly_fields = (
+            *readonly_fields,
             "subject_identifier",
             "sid",
             "site_name",
@@ -75,7 +78,8 @@ class RandomizationListModelAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
             "allocated_datetime",
             "allocated_site",
             "randomizer_name",
-        ) + audit_fields
+            *audit_fields,
+        )
         return tuple(set(readonly_fields))
 
     def get_queryset(self, request):
@@ -90,7 +94,7 @@ class RandomizationListModelAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
         return qs
 
     def get_list_display(self, request) -> tuple[str, ...]:
-        list_display = [
+        fields = (
             "sid",
             "assignment",
             "site_name",
@@ -98,22 +102,24 @@ class RandomizationListModelAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
             "allocated_datetime",
             "allocated_site",
             "randomizer_name",
-        ]
+        )
+        if flds := site_randomizers.get_by_model(
+            self.model._meta.label_lower
+        ).get_extra_list_display():
+            fields = list(fields)
+            for pos, fname in flds:
+                fields.insert(pos, fname)
+            fields = tuple(fields)
         if user_is_blinded(request.user.username) or (
             not user_is_blinded(request.user.username)
             and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
         ):
-            list_display.remove("assignment")
-        if flds := site_randomizers.get_by_model(
-            self.model._meta.label_lower
-        ).get_extra_list_display():
-            for pos, fldname in flds:
-                list_display.insert(pos, fldname)
-        return tuple(list_display)
+            fields = tuple([fname for fname in fields if fname != "assignment"])
+        return fields
 
     @staticmethod
     def get_fieldnames(request) -> tuple[str, ...]:
-        fields = [
+        fields = (
             "subject_identifier",
             "sid",
             "assignment",
@@ -122,33 +128,35 @@ class RandomizationListModelAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
             "allocated_datetime",
             "allocated_site",
             "randomizer_name",
-        ]
+        )
         if user_is_blinded(request.user.username) or (
             not user_is_blinded(request.user.username)
             and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
         ):
-            fields.remove("assignment")
-        return tuple(fields)
+            fields = tuple([fname for fname in fields if fname != "assignment"])
+        return fields
 
     def get_list_filter(self, request) -> tuple[str, ...]:
-        list_filter = [
+        fields = (
             "assignment",
             "allocated_datetime",
             "allocated_site",
             "site_name",
             "randomizer_name",
-        ]
+        )
         if flds := site_randomizers.get_by_model(
             self.model._meta.label_lower
         ).get_extra_list_filter():
-            for pos, fldname in flds:
-                list_filter.insert(pos, fldname)
+            fields = list(fields)
+            for pos, fname in flds:
+                fields.insert(pos, fname)
+            fields = tuple(fields)
         if user_is_blinded(request.user.username) or (
             not user_is_blinded(request.user.username)
             and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
         ):
-            list_filter.remove("assignment")
-        return tuple(list_filter)
+            fields = tuple([fname for fname in fields if fname != "assignment"])
+        return fields
 
 
 def register_admin():
@@ -156,10 +164,8 @@ def register_admin():
     for randomizer_cls in site_randomizers._registry.values():
         model = randomizer_cls.model_cls()
         admin_cls = type(f"{model.__name__}ModelAdmin", (RandomizationListModelAdmin,), {})
-        try:
+        with contextlib.suppress(AlreadyRegistered):
             edc_randomization_admin.register(model, admin_cls)
-        except AlreadyRegistered:
-            pass
 
 
 register_admin()

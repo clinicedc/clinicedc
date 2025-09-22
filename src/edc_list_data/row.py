@@ -24,7 +24,7 @@ class Row:
 @dataclass
 class AsListData:
     data: tuple[tuple[str, str, str], ...] | Choices
-    rows: list[Row, ...] | None = field(default_factory=list, init=False)
+    rows: list[Row] | None = field(default_factory=list, init=False)
 
     def __post_init__(self):
         for tpl in self.data:

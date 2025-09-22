@@ -215,7 +215,7 @@ class AppointmentCreator:
                 raise CreateAppointmentDateError(
                     f"{e} Visit={self.visit!r}. "
                     f"Try setting 'best_effort_available_datetime=True' on facility."
-                )
+                ) from e
         else:
             return self.suggested_datetime
         return arw.datetime

@@ -8,11 +8,11 @@ from clinicedc_tests.models import CrfThree
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from faker import Faker
 
 from edc_consent import site_consents
-from edc_constants.constants import MALE
+from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_metadata.constants import NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_rules import (
@@ -42,7 +42,9 @@ fake = Faker()
 utc_tz = ZoneInfo("UTC")
 
 
-@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@tag("metadata")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2025, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestMetadataRulesWithGender(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -56,126 +58,41 @@ class TestMetadataRulesWithGender(TestCase):
         site_visit_schedules.loaded = False
         site_visit_schedules.register(get_visit_schedule(consent_v1))
         # note crfs in visit schedule are all set to REQUIRED by default.
-        _, self.schedule = site_visit_schedules.get_by_onschedule_model(
+        self.visit_schedule, self.schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_visit_schedule.onschedule"
+        )
+        self.subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
+            gender=MALE,
         )
 
         site_metadata_rules.registry = {}
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupGender)
 
+    def enroll_female(self):
+        return self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
+            gender=FEMALE,
+        )
+
+    @tag("metadata1")
     def test_rules_with_source_model(self):
         for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
             self.assertEqual(rule.source_model, "clinicedc_tests.crfone")
 
+    @tag("metadata1")
     def test_rules_without_source_model(self):
         for rule in CrfRuleGroupWithoutSourceModel._meta.options.get("rules"):
             self.assertIsNone(rule.source_model)
 
+    @tag("metadata1")
     def test_rules_source_and_reference_model_is_none(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
         for rule in CrfRuleGroupWithoutSourceModel._meta.options.get("rules"):
             with self.subTest(rule=rule):
-                result = rule.run(subject_visit)
+                result = rule.run(self.subject_visit)
                 if rule.name == "crfs_male":
-                    self.assertEqual(
-                        result,
-                        {
-                            "clinicedc_tests.crfseven": REQUIRED,
-                            "clinicedc_tests.crfsix": REQUIRED,
-                        },
-                    )
-                elif rule.name == "crfs_female":
-                    self.assertEqual(
-                        result,
-                        {
-                            "clinicedc_tests.crffive": NOT_REQUIRED,
-                            "clinicedc_tests.crffour": NOT_REQUIRED,
-                        },
-                    )
-
-    def test_rules_with_source_but_no_explicit_reference_model(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
-        for rule in CrfRuleGroupWithoutExplicitReferenceModel._meta.options.get("rules"):
-            with self.subTest(rule=rule):
-                self.assertIsNotNone(rule.source_model)
-                result = rule.run(subject_visit)
-                if rule.name == "crfs_male":
-                    self.assertEqual(
-                        result,
-                        {
-                            "clinicedc_tests.crfseven": REQUIRED,
-                            "clinicedc_tests.crfsix": REQUIRED,
-                        },
-                    )
-                elif rule.name == "crfs_female":
-                    self.assertEqual(
-                        result,
-                        {
-                            "clinicedc_tests.crffive": NOT_REQUIRED,
-                            "clinicedc_tests.crffour": NOT_REQUIRED,
-                        },
-                    )
-
-    def test_rules_if_no_source_model_instance(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
-        for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
-            with self.subTest(rule=rule):
-                result = rule.run(subject_visit)
-                if rule.name == "crfs_male":
-                    self.assertEqual(
-                        result,
-                        {
-                            "clinicedc_tests.crfseven": NOT_REQUIRED,
-                            "clinicedc_tests.crfsix": NOT_REQUIRED,
-                        },
-                    )
-                elif rule.name == "crfs_female":
-                    self.assertEqual(
-                        result,
-                        {
-                            "clinicedc_tests.crffive": NOT_REQUIRED,
-                            "clinicedc_tests.crffour": NOT_REQUIRED,
-                        },
-                    )
-
-    def test_rules_run_if_source_f1_equals_car(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
-        CrfThree.objects.create(subject_visit=subject_visit, f1="car")
-        for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
-            with self.subTest(rule=rule):
-                result = rule.run(subject_visit)
-                if rule.name == "crfs_male":
-                    self.assertEqual(
-                        result,
-                        {
-                            "clinicedc_tests.crfseven": REQUIRED,
-                            "clinicedc_tests.crfsix": REQUIRED,
-                        },
-                    )
-                elif rule.name == "crfs_female":
-                    self.assertEqual(
-                        result,
-                        {
-                            "clinicedc_tests.crffive": NOT_REQUIRED,
-                            "clinicedc_tests.crffour": NOT_REQUIRED,
-                        },
-                    )
-
-    def test_rules_run_if_source_f1_equals_bicycle(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
-        CrfThree.objects.create(subject_visit=subject_visit, f1="bicycle")
-        for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
-            with self.subTest(rule=rule):
-                result = rule.run(subject_visit)
-                if rule.name == "crfs_male":
-                    self.assertEqual(
-                        result,
-                        {
-                            "clinicedc_tests.crfseven": NOT_REQUIRED,
-                            "clinicedc_tests.crfsix": NOT_REQUIRED,
-                        },
-                    )
-                elif rule.name == "crfs_female":
                     self.assertEqual(
                         result,
                         {
@@ -183,15 +100,112 @@ class TestMetadataRulesWithGender(TestCase):
                             "clinicedc_tests.crffour": REQUIRED,
                         },
                     )
+                elif rule.name == "crfs_female":
+                    self.assertEqual(
+                        result,
+                        {
+                            "clinicedc_tests.crftwo": NOT_REQUIRED,
+                            "clinicedc_tests.crfthree": NOT_REQUIRED,
+                        },
+                    )
+
+    @tag("metadata1")
+    def test_rules_with_source_but_no_explicit_reference_model(self):
+        for rule in CrfRuleGroupWithoutExplicitReferenceModel._meta.options.get("rules"):
+            with self.subTest(rule=rule):
+                self.assertIsNotNone(rule.source_model)
+                result = rule.run(self.subject_visit)
+                if rule.name == "crfs_male":
+                    self.assertEqual(
+                        result,
+                        {
+                            "clinicedc_tests.crffour": REQUIRED,
+                            "clinicedc_tests.crffive": REQUIRED,
+                        },
+                    )
+                elif rule.name == "crfs_female":
+                    self.assertEqual(
+                        result,
+                        {
+                            "clinicedc_tests.crftwo": NOT_REQUIRED,
+                            "clinicedc_tests.crfthree": NOT_REQUIRED,
+                        },
+                    )
+
+    @tag("metadata1")
+    def test_rules_if_no_source_model_instance(self):
+        for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
+            with self.subTest(rule=rule):
+                result = rule.run(self.subject_visit)
+                if rule.name == "crfs_male":
+                    self.assertEqual(
+                        result,
+                        {
+                            "clinicedc_tests.crffour": NOT_REQUIRED,
+                            "clinicedc_tests.crffive": NOT_REQUIRED,
+                        },
+                    )
+                elif rule.name == "crfs_female":
+                    self.assertEqual(
+                        result,
+                        {
+                            "clinicedc_tests.crftwo": NOT_REQUIRED,
+                            "clinicedc_tests.crfthree": NOT_REQUIRED,
+                        },
+                    )
+
+    @tag("metadata1")
+    def test_rules_run_if_source_f1_equals_car(self):
+        CrfThree.objects.create(subject_visit=self.subject_visit, f1="car")
+        for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
+            with self.subTest(rule=rule):
+                result = rule.run(self.subject_visit)
+                if rule.name == "crfs_male":
+                    self.assertEqual(
+                        result,
+                        {
+                            "clinicedc_tests.crffour": REQUIRED,
+                            "clinicedc_tests.crffive": REQUIRED,
+                        },
+                    )
+                elif rule.name == "crfs_female":
+                    self.assertEqual(
+                        result,
+                        {
+                            "clinicedc_tests.crftwo": NOT_REQUIRED,
+                            "clinicedc_tests.crfthree": NOT_REQUIRED,
+                        },
+                    )
+
+    @tag("metadata2")
+    def test_rules_run_if_source_f1_equals_bicycle(self):
+        CrfThree.objects.create(subject_visit=self.subject_visit, f1="bicycle")
+        for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
+            with self.subTest(rule=rule):
+                result = rule.run(self.subject_visit)
+                if rule.name == "crfs_male":
+                    self.assertEqual(
+                        result,
+                        {
+                            "clinicedc_tests.crffour": NOT_REQUIRED,
+                            "clinicedc_tests.crffive": NOT_REQUIRED,
+                        },
+                    )
+                elif rule.name == "crfs_female":
+                    self.assertEqual(
+                        result,
+                        {
+                            "clinicedc_tests.crftwo": REQUIRED,
+                            "clinicedc_tests.crfthree": REQUIRED,
+                        },
+                    )
 
     def test_rules_run_requires_registered_subject(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
         RegisteredSubject.objects.all().delete()
         for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
-            self.assertRaises(RuleEvaluatorRegisterSubjectError, rule.run, subject_visit)
+            self.assertRaises(RuleEvaluatorRegisterSubjectError, rule.run, self.subject_visit)
 
     def test_metadata_rules_run_male_required(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
         for target_model in [
             "clinicedc_tests.crfsix",
             "clinicedc_tests.crfseven",
@@ -199,13 +213,12 @@ class TestMetadataRulesWithGender(TestCase):
             with self.subTest(target_model=target_model):
                 obj = CrfMetadata.objects.get(
                     model=target_model,
-                    subject_identifier=subject_visit.subject_identifier,
-                    visit_code=subject_visit.visit_code,
+                    subject_identifier=self.subject_visit.subject_identifier,
+                    visit_code=self.subject_visit.visit_code,
                 )
                 self.assertEqual(obj.entry_status, REQUIRED)
 
     def test_metadata_rules_run_female_required(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
         for target_model in [
             "clinicedc_tests.crffour",
             "clinicedc_tests.crffive",
@@ -213,13 +226,12 @@ class TestMetadataRulesWithGender(TestCase):
             with self.subTest(target_model=target_model):
                 obj = CrfMetadata.objects.get(
                     model=target_model,
-                    subject_identifier=subject_visit.subject_identifier,
-                    visit_code=subject_visit.visit_code,
+                    subject_identifier=self.subject_visit.subject_identifier,
+                    visit_code=self.subject_visit.visit_code,
                 )
                 self.assertEqual(obj.entry_status, REQUIRED)
 
     def test_metadata_rules_run_female_not_required(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
         for target_model in [
             "clinicedc_tests.crfsix",
             "clinicedc_tests.crfseven",
@@ -227,13 +239,12 @@ class TestMetadataRulesWithGender(TestCase):
             with self.subTest(target_model=target_model):
                 obj = CrfMetadata.objects.get(
                     model=target_model,
-                    subject_identifier=subject_visit.subject_identifier,
-                    visit_code=subject_visit.visit_code,
+                    subject_identifier=self.subject_visit.subject_identifier,
+                    visit_code=self.subject_visit.visit_code,
                 )
                 self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
     def test_metadata_rules_run_male_not_required(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
         for target_model in [
             "clinicedc_tests.crffour",
             "clinicedc_tests.crffive",
@@ -241,14 +252,15 @@ class TestMetadataRulesWithGender(TestCase):
             with self.subTest(target_model=target_model):
                 obj = CrfMetadata.objects.get(
                     model=target_model,
-                    subject_identifier=subject_visit.subject_identifier,
-                    visit_code=subject_visit.visit_code,
+                    subject_identifier=self.subject_visit.subject_identifier,
+                    visit_code=self.subject_visit.visit_code,
                 )
                 self.assertEqual(obj.entry_status, NOT_REQUIRED)
 
     def test_rule_group_metadata_objects(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
-        _, metadata_objects = CrfRuleGroupGender().evaluate_rules(related_visit=subject_visit)
+        _, metadata_objects = CrfRuleGroupGender().evaluate_rules(
+            related_visit=self.subject_visit
+        )
         self.assertEqual(metadata_objects.get("clinicedc_tests.crfsix").entry_status, REQUIRED)
         self.assertEqual(
             metadata_objects.get("clinicedc_tests.crfseven").entry_status, REQUIRED
@@ -262,8 +274,7 @@ class TestMetadataRulesWithGender(TestCase):
         )
 
     def test_rule_group_rule_results(self):
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
-        rule_results, _ = CrfRuleGroupGender().evaluate_rules(related_visit=subject_visit)
+        rule_results, _ = CrfRuleGroupGender().evaluate_rules(related_visit=self.subject_visit)
         self.assertEqual(
             rule_results["CrfRuleGroupGender.crfs_male"].get("clinicedc_tests.crfsix"),
             REQUIRED,
@@ -283,7 +294,11 @@ class TestMetadataRulesWithGender(TestCase):
 
     def test_bad_rule_group_target_model_cannot_also_be_source_model(self):
         site_metadata_rules.registry = {}
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
+            gender=MALE,
+        )
 
         class BadCrfRuleGroup(CrfRuleGroup):
             crfs_male = CrfRule(
@@ -294,7 +309,7 @@ class TestMetadataRulesWithGender(TestCase):
             )
 
             class Meta:
-                app_label = "edc_metadata"
+                app_label = "clinicedc_tests"
                 source_model = "clinicedc_tests.crfthree"
                 related_visit_model = "edc_visit_tracking.subjectvisit"
 
@@ -307,7 +322,11 @@ class TestMetadataRulesWithGender(TestCase):
     def test_rule_group_target_model_cannot_be_visit_model(self):
         site_metadata_rules.registry = {}
 
-        subject_visit = self.helper.enroll_to_baseline(gender=MALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name=self.schedule.name,
+            gender=MALE,
+        )
 
         class BadCrfRuleGroup(CrfRuleGroup):
             rule = CrfRule(

@@ -174,7 +174,7 @@ class ScreeningEligibility:
         setattr(
             self.model_obj,
             self.reasons_ineligible_fld_name,
-            "|".join(self.reasons_ineligible.values()) or None,
+            "|".join(self.reasons_ineligible.values()) or "",
         )
         self.set_eligible_model_field()
         self.set_fld_attrs_on_model()
@@ -229,9 +229,7 @@ class ScreeningEligibility:
         }
 
     def formatted_reasons_ineligible(self) -> str:
-        str_values = "<BR>".join(
-            [x for x in self.reasons_ineligible.values() if x is not None]
-        )
+        str_values = "<BR>".join([x for x in self.reasons_ineligible.values() if x])
         return format_html(
             "{}",
             mark_safe(str_values),  # nosec B703 B308

@@ -1,10 +1,12 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import time_machine
 from clinicedc_tests.models import CrfFive, CrfOne, SubjectVisit
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
+from django.utils import timezone
 
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
@@ -20,13 +22,12 @@ from edc_visit_tracking.constants import SCHEDULED
 
 from .metadata_test_mixin import TestMetadataMixin
 
-test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
+utc_tz = ZoneInfo("UTC")
 
 
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
-)
+@tag("metadata")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestMetadataRefresher(TestMetadataMixin, TestCase):
     def check(self, expected, subject_visit=None):
         for model, entry_status in expected.items():
@@ -121,8 +122,8 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         consent_v1 = ConsentDefinition(
             "edc_metadata.subjectconsentv1",
             version="1",
-            start=test_datetime,
-            end=test_datetime + relativedelta(years=3),
+            start=timezone.now(),
+            end=timezone.now() + relativedelta(years=3),
             age_min=18,
             age_is_adult=18,
             age_max=64,

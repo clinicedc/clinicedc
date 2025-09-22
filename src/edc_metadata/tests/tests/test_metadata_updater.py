@@ -1,10 +1,10 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+import time_machine
 from clinicedc_tests.models import CrfOne, CrfThree, CrfTwo, SubjectRequisition
-from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_metadata.constants import KEYED, NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_handler import MetadataHandlerError
@@ -16,13 +16,12 @@ from edc_visit_tracking.models import SubjectVisit
 
 from .metadata_test_mixin import TestMetadataMixin
 
-test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
+utc_tz = ZoneInfo("UTC")
 
 
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
-)
+@tag("metadata")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestMetadataUpdater(TestMetadataMixin, TestCase):
     def test_updates_crf_metadata_as_keyed(self):
         subject_visit = SubjectVisit.objects.create(

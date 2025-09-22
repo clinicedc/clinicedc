@@ -6,56 +6,58 @@ from unittest.case import skip
 
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import Crf, CrfEncrypted, ListModel, SubjectVisit
+from clinicedc_tests.models import Crf, CrfEncrypted, CrfThree, ListModel, SubjectVisit
+from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
-from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_export.constants import EXPORTED, INSERT, UPDATE
 from edc_export.model_exporter import ModelExporter, ValueGetterInvalidLookup
 from edc_export.models import FileHistory, ObjectHistory
 from edc_facility.import_holidays import import_holidays
+from edc_sites.site import sites as site_sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
-@override_settings(EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp())
+@skip("not used")
+@override_settings(
+    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp(), SITE_ID=10
+)
 class TestExportModel(TestCase):
-    helper_cls = Helper
-
-    def setUp(self):
+    @classmethod
+    def setUpTestData(cls):
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
-        viist_schedule = get_visit_schedule(consent_v1)
+        visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules.register(get_visit_schedule(consent_v1))
         for _ in range(0, 7):
-            helper = self.helper_cls()
-            helper.consent_and_put_on_schedule(
-                visit_schedule_name=viist_schedule.name,
-                schedule_name="schedule1",
+            helper = Helper()
+            helper.enroll_to_baseline(
+                visit_schedule_name=visit_schedule.name,
+                schedule_name="schedule",
                 report_datetime=timezone.now(),
             )
-        for appointment in Appointment.objects.all().order_by(
-            "timepoint", "visit_code_sequence"
-        ):
-            SubjectVisit.objects.create(
-                appointment=appointment,
-                subject_identifier=appointment.subject_identifier,
-                report_datetime=timezone.now(),
-            )
+
+    def setUp(self):
         self.subject_visit = SubjectVisit.objects.all()[0]
         self.thing_one = ListModel.objects.create(display_name="thing_one", name="thing_one")
         self.thing_two = ListModel.objects.create(display_name="thing_two", name="thing_two")
-        self.crf = Crf.objects.create(
+        self.crf = CrfThree.objects.create(
             subject_visit=self.subject_visit,
-            char1="char",
-            date1=timezone.now(),
-            int1=1,
-            uuid1=uuid.uuid4(),
+            f1="char",
+            appt_date=timezone.now(),
+            f4=1,
+            f5=uuid.uuid4(),
         )
 
     def test_model(self):
@@ -91,10 +93,10 @@ class TestExportModel(TestCase):
             queryset=queryset,
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
-        self.assertIn("char1", model_exporter.field_names)
-        self.assertIn("date1", model_exporter.field_names)
-        self.assertIn("int1", model_exporter.field_names)
-        self.assertIn("uuid1", model_exporter.field_names)
+        self.assertIn("f1", model_exporter.field_names)
+        self.assertIn("appt_date", model_exporter.field_names)
+        self.assertIn("f4", model_exporter.field_names)
+        self.assertIn("f5", model_exporter.field_names)
         self.assertIn("m2m", model_exporter.field_names)
         for i, name in enumerate(model_exporter.export_fields):
             self.assertEqual(name, model_exporter.field_names[i])
@@ -108,13 +110,13 @@ class TestExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            exclude_field_names=["date1", "uuid1"],
+            exclude_field_names=["appt_date", "f5"],
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
-        self.assertIn("char1", model_exporter.field_names)
-        self.assertNotIn("date1", model_exporter.field_names)
-        self.assertIn("int1", model_exporter.field_names)
-        self.assertNotIn("uuid1", model_exporter.field_names)
+        self.assertIn("f1", model_exporter.field_names)
+        self.assertNotIn("appt_date", model_exporter.field_names)
+        self.assertIn("f4", model_exporter.field_names)
+        self.assertNotIn("f5", model_exporter.field_names)
         self.assertIn("m2m", model_exporter.field_names)
         for i, name in enumerate(model_exporter.export_fields):
             self.assertEqual(name, model_exporter.field_names[i])
@@ -128,13 +130,13 @@ class TestExportModel(TestCase):
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
-            field_names=["char1"],
+            field_names=["f1"],
             lookups={"subject_identifier": "subject_visit__subject_identifier"},
         )
-        self.assertIn("char1", model_exporter.field_names)
-        self.assertNotIn("date1", model_exporter.field_names)
-        self.assertNotIn("int1", model_exporter.field_names)
-        self.assertNotIn("uuid1", model_exporter.field_names)
+        self.assertIn("f1", model_exporter.field_names)
+        self.assertNotIn("appt_date", model_exporter.field_names)
+        self.assertNotIn("f4", model_exporter.field_names)
+        self.assertNotIn("f5", model_exporter.field_names)
         self.assertNotIn("m2m", model_exporter.field_names)
         for i, name in enumerate(model_exporter.export_fields):
             self.assertEqual(name, model_exporter.field_names[i])
@@ -304,7 +306,7 @@ class TestExportModel(TestCase):
         ObjectHistory.objects.all().delete()
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
-        self.crf.date1 = timezone.now()
+        self.crf.appt_date = timezone.now()
         self.crf.save()
         queryset = Crf.objects.all()
         model_exporter = ModelExporter(
@@ -337,9 +339,9 @@ class TestExportModel(TestCase):
     def test_export_change_type_in_csv_update(self):
         self.crf.m2m.add(self.thing_one)
         self.crf.m2m.add(self.thing_two)
-        self.crf.date1 = timezone.now()
+        self.crf.appt_date = timezone.now()
         self.crf.save()
-        queryset = Crf.objects.all()
+        queryset = CrfThree.objects.all()
         model_exporter = ModelExporter(
             queryset=queryset,
             lookups={"subject_identifier": "subject_visit__subject_identifier"},

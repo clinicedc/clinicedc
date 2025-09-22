@@ -1,7 +1,8 @@
+from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_action_item.site_action_items import site_action_items
@@ -11,6 +12,8 @@ from edc_constants.constants import DEAD
 from edc_facility.import_holidays import import_holidays
 from edc_offstudy.models import SubjectOffstudy
 from edc_offstudy.utils import OffstudyError
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
 from edc_utils import get_dob
 from edc_visit_schedule.exceptions import OffScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -23,10 +26,16 @@ from ..models import CrfOne, NonCrfOne, OffScheduleOne, SubjectConsent
 from ..visit_schedule import visit_schedule1
 
 
+@tag("offstudy")
+@override_settings(SITE_ID=10)
 class TestOffstudy(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        sites._registry = {}
+        sites.loaded = False
+        sites.register(*all_sites)
+        add_or_update_django_sites()
 
     @classmethod
     def setUpClass(cls):

@@ -3,19 +3,18 @@ from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import BloodResultsFbc
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.apps import apps as django_apps
-from django.test import TestCase
-from django.utils import timezone
+from django.test import TestCase, override_settings, tag
 
-from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_constants.constants import GRADE3, NO, NOT_APPLICABLE, YES
+from edc_constants.constants import FEMALE, GRADE3, NO, NOT_APPLICABLE, YES
 from edc_lab.models import Panel
 from edc_lab_results.get_summary import get_summary
 from edc_reportable import GRAMS_PER_DECILITER, PERCENT, TEN_X_9_PER_LITER
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
 
 
+@tag("lab_results")
+@override_settings(SITE_ID=10)
 class TestBloodResult(TestCase):
     def setUp(self):
         site_consents.registry = {}
@@ -26,22 +25,11 @@ class TestBloodResult(TestCase):
         site_visit_schedules.register(visit_schedule)
 
         helper = Helper()
-        consent = helper.consent_and_put_on_schedule(
-            visit_schedule_name="visit_schedule", schedule_name="schedule"
+        subject_visit = helper.enroll_to_baseline(
+            visit_schedule_name="visit_schedule", schedule_name="schedule", gender=FEMALE
         )
-        self.subject_identifier = consent.subject_identifier
+        self.subject_identifier = subject_visit.subject_identifier
 
-        appointment = Appointment.objects.get(
-            subject_identifier=self.subject_identifier,
-            visit_code="1000",
-        )
-        subject_visit = django_apps.get_model(
-            "edc_visit_tracking.subjectvisit"
-        ).objects.create(
-            report_datetime=timezone.now(),
-            appointment=appointment,
-            reason=SCHEDULED,
-        )
         panel = Panel.objects.get(name="fbc")
         requisition = django_apps.get_model(
             "clinicedc_tests.subjectrequisition"
@@ -91,7 +79,24 @@ class TestBloodResult(TestCase):
         self.assertEqual([], reportable)
         self.assertEqual([], errors)
         abnormal_summary = "\n".join(abnormal)
-        self.assertIn("haemoglobin: 12 g/dL", abnormal_summary)
+        # female / 12 is still ok
+        self.assertEqual("", abnormal_summary)
+        obj.delete()
+
+        self.data.update(
+            haemoglobin_value=11,
+            haemoglobin_units=GRAMS_PER_DECILITER,
+            haemoglobin_abnormal=YES,
+            haemoglobin_reportable=GRADE3,
+            results_abnormal=YES,
+            results_reportable=NO,
+        )
+        obj = BloodResultsFbc.objects.create(**self.data)
+        reportable, abnormal, errors = get_summary(obj)
+        self.assertEqual([], reportable)
+        self.assertEqual([], errors)
+        abnormal_summary = "\n".join(abnormal)
+        self.assertIn("haemoglobin: 11 g/dL", abnormal_summary)
 
     def test_summary_g3(self):
         self.data.update(
@@ -104,7 +109,7 @@ class TestBloodResult(TestCase):
         )
         obj = BloodResultsFbc.objects.create(**self.data)
         reportable, abnormal, errors = get_summary(obj)
-        self.assertIn("haemoglobin: 7.0<=7.5<9.0 g/dL GRADE3", "\n".join(reportable))
+        self.assertIn("haemoglobin: 6.5<=7.5<8.5 g/dL GRADE3", "\n".join(reportable))
         self.assertEqual([], abnormal)
         self.assertEqual([], errors)
 
@@ -144,7 +149,7 @@ class TestBloodResult(TestCase):
         obj.platelets_units = TEN_X_9_PER_LITER
         obj.save()
         self.assertEqual(obj.missing_count, 0)
-        self.assertEqual(None, obj.missing)
+        self.assertEqual("", obj.missing)
 
         obj.platelets_value = None
         obj.platelets_units = None

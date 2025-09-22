@@ -1,7 +1,7 @@
 from datetime import datetime
-from pathlib import Path
 from zoneinfo import ZoneInfo
 
+from clinicedc_tests.sites import all_sites
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings, tag
@@ -9,20 +9,21 @@ from django.test.utils import override_settings, tag
 from edc_facility.exceptions import FacilitySiteError
 from edc_facility.holidays import Holidays
 from edc_facility.import_holidays import import_holidays
-from edc_sites.site import sites
+from edc_sites.site import sites as site_sites
 from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("facility")
-@override_settings(HOLIDAY_FILE=Path(__file__).parent / "holidays.csv")
+@override_settings(SITE_ID=10)
 class TestHolidays(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
-        sites.initialize()
-        sites.register(*cls.get_default_sites())
-        add_or_update_django_sites()
         import_holidays()
+        site_sites._registry = {}
+        site_sites.loaded = False
+        site_sites.register(*all_sites)
+        add_or_update_django_sites()
 
     def setUp(self):
         self.user = User.objects.create(username="erik")

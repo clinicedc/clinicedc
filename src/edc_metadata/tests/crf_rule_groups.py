@@ -21,7 +21,7 @@ class CrfRuleGroupWithSourceModel(CrfRuleGroup):
     )
 
     class Meta:
-        app_label = "tests"
+        app_label = "clinicedc_tests"
         source_model = "clinicedc_tests.crfone"
         related_visit_model = "edc_visit_tracking.subjectvisit"
 
@@ -42,7 +42,7 @@ class CrfRuleGroupWithoutSourceModel(CrfRuleGroup):
     )
 
     class Meta:
-        app_label = "tests"
+        app_label = "clinicedc_tests"
         related_visit_model = "edc_visit_tracking.subjectvisit"
 
 
@@ -62,7 +62,7 @@ class CrfRuleGroupWithoutExplicitReferenceModel(CrfRuleGroup):
     )
 
     class Meta:
-        app_label = "tests"
+        app_label = "clinicedc_tests"
         source_model = "clinicedc_tests.crfone"
         related_visit_model = "edc_visit_tracking.subjectvisit"
 
@@ -83,7 +83,7 @@ class CrfRuleGroupGender(CrfRuleGroup):
     )
 
     class Meta:
-        app_label = "tests"
+        app_label = "clinicedc_tests"
         related_visit_model = "edc_visit_tracking.subjectvisit"
 
 
@@ -103,7 +103,7 @@ class CrfRuleGroupOne(CrfRuleGroup):
     )
 
     class Meta:
-        app_label = "tests"
+        app_label = "clinicedc_tests"
         source_model = "clinicedc_tests.crfone"
 
 
@@ -123,7 +123,7 @@ class CrfRuleGroupTwo(CrfRuleGroup):
     )
 
     class Meta:
-        app_label = "tests"
+        app_label = "clinicedc_tests"
         source_model = "clinicedc_tests.crfone"
 
 
@@ -136,5 +136,5 @@ class CrfRuleGroupThree(CrfRuleGroup):
     )
 
     class Meta:
-        app_label = "tests"
+        app_label = "clinicedc_tests"
         source_model = "clinicedc_tests.crfone"

@@ -21,12 +21,12 @@ class Manifest(ManifestModelMixin, PdfReportModelMixin, SearchSlugModelMixin, Ba
     pdf_report_cls = ManifestPdfReport
 
     def get_search_slug_fields(self):
-        return [
+        return (
             "manifest_identifier",
             "human_readable_identifier",
             "shipper.name",
             "consignee.name",
-        ]
+        )
 
     consignee = models.ForeignKey(Consignee, verbose_name="Consignee", on_delete=PROTECT)
 

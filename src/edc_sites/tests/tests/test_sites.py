@@ -385,7 +385,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request = rf.get("/")
         request.site = Site.objects.get(id=30)
         request.user = User.objects.get(username="user_login")
-        request.user.userprofile.sites.add(request.site)
+        request.user.userprofile.sites.add(request.site)  # site 30
 
         request.user.user_permissions.clear()
 
@@ -409,12 +409,11 @@ class TestSites(SiteTestCaseMixin, TestCase):
         request.user.userprofile.sites.add(Site.objects.get(id=40))
         self.assertTrue(site_sites.user_may_view_other_sites(request))
         self.assertEqual(
+            [request.site.id, *site_sites.get_view_only_site_ids_for_user(request=request)],
             [
-                request.site.id,
-                *site_sites.get_view_only_site_ids_for_user(request=request),
                 30,
                 40,
-            ]
+            ],
         )
 
         rf = RequestFactory()

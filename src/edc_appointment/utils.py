@@ -80,7 +80,7 @@ class AppointmentDateWindowPeriodGapError(Exception):
     pass
 
 
-class AppointmentAlreadyStarted(Exception):
+class AppointmentAlreadyStarted(Exception):  # noqa: N818
     pass
 
 
@@ -157,10 +157,9 @@ def raise_on_appt_may_not_be_missed(
 
 
 def get_appointment_form_meta_options() -> dict:
-    options = getattr(
+    return getattr(
         settings, "EDC_APPOINTMENT_FORM_META_OPTIONS", dict(labels={}, help_texts={})
     )
-    return options
 
 
 def get_appt_reason_choices() -> tuple[str, ...]:
@@ -516,11 +515,11 @@ def raise_on_appt_datetime_not_in_window(
         except ScheduledVisitWindowError as e:
             msg = str(e)
             msg.replace("Invalid datetime", "Invalid appointment datetime (S)")
-            raise AppointmentWindowError(msg)
+            raise AppointmentWindowError(msg) from e
         except UnScheduledVisitWindowError as e:
             msg = str(e)
             msg.replace("Invalid datetime", "Invalid appointment datetime (U)")
-            raise AppointmentWindowError(msg)
+            raise AppointmentWindowError(msg) from e
 
 
 def get_window_gap_days(appointment) -> int:
@@ -623,7 +622,7 @@ def get_appointment_by_datetime(
             raise_on_appt_datetime_not_in_window(
                 appointment, appt_datetime=suggested_appt_datetime
             )
-        except AppointmentWindowError:
+        except AppointmentWindowError as e:
             in_gap = appt_datetime_in_gap(appointment, suggested_appt_datetime)
             in_next_window_adjusted = appt_datetime_in_next_window_adjusted_for_gap(
                 appointment, suggested_appt_datetime
@@ -635,7 +634,7 @@ def get_appointment_by_datetime(
                 raise AppointmentDateWindowPeriodGapError(
                     f"Date falls in a `window period gap` between {appointment.visit_code} "
                     f"and {appointment.next.visit_code}. Got {dt}."
-                )
+                ) from e
             if (
                 in_gap
                 and in_next_window_adjusted
@@ -674,7 +673,7 @@ def reset_appointment(appointment: Appointment, **kwargs):
         appt_status=appointment._meta.get_field("appt_status").default,
         appt_timing=appointment._meta.get_field("appt_timing").default,
         appt_type=None,
-        appt_type_other=None,
+        appt_type_other="",
         appt_datetime=appointment.timepoint_datetime,
         comment="",
     )
@@ -705,7 +704,7 @@ def skip_appointment(appointment: Appointment, comment: str | None = None):
         appt_status=SKIPPED_APPT,
         appt_timing=NOT_APPLICABLE,
         appt_type=NOT_APPLICABLE,
-        comment=comment,
+        comment=comment or "",
     )
 
 
@@ -722,11 +721,6 @@ def get_unscheduled_appointment_url(appointment: Appointment = None) -> str:
         visit_code_sequence=appointment.visit_code_sequence + 1,
         timepoint=appointment.timepoint,
     )
-    # if appointment := (
-    #     appointment.__class__.objects.filter(visit_code_sequence__gt=0, **kwargs)
-    #     .order_by("visit_code_sequence")
-    #     .last()
-    # ):
     kwargs.update(visit_code_sequence=str(appointment.visit_code_sequence + 1))
     kwargs.update(redirect_url=dashboard_url)
     return reverse(unscheduled_appointment_url_name, kwargs=kwargs)
@@ -741,19 +735,18 @@ def update_appt_status_for_timepoint(related_visit: RelatedVisitModel) -> None:
         ):
             related_visit.appointment.appt_status = INCOMPLETE_APPT
             related_visit.appointment.save_base(update_fields=["appt_status"])
-    elif related_visit.appointment.appt_status == INCOMPLETE_APPT:
-        if (
-            not related_visit.metadata[CRF].filter(entry_status=REQUIRED).exists()
-            and not related_visit.metadata[REQUISITION].filter(entry_status=REQUIRED).exists()
-        ):
-            related_visit.appointment.appt_status = COMPLETE_APPT
-            related_visit.appointment.save_base(update_fields=["appt_status"])
+    elif related_visit.appointment.appt_status == INCOMPLETE_APPT and (
+        not related_visit.metadata[CRF].filter(entry_status=REQUIRED).exists()
+        and not related_visit.metadata[REQUISITION].filter(entry_status=REQUIRED).exists()
+    ):
+        related_visit.appointment.appt_status = COMPLETE_APPT
+        related_visit.appointment.save_base(update_fields=["appt_status"])
 
 
 def refresh_appointments(
-    subject_identifier: str = None,
-    visit_schedule_name: str = None,
-    schedule_name: str = None,
+    subject_identifier: str | None = None,
+    visit_schedule_name: str | None = None,
+    schedule_name: str | None = None,
     request: WSGIRequest | None = None,
     warn_only: bool | None = None,
 ) -> tuple[str, str]:
@@ -839,6 +832,8 @@ def validate_date_is_on_clinic_day(
             and calendar.weekday(appt_date.year, appt_date.month, appt_date.day)
             not in clinic_days
         ):
+
+            days_str = [day_abbr[d] for d in clinic_days]
             days_str = []
             for d in clinic_days:
                 days_str.append(day_abbr[d])

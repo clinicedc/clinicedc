@@ -10,7 +10,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule impo
 )
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 
 from edc_consent import site_consents
 from edc_constants.constants import MALE
@@ -32,7 +32,8 @@ utc_tz = ZoneInfo("UTC")
 
 @unittest.skip("2")
 @tag("metadata")
-@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestNaturalKey(TestCase):
     exclude_models = [
         "edc_visit_schedule.onschedule",
@@ -68,14 +69,14 @@ class TestNaturalKey(TestCase):
     def test_natural_key_attrs(self):
         offline_helper = OfflineTestHelper()
         offline_helper.offline_test_natural_key_attr(
-            "tests", exclude_models=self.exclude_models
+            "clinicedc_tests", exclude_models=self.exclude_models
         )
 
     @unittest.skipIf(skip_condition, skip_reason)
     def test_get_by_natural_key_attr(self):
         offline_helper = OfflineTestHelper()
         offline_helper.offline_test_get_by_natural_key_attr(
-            "tests", exclude_models=self.exclude_models
+            "clinicedc_tests", exclude_models=self.exclude_models
         )
 
     @unittest.skipIf(skip_condition, skip_reason)

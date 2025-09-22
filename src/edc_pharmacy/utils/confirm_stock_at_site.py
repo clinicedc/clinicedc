@@ -26,7 +26,7 @@ def confirm_stock_at_site(
     stock_transfer: StockTransfer,
     stock_codes: list[str],
     location: UUID,
-    request: WSGIRequest = None,
+    request: WSGIRequest | None = None,
 ) -> tuple[list[str], list[str], list[str]]:
     """Confirm stock instances given a list of stock codes
     and a request/receive pk.

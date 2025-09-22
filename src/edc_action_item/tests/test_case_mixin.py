@@ -14,6 +14,7 @@ from django.utils import timezone
 
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
+from edc_constants.constants import FEMALE
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites as site_sites
@@ -48,6 +49,7 @@ class TestCaseMixin(TestCase):
         identity = str(uuid4())
         subject_consent = cdef.model_create(
             consent_datetime=consent_datetime,
+            gender=FEMALE,
             dob=consent_datetime - relativedelta(years=25),
             site=site,
             identity=identity,

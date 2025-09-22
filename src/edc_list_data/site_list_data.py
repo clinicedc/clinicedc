@@ -1,3 +1,4 @@
+import contextlib
 import copy
 import sys
 from importlib import import_module
@@ -51,7 +52,7 @@ class SiteListData:
         if app_name and app_name in self.app_names:
             raise AlreadyLoaded(f"App already loaded. Got {app_name}.")
         self.app_names.append(app_name)
-        opts = copy.deepcopy(self._get_options(module))
+        opts = {k: v for k, v in self._get_options(module).items()}
         sys.stdout.write(f"   - registered {self.module_name} from '{module.__name__}'\n")
         if opts.get(self.module_name):
             self._replace_list_data_or_raise_on_duplicate(module, opts)
@@ -60,6 +61,8 @@ class SiteListData:
     def load_data(self) -> None:
         """Calls `load` class with each list_data dictionary module to
         update database `list` tables.
+
+        See post_migrate_list_data.
         """
         style = color_style()
         for module_name, opts in self.registry.items():
@@ -142,10 +145,8 @@ class SiteListData:
         ):
             sys.stdout.write(f" * checking sites for `{self.module_name}` ...\n")
             for app_name in django_apps.app_configs:
-                try:
+                with contextlib.suppress(ModuleNotFoundError):
                     self._import_and_register(app_name)
-                except ModuleNotFoundError:
-                    pass
 
     def _import_and_register(self, app_name: str) -> None:
         mod = import_module(app_name)
@@ -155,7 +156,7 @@ class SiteListData:
         except ImportError as e:
             site_list_data.registry = before_import_registry
             if module_has_submodule(mod, self.module_name):
-                raise SiteListDataError(f"{e} See {app_name}.{self.module_name}")
+                raise SiteListDataError(f"{e} See {app_name}.{self.module_name}") from e
         else:
             self.register(module, app_name=app_name)
 

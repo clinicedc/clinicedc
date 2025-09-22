@@ -110,7 +110,7 @@ class CrfCreator(SourceModelMetadataMixin):
                             metadata_obj = self.metadata_model_cls.objects.create(**opts)
                         except IntegrityError as e:
                             msg = f"Integrity error creating. Tried with {opts}. Got {e}."
-                            raise CreatesMetadataError(msg)
+                            raise CreatesMetadataError(msg) from e
             else:
                 if not registered:
                     metadata_obj.delete()

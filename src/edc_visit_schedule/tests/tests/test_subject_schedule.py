@@ -23,7 +23,7 @@ from edc_visit_schedule.subject_schedule import SubjectSchedule
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
 
-@tag("visit_schedule")
+@tag("visit_schedule1")
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 @override_settings(SITE_ID=30)
 class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
@@ -36,10 +36,10 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
 
         site_consents.registry = {}
-        site_consents.register(consent1_v1)
-        site_consents.register(consent1_v2)
-        site_consents.register(consent2_v1, updated_by=consent2_v2)
-        site_consents.register(consent2_v2)
+        site_consents.register(consent1_v1)  # 0-50 days
+        site_consents.register(consent1_v2)  # 51-100 days
+        site_consents.register(consent2_v1, updated_by=consent2_v2)  # 31+
+        site_consents.register(consent2_v2)  # 75+
 
         site_visit_schedules._registry = {}
 
@@ -97,7 +97,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
         """Asserts returns the correct instances for the schedule."""
         helper = Helper()
         subject_screening, first_name, last_name = helper.screen_subject(
-            report_datetime=timezone.now()
+            report_datetime=timezone.now() - relativedelta(days=21)
         )
         for onschedule_model, schedule_name, cdef in [
             ("clinicedc_tests.onscheduletwo", "schedule_two", consent1_v1),

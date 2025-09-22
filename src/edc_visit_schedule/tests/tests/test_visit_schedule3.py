@@ -285,5 +285,6 @@ class TestVisitSchedule3(SiteTestCaseMixin, TestCase):
             SiteVisitScheduleError,
             OnScheduleThree.objects.put_on_schedule,
             self.subject_identifier,
+            timezone.now(),
         )
         traveller.stop()

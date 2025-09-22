@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from tqdm import tqdm
@@ -68,10 +70,8 @@ def reset_and_delete_action_item(instance, using=None):
 
 def register_actions(*action_cls):
     for cls in action_cls:
-        try:
+        with contextlib.suppress(AlreadyRegistered):
             site_action_items.register(cls)
-        except AlreadyRegistered:
-            pass
 
 
 def get_reference_obj(action_item: ActionItem | None):

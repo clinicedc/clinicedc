@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import copy
 import sys
 from dataclasses import InitVar, dataclass, field
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
     from .action_with_notification import ActionWithNotification
 
 
-class AlreadyRegistered(Exception):
+class AlreadyRegistered(Exception):  # noqa: N818
     pass
 
 
@@ -84,10 +85,8 @@ class SiteActionItemCollection:
                 model=action_cls.get_reference_model(),
                 url_namespace=action_cls.admin_site_name,
             )
-            try:
+            with contextlib.suppress(PrnAlreadyRegistered):
                 site_prn_forms.register(prn)
-            except PrnAlreadyRegistered:
-                pass
         try:
             action_cls.notification_email_to
         except AttributeError:
@@ -103,10 +102,8 @@ class SiteActionItemCollection:
         See edc_notification.
         """
         if action_cls.notification_cls():
-            try:
+            with contextlib.suppress(NotificationAlreadyRegistered):
                 site_notifications.register(action_cls.notification_cls())
-            except NotificationAlreadyRegistered:
-                pass
 
     @property
     def all(self) -> dict[str, type[Action] | type[ActionWithNotification]]:
@@ -129,12 +126,11 @@ class SiteActionItemCollection:
         return None
 
     def get_add_actions_to_show(self) -> dict[str, type[Action]]:
-        actions = {
+        return {
             action_cls.name: action_cls
             for action_cls in self.registry.values()
             if action_cls.show_link_to_add
         }
-        return actions
 
     def create_or_update_action_types(self) -> None:
         """Populates the ActionType model."""
