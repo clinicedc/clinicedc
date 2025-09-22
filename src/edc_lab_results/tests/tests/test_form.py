@@ -215,9 +215,7 @@ class TestBloodResultFormForPoc(TestCase):
         data.update(requisition=requisition, hba1c_value=5.0)
         form = BloodResultsHba1cForm(data=data)
         form.is_valid()
-        self.assertIn(
-            "This field is not required", str(form._errors.get("subject_requisition"))
-        )
+        self.assertIn("This field is not required", str(form._errors.get("requisition")))
 
     def test_not_poc_requires_requisition(self):
         data = deepcopy(self.data)
@@ -225,7 +223,7 @@ class TestBloodResultFormForPoc(TestCase):
         data.update(is_poc=NO)
         form = BloodResultsHba1cForm(data=data)
         form.is_valid()
-        self.assertIn("This field is required", str(form._errors.get("subject_requisition")))
+        self.assertIn("This field is required", str(form._errors.get("requisition")))
 
         hba1c_panel = Panel.objects.get(name="hba1c")
         requisition = SubjectRequisition.objects.create(

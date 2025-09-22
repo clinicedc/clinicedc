@@ -1,9 +1,10 @@
-from django.test import TestCase, override_settings
+from django.test import tag, TestCase, override_settings
 from edc_constants.constants import DM, HIV
 
 from edc_dx import get_diagnosis_labels_prefixes
 
 
+@tag("dx")
 class TestLabels(TestCase):
     @override_settings(EDC_DX_LABELS={HIV: "HIV"})
     def test_diagnosis_labels_hiv_only(self):

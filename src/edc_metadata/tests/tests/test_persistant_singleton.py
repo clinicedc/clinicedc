@@ -12,7 +12,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 from model_bakery import baker
 
@@ -117,10 +117,12 @@ class TestCaseMixin:
         return subject_visit
 
 
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
-)
+utc_tz = ZoneInfo("UTC")
+
+
+@tag("metadata")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestPersistantSingleton(TestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):

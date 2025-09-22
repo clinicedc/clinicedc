@@ -163,10 +163,10 @@ class SiteVisitSchedules:
             for schedule in visit_schedule.schedules.values():
                 try:
                     model_name = getattr(schedule, attr)
-                except (AttributeError, TypeError):
+                except (AttributeError, TypeError) as e:
                     raise SiteVisitScheduleError(
                         f"Invalid attr for Schedule. See {schedule}. Got {attr}."
-                    )
+                    ) from e
                 if model_name and model_name == model:
                     ret.append([visit_schedule, schedule])
         if not ret:

@@ -1,6 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase
-from edc_utils import get_utcnow
+from django.test import TestCase, tag
 
 from edc_dx_review.medical_date import (
     BEFORE_AFTER_BOTH_FALSE,
@@ -11,8 +10,10 @@ from edc_dx_review.medical_date import (
     MedicalDateError,
     RxDate,
 )
+from edc_utils import get_utcnow
 
 
+@tag("dx_review")
 class TestMedicalDate(TestCase):
     def test_medical_date_error(self):
         cleaned_data = {

@@ -1,3 +1,5 @@
+import contextlib
+
 from django.apps import AppConfig
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -34,10 +36,8 @@ def load_model_data(model_data: dict, apps: AppConfig | None = None) -> int:
             try:
                 obj = model.objects.get(**{unique_field: opts.get(unique_field)})
             except ObjectDoesNotExist:
-                try:
+                with contextlib.suppress(IntegrityError):
                     model.objects.create(**opts)
-                except IntegrityError:
-                    pass
             else:
                 for key, value in opts.items():
                     setattr(obj, key, value)

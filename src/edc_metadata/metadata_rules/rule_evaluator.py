@@ -77,5 +77,5 @@ class RuleEvaluator:
                     f"Registered subject required for rule {self!r}. "
                     f"subject_identifier='{self.related_visit.subject_identifier}'. "
                     f"Got {e}."
-                )
+                ) from e
         return self._registered_subject

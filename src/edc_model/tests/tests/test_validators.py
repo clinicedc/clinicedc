@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.utils import timezone
 
 from ..models import (
@@ -28,6 +28,7 @@ class PhoneForm(forms.ModelForm):
         fields = "__all__"
 
 
+@tag("model")
 class TestValidators(TestCase):
     def test_date_validators(self):
         future_datetime = timezone.now() + relativedelta(days=10)

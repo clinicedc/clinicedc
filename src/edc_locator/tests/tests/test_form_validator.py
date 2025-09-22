@@ -1,10 +1,12 @@
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_constants.constants import NO, YES
 from edc_locator.forms import SubjectLocatorFormValidator
 
 
+@tag("locator")
+@override_settings(SITE_ID=10)
 class TestFormValidator(TestCase):
     def test_may_not_call(self):
         cleaned_data = {

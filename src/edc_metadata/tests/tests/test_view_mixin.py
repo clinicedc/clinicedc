@@ -10,7 +10,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule impo
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 from django.utils import timezone
 from django.views.generic.base import ContextMixin, View
@@ -57,10 +57,12 @@ class MyView(MetadataViewMixin, ContextMixin, View):
         return self._appointment
 
 
-@override_settings(
-    EDC_PROTOCOL_STUDY_OPEN_DATETIME=test_datetime - relativedelta(years=3),
-    EDC_PROTOCOL_STUDY_CLOSE_DATETIME=test_datetime + relativedelta(years=3),
-)
+utc_tz = ZoneInfo("UTC")
+
+
+@tag("metadata")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestViewMixin(TestCase):
     @classmethod
     def setUpTestData(cls):

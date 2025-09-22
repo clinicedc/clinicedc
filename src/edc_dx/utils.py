@@ -9,24 +9,12 @@ class DiagnosisLabelError(Exception):
     pass
 
 
-try:
-    getattr(settings, "EDC_DX_LABELS")
-except AttributeError as e:
-    raise AttributeError(
-        f"{e}. Expected something like `EDC_DX_LABELS=dict"
-        "(hiv=HIV,dm=Diabetes,htn=Hypertension,chol=High Cholesterol)`"
-    )
-
-
 def get_diagnosis_labels() -> dict:
-    try:
-        diagnosis_labels = getattr(settings, "EDC_DX_LABELS")
-    except AttributeError as e:
-        raise AttributeError(
-            f"{e}. Expected something like `EDC_DX_LABELS=dict"
-            "(hiv=HIV,dm=Diabetes,htn=Hypertension,chol=High Cholesterol)`"
-        )
-
+    diagnosis_labels = getattr(
+        settings,
+        "EDC_DX_LABELS",
+        dict(hiv="HIV", dm="Diabetes", htn="Hypertension", chol="High Cholesterol"),
+    )
     return {k.lower(): v for k, v in diagnosis_labels.items()}
 
 

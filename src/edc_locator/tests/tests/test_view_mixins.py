@@ -1,7 +1,7 @@
 from unittest.case import skip
 
 from clinicedc_tests.utils import get_request_object_for_tests, get_user_for_tests
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from django.views.generic.base import ContextMixin
 
 from edc_action_item.models import ActionItem
@@ -14,6 +14,8 @@ from edc_sites.view_mixins import SiteViewMixin
 from edc_subject_dashboard.view_mixins import RegisteredSubjectViewMixin
 
 
+@tag("locator")
+@override_settings(SITE_ID=10)
 class TestViewMixins(TestCase):
     def setUp(self):
         self.user = get_user_for_tests()

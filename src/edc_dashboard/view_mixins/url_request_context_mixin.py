@@ -30,10 +30,11 @@ class UrlRequestContextMixin:
     @classmethod
     def urls(
         cls,
-        namespace: str = None,
-        label: str = None,
-        identifier_label: str = None,
-        identifier_pattern: str = None,
+        *,
+        label: str,
+        identifier_pattern: str,
+        namespace: str | None = None,
+        identifier_label: str | None = None,
     ) -> list[URLPattern]:
         label = (
             label
@@ -62,5 +63,5 @@ class UrlRequestContextMixin:
                 f"Url name not defined in url_names. "
                 f"Expected one of {url_names.registry}. Got {e}. "
                 f"Hint: check if dashboard middleware is loaded."
-            )
+            ) from e
         return url_data

@@ -5,7 +5,7 @@ import arrow
 from clinicedc_tests.utils import get_user_for_tests
 from django.contrib.auth.models import Group, User
 from django.contrib.sites.models import Site
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 from django.utils import timezone
 from django.views.generic.base import ContextMixin, View
@@ -13,7 +13,6 @@ from django.views.generic.base import ContextMixin, View
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.constants import CLINIC
 from edc_auth.site_auths import site_auths
-from edc_dashboard.url_names import url_names
 from edc_listboard.filters import ListboardFilter, ListboardViewFilters
 from edc_listboard.view_mixins import ListboardFilterViewMixin, QueryStringViewMixin
 from edc_listboard.views import ListboardView
@@ -22,13 +21,14 @@ from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED
 from ..models import SubjectVisit
 
 
-@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=1)
+@tag("listboard")
+@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10)
 class TestViewMixins(TestCase):
     user: User = None
 
     @classmethod
     def setUpTestData(cls):
-        url_names.register("dashboard_url", "dashboard_url", "edc_listboard")
+        # url_names.register("dashboard_url", "dashboard_url", "edc_listboard")
         site_auths.clear()
         site_auths.add_group("edc_listboard.view_my_listboard", name=CLINIC)
         site_auths.add_custom_permissions_tuples(

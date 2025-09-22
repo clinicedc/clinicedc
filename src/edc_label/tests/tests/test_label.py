@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from ...printer import Printer
 
@@ -6,24 +6,25 @@ from ...printer import Printer
 class DummyCupsConnection:
     printer_name = "test_printer"
 
-    properties = {"printer-state-reasons": [""]}
+    properties = {"printer-state-reasons": [""]}  # noqa: RUF012
 
-    def getPrinters(self):
+    def getPrinters(self):  # noqa: N802
         return {self.printer_name: self.properties}
 
-    def createJob(self, *args):
+    def createJob(self, *args):  # noqa: ARG002, N802
         return 1
 
-    def startDocument(self, *args):
+    def startDocument(self, *args):  # noqa: ARG002, N802
         return 1
 
-    def writeRequestData(self, *args):
+    def writeRequestData(self, *args):  # noqa: ARG002
         return 1
 
-    def finishDocument(self, *args):
+    def finishDocument(self, *args):  # noqa: ARG002, N802
         return 1
 
 
+@tag("label")
 class TestLabels(TestCase):
     def test_dummy(self):
         connection = DummyCupsConnection()

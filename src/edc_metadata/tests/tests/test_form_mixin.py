@@ -8,7 +8,7 @@ from clinicedc_tests.utils import get_user_for_tests
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
-from django.test import TestCase
+from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 
 from edc_consent import site_consents
@@ -30,7 +30,9 @@ class MyForm(MetadataHelperMixin, FormValidator):
 utc_tz = ZoneInfo("UTC")
 
 
-@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
+@tag("metadata")
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2025, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestForm(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -50,11 +52,18 @@ class TestForm(TestCase):
 
         site_consents.registry = {}
         site_consents.register(consent_v1)
+
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
         site_visit_schedules.register(get_visit_schedule(consent_v1))
+        visit_schedule, self.schedule = site_visit_schedules.get_by_onschedule_model(
+            "edc_visit_schedule.onschedule"
+        )
 
-        self.subject_visit = helper.enroll_to_baseline(consent_definition=consent_v1)
+        self.subject_visit = helper.enroll_to_baseline(
+            visit_schedule_name=visit_schedule.name,
+            schedule_name=self.schedule.name,
+        )
         self.subject_identifier = self.subject_visit.subject_identifier
         self.appointment = self.subject_visit.appointment
 

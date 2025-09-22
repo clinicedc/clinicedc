@@ -1,5 +1,5 @@
 from django import forms
-from django.test import TestCase
+from django.test import tag, TestCase
 from edc_constants.constants import DM, HIV, HTN, NO, NOT_APPLICABLE, YES
 from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
 from edc_form_validators import FormValidator
@@ -34,6 +34,7 @@ class MyModel:
         return "subject_visit"
 
 
+@tag("dx")
 class TestDiagnosisFormValidator(TestCaseMixin, TestCase):
     def setUp(self):
         super().setUp()

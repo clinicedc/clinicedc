@@ -11,7 +11,7 @@ style = color_style()
 class PreloadData:
     def __init__(
         self,
-        list_data: dict[str, list[tuple[str | int, str]]] | None = None,
+        list_data: dict[str, list[tuple[str | int, str]]],
         model_data: dict | None = None,
         list_data_model_name: str | None = None,
         apps: AppConfig = None,
@@ -24,7 +24,7 @@ class PreloadData:
         if self.model_data:
             self.item_count += self.load_model_data()
 
-    def load_list_data(self, model_name: str = None, apps: AppConfig | None = None) -> int:
+    def load_list_data(self, model_name: str, apps: AppConfig | None = None) -> int:
         return load_list_data(self.list_data, model_name=model_name, apps=apps)
 
     def load_model_data(self, apps: AppConfig | None = None) -> int:
