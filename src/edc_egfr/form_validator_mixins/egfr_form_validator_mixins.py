@@ -35,10 +35,11 @@ class EgfrCkdEpiFormValidatorMixin:
 class EgfrCockcroftGaultFormValidatorMixin:
     def validate_egfr(
         self,
-        gender: str = None,
-        age_in_years: int = None,
-        weight_in_kgs: float = None,
-        ethnicity: str = None,
+        *,
+        gender: str,
+        age_in_years: int,
+        weight_in_kgs: float,
+        ethnicity: str,
     ):
         opts = dict(
             gender=gender,

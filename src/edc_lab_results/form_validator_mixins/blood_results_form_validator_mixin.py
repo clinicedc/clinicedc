@@ -26,12 +26,17 @@ class BloodResultsFormValidatorMixin(
         pass
 
     def clean(self: Any) -> None:
-        # do not require requisition if poc
-        self.required_if(NO, field=self.is_poc_field, field_required="requisition")
-        self.required_if_true(
-            not self.is_poc and any(self.fields_names_with_values),
-            field_required=self.requisition_field,
-        )
+        if self.cleaned_data.get(self.is_poc_field) not in [None, NULL_STRING]:
+            # do not require requisition if poc == YES
+            self.required_if(NO, field=self.is_poc_field, field_required="requisition")
+        else:
+            # requires requisition if any `value` fields have value but inverse not True.
+            # It is OK to submit the requisition without any `value` fields data.
+            self.required_if_true(
+                any(self.fields_names_with_values),
+                field_required=self.requisition_field,
+                inverse=False,
+            )
 
         if self.requisition:
             for fields_name in self.fields_names_with_values:
@@ -78,16 +83,20 @@ class BloodResultsFormValidatorMixin(
 
     @property
     def is_poc(self: Any) -> bool:
-        if self.cleaned_data.get(self.is_poc_field):
+        if self.is_poc_field and self.cleaned_data.get(self.is_poc_field):
             return self.cleaned_data.get(self.is_poc_field) == YES
         return False
 
     @property
     def fields_names_with_values(self: Any) -> tuple[str, ...]:
-        """Returns a list result `value` fields that are not None"""
+        """Returns a list result `value` field names that are not None."""
         field_names = (f"{utest_id}{self.value_field_suffix}" for utest_id in self.utest_ids)
         return tuple(
-            [field_name for field_name in field_names if self.cleaned_data.get(field_name)]
+            [
+                field_name
+                for field_name in field_names
+                if self.cleaned_data.get(field_name) not in [None, NULL_STRING]
+            ]
         )
 
     @property

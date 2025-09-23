@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, Any
 
 from .exceptions import SiteVisitScheduleError, VisitScheduleBaselineError
@@ -28,10 +29,8 @@ class Baseline:
             try:
                 instance = instance.appointment
             except AttributeError:
-                try:
+                with contextlib.suppress(AttributeError):
                     instance = instance.subject_visit.appointment
-                except AttributeError:
-                    pass
             self.visit_schedule_name = instance.visit_schedule_name
             self.schedule_name = instance.schedule_name
             self.visit_code_sequence = instance.visit_code_sequence
@@ -59,7 +58,7 @@ class Baseline:
         try:
             visit_schedule = site_visit_schedules.get_visit_schedule(self.visit_schedule_name)
         except SiteVisitScheduleError as e:
-            raise VisitScheduleBaselineError(str(e))
+            raise VisitScheduleBaselineError(str(e)) from e
         return visit_schedule
 
     @property
@@ -67,7 +66,7 @@ class Baseline:
         try:
             schedule = self.visit_schedule.schedules.get(self.schedule_name)
         except SiteVisitScheduleError as e:
-            raise VisitScheduleBaselineError(str(e))
+            raise VisitScheduleBaselineError(str(e)) from e
         return schedule
 
     @property

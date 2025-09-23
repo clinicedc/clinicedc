@@ -60,16 +60,19 @@ def requires_consent_on_pre_save(instance, raw, using, update_fields, **kwargs):
 def update_appointment_from_consentext_post_save(
     sender, instance, raw, created, using, **kwargs
 ):
-    if not raw and not kwargs.get("update_fields"):
-        if isinstance(instance, (ConsentExtensionModelMixin,)):
-            cdef = site_consents.get_consent_definition(
-                model=instance.subject_consent._meta.label_lower,
-                version=instance.subject_consent.version,
-            )
-            visit_schedule, schedule = site_visit_schedules.get_by_consent_definition(cdef)
-            subject_schedule = SubjectSchedule(
-                instance.subject_consent.subject_identifier,
-                visit_schedule=visit_schedule,
-                schedule=schedule,
-            )
-            subject_schedule.refresh_appointments()
+    if (
+        not raw
+        and not kwargs.get("update_fields")
+        and isinstance(instance, (ConsentExtensionModelMixin,))
+    ):
+        cdef = site_consents.get_consent_definition(
+            model=instance.subject_consent._meta.label_lower,
+            version=instance.subject_consent.version,
+        )
+        visit_schedule, schedule = site_visit_schedules.get_by_consent_definition(cdef)
+        subject_schedule = SubjectSchedule(
+            instance.subject_consent.subject_identifier,
+            visit_schedule=visit_schedule,
+            schedule=schedule,
+        )
+        subject_schedule.refresh_appointments()
