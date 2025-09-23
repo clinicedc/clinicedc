@@ -29,7 +29,7 @@ class Hba1cModelMixin(models.Model):
         verbose_name="HbA1c units",
         max_length=15,
         default=PERCENT,
-        editable=False,
+        blank=True,
     )
 
     hba1c_datetime = models.DateTimeField(
