@@ -3,7 +3,7 @@ from copy import copy
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
 
-from edc_constants.constants import DWTA, NOT_APPLICABLE
+from edc_constants.constants import DWTA, NOT_APPLICABLE, NULL_STRING
 
 from .base_form_validator import (
     NOT_REQUIRED_ERROR,
@@ -128,16 +128,13 @@ class RequiredFieldValidator(BaseFormValidator):
             raise InvalidModelFormFieldValidator(errmsg)
         if self.cleaned_data and field_required in self.cleaned_data:
             if condition and (
-                self.cleaned_data.get(field_required) is None
-                or self.cleaned_data.get(field_required) == ""
-                or self.cleaned_data.get(field_required) == NOT_APPLICABLE
+                self.cleaned_data.get(field_required) in [None, NULL_STRING, NOT_APPLICABLE]
             ):
                 self.raise_required(field=field_required, msg=required_msg)
             elif inverse and (
                 not condition
-                and self.cleaned_data.get(field_required) is not None
-                and self.cleaned_data.get(field_required) != ""
-                and self.cleaned_data.get(field_required) != NOT_APPLICABLE
+                and self.cleaned_data.get(field_required)
+                not in [None, NULL_STRING, NOT_APPLICABLE]
             ):
                 self.raise_not_required(field=field_required, msg=not_required_msg)
         return False
@@ -198,14 +195,17 @@ class RequiredFieldValidator(BaseFormValidator):
             field_value = self.cleaned_data.get(field)
 
         if field_required_evaluate_as_int:
-            field_required_has_value = self.cleaned_data.get(field_required) is not None
+            field_required_has_value = self.cleaned_data.get(field_required) not in [
+                None,
+                NULL_STRING,
+            ]
         else:
             field_required_has_value = bool(self.cleaned_data.get(field_required))
 
-        if field_value is not None and not field_required_has_value:
+        if field_value not in [None, NULL_STRING] and not field_required_has_value:
             self.raise_required(field=field_required, msg=required_msg)
         elif (
-            field_value is None
+            field_value in [None, NULL_STRING]
             and field_required_has_value
             and self.cleaned_data.get(field_required) != NOT_APPLICABLE
             and inverse
@@ -270,13 +270,12 @@ class RequiredFieldValidator(BaseFormValidator):
         """Required `b` if `a`; do not require `b` if not `a`"""
         if is_instance_field:
             self.update_cleaned_data_from_instance(field)
-        if (
-            self.cleaned_data.get(field) is not None
-            and self.cleaned_data.get(field_required) is None
-        ):
+        if self.cleaned_data.get(field) is not None and self.cleaned_data.get(
+            field_required
+        ) in [None, NULL_STRING]:
             self.raise_required(field=field_required, msg=required_msg)
         elif (
-            self.cleaned_data.get(field) is None
+            self.cleaned_data.get(field) in [None, NULL_STRING]
             and self.cleaned_data.get(field_required) is not None
         ):
             self.raise_not_required(field=field_required, msg=required_msg)

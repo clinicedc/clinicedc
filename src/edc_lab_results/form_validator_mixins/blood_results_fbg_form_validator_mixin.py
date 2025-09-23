@@ -7,18 +7,13 @@ from edc_glucose.utils import validate_glucose_as_millimoles_per_liter
 
 
 class BloodResultsFbgFormValidatorMixin:
-
     @property
     def reportables_evaluator_options(self: Any):
         if not self.cleaned_data.get("fasting"):
             raise forms.ValidationError({"fasting": "This field is required."})
-        fasting = (
-            True
-            if (
-                (self.cleaned_data.get("fasting") == FASTING)
-                or (self.cleaned_data.get("fasting") == YES)
-            )
-            else False
+        fasting = bool(
+            self.cleaned_data.get("fasting") == FASTING
+            or self.cleaned_data.get("fasting") == YES
         )
         return dict(fasting=fasting)
 

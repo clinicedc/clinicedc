@@ -1,7 +1,9 @@
+import contextlib
 from collections import namedtuple
 from typing import Any
 
-from edc_constants.constants import NO, YES
+from edc_constants.constants import NO, NULL_STRING, YES
+from edc_lab import RequisitionPanel
 from edc_lab.form_validators import CrfRequisitionFormValidatorMixin
 from edc_reportable.forms import ReportablesFormValidatorMixin
 
@@ -15,25 +17,26 @@ class BloodResultsFormValidatorMixin(
     CrfRequisitionFormValidatorMixin,
 ):
     value_field_suffix = "_value"
-    panel = None
-    panels = None
+    panel: RequisitionPanel = None
+    panels: tuple[RequisitionPanel, ...] = ()
     is_poc_field: str = "is_poc"
-    # egfr_percent_drop_threshold: float = 20.0000
-    # egfr_value_threshold: float = 45.0000
-    # egfr_formula: str = "ckd-epi"
-    # reference_range_collection_name: str = None
 
     def evaluate_value(self, **kwargs):
         """A hook to evaluate a field value"""
         pass
 
     def clean(self: Any) -> None:
-        # do not require requisition if poc
-        self.required_if(NO, field=self.is_poc_field, field_required="requisition")
-        self.required_if_true(
-            not self.is_poc and any(self.fields_names_with_values),
-            field_required=self.requisition_field,
-        )
+        if self.cleaned_data.get(self.is_poc_field) not in [None, NULL_STRING]:
+            # do not require requisition if poc == YES
+            self.required_if(NO, field=self.is_poc_field, field_required="requisition")
+        else:
+            # requires requisition if any `value` fields have value but inverse not True.
+            # It is OK to submit the requisition without any `value` fields data.
+            self.required_if_true(
+                any(self.fields_names_with_values),
+                field_required=self.requisition_field,
+                inverse=False,
+            )
 
         if self.requisition:
             for fields_name in self.fields_names_with_values:
@@ -43,19 +46,19 @@ class BloodResultsFormValidatorMixin(
                     utest_id = fields_name
                 if f"{utest_id}_units" in self.cleaned_data:
                     self.required_if_not_none(
-                        field=f"{utest_id}{self.value_field_suffix or ''}",
+                        field=f"{utest_id}{self.value_field_suffix or NULL_STRING}",
                         field_required=f"{utest_id}_units",
                         field_required_evaluate_as_int=True,
                     )
                 if f"{utest_id}_abnormal" in self.cleaned_data:
                     self.required_if_not_none(
-                        field=f"{utest_id}{self.value_field_suffix or ''}",
+                        field=f"{utest_id}{self.value_field_suffix or NULL_STRING}",
                         field_required=f"{utest_id}_abnormal",
                         field_required_evaluate_as_int=False,
                     )
                 if f"{utest_id}_reportable" in self.cleaned_data:
                     self.required_if_not_none(
-                        field=f"{utest_id}{self.value_field_suffix or ''}",
+                        field=f"{utest_id}{self.value_field_suffix or NULL_STRING}",
                         field_required=f"{utest_id}_reportable",
                         field_required_evaluate_as_int=False,
                     )
@@ -80,34 +83,34 @@ class BloodResultsFormValidatorMixin(
 
     @property
     def is_poc(self: Any) -> bool:
-        if self.cleaned_data.get(self.is_poc_field):
+        if self.is_poc_field and self.cleaned_data.get(self.is_poc_field):
             return self.cleaned_data.get(self.is_poc_field) == YES
         return False
 
     @property
-    def fields_names_with_values(self: Any) -> list:
-        """Returns a list result `value` fields that are not None"""
-        fields_names_with_values = []
-        field_names = [f"{utest_id}{self.value_field_suffix}" for utest_id in self.utest_ids]
-        for field_name in field_names:
-            if self.cleaned_data.get(field_name):
-                fields_names_with_values.append(field_name)
-        return field_names
+    def fields_names_with_values(self: Any) -> tuple[str, ...]:
+        """Returns a list result `value` field names that are not None."""
+        field_names = (f"{utest_id}{self.value_field_suffix}" for utest_id in self.utest_ids)
+        return tuple(
+            [
+                field_name
+                for field_name in field_names
+                if self.cleaned_data.get(field_name) not in [None, NULL_STRING]
+            ]
+        )
 
     @property
-    def utest_ids(self: Any) -> list:
+    def utest_ids(self: Any) -> tuple:
         utest_ids = []
         for panel in self.panel_list:
             for utest_id in panel.utest_ids:
-                try:
+                with contextlib.suppress(ValueError):
                     utest_id, _ = utest_id
-                except ValueError:
-                    pass
                 utest_ids.append(utest_id)
-        return utest_ids
+        return tuple(utest_ids)
 
     @property
-    def panel_list(self: Any) -> list:
+    def panel_list(self: Any) -> tuple[RequisitionPanel]:
         if self.panel:
-            return [self.panel]
+            return (self.panel,)
         return self.panels

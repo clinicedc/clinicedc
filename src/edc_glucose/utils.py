@@ -10,7 +10,7 @@ from .constants import GLUCOSE_HIGH_READING
 
 
 def validate_glucose_as_millimoles_per_liter(
-    prefix: str = None, cleaned_data: dict = None
+    prefix: str, cleaned_data: dict
 ) -> None | Decimal:
     converted_value = None
     min_val = Decimal("0.00")
@@ -27,7 +27,7 @@ def validate_glucose_as_millimoles_per_liter(
                 units_to=MILLIMOLES_PER_LITER,
             )
         except ConversionNotHandled as e:
-            raise forms.ValidationError({f"{prefix}_units": str(e)})
+            raise forms.ValidationError({f"{prefix}_units": str(e)}) from e
         if (
             not (min_val <= round_half_away_from_zero(converted_value, 2) <= max_val)
             and round_half_away_from_zero(converted_value, 2) != high_value

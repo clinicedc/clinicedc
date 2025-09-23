@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import copy
 import sys
 from typing import TYPE_CHECKING
@@ -68,10 +69,8 @@ class SiteVisitSchedules:
 
     def get_visit_schedule(self, visit_schedule_name=None) -> VisitSchedule:
         """Returns a visit schedule instance or raises."""
-        try:
+        with contextlib.suppress(AttributeError):
             visit_schedule_name = visit_schedule_name.split(".")[0]
-        except AttributeError:
-            pass
         visit_schedule = self.registry.get(visit_schedule_name)
         if not visit_schedule:
             visit_schedule_names = "', '".join(self.registry.keys())
@@ -88,10 +87,8 @@ class SiteVisitSchedules:
         """
         visit_schedules = {}
         for visit_schedule_name in visit_schedule_names:
-            try:
-                visit_schedule_name = visit_schedule_name.split(".")[0]
-            except AttributeError:
-                pass
+            with contextlib.suppress(AttributeError):
+                visit_schedule_name = visit_schedule_name.split(".")[0]  # noqa: PLW2901
             visit_schedules[visit_schedule_name] = self.get_visit_schedule(visit_schedule_name)
         return visit_schedules or self.registry
 
@@ -105,13 +102,13 @@ class SiteVisitSchedules:
             for schedule in visit_schedule.schedules.values():
                 try:
                     consent_definitions = getattr(schedule, attr)
-                except (AttributeError, TypeError):
+                except (AttributeError, TypeError) as e:
                     raise SiteVisitScheduleError(
                         f"Invalid attr for Schedule. See {schedule}. Got `{attr}`."
-                    )
+                    ) from e
                 for _cdef in consent_definitions:
                     if _cdef == cdef:
-                        ret.append([visit_schedule, schedule])
+                        ret.append([visit_schedule, schedule])  # noqa: PERF401
         if not ret:
             raise SiteVisitScheduleError(
                 f"Schedule not found. No schedule exists for {attr}={cdef}."

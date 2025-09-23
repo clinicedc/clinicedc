@@ -182,7 +182,7 @@ class SiteConsents:
 
     def get_consent_definition(
         self,
-        model: str = None,
+        model: str | None = None,
         report_datetime: datetime | None = None,
         version: str | None = None,
         site: SingleSite | None = None,
@@ -222,7 +222,7 @@ class SiteConsents:
 
     def get_consent_definitions(
         self,
-        model: str = None,
+        model: str | None = None,
         report_datetime: datetime | None = None,
         version: str | None = None,
         site: SingleSite | None = None,
@@ -268,10 +268,11 @@ class SiteConsents:
     def _filter_cdefs_by_model_or_raise(
         model: str | None,
         consent_definitions: list[ConsentDefinition],
-        errror_messages: list[str] = None,
+        errror_messages: list[str] | None = None,
         attrname: str | None = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
         attrname = attrname or "model"
+        errror_messages = errror_messages or []
         cdefs = consent_definitions
         if model:
             cdefs = [
@@ -291,17 +292,17 @@ class SiteConsents:
     def _filter_cdefs_by_screening_model_or_raise(
         model: str | None,
         consent_definitions: list[ConsentDefinition],
-        errror_messages: list[str] = None,
+        errror_messages: list[str] | None = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
+        errror_messages = errror_messages or []
         cdefs = consent_definitions
         if model:
             cdefs = []
             for cdef in consent_definitions:
                 if isinstance(cdef.screening_model, list):
                     for screening_model in cdef.screening_model:
-                        if model == screening_model:
-                            if cdef not in cdefs:
-                                cdefs.append(cdef)
+                        if model == screening_model and cdef not in cdefs:
+                            cdefs.append(cdef)
                 elif model == cdef.screening_model:
                     cdefs.append(cdef)
             if not cdefs:
@@ -311,12 +312,13 @@ class SiteConsents:
             errror_messages.append(f"model={model}")
         return cdefs, errror_messages
 
+    @staticmethod
     def _filter_cdefs_by_report_datetime_or_raise(
-        self,
         report_datetime: datetime | None,
         consent_definitions: list[ConsentDefinition],
-        errror_messages: list[str] = None,
+        errror_messages: list[str] | None = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
+        errror_messages = errror_messages or []
         cdefs = deepcopy(consent_definitions)
         if report_datetime:
             cdefs = [
@@ -340,8 +342,9 @@ class SiteConsents:
         self,
         version: str | None,
         consent_definitions: list[ConsentDefinition],
-        errror_messages: list[str] = None,
+        errror_messages: list[str] | None = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
+        errror_messages = errror_messages or []
         cdefs = consent_definitions
         if version:
             cdefs = [cdef for cdef in cdefs if cdef.version == version]
@@ -359,8 +362,9 @@ class SiteConsents:
         self,
         site: SingleSite | None,
         consent_definitions: list[ConsentDefinition],
-        errror_messages: list[str] = None,
+        errror_messages: list[str] | None = None,
     ) -> list[ConsentDefinition]:
+        errror_messages = errror_messages or []
         cdefs = consent_definitions
         if site:
             cdefs_copy = [cdef for cdef in consent_definitions]

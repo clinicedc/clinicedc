@@ -14,14 +14,14 @@ class RequisitionPanelLookupError(Exception):
     pass
 
 
-class InvalidProcessingProfile(Exception):
+class InvalidProcessingProfile(Exception):  # noqa: N818
     pass
 
 
 class PanelAttrs:
     """ "A simple class of panel name attributes."""
 
-    def __init__(self, name: str = None, alpha_code: str = None) -> None:
+    def __init__(self, name: str, alpha_code: str | None = None) -> None:
         title = " ".join(name.split("_")).title()
         alpha_code = alpha_code or ""
         self.abbreviation = f"{name[0:2]}{name[-1:]}".upper()
@@ -38,13 +38,13 @@ class RequisitionPanel:
 
     def __init__(
         self,
-        name: str = None,
-        processing_profile: ProcessingProfile = None,
-        verbose_name: str = None,
-        abbreviation: str = None,
-        utest_ids: list[str | tuple] = None,
-        is_poc=None,
-        reference_range_collection_name=None,
+        name: str | None = None,
+        processing_profile: ProcessingProfile | None = None,
+        verbose_name: str | None = None,
+        abbreviation: str | None = None,
+        utest_ids: tuple[str | tuple[str, ...], ...] | None = None,
+        is_poc: bool | str | None = None,
+        reference_range_collection_name: str | None = None,
     ) -> None:
         self._panel_model_obj = None
         self.name = name
@@ -95,7 +95,7 @@ class RequisitionPanel:
                 f"'{self.requisition_model}'. "
                 f"See {self!r} or the lab profile {self.lab_profile_name}."
                 f"Got {e}"
-            )
+            ) from e
         return requisition_model_cls
 
     @property

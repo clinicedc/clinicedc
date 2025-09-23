@@ -38,12 +38,12 @@ class ModelAdminFormInstructionsMixin:
         "additional questions may be "
         "required or some answers may need to be corrected."
     )
-    add_instructions = None
-    change_instructions = None
+    add_instructions = ()
+    change_instructions = ()
 
-    additional_instructions = None
+    additional_instructions = ()
     add_additional_instructions = None
-    change_additional_instructions = None
+    change_additional_instructions = ()
 
     def get_add_instructions(
         self, extra_context: dict | None, request: WSGIRequest | None = None
