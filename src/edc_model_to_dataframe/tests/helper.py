@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from edc_appointment.tests.helper import Helper as BaseHelper
-from model_to_dataframe_app.models import SubjectScreening
+from clinicedc_tests.helper import Helper as BaseHelper
+from clinicedc_tests.models import SubjectScreening
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment

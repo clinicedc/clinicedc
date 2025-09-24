@@ -481,7 +481,7 @@ wheels = [
 
 [[package]]
 name = "clinicedc"
-version = "2.0.16"
+version = "2.0.17"
 source = { editable = "." }
 dependencies = [
     { name = "argon2-cffi" },
@@ -680,9 +680,10 @@ test = [
 
 [[package]]
 name = "clinicedc-tests"
-version = "0.1.6"
+version = "0.1.7"
 source = { editable = "../clinicedc-tests" }
 dependencies = [
+    { name = "clinicedc" },
     { name = "faker" },
     { name = "model-bakery" },
     { name = "time-machine" },
@@ -691,6 +692,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "clinicedc", editable = "." },
     { name = "faker", specifier = ">=37.4.2" },
     { name = "model-bakery", specifier = ">=1.20.5" },
     { name = "time-machine", specifier = ">=2.16.0" },

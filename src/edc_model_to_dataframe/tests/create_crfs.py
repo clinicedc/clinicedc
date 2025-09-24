@@ -16,23 +16,23 @@ from .create_crfs_with_inlines import create_crf_with_inlines
 
 
 def create_crfs(i) -> None:
-    j = 0
-    for appointment in Appointment.objects.all().order_by("timepoint", "visit_code_sequence"):
-        j += 1
-        if j == i:
+    for ind1, appointment in enumerate(
+        Appointment.objects.all().order_by("timepoint", "visit_code_sequence")
+    ):
+        if ind1 == i:
             break
         SubjectVisit.objects.create(
             appointment=appointment,
             subject_identifier=appointment.subject_identifier,
             report_datetime=timezone.now(),
         )
-    j = 0
-    for subject_visit in SubjectVisit.objects.all().order_by(
-        "appointment__subject_identifier",
-        "appointment__timepoint",
-        "appointment__visit_code_sequence",
+    for ind2, subject_visit in enumerate(
+        SubjectVisit.objects.all().order_by(
+            "appointment__subject_identifier",
+            "appointment__timepoint",
+            "appointment__visit_code_sequence",
+        )
     ):
-        j += 1
         ListModel.objects.create(
             display_name=(
                 f"thing_one_{subject_visit.subject_identifier}"
@@ -57,7 +57,7 @@ def create_crfs(i) -> None:
             subject_visit=subject_visit,
             char1=f"char{subject_visit.appointment.visit_code}",
             date1=timezone.now(),
-            int1=j,
+            int1=ind2,
             uuid1=uuid.uuid4(),
         )
         CrfOne.objects.create(subject_visit=subject_visit, dte=timezone.now())

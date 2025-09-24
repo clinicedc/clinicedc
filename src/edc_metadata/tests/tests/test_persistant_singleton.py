@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from clinicedc_tests.models import CrfOne, SubjectConsent
+from clinicedc_tests.utils import get_appointment
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule2 import (
     get_visit_schedule,
 )
@@ -18,7 +19,6 @@ from model_bakery import baker
 
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_appointment.models import Appointment
-from edc_appointment.tests.utils import get_appointment
 from edc_consent import site_consents
 from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE

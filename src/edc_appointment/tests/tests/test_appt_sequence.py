@@ -7,6 +7,7 @@ import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import CrfSix
+from clinicedc_tests.utils import create_related_visit, get_visit_codes
 from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
     get_visit_schedule1,
     get_visit_schedule2,
@@ -19,11 +20,6 @@ from django.test import TestCase, override_settings, tag
 from edc_appointment.constants import INCOMPLETE_APPT, NEW_APPT
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
-from edc_appointment.tests.utils import (
-    create_related_visit,
-    create_unscheduled_appointments,
-    get_visit_codes,
-)
 from edc_appointment.utils import delete_appointment_in_sequence, get_next_appointment
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -46,7 +42,6 @@ class TestMoveAppointment(TestCase):
         import_holidays()
 
     def setUp(self):
-
         site_consents.registry = {}
         site_consents.register(consent_v1)
 
@@ -70,7 +65,7 @@ class TestMoveAppointment(TestCase):
 
         appointment = Appointment.objects.get(timepoint=0.0)
         create_related_visit(appointment)
-        create_unscheduled_appointments(appointment)
+        create_unscheduled_appointment_for_tests(appointment, count=3)
 
         self.appt_datetimes = [
             o.appt_datetime for o in Appointment.objects.all().order_by("appt_datetime")

@@ -1,27 +1,30 @@
 from __future__ import annotations
 
+import contextlib
 from copy import copy
-from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 from django.apps import apps as django_apps
+from django.contrib.sites.models import Site
 from django.core.exceptions import FieldError
 from django.db import OperationalError
+from django.db.models import QuerySet
 from django_crypto_fields.utils import get_encrypted_fields, has_encrypted_fields
 from django_pandas.io import read_frame
+from pandas import Series
+
+from edc_lab.models import Panel
+from edc_list_data.model_mixins import ListModelMixin, ListUuidModelMixin
+from edc_model.models import BaseUuidModel
+from edc_sites.model_mixins import SiteModelMixin
 
 from .constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
 
-if TYPE_CHECKING:
-    from django.db.models import QuerySet
 
-    from edc_model.models import BaseUuidModel
-    from edc_sites.model_mixins import SiteModelMixin
-
-    class MyModel(SiteModelMixin, BaseUuidModel):
-        class Meta(BaseUuidModel.Meta):
-            pass
+class MyModel(SiteModelMixin, BaseUuidModel):
+    class Meta(BaseUuidModel.Meta):
+        pass
 
 
 __all__ = ["ModelToDataframe", "ModelToDataframeError"]
@@ -52,16 +55,16 @@ class ModelToDataframe:
     See also: get_crf()
     """
 
-    sys_field_names: list[str] = [
+    sys_field_names: tuple[str, ...] = (
         "_state",
         "_user_container_instance",
         "_domain_cache",
         "using",
         "slug",
-    ]
-    edc_sys_columns: list[str] = SYSTEM_COLUMNS
-    action_item_columns: list[str] = ACTION_ITEM_COLUMNS
-    illegal_chars: dict[str] = {
+    )
+    edc_sys_columns: tuple[str, ...] = SYSTEM_COLUMNS
+    action_item_columns: tuple[str, ...] = ACTION_ITEM_COLUMNS
+    illegal_chars: dict[str, str] = {  # noqa: RUF012
         "\u2019": "'",
         "\u2018": "'",
         "\u201d": '"',
@@ -72,7 +75,7 @@ class ModelToDataframe:
     def __init__(
         self,
         model: str | None = None,
-        queryset: QuerySet | None = None,
+        queryset: [QuerySet] | None = None,
         query_filter: dict | None = None,
         decrypt: bool | None = None,
         drop_sys_columns: bool | None = None,
@@ -104,7 +107,7 @@ class ModelToDataframe:
         try:
             self.model_cls = django_apps.get_model(self.model)
         except LookupError as e:
-            raise LookupError(f"Model is {self.model}. Got `{e}`")
+            raise LookupError(f"Model is {self.model}. Got `{e}`") from e
         if self.sites:
             try:
                 if queryset:
@@ -151,7 +154,7 @@ class ModelToDataframe:
 
             dataframe = self.merge_m2ms(dataframe)
 
-            dataframe.rename(columns=self.columns, inplace=True)
+            dataframe = dataframe.rename(columns=self.columns)
 
             # remove timezone if asked
             if self.remove_timezone:
@@ -174,12 +177,12 @@ class ModelToDataframe:
                 dataframe[column] = dataframe[column].dt.total_seconds()
 
             # fillna
-            dataframe.fillna(value=np.nan, axis=0, inplace=True)
+            dataframe = dataframe.fillna(value=np.nan, axis=0)
 
             # remove illegal chars
             for column in list(dataframe.select_dtypes(include=["object"]).columns):
                 dataframe[column] = dataframe.apply(
-                    lambda x: self._clean_chars(x[column]), axis=1
+                    lambda x, col=column: self._clean_chars(x[col]), axis=1
                 )
             self._dataframe = dataframe
         return self._dataframe
@@ -188,7 +191,7 @@ class ModelToDataframe:
         queryset = self.queryset.values_list(*self.columns).filter(**self.query_filter)
         return pd.DataFrame(list(queryset), columns=[v for v in self.columns])
 
-    def get_dataframe_with_encrypted_fields(self, row_count: int) -> pd.DataFrame:
+    def get_dataframe_with_encrypted_fields(self, row_count: int) -> pd.DataFrame:  # noqa: ARG002
         df = read_frame(
             self.queryset.filter(**self.query_filter), verbose=self.read_frame_verbose
         )
@@ -233,28 +236,27 @@ class ModelToDataframe:
             dataframe = dataframe.merge(df_m2m, on="id", how="left")
         return dataframe
 
-    def _clean_chars(self, s):
-        try:
-            s = s if s else s
-        except ValueError:
-            pass
-        else:
-            if s:
-                for k, v in self.illegal_chars.items():
-                    try:
-                        s = s.replace(k, v)
-                    except (AttributeError, TypeError):
-                        break
-        return s
+    def _clean_chars(self, s: Series) -> Series:
+        if not s.empty:
+            for k, v in self.illegal_chars.items():
+                try:
+                    s = s.replace(k, v)
+                except (AttributeError, TypeError):
+                    break
+            return s
+        return np.nan
 
     def move_sys_columns_to_end(self, columns: dict[str, str]) -> dict[str, str]:
         system_columns = [
             f.name for f in self.model_cls._meta.get_fields() if f.name in SYSTEM_COLUMNS
         ]
         new_columns = {k: v for k, v in columns.items() if k not in system_columns}
-        if system_columns:
-            if len(new_columns.keys()) != len(columns.keys()) and not self.drop_sys_columns:
-                new_columns.update({k: k for k in system_columns})
+        if (
+            system_columns
+            and len(new_columns.keys()) != len(columns.keys())
+            and not self.drop_sys_columns
+        ):
+            new_columns.update({k: k for k in system_columns})
         return new_columns
 
     def move_action_item_columns(self, columns: dict[str, str]) -> dict[str, str]:
@@ -262,12 +264,11 @@ class ModelToDataframe:
             f.name for f in self.model_cls._meta.get_fields() if f.name in ACTION_ITEM_COLUMNS
         ]
         new_columns = {k: v for k, v in columns.items() if k not in ACTION_ITEM_COLUMNS}
-        if action_item_columns:
-            if (
-                len(new_columns.keys()) != len(columns.keys())
-                and not self.drop_action_item_columns
-            ):
-                new_columns.update({k: k for k in ACTION_ITEM_COLUMNS})
+        if action_item_columns and (
+            len(new_columns.keys()) != len(columns.keys())
+            and not self.drop_action_item_columns
+        ):
+            new_columns.update({k: k for k in ACTION_ITEM_COLUMNS})
         return new_columns
 
     @property
@@ -285,12 +286,10 @@ class ModelToDataframe:
             columns = {col: col for col in columns_list}
             for column_name in columns_list:
                 if column_name.endswith("_visit_id"):
-                    try:
+                    with contextlib.suppress(FieldError):
                         columns = self.add_columns_for_subject_visit(
                             column_name=column_name, columns=columns
                         )
-                    except FieldError:
-                        pass
                 if column_name.endswith("_requisition") or column_name.endswith(
                     "requisition_id"
                 ):
@@ -316,10 +315,8 @@ class ModelToDataframe:
             else:
                 raise
         for name in self.sys_field_names:
-            try:
+            with contextlib.suppress(ValueError):
                 columns_list.remove(name)
-            except ValueError:
-                pass
         if not self.decrypt:
             columns_list = [col for col in columns_list if col not in self.encrypted_columns]
         return columns_list
@@ -338,7 +335,6 @@ class ModelToDataframe:
     @property
     def list_columns(self) -> list[str]:
         """Return a list of column names with fk to a list model."""
-        from edc_list_data.model_mixins import ListModelMixin, ListUuidModelMixin
 
         if not self._list_columns:
             list_columns = []
@@ -348,14 +344,13 @@ class ModelToDataframe:
                     and fld_cls.related_model
                     and issubclass(fld_cls.related_model, (ListModelMixin, ListUuidModelMixin))
                 ):
-                    list_columns.append(fld_cls.attname)
+                    list_columns.append(fld_cls.attname)  # noqa: PERF401
             self._list_columns = list(set(list_columns))
         return self._list_columns
 
     @property
     def site_columns(self) -> list[str]:
         """Return a list of column names with fk to a site model."""
-        from django.contrib.sites.models import Site
 
         if not self._site_columns:
             site_columns = []
@@ -372,10 +367,6 @@ class ModelToDataframe:
     @property
     def other_columns(self) -> list[str]:
         """Return other column names with fk to a common models."""
-        from django.contrib.sites.models import Site
-
-        from edc_lab.models import Panel
-
         related_model = [Site, Panel]
         if not self._list_columns:
             list_columns = []

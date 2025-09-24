@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.utils import create_related_visit
 from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
     get_visit_schedule1,
 )
@@ -16,7 +17,6 @@ from django.utils import timezone
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
-from edc_appointment.tests.utils import create_related_visit
 from edc_appointment.utils import reset_visit_code_sequence_or_pass
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
