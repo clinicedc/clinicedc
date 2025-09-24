@@ -29,9 +29,9 @@ def get_related_visit(
         VisitTrackingCrfModelFormMixin
         | InlineCrfModelFormMixin
         | CrfFormValidator
-        | CrfFormValidatorMixin,
+        | CrfFormValidatorMixin
     ),
-    related_visit_model_attr: str = None,
+    related_visit_model_attr: str | None = None,
 ) -> RelatedVisitModel | None:
     """Returns the related visit model instance or None.
 

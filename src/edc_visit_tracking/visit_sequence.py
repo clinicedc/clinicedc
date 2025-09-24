@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from django.utils.translation import gettext_lazy as _
@@ -39,7 +40,7 @@ class VisitSequence:
         self.visit_code = self.appointment.visit_code
         self.visit_code_sequence = self.appointment.visit_code_sequence
 
-    def enforce_sequence(self, document_type: str = None) -> None:
+    def enforce_sequence(self, document_type: str | None = None) -> None:
         """Raises an exception if sequence is not adhered to; that is,
         the visit reports are not completed in order.
 
@@ -80,10 +81,8 @@ class VisitSequence:
             previous_visit_code = self.visit_code
         else:
             previous = self.appointment.schedule.visits.previous(self.visit_code)
-            try:
+            with contextlib.suppress(AttributeError):
                 previous_visit_code = previous.code
-            except AttributeError:
-                pass
         return previous_visit_code
 
     @property

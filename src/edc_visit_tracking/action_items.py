@@ -26,12 +26,11 @@ class VisitMissedAction(ActionWithNotification):
 
     def get_next_actions(self) -> list[Action]:
         next_actions: list[Action] = []
-        next_actions = self.append_to_next_if_required(
+        return self.append_to_next_if_required(
             next_actions=next_actions,
             action_name=self.get_loss_to_followup_action_name(),
             required=self.is_ltfu(),
         )
-        return next_actions
 
 
 class MissedVisitAction(VisitMissedAction):

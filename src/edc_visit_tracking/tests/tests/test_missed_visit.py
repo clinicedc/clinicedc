@@ -95,7 +95,7 @@ class TestVisit(TestCase):
         )
         visits = []
         for index in range(0, 4):
-            visits.append(
+            visits.append(  # noqa: PERF401
                 Visit(
                     code=f"{index + 1}000",
                     title=f"Day {index + 1}",

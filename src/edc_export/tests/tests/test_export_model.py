@@ -10,7 +10,7 @@ from clinicedc_tests.models import Crf, CrfEncrypted, CrfThree, ListModel, Subje
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from edc_consent import site_consents

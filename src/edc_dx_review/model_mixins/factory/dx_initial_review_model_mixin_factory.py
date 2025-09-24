@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date
 
 from django.db import models
+
 from edc_constants.choices import YES_NO
 from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_dx import Diagnoses
@@ -36,7 +37,7 @@ def dx_initial_review_methods_model_mixin_factory():
 
         @property
         def diagnoses(self):
-            subject_identifier = getattr(self, "subject_identifier")
+            subject_identifier = self.subject_identifier
             return Diagnoses(
                 subject_identifier=subject_identifier,
                 report_datetime=getattr(self, get_report_datetime_field_name()),

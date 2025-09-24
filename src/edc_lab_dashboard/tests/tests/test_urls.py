@@ -1,4 +1,4 @@
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 from django.urls import reverse
 
 

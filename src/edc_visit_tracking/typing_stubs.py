@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Generic, Protocol, Tuple, TypeVar
+from typing import Any, Protocol, TypeVar
 from uuid import UUID
 
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -33,10 +33,10 @@ class ModelBase(type):
     def _base_manager(cls: type[_Self]) -> BaseManager[_Self]: ...
 
 
-class Options(Generic[_M]):
+class Options([_M]):
     def label_lower(self) -> str: ...
 
-    def fields(self) -> Tuple[Field]: ...  # noqa
+    def fields(self) -> tuple[Field]: ...
 
     def get_fields(
         self, include_parents: bool = ..., include_hidden: bool = ...

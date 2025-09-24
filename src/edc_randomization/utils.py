@@ -25,6 +25,16 @@ class SubjectNotRandomization(Exception):  # noqa: N818
     pass
 
 
+def get_randomization_list_path() -> Path:
+    return Path(
+        getattr(
+            settings,
+            "EDC_RANDOMIZATION_LIST_PATH",
+            settings.ETC_DIR,
+        )
+    ).expanduser()
+
+
 def get_assignment_for_subject(
     subject_identifier: str,
     randomizer_name: str,

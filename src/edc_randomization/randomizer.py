@@ -22,6 +22,7 @@ from .randomization_list_importer import (
     RandomizationListAlreadyImported,
     RandomizationListImporter,
 )
+from .utils import get_randomization_list_path
 
 if TYPE_CHECKING:
     from edc_registration.models import RegisteredSubject
@@ -99,11 +100,7 @@ class Randomizer:
         DEFAULT_ASSIGNMENT_DESCRIPTION_MAP,
     )
     filename: str = "randomization_list.csv"
-    randomizationlist_folder: Path | str = getattr(
-        settings,
-        "EDC_RANDOMIZATION_LIST_PATH",
-        Path(settings.BASE_DIR).expanduser() / ".etc",
-    )
+    randomizationlist_folder: Path | str = get_randomization_list_path()
     extra_csv_fieldnames: list[str] | None = None
     trial_is_blinded: bool = True
     importer_cls: Any = RandomizationListImporter

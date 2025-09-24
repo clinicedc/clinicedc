@@ -35,10 +35,9 @@ def get_stata_labels_from_model(
         if suffix:
             if f"{fld.name}_{suffix}" in df.columns:
                 labels.update({f"{fld.name}_{suffix}": strip_html(str(fld.verbose_name)[:80])})
-        else:
-            if f"{fld.name}_{suffix}" in df.columns:
-                try:
-                    labels.update({fld.name: strip_html(str(fld.verbose_name)[:80])})
-                except AttributeError:
-                    pass
+        elif f"{fld.name}_{suffix}" in df.columns:
+            try:
+                labels.update({fld.name: strip_html(str(fld.verbose_name)[:80])})
+            except AttributeError:
+                pass
     return labels

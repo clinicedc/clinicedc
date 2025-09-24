@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
 from edc_model import models as edc_models

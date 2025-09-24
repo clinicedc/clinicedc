@@ -4,6 +4,7 @@ from datetime import date, datetime
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+
 from edc_constants.constants import GT, GTE, LT, LTE
 from edc_model import estimated_date_from_ago
 from edc_utils import convert_php_dateformat
@@ -23,7 +24,7 @@ class MedicalDateError(ValidationError):
 
     @property
     def message_dict(self):
-        getattr(self, "error_dict")
+        self.error_dict
         return {k: v[0] for k, v in dict(self).items()}
 
 

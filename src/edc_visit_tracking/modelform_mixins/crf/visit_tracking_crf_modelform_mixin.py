@@ -76,11 +76,11 @@ class VisitTrackingCrfModelFormMixin:
     def related_visit_model_attr(self) -> str:
         try:
             return self._meta.model.related_visit_model_attr()
-        except AttributeError:
+        except AttributeError as e:
             raise VisitTrackingCrfModelFormMixinError(
                 "Expected method `related_visit_model_attr`. Is this a CRF? "
                 f"See model {self._meta.model}"
-            )
+            ) from e
 
     def validate_visit_tracking(self: Any) -> None:
         # trigger a validation error if visit field is None
@@ -104,7 +104,7 @@ class VisitTrackingCrfModelFormMixin:
                 CrfReportDateBeforeStudyStart,
                 CrfReportDateIsFuture,
             ) as e:
-                raise forms.ValidationError({self.report_datetime_field_attr: str(e)})
+                raise forms.ValidationError({self.report_datetime_field_attr: str(e)}) from e
 
     def validate_visits_completed_in_order(self) -> None:
         """Asserts visits are completed in order."""
@@ -115,4 +115,4 @@ class VisitTrackingCrfModelFormMixin:
             try:
                 visit_sequence.enforce_sequence(document_type="CRF")
             except VisitSequenceError as e:
-                raise forms.ValidationError(str(e), code=INVALID_ERROR)
+                raise forms.ValidationError(str(e), code=INVALID_ERROR) from e

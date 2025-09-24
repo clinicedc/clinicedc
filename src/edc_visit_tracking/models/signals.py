@@ -18,7 +18,7 @@ def visit_tracking_check_in_progress_on_post_save(
     """Calls method on the visit tracking instance"""
     if not raw and not update_fields:
         try:
-            instance.appointment
+            instance.appointment  # noqa: B018
         except AttributeError:
             pass
         else:

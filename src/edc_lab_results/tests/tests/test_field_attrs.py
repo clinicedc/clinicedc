@@ -1,5 +1,5 @@
 from django.db.models import NOT_PROVIDED
-from django.test import override_settings, tag, TestCase
+from django.test import TestCase, override_settings, tag
 
 from edc_lab_results.model_mixin_factories import get_field_attrs_for_utestid
 from edc_reportable import MILLIMOLES_PER_LITER, MILLIMOLES_PER_LITER_DISPLAY

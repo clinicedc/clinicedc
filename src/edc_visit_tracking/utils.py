@@ -63,7 +63,7 @@ def get_subject_visit_missed_model() -> str:
     try:
         model = settings.SUBJECT_VISIT_MISSED_MODEL
     except AttributeError as e:
-        raise ImproperlyConfigured(f"{error_msg} Got {e}.")
+        raise ImproperlyConfigured(f"{error_msg} Got {e}.") from e
     else:
         if not model:
             raise ImproperlyConfigured(f"{error_msg} Got None.")

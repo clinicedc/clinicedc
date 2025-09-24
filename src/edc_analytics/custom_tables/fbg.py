@@ -1,4 +1,5 @@
 import pandas as pd
+
 from edc_constants.constants import FEMALE, MALE
 
 from ..constants import MEAN_95CI, N_ONLY, N_WITH_COL_PROP, N_WITH_ROW_PROP

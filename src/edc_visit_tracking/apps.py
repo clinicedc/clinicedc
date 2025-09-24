@@ -12,7 +12,7 @@ class AppConfig(DjangoAppConfig):
     verbose_name = "Edc Visit Tracking"
     report_datetime_allowance: int = 30
     allow_crf_report_datetime_before_visit: bool = False
-    reason_field: dict = {}
+    reason_field: dict = {}  # noqa: RUF012
 
     def ready(self):
         register(context_processors_check)

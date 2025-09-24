@@ -1,13 +1,13 @@
 from django import forms
-from django.test import tag, TestCase
-from edc_constants.constants import DM, HIV, HTN, NO, NOT_APPLICABLE, YES
-from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
-from edc_form_validators import FormValidator
+from django.test import TestCase, tag
+from dx_app.models import ClinicalReviewBaseline
 from model_bakery import baker
 
-from dx_app.models import ClinicalReviewBaseline
+from edc_constants.constants import DM, HIV, HTN, NO, NOT_APPLICABLE, YES
+from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
 from edc_dx import get_diagnosis_labels
 from edc_dx.form_validators import DiagnosisFormValidatorMixin
+from edc_form_validators import FormValidator
 
 from ..test_case_mixin import TestCaseMixin
 

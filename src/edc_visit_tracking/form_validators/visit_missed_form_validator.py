@@ -3,6 +3,8 @@ from edc_form_validators import FormValidator
 
 
 class VisitMissedFormValidator(FormValidator):
+    min_contact_attempts_count = 3
+
     def clean(self) -> None:
         self.applicable_if(YES, field="contact_attempted", field_applicable="contact_made")
         self.required_if(
@@ -16,7 +18,10 @@ class VisitMissedFormValidator(FormValidator):
             if self.cleaned_data.get("contact_attempts_count") is None
             else self.cleaned_data.get("contact_attempts_count")
         )
-        cond = self.cleaned_data.get("contact_made") == NO and contact_attempts_count < 3
+        cond = (
+            self.cleaned_data.get("contact_made") == NO
+            and contact_attempts_count < self.min_contact_attempts_count
+        )
         self.required_if_true(
             cond,
             field_required="contact_attempts_explained",
