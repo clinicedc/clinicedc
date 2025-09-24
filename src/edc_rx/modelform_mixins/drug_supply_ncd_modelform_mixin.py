@@ -17,7 +17,7 @@ class DrugSupplyNcdModelFormMixin:
             try:
                 validate_total_days(self, rx_days=int(data.get("rx_days")[0]))
             except TotalDaysMismatch as e:
-                raise forms.ValidationError(e)
+                raise forms.ValidationError(e) from e
 
         if (
             self.cleaned_data.get("drug")

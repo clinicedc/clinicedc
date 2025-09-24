@@ -66,6 +66,7 @@ class BloodPressureModelMixin(models.Model):
         choices=YES_NO,
         help_text="Based on the above readings. Severe HTN is any BP reading > 180/110mmHg",
         blank=True,
+        default="",
     )
 
     class Meta:

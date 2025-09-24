@@ -54,9 +54,7 @@ class HospitalizationModelMixin(NonUniqueSubjectIdentifierFieldMixin, models.Mod
     )
 
     narrative = models.TextField(
-        verbose_name="Narrative",
-        max_length=500,
-        blank=True,
+        verbose_name="Narrative", max_length=500, blank=True, default=""
     )
 
     class Meta(NonUniqueSubjectIdentifierFieldMixin.Meta):

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 
-class TotalDaysMismatch(Exception):
+class TotalDaysMismatch(Exception):  # noqa: N818
     pass
 
 

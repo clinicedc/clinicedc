@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
+from django.utils import timezone
 
 from edc_dx_review.medical_date import (
     BEFORE_AFTER_BOTH_FALSE,
@@ -10,14 +11,13 @@ from edc_dx_review.medical_date import (
     MedicalDateError,
     RxDate,
 )
-from edc_utils import get_utcnow
 
 
 @tag("dx_review")
 class TestMedicalDate(TestCase):
     def test_medical_date_error(self):
         cleaned_data = {
-            "report_datetime": get_utcnow(),
+            "report_datetime": timezone.now(),
             "medical_ago": "1y",
         }
         opts = dict(
@@ -38,8 +38,8 @@ class TestMedicalDate(TestCase):
 
     def test_medical_date(self):
         cleaned_data = {
-            "report_datetime": get_utcnow(),
-            "medical_date": (get_utcnow() - relativedelta(years=1)),
+            "report_datetime": timezone.now(),
+            "medical_date": (timezone.now() - relativedelta(years=1)),
         }
         opts = dict(
             before_reference=True,
@@ -54,13 +54,13 @@ class TestMedicalDate(TestCase):
             self.fail(f"Exception unexpectedly raised. Got {e}.")
 
         cleaned_data = {
-            "report_datetime": get_utcnow(),
+            "report_datetime": timezone.now(),
             "medical_ago": "1y",
         }
         MedicalDate("medical_date", "medical_ago", cleaned_data, **opts)
 
         cleaned_data = {
-            "report_datetime": get_utcnow(),
+            "report_datetime": timezone.now(),
             "medical_ago": "1y",
         }
         opts.update(before_reference=False)
@@ -69,8 +69,8 @@ class TestMedicalDate(TestCase):
         self.assertIn("supposed to be before or after", str(cm.exception))
 
         cleaned_data = {
-            "report_datetime": get_utcnow(),
-            "medical_date": get_utcnow(),
+            "report_datetime": timezone.now(),
+            "medical_date": timezone.now(),
         }
         opts.update(before_reference=True, inclusive=False)
         with self.assertRaises(MedicalDateError) as cm:
@@ -93,8 +93,8 @@ class TestMedicalDate(TestCase):
         self.assertEqual(BEFORE_AFTER_BOTH_FALSE, cm.exception.code)
 
         cleaned_data = {
-            "report_datetime": get_utcnow(),
-            "medical_date": get_utcnow() + relativedelta(days=1),
+            "report_datetime": timezone.now(),
+            "medical_date": timezone.now() + relativedelta(days=1),
         }
         opts.update(before_reference=False, after_reference=True, inclusive=True)
         try:
@@ -113,33 +113,33 @@ class TestMedicalDate(TestCase):
             DxDate(cleaned_data)
         self.assertIn("Complete the report date", str(cm.exception))
 
-        cleaned_data = {"report_datetime": get_utcnow()}
+        cleaned_data = {"report_datetime": timezone.now()}
         with self.assertRaises(MedicalDateError) as cm:
             DxDate(cleaned_data)
         self.assertIn("Complete the diagnosis date", str(cm.exception))
 
-        cleaned_data = {"report_datetime": get_utcnow(), "dx_ago": None}
+        cleaned_data = {"report_datetime": timezone.now(), "dx_ago": None}
         with self.assertRaises(MedicalDateError) as cm:
             DxDate(cleaned_data)
         self.assertIn("Complete the diagnosis date", str(cm.exception))
 
-        cleaned_data = {"report_datetime": get_utcnow(), "dx_ago": "1y"}
+        cleaned_data = {"report_datetime": timezone.now(), "dx_ago": "1y"}
         try:
             DxDate(cleaned_data)
         except MedicalDateError as e:
             self.fail(f"Exception unexpectedly raised. Got{e}")
 
         cleaned_data = {
-            "report_datetime": get_utcnow() - relativedelta(years=2),
-            "dx_date": get_utcnow().date(),
+            "report_datetime": timezone.now() - relativedelta(years=2),
+            "dx_date": timezone.now().date(),
         }
         with self.assertRaises(MedicalDateError) as cm:
             DxDate(cleaned_data)
         self.assertIn("date must be on or before", str(cm.exception))
 
         cleaned_data = {
-            "report_datetime": get_utcnow(),
-            "dx_date": get_utcnow().date() - relativedelta(years=3),
+            "report_datetime": timezone.now(),
+            "dx_date": timezone.now().date() - relativedelta(years=3),
         }
         try:
             DxDate(cleaned_data)
@@ -147,8 +147,8 @@ class TestMedicalDate(TestCase):
             self.fail(f"Exception unexpectedly raised. Got{e}")
 
         cleaned_data = {
-            "report_datetime": get_utcnow(),
-            "dx_date": get_utcnow().date() - relativedelta(years=3),
+            "report_datetime": timezone.now(),
+            "dx_date": timezone.now().date() - relativedelta(years=3),
             "dx_ago": "1y",
         }
         with self.assertRaises(MedicalDateError) as cm:
@@ -156,8 +156,8 @@ class TestMedicalDate(TestCase):
         self.assertIn("Date conflict", str(cm.exception))
 
         cleaned_data = {
-            "report_datetime": get_utcnow(),
-            "dx_date": get_utcnow().date() - relativedelta(years=3),
+            "report_datetime": timezone.now(),
+            "dx_date": timezone.now().date() - relativedelta(years=3),
             "dx_ago": "1y",
         }
         with self.assertRaises(MedicalDateError) as cm:
@@ -166,22 +166,22 @@ class TestMedicalDate(TestCase):
 
     def test_rx_date(self):
         cleaned_data = {
-            "report_datetime": get_utcnow(),
+            "report_datetime": timezone.now(),
             "dx_ago": "3y",
         }
         dx_date = DxDate(cleaned_data)
         cleaned_data = {
-            "report_datetime": get_utcnow(),
-            "dx_date": get_utcnow().date() - relativedelta(years=3),
+            "report_datetime": timezone.now(),
+            "dx_date": timezone.now().date() - relativedelta(years=3),
         }
         with self.assertRaises(MedicalDateError) as cm:
             RxDate(cleaned_data, reference_date=dx_date)
         self.assertIn("Complete the treatment date", str(cm.exception))
 
         cleaned_data = {
-            "report_datetime": get_utcnow(),
-            "dx_date": get_utcnow().date() - relativedelta(years=3),
-            "rx_init_date": get_utcnow().date()
+            "report_datetime": timezone.now(),
+            "dx_date": timezone.now().date() - relativedelta(years=3),
+            "rx_init_date": timezone.now().date()
             - relativedelta(years=3)
             - relativedelta(days=1),
         }
@@ -190,9 +190,9 @@ class TestMedicalDate(TestCase):
         self.assertIn("date must be on or after", str(cm.exception))
 
         cleaned_data = {
-            "report_datetime": get_utcnow(),
-            "dx_date": get_utcnow().date() - relativedelta(years=3),
-            "rx_init_date": get_utcnow().date()
+            "report_datetime": timezone.now(),
+            "dx_date": timezone.now().date() - relativedelta(years=3),
+            "rx_init_date": timezone.now().date()
             - relativedelta(years=3)
             + relativedelta(days=1),
         }

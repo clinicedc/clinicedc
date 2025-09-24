@@ -2,7 +2,7 @@
 
 import django_audit_fields.fields.hostname_modification_field
 import django_audit_fields.fields.userfield
-import django_audit_fields.models.audit_model_mixin
+import django.utils.timezone
 from django.db import migrations, models
 import django.utils.timezone
 

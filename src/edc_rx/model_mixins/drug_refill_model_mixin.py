@@ -1,14 +1,16 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from edc_constants.choices import YES_NO
+from edc_constants.constants import NULL_STRING
 
 
 class DrugRefillModelMixin(models.Model):
     rx_other = models.CharField(
         verbose_name="If other, please specify ...",
         max_length=150,
-        null=True,
+        default=NULL_STRING,
         blank=True,
     )
 
@@ -31,7 +33,7 @@ class DrugRefillModelMixin(models.Model):
     modifications_other = models.CharField(
         verbose_name="If other, please specify ...",
         max_length=150,
-        null=True,
+        default=NULL_STRING,
         blank=True,
     )
 
@@ -44,7 +46,7 @@ class DrugRefillModelMixin(models.Model):
     modifications_reason_other = models.CharField(
         verbose_name="If other, please specify ...",
         max_length=150,
-        null=True,
+        default=NULL_STRING,
         blank=True,
     )
 

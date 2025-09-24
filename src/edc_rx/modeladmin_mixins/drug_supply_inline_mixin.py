@@ -19,7 +19,7 @@ class DrugSupplyInlineMixin:
         ],
     )
 
-    def get_formset(self, request, obj=None, **kwargs):
+    def get_formset(self, request, obj=None, **kwargs):  # noqa: ARG002
         formset = super().get_formset(request, obj=None, **kwargs)
         formset.validate_min = True
         return formset
