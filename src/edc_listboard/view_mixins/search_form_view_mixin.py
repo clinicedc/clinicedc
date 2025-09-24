@@ -28,9 +28,8 @@ class SearchFormViewMixin:
             )
         except NoReverseMatch as e:
             raise SearchFormViewError(
-                f"{e}. Expected one of {url_names.registry}. "
-                f"See attribute 'search_form_url'."
-            )
+                f"{e}. Expected one of {url_names.registry}. See attribute 'search_form_url'."
+            ) from e
         return f"{url}{self.querystring}"
 
     @property

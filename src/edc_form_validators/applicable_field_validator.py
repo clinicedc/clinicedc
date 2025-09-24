@@ -117,8 +117,7 @@ class ApplicableFieldValidator(BaseFormValidator):
             field_applicable_value = self.get(field_applicable)
 
             if field_value in responses and (
-                field_applicable_value in (NULL_STRING, not_applicable)
-                or field_applicable_value is None
+                field_applicable_value in (None, NULL_STRING, not_applicable)
             ):
                 self.raise_applicable(field_applicable, msg=msg, applicable_msg=applicable_msg)
             elif (
