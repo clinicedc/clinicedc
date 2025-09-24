@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from datetime import datetime
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
@@ -39,7 +40,7 @@ class AppointmentsCreator:
         visit_schedule: VisitSchedule | None = None,
         schedule: Schedule | None = None,
         report_datetime: datetime | None = None,
-        appointment_model: str = None,
+        appointment_model: str | None = None,
         site_id: int | None = None,
         skip_baseline: bool | None = None,
     ):
@@ -103,13 +104,12 @@ class AppointmentsCreator:
         else:
             self.delete_appointments_after_timepoint(last_timepoint)
 
-        appointments = self.appointment_model_cls.objects.filter(
+        return self.appointment_model_cls.objects.filter(
             subject_identifier=self.subject_identifier,
             site_id=self.site_id,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
         ).order_by("timepoint")
-        return appointments
 
     def update_or_create_appointment(self, **kwargs) -> Appointment:
         """Updates or creates an appointment for this subject
@@ -133,10 +133,8 @@ class AppointmentsCreator:
             schedule_name=self.schedule.name,
         )
         for appointment in appointments:
-            try:
+            with contextlib.suppress(ProtectedError):
                 appointment.delete()
-            except ProtectedError:
-                pass
 
     def delete_appointments_after_timepoint(self, last_timepoint) -> None:
         """Delete appointments after a given timepoint.
@@ -151,7 +149,5 @@ class AppointmentsCreator:
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
         ):
-            try:
+            with contextlib.suppress(ProtectedError):
                 appointment.delete()
-            except ProtectedError:
-                pass
