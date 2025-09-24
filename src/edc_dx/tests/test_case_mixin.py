@@ -1,5 +1,9 @@
 from django.apps import apps as django_apps
 from django.test import TestCase
+from django.utils import timezone
+from dx_app.models import SubjectConsent
+from dx_app.visit_schedule import visit_schedule
+
 from edc_action_item import site_action_items
 from edc_appointment.models import Appointment
 from edc_facility.import_holidays import import_holidays
@@ -7,12 +11,8 @@ from edc_registration.models import RegisteredSubject
 from edc_reportable.data.grading_data.daids_july_2017 import grading_data
 from edc_reportable.data.normal_data.africa import normal_data
 from edc_reportable.utils import load_reference_ranges
-from edc_utils import get_utcnow
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-
-from dx_app.models import SubjectConsent
-from dx_app.visit_schedule import visit_schedule
 
 
 class TestCaseMixin(TestCase):
@@ -35,7 +35,7 @@ class TestCaseMixin(TestCase):
     def enroll(subject_identifier=None):
         subject_identifier = subject_identifier or "1111111"
         subject_consent = SubjectConsent.objects.create(
-            subject_identifier=subject_identifier, consent_datetime=get_utcnow()
+            subject_identifier=subject_identifier, consent_datetime=timezone.now()
         )
         _, schedule = site_visit_schedules.get_by_onschedule_model("dx_app.onschedule")
         schedule.put_on_schedule(
@@ -59,7 +59,7 @@ class TestCaseMixin(TestCase):
         self.subject_visit_baseline = django_apps.get_model(
             "edc_visit_tracking.subjectvisit"
         ).objects.create(
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             appointment=appointment,
             reason=SCHEDULED,
             visit_code="1000",
@@ -74,7 +74,7 @@ class TestCaseMixin(TestCase):
         self.subject_visit_followup = django_apps.get_model(
             "edc_visit_tracking.subjectvisit"
         ).objects.create(
-            report_datetime=get_utcnow(),
+            report_datetime=timezone.now(),
             appointment=appointment,
             reason=SCHEDULED,
             visit_code="1010",
