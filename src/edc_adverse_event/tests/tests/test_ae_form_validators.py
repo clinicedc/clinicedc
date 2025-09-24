@@ -1,4 +1,5 @@
 from clinicedc_tests.action_items import register_actions
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.sites import all_sites
 from django import forms
 from django.core.exceptions import ValidationError
@@ -15,14 +16,12 @@ from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import NOT_REQUIRED_ERROR
 from edc_sites.site import sites as site_sites
-from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("adverse_event")
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=30)
 class TestFormValidators(SiteTestCaseMixin, TestCase):
-
     @classmethod
     def setUpTestData(cls):
         import_holidays()

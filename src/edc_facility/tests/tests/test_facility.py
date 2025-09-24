@@ -1,6 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta, weekday
 from django.test import TestCase
@@ -11,7 +12,6 @@ from edc_facility.facility import Facility
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import Holiday
 from edc_sites.site import sites as site_sites
-from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 
 

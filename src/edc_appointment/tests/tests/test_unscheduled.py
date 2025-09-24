@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
     get_visit_schedule1,
     get_visit_schedule2,
@@ -29,7 +30,6 @@ from edc_appointment.exceptions import (
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_sites.tests import SiteTestCaseMixin
 from edc_visit_schedule.exceptions import ScheduleError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED

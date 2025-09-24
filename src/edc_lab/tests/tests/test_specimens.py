@@ -5,6 +5,7 @@ import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.labs import lab_profile, vl_panel
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.models import SubjectRequisition
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
@@ -21,7 +22,6 @@ from edc_lab.lab import AliquotCreator as AliquotCreatorBase
 from edc_lab.lab import Specimen as SpecimenBase
 from edc_lab.lab import SpecimenNotDrawnError, SpecimenProcessor
 from edc_sites.site import sites as site_sites
-from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED

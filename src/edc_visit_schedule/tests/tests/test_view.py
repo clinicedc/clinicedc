@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.sites import all_sites
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -12,7 +13,6 @@ from django.views.generic.base import ContextMixin
 
 from edc_consent.site_consents import site_consents
 from edc_sites.site import sites as site_sites
-from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.models import OnSchedule
 from edc_visit_schedule.schedule import Schedule
@@ -22,7 +22,6 @@ from edc_visit_schedule.visit_schedule import VisitSchedule
 
 
 class MyView(VisitScheduleViewMixin, ContextMixin):
-
     def __init__(self, **kwargs):
         self.subject_identifier = None
         super().__init__(**kwargs)
@@ -33,7 +32,6 @@ class MyView(VisitScheduleViewMixin, ContextMixin):
 
 
 class MyViewCurrent(VisitScheduleViewMixin, ContextMixin):
-
     def __init__(self, **kwargs):
         self.subject_identifier = None
         super().__init__(**kwargs)
