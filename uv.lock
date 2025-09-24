@@ -680,17 +680,18 @@ test = [
 
 [[package]]
 name = "clinicedc-tests"
-version = "0.1.6"
+version = "0.1.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "clinicedc" },
     { name = "faker" },
     { name = "model-bakery" },
     { name = "time-machine" },
     { name = "tox-uv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4c/3d/25884b16a1623250edbb3a140603ed416b5c5e87c29cb0c9cbc64675866a/clinicedc_tests-0.1.6.tar.gz", hash = "sha256:e45705d0cc24c6932f8af8816aaad84cc86c2ae0174d074b6a26fcdb928ca0f5", size = 51864, upload-time = "2025-09-22T12:01:23.949Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/42/ff/6548bd9c76dd8e4dfb31e9f4aa32a273fdf304ce568577466ef11ec86f65/clinicedc_tests-0.1.7.tar.gz", hash = "sha256:d093d16c1569b9edd9a6aa17237ff7820c333477a4588aa64dfe80b9987c191a", size = 52348, upload-time = "2025-09-24T20:00:55.43Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/41/53/b7bd206b1b6253669e507a7f5d63a6e98a8ecdb4788c15ffc97e375f5b3f/clinicedc_tests-0.1.6-py3-none-any.whl", hash = "sha256:a9acb347679695457211e3bdeda0dec9531ef251dc92f72e857cf651515533be", size = 85671, upload-time = "2025-09-22T12:01:22.983Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/1f/d705cbabdbe8cb9d08c55c56d72282561cd27e57b3907d6569f3edf421b5/clinicedc_tests-0.1.7-py3-none-any.whl", hash = "sha256:d33afed998b6573f026b74ad7994ed011c84ca8d4be345f9608206499a871a05", size = 87275, upload-time = "2025-09-24T20:00:53.617Z" },
 ]
 
 [[package]]
