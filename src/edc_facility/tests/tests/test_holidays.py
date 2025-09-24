@@ -1,6 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.sites import all_sites
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -10,7 +11,6 @@ from edc_facility.exceptions import FacilitySiteError
 from edc_facility.holidays import Holidays
 from edc_facility.import_holidays import import_holidays
 from edc_sites.site import sites as site_sites
-from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 
 

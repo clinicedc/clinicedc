@@ -1,6 +1,7 @@
 import tempfile
 from pathlib import Path
 
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.utils import get_user_for_tests
 from django.test import TestCase
 from django.test.utils import override_settings, tag
@@ -19,7 +20,6 @@ from edc_lab.models import (
 )
 from edc_lab.pdf_reports import ManifestPdfReportError
 from edc_pdf_reports.utils import write_model_to_insecure_pdf
-from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 
 

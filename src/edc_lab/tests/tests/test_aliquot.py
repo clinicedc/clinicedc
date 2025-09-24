@@ -1,9 +1,9 @@
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from django.db.utils import IntegrityError
 from django.test import TestCase, override_settings, tag
 
 from edc_lab.lab import AliquotCreator, AliquotCreatorError
 from edc_lab.models import Aliquot
-from edc_sites.tests import SiteTestCaseMixin
 
 
 @tag("lab")

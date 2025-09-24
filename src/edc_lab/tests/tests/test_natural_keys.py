@@ -1,7 +1,6 @@
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.utils import NaturalKeyTestHelper
 from django.test import TestCase, override_settings, tag
-
-from edc_sites.tests import SiteTestCaseMixin
 
 
 @tag("lab")

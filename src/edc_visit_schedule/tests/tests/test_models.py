@@ -5,6 +5,7 @@ import time_machine
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent5_v1, consent6_v1, consent7_v1, consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.models import (
     BadOffSchedule1,
     CrfOne,
@@ -17,7 +18,7 @@ from clinicedc_tests.models import (
 )
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
-from clinicedc_tests.visit_schedules.visit_schedule_visitschedule import (
+from clinicedc_tests.visit_schedules.visit_schedule_visitschedule.visit_schedule import (
     visit_schedule5,
     visit_schedule6,
     visit_schedule7,
@@ -31,7 +32,6 @@ from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_sites.site import sites as site_sites
-from edc_sites.tests import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.constants import OFF_SCHEDULE, ON_SCHEDULE
 from edc_visit_schedule.models import OnSchedule, SubjectScheduleHistory
