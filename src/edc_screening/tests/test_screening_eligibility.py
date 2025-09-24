@@ -1,5 +1,5 @@
 from clinicedc_tests.models import SubjectScreening
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 
 from edc_constants.constants import NO, TBD, YES
 from edc_screening.exceptions import (

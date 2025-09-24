@@ -1,13 +1,13 @@
 from django.contrib.sites.models import Site
-from edc_constants.constants import NO
-from model_bakery.recipe import Recipe
-
 from dx_app.models import (
     ClinicalReviewBaseline,
     DmInitialReview,
     HivInitialReview,
     HtnInitialReview,
 )
+from model_bakery.recipe import Recipe
+
+from edc_constants.constants import NO
 
 clinicalreviewbaseline = Recipe(
     ClinicalReviewBaseline,

@@ -1,10 +1,10 @@
-from typing import Dict
 
 from django.contrib import admin
+
 from edc_dx import get_diagnosis_labels_prefixes
 
 
-def get_clinical_review_cond_radio_fields() -> Dict[str, int]:
+def get_clinical_review_cond_radio_fields() -> dict[str, int]:
     radio_fields = {}
     for prefix in get_diagnosis_labels_prefixes():
         cond = prefix.lower()
@@ -17,7 +17,7 @@ def get_clinical_review_cond_radio_fields() -> Dict[str, int]:
     return radio_fields
 
 
-def get_clinical_review_baseline_cond_radio_fields() -> Dict[str, int]:
+def get_clinical_review_baseline_cond_radio_fields() -> dict[str, int]:
     radio_fields = {}
     for prefix in get_diagnosis_labels_prefixes():
         cond = prefix.lower()

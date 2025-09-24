@@ -1,4 +1,5 @@
 from django import forms
+
 from edc_constants.constants import YES
 
 from ..diagnoses import (

@@ -2,11 +2,10 @@ from .constants import DEFERRED_VISIT, LOST_VISIT, MISSED_VISIT, SCHEDULED, UNSC
 
 
 def constants(request) -> dict:
-    dct = dict(
+    return dict(
         DEFERRED_VISIT=DEFERRED_VISIT,
         LOST_VISIT=LOST_VISIT,
         MISSED_VISIT=MISSED_VISIT,
         SCHEDULED=SCHEDULED,
         UNSCHEDULED=UNSCHEDULED,
     )
-    return dct

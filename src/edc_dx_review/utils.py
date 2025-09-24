@@ -7,6 +7,7 @@ from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+
 from edc_constants.constants import HIV, YES
 from edc_model.utils import model_exists_or_raise
 from edc_visit_schedule.baseline import VisitScheduleBaselineError
@@ -78,7 +79,7 @@ def get_extra_attrs():
         "review": "review",
     }
     try:
-        data = getattr(settings, "EDC_DX_REVIEW_EXTRA_ATTRS")
+        data = settings.EDC_DX_REVIEW_EXTRA_ATTRS
     except AttributeError:
         pass
     else:

@@ -1,10 +1,10 @@
 import pandas as pd
 from django.test import TestCase
-from edc_constants.constants import FEMALE, MALE
 
 from edc_analytics import RowStatisticsWithGender
 from edc_analytics.constants import COUNT_COLUMN, MEAN_RANGE, MEDIAN_IQR, MEDIAN_RANGE
 from edc_analytics.row.row_statistics import RowStatistics
+from edc_constants.constants import FEMALE, MALE
 
 
 class TestTablesTestCase(TestCase):

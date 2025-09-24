@@ -25,7 +25,7 @@ def get_related_visit_model_attr(model_cls) -> str:
             fld_cls.related_model is not None
             and fld_cls.related_model == related_visit_model_cls
         ):
-            attrs.append(fld_cls.name)
+            attrs.append(fld_cls.name)  # noqa: PERF401
     if len(attrs) > 1:
         raise RelatedVisitFieldError(
             f"More than one field is related to the visit model. See {model_cls}. "

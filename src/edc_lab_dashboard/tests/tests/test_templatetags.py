@@ -1,4 +1,4 @@
-from django.test import tag, TestCase, override_settings
+from django.test import TestCase, override_settings, tag
 
 from edc_lab.models import Box, BoxItem, BoxType
 from edc_lab_dashboard.templatetags.edc_lab_extras import verified

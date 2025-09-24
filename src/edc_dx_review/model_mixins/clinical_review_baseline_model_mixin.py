@@ -1,4 +1,5 @@
 from django.db import models
+
 from edc_constants.choices import YES_NO
 from edc_constants.constants import YES
 from edc_crf.model_mixins import SingletonCrfModelMixin

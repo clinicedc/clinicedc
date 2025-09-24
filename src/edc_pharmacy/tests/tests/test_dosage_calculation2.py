@@ -1,5 +1,5 @@
 from clinicedc_tests.sites import all_sites
-from django.test import override_settings, TestCase, tag
+from django.test import TestCase, override_settings, tag
 
 from edc_facility.import_holidays import import_holidays
 from edc_list_data import site_list_data

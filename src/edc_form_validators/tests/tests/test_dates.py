@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django import forms
-from django.test import tag, TestCase
+from django.test import TestCase, tag
 from django.utils import timezone
 
 from edc_form_validators.date_validator import DateValidatorError

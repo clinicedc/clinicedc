@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.db import models
+
 from edc_constants.choices import YES_NO
 from edc_constants.constants import CHOL, DM, HIV, HTN, NO
 from edc_dx import get_diagnosis_labels

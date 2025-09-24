@@ -7,7 +7,7 @@ from clinicedc_tests.helper import Helper
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
-from django.test import override_settings, TestCase, tag
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_consent import site_consents

@@ -1,4 +1,4 @@
-from typing import Iterable
+from collections.abc import Iterable
 
 from .row_definition import RowDefinition
 from .row_statistics import RowStatistics

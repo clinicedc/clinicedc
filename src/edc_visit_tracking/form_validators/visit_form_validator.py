@@ -168,41 +168,44 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         """Asserts the report_datetime is not before the
         appt_datetime.
         """
-        if report_datetime_local := self.report_datetime:
-            if report_datetime_local.date() < self.appt_datetime_local.date():
-                appt_datetime_str = formatted_datetime(
-                    self.appt_datetime_local, format_as_date=True
-                )
-                self.raise_validation_error(
-                    {
-                        "report_datetime": (
-                            "Invalid. Cannot be before appointment date. "
-                            f"Got appointment date {appt_datetime_str}"
-                        )
-                    },
-                    INVALID_ERROR,
-                )
+        if (report_datetime_local := self.report_datetime) and (
+            report_datetime_local.date() < self.appt_datetime_local.date()
+        ):
+            appt_datetime_str = formatted_datetime(
+                self.appt_datetime_local, format_as_date=True
+            )
+            self.raise_validation_error(
+                {
+                    "report_datetime": (
+                        "Invalid. Cannot be before appointment date. "
+                        f"Got appointment date {appt_datetime_str}"
+                    )
+                },
+                INVALID_ERROR,
+            )
 
     def validate_visit_datetime_matches_appt_datetime_at_baseline(self) -> None:
         """Asserts the report_datetime matches the appt_datetime
         as baseline.
         """
-        if is_baseline(instance=self.appointment):
-            if report_datetime_local := self.report_datetime:
-                if report_datetime_local.date() != self.appt_datetime_local.date():
-                    appt_datetime_str = formatted_datetime(
-                        self.appt_datetime_local, format_as_date=True
+        if (
+            (is_baseline(instance=self.appointment))
+            and (report_datetime_local := self.report_datetime)
+            and (report_datetime_local.date() != self.appt_datetime_local.date())
+        ):
+            appt_datetime_str = formatted_datetime(
+                self.appt_datetime_local, format_as_date=True
+            )
+            self.raise_validation_error(
+                {
+                    "report_datetime": (
+                        "Invalid. Must match appointment date at baseline. "
+                        "If necessary, change the appointment date and "
+                        f"try again. Got appointment date {appt_datetime_str}"
                     )
-                    self.raise_validation_error(
-                        {
-                            "report_datetime": (
-                                "Invalid. Must match appointment date at baseline. "
-                                "If necessary, change the appointment date and "
-                                f"try again. Got appointment date {appt_datetime_str}"
-                            )
-                        },
-                        INVALID_ERROR,
-                    )
+                },
+                INVALID_ERROR,
+            )
 
     def validate_visits_completed_in_order(self) -> None:
         """Asserts visits are completed in order."""
@@ -210,7 +213,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         try:
             visit_sequence.enforce_sequence()
         except VisitSequenceError as e:
-            raise forms.ValidationError(e, code=INVALID_ERROR)
+            raise forms.ValidationError(e, code=INVALID_ERROR) from e
 
     def validate_visit_code_sequence_and_reason(self) -> None:
         """Asserts the `reason` makes sense relative to the
@@ -234,7 +237,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                 and EDC_VISIT_TRACKING_ALLOW_MISSED_UNSCHEDULED is False
             ):
                 raise forms.ValidationError(
-                    {"reason": ("Invalid. This is an unscheduled visit. See appointment.")},
+                    {"reason": "Invalid. This is an unscheduled visit. See appointment."},
                     code=INVALID_ERROR,
                 )
             # raise if CRF metadata exist
@@ -267,23 +270,25 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
                 field_required="reason_missed_other",
             )
 
-        if self.validate_unscheduled_visit_reason:
-            if "reason_unscheduled" in self.cleaned_data:
-                self.applicable_if(
-                    UNSCHEDULED,
-                    field="reason",
-                    field_applicable="reason_unscheduled",
-                )
+        if (
+            self.validate_unscheduled_visit_reason
+            and "reason_unscheduled" in self.cleaned_data
+        ):
+            self.applicable_if(
+                UNSCHEDULED,
+                field="reason",
+                field_applicable="reason_unscheduled",
+            )
 
-                self.required_if(
-                    OTHER,
-                    field="reason_unscheduled",
-                    field_required="reason_unscheduled_other",
-                )
+            self.required_if(
+                OTHER,
+                field="reason_unscheduled",
+                field_required="reason_unscheduled_other",
+            )
 
     def metadata_exists_for(
         self,
-        entry_status: str = None,
+        entry_status: str | None = None,
         filter_models: list[str] | None = None,
         exclude_models: list[str] | None = None,
     ) -> int:
@@ -291,8 +296,9 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         the given entry_status.
         """
         exclude_opts: dict = {}
+        entry_status = entry_status or KEYED
         filter_opts = deepcopy(self.crf_filter_options)
-        filter_opts.update(entry_status=entry_status or KEYED)
+        filter_opts.update(entry_status=entry_status)
         if filter_models:
             filter_opts.update(model__in=filter_models)
         if exclude_models:

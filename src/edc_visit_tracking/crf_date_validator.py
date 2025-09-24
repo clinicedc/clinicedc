@@ -14,11 +14,11 @@ class CrfReportDateAllowanceError(Exception):
     pass
 
 
-class CrfReportDateBeforeStudyStart(Exception):
+class CrfReportDateBeforeStudyStart(Exception):  # noqa: N818
     pass
 
 
-class CrfReportDateIsFuture(Exception):
+class CrfReportDateIsFuture(Exception):  # noqa: N818
     pass
 
 
@@ -58,13 +58,13 @@ class CrfDateValidator:
             datetime_not_before_study_start(self.report_datetime)
         except ValidationError as e:
             message = e.message if hasattr(e, "message") else str(e)
-            raise CrfReportDateBeforeStudyStart(message)
+            raise CrfReportDateBeforeStudyStart(message) from e
         # datetime_not_future
         try:
             datetime_not_future(self.report_datetime)
         except ValidationError as e:
             message = e.message if hasattr(e, "message") else str(e)
-            raise CrfReportDateIsFuture(message)
+            raise CrfReportDateIsFuture(message) from e
 
         formatted_visit_datetime = self.visit_report_datetime.strftime(
             convert_php_dateformat(settings.SHORT_DATE_FORMAT)

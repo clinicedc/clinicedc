@@ -32,7 +32,7 @@ utc_tz = ZoneInfo("UTC")
 
 @admin.register(CrfThree, site=edc_visit_tracking_admin)
 class CrfThreeModelAdmin(CrfModelAdminMixin, ModelAdminAuditFieldsMixin, admin.ModelAdmin):
-    def get_field_queryset(self, db, db_field, request):
+    def get_field_queryset(self, db, db_field, request):  # noqa: ARG002
         return CrfOne.objects.all()
 
 
