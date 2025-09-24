@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.utils import create_related_visit
 from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
     get_visit_schedule3,
 )
@@ -15,7 +16,6 @@ from django.test import TestCase, override_settings, tag
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
-from edc_appointment.tests.utils import create_related_visit
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -34,7 +34,6 @@ class TestInsertUnscheduled(TestCase):
     helper_cls = Helper
 
     def setUp(self):
-
         site_consents.registry = {}
         site_consents.register(consent_v1)
 
@@ -99,7 +98,6 @@ class TestInsertUnscheduled(TestCase):
         ]
 
     def test_insert_unscheduled_between_related_visits(self):
-
         appt1030 = Appointment.objects.get(
             visit_code="1030",
             visit_code_sequence=0,

@@ -7,7 +7,7 @@ __all__ = ["read_frame_edc"]
 
 
 def read_frame_edc(
-    queryset: QuerySet | str = None,
+    queryset: [QuerySet] | str | None = None,
     drop_sys_columns: bool | None = None,
     drop_action_item_columns: bool | None = None,
     read_frame_verbose: bool | None = None,
