@@ -45,7 +45,7 @@ class ScheduleNameError(Exception):
     pass
 
 
-class AlreadyRegisteredVisit(Exception):
+class AlreadyRegisteredVisit(Exception):  # noqa: N818
     pass
 
 
@@ -69,15 +69,15 @@ class Schedule:
 
     def __init__(
         self,
-        name=None,
-        verbose_name: str = None,
-        onschedule_model: str = None,
-        offschedule_model: str = None,
-        loss_to_followup_model: str = None,
-        appointment_model: str | None = None,
-        history_model: str | None = None,
+        name: str,
+        onschedule_model: str,
+        offschedule_model: str,
         consent_definitions: list[ConsentDefinition] | ConsentDefinition = None,
+        loss_to_followup_model: str | None = None,
+        appointment_model: str | None = None,
         offstudymedication_model: str | None = None,
+        history_model: str | None = None,
+        verbose_name: str | None = None,
         sequence: str | None = None,
         base_timepoint: float | Decimal | None = None,
     ):
@@ -146,10 +146,10 @@ class Schedule:
 
     def visits_for_subject(
         self,
-        subject_identifier: str = None,
-        report_datetime: datetime = None,
-        site_id: int = None,
-        consent_definition: ConsentDefinition = None,
+        subject_identifier: str,
+        report_datetime: datetime,
+        site_id: int | None = None,
+        consent_definition: ConsentDefinition | None = None,
     ) -> VisitCollection:
         """Returns a deep copy of visits collection filtered for a
         given consented subject.
@@ -352,7 +352,7 @@ class Schedule:
 
     def get_consent_definition(
         self,
-        report_datetime: datetime = None,
+        report_datetime: datetime,
         site: SingleSite = None,
         consent_definition: ConsentDefinition = None,
     ) -> ConsentDefinition:

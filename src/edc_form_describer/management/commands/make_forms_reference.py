@@ -17,16 +17,16 @@ style = color_style()
 
 
 def update_forms_reference(
-    app_label: str = None,
-    admin_site_name: str = None,
-    visit_schedule_name: str = None,
-    title: str = None,
+    app_label: str,
+    admin_site_name: str,
+    visit_schedule_name: str,
+    title: str | None = None,
     filename: str | None = None,
     doc_folder: str | None = None,
 ):
     module = import_module(app_label)
     default_doc_folder = Path(settings.BASE_DIR / "docs")
-    filename = filename or "forms_reference.md"
+    filename = filename or f"forms_reference_{app_label}.md"
     admin_site = getattr(module.admin_site, admin_site_name)
     visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
     title = title or _("%(title_app)s Forms Reference") % dict(title_app=app_label.upper())
@@ -47,8 +47,8 @@ def update_forms_reference(
     path = doc_folder / filename
     forms.to_file(path=path, overwrite=True)
 
-    print(path)
-    print("Done.")
+    sys.stdout.write(f"{path}\n")
+    sys.stdout.write("Done\n")
 
 
 class Command(BaseCommand):
@@ -85,7 +85,7 @@ class Command(BaseCommand):
             default=None,
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         app_label = options["app_label"]
         admin_site_name = options["admin_site_name"]
         visit_schedule_name = options["visit_schedule_name"]

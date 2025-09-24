@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import contextlib
 import re
 import string
 import sys
-from datetime import datetime
 from math import floor
 
 from django.core.management.color import color_style
+from django.utils import timezone
 
 from edc_fieldsets.fieldsets import Fieldsets
 from edc_model.constants import DEFAULT_BASE_FIELDS
@@ -57,14 +58,20 @@ class FormDescriber:
         self.markdown: list[str] = []
         add_timestamp = True if add_timestamp is None else add_timestamp
         self.anchor_prefix = anchor_prefix or self.anchor_prefix
-        timestamp = datetime.today().strftime("%Y-%m-%d %H:%M")
+        timestamp = timezone.now().strftime("%Y-%m-%d %H:%M")
         self.level = level or self.level
         self.conditional_fieldset = None
         self.admin_cls = admin_cls
         try:
             self.model_cls = admin_cls.model
         except AttributeError:
-            self.model_cls = admin_cls.form._meta.model
+            try:
+                self.model_cls = admin_cls.form._meta.model
+            except AttributeError as e:
+                raise FormDescriberError(
+                    f"Unable to determine admin class model. Got {admin_cls}"
+                ) from e
+
         self.visit_code = visit_code
         self.models_fields = {fld.name: fld for fld in self.model_cls._meta.get_fields()}
 
@@ -115,7 +122,7 @@ class FormDescriber:
     def anchor(self):
         allow = string.ascii_letters + string.digits + "-"
         slug = self.verbose_name.lower().replace(" ", "-")
-        slug = re.sub("[^%s]" % allow, "", slug)
+        slug = re.sub(f"[^{allow}]", "", slug)
         return f"{self.anchor_prefix}-{slug}"
 
     def describe(self):
@@ -135,7 +142,7 @@ class FormDescriber:
 
         for fieldset_name, fieldset in self.fieldsets:
             if fieldset_name not in ["Audit"]:
-                fieldset_name = fieldset_name or "Main"
+                fieldset_name = fieldset_name or "Main"  # noqa: PLW2901
                 self.markdown.append(f"\n**Section: {fieldset_name}**")
                 if fieldset.get("classes") != "collapse":
                     for fname in fieldset.get("fields"):
@@ -172,10 +179,8 @@ class FormDescriber:
             self.markdown.append(f"* custom_prompt: *{self.custom_form_labels.get(fname)}*")
         self.markdown.append(f"- db_table: {self.model_cls._meta.db_table}")
         self.markdown.append(f"- column: {field_cls.name}")
-        try:
+        with contextlib.suppress(AttributeError):
             self.markdown.append(f"- metadata: {field_cls.metadata}")
-        except AttributeError:
-            pass
         self.markdown.append(f"- type: {field_cls.get_internal_type()}")
         if field_cls.max_length:
             self.markdown.append(f"- length: {field_cls.max_length}")
