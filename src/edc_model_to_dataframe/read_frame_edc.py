@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.apps import apps as django_apps
 from django.db.models import QuerySet
 
@@ -7,7 +9,7 @@ __all__ = ["read_frame_edc"]
 
 
 def read_frame_edc(
-    queryset: [QuerySet] | str | None = None,
+    queryset: QuerySet | str,
     drop_sys_columns: bool | None = None,
     drop_action_item_columns: bool | None = None,
     read_frame_verbose: bool | None = None,

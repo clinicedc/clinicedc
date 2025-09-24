@@ -10,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import CommandError, color_style
 from django.core.management.base import BaseCommand
 
-from edc_model_to_dataframe import ModelToDataframe
+from edc_model_to_dataframe.model_to_dataframe import ModelToDataframe
 from edc_pdutils.df_exporters import Exporter
 from edc_pdutils.utils import get_model_names
 from edc_sites.site import sites

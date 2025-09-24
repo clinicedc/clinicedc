@@ -6,7 +6,7 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django_pandas.io import read_frame
 
-from edc_model_to_dataframe import read_frame_edc
+from edc_model_to_dataframe.read_frame_edc import read_frame_edc
 from edc_registration.models import RegisteredSubject
 
 from ..constants import SYSTEM_COLUMNS
