@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import sys
 from importlib import import_module
 
@@ -16,11 +15,10 @@ style = color_style()
 
 
 def make_forms_reference(
-    app_label: str = None,
-    admin_site_name: str = None,
-    visit_schedule_name: str = None,
-    title: str = None,
-    path: str | None = None,
+    app_label: str,
+    admin_site_name: str,
+    visit_schedule_name: str,
+    title: str | None = None,
 ):
     module = import_module(app_label)
     admin_site = getattr(module.admin_site, admin_site_name)
@@ -29,9 +27,9 @@ def make_forms_reference(
     sys.stdout.write(
         style.MIGRATE_HEADING(f"Refreshing CRF reference document for {app_label}\n")
     )
-    doc_folder = os.path.join(settings.BASE_DIR, "docs")
-    if not os.path.exists(doc_folder):
-        os.mkdir(doc_folder)
+    doc_folder = settings.BASE_DIR / "docs"
+    if not doc_folder.exists():
+        doc_folder.mkdir()
 
     forms = FormsReference(
         visit_schedules=[visit_schedule],
@@ -40,8 +38,8 @@ def make_forms_reference(
         add_per_form_timestamp=False,
     )
 
-    path = os.path.join(doc_folder, "forms_reference.md")
+    path = doc_folder / f"forms_reference_{app_label}.md"
     forms.to_file(path=path, overwrite=True)
 
-    print(path)
-    print("Done.")
+    sys.stdout.write(f"{path}\n")
+    sys.stdout.write("Done.\n")

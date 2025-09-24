@@ -1,3 +1,4 @@
+from pathlib import Path
 from tempfile import mkstemp
 
 from clinicedc_tests.admin import TestModel3Admin
@@ -13,7 +14,7 @@ class TestForDescriber(TestCase):
         fields = []
         for _, fields_dict in admin_cls.fieldsets:
             for f in fields_dict["fields"]:
-                fields.append(f)
+                fields.append(f)  # noqa: PERF402
         return fields
 
     def test_ok(self):
@@ -25,10 +26,10 @@ class TestForDescriber(TestCase):
                 self.assertIn(str(f.verbose_name), txt)
 
     def test_to_file(self):
-        tmp, name = mkstemp()
+        _, name = mkstemp()
         describer = FormDescriber(admin_cls=TestModel3Admin, include_hidden_fields=True)
         describer.to_file(path=name, overwrite=True)
-        with open(name) as describer_file:
+        with Path(name).open() as describer_file:
             txt = describer_file.read()
             fields = self.get_fields_from_fieldset(TestModel3Admin)
             for f in TestModel3._meta.get_fields():

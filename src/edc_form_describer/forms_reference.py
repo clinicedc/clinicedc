@@ -1,8 +1,9 @@
-from datetime import datetime
 from importlib.metadata import version
+from pathlib import Path
 
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.utils import timezone
 
 from .form_describer import FormDescriber
 from .markdown_writer import MarkdownWriter
@@ -36,24 +37,20 @@ class FormsReference:
         self.add_per_form_timestamp = (
             True if add_per_form_timestamp is None else add_per_form_timestamp
         )
-        self.timestamp = datetime.today().strftime("%Y-%m-%d %H:%M")
+        self.timestamp = timezone.now().strftime("%Y-%m-%d %H:%M")
         for visit_schedule in self.visit_schedules:
             self.plans.update({visit_schedule.name: {}})
             for schedule in visit_schedule.schedules.values():
                 for visit_code, visit in schedule.visits.items():
-                    crfs = []
-                    requisitions = []
-                    for c in visit.crfs:
-                        crfs.append(c.model)
-                    for r in visit.requisitions:
-                        requisitions.append(r.panel.name)
+                    crfs = [c.model for c in visit.crfs]
+                    requisitions = [r.panel.name for r in visit.requisitions]
                     self.plans[visit_schedule.name].update(
                         {visit_code: {"crfs": crfs, "requisitions": requisitions}}
                     )
 
     def to_file(
         self,
-        path: str | None = None,
+        path: Path | str | None = None,
         overwrite: bool | None = None,
         pad: int | None = None,
     ):
@@ -95,23 +92,25 @@ class FormsReference:
                     for index, model in enumerate(documents.get("crfs")):
                         model_cls = django_apps.get_model(model)
                         admin_cls = self.admin_site._registry.get(model_cls)
-                        describer = self.describer_cls(
-                            admin_cls=admin_cls,
-                            include_hidden_fields=self.include_hidden_fields,
-                            visit_code=visit_code,
-                            level=self.h4,
-                            anchor_prefix=self.anchor_prefix,
-                            add_timestamp=self.add_per_form_timestamp,
-                        )
-                        describer.markdown.append("\n")
-                        anchor = f"{self.get_anchor(describer.anchor)}"
-                        toc.append(
-                            f'{index + 1}. <a href="#{anchor}">{describer.verbose_name}</a>'
-                        )
-                        markdown.extend(describer.markdown)
+                        if admin_cls:
+                            describer = self.describer_cls(
+                                admin_cls=admin_cls,
+                                include_hidden_fields=self.include_hidden_fields,
+                                visit_code=visit_code,
+                                level=self.h4,
+                                anchor_prefix=self.anchor_prefix,
+                                add_timestamp=self.add_per_form_timestamp,
+                            )
+                            describer.markdown.append("\n")
+                            anchor = f"{self.get_anchor(describer.anchor)}"
+                            toc.append(
+                                f'{index + 1}. <a href="#{anchor}">{describer.verbose_name}</a>'
+                            )
+                            markdown.extend(describer.markdown)
                     markdown.append(f"{self.h4} Requisitions\n")
-                    for panel_name in documents.get("requisitions"):
-                        markdown.append(f"* {panel_name}\n")
+                    markdown.extend(
+                        [f"* {panel_name}\n" for panel_name in documents.get("requisitions")]
+                    )
             markdown = self.insert_toc(toc, markdown)
             markdown.insert(0, f"{self.h1} {self.title}")
             markdown.append(

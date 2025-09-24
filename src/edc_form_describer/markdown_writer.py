@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-import os
-from datetime import datetime
+from pathlib import Path
+
+from django.utils import timezone
 
 
 class MarkdownWriter:
@@ -11,23 +12,23 @@ class MarkdownWriter:
     @staticmethod
     def get_path(path: str | None = None, overwrite: bool | None = None) -> str:
         if not path:
-            timestamp = datetime.today().strftime("%Y%m%d%H%M")
+            timestamp = timezone.now().strftime("%Y%m%d%H%M")
             path = f"forms_{timestamp}.md"
-        if os.path.exists(path):
+        if Path(path).exists():
             if overwrite:
-                os.remove(path)
+                Path(path).unlink()
             else:
                 raise FileExistsError(f"File exists. Got '{path}'")
         return path
 
     @staticmethod
-    def to_markdown(markdown: list[str] = None) -> str:
+    def to_markdown(markdown: list[str]) -> str:
         """Returns the markdown as a text string."""
         return "\n".join(markdown)
 
     def to_file(
         self,
-        markdown: list[str] = None,
+        markdown: list[str],
         pad: int | None = None,
         append: bool | None = None,
         prepend: bool | None = None,
@@ -42,9 +43,9 @@ class MarkdownWriter:
         else:
             self._write(markdown)
 
-    def _write(self, markdown: str = None, mode: str | None = None) -> None:
+    def _write(self, markdown: str, mode: str | None = None) -> None:
         mode = mode or "w"
-        with open(self.path, mode) as f:
+        with Path(self.path).open(mode) as f:
             f.write(markdown)
 
     def _append(self, markdown) -> None:
@@ -53,7 +54,7 @@ class MarkdownWriter:
 
     def _prepend(self, markdown=None) -> None:
         mode = "r+"
-        with open(self.path, mode) as f:
+        with Path(self.path).open(mode) as f:
             content = f.read()
             f.seek(0, 0)
             f.write(markdown + "\n" + content)
