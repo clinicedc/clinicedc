@@ -16,9 +16,9 @@ def validate_glucose_as_millimoles_per_liter(
     min_val = Decimal("0.00")
     max_val = Decimal("30.00")
     high_value = Decimal(f"{GLUCOSE_HIGH_READING}")
-    value = cleaned_data.get(f"{prefix}_value")
-    units = cleaned_data.get(f"{prefix}_units")
-    if value and units:
+    if (value := cleaned_data.get(f"{prefix}_value")) and (
+        units := cleaned_data.get(f"{prefix}_units")
+    ):
         try:
             converted_value = convert_units(
                 label=prefix,

@@ -124,6 +124,7 @@ dependencies = [
     "django-pandas>=0.6.7",
     "django-pylabels>=1.0.1",
     "django-redis>=6.0.0",
+    "django-revision>=2.0.1",
     "django-sequences>=3.0",
     "django-simple-history>=3.10.1",
     "django-storages>=1.14.6",
@@ -133,7 +134,7 @@ dependencies = [
     "inflect>=7.5.0",
     "mempass>=0.1.2",
     "mysqlclient>=2.2.7",
-    "psycopg2>=2.9.10",
+    # "psycopg2>=2.9.10",
     "pycups>=2.0.4",
     "pypdf>=5.9.0",
     "python-dateutil>=2.9.0.post0",
@@ -223,7 +224,7 @@ source = ["src"]
 [tool.coverage.report]
 show_missing = true
 skip_covered = true
-omit = ["requirements.txt"]
+omit = ["requirements.txt", "*/migrations/*"]
 exclude_lines = [
   "pragma: no cover",
   "if TYPE_CHECKING:",

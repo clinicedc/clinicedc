@@ -18,9 +18,9 @@ def get_summary(obj) -> tuple[list[str], list[str], list[str]]:
         except ValueError:
             utest_id = field_name
         reference_range_collection = get_reference_range_collection(obj)
-        if (units := getattr(obj, f"{utest_id}_units", None)) and (
-            value := getattr(obj, field_name)
-        ):
+        units = getattr(obj, f"{utest_id}_units", None)
+        value = getattr(obj, field_name)
+        if units and value:
             opts.update(units=units, label=utest_id)
             try:
                 grading_data, grading_eval_phrase = reference_range_collection.get_grade(
