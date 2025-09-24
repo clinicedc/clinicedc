@@ -3,7 +3,7 @@ from warnings import warn
 import pandas as pd
 from django.apps import apps as django_apps
 
-from edc_model_to_dataframe import ModelToDataframe
+from edc_model_to_dataframe.model_to_dataframe import ModelToDataframe
 
 
 def missing_subject_identifiers(
@@ -42,7 +42,7 @@ def missing_subject_identifiers(
 
     if len(df_missing.index) > 0 and verbose:
         warn(
-            f'There are {len(df_missing["identifier"])} subject identifiers '
+            f"There are {len(df_missing['identifier'])} subject identifiers "
             f"missing from {model}."
         )
     return df_missing["identifier"]

@@ -16,16 +16,8 @@ from pandas import Series
 
 from edc_lab.models import Panel
 from edc_list_data.model_mixins import ListModelMixin, ListUuidModelMixin
-from edc_model.models import BaseUuidModel
-from edc_sites.model_mixins import SiteModelMixin
 
 from .constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
-
-
-class MyModel(SiteModelMixin, BaseUuidModel):
-    class Meta(BaseUuidModel.Meta):
-        pass
-
 
 __all__ = ["ModelToDataframe", "ModelToDataframeError"]
 
