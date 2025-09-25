@@ -160,7 +160,6 @@ Optional modules
 =========================== ============================= ==================================
 edc-csf_                    |edc-csf|                     |pypi-edc-csf|
 edc-he_                     |edc-he|                      |pypi-edc-he|
-edc-icecap-a_               |edc-icecap-a|                |pypi-edc-icecap-a|
 edc-microbiology_           |edc-microbiology|            |pypi-edc-microbiology|
 edc-microscopy_             |edc-microscopy|              |pypi-edc-microscopy|
 edc-mnsi_                   |edc-mnsi|                    |pypi-edc-mnsi|
@@ -183,7 +182,7 @@ Env
 
     uv venv
     source .venv/bin/activate
-    uv sync --no-sources
+    uv sync --no-sources --upgrade
 
 Tests
 -----
