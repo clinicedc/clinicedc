@@ -25,9 +25,9 @@ class EgfrCockcroftGault(BaseEgfr):
     https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2763564/
 
     GFR = 141 × min(Scr/κ, 1)α × max(Scr/κ, 1)-1.209 × 0.993Age
-    """
+    """  # noqa: RUF002
 
-    def __init__(self, weight: int | float | Decimal = None, **kwargs):
+    def __init__(self, weight: int | float | Decimal | None = None, **kwargs):
         self.weight = float(weight) if weight else None
         super().__init__(**kwargs)
 
@@ -39,7 +39,7 @@ class EgfrCockcroftGault(BaseEgfr):
         serum creatinine (μmol/L)
 
         *constant = 1.23 for males and 1.05 for females
-        """
+        """  # noqa: RUF002
         if (
             self.gender
             and self.age_in_years
@@ -48,10 +48,9 @@ class EgfrCockcroftGault(BaseEgfr):
         ):
             gender_factor = 1.05 if self.gender == FEMALE else 1.23
             adjusted_age = 140.00 - self.age_in_years
-            value = (adjusted_age * self.weight * gender_factor) / float(
+            return (adjusted_age * self.weight * gender_factor) / float(
                 self.scr.get(MICROMOLES_PER_LITER)
             )
-            return value
         opts = dict(
             gender=self.gender,
             age_in_years=self.age_in_years,

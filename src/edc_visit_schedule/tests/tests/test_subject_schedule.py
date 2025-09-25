@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent1_v1, consent1_v2, consent2_v1, consent2_v2
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,7 +14,6 @@ from django.utils import timezone
 from edc_consent.site_consents import site_consents
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites
-from clinicedc_tests.mixins import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.exceptions import SubjectScheduleError
 from edc_visit_schedule.models import OffSchedule, OnSchedule, SubjectScheduleHistory

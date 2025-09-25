@@ -2,6 +2,7 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.models import OnScheduleThree, SubjectConsent
 from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
@@ -17,7 +18,6 @@ from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites as site_sites
-from clinicedc_tests.mixins import SiteTestCaseMixin
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.constants import ON_SCHEDULE
 from edc_visit_schedule.exceptions import (

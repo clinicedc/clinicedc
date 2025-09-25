@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
     get_visit_schedule3,
 )
@@ -32,7 +33,6 @@ from edc_appointment.utils import (
     get_appointment_by_datetime,
 )
 from edc_facility.import_holidays import import_holidays
-from clinicedc_tests.mixins import SiteTestCaseMixin
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit

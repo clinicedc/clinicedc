@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Generator
+
 
 class ChoicesError(Exception):
     pass
@@ -41,9 +43,8 @@ class Choices:
     def __str__(self) -> str:
         return str(self.choices)
 
-    def __call__(self, *args, **kwargs) -> tuple[tuple[str, str], ...]:
+    def __call__(self, *args, **kwargs) -> tuple[tuple[str, str], ...]:  # noqa: ARG002
         return tuple((c[self.STORE], c[self.DISPLAY]) for c in self.choices)
 
-    def __iter__(self) -> tuple[str | int, str, str | int]:
-        for store, display, meta in self.choices:
-            yield store, display, meta
+    def __iter__(self) -> Generator[tuple[str, str, str]]:
+        yield from self.choices

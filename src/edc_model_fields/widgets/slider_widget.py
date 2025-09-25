@@ -36,4 +36,4 @@ class SliderWidget(Input):
         return context
 
     class Media:
-        css = {"all": ("edc_model_fields/slider.css",)}
+        css = {"all": ("edc_model_fields/slider.css",)}  # noqa: RUF012
