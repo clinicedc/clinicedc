@@ -49,7 +49,7 @@ class Window:
             try:
                 self.visits.get(self.visit_code)
             except VisitCollectionError as e:
-                raise ScheduleError(e)
+                raise ScheduleError(e) from e
             if self.is_scheduled_visit or not self.visits.next(self.visit_code):
                 self.raise_for_scheduled_not_in_window()
             else:

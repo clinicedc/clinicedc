@@ -9,7 +9,9 @@ from clinicedc_tests.forms import SubjectConsentForm, SubjectConsentFormValidato
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import SubjectConsentV1, SubjectScreening
 from clinicedc_tests.sites import all_sites
-from clinicedc_tests.visit_schedules.visit_schedule_consent import get_visit_schedule
+from clinicedc_tests.visit_schedules.visit_schedule_consent.visit_schedule import (
+    get_visit_schedule,
+)
 from dateutil.relativedelta import relativedelta
 from django.contrib.sites.models import Site
 from django.forms import model_to_dict

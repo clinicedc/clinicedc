@@ -8,14 +8,9 @@ from ..site_visit_schedules import SiteVisitScheduleError, site_visit_schedules
 
 @receiver(post_save, weak=False, dispatch_uid="offschedule_model_on_post_save")
 def offschedule_model_on_post_save(sender, instance, raw, update_fields, **kwargs):
-    if not raw and not update_fields:
-        if isinstance(instance, (OffScheduleModelMixin,)):
-            _, schedule = site_visit_schedules.get_by_offschedule_model(
-                instance._meta.label_lower
-            )
-            schedule.take_off_schedule(
-                instance.subject_identifier, instance.offschedule_datetime
-            )
+    if not raw and not update_fields and isinstance(instance, (OffScheduleModelMixin,)):
+        _, schedule = site_visit_schedules.get_by_offschedule_model(instance._meta.label_lower)
+        schedule.take_off_schedule(instance.subject_identifier, instance.offschedule_datetime)
 
 
 @receiver(post_delete, weak=False, dispatch_uid="offschedule_model_on_post_delete")

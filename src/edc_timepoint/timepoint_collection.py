@@ -3,7 +3,7 @@ from django.apps import apps as django_apps
 from .timepoint import Timepoint
 
 
-class TimepointDoesNotExist(Exception):
+class TimepointDoesNotExist(Exception):  # noqa: N818
     pass
 
 
@@ -34,10 +34,10 @@ class TimepointCollection:
         """Returns the timepoint class for this model."""
         try:
             timepoint = self._timepoints[model]
-        except KeyError:
+        except KeyError as e:
             raise TimepointDoesNotExist(
                 f"No timepoint has been configured with {model}. "
                 "See AppConfig for edc_timepoint. Hint: Perhaps you are using a custom "
                 "`Appointment` model?"
-            )
+            ) from e
         return timepoint

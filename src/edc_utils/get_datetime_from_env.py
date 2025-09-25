@@ -10,7 +10,7 @@ def get_datetime_from_env(
     minute: int,
     second: int,
     time_zone: str,
-    closing_date: date = None,
+    closing_date: date | None = None,
 ) -> datetime:
     if closing_date:
         hour = hour or 23

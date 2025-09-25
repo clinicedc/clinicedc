@@ -7,7 +7,7 @@ class IgnoreSpecificIPDisallowedHost:
 
     def filter(self, record):
         if record.exc_info:
-            exc_type, exc_value, _ = record.exc_info
+            _, exc_value, _ = record.exc_info
             if isinstance(exc_value, DisallowedHost):
                 request = getattr(record, "request", None)
                 if request and request.META.get("REMOTE_ADDR") == self.ip_to_ignore:

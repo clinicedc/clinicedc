@@ -28,7 +28,7 @@ class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
                     update=False,
                 )
             except InvalidOffscheduleDate as e:
-                raise forms.ValidationError(e)
+                raise forms.ValidationError(e) from e
             self.validate_visit_tracking_reports()
         return cleaned_data
 
@@ -50,11 +50,11 @@ class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
         return True
 
     class Meta:
-        help_text = {
+        help_text = {  # noqa: RUF012
             "subject_identifier": "(read-only)",
             "action_identifier": "(read-only)",
         }
-        widgets = {
+        widgets = {  # noqa: RUF012
             "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
             "action_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
         }

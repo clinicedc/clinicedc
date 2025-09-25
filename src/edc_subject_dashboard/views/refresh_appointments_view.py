@@ -14,10 +14,10 @@ class RefreshAppointmentsView(LoginRequiredMixin, View):
 
     def refresh_appointments(
         self,
-        subject_identifier: str = None,
-        visit_schedule_name: str = None,
-        schedule_name: str = None,
-        **kwargs,
+        subject_identifier: str,
+        visit_schedule_name: str,
+        schedule_name: str,
+        **kwargs,  # noqa: ARG002
     ) -> tuple[str, str]:
         return refresh_appointments(
             subject_identifier=subject_identifier,
@@ -26,8 +26,8 @@ class RefreshAppointmentsView(LoginRequiredMixin, View):
             request=self.request,
         )
 
-    def get(self, request, *args, **kwargs):
-        subject_identifier, status = self.refresh_appointments(**kwargs)
+    def get(self, request, *args, **kwargs):  # noqa: ARG002
+        subject_identifier, _ = self.refresh_appointments(**kwargs)
         url_name = url_names.get("subject_dashboard_url")
         args = (subject_identifier,)
         url = reverse(url_name, args=args)

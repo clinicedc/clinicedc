@@ -21,7 +21,7 @@ class UnblindingReviewAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin)
         audit_fieldset_tuple,
     )
 
-    autocomplete_fields = ["reviewer"]
+    autocomplete_fields = ("reviewer",)
 
     list_display = (
         "subject_identifier",
@@ -33,4 +33,4 @@ class UnblindingReviewAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin)
         "created",
     )
 
-    radio_fields = {"approved": admin.VERTICAL}
+    radio_fields = {"approved": admin.VERTICAL}  # noqa: RUF012

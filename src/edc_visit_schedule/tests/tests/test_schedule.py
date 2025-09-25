@@ -16,7 +16,13 @@ from edc_visit_schedule.visit import Visit
 @tag("visit_schedule")
 class TestSchedule(TestCase):
     def test_schedule_name(self):
-        self.assertRaises(ScheduleNameError, Schedule, name="sched  ule")
+        self.assertRaises(
+            ScheduleNameError,
+            Schedule,
+            name="name with spaces is bad",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
+        )
 
     def test_visit_schedule_repr(self):
         """Asserts repr evaluates correctly."""
@@ -297,7 +303,7 @@ class TestScheduleWithVisits(TestCase):
     def test_first_visit_added_must_be_base(self):
         visits = []
         for i in [3, 0]:
-            visits.append(
+            visits.append(  # noqa: PERF401
                 Visit(
                     code=str(i),
                     timepoint=i,

@@ -744,9 +744,9 @@ def update_appt_status_for_timepoint(related_visit: RelatedVisitModel) -> None:
 
 
 def refresh_appointments(
-    subject_identifier: str | None = None,
-    visit_schedule_name: str | None = None,
-    schedule_name: str | None = None,
+    subject_identifier: str,
+    visit_schedule_name: str,
+    schedule_name: str,
     request: WSGIRequest | None = None,
     warn_only: bool | None = None,
 ) -> tuple[str, str]:
@@ -768,7 +768,7 @@ def refresh_appointments(
                 % dict(error_msg=str(e)),
             )
         elif warn_only:
-            warnings.warn(str(e))
+            warnings.warn(str(e), stacklevel=2)
         else:
             raise
     else:
@@ -832,7 +832,6 @@ def validate_date_is_on_clinic_day(
             and calendar.weekday(appt_date.year, appt_date.month, appt_date.day)
             not in clinic_days
         ):
-
             days_str = [day_abbr[d] for d in clinic_days]
             days_str = []
             for d in clinic_days:

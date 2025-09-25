@@ -85,9 +85,8 @@ class ModelButton:
             self._action = VIEW
             if not self.model_obj:
                 self._action = ADD
-            elif self.model_obj:
-                if self.perms.change:
-                    self._action = CHANGE
+            elif self.model_obj and self.perms.change:
+                self._action = CHANGE
         return self._action
 
     @property

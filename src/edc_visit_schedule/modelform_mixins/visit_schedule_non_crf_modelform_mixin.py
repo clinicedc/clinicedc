@@ -76,7 +76,7 @@ class VisitScheduleNonCrfModelFormMixin:
                     compare_as_datetimes=self.offschedule_compare_dates_as_datetimes,
                 )
             except (NotOnScheduleError, NotOnScheduleForDateError) as e:
-                raise forms.ValidationError(str(e))
+                raise forms.ValidationError(str(e)) from e
 
     def report_datetime_within_schedule_datetimes(self) -> None:
         if self.report_datetime:

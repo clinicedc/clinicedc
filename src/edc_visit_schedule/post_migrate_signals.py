@@ -7,8 +7,8 @@ style = color_style()
 
 
 def populate_visit_schedule(sender=None, **kwargs):
-    from .models import VisitSchedule
-    from .site_visit_schedules import site_visit_schedules
+    from .models import VisitSchedule  # noqa: PLC0415
+    from .site_visit_schedules import site_visit_schedules  # noqa: PLC0415
 
     sys.stdout.write(style.MIGRATE_HEADING("Populating visit schedule:\n"))
     if getattr(settings, "EDC_VISIT_SCHEDULE_POPULATE_VISIT_SCHEDULE", True):

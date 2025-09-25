@@ -14,8 +14,9 @@ from edc_utils import to_local
 class WindowPeriod:
     def __init__(
         self,
-        rlower: relativedelta = None,
-        rupper: relativedelta = None,
+        *,
+        rlower: relativedelta,
+        rupper: relativedelta,
         timepoint: Decimal | None = None,
         base_timepoint: Decimal | None = None,
         no_floor: bool | None = None,

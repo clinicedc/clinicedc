@@ -20,9 +20,7 @@ class TestFormsCollection(TestCase):
             self.fail(f"FormsCollectionError unexpectedly raised. Got {e}")
 
     def test_forms_collection_order(self):
-        crfs = []
-        for i in range(0, 10):
-            crfs.append(Crf(show_order=i, model="x.x"))
+        crfs = [Crf(show_order=i, model="x.x") for i in range(0, 10)]
         try:
             FormsCollection(*crfs)
         except FormsCollectionError as e:
@@ -32,31 +30,22 @@ class TestFormsCollection(TestCase):
 
     @override_settings(SITE_ID=40)
     def test_forms_collection_excludes_by_site_id(self):
-        crfs = []
-        for i in range(0, 5):
-            crfs.append(Crf(show_order=i, model=f"x.{i}"))
-        for i in range(6, 11):
-            crfs.append(Crf(show_order=i, model=f"x.{i}", site_ids=[10]))
+        crfs = [Crf(show_order=i, model=f"x.{i}") for i in range(0, 5)]
+        crfs.extend([Crf(show_order=i, model=f"x.{i}", site_ids=[10]) for i in range(6, 11)])
         forms = FormsCollection(*crfs)
         self.assertEqual(len(forms.forms), 5)
 
     @override_settings(SITE_ID=40)
     def test_forms_collection_excludes_by_site_id2(self):
-        crfs = []
-        for i in range(0, 5):
-            crfs.append(Crf(show_order=i, model=f"x.{i}"))
-        for i in range(6, 11):
-            crfs.append(Crf(show_order=i, model=f"x.{i}", site_ids=[40]))
+        crfs = [Crf(show_order=i, model=f"x.{i}") for i in range(0, 5)]
+        crfs.extend([Crf(show_order=i, model=f"x.{i}", site_ids=[40]) for i in range(6, 11)])
         forms = FormsCollection(*crfs)
         self.assertEqual(len(forms.forms), 10)
 
     @override_settings(SITE_ID=40)
     def test_forms_collection_excludes_by_site_id3(self):
-        crfs = []
-        for i in range(0, 5):
-            crfs.append(Crf(show_order=i, model=f"x.{i}"))
-        for i in range(6, 11):
-            crfs.append(Crf(show_order=i, model=f"x.{i}"))
+        crfs = [Crf(show_order=i, model=f"x.{i}") for i in range(0, 5)]
+        crfs.extend([Crf(show_order=i, model=f"x.{i}") for i in range(6, 11)])
         forms = FormsCollection(*crfs)
         self.assertEqual(len(forms.forms), 10)
 

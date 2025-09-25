@@ -19,7 +19,7 @@ class FormsCollection:
         *forms: Crf | Requisition,
         name: str | None = None,
         check_sequence: bool | None = None,
-        **kwargs,
+        **kwargs,  # noqa: ARG002
     ):
         check_sequence = True if check_sequence is None else check_sequence
         self.collection_is_unique_or_raise(forms)
@@ -85,7 +85,7 @@ class FormsCollection:
     def insert(self, index, value):
         if value:
             forms = list(self._forms)
-            for index, item in forms:
+            for _, item in forms:
                 if item.name == value.name:
                     raise FormsCollectionError(
                         f"Insert failed. Item is not unique. Got {value.name}"

@@ -48,7 +48,7 @@ class SubjectTransferFormValidatorMixin:
                 subject_transfer_obj = django_apps.get_model(
                     self.subject_transfer_model
                 ).objects.get(subject_identifier=self.subject_identifier)
-            except ObjectDoesNotExist:
+            except ObjectDoesNotExist as e:
                 if (
                     self.cleaned_data.get(self.offschedule_reason_field)
                     and self.cleaned_data.get(self.offschedule_reason_field).name
@@ -59,7 +59,7 @@ class SubjectTransferFormValidatorMixin:
                         f"`{self.subject_transfer_model_cls._meta.verbose_name}` "
                         "form first."
                     )
-                    raise forms.ValidationError({self.offschedule_reason_field: msg})
+                    raise forms.ValidationError({self.offschedule_reason_field: msg}) from e
             else:
                 if self.cleaned_data.get(self.subject_transfer_date_field) and (
                     subject_transfer_obj.transfer_date

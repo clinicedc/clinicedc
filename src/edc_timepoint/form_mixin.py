@@ -7,15 +7,15 @@ from .constants import CLOSED_TIMEPOINT
 
 class TimepointFormMixin:
     def clean(self):
-        cleaned_data = super(TimepointFormMixin, self).clean()
+        cleaned_data = super().clean()
         app_config = django_apps.get_app_config("edc_timepoint")
         try:
             app_config.timepoints[self._meta.model._meta.label_lower]
-        except KeyError:
+        except KeyError as e:
             raise ImproperlyConfigured(
                 "ModelForm uses a model that is not a timepoint. "
                 f"Got {self._meta.model._meta.label_lower}."
-            )
+            ) from e
         timepoint_status = cleaned_data.get("timepoint_status")
         if timepoint_status == CLOSED_TIMEPOINT:
             raise forms.ValidationError(

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from dateutil.relativedelta import relativedelta
 
-    from edc_facility import Facility
+    from edc_facility.facility import Facility
 
     from .crf import Crf
     from .requisition import Requisition
@@ -38,7 +38,7 @@ class VisitError(Exception):
     pass
 
 
-class BaseDatetimeNotSet(Exception):
+class BaseDatetimeNotSet(Exception):  # noqa: N818
     pass
 
 
@@ -53,10 +53,11 @@ class VisitDate:
 
     def __init__(
         self,
-        rlower: relativedelta = None,
-        rupper: relativedelta = None,
-        timepoint: Decimal = None,
-        base_timepoint: Decimal = None,
+        *,
+        rlower: relativedelta,
+        rupper: relativedelta,
+        timepoint: Decimal | None = None,
+        base_timepoint: Decimal | None = None,
     ):
         self._base: datetime | None = None
         self._lower: datetime | None = None
@@ -73,7 +74,7 @@ class VisitDate:
         return self._base
 
     @base.setter
-    def base(self, dt: datetime = None):
+    def base(self, dt: datetime):
         self._base = to_local(dt)
         self._lower, self._upper = self._window_period.get_window(dt=self._base)
 
@@ -100,25 +101,25 @@ class Visit:
 
     def __init__(
         self,
-        code: str = None,
-        timepoint: int | float | Decimal = None,
-        rbase: relativedelta = None,
-        rlower: relativedelta = None,
-        rupper: relativedelta = None,
+        code: str,
+        timepoint: int | float | Decimal,
+        rbase: relativedelta,
+        rlower: relativedelta,
+        rupper: relativedelta,
+        title: str | None = None,
+        facility_name: str | None = None,
+        crfs: CrfCollection | None = None,
+        crfs_prn: CrfCollection | None = None,
+        crfs_unscheduled: CrfCollection | None = None,
+        crfs_missed: CrfCollection | None = None,
+        requisitions: RequisitionCollection | None = None,
+        requisitions_prn: RequisitionCollection | None = None,
+        requisitions_unscheduled: RequisitionCollection | None = None,
         rlower_late: relativedelta = None,
         rupper_late: relativedelta = None,
         add_window_gap_to_lower: bool | None = None,
         max_window_gap_to_lower: int | None = None,
-        crfs: CrfCollection | None = None,
-        requisitions: RequisitionCollection | None = None,
-        crfs_unscheduled: CrfCollection | None = None,
-        crfs_missed: CrfCollection | None = None,
-        requisitions_unscheduled: RequisitionCollection | None = None,
-        crfs_prn: CrfCollection | None = None,
-        requisitions_prn: RequisitionCollection | None = None,
-        title: str = None,
         allow_unscheduled: bool | None = None,
-        facility_name: str | None = None,
         instructions: str | None = None,
         base_timepoint: int | float | Decimal | None = None,
         grouping=None,
@@ -162,14 +163,14 @@ class Visit:
             raise VisitCodeError(f"Invalid visit code. Got '{code}'")
         self.code = code  # unique
         self.dates = self.visit_date_cls(
-            rlower=rlower,
-            rupper=rupper,
+            rlower=self.rlower,
+            rupper=self.rupper,
             timepoint=self.timepoint,
             base_timepoint=self.base_timepoint,
         )
         self.late_dates = self.visit_date_cls(
-            rlower=rlower_late or rlower,
-            rupper=rupper_late or rupper,
+            rlower=self.rlower_late,
+            rupper=self.rupper_late,
             timepoint=self.timepoint,
             base_timepoint=self.base_timepoint,
         )
@@ -252,11 +253,10 @@ class Visit:
         return get_requisition
 
     def get_models(self) -> list:
-        models = []
-        for crf in self.crfs:
-            models.append(django_apps.get_model(crf.model))
-        for crf in self.requisitions:
-            models.append(django_apps.get_model(crf.model))
+        models = [django_apps.get_model(crf.model) for crf in self.crfs]
+        models.extend(
+            [django_apps.get_model(requisition.model) for requisition in self.requisitions]
+        )
         return models
 
     @property

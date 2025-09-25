@@ -204,7 +204,7 @@ class Schedule:
                 f"See {visit}. Got visit.timepoint={visit.timepoint}."
             )
         visit.base_timepoint = self.base_timepoint
-        self.visits.update({visit.code: visit})
+        self.visits.update(**{visit.code: visit})
         return visit
 
     @property
@@ -235,9 +235,7 @@ class Schedule:
                 visit_codes.append(visit_code)
         return visit_codes
 
-    def subject(
-        self, subject_identifier: str, consent_definition: ConsentDefinition = None
-    ) -> SubjectSchedule:
+    def subject(self, subject_identifier: str) -> SubjectSchedule:
         """Returns a SubjectSchedule instance for this subject.
 
         Note: SubjectSchedule puts a subject on/off schedule by
@@ -292,9 +290,7 @@ class Schedule:
                 f"'{consent_definition.proxy_model}', "
                 f"version='{consent_definition.version}'). "
             )
-        self.subject(
-            subject_identifier, consent_definition=consent_definition
-        ).put_on_schedule(
+        self.subject(subject_identifier).put_on_schedule(
             onschedule_datetime,
             skip_baseline=skip_baseline,
             skip_get_current_site=skip_get_current_site,

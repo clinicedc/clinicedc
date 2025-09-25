@@ -71,7 +71,7 @@ class TestDataclasses(TestCase):
             reason=SCHEDULED,
         )
 
-    def test_button(self):
+    def test_button(self):  # noqa: PLR0915
         # no crf model instance and no perms
         model_obj = CrfMetadata.objects.all()[0]
         btn = DashboardModelButton(

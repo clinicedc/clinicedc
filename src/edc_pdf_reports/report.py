@@ -33,7 +33,7 @@ class Report(ABC):
     )
     default_numbered_canvas = NumberedCanvas
 
-    default_page = dict(
+    default_page = dict(  # noqa: RUF012
         rightMargin=0.5 * cm,
         leftMargin=0.5 * cm,
         topMargin=1.5 * cm,
@@ -117,7 +117,7 @@ class Report(ABC):
     def draw_header(self, canvas, doc):
         pass
 
-    def draw_footer(self, canvas, doc):
+    def draw_footer(self, canvas, doc):  # noqa: ARG002
         styles = getSampleStyleSheet()
         styles.add(ParagraphStyle(name="header", fontSize=6, alignment=TA_CENTER))
         width, _ = A4

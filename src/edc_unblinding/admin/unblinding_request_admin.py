@@ -37,11 +37,11 @@ class UnblindingRequestAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin
         audit_fieldset_tuple,
     )
 
-    autocomplete_fields = ["requestor"]
+    autocomplete_fields = ("requestor",)
 
     readonly_fields = ("approved", "approved_datetime")
 
-    radio_fields = {"approved": admin.VERTICAL}
+    radio_fields = {"approved": admin.VERTICAL}  # noqa: RUF012
 
     list_display = (
         "subject_identifier",

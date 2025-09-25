@@ -8,7 +8,7 @@ from .base_requisition_view import BaseRequisitionView
 class RequisitionVerifyActionsView(BaseRequisitionView):
     requisition_verifier_cls = RequisitionVerifier
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         alert = 1
         error = 1
         subject_identifier = request.POST.get("subject_identifier")

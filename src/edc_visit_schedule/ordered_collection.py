@@ -1,18 +1,17 @@
 import itertools
-from collections import OrderedDict
 
 
-class OrderedCollection(OrderedDict):
+class OrderedCollection(dict):
     key: str = None  # key name in dictionary key/value pair
     ordering_attr: str = None  # value.attrname to order dictionary on.
 
-    def update(self, *args, **kwargs) -> None:
+    def update(self, **kwargs) -> None:
         """Updates and reorders."""
 
         def key_order(v):
             return getattr(v, self.ordering_attr)
 
-        super().update(*args, **kwargs)
+        super().update(**kwargs)
         od = self.copy()
         self.clear()
         super().update(**{getattr(v, self.key): v for v in sorted(od.values(), key=key_order)})
@@ -40,10 +39,7 @@ class OrderedCollection(OrderedDict):
         return self.get(self._iter_keys(key=key))
 
     def _iter_keys(self, key=None, reverse=None):
-        if reverse:
-            seq = reversed(self.keys())
-        else:
-            seq = iter(self.keys())
+        seq = reversed(self.keys()) if reverse else iter(self.keys())
         keys = itertools.dropwhile(lambda x: x != key, seq)
         try:
             k = next(keys)

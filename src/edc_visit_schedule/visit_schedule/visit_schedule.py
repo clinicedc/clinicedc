@@ -27,7 +27,7 @@ class VisitScheduleAppointmentModelError(Exception):
     pass
 
 
-class AlreadyRegisteredSchedule(Exception):
+class AlreadyRegisteredSchedule(Exception):  # noqa: N818
     pass
 
 
@@ -35,8 +35,8 @@ class VisitSchedule:
     name_regex = r"[a-z0-9\_\-]+$"
     name_regex_msg = "numbers, lower case letters and '_'"
     schedules_collection = SchedulesCollection
-    create_metadata_on_reasons = [SCHEDULED, UNSCHEDULED, MISSED_VISIT]
-    delete_metadata_on_reasons = []
+    create_metadata_on_reasons: tuple[str, ...] = (SCHEDULED, UNSCHEDULED, MISSED_VISIT)
+    delete_metadata_on_reasons: tuple[str, ...] = ()
 
     def __init__(
         self,
@@ -77,7 +77,7 @@ class VisitSchedule:
 
         if not re.match(self.name_regex, name):
             raise VisitScheduleNameError(
-                f"Visit schedule name may only contain {self.name_regex_msg}. " f"Got {name}"
+                f"Visit schedule name may only contain {self.name_regex_msg}. Got {name}"
             )
         self.title = self.verbose_name = verbose_name or " ".join(
             [s.capitalize() for s in name.split("_")]
@@ -107,7 +107,7 @@ class VisitSchedule:
             raise AlreadyRegisteredSchedule(
                 f"Schedule '{schedule.name}' is already registered. See '{self}'"
             )
-        self.schedules.update({schedule.name: schedule})
+        self.schedules.update(**{schedule.name: schedule})
         self._all_post_consent_models = None
         return schedule
 
