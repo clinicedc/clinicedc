@@ -1,4 +1,4 @@
-|pypi| |actions| |uv| |ruff| |downloads| |django-packages|
+s|pypi| |actions| |uv| |ruff| |downloads| |django-packages|
 
 clinicedc -  A clinical trials data management framework built on Django
 ========================================================================
@@ -9,7 +9,7 @@ Documentation: `clinicedc.readthedocs.io <https://clinicedc.readthedocs.io/>`_
 
 Source code: https://github.com/clinicedc/clinicedc
 
-`Here is a python module that extend Django <https://github.com/clinicedc/clinicedc>`__ to empower you to build an EDC / eSource system to handle data
+`Here is a python module that extends Django <https://github.com/clinicedc/clinicedc>`__ to empower you to build an EDC / eSource system to handle data
 collection and management for multi-site longitudinal clinical trials.
 
 Refer to the specific open projects listed below for example EDC systems built with these modules.
