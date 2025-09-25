@@ -41,8 +41,7 @@ class UserFormResponse:
 class ReferenceRangeEvaluator:
     def __init__(
         self,
-        *,
-        reference_range_collection_name,
+        reference_range_collection_name: str,
         cleaned_data: dict,
         gender: str,
         dob: date,
