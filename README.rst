@@ -159,8 +159,6 @@ Optional modules
 
 =========================== ============================= ==================================
 edc-csf_                    |edc-csf|                     |pypi-edc-csf|
-edc-dx_                     |edc-dx|                      |pypi-edc-dx|
-edc-dx-review_              |edc-dx-review|               |pypi-edc-dx-review|
 edc-he_                     |edc-he|                      |pypi-edc-he|
 edc-icecap-a_               |edc-icecap-a|                |pypi-edc-icecap-a|
 edc-microbiology_           |edc-microbiology|            |pypi-edc-microbiology|
