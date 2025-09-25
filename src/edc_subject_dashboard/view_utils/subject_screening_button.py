@@ -48,14 +48,10 @@ class SubjectScreeningButton(DashboardModelButton):
 
     @property
     def reverse_kwargs(self) -> dict[str, str | UUID]:
-        kwargs = dict(screening_identifier=self.model_obj.screening_identifier)
-        return kwargs
+        return dict(screening_identifier=self.model_obj.screening_identifier)
 
     @property
     def title(self) -> str:
-        if self.perms.view_only or self.model_obj.consented:
-            title = _("View")
-        else:
-            title = _("Edit")
+        title = _("View") if self.perms.view_only or self.model_obj.consented else _("Edit")
         verbose_name = self.model_cls._meta.verbose_name.lower()
         return f"{title} {verbose_name}"

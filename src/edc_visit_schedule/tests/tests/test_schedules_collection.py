@@ -20,16 +20,16 @@ class TestSchedulesCollection(TestCase):
                 self.onschedule_model = "edc_visit_schedule.onschedule"
                 self.offschedule_model = "edc_visit_schedule.offschedule"
 
-            def validate(self, visit_schedule_name=None):
+            def validate(self, visit_schedule_name=None):  # noqa: ARG002
                 return None
 
-        self.test_collection = TestCollection()
+        self.test_collection = TestCollection(visit_schedule_name="test_visit_schedule")
         self.dummy_schedule = Obj("one", 1)
-        self.test_collection.update({self.dummy_schedule.key: self.dummy_schedule})
+        self.test_collection.update(**{self.dummy_schedule.key: self.dummy_schedule})
 
     def test_get_by_model_raises(self):
         """Asserts bad model name raises."""
-        obj = SchedulesCollection()
+        obj = SchedulesCollection(visit_schedule_name="test_visit_schedule")
         self.assertRaises(SchedulesCollectionError, obj.get_schedule, "blah")
 
     def test_get_by_model(self):

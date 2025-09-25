@@ -13,7 +13,7 @@ class UnblindingRequestorUserAdmin(BaseUserAdmin):
     ordering = ("first_name", "last_name")
     search_fields = ("first_name", "last_name", "username", "email")
 
-    inlines = []
+    inlines = ()
 
     populate_data_dictionary = False
 
@@ -30,7 +30,7 @@ class UnblindingReviewerUserAdmin(BaseUserAdmin):
     ordering = ("first_name", "last_name")
     search_fields = ("first_name", "last_name", "username", "email")
 
-    inlines = []
+    inlines = ()
 
     populate_data_dictionary = False
 

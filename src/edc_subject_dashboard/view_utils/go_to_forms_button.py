@@ -63,8 +63,7 @@ class GotToFormsButton(RelatedVisitButton):
             extra_kwargs=self.extra_kwargs,
         )
 
-        url = "?".join([f"{nq.next_url}", nq.querystring])
-        return url
+        return "?".join([f"{nq.next_url}", nq.querystring])
 
     @property
     def disabled(self) -> str:

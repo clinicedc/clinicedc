@@ -1,3 +1,5 @@
+import sys
+
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
@@ -15,12 +17,12 @@ class Command(BaseCommand):
             help="Delete invalid OnSchedule model instances",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         allow_delete = False
         if options["delete"]:
             allow_delete = True
         else:
-            print("Checking only")
+            sys.stdout.write("Checking only\n")
         subject_schedule_history_cls = django_apps.get_model(
             "edc_visit_schedule.subjectschedulehistory"
         )
@@ -43,6 +45,6 @@ class Command(BaseCommand):
                                 f"{onschedule_obj.subject_identifier} is invalid."
                             )
                             if allow_delete:
-                                msg = f"{msg} deleted."
+                                msg = f"{msg} deleted.\n"
                                 onschedule_obj.delete()
-                            print(msg)
+                            sys.stdout.write(msg)

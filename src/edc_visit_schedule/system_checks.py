@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
-from django.core.checks import Error, Warning
+from django.core.checks import Error, Warning  # noqa: A004
 from django.core.exceptions import ObjectDoesNotExist
 
 from .site_visit_schedules import site_visit_schedules
@@ -55,7 +55,7 @@ def check_subject_schedule_history(app_configs, **kwargs) -> list:
         )
         for obj in subject_schedule_history_cls.objects.all():
             try:
-                obj.onschedule_obj
+                obj.onschedule_obj  # noqa: B018
             except LookupError as e:
                 errors.append(
                     Error(
@@ -201,7 +201,7 @@ def check_multiple_proxies_same_proxy_root(
         if proxies_counter & proxies_sharing_roots_counter == proxies_counter:
             # OK if proxies counter reflects ALL defined proxy shared roots
             del proxy_root_to_child_proxies[proxy_root]
-        elif len(proxies_counter) == 1 and next(iter(proxies_counter.values())) <= 2:
+        elif len(proxies_counter) == 1 and next(iter(proxies_counter.values())) <= 2:  # noqa: PLR2004
             # OK for a single proxy to be defined in two places (CRFs collection + PRNs)
             del proxy_root_to_child_proxies[proxy_root]
         else:

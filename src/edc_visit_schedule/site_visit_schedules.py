@@ -121,9 +121,7 @@ class SiteVisitSchedules:
         visit_schedule, schedule = ret[0]
         return visit_schedule, schedule
 
-    def get_by_onschedule_model(
-        self, onschedule_model: str = None
-    ) -> tuple[VisitSchedule, Schedule]:
+    def get_by_onschedule_model(self, onschedule_model: str) -> tuple[VisitSchedule, Schedule]:
         """Returns a tuple of (visit_schedule, schedule)
         for the given onschedule model.
 
@@ -132,7 +130,7 @@ class SiteVisitSchedules:
         return self.get_by_model(attr="onschedule_model", model=onschedule_model)
 
     def get_by_offschedule_model(
-        self, offschedule_model: str = None
+        self, offschedule_model: str
     ) -> tuple[VisitSchedule, Schedule]:
         """Returns a tuple of visit_schedule, schedule
         for the given offschedule model.
@@ -142,7 +140,7 @@ class SiteVisitSchedules:
         return self.get_by_model(attr="offschedule_model", model=offschedule_model)
 
     def get_by_loss_to_followup_model(
-        self, loss_to_followup_model: str = None
+        self, loss_to_followup_model: str
     ) -> tuple[VisitSchedule, Schedule]:
         """Returns a tuple of visit_schedule, schedule
         for the given loss_to_followup model.
@@ -151,9 +149,7 @@ class SiteVisitSchedules:
         """
         return self.get_by_model(attr="loss_to_followup_model", model=loss_to_followup_model)
 
-    def get_by_model(
-        self, attr: str = None, model: str = None
-    ) -> tuple[VisitSchedule, Schedule]:
+    def get_by_model(self, attr: str, model: str) -> tuple[VisitSchedule, Schedule]:
         ret = []
         model = model.lower()
         for visit_schedule in self.visit_schedules.values():
@@ -178,14 +174,15 @@ class SiteVisitSchedules:
         visit_schedule, schedule = ret[0]
         return visit_schedule, schedule
 
-    def get_by_offstudy_model(self, offstudy_model: str = None) -> list[VisitSchedule]:
+    def get_by_offstudy_model(self, offstudy_model: str) -> list[VisitSchedule]:
         """Returns a list of visit_schedules for the given
         offstudy model.
         """
-        visit_schedules = []
-        for visit_schedule in self.visit_schedules.values():
-            if visit_schedule.offstudy_model == offstudy_model:
-                visit_schedules.append(visit_schedule)
+        visit_schedules = [
+            visit_schedule
+            for visit_schedule in self.visit_schedules.values()
+            if visit_schedule.offstudy_model == offstudy_model
+        ]
         if not visit_schedules:
             raise SiteVisitScheduleError(
                 f"No visit schedules have been defined using the "
@@ -220,7 +217,7 @@ class SiteVisitSchedules:
     @staticmethod
     def get_offstudy_model() -> str:
         offstudy_models = []
-        for _, visit_schedule in site_visit_schedules.get_visit_schedules().items():
+        for visit_schedule in site_visit_schedules.get_visit_schedules().values():
             if visit_schedule.offstudy_model not in offstudy_models:
                 offstudy_models.append(visit_schedule.offstudy_model)
         if len(offstudy_models) > 1:
@@ -236,8 +233,7 @@ class SiteVisitSchedules:
                 "No off study model defined in visit_schedule. "
                 f"Got registered visit_schedules: {visit_schedule_names}."
             )
-        offstudy_model = offstudy_models[0]
-        return offstudy_model
+        return offstudy_models[0]
 
     @property
     def all_post_consent_models(self) -> dict[str, str]:

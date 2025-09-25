@@ -16,11 +16,11 @@ class RequisitionLabels:
         self.requisitions_not_printed = []
         self.appointment = appointment
         for metadata in requisition_metadata.filter(panel_name__in=panel_names):
-            panel = [
+            panel = next(
                 r
                 for r in appointment.related_visit.visit.all_requisitions
                 if r.panel.name == metadata.panel_name
-            ][0].panel
+            ).panel
             requisition = self.get_or_create_requisition(panel=panel, user=user)
             if requisition.is_drawn != NO:
                 item_count = requisition.item_count or 1

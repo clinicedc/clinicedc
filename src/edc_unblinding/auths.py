@@ -1,4 +1,6 @@
-from edc_auth.site_auths import site_auths
+from contextlib import suppress
+
+from edc_auth.site_auths import GroupAlreadyExists, RoleAlreadyExists, site_auths
 
 from .auth_objects import (
     UNBLINDING_REQUESTORS,
@@ -11,10 +13,14 @@ from .auth_objects import (
 
 
 def update_site_auths() -> None:
-    site_auths.add_group(*unblinding_requestors, name=UNBLINDING_REQUESTORS)
-    site_auths.add_group(*unblinding_reviewers, name=UNBLINDING_REVIEWERS)
-    site_auths.add_role(UNBLINDING_REQUESTORS, name=UNBLINDING_REQUESTORS_ROLE)
-    site_auths.add_role(UNBLINDING_REVIEWERS, name=UNBLINDING_REVIEWERS_ROLE)
+    with suppress(GroupAlreadyExists):
+        site_auths.add_group(*unblinding_requestors, name=UNBLINDING_REQUESTORS)
+    with suppress(GroupAlreadyExists):
+        site_auths.add_group(*unblinding_reviewers, name=UNBLINDING_REVIEWERS)
+    with suppress(RoleAlreadyExists):
+        site_auths.add_role(UNBLINDING_REQUESTORS, name=UNBLINDING_REQUESTORS_ROLE)
+    with suppress(RoleAlreadyExists):
+        site_auths.add_role(UNBLINDING_REVIEWERS, name=UNBLINDING_REVIEWERS_ROLE)
 
 
 update_site_auths()

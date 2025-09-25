@@ -17,6 +17,10 @@ class AgeFormatError(Exception):
     pass
 
 
+TWO_MONTHS = 2
+TWELVE_MONTHS = 12
+
+
 def get_dob(age_in_years: int, now: date | datetime | None = None) -> date:
     """Returns a DoB for the given age relative to now.
 
@@ -65,12 +69,12 @@ def formatted_age(
         age_delta = age(born, reference_dt or timezone.now())
         if age_delta.years == 0 and age_delta.months <= 0:
             age_as_str = f"{age_delta.days}d"
-        elif age_delta.years == 0 and 0 < age_delta.months <= 2:
+        elif age_delta.years == 0 and 0 < age_delta.months <= TWO_MONTHS:
             age_as_str = f"{age_delta.months}m{age_delta.days}d"
-        elif age_delta.years == 0 and age_delta.months > 2:
+        elif age_delta.years == 0 and age_delta.months > TWO_MONTHS:
             age_as_str = f"{age_delta.months}m"
         elif age_delta.years == 1:
-            m = age_delta.months + 12
+            m = age_delta.months + TWELVE_MONTHS
             age_as_str = f"{m}m"
         else:
             age_as_str = f"{age_delta.years}y"

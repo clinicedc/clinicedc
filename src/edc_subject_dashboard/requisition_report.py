@@ -7,6 +7,7 @@ from reportlab.lib import colors
 from reportlab.lib.units import cm, mm
 from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
 
+from edc_appointment.models import Appointment
 from edc_constants.constants import YES
 from edc_identifier.utils import convert_to_human_readable
 from edc_lab.model_mixins import RequisitionModelMixin
@@ -17,8 +18,9 @@ from edc_pdf_reports import Report
 class RequisitionReport(Report):
     def __init__(
         self,
-        appointment=None,
-        selected_panel_names=None,
+        *,
+        appointment: Appointment,
+        selected_panel_names: list[str],
         consignee=None,
         request=None,
         **kwargs,
@@ -34,7 +36,10 @@ class RequisitionReport(Report):
         self.contact_name = f"{self.user.first_name} {self.user.last_name}"
         self.image_folder = mkdtemp()
         self.timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
-        self.report_filename = f"requisition_{self.timestamp}.pdf"
+
+    @property
+    def report_filename(self) -> str:
+        return f"requisition_{self.timestamp}.pdf"
 
     @property
     def shipper(self):
@@ -46,7 +51,7 @@ class RequisitionReport(Report):
             shipper = Shipper()
         return shipper
 
-    def get_report_story(self, **kwargs):
+    def get_report_story(self, **kwargs):  # noqa: ARG002
         story = [
             Paragraph(
                 "PATIENT SPECIMEN REQUISITION / MANIFEST",
@@ -283,8 +288,7 @@ class RequisitionReport(Report):
 
     @property
     def consignee_data(self):
-        data = self.consignee.__dict__
-        return data
+        return self.consignee.__dict__
 
     @staticmethod
     def formatted_address(**kwargs):

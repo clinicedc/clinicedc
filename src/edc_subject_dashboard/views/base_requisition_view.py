@@ -11,10 +11,9 @@ class BaseRequisitionView(LoginRequiredMixin, PrintersMixin, View):
     success_url_name = "subject_dashboard_url"
 
     def get_success_url(self):
-        success_url = url_names.get(self.success_url_name)
-        return success_url
+        return url_names.get(self.success_url_name)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):  # noqa: ARG002
         url = reverse("edc_lab_dashboard:home_url")
         return HttpResponseRedirect(url)
 

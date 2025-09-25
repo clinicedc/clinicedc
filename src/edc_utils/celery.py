@@ -1,3 +1,5 @@
+import contextlib
+
 from celery import current_app
 from celery.result import AsyncResult
 from django.conf import settings
@@ -33,10 +35,8 @@ def get_task_result(obj) -> AsyncResult | None:
     """
     result = None
     if obj.task_id:
-        try:
+        with contextlib.suppress(TypeError, ValueError):
             result = AsyncResult(str(obj.task_id))
-        except (TypeError, ValueError):
-            pass
     return result
 
 

@@ -10,7 +10,7 @@ def edc_context_processors_check(
         if context_processor_name not in template_config.get("OPTIONS").get(
             "context_processors"
         ):
-            errors.append(
+            errors.append(  # noqa: PERF401
                 Error(
                     "Missing item in TEMPLATE.OPTIONS.context_processors. "
                     f"Expected `{context_processor_name}`.",

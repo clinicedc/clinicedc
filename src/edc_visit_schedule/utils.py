@@ -76,9 +76,7 @@ def raise_if_not_baseline(subject_visit) -> None:
         raise forms.ValidationError("This form is only available for completion at baseline.")
 
 
-def get_onschedule_models(
-    subject_identifier: str = None, report_datetime: datetime = None
-) -> list[str]:
+def get_onschedule_models(subject_identifier: str, report_datetime: datetime) -> list[str]:
     """Returns a list of onschedule models, in label_lower format,
     for this subject and date.
     """
@@ -96,7 +94,7 @@ def get_onschedule_models(
     return onschedule_models
 
 
-def get_offschedule_models(subject_identifier=None, report_datetime=None) -> list[str]:
+def get_offschedule_models(subject_identifier: str, report_datetime: datetime) -> list[str]:
     """Returns a list of offschedule models, in label_lower format,
     for this subject and date.
 
@@ -141,7 +139,7 @@ def off_schedule_or_raise(
         )
 
 
-def off_all_schedules_or_raise(subject_identifier: str = None):
+def off_all_schedules_or_raise(subject_identifier: str):
     """Raises an exception if subject is still on any schedule."""
     for visit_schedule in site_visit_schedules.get_visit_schedules().values():
         for schedule in visit_schedule.schedules.values():
@@ -171,8 +169,8 @@ def off_all_schedules_or_raise(subject_identifier: str = None):
 
 
 def offstudy_datetime_after_all_offschedule_datetimes(
-    subject_identifier: str = None,
-    offstudy_datetime: datetime = None,
+    subject_identifier: str,
+    offstudy_datetime: datetime,
     exception_cls=None,
 ) -> None:
     exception_cls = exception_cls or forms.ValidationError
@@ -206,10 +204,10 @@ def offstudy_datetime_after_all_offschedule_datetimes(
 
 
 def report_datetime_within_onschedule_offschedule_datetimes(
-    subject_identifier: str = None,
-    report_datetime: datetime = None,
-    visit_schedule_name: str = None,
-    schedule_name: str = None,
+    subject_identifier: str,
+    report_datetime: datetime,
+    visit_schedule_name: str,
+    schedule_name: str,
     exception_cls=None,
 ):
     exception_cls = exception_cls or forms.ValidationError
@@ -219,11 +217,11 @@ def report_datetime_within_onschedule_offschedule_datetimes(
         onschedule_obj = schedule.onschedule_model_cls.objects.get(
             subject_identifier=subject_identifier
         )
-    except ObjectDoesNotExist:
+    except ObjectDoesNotExist as e:
         raise OnScheduleError(
             f"Subject is not on schedule. {visit_schedule_name}.{schedule_name}. "
             f"Got {subject_identifier}"
-        )
+        ) from e
     try:
         offschedule_obj = schedule.offschedule_model_cls.objects.get(
             subject_identifier=subject_identifier,
@@ -280,7 +278,7 @@ def get_onschedule_model_instance(
         raise OffScheduleError(
             "Subject is not on a schedule. Using subject_identifier="
             f"`{subject_identifier}` and appt_datetime=`{dte_as_str}`. Got {e}"
-        )
+        ) from e
     return onschedule_obj
 
 
@@ -302,6 +300,7 @@ def get_proxy_root_model(proxy_model: models.Model) -> models.Model | None:
     """
     if proxy_model._meta.proxy:
         return proxy_model._meta.concrete_model
+    return None
 
 
 def check_models_in_visit_schedule() -> dict[str, list]:

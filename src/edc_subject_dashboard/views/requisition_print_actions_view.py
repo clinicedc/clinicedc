@@ -26,14 +26,14 @@ class RequisitionPrintActionsView(BaseRequisitionView):
     checkbox_name = "selected_panel_names"
 
     def __init__(self, **kwargs):
-        self._appointment = None
-        self._selected_panel_names = []
-        self._requisition_metadata = None
+        self._appointment: Appointment | None = None
+        self._selected_panel_names: list[str] | None = []
+        self._requisition_metadata: RequisitionMetadata | None = None
         self._requisition_model_cls = None
-        self.consignee = None
+        self.consignee: Consignee | None = None
         super().__init__(**kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         response = None
         if self.selected_panel_names:
             if self.request.POST.get("submit") in [

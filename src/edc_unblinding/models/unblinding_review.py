@@ -3,7 +3,7 @@ from django.utils import timezone
 
 from edc_action_item.models.action_model_mixin import ActionModelMixin
 from edc_constants.choices import YES_NO_TBD
-from edc_constants.constants import TBD
+from edc_constants.constants import NULL_STRING, TBD
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models.base_uuid_model import BaseUuidModel
@@ -36,7 +36,7 @@ class UnblindingReview(
 
     approved = models.CharField(max_length=15, default=TBD, choices=YES_NO_TBD)
 
-    comment = models.TextField(verbose_name="Comment", default="")
+    comment = models.TextField(verbose_name="Comment", default=NULL_STRING)
 
     objects = SubjectIdentifierManager()
 

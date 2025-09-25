@@ -10,11 +10,13 @@ class SchedulesCollection(OrderedCollection):
     key = "name"
     ordering_attr = "sequence"
 
-    def __init__(self, visit_schedule_name: str = None, *args, **kwargs) -> None:
+    def __init__(self, visit_schedule_name: str, *args, **kwargs) -> None:
         self.visit_schedule_name = visit_schedule_name
         super().__init__(*args, **kwargs)
 
-    def get_schedule(self, model: str = None, schedule_name: str = None) -> Schedule:
+    def get_schedule(
+        self, model: str | None = None, schedule_name: str | None = None
+    ) -> Schedule:
         """Returns a schedule or raises; by name, by onschedule/offschedule model
         or by model label_lower.
         """
@@ -22,7 +24,7 @@ class SchedulesCollection(OrderedCollection):
         if model:
             model = model.lower()
             for item in self.values():
-                if item.onschedule_model == model or item.offschedule_model == model:
+                if model in (item.onschedule_model, item.offschedule_model):
                     schedule = item
                 if schedule:
                     break

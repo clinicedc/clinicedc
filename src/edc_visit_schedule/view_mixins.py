@@ -37,7 +37,7 @@ class VisitScheduleViewMixin:
                         pass
                     else:
                         self.onschedule_models.append(onschedule_model_obj)
-                        self.visit_schedules.update({visit_schedule.name: visit_schedule})
+                        self.visit_schedules.update(**{visit_schedule.name: visit_schedule})
                         if schedule.is_onschedule(self.subject_identifier, timezone.now()):
                             self.current_schedule = schedule
                             self.current_visit_schedule = visit_schedule

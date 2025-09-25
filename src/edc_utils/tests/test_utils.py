@@ -3,7 +3,7 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from edc_utils import (
     AgeValueError,
@@ -19,6 +19,7 @@ from edc_utils import (
 from edc_utils.round_up import round_half_away_from_zero
 
 
+@tag("utils")
 class TestUtils(TestCase):
     def test_get_safe_random_string(self):
         """With default parameters"""
@@ -89,7 +90,7 @@ class TestUtils(TestCase):
 
     def test_age_without_tz(self):
         born = datetime(1990, 5, 1).astimezone(ZoneInfo("UTC"))
-        reference_dt = datetime(2000, 5, 1)
+        reference_dt = datetime(2000, 5, 1)  # noqa: DTZ001
         self.assertEqual(age(born, reference_dt).years, 10)
 
     def test_age_born_date(self):
@@ -213,9 +214,11 @@ class TestUtils(TestCase):
     def test_truncate_string_max_len_lt_1_raises_value_error(self):
         for string in ["", "a", "a long string"]:
             for max_length in [0, -1, -10]:
-                with self.subTest(string=string, max_length=max_length):
-                    with self.assertRaises(ValueError):
-                        (truncate_string(string=string, max_length=max_length),)
+                with (
+                    self.subTest(string=string, max_length=max_length),
+                    self.assertRaises(ValueError),
+                ):
+                    (truncate_string(string=string, max_length=max_length),)
 
     def test_truncate_string_gt_max_len_as_expected(self):
         orig_string = "String of len 16"

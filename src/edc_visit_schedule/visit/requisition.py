@@ -14,7 +14,7 @@ class ScheduledRequisitionError(Exception):
 
 
 class Requisition(Crf):
-    def __init__(self, panel=None, required: bool = None, **kwargs):
+    def __init__(self, panel=None, required: bool | None = None, **kwargs):
         required = False if required is None else required
         self.panel = panel
         if not self.panel.requisition_model:
@@ -52,10 +52,10 @@ class Requisition(Crf):
 
         See also: edc_lab.
         """
-        from edc_lab.site_labs import site_labs
+        from edc_lab.site_labs import site_labs  # noqa: PLC0415
 
         try:
-            self.panel.requisition_model_cls
+            self.panel.requisition_model_cls  # noqa: B018
         except LookupError as e:
             raise RequisitionLookupError(e) from e
 

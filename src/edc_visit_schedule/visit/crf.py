@@ -15,12 +15,13 @@ class CrfModelNotProxyModelError(Exception):
 class Crf:
     def __init__(
         self,
-        show_order: int = None,
-        model: str = None,
-        required: bool = None,
-        additional: bool = None,
-        site_ids: list[int] = None,
-        shares_proxy_root: bool = None,
+        *,
+        show_order: int,
+        model: str,
+        required: bool | None = None,
+        additional: bool | None = None,
+        site_ids: list[int] | None = None,
+        shares_proxy_root: bool | None = None,
     ) -> None:
         self.additional = additional
         self.model = model.lower()

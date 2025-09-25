@@ -34,7 +34,7 @@ class UnknownSubjectError(Exception):
     pass
 
 
-class InvalidOffscheduleDate(Exception):
+class InvalidOffscheduleDate(Exception):  # noqa: N818
     pass
 
 
@@ -54,11 +54,11 @@ class SiteVisitScheduleError(Exception):
     pass
 
 
-class RegistryNotLoaded(Exception):
+class RegistryNotLoaded(Exception):  # noqa: N818
     pass
 
 
-class AlreadyRegisteredVisitSchedule(Exception):
+class AlreadyRegisteredVisitSchedule(Exception):  # noqa: N818
     pass
 
 

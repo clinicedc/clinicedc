@@ -19,12 +19,11 @@ class UnblindingRequestAction(ActionWithNotification):
 
     def get_next_actions(self):
         next_actions = []
-        next_actions = self.append_to_next_if_required(
+        return self.append_to_next_if_required(
             next_actions=next_actions,
             action_name=UNBLINDING_REVIEW_ACTION,
             required=self.reference_obj.approved == TBD,
         )
-        return next_actions
 
 
 class UnblindingReviewAction(ActionWithNotification):
@@ -43,9 +42,8 @@ class UnblindingReviewAction(ActionWithNotification):
 
     def get_next_actions(self):
         next_actions = []
-        next_actions = self.append_to_next_if_required(
+        return self.append_to_next_if_required(
             next_actions=next_actions,
             action_name=END_OF_STUDY_ACTION,
             required=self.reference_obj.approved == YES,
         )
-        return next_actions

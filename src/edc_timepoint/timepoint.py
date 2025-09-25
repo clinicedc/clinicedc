@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 
 
-class TimepointClosed(Exception):
+class TimepointClosed(Exception):  # noqa: N818
     pass
 
 

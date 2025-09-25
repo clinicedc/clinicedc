@@ -1,7 +1,6 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from arrow import Arrow
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, tag
 
@@ -100,13 +99,17 @@ class TestVisit(TestCase):
             timepoint=1,
         )
         try:
-            visit.dates.lower
+            visit.dates.lower  # noqa: B018
         except BaseDatetimeNotSet:
             pass
+        else:
+            self.fail("Should have raised BaseDatetimeNotSet")
         try:
-            visit.dates.upper
+            visit.dates.upper  # noqa: B018
         except BaseDatetimeNotSet:
             pass
+        else:
+            self.fail("Should have raised BaseDatetimeNotSet")
 
     def test_visit_lower_upper(self):
         visit = Visit(
@@ -116,50 +119,40 @@ class TestVisit(TestCase):
             rupper=relativedelta(days=6),
             timepoint=1,
         )
-        visit.timepoint_datetime = Arrow.fromdatetime(
-            datetime(2001, 12, 1), tzinfo="utc"
-        ).datetime
+        visit.timepoint_datetime = datetime(2001, 12, 1, tzinfo=ZoneInfo("UTC"))
         self.assertEqual(
             visit.dates.lower,
-            Arrow.fromdatetime(datetime(2001, 12, 1), tzinfo="utc").datetime,
+            datetime(2001, 12, 1, tzinfo=ZoneInfo("UTC")),
         )
         self.assertEqual(
             visit.dates.upper,
-            Arrow.fromdatetime(
-                datetime(2001, 12, 7, 23, 59, 59, 999999), tzinfo="utc"
-            ).datetime,
+            datetime(2001, 12, 7, 23, 59, 59, 999999, tzinfo=ZoneInfo("UTC")),
         )
 
     def test_window_period_days(self):
         wp = WindowPeriod(rlower=relativedelta(days=0), rupper=relativedelta(days=6))
-        dt = Arrow.fromdatetime(datetime(2001, 12, 1), tzinfo="utc").datetime
+        dt = datetime(2001, 12, 1, tzinfo=ZoneInfo("UTC"))
         self.assertEqual(wp.get_window(dt)[0], dt)
         self.assertEqual(wp.get_window(dt).lower, dt)
         self.assertEqual(
             wp.get_window(dt)[1],
-            Arrow.fromdatetime(
-                datetime(2001, 12, 7, 23, 59, 59, 999999), tzinfo="utc"
-            ).datetime,
+            datetime(2001, 12, 7, 23, 59, 59, 999999, tzinfo=ZoneInfo("UTC")),
         )
         self.assertEqual(
             wp.get_window(dt).upper,
-            Arrow.fromdatetime(
-                datetime(2001, 12, 7, 23, 59, 59, 999999), tzinfo="utc"
-            ).datetime,
+            datetime(2001, 12, 7, 23, 59, 59, 999999, tzinfo=ZoneInfo("UTC")),
         )
 
     def test_window_period_weeks(self):
         wp = WindowPeriod(rlower=relativedelta(weeks=1), rupper=relativedelta(weeks=6))
-        dt = Arrow.fromdatetime(datetime(2001, 12, 8), tzinfo="utc").datetime
+        dt = datetime(2001, 12, 8, tzinfo=ZoneInfo("UTC"))
         self.assertEqual(
             wp.get_window(dt).lower,
-            Arrow.fromdatetime(datetime(2001, 12, 1), tzinfo="utc").datetime,
+            datetime(2001, 12, 1, tzinfo=ZoneInfo("UTC")),
         )
         self.assertEqual(
             wp.get_window(dt).upper,
-            Arrow.fromdatetime(
-                datetime(2002, 1, 19, 23, 59, 59, 999999), tzinfo="utc"
-            ).datetime,
+            datetime(2002, 1, 19, 23, 59, 59, 999999, tzinfo=ZoneInfo("UTC")),
         )
 
     def test_good_codes(self):

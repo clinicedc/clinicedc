@@ -38,5 +38,5 @@ class TestCrfCollection(TestCase):
         ]
         with self.assertRaises(FormsCollectionError) as cm:
             CrfCollection(*crfs)
-        self.assertIn("Expected to be a unique sequence of crf/models.", str(cm.exception)),
+        self.assertIn("Expected to be a unique sequence of crf/models.", str(cm.exception))
         self.assertIn(" Duplicates ['x.one'].", str(cm.exception))

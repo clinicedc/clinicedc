@@ -110,5 +110,5 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):  # noq
                 )
             )
         else:
-            raise TypeError("%s does not appear to be a urlpattern object" % p)
+            raise TypeError(f"{p} does not appear to be a urlpattern object")
     return views

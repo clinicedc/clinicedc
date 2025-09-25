@@ -77,8 +77,8 @@ class SubjectDashboardExtrasError(Exception):
 
 @register.inclusion_tag("edc_subject_dashboard/appointment_in_progress.html")
 def appointment_in_progress(
-    subject_identifier: str = None,
-    visit_schedule: VisitSchedule = None,
+    subject_identifier: str | None = None,
+    visit_schedule: VisitSchedule | None = None,
     schedule: Schedule = None,
 ) -> dict[str, str]:
     """Returns the context with the visit code of the appointment in
@@ -136,15 +136,15 @@ def requisition_panel_actions(context, requisitions=None):
 )
 def print_requisition_popover(context):
     C = namedtuple("Consignee", "pk name")
-    consignees = []
-    for consignee in django_apps.get_model("edc_lab.Consignee").objects.all():
-        consignees.append(C(str(consignee.pk), consignee.name))
-    context["consignees"] = consignees
+    context["consignees"] = [
+        C(str(consignee.pk), consignee.name)
+        for consignee in django_apps.get_model("edc_lab.Consignee").objects.all()
+    ]
     return context
 
 
 @register.inclusion_tag("edc_subject_dashboard/appointment_status.html")
-def render_appointment_status_icon(appt_status: str = None) -> dict[str, str]:
+def render_appointment_status_icon(appt_status: str | None = None) -> dict[str, str]:
     return dict(
         appt_status=appt_status,
         NEW_APPT=NEW_APPT,
@@ -159,7 +159,7 @@ def render_appointment_status_icon(appt_status: str = None) -> dict[str, str]:
 @register.inclusion_tag(
     "edc_subject_dashboard/dashboard/crf_totals.html",
 )
-def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
+def render_crf_totals(appointment: Appointment | None = None) -> dict[str, bool | int]:
     helper = MetadataHelper(appointment)
     skipped: bool = False
     show_totals: bool = False
@@ -184,7 +184,7 @@ def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
         num_keyed = crf_keyed + requisition_keyed
         num_total = crf_total + requisition_total
         if appointment.related_visit:
-            show_totals = False if num_keyed != 0 and num_keyed == num_total else True
+            show_totals = not (num_keyed != 0 and num_keyed == num_total)
         complete = num_keyed != 0 and num_keyed == num_total
     return dict(
         show_totals=show_totals,
@@ -202,10 +202,10 @@ def render_crf_totals(appointment: Appointment = None) -> dict[str, bool | int]:
 )
 def render_crf_button_group(
     context,
-    model_obj: CrfMetadata = None,
-    appointment: Appointment = None,
-    registered_subject: RegisteredSubject = None,
-    visit_schedule: VisitScheduleModel = None,
+    model_obj: CrfMetadata | None = None,
+    appointment: Appointment | None = None,
+    registered_subject: RegisteredSubject | None = None,
+    visit_schedule: VisitScheduleModel | None = None,
 ):
     """Prepare context data to render CRF, History, and Query
     dashboard buttons.
@@ -238,10 +238,10 @@ def render_crf_button_group(
 )
 def render_requisition_button_group(
     context,
-    model_obj: CrfMetadata = None,
-    appointment: Appointment = None,
-    registered_subject: RegisteredSubject = None,
-    visit_schedule: VisitScheduleModel = None,
+    model_obj: CrfMetadata | None = None,
+    appointment: Appointment | None = None,
+    registered_subject: RegisteredSubject | None = None,
+    visit_schedule: VisitScheduleModel | None = None,
 ):
     # if still using deprecated ModelWrapper, get model instance
     # from model_wrapper
@@ -281,7 +281,7 @@ def render_prn_button(context, model_obj, model_name: str) -> dict:
     "edc_subject_dashboard/buttons/appointment_button.html",
     takes_context=True,
 )
-def render_appointment_button(context, appointment: Appointment = None):
+def render_appointment_button(context, appointment: Appointment | None = None):
     # if still using deprecated ModelWrapper, get model instance
     # from model_wrapper
     appointment = getattr(appointment, "object", appointment)
@@ -297,7 +297,7 @@ def render_appointment_button(context, appointment: Appointment = None):
     "edc_subject_dashboard/buttons/appointment_button.html",
     takes_context=True,
 )
-def render_related_visit_button(context, appointment: Appointment = None):
+def render_related_visit_button(context, appointment: Appointment | None = None):
     # if still using deprecated ModelWrapper, get model instance
     # from model_wrapper
     appointment = getattr(appointment, "object", appointment)
@@ -317,7 +317,7 @@ def render_related_visit_button(context, appointment: Appointment = None):
     "edc_subject_dashboard/buttons/forms_button.html",
     takes_context=True,
 )
-def render_gotoforms_button(context, appointment: Appointment = None):
+def render_gotoforms_button(context, appointment: Appointment | None = None):
     # if still using deprecated ModelWrapper, get model instance
     # from model_wrapper
     appointment: Appointment = getattr(appointment, "object", appointment)
@@ -337,7 +337,7 @@ def render_gotoforms_button(context, appointment: Appointment = None):
     "edc_subject_dashboard/buttons/appointment_button.html",
     takes_context=True,
 )
-def render_timepoint_status_button(context, appointment: Appointment = None):
+def render_timepoint_status_button(context, appointment: Appointment | None = None):
     btn = TimepointStatusButton(
         model_obj=appointment,
         user=context["user"],
@@ -350,9 +350,9 @@ def render_timepoint_status_button(context, appointment: Appointment = None):
     "edc_subject_dashboard/buttons/subject_consent_button.html",
     takes_context=True,
 )
-def render_subject_listboard_consent_button(
+def render_subject_listboard_consent_button(  # noqa: UP047
     context,
-    subject_screening: ScreeningModel = None,
+    subject_screening: ScreeningModel | None = None,
     next_url_name: str | None = None,
 ):
     """A subject consent button to appear on the subject listboard.
@@ -372,10 +372,10 @@ def render_subject_listboard_consent_button(
     "edc_subject_dashboard/buttons/subject_consent_button.html",
     takes_context=True,
 )
-def render_subject_consent_dashboard_button(
+def render_subject_consent_dashboard_button(  # noqa: UP047
     context,
-    consent: ConsentModel = None,
-    appointment: Appointment = None,
+    consent: ConsentModel | None = None,
+    appointment: Appointment | None = None,
     next_url_name: str | None = None,
 ):
     """A subject consent button to appear on the subject dashboard
@@ -398,7 +398,7 @@ def render_subject_consent_dashboard_button(
     takes_context=True,
 )
 def render_unscheduled_appointment_button(
-    context, appointment: Appointment = None, view_appointment: bool = None
+    context, appointment: Appointment | None = None, view_appointment: bool | None = None
 ):
     show_button = False
     anchor_id: str | None = None
@@ -477,9 +477,9 @@ def render_subject_schedule_button(
 )
 def render_refresh_appointments_button(
     context,
-    subject_identifier: str = None,
-    visit_schedule_name: str = None,
-    schedule_name: str = None,
+    subject_identifier: str | None = None,
+    visit_schedule_name: str | None = None,
+    schedule_name: str | None = None,
 ) -> dict:
     if context["request"].user.userprofile.is_multisite_viewer or context[
         "request"
@@ -503,9 +503,9 @@ def render_refresh_appointments_button(
 )
 def render_refresh_data_collection_schedule_button(
     context,
-    related_visit_id: str = None,
-    visit_schedule_name: str = None,
-    schedule_name: str = None,
+    related_visit_id: str | None = None,
+    visit_schedule_name: str | None = None,
+    schedule_name: str | None = None,
 ) -> dict:
     if (
         context["request"].user.userprofile.is_multisite_viewer

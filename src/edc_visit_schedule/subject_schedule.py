@@ -237,13 +237,13 @@ class SubjectSchedule:
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
             )
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             raise NotOnScheduleError(
                 "Failed to take subject off schedule. "
                 f"Subject has not been put on schedule "
                 f"'{self.visit_schedule_name}.{self.schedule_name}'. "
                 f"Got '{self.subject_identifier}'."
-            )
+            ) from e
 
         if history_obj:
             self.update_history_or_raise(
@@ -293,7 +293,7 @@ class SubjectSchedule:
                 subject_identifier=self.subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                **{f"{related_visit_model_attr}__report_datetime__gt": (offschedule_datetime)},
+                **{f"{related_visit_model_attr}__report_datetime__gt": offschedule_datetime},
             )
         except ObjectDoesNotExist:
             appointments = None
@@ -302,7 +302,7 @@ class SubjectSchedule:
                 subject_identifier=self.subject_identifier,
                 schedule_name=self.schedule_name,
                 visit_schedule_name=self.visit_schedule_name,
-                **{f"{related_visit_model_attr}__report_datetime__gt": (offschedule_datetime)},
+                **{f"{related_visit_model_attr}__report_datetime__gt": offschedule_datetime},
             )
         if appointments:
             raise InvalidOffscheduleDate(
@@ -336,12 +336,12 @@ class SubjectSchedule:
         model_cls = django_apps.get_model(self.registered_subject_model)
         try:
             obj = model_cls.objects.get(subject_identifier=self.subject_identifier)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             raise UnknownSubjectError(
                 f"Failed to put subject on schedule. Unknown subject. "
                 f"Searched `{self.registered_subject_model}`. "
                 f"Got subject_identifier=`{self.subject_identifier}`."
-            )
+            ) from e
         return obj
 
     @property
@@ -350,11 +350,11 @@ class SubjectSchedule:
             onschedule_obj = self.onschedule_model_cls.objects.get(
                 subject_identifier=self.subject_identifier
             )
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             raise NotOnScheduleError(
                 f"Subject has not been put on a schedule `{self.schedule_name}`. "
                 f"Got subject_identifier=`{self.subject_identifier}`."
-            )
+            ) from e
         return onschedule_obj
 
     def onschedule_or_raise(self, report_datetime=None, compare_as_datetimes=None):

@@ -1,3 +1,5 @@
+import contextlib
+
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
@@ -14,6 +16,7 @@ from edc_unblinding.auth_objects import (
     UNBLINDING_REQUESTORS_ROLE,
     UNBLINDING_REVIEWERS_ROLE,
 )
+from edc_unblinding.auths import update_site_auths
 from edc_unblinding.models import UnblindingRequest, UnblindingRequestorUser
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -30,22 +33,22 @@ class UnblindingTestCase(TestCase):
         get_user_model().objects.create(username="frazey", is_staff=True, is_active=True)
 
     def setUp(self):
-        try:
+        with contextlib.suppress(AlreadyRegistered):
             site_action_items.register(action_cls=UnblindingRequestAction)
-        except AlreadyRegistered:
-            pass
-        try:
+        with contextlib.suppress(AlreadyRegistered):
             site_action_items.register(action_cls=UnblindingReviewAction)
-        except AlreadyRegistered:
-            pass
         self.user = get_user_model().objects.get(username="frazey")
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(get_visit_schedule(consent_v1))
+        site_visit_schedules.register(
+            get_visit_schedule(
+                consent_v1, visit_schedule_name="visit_schedule", schedule_name="schedule"
+            )
+        )
         self.helper = self.helper_cls()
         self.subject_consent = self.helper.consent_and_put_on_schedule(
-            consent_definition=consent_v1
+            visit_schedule_name="visit_schedule", schedule_name="schedule"
         )
 
     def test_ok(self):
@@ -57,5 +60,6 @@ class UnblindingTestCase(TestCase):
         obj.save()
 
     def test_auth(self):
+        update_site_auths()
         self.assertIn(UNBLINDING_REQUESTORS_ROLE, site_auths.roles)
         self.assertIn(UNBLINDING_REVIEWERS_ROLE, site_auths.roles)

@@ -83,7 +83,7 @@ class SubjectVisitViewMixin:
         did not declare this view with AppointmentViewMixin.
         """
         try:
-            self.appointment
+            self.appointment  # noqa: B018
         except AttributeError as e:
             if "appointment" in str(e):
                 raise SubjectVisitViewMixinError(
