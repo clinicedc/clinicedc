@@ -9,7 +9,7 @@ Documentation: `clinicedc.readthedocs.io <https://clinicedc.readthedocs.io/>`_
 
 Source code: https://github.com/clinicedc/clinicedc
 
-`Here are a set of python modules that extend Django <https://github.com/clinicedc/edc>`__ to empower you to build an EDC / eSource system to handle data
+`Here is a python module that extend Django <https://github.com/clinicedc/clinicedc>`__ to empower you to build an EDC / eSource system to handle data
 collection and management for multi-site longitudinal clinical trials.
 
 Refer to the specific open projects listed below for example EDC systems built with these modules.
@@ -30,7 +30,7 @@ See also https://www.ucl.ac.uk/global-health/respond-africa
 
 The implementations we develop with this framework are mostly eSource systems rather than the traditional EDCs.
 
-The ``clinicedc's`` listed below consist of a subset of trial-specific modules that make heavy use of modules in this framework.
+The projects listed below consist of a subset of trial-specific modules that make heavy use of modules in this framework.
 
 Contacts
 --------
@@ -50,8 +50,8 @@ python 3.12+ Django 5.2+  mysql 8+
 ============ ============ =========
 
 
-How we describe the EDC in our protocol documents
--------------------------------------------------
+How we describe the CLINICEDC projects in our protocol documents
+----------------------------------------------------------------
 
 Here is a simple example of a data management section for a study protocol document: `data_management_section`_
 
