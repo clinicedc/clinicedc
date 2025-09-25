@@ -10,6 +10,8 @@ from ..exceptions import ValueBoundryError
 from ..formula import clean_and_validate_phrase
 from .reference_range_collection import ReferenceRangeCollection
 
+MAX_AGE = 130.0
+
 
 class ReferenceModelMixin(models.Model):
     reference_range_collection = models.ForeignKey(
@@ -117,12 +119,12 @@ class ReferenceModelMixin(models.Model):
             )
         rdelta = age(dob, report_datetime)
         age_value = getattr(rdelta, age_units)
-        if not isinstance(age_value, (int, float)) or not (0.0 <= age_value <= 130.0):
+        if not isinstance(age_value, (int, float)) or not (0.0 <= age_value <= MAX_AGE):
             raise ValueError(f"Invalid age value. Got {age_value}.")
         age_condition_str = self.age_phrase % dict(age_value=age_value)
         if not re.match(pattern, age_condition_str):
             raise ValueError(f"Invalid age condition string. Got {age_condition_str}.")
-        if not eval(age_condition_str):  # nosec B307
+        if not eval(age_condition_str):  # noqa: S307
             raise ValueBoundryError(
                 f"Age is out of bounds. See {self}. Got AGE={age_value} {age_units}."
             )

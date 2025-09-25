@@ -44,7 +44,9 @@ def get_value_from_lookup_string(search_field_name: str = None, obj=None, reques
         try:
             value = getattr(value or obj, field)
         except AttributeError as e:
-            raise SearchTermLookupError(f"Invalid search term. `{search_field_name}`. Got {e}")
+            raise SearchTermLookupError(
+                f"Invalid search term. `{search_field_name}`. Got {e}"
+            ) from e
         if value is None:
             break
     return value

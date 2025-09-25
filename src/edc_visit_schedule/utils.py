@@ -158,7 +158,7 @@ def off_all_schedules_or_raise(subject_identifier: str = None):
                         schedule.offschedule_model_cls.objects.get(
                             subject_identifier=subject_identifier
                         )
-                except ObjectDoesNotExist:
+                except ObjectDoesNotExist as e:
                     model_name = schedule.offschedule_model_cls()._meta.verbose_name.title()
                     raise OffScheduleError(
                         f"Subject cannot be taken off study. Subject is still on a "
@@ -166,7 +166,7 @@ def off_all_schedules_or_raise(subject_identifier: str = None):
                         f"{schedule.name}. "
                         f"Complete the offschedule form `{model_name}` first. "
                         f"Subject identifier='{subject_identifier}', "
-                    )
+                    ) from e
     return True
 
 

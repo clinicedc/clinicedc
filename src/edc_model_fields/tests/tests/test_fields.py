@@ -65,7 +65,6 @@ class TestFields(TestCase):
 
     def test_user_created(self):
         """Assert user is set on created ONLY unless explicitly set."""
-        pwd.getpwuid(os.getuid()).pw_name
         test_model = TestModel.objects.create(f1="monday")
         self.assertEqual("", test_model.user_created)
         test_model.user_created = ""

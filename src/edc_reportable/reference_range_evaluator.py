@@ -41,12 +41,13 @@ class UserFormResponse:
 class ReferenceRangeEvaluator:
     def __init__(
         self,
-        reference_range_collection_name=None,
-        cleaned_data: dict = None,
-        gender: str = None,
-        dob: date = None,
-        report_datetime: datetime = None,
-        age_units: str = None,
+        *,
+        reference_range_collection_name,
+        cleaned_data: dict,
+        gender: str,
+        dob: date,
+        report_datetime: datetime,
+        age_units: str,
         value_field_suffix: str | None = None,
         **extra_options,
     ):
@@ -55,7 +56,7 @@ class ReferenceRangeEvaluator:
         ).exists():
             raise forms.ValidationError(
                 {
-                    "Invalid reference range collection. "
+                    "__all__": "Invalid reference range collection. "
                     f"Got '{reference_range_collection_name}'"
                 },
                 code=INVALID_REFERENCE,
@@ -121,7 +122,7 @@ class ReferenceRangeEvaluator:
             word="reportable",
         )
 
-    def _grade_or_check_normal_range(self, utest_id, value, field):
+    def _grade_or_check_normal_range(self, utest_id: str, value: int | float, field: str):
         """Evaluate a single result value.
 
         Grading is done first. If the value is not gradeable,
@@ -198,11 +199,17 @@ class ReferenceRangeEvaluator:
                 {f"{utest_id}_reportable": "Invalid. Expected 'No' or 'Not applicable'."}
             )
         self._check_normal_range(
-            utest_id, value, field, grading_data, user_form_response, opts
+            utest_id=utest_id,
+            value=value,
+            field=field,
+            grading_data=grading_data,
+            user_form_response=user_form_response,
+            opts=opts,
         )
 
     def _check_normal_range(
         self,
+        *,
         utest_id: str,
         value: int | float,
         field: str,
@@ -217,7 +224,7 @@ class ReferenceRangeEvaluator:
                 **opts,
             )
         except NotEvaluated as e:
-            raise forms.ValidationError({field: str(e)})
+            raise forms.ValidationError({field: str(e)}) from e
         else:
             try:
                 is_normal = normal_data.value_in_normal_range_or_raise(
@@ -268,12 +275,7 @@ class ReferenceRangeEvaluator:
                 )
 
     def _validate_final_assessment(
-        self,
-        field: str = None,
-        responses: list[str] = None,
-        suffix: str = None,
-        word: str = None,
-        utest_id: str = None,
+        self, *, field: str, suffix: str, word: str, responses: list[str] | None = None
     ):
         """Common code to validate fields `results_abnormal`
         and `results_reportable`.
@@ -295,6 +297,5 @@ class ReferenceRangeEvaluator:
                 raise forms.ValidationError(
                     {field: f"{len(answers_as_bool)} of the above results {are} {word}"}
                 )
-        elif self.cleaned_data.get(field) == YES:
-            if not any(answers_as_bool):
-                raise forms.ValidationError({field: f"None of the above results are {word}"})
+        elif self.cleaned_data.get(field) == YES and not any(answers_as_bool):
+            raise forms.ValidationError({field: f"None of the above results are {word}"})

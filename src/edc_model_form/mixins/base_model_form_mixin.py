@@ -53,7 +53,7 @@ class BaseModelFormMixin(ReportDatetimeModelFormMixin):
             get_registered_subject_model_cls().objects.get(
                 subject_identifier=self.get_subject_identifier()
             )
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             raise ValidationError(
                 {
                     "subject_identifier": (
@@ -61,4 +61,4 @@ class BaseModelFormMixin(ReportDatetimeModelFormMixin):
                         f"Got {self.get_subject_identifier()}."
                     )
                 }
-            )
+            ) from e

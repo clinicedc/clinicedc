@@ -50,10 +50,10 @@ class InlineModelFormMixin:
             if dte_as_str:
                 try:
                     dte = datetime.fromisoformat(dte_as_str)
-                except ValueError:
+                except ValueError as e:
                     raise forms.ValidationError(
                         f"{field_label}: Invalid date or date format. Got {dte_as_str}"
-                    )
+                    ) from e
                 else:
                     if dte.astimezone(ZoneInfo(settings.TIME_ZONE)) > self.cleaned_data.get(
                         "report_datetime"

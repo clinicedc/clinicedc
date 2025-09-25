@@ -12,8 +12,8 @@ from django.db import OperationalError
 from django.db.models import QuerySet
 from django_crypto_fields.utils import get_encrypted_fields, has_encrypted_fields
 from django_pandas.io import read_frame
-from pandas import Series
 
+from edc_constants.constants import NULL_STRING
 from edc_lab.models import Panel
 from edc_list_data.model_mixins import ListModelMixin, ListUuidModelMixin
 
@@ -228,15 +228,15 @@ class ModelToDataframe:
             dataframe = dataframe.merge(df_m2m, on="id", how="left")
         return dataframe
 
-    def _clean_chars(self, s: Series) -> Series:
-        if not s.empty:
+    def _clean_chars(self, s: str) -> str:
+        if s:
             for k, v in self.illegal_chars.items():
                 try:
                     s = s.replace(k, v)
                 except (AttributeError, TypeError):
                     break
             return s
-        return np.nan
+        return NULL_STRING
 
     def move_sys_columns_to_end(self, columns: dict[str, str]) -> dict[str, str]:
         system_columns = [
