@@ -7,6 +7,8 @@ A data management framework built on Django for multisite randomized longitudina
 
 Documentation: `clinicedc.readthedocs.io <https://clinicedc.readthedocs.io/>`_
 
+Source code: https://github.com/clinicedc/clinicedc
+
 `Here are a set of python modules that extend Django <https://github.com/clinicedc/edc>`__ to empower you to build an EDC / eSource system to handle data
 collection and management for multi-site longitudinal clinical trials.
 
