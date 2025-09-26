@@ -28,7 +28,22 @@ class SiteRandomizerError(Exception):
 
 
 class SiteRandomizers:
-    """Main controller of :class:`SiteRandomizers` objects."""
+    """Main controller of :class:`SiteRandomizers` objects.
+
+    To rescan the CSV file for randomizer additional slots:
+
+        from edc_randomization.site_randomizers import site_randomizers
+        # assuming the randimizer is "default"
+        site_randomizers.get("default").import_list(add=True,dryrun=True)
+
+    If all OK:
+
+        # assuming the randimizer is "default"
+        site_randomizers.get("default").import_list(add=True,dryrun=False)
+
+    See
+
+    """
 
     def __init__(self):
         self._registry = {}
@@ -57,12 +72,12 @@ class SiteRandomizers:
     def get(self, name):
         try:
             return self._registry[str(name)]
-        except KeyError:
+        except KeyError as e:
             raise NotRegistered(
                 f"A Randomizer class by this name is not registered. "
                 f"Expected one of {list(self._registry.keys())}. "
                 f"Got '{name}'. See site_randomizer."
-            )
+            ) from e
 
     def get_by_model(self, model=None):
         """Returns the randomizer class for this model label_lower.
@@ -75,10 +90,12 @@ class SiteRandomizers:
         return None
 
     def get_as_choices(self):
-        choices = []
-        for randomizer_cls in self._registry.values():
-            choices.append((randomizer_cls.name, randomizer_cls.name))
-        return tuple(choices)
+        return tuple(
+            [
+                (randomizer_cls.name, randomizer_cls.name)
+                for randomizer_cls in self._registry.values()
+            ]
+        )
 
     def randomize(
         self,
@@ -115,7 +132,7 @@ class SiteRandomizers:
                         before_import_registry = copy.copy(site_randomizers._registry)
                         import_module(f"{app}.{module_name}")
                         if verbose:
-                            sys.stdout.write(" * registered randomizer from " f"'{app}'\n")
+                            sys.stdout.write(f" * registered randomizer from '{app}'\n")
                     except Exception as e:
                         if f"No module named '{app}.{module_name}'" not in str(e):
                             raise

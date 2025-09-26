@@ -55,13 +55,13 @@ class RandomizationListImporter:
 
 
     Format:
-        sid,assignment,site_name, orig_site, orig_allocation, orig_desc
-        1,single_dose,gaborone
-        2,two_doses,gaborone
+        sid,site_name, assignment, description, orig_site, orig_allocation, orig_desc
+        1,gaborone,intervention,single_dose
+        2,gaborone,control,two_doses
         ...
     """
 
-    required_csv_fieldnames = ["sid", "assignment", "site_name"]
+    required_csv_fieldnames = ("sid", "assignment", "site_name", "description")
     verifier_cls = RandomizationListVerifier
 
     def __init__(
