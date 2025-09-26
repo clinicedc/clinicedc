@@ -31,7 +31,7 @@ class RandomizationListVerifier:
         fieldnames=None,
         sid_count_for_tests=None,
         required_csv_fieldnames: list[str] | None = None,
-        **kwargs,
+        **kwargs,  # noqa: ARG002
     ):
         self.count: int = 0
         self.messages: list[str] = []
@@ -68,33 +68,38 @@ class RandomizationListVerifier:
                 )
             elif message := self.verify():
                 self.messages.append(message)
-        if self.messages:
-            if (
-                "migrate" not in sys.argv
-                and "makemigrations" not in sys.argv
-                and "import_randomization_list" not in sys.argv
-            ):
-                raise RandomizationListError(", ".join(self.messages))
+        if self.messages and (
+            "migrate" not in sys.argv
+            and "makemigrations" not in sys.argv
+            and "import_randomization_list" not in sys.argv
+        ):
+            raise RandomizationListError(", ".join(self.messages))
 
     def verify(self) -> str | None:
         message = None
+
         with self.randomizationlist_path.open(mode="r") as f:
             reader = csv.DictReader(f)
-            for index, row in enumerate(reader, start=1):
-                row = {k: v.strip() for k, v in row.items() if k}
-                message = self.inspect_row(index - 1, row)
-                if message:
-                    break
-                if self.sid_count_for_tests and index == self.sid_count_for_tests:
-                    break
-        if not message:
-            if self.count != index:
-                message = (
-                    f"Randomization list count is off. Expected {index} (CSV). "
-                    f"Got {self.count} (model_cls). See file "
-                    f"{self.randomizationlist_path}. "
-                    f"Resolve this issue before using the system."
-                )
+            all_rows = [{k: v.strip() for k, v in row.items() if k} for row in reader]
+            sorted_rows = sorted(
+                all_rows, key=lambda row: (row.get("site_name", ""), row.get("sid", ""))
+            )
+
+        for index, row in enumerate(sorted_rows, start=1):
+            sys.stdout.write(f"Index: {index}, SID: {row.get('sid')}, Row: {row}\n")
+            message = self.inspect_row(index - 1, row)
+            if message:
+                break
+            if self.sid_count_for_tests and index == self.sid_count_for_tests:
+                break
+
+        if not message and self.count != index:
+            message = (
+                f"Randomization list count is off. Expected {index} (CSV). "
+                f"Got {self.count} (model_cls). See file "
+                f"{self.randomizationlist_path}. "
+                f"Resolve this issue before using the system."
+            )
         return message
 
     def inspect_row(self, index: int, row) -> str | None:
@@ -103,7 +108,7 @@ class RandomizationListVerifier:
         Note:Index is zero-based
         """
         message = None
-        obj1 = self.randomizer_model_cls.objects.all().order_by("sid")[index]
+        obj1 = self.randomizer_model_cls.objects.all().order_by("site_name", "sid")[index]
         try:
             obj2 = self.randomizer_model_cls.objects.get(sid=row["sid"])
         except ObjectDoesNotExist:
