@@ -100,7 +100,7 @@ class ShortIdentifier:
             tries += 1
             random_string = "".join(
                 [
-                    random.choice(allowed_chars)  # nosec B311
+                    random.choice(allowed_chars)  # nosec B311  # noqa: S311
                     for _ in range(self.random_string_length)
                 ]
             )

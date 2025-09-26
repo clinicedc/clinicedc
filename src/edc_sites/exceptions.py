@@ -6,5 +6,5 @@ class InvalidSiteForSubjectError(Exception):
     pass
 
 
-class InvalidSiteForUser(Exception):
+class InvalidSiteForUser(Exception):  # noqa: N818
     pass

@@ -14,23 +14,25 @@ def is_subject_identifier_or_raise(subject_identifier, reference_obj=None, raise
     * If `subject_identifier` is None, does nothing, unless
       `raise_on_none` is `True`.
     """
-    if subject_identifier or raise_on_none:
-        if not re.match(
+    if subject_identifier or (
+        raise_on_none
+        and not re.match(
             ResearchProtocolConfig().subject_identifier_pattern,
             subject_identifier or "",
-        ):
-            reference_msg = ""
-            if reference_obj:
-                reference_msg = f"See {reference_obj!r}. "
-            raise SubjectIdentifierError(
-                f"Invalid format for subject identifier. {reference_msg}"
-                f"Got `{subject_identifier or ''}`. "
-                f"Expected pattern `{ResearchProtocolConfig().subject_identifier_pattern}`"
-            )
+        )
+    ):
+        reference_msg = ""
+        if reference_obj:
+            reference_msg = f"See {reference_obj!r}. "
+        raise SubjectIdentifierError(
+            f"Invalid format for subject identifier. {reference_msg}"
+            f"Got `{subject_identifier or ''}`. "
+            f"Expected pattern `{ResearchProtocolConfig().subject_identifier_pattern}`"
+        )
     return subject_identifier
 
 
-def get_human_phrase(no_hyphen: bool = None) -> str:
+def get_human_phrase(no_hyphen: bool | None = None) -> str:
     """Returns 6 digits split by a '-', e.g. DEC-96E.
 
     There are 213,127,200 permutations from an unambiguous alphabet.

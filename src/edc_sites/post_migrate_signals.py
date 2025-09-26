@@ -6,8 +6,8 @@ style = color_style()
 
 
 def post_migrate_update_sites(sender=None, **kwargs):
-    from .site import sites as site_sites
-    from .utils import add_or_update_django_sites
+    from .site import sites as site_sites  # noqa: PLC0415
+    from .utils import add_or_update_django_sites  # noqa: PLC0415
 
     sys.stdout.write(style.MIGRATE_HEADING("Updating sites:\n"))
 

@@ -104,7 +104,7 @@ class TestSubjectIdentifier(TestCase):
             self.assertTrue(identifier.identifier.startswith("000"))
 
         self.assertEqual(IdentifierModel.objects.all().count(), 5)
-        self.assertRaises(
+        self.assertRaises(  # noqa: B017
             Exception,
             SubjectIdentifier,
             identifier_type="subject",

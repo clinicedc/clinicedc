@@ -113,7 +113,7 @@ class SubjectIdentifierMethodsModelMixin(models.Model):
             raise IdentifierError(
                 "Cannot lookup a unique RegisteredSubject instance. "
                 f"Identity {self.identity} is not unique. Got {e}"
-            )
+            ) from e
         return obj
 
     class Meta:

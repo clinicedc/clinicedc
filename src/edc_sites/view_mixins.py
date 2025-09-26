@@ -19,10 +19,10 @@ class SiteViewMixin:
         kwargs.update(site_profile=site_profile)
         try:
             kwargs.update(site_title=site_profile.title)
-        except AttributeError:
+        except AttributeError as e:
             if not sites.all():
                 raise SiteNotRegistered(
                     "Unable to determine site profile 'title'. No sites have been registered! "
-                )
+                ) from e
             raise
         return kwargs

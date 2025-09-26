@@ -17,10 +17,10 @@ class SiteListFilter(SimpleListFilter):
         else:
             site_ids = sites.get_site_ids_for_user(request=request)
         for site in Site.objects.filter(id__in=site_ids).order_by("id"):
-            names.append((site.id, f"{site.id} {sites.get(site.id).description}"))
+            names.append((site.id, f"{site.id} {sites.get(site.id).description}"))  # noqa: PERF401
         return tuple(names)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         if self.value() and self.value() != "none":
             queryset = queryset.filter(site__id=self.value())
         return queryset

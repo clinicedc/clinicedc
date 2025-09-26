@@ -8,6 +8,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 
+from edc_constants.constants import NULL_STRING
+
 from .utils import convert_to_human_readable
 
 if TYPE_CHECKING:
@@ -22,10 +24,13 @@ class IdentifierError(Exception):
     pass
 
 
+IDENTIFER_PREFIX_LENGTH = 2
+
+
 class SimpleIdentifier:
     random_string_length: int = 5
     template: str = "{device_id}{random_string}"
-    identifier_prefix: str = None
+    identifier_prefix: str = NULL_STRING
 
     def __init__(
         self,
@@ -90,7 +95,7 @@ class SimpleSequentialIdentifier:
         random_number: int = choice(range(1000, 9999))  # nosec B311
         sequence: str = f"{sequence}{random_number}"
         chk: int = int(sequence) % 11
-        self.identifier: str = f"{self.prefix or ''}{sequence}{chk}"
+        self.identifier: str = f"{self.prefix or NULL_STRING}{sequence}{chk}"
 
     def __str__(self) -> str:
         return self.identifier
@@ -111,12 +116,13 @@ class SimpleUniqueIdentifier:
     model: str = "edc_identifier.identifiermodel"
     template: str = "{device_id}{random_string}"
     identifier_prefix: str | None = None
+    identifier_prefix_length: int = 2
     identifier_cls = SimpleIdentifier
     make_human_readable: bool | None = None
 
     def __init__(
         self,
-        model: str = None,
+        model: str | None = None,
         identifier_attr: str | None = None,
         identifier_type: str | None = None,
         identifier_prefix: str | None = None,
@@ -140,9 +146,13 @@ class SimpleUniqueIdentifier:
         self.identifier_attr = identifier_attr or self.identifier_attr
         self.identifier_type = identifier_type or self.identifier_type
         self.identifier_prefix = identifier_prefix or self.identifier_prefix
-        if self.identifier_prefix and len(self.identifier_prefix) != 2:
+        if (
+            self.identifier_prefix
+            and len(self.identifier_prefix) != self.identifier_prefix_length
+        ):
             raise IdentifierError(
-                f"Expected identifier_prefix of length=2. Got {len(identifier_prefix)}"
+                f"Expected identifier_prefix of length={self.identifier_prefix_length}. "
+                f"Got {len(identifier_prefix)}"
             )
         self.make_human_readable = make_human_readable or self.make_human_readable
         self.device_id = django_apps.get_app_config("edc_device").device_id

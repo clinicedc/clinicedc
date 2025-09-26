@@ -1,1 +1,3 @@
-from .modelform_mixins import SiteModelFormMixin  # noqa
+from .modelform_mixins import SiteModelFormMixin
+
+__all__ = ["SiteModelFormMixin"]

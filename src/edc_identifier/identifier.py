@@ -61,12 +61,12 @@ class Identifier:
         pattern = pattern or self.identifier_pattern
         try:
             identifier = re.match(pattern, identifier).group()
-        except AttributeError:
+        except AttributeError as e:
             error_msg = error_msg or (
                 "Invalid identifier format for pattern "
                 f"{pattern}. Got identifier='{identifier}'"
             )
-            raise IdentifierError(error_msg)
+            raise IdentifierError(error_msg) from e
         return identifier
 
     @property
@@ -102,9 +102,10 @@ class Identifier:
                 .order_by("-sequence_number")
                 .first()
             )
-            return instance.identifier
         except AttributeError:
             return None
+        else:
+            return instance.identifier
 
     def remove_separator(self, identifier):
         """Returns the identifier after removing the separator.
@@ -126,5 +127,4 @@ class Identifier:
         for item in self.identifier_as_list:
             items.append(identifier[start : start + len(item)])
             start += len(item)
-        identifier = (self.separator or "").join(items)
-        return identifier
+        return (self.separator or "").join(items)
