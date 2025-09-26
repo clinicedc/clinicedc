@@ -82,7 +82,7 @@ namespace = false
 
 [project]
 name = "clinicedc"
-version = "2.0.22"
+version = "2.0.23"
 description = "A clinical trials data management framework built on Django"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -117,8 +117,8 @@ dependencies = [
     "cryptography>=45.0.7",
     "django>=5.2.4",
     "django-admin-rangefilter>=0.13.3",
-    "django-audit-fields>=2.0.2",
-    "django-crypto-fields>=1.1.0",
+    "django-audit-fields>=2.0.3",
+    "django-crypto-fields>=1.1.2",
     "django-db-views>=0.1.11",
     "django-defender>=0.9.8",
     "django-environ>=0.12.0",
@@ -137,6 +137,7 @@ dependencies = [
     "inflect>=7.5.0",
     "mempass>=0.1.2",
     "mysqlclient>=2.2.7",
+    "psycopg2>=2.9.10",
     "pycups>=2.0.4",
     "pypdf>=5.9.0",
     "python-dateutil>=2.9.0.post0",
