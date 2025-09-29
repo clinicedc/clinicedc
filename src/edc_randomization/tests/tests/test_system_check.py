@@ -58,7 +58,6 @@ class TestRandomizer(TestCase):
         self.assertIn("1001", [e.id for e in errors])
         self.assertEqual(1, len(errors))
 
-    # @override_settings(ETC_DIR=tmpdir1)
     def test_randomization_list_check2(self):
         self.populate_list(randomizer_name="my_randomizer", overwrite_site=True)
         errors = randomizationlist_check(
@@ -88,7 +87,7 @@ class TestRandomizer(TestCase):
 
     @override_settings(ETC_DIR=tmpdir2, DEBUG=False)
     def test_randomization_list_check_verify(self):
-        from django.conf import settings
+        from django.conf import settings  # noqa: PLC0415
 
         self.assertFalse(settings.DEBUG)
 

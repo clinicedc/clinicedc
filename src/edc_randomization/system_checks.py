@@ -3,7 +3,7 @@ import sys
 from dataclasses import dataclass
 
 from django.conf import settings
-from django.core.checks import Error, Warning
+from django.core.checks import Error, Warning  # noqa: A004
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management import color_style
 

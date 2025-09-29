@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
 from edc_registration.utils import get_registered_subject_model_cls
@@ -18,38 +18,22 @@ from .constants import (
     DEFAULT_ASSIGNMENT_MAP,
     RANDOMIZED,
 )
-from .randomization_list_importer import (
+from .exceptions import (
+    AllocationError,
+    AlreadyRandomized,
+    InvalidAssignmentDescriptionMap,
+    RandomizationError,
     RandomizationListAlreadyImported,
-    RandomizationListImporter,
+    RandomizationListFileNotFound,
 )
+from .randomization_list_importer import RandomizationListImporter
 from .utils import get_randomization_list_path
 
 if TYPE_CHECKING:
     from edc_registration.models import RegisteredSubject
 
 
-class InvalidAssignmentDescriptionMap(Exception):  # noqa: N818
-    pass
-
-
-class RandomizationListFileNotFound(Exception):  # noqa: N818
-    pass
-
-
-class RandomizationListNotLoaded(Exception):  # noqa: N818
-    pass
-
-
-class RandomizationError(Exception):
-    pass
-
-
-class AlreadyRandomized(ValidationError):  # noqa: N818
-    pass
-
-
-class AllocationError(Exception):
-    pass
+__all__ = ["Randomizer"]
 
 
 class Randomizer:
@@ -61,8 +45,8 @@ class Randomizer:
     `site_randomizer` by default. To prevent registration set
     settings.EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=False.
 
-    assignment_map: {<assignment:str)>: <allocation:int>, ...}
-    assignment_description_map: {<assignment:str)>: <description:str>, ...}
+    assignment_map: {<assignment:str>: <allocation:int>, ...}
+    assignment_description_map: {<assignment:str>: <description:str>, ...}
 
 
     Usage:

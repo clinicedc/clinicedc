@@ -6,17 +6,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.db.utils import OperationalError, ProgrammingError
 
+from .exceptions import InvalidAssignment, RandomizationListError
 from .site_randomizers import site_randomizers
 
 style = color_style()
 
-
-class RandomizationListError(Exception):
-    pass
-
-
-class InvalidAssignment(Exception):
-    pass
+__all__ = ["RandomizationListVerifier"]
 
 
 class RandomizationListVerifier:
@@ -78,28 +73,31 @@ class RandomizationListVerifier:
     def verify(self) -> str | None:
         message = None
 
+        # read and sort from CSV file
         with self.randomizationlist_path.open(mode="r") as f:
             reader = csv.DictReader(f)
             all_rows = [{k: v.strip() for k, v in row.items() if k} for row in reader]
             sorted_rows = sorted(
-                all_rows, key=lambda row: (row.get("site_name", ""), row.get("sid", ""))
+                all_rows, key=lambda row: (row.get("site_name", ""), int(row.get("sid", 0)))
             )
 
-        for index, row in enumerate(sorted_rows, start=1):
-            sys.stdout.write(f"Index: {index}, SID: {row.get('sid')}, Row: {row}\n")
-            message = self.inspect_row(index - 1, row)
-            if message:
-                break
-            if self.sid_count_for_tests and index == self.sid_count_for_tests:
-                break
-
-        if not message and self.count != index:
+        # compare sorted CSV length with DB
+        if len(sorted_rows) != self.randomizer_model_cls.objects.all().count():
+            expected_cnt = len(sorted_rows)
+            actual_cnt = self.randomizer_model_cls.objects.all().count()
             message = (
-                f"Randomization list count is off. Expected {index} (CSV). "
-                f"Got {self.count} (model_cls). See file "
+                f"Randomization list count is off. Expected {expected_cnt} (CSV). "
+                f"Got {actual_cnt} (model_cls). See file "
                 f"{self.randomizationlist_path}. "
                 f"Resolve this issue before using the system."
             )
+        if not message:
+            # compare sorted CSV data to DB
+            for index, row in enumerate(sorted_rows, start=1):
+                sys.stdout.write(f"Index: {index}, SID: {row.get('sid')}, Row: {row}\n")
+                message = self.inspect_row(index - 1, row)
+                if message:
+                    break
         return message
 
     def inspect_row(self, index: int, row) -> str | None:

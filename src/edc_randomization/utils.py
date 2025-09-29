@@ -14,15 +14,8 @@ from django_pandas.io import read_frame
 from edc_pdutils.constants import SYSTEM_COLUMNS
 from edc_sites.site import sites
 
+from .exceptions import RandomizationListExporterError, SubjectNotRandomization
 from .site_randomizers import site_randomizers
-
-
-class RandomizationListExporterError(Exception):
-    pass
-
-
-class SubjectNotRandomization(Exception):  # noqa: N818
-    pass
 
 
 def get_randomization_list_path() -> Path:
@@ -149,7 +142,7 @@ def generate_fake_randomization_list(
 
 def export_randomization_list(
     randomizer_name: str, path: str | None = None, username: str | None = None
-):
+) -> Path:
     randomizer_cls = site_randomizers.get(randomizer_name)
 
     try:
@@ -184,4 +177,4 @@ def export_randomization_list(
     )
     df.to_csv(**opts)
     sys.stdout.write(f"{filename!s}\n")
-    return filename
+    return Path(filename)

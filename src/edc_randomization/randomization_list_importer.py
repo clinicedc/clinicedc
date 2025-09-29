@@ -12,21 +12,16 @@ from tqdm import tqdm
 
 from edc_sites.site import sites as site_sites
 
+from .exceptions import (
+    InvalidAssignment,
+    RandomizationListAlreadyImported,
+    RandomizationListImportError,
+)
 from .randomization_list_verifier import RandomizationListVerifier
 
 style = color_style()
 
-
-class RandomizationListImportError(Exception):
-    pass
-
-
-class RandomizationListAlreadyImported(Exception):
-    pass
-
-
-class InvalidAssignment(Exception):
-    pass
+__all__ = ["RandomizationListImporter"]
 
 
 class RandomizationListImporter:
@@ -157,7 +152,7 @@ class RandomizationListImporter:
         index = 0
         with self.randomizationlist_path.open(mode="r") as csvfile:
             reader = csv.DictReader(csvfile)
-            for index, row in enumerate(reader):
+            for index, _ in enumerate(reader):
                 if index == 0:
                     continue
         if index == 0:
@@ -179,11 +174,11 @@ class RandomizationListImporter:
                 elif index == 1:
                     if self.dryrun:
                         row_as_dict = {k: v for k, v in row.items()}
-                        print(" -->  First row:")
-                        print(f" -->  {list(row_as_dict.keys())}")
-                        print(f" -->  {list(row_as_dict.values())}")
+                        sys.stdout.write(" -->  First row:\n")
+                        sys.stdout.write(f" -->  {list(row_as_dict.keys())}\n")
+                        sys.stdout.write(f" -->  {list(row_as_dict.values())}\n")
                         obj = self.randomizer_model_cls(**self.get_import_options(row))
-                        pprint(obj.__dict__)
+                        pprint(obj.__dict__)  # noqa: T203
                 else:
                     break
 
@@ -304,7 +299,7 @@ class RandomizationListImporter:
             **self.get_extra_import_options(row),
         )
 
-    def get_extra_import_options(self, row):
+    def get_extra_import_options(self, row):  # noqa: ARG002
         return {}
 
     @staticmethod
@@ -318,9 +313,9 @@ class RandomizationListImporter:
         """Returns the site name or raises"""
         try:
             site_name = self.get_site_names()[row["site_name"].lower()]
-        except KeyError:
+        except KeyError as e:
             raise RandomizationListImportError(
                 f"Invalid site. Got {row['site_name']}. "
                 f"Expected one of {self.get_site_names().keys()}"
-            )
+            ) from e
         return site_name

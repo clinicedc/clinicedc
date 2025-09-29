@@ -17,6 +17,12 @@ if TYPE_CHECKING:
     from edc_randomization.models import RandomizationList
 
 
+__all__ = [
+    "make_randomization_list_for_tests",
+    "populate_randomization_list_for_tests",
+    "scramble_randomization_for_test_data",
+]
+
 default_assignments = [ACTIVE, PLACEBO]
 
 
@@ -35,7 +41,7 @@ def make_randomization_list_for_tests(
         gen_site_name = (x for x in site_names)
     else:
         count = count or 50
-        gen_site_name = (random.choice(site_names) for i in range(0, 50))  # nosec B311
+        gen_site_name = (random.choice(site_names) for i in range(0, 50))  # nosec B311  # noqa: S311
 
     if not full_path:
         full_path = Path(mkdtemp()) / "randomizationlist.csv"
@@ -43,13 +49,20 @@ def make_randomization_list_for_tests(
         full_path = Path(full_path).expanduser()
     assignments = assignments or default_assignments
     with full_path.open(mode="w") as f:
-        writer = csv.DictWriter(f, fieldnames=["sid", "assignment", "site_name"])
+        writer = csv.DictWriter(
+            f, fieldnames=["sid", "assignment", "site_name", "description"]
+        )
         writer.writeheader()
-        n = 0
         for i in range(first_sid, count + first_sid):
-            n += 1
-            assignment = random.choice(assignments)  # nosec B311
-            writer.writerow(dict(sid=i, assignment=assignment, site_name=next(gen_site_name)))
+            assignment = random.choice(assignments)  # nosec B311  # noqa: S311
+            writer.writerow(
+                dict(
+                    sid=i,
+                    assignment=assignment,
+                    site_name=next(gen_site_name),
+                    description=f"{assignment.title()} arm",
+                )
+            )
     return full_path
 
 
@@ -72,9 +85,7 @@ def scramble_randomization_for_test_data(
     arms: list[str],
     randomization_list_model_cls: type[RandomizationList],
 ):
-    choices = []
-    for i in range(0, 8):
-        choices.append(secrets.choice(arms))
+    choices = [secrets.choice(arms) for _ in range(0, 8)]
     for obj in randomization_list_model_cls.objects.all():
         obj.assigment = secrets.choice(choices)
         obj.save_base(update_fields=["assignment"])
