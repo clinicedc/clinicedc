@@ -1,11 +1,10 @@
 from typing import Any
 
+from .exceptions import RegisterRandomizerError
 from .randomizer import Randomizer
 from .site_randomizers import site_randomizers
 
-
-class RegisterRandomizerError(Exception):
-    pass
+__all__ = ["register"]
 
 
 def register(site=None, **kwargs) -> Any:

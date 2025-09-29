@@ -17,6 +17,8 @@ from .auth_objects import RANDO_UNBLINDED
 from .blinding import user_is_blinded
 from .site_randomizers import site_randomizers
 
+__all__ = ["RandomizationListModelAdmin", "print_pharmacy_labels"]
+
 
 @admin.action(permissions=["view"], description="Print labels for pharmacy")
 def print_pharmacy_labels(modeladmin, request, queryset):
@@ -59,7 +61,7 @@ class RandomizationListModelAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
 
     search_fields = ("subject_identifier", "sid")
 
-    def get_fieldsets(self, request, obj=None):
+    def get_fieldsets(self, request, obj=None):  # noqa: ARG002
         return (
             (None, {"fields": self.get_fieldnames(request)}),
             audit_fieldset_tuple,

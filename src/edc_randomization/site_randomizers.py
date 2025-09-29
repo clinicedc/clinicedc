@@ -7,24 +7,10 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.utils.module_loading import import_module, module_has_submodule
 
+from .exceptions import AlreadyRegistered, NotRegistered, RegistryNotLoaded
+
 if TYPE_CHECKING:
     from edc_randomization.randomizer import Randomizer
-
-
-class RegistryNotLoaded(Exception):
-    pass
-
-
-class NotRegistered(Exception):
-    pass
-
-
-class AlreadyRegistered(Exception):
-    pass
-
-
-class SiteRandomizerError(Exception):
-    pass
 
 
 class SiteRandomizers:

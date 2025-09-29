@@ -29,7 +29,7 @@ class Navbar:
 
     def get(self, name: str) -> NavbarItem | None:
         try:
-            navbar_item = [nb for nb in self.navbar_items if nb.name == name][0]
+            navbar_item = next(nb for nb in self.navbar_items if nb.name == name)
         except IndexError:
             navbar_item = None
         return navbar_item
@@ -37,7 +37,7 @@ class Navbar:
     def set_active(self, name: str) -> None:
         if name:
             for navbar_item in self.navbar_items:
-                navbar_item.active = True if navbar_item.name == name else False
+                navbar_item.active = navbar_item.name == name
 
     def show_user_permissions(self, user: User = None) -> dict[str, dict[str, bool]]:
         """Returns the permissions required to access this Navbar

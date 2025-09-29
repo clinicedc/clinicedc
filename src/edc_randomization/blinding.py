@@ -4,7 +4,6 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from .auth_objects import RANDO_UNBLINDED
@@ -43,13 +42,11 @@ def user_is_blinded(username) -> bool:
     return blinded
 
 
-def user_is_blinded_from_request(request):
-    if user_is_blinded(request.user.username) or (
+def user_is_blinded_from_request(request) -> bool:
+    return user_is_blinded(request.user.username) or (
         not user_is_blinded(request.user.username)
         and RANDO_UNBLINDED not in [g.name for g in request.user.groups.all()]
-    ):
-        return True
-    return False
+    )
 
 
 def raise_if_prohibited_from_unblinded_rando_group(username: str, groups: Iterable) -> None:
@@ -61,12 +58,9 @@ def raise_if_prohibited_from_unblinded_rando_group(username: str, groups: Iterab
     if RANDO_UNBLINDED in [grp.name for grp in groups] and user_is_blinded(username):
         raise forms.ValidationError(
             {
-                "groups": format_html(
-                    "{}",
-                    mark_safe(
-                        "This user is not unblinded and may not added "
-                        "to the <U>RANDO_UNBLINDED</U> group."
-                    ),  # nosec B703 B308
+                "groups": mark_safe(
+                    "This user is not unblinded and may not added "
+                    "to the <U>RANDO_UNBLINDED</U> group."
                 )
             }
         )

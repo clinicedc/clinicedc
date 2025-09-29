@@ -1,3 +1,4 @@
+from pathlib import Path
 from random import shuffle
 from tempfile import mkdtemp, mkstemp
 
@@ -9,24 +10,24 @@ from multisite import SiteID
 
 from edc_constants.constants import FEMALE
 from edc_randomization.constants import ACTIVE, PLACEBO
-from edc_randomization.decorators import RegisterRandomizerError, register
-from edc_randomization.randomization_list_importer import (
-    InvalidAssignment,
-    RandomizationListAlreadyImported,
-    RandomizationListImportError,
-)
-from edc_randomization.randomization_list_verifier import RandomizationListError
-from edc_randomization.randomizer import (
+from edc_randomization.decorators import register
+from edc_randomization.exceptions import (
     AllocationError,
     AlreadyRandomized,
+    InvalidAssignment,
     InvalidAssignmentDescriptionMap,
+    NotRegistered,
     RandomizationError,
-    RandomizationListFileNotFound,
-    Randomizer,
-)
-from edc_randomization.site_randomizers import NotRegistered, site_randomizers
-from edc_randomization.utils import (
+    RandomizationListAlreadyImported,
+    RandomizationListError,
     RandomizationListExporterError,
+    RandomizationListFileNotFound,
+    RandomizationListImportError,
+    RegisterRandomizerError,
+)
+from edc_randomization.randomizer import Randomizer
+from edc_randomization.site_randomizers import site_randomizers
+from edc_randomization.utils import (
     export_randomization_list,
     get_assignment_for_subject,
 )
@@ -353,7 +354,7 @@ class TestRandomizer(TestCase):
         )
 
         class ValidRandomizer(MyRandomizer):
-            assignment_description_map = {ACTIVE: "blah", PLACEBO: "blahblah"}
+            assignment_description_map = {ACTIVE: "blah", PLACEBO: "blahblah"}  # noqa: RUF012
 
         try:
             ValidRandomizer(
@@ -367,7 +368,7 @@ class TestRandomizer(TestCase):
 
         # Test still ok with dict items in opposite order
         class ValidRandomizerMapOrderDifferent(MyRandomizer):
-            assignment_description_map = {PLACEBO: "blah", ACTIVE: "blahblah"}
+            assignment_description_map = {PLACEBO: "blah", ACTIVE: "blahblah"}  # noqa: RUF012
 
         try:
             ValidRandomizerMapOrderDifferent(
@@ -388,7 +389,7 @@ class TestRandomizer(TestCase):
         )
 
         class BadRandomizer(MyRandomizer):
-            assignment_description_map = {"A": "blah", "B": "blahblah"}
+            assignment_description_map = {"A": "blah", "B": "blahblah"}  # noqa: RUF012
 
         self.assertRaises(
             InvalidAssignmentDescriptionMap,
@@ -451,7 +452,7 @@ class TestRandomizer(TestCase):
             subject_identifier="12345", site=site, user_created="erikvw"
         )
         tmppath = mkstemp(suffix=".csv", text=True)
-        with open(tmppath[1], "w", encoding="utf8") as f:
+        with Path(tmppath[1]).open("w", encoding="utf8") as f:
             f.write("asdasd,sid,assignment,site_name,adasd,adasd\n")
 
         class BadRandomizer(MyRandomizer):
@@ -598,7 +599,7 @@ class TestRandomizer(TestCase):
             full_path=MyRandomizer.get_randomizationlist_path(),
             site_names=self.site_names,
             # change to a different assignments
-            assignments=[100, 101],
+            assignments=["cumin", "fennel"],
             count=5,
         )
         self.assertRaises(InvalidAssignment, MyRandomizer.import_list)
@@ -616,13 +617,17 @@ class TestRandomizer(TestCase):
             randomizer_cls.verify_list()
         self.assertIn("Randomization file has an invalid SID", str(cm.exception))
 
+    @tag("randomization2")
     @override_settings(ETC_DIR=tmpdir, DEBUG=False)
     def test_invalid_count(self):
         randomizer_cls = site_randomizers.get("default")
         site = Site.objects.get_current()
         # change number of SIDs in DB
         self.populate_list(randomizer_name="default")
-        MyRandomizationList.objects.create(sid=100, assignment=ACTIVE, site_name=site.name)
+        obj = MyRandomizationList.objects.filter(site_name=site.name).order_by("sid").last()
+        MyRandomizationList.objects.create(
+            sid=int(obj.sid) + 100, assignment=ACTIVE, site_name=site.name
+        )
         self.assertEqual(MyRandomizationList.objects.all().count(), 51)
         with self.assertRaises(RandomizationListError) as cm:
             randomizer_cls.verify_list()
@@ -680,7 +685,7 @@ class TestRandomizer(TestCase):
             username="you", is_superuser=True, is_staff=True
         )
         path = export_randomization_list("default", username=user.username)
-        with open(path) as f:
+        with path.open("r") as f:
             n = 0
             for line in f:
                 n += 1

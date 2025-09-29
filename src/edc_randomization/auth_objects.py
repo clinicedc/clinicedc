@@ -2,6 +2,15 @@ import sys
 
 from .site_randomizers import site_randomizers
 
+__all__ = [
+    "RANDO_BLINDED",
+    "RANDO_UNBLINDED",
+    "get_rando_permissions_codenames",
+    "get_rando_permissions_tuples",
+    "make_randomizationlist_view_only",
+    "update_rando_group_permissions",
+]
+
 RANDO_UNBLINDED = "RANDO_UNBLINDED"
 RANDO_BLINDED = "RANDO_BLINDED"
 
