@@ -15,14 +15,14 @@ class UpdateDjangoSitesError(Exception):
 
 
 def get_sites():
-    from ..site import sites  # prevent circular import
+    from ..site import sites  # prevent circular import  # noqa: PLC0415
 
     return sites
 
 
 def add_or_update_django_sites(
-    apps: django_apps | None = None,
-    single_sites: list[SingleSite] | tuple[SingleSite] = None,
+    apps=None,
+    single_sites: list[SingleSite] | tuple[SingleSite] | None = None,
     verbose: bool | None = None,
 ):
     """Removes default site and adds/updates given `sites`, etc.

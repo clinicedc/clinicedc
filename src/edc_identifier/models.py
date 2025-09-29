@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import UniqueConstraint
 
+from edc_constants.constants import NULL_STRING
 from edc_model.models import BaseUuidModel
 from edc_sites.model_mixins import SiteModelMixin
 
@@ -25,21 +26,21 @@ class IdentifierModel(SiteModelMixin, BaseUuidModel):
 
     name = models.CharField(max_length=100)
 
-    subject_identifier = models.CharField(max_length=50, default="")
+    subject_identifier = models.CharField(max_length=50, default=NULL_STRING)
 
     sequence_number = models.IntegerField(default=1)
 
-    linked_identifier = models.CharField(max_length=50, default="")
+    linked_identifier = models.CharField(max_length=50, default=NULL_STRING)
 
     device_id = models.IntegerField()
 
-    protocol_number = models.CharField(max_length=25, default="")
+    protocol_number = models.CharField(max_length=25, default=NULL_STRING)
 
-    model = models.CharField(max_length=100, default="")
+    model = models.CharField(max_length=100, default=NULL_STRING)
 
-    identifier_type = models.CharField(max_length=100, default="")
+    identifier_type = models.CharField(max_length=100, default=NULL_STRING)
 
-    identifier_prefix = models.CharField(max_length=25, default="")
+    identifier_prefix = models.CharField(max_length=25, default=NULL_STRING)
 
     objects = IdentifierModelManager()
 

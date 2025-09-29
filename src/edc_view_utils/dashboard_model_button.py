@@ -34,9 +34,9 @@ class DashboardModelButton(ModelButton):
 
     """
 
-    model_obj: CrfModel | RequisitionModel = field(init=False)
-    metadata_model_obj: CrfMetadata | RequisitionMetadata = None
-    appointment: Appointment = None
+    model_obj: CrfModel | RequisitionModel | None = None
+    metadata_model_obj: CrfMetadata | RequisitionMetadata | None = None
+    appointment: Appointment | None = None
     next_url_name: str = field(default="subject_dashboard_url")
     model_cls: type[CrfModel | RequisitionModel] = field(default=None, init=False)
 

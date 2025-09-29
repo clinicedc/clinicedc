@@ -18,14 +18,14 @@ class Eligibility:
     # default to eligible if >=18
     age_evaluator = AgeEvaluator(age_lower=18, age_lower_inclusive=True)
 
-    custom_reasons_dict: dict = {}
+    custom_reasons_dict: dict = {}  # noqa: RUF012
 
     def __init__(
         self,
-        age: int = None,
-        gender: str = None,
-        pregnant: bool = None,
-        breast_feeding: bool = None,
+        age: int | None = None,
+        gender: str | None = None,
+        pregnant: bool | None = None,
+        breast_feeding: bool | None = None,
         **additional_criteria,
     ) -> None:
         self.criteria = dict(**additional_criteria)

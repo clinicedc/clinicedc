@@ -10,8 +10,8 @@ class SubjectIdentifier(ResearchIdentifier):
     label: str = "subjectidentifier"
     padding: int = 4
 
-    def __init__(self, last_name: str = None, **kwargs):
-        self.last_name = last_name
+    def __init__(self, last_name: str | None = None, **kwargs):
+        self.last_name = last_name or ""
         super().__init__(**kwargs)
 
     def pre_identifier(self) -> None:

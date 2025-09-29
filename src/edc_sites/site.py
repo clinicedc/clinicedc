@@ -52,23 +52,23 @@ __all__ = [
 ]
 
 
-class SiteDoesNotExist(Exception):
+class SiteDoesNotExist(Exception):  # noqa: N818
     pass
 
 
-class AlreadyRegistered(Exception):
+class AlreadyRegistered(Exception):  # noqa: N818
     pass
 
 
-class AlreadyRegisteredName(Exception):
+class AlreadyRegisteredName(Exception):  # noqa: N818
     pass
 
 
-class AlreadyRegisteredDomain(Exception):
+class AlreadyRegisteredDomain(Exception):  # noqa: N818
     pass
 
 
-class SiteNotRegistered(Exception):
+class SiteNotRegistered(Exception):  # noqa: N818
     pass
 
 
@@ -157,7 +157,7 @@ class Sites:
             for single_site in single_sites:
                 if get_insert_uat_subdomain():
                     domain = insert_into_domain(single_site.domain, self.uat_subdomain)
-                    single_site = dataclasses.replace(single_site, domain=domain)
+                    single_site = dataclasses.replace(single_site, domain=domain)  # noqa: PLW2901
 
                 if single_site.site_id in self._registry:
                     raise AlreadyRegistered(f"Site already registered. Got `{single_site}`.")
@@ -282,8 +282,8 @@ class Sites:
     def user_may_view_other_sites(
         self,
         request: WSGIRequest = None,
-        user: User = None,
-        site_id: int = None,
+        user: User | None = None,
+        site_id: int | None = None,
     ) -> list[int]:
         return self.get_view_only_site_ids_for_user(
             request=request,

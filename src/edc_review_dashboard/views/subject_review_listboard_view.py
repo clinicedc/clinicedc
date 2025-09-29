@@ -49,15 +49,15 @@ class SubjectReviewListboardView(
     listboard_view_permission_codename = "edc_review_dashboard.view_subject_review_listboard"
 
     navbar_selected_item = "subject_review"
-    ordering = ["subject_identifier", "visit_code", "visit_code_sequence"]
+    ordering = ("subject_identifier", "visit_code", "visit_code_sequence")
     paginate_by = 25
     search_form_url = "subject_review_listboard_url"
-    search_fields = [
+    search_fields = (
         "subject_identifier",
         "visit_code",
         "user_created",
         "user_modified",
-    ]
+    )
 
     #  attr to call SubjectReviewListboardView.urls in urls.py
     urlconfig_getattr = "review_listboard_urls"

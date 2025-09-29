@@ -118,12 +118,12 @@ class SiteActionItemCollection:
             )
         return self.registry.get(name)
 
-    def get_by_model(self, model=None) -> type[Action] | type[ActionWithNotification] | None:
+    def get_by_model(self, model=None) -> type[Action] | type[ActionWithNotification]:
         """Returns the action_cls linked to this reference model."""
         for action_cls in self.registry.values():
             if action_cls.get_reference_model() == model:
                 return self.get(action_cls.name)
-        return None
+        raise SiteActionError(f"Action does not exist for this model. Got '{model}'.")
 
     def get_add_actions_to_show(self) -> dict[str, type[Action]]:
         return {

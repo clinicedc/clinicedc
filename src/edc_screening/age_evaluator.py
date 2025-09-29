@@ -25,7 +25,7 @@ class AgeEvaluator(ReportableAgeEvaluator):
             self.reasons_ineligible = "Age unknown"
         return eligible
 
-    def in_bounds_or_raise(self, age: int = None, **kwargs):
+    def in_bounds_or_raise(self, age: int | None = None, **kwargs):  # noqa: ARG002
         self.reasons_ineligible = ""
         dob = localtime(timezone.now() - relativedelta(years=age)).date()
         age_units = "years"

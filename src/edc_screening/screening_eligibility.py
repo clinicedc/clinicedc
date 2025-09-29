@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from edc_constants.constants import NO, PENDING, TBD, YES
@@ -33,7 +32,7 @@ class ScreeningEligibility:
     eligible_fld_name: str = "eligible"
     eligible_value_default: str = TBD
     default_display_label = TBD
-    eligible_values_list: list = [YES, NO, TBD]
+    eligible_values_list: list = (YES, NO, TBD)
     ineligible_display_label: str = "INELIGIBLE"
     is_eligible_value: str = YES
     is_ineligible_value: str = NO
@@ -44,9 +43,9 @@ class ScreeningEligibility:
     def __init__(
         self,
         model_obj: SubjectScreeningModel | EligibilityModelMixin = None,
-        cleaned_data: dict = None,
+        cleaned_data: dict | None = None,
         eligible_value_default: str | None = None,
-        eligible_values_list: list | None = None,
+        eligible_values_list: tuple[str, ...] | None = None,
         is_eligible_value: str | None = None,
         is_ineligible_value: str | None = None,
         eligible_display_label: str | None = None,
@@ -126,7 +125,7 @@ class ScreeningEligibility:
     @property
     def is_eligible(self) -> bool:
         """Returns True if eligible else False"""
-        return True if self.eligible == self.is_eligible_value else False
+        return self.eligible == self.is_eligible_value
 
     def _assess_eligibility(self) -> None:
         self.set_fld_attrs_on_self()
@@ -136,30 +135,29 @@ class ScreeningEligibility:
             self.reasons_ineligible.update(**missing_data)
             self.eligible = self.eligible_value_default  # probably TBD
         for fldattr, fc in self.get_required_fields().items():
-            if fldattr not in missing_data:
-                if fc and fc.value:
-                    msg = fc.msg if fc.msg else fldattr.title().replace("_", " ")
-                    is_callable = False
-                    try:
-                        value = fc.value(getattr(self, fldattr))
-                    except TypeError:
-                        value = fc.value
-                    else:
-                        is_callable = True
-                    if (
-                        (isinstance(value, str) and getattr(self, fldattr) != value)
-                        or (
-                            isinstance(value, (list, tuple))
-                            and getattr(self, fldattr) not in value
-                        )
-                        or (
-                            isinstance(value, range)
-                            and not (min(value) <= getattr(self, fldattr) <= max(value))
-                        )
-                        or (is_callable and value is False)
-                    ):
-                        self.reasons_ineligible.update({fldattr: msg})
-                        self.eligible = self.is_ineligible_value  # probably NO
+            if fldattr not in missing_data and fc and fc.value:
+                msg = fc.msg if fc.msg else fldattr.title().replace("_", " ")
+                is_callable = False
+                try:
+                    value = fc.value(getattr(self, fldattr))
+                except TypeError:
+                    value = fc.value
+                else:
+                    is_callable = True
+                if (
+                    (isinstance(value, str) and getattr(self, fldattr) != value)
+                    or (
+                        isinstance(value, (list, tuple))
+                        and getattr(self, fldattr) not in value
+                    )
+                    or (
+                        isinstance(value, range)
+                        and not (min(value) <= getattr(self, fldattr) <= max(value))
+                    )
+                    or (is_callable and value is False)
+                ):
+                    self.reasons_ineligible.update({fldattr: msg})
+                    self.eligible = self.is_ineligible_value  # probably NO
         if self.is_eligible:
             if self.is_eligible and not self.get_required_fields():
                 self.eligible = self.eligible_value_default
@@ -194,7 +192,7 @@ class ScreeningEligibility:
                     "does not exist on class. "
                     f"See {self.__class__.__name__}. "
                     f"Got {e}"
-                )
+                ) from e
             if self.model_obj:
                 try:
                     value = (
@@ -207,7 +205,7 @@ class ScreeningEligibility:
                         "Attribute does not exist on model. "
                         f"See {self.model_obj.__class__.__name__}. "
                         f"Got {e}"
-                    )
+                    ) from e
             else:
                 value = self.cleaned_data.get(fldattr)
             setattr(self, fldattr, value)
@@ -230,10 +228,7 @@ class ScreeningEligibility:
 
     def formatted_reasons_ineligible(self) -> str:
         str_values = "<BR>".join([x for x in self.reasons_ineligible.values() if x])
-        return format_html(
-            "{}",
-            mark_safe(str_values),  # nosec B703 B308
-        )
+        return mark_safe(str_values)  # noqa: S308
 
     @property
     def display_label(self) -> str:

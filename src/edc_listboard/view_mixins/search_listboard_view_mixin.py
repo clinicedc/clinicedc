@@ -13,12 +13,12 @@ from edc_model_admin.utils import add_to_messages_once
 
 
 class SearchListboardMixin:
-    search_fields = ["slug"]
+    search_fields = ("slug",)
 
     default_querystring_attrs: str = "q"
     alternate_search_attr: str = "subject_identifier"
     default_lookup = "icontains"
-    operators: list[str] = [
+    operators: tuple[str, ...] = (
         "exact",
         "iexact",
         "contains",
@@ -33,7 +33,7 @@ class SearchListboardMixin:
         "endswith",
         "istartswith",
         "iendswith",
-    ]
+    )
 
     def __init__(self, **kwargs):
         self._search_term = None
@@ -66,12 +66,11 @@ class SearchListboardMixin:
 
     @property
     def search_term(self) -> str | None:
-        if not self._search_term:
-            if search_term := self.raw_search_term:
-                self._search_term = escape(search_term).strip()
+        if (not self._search_term) and (search_term := self.raw_search_term):
+            self._search_term = escape(search_term).strip()
         return self._search_term
 
-    def get_search_fields(self) -> list[str]:
+    def get_search_fields(self) -> tuple[str, ...]:
         """Override to add additional search fields"""
         return self.search_fields
 

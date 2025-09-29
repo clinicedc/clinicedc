@@ -51,7 +51,7 @@ class IdentifierModelAdmin(admin.ModelAdmin):
     )
     search_fields = ("identifier", "subject_identifier", "linked_identifier")
 
-    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
+    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:  # noqa: ARG002
         return (
             "identifier",
             "protocol_number",
@@ -64,4 +64,5 @@ class IdentifierModelAdmin(admin.ModelAdmin):
             "linked_identifier",
             "device_id",
             "identifier_prefix",
-        ) + tuple(DEFAULT_BASE_FIELDS)
+            *DEFAULT_BASE_FIELDS,
+        )

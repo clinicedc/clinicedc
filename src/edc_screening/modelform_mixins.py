@@ -27,7 +27,7 @@ class AlreadyConsentedFormMixin:
             raise forms.ValidationError(self.already_consented_validation_message(url))
         return cleaned_data
 
-    def already_consented_validation_url(self, cleaned_data: dict | None = None) -> str:
+    def already_consented_validation_url(self, cleaned_data: dict | None = None) -> str:  # noqa: ARG002
         url_name = url_names.get("subject_dashboard_url")
         return reverse(
             url_name,

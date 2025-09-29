@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from django.contrib.sites.models import Site
@@ -11,16 +11,18 @@ from django.utils.translation import gettext as _
 from edc_view_utils import DashboardModelButton
 
 if TYPE_CHECKING:
+    from edc_model.models import BaseUuidModel
     from edc_screening.model_mixins import ScreeningModelMixin
 
-    ScreeningModel = TypeVar("ScreeningModel", bound=ScreeningModelMixin)
+    class ScreeningModel(ScreeningModelMixin, BaseUuidModel): ...
+
 
 __all__ = ["SubjectScreeningButton"]
 
 
 @dataclass
 class SubjectScreeningButton(DashboardModelButton):
-    model_obj: ScreeningModel = None
+    model_obj: ScreeningModel | None = None
     metadata_model_obj: models.Model = field(init=False)
 
     def __post_init__(self):

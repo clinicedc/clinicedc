@@ -46,7 +46,7 @@ class SiteModelAdminMixin:
             ]
         return sites.get_view_only_site_ids_for_user(request=request)
 
-    def has_viewallsites_permission(self, request, obj=None) -> bool:
+    def has_viewallsites_permission(self, request, obj=None) -> bool:  # noqa: ARG002
         """Checks if the user has the EDC custom codename
         "viewallsites" for this model.
 
@@ -54,7 +54,7 @@ class SiteModelAdminMixin:
         """
         opts = self.opts
         codename_allsites = get_permission_codename("viewallsites", opts)
-        return request.user.has_perm("%s.%s" % (opts.app_label, codename_allsites))
+        return request.user.has_perm(f"{opts.app_label}.{codename_allsites}")
 
     @admin.display(description="Site", ordering="site__id")
     def site_code(self, obj=None):
@@ -75,7 +75,7 @@ class SiteModelAdminMixin:
         to mulitple sites.
         """
         list_filter = super().get_list_filter(request)
-        list_filter = [x for x in list_filter if x != "site" and x != SiteListFilter]
+        list_filter = [x for x in list_filter if x not in ("site", SiteListFilter)]
         if self.user_may_view_other_sites(request) or self.has_viewallsites_permission(
             request
         ):
@@ -95,25 +95,25 @@ class SiteModelAdminMixin:
             or self.has_viewallsites_permission(request)
         ) and "site" not in list_display:
             list_display = tuple(list_display)
-            list_display = list_display[:pos] + (self.site_code,) + list_display[pos:]
+            list_display = list_display[:pos], self.site_code, list_display[pos:]
         elif "site" in list_display:
             list_display = tuple(
                 [x for x in list_display if x not in ["site", self.site_code]]
             )
-            list_display = list_display[:pos] + (self.site_code,) + list_display[pos:]
+            list_display = list_display[:pos], self.site_code, list_display[pos:]
         return list_display
 
     def get_queryset(self, request) -> QuerySet:
         """Limit modeladmin queryset for the current site only"""
         qs = super().get_queryset(request)
-        site_ids = [request.site.id] + self.get_view_only_site_ids_for_user(request=request)
+        site_ids = (request.site.id, *self.get_view_only_site_ids_for_user(request=request))
         try:
             qs = qs.select_related("site").filter(site_id__in=site_ids)
-        except FieldError:
+        except FieldError as e:
             raise SiteModeAdminMixinError(
                 f"Model missing field `site`. Model `{self.model}`. Did you mean to use "
                 f"the SiteModelAdminMixin? See `{self}`."
-            )
+            ) from e
         return qs
 
     def get_form(self, request, obj=None, change=False, **kwargs):

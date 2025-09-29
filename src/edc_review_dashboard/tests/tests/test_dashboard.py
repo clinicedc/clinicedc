@@ -9,6 +9,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule imp
 )
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
+from django.test import override_settings, tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 
@@ -24,13 +25,15 @@ from edc_visit_tracking.models import SubjectVisit
 User = get_user_model()
 
 
+@tag("review_dashboard")
+@override_settings(SITE_ID=10)
 class TestDashboard(WebTest):
     user: User = None
 
     @classmethod
     def setUpTestData(cls):
         import_holidays()
-        cls.user = get_user_for_tests()
+        cls.user = get_user_for_tests(is_superuser=True)
         cls.user.user_permissions.clear()
         cls.user.user_permissions.add(Permission.objects.get(codename="view_appointment"))
         cls.user.refresh_from_db()
@@ -81,14 +84,14 @@ class TestDashboard(WebTest):
     def login(self):
         form = self.app.get(reverse("admin:index")).maybe_follow().form
         form["username"] = self.user.username
-        form["password"] = "pass"  # nosec B105
+        form["password"] = "pass"  # noqa: S105
         return form.submit()
 
     def test_url(self):
         self.login()
 
         response = self.app.get(
-            reverse("review_dashboard_app:subject_review_listboard_url"),
+            reverse("edc_review_dashboard:subject_review_listboard_url"),
             user=self.user,
             status=200,
         )
@@ -117,7 +120,7 @@ class TestDashboard(WebTest):
 
         response = self.app.get(
             reverse(
-                "review_dashboard_app:subject_review_listboard_url",
+                "edc_review_dashboard:subject_review_listboard_url",
                 kwargs={"subject_identifier": self.subject_identifiers[1]},
             ),
             user=self.user,
@@ -127,13 +130,13 @@ class TestDashboard(WebTest):
 
         self.assertIn(self.subject_identifiers[1], response)
 
+    @tag("review_dashboard1")
     def test_ordering(self):
         self.login()
 
         response = self.app.get(
-            reverse("review_dashboard_app:subject_review_listboard_url"),
+            reverse("edc_review_dashboard:subject_review_listboard_url"),
             user=self.user,
         )
-        # response = response.click(linkid="id-reported-visit-list")
         self.assertIn(f"1. {self.subject_identifiers[0]}", response.html.get_text())
         self.assertIn(f"2. {self.subject_identifiers[1]}", response.html.get_text())

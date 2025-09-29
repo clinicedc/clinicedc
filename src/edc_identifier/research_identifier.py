@@ -21,7 +21,7 @@ class IdentifierMissingTemplateValue(Exception):  # noqa: N818
 
 
 class ResearchIdentifier:
-    label: str = None  # e.g. subject_identifier, plot_identifier, etc
+    label: str | None = None  # e.g. subject_identifier, plot_identifier, etc
     identifier_type: str | None = None  # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
     template: str | None = None
     padding: int = 5

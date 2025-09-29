@@ -25,12 +25,12 @@ class RandomizationListVerifier:
     def __init__(
         self,
         randomizer_name=None,
-        randomizationlist_path: Path | str = None,
+        randomizationlist_path: Path | str | None = None,
         randomizer_model_cls=None,
         assignment_map=None,
         fieldnames=None,
         sid_count_for_tests=None,
-        required_csv_fieldnames: list[str] | None = None,
+        required_csv_fieldnames: tuple[str, ...] | None = None,
         **kwargs,  # noqa: ARG002
     ):
         self.count: int = 0
