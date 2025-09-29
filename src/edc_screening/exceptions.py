@@ -17,15 +17,15 @@ class ScreeningEligibilityCleanedDataKeyError(Exception):
     pass
 
 
-class ScreeningEligibilityInvalidCombination(Exception):
+class ScreeningEligibilityInvalidCombination(Exception):  # noqa: N818
     pass
 
 
-class RequiredFieldValueMissing(Exception):
+class RequiredFieldValueMissing(Exception):  # noqa: N818
     pass
 
 
-class InvalidScreeningIdentifierFormat(Exception):
+class InvalidScreeningIdentifierFormat(Exception):  # noqa: N818
     def __init__(self, *args, **kwargs):
         self.code = INVALID_SCREENING_IDENTIFIER
         super().__init__(*args, **kwargs)

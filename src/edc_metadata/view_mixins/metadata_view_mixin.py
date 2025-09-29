@@ -16,16 +16,19 @@ class MetadataViewError(Exception):
 
 class MetadataViewMixin:
     panel_model: str = "edc_lab.panel"
-    metadata_show_status: list[str] = [REQUIRED, KEYED]
+    metadata_show_status: tuple[str] = (REQUIRED, KEYED)
 
     def get_context_data(self, **kwargs) -> dict:
         if self.appointment:
             # always refresh metadata / run rules
             refresh_metadata_for_timepoint(self.appointment, allow_create=True)
             referer = self.request.headers.get("Referer")
-            if referer and "subject_review_listboard" in referer:
-                if self.appointment.related_visit:
-                    update_appt_status_for_timepoint(self.appointment.related_visit)
+            if (
+                referer
+                and "subject_review_listboard" in referer
+                and self.appointment.related_visit
+            ):
+                update_appt_status_for_timepoint(self.appointment.related_visit)
             crf_qs = self.get_crf_metadata()
             requisition_qs = self.get_requisition_metadata()
             kwargs.update(crfs=crf_qs, requisitions=requisition_qs)

@@ -101,7 +101,7 @@ class Randomizer:
     )
     filename: str = "randomization_list.csv"
     randomizationlist_folder: Path | str = get_randomization_list_path()
-    extra_csv_fieldnames: list[str] | None = None
+    extra_csv_fieldnames: tuple[str] | None = None
     trial_is_blinded: bool = True
     importer_cls: Any = RandomizationListImporter
     apps = None  # if not using django_apps

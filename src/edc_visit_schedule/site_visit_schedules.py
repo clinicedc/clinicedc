@@ -93,7 +93,8 @@ class SiteVisitSchedules:
         return visit_schedules or self.registry
 
     def get_by_consent_definition(
-        self, cdef: ConsentDefinition
+        self,
+        cdef: ConsentDefinition,
     ) -> tuple[VisitSchedule, Schedule]:
         """Returns a visit schedule instance or raises."""
         ret = []

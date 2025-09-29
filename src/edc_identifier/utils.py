@@ -14,13 +14,10 @@ def is_subject_identifier_or_raise(subject_identifier, reference_obj=None, raise
     * If `subject_identifier` is None, does nothing, unless
       `raise_on_none` is `True`.
     """
-    if subject_identifier or (
-        raise_on_none
-        and not re.match(
-            ResearchProtocolConfig().subject_identifier_pattern,
-            subject_identifier or "",
-        )
-    ):
+    valid_subject_identifier = subject_identifier and re.match(
+        ResearchProtocolConfig().subject_identifier_pattern, subject_identifier or ""
+    )
+    if not valid_subject_identifier or (not subject_identifier and raise_on_none):
         reference_msg = ""
         if reference_obj:
             reference_msg = f"See {reference_obj!r}. "

@@ -40,10 +40,8 @@ def format_reasons_ineligible(*str_values: str | None, delimiter: str | None = N
     str_values = str_values or []
     str_values = tuple(x for x in str_values if x)
     if str_values:
-        reasons = format_html(
-            "{}",
-            mark_safe(delimiter.join(str_values)),  # noqa: S308
-        )
+        formatted_string = delimiter.join(str_values)
+        reasons = mark_safe(formatted_string)  # noqa: S308
     return reasons
 
 
@@ -120,15 +118,15 @@ def is_eligible_or_raise(
             if url and url_name.endswith("changelist"):
                 url = f"{url}?q={subject_screening.screening_identifier}"
         if not url:
-            msg = format_html(
-                "{}",
+            safe_string = mark_safe(  # noqa: S308
                 "Not allowed. Subject is not eligible. "
-                f"Got {subject_screening.screening_identifier}",
+                f"Got {subject_screening.screening_identifier}.",
             )
         else:
-            msg = format_html(
-                'Not allowed. Subject is not eligible. See subject <A href="{}">{}</A>',
-                mark_safe(url),  # noqa: S308
-                subject_screening.screening_identifier,
+            safe_string = format_html(
+                "Not allowed. Subject is not eligible. See subject "
+                '<A href="{url}">{screening_identifier}</A>',
+                url=url,
+                screening_identifier=subject_screening.screening_identifier,
             )
-        raise forms.ValidationError(msg)
+        raise forms.ValidationError(safe_string)

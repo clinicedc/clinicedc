@@ -25,7 +25,7 @@ class AppointmentButton(DashboardModelButton):
     model_obj: Appointment = None
     colors: tuple[str, str, str] = field(default=(3 * ("default",)))
     model_cls: type[Appointment] = field(default=None, init=False)
-    appointment: Appointment = field(default=None, init=False)
+    appointment: Appointment | None = field(default=None, init=False)
 
     def __post_init__(self):
         self.model_cls = django_apps.get_model("edc_appointment.appointment")

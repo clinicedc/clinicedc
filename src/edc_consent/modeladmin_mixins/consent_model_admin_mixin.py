@@ -14,7 +14,7 @@ from ..actions import flag_as_verified_against_paper, unflag_as_verified_against
 
 
 class ConsentModelAdminMixin:
-    name_fields: list[str] = ["first_name", "last_name"]
+    name_fields: tuple[str] = ("first_name", "last_name")
     name_display_field: str = "first_name"
     actions = (flag_as_verified_against_paper, unflag_as_verified_against_paper)
 
@@ -63,22 +63,26 @@ class ConsentModelAdminMixin:
             "study_questions",
             "assessment_score",
             "consent_copy",
-        ) + original_fields
+            *original_fields,
+        )
 
     def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj)
         fields = ("subject_identifier", "subject_identifier_as_pk")
         if obj:
             return (
-                fields + ("consent_datetime", "identity", "confirm_identity") + readonly_fields
+                *fields,
+                "consent_datetime",
+                "identity",
+                "confirm_identity",
+                *readonly_fields,
             )
         return fields + readonly_fields
 
     def get_search_fields(self, request) -> tuple[str, ...]:
         search_fields: tuple[str] = super().get_search_fields(request)
-        name_fields: tuple[str] = tuple(self.name_fields)
         return tuple(
-            set(search_fields + ("id", "subject_identifier", *name_fields, "identity"))
+            {*search_fields, "id", "subject_identifier", *self.name_fields, "identity"}
         )
 
     def get_list_display(self, request) -> tuple[str, ...]:
@@ -102,10 +106,8 @@ class ConsentModelAdminMixin:
         if request.user.has_perm("edc_data_manager.add_dataquery"):
             custom_fields = list(custom_fields)
             custom_fields.insert(3, self.queries)
-        fields = tuple(custom_fields) + tuple(
-            f for f in list_display if f not in custom_fields
-        )
-        return fields
+            custom_fields = tuple(custom_fields)
+        return *custom_fields, *tuple(f for f in list_display if f not in custom_fields)
 
     def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
@@ -181,14 +183,14 @@ class ConsentModelAdminMixin:
             if links:
                 formatted_html = format_html(
                     '<BR>{links}<BR><A title="New query" href="{new_url}">Add query</A>',
-                    links=mark_safe("<BR>".join(links)),  # nosec B703 B308
-                    new_url=mark_safe(new_url),  # nosec B703 B308
+                    links=mark_safe("<BR>".join(links)),  # nosec B703 B308  # noqa: S308
+                    new_url=mark_safe(new_url),  # nosec B703 B308  # noqa: S308
                 )
             else:
                 formatted_html = format_html(
                     '<A title="New query" href="{new_url}?"'
                     'subject_identifier={subject_identifier}">Add query</A>',
-                    new_url=mark_safe(new_url),  # nosec B703 B308
+                    new_url=mark_safe(new_url),  # nosec B703 B308  # noqa: S308
                     subject_identifier=obj.subject_identifier,
                 )
         return formatted_html

@@ -244,9 +244,7 @@ docs = [
     "sphinx-inline-tabs>=2023.4.21",
 ]
 lint = [
-    # "black>=25.1.0",
-    # "isort==5.13.2",
-    "ruff>=0.12.5",
+    "ruff>=0.13.2",
 ]
 
 test = [
@@ -301,9 +299,9 @@ develop = [
 
 [tool.uv.sources]
 clinicedc = { workspace = true }
+clinicedc-tests = { path = "../clinicedc-tests", editable = true }
 django-audit-fields = { path = "../django-audit-fields", editable = true }
 django-crypto-fields = { path = "../django-crypto-fields", editable = true }
 django-revision = { path = "../django-revision", editable = true }
-django-multisite2 = { path = "../django-multisite2", editable = true }
-clinicedc-tests = { path = "../clinicedc-tests", editable = true }
+# django-multisite2 = { path = "../django-multisite2", editable = true }
 edc-test-settings = { path = "../edc-test-settings", editable = true }

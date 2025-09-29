@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 
@@ -20,18 +19,18 @@ class MessageViewMixin:
             # attempt to get the level if passed a string
             try:
                 level = getattr(messages.constants, level.upper())
-            except AttributeError:
+            except AttributeError as e:
                 levels = ", ".join(
                     [level for level in messages.constants.DEFAULT_TAGS.values()]
                 )
                 raise ValueError(
                     f"Bad message level string: `{level}`. Possible values are: {levels}"
-                )
+                ) from e
 
         messages.add_message(
             self.request,
             level,
-            format_html("{}", mark_safe(message)),  # nosec B703 B308
+            mark_safe(message),  # noqa: S308
             extra_tags=extra_tags,
             fail_silently=fail_silently,
         )

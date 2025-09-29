@@ -279,30 +279,30 @@ css = [
 
 [[package]]
 name = "boto3"
-version = "1.40.39"
+version = "1.40.40"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore" },
     { name = "jmespath" },
     { name = "s3transfer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fe/5b/2b79e27e19b5dc0360e07cb40c6364dd8f7104fe7b4016ae65a527a2535d/boto3-1.40.39.tar.gz", hash = "sha256:27ca06d4d6f838b056b4935c9eceb92c8d125dbe0e895c5583bcf7130627dcd2", size = 111587, upload-time = "2025-09-25T19:20:02.534Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3c/12/1a31b36802d0f33bc6982ab8b7e6437d75ef3c179abe6c53d4d8f7b4248f/boto3-1.40.40.tar.gz", hash = "sha256:f384d3a0410d0f1a4d4ae7aa69c41d0549c6ca5a76667dc25fc97d50ad6db740", size = 111606, upload-time = "2025-09-26T19:23:46.923Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f1/7e/72b4f38c85ea879b27f90ad0d51f26b26e320bbc86b75664c0cf409d3d84/boto3-1.40.39-py3-none-any.whl", hash = "sha256:e2cab5606269fe9f428981892aa592b7e0c087a038774475fa4cd6c8b5fe0a99", size = 139345, upload-time = "2025-09-25T19:20:00.381Z" },
+    { url = "https://files.pythonhosted.org/packages/90/69/c65566dbdaaea3af0c23f7731ab0f185a38b593fd449d2423374150dbfe0/boto3-1.40.40-py3-none-any.whl", hash = "sha256:385904de68623e1c341bdc095d94a30006843032c912adeb1e0752a343632ec6", size = 139340, upload-time = "2025-09-26T19:23:45.557Z" },
 ]
 
 [[package]]
 name = "botocore"
-version = "1.40.39"
+version = "1.40.40"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jmespath" },
     { name = "python-dateutil" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d8/30/44883126961d895ff8b69b8f7d1b2c60e9a348e38d4354ee597b69b8b5f8/botocore-1.40.39.tar.gz", hash = "sha256:c6efc55cac341811ba90c693d20097db6e2ce903451d94496bccd3f672b1709d", size = 14356776, upload-time = "2025-09-25T19:19:49.842Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/83/5a/43a7fea503ad14fa79819f2b3103a38977fb587a3663d1ac6e958fccf592/botocore-1.40.40.tar.gz", hash = "sha256:78eb121a16a6481ed0f6e1aebe53a4f23aa121f34466846c13a5ca48fa980e31", size = 14363370, upload-time = "2025-09-26T19:23:37.853Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b2/57/2400d0cf030650b02a25a2aeb87729e51cb2aa8d97a2b4d9fec05c671f0b/botocore-1.40.39-py3-none-any.whl", hash = "sha256:144e0e887a9fc198c6772f660fc006028bd1a9ce5eea3caddd848db3e421bc79", size = 14025786, upload-time = "2025-09-25T19:19:46.177Z" },
+    { url = "https://files.pythonhosted.org/packages/ed/5e/3bbf6d34cbf307c1b9e58e0204ceba2d35bbc0c93b4e3b3cc895aae0a5fd/botocore-1.40.40-py3-none-any.whl", hash = "sha256:68506142b3cde93145ef3ee0268f2444f2b68ada225a151f714092bbd3d6516a", size = 14031738, upload-time = "2025-09-26T19:23:35.475Z" },
 ]
 
 [[package]]
@@ -598,7 +598,7 @@ requires-dist = [
     { name = "django-defender", specifier = ">=0.9.8" },
     { name = "django-environ", specifier = ">=0.12.0" },
     { name = "django-logentry-admin", specifier = ">=1.1.0" },
-    { name = "django-multisite2", editable = "../django-multisite2" },
+    { name = "django-multisite2", specifier = ">=2.1.0" },
     { name = "django-pandas", specifier = ">=0.6.7" },
     { name = "django-pylabels", specifier = ">=1.0.1" },
     { name = "django-redis", specifier = ">=6.0.0" },
@@ -635,7 +635,7 @@ develop = [
     { name = "django-db-views" },
     { name = "django-environ" },
     { name = "django-logentry-admin" },
-    { name = "django-multisite2", editable = "../django-multisite2" },
+    { name = "django-multisite2" },
     { name = "django-pandas" },
     { name = "django-revision", editable = "../django-revision" },
     { name = "django-simple-history" },
@@ -653,7 +653,7 @@ docs = [
     { name = "sphinx-design", specifier = ">=0.6.1" },
     { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
 ]
-lint = [{ name = "ruff", specifier = ">=0.12.5" }]
+lint = [{ name = "ruff", specifier = ">=0.13.2" }]
 notebook = [
     { name = "dj-notebook", specifier = ">=0.7.0" },
     { name = "great-tables", specifier = ">=0.18.0" },
@@ -1054,15 +1054,15 @@ test = [
 
 [[package]]
 name = "django-db-views"
-version = "0.1.12"
+version = "0.1.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "six" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a2/98/0ce542ae2c8bbf29e500f6b0246a1be2fcb5a1a22295b0362819d6565dbf/django_db_views-0.1.12.tar.gz", hash = "sha256:a44633143c122d51d579a19445dea473ad5def223b98debaaba41584f9ab39f5", size = 11022, upload-time = "2025-09-14T21:21:11.694Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/07/e26fa77d89a8c34d84ee1ea0e4564b0ecbc0958c4e0b550529e6faaa2a83/django_db_views-0.1.13.tar.gz", hash = "sha256:04ad0c75c066df584f59fbb21c9a76c5af8cff112f23eaab712115f58d42c1c1", size = 11054, upload-time = "2025-09-26T17:34:10.033Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/05/79/a218501de4014c385418d8f266e927fba08f21eaddfd889eea5bdb20368c/django_db_views-0.1.12-py2.py3-none-any.whl", hash = "sha256:ebf8ad9bd839de7e6e22d4250d56b383817cc85130faaac813df20d05f2cb37a", size = 17001, upload-time = "2025-09-14T21:21:09.626Z" },
+    { url = "https://files.pythonhosted.org/packages/df/dc/5ddb4da6a5d02e9fc15f7160287bd2827a98f5bc81ddaf16a13d4c9ffb1c/django_db_views-0.1.13-py2.py3-none-any.whl", hash = "sha256:c45a575705219aaba19090d80d2a653f23667d61e227112cd36ba7cb37dd9e1c", size = 17030, upload-time = "2025-09-26T17:34:08.984Z" },
 ]
 
 [[package]]
@@ -1113,20 +1113,15 @@ wheels = [
 
 [[package]]
 name = "django-multisite2"
-source = { editable = "../django-multisite2" }
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "tldextract" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "coverage", marker = "extra == 'test'" },
-    { name = "mock", marker = "extra == 'test'" },
-    { name = "pluggy", marker = "extra == 'test'" },
-    { name = "tldextract" },
-    { name = "tox", marker = "extra == 'test'" },
+sdist = { url = "https://files.pythonhosted.org/packages/c8/c7/b41b822c2c00c585f35070621c0c3527388c9ba85f2c930d82d5917ee28e/django_multisite2-2.1.0.tar.gz", hash = "sha256:aeccb6fba824efb28678c2630b2e8223da2b53fff034c0b3f38e9d304921eb97", size = 89545, upload-time = "2025-07-18T21:16:04.068Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/01/02/32dda08f37a2955279204a01f3efe8cac69ac0ef298da0eb3eb0c2bfec16/django_multisite2-2.1.0-py3-none-any.whl", hash = "sha256:29b63f9ca6aca0f77199f1ef657b1c2a4ccb133ae574aec4f0db5995cc754824", size = 120810, upload-time = "2025-07-18T21:16:03.023Z" },
 ]
-provides-extras = ["test"]
 
 [[package]]
 name = "django-pandas"
@@ -1990,7 +1985,7 @@ wheels = [
 
 [[package]]
 name = "jupyterlab"
-version = "4.4.8"
+version = "4.4.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "async-lru" },
@@ -2007,9 +2002,9 @@ dependencies = [
     { name = "tornado" },
     { name = "traitlets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b4/f1/062e250e4126babed8b62ed3dbe47dfb4761e310a235a815e87b4fe330a3/jupyterlab-4.4.8.tar.gz", hash = "sha256:a89e5a2e9f9295ae039356fc5247e5bfac64936126ab805e3ff8e47f385b0c7e", size = 22967507, upload-time = "2025-09-25T17:26:38.413Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/45/b2/7dad2d0049a904d17c070226a4f78f81905f93bfe09503722d210ccf9335/jupyterlab-4.4.9.tar.gz", hash = "sha256:ea55aca8269909016d5fde2dc09b97128bc931230183fe7e2920ede5154ad9c2", size = 22966654, upload-time = "2025-09-26T17:28:20.158Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d1/3b/82d8c000648e77a112b2ae38e49722ffea808933377ea4a4867694384774/jupyterlab-4.4.8-py3-none-any.whl", hash = "sha256:81b56f33f35be15150e7ccd43440963a93d2b115ffa614a06d38b91e4d650f92", size = 12292452, upload-time = "2025-09-25T17:26:34.289Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/fd/ac0979ebd1b1975c266c99b96930b0a66609c3f6e5d76979ca6eb3073896/jupyterlab-4.4.9-py3-none-any.whl", hash = "sha256:394c902827350c017430a8370b9f40c03c098773084bc53930145c146d3d2cb2", size = 12292552, upload-time = "2025-09-26T17:28:15.663Z" },
 ]
 
 [[package]]
@@ -2429,7 +2424,7 @@ wheels = [
 
 [[package]]
 name = "notebook"
-version = "7.4.5"
+version = "7.4.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jupyter-server" },
@@ -2438,9 +2433,9 @@ dependencies = [
     { name = "notebook-shim" },
     { name = "tornado" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9f/21/9669982f9569e7478763837e0d35b9fd9f43de0eb5ab5d6ca620b8019cfc/notebook-7.4.5.tar.gz", hash = "sha256:7c2c4ea245913c3ad8ab3e5d36b34a842c06e524556f5c2e1f5d7d08c986615e", size = 13888993, upload-time = "2025-08-05T07:40:56.529Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/36/e7/16b68f8c670d48da0c643ecc6dbb261459880d165f7a68422ce65c92b125/notebook-7.4.6.tar.gz", hash = "sha256:5135e79e3cf5187e987fc8385dc0d087d792757060268686016307a4d7e70af0", size = 13937087, upload-time = "2025-09-26T06:39:59.442Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fe/c7/207fd1138bd82435d13b6d8640a240be4d855b8ddb41f6bf31aca5be64df/notebook-7.4.5-py3-none-any.whl", hash = "sha256:351635461aca9dad08cf8946a4216f963e2760cc1bf7b1aaaecb23afc33ec046", size = 14295193, upload-time = "2025-08-05T07:40:52.586Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/33/8cfe8678444c52173b4f490e2f72b8eca30d99ddc1e0dcc6e1aea63d48c4/notebook-7.4.6-py3-none-any.whl", hash = "sha256:75d931582bc26c42257084b75bcf9d51e43fb8e6d3cf779cb17a5c6561867341", size = 14342923, upload-time = "2025-09-26T06:39:55.407Z" },
 ]
 
 [[package]]
@@ -3538,11 +3533,11 @@ wheels = [
 
 [[package]]
 name = "sqlglot"
-version = "27.18.0"
+version = "27.19.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/01/56/ef3c705c750b262d4cca787982e3b640d46e8b40ba06d1d5577fb1bb4d76/sqlglot-27.18.0.tar.gz", hash = "sha256:6901eb1805226f38852e53c473d67c8e13bacf11ffe5d90170874f3d7b199acf", size = 5478250, upload-time = "2025-09-25T10:31:47.423Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f5/39/59c0feb9c29bd122b9492b6f51d583401ba977957b614d4ac0481cf380bc/sqlglot-27.19.0.tar.gz", hash = "sha256:4986ab43443263144c1783aeafe116e68a46f9be43f813c0ce4b914700063dbc", size = 5479756, upload-time = "2025-09-26T16:49:37.45Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ca/cc/110103f57c249bed40e85bd069ec3d2c29250ea228c89ed9d161924bb44d/sqlglot-27.18.0-py3-none-any.whl", hash = "sha256:71c122ddc99128347e1cd9ad6ed08b378cdf233e27eb78abce7542f47c723edd", size = 520293, upload-time = "2025-09-25T10:31:44.927Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/3d/35d33f0e167ac5a3acec1b66bd3b6e2cf62285c779474004d44a17745b52/sqlglot-27.19.0-py3-none-any.whl", hash = "sha256:2bb4a9522c835bb41ff274497973906b42f8ec2cf7776a18b1035b1253bc81e5", size = 520489, upload-time = "2025-09-26T16:49:35.428Z" },
 ]
 
 [[package]]

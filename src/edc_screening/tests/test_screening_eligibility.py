@@ -1,5 +1,5 @@
 from clinicedc_tests.models import SubjectScreening
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 
 from edc_constants.constants import NO, TBD, YES
 from edc_screening.exceptions import (
@@ -15,6 +15,7 @@ from edc_screening.screening_eligibility import (
 
 
 @tag("screening")
+@override_settings(SITE_ID=10)
 class TestScreening(TestCase):
     def test_fc(self):
         fc = FC()
@@ -247,7 +248,7 @@ class TestScreening(TestCase):
         required_fields = dict(erik=FC(YES, "erik must be YES"))
         options = {
             "eligible_value_default": "PENDING",
-            "eligible_values_list": ["YEAH", "NOPE", "PENDING"],
+            "eligible_values_list": ("YEAH", "NOPE", "PENDING"),
             "is_eligible_value": "YEAH",
             "is_ineligible_value": "NOPE",
         }
@@ -296,7 +297,7 @@ class TestScreening(TestCase):
 
     def test_fc_with_callable(self):
         required_fields = dict(
-            age_in_years=FC(lambda x: x >= 18, "must be >=18y"),
+            age_in_years=FC(lambda x: x >= 18, "must be >=18y"),  # noqa: PLR2004
         )
 
         class ScreeningEligibility(BaseScreeningEligibility):

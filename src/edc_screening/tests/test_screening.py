@@ -1,14 +1,14 @@
 import re
 
 from clinicedc_tests.models import (
+    MySubjectScreening,
     SubjectScreening,
     SubjectScreeningSimple,
-    SubjectScreeningWithoutEligibility,
 )
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 
-from edc_constants.constants import MALE, NO, UUID_PATTERN, YES
+from edc_constants.constants import MALE, NO, NULL_STRING, UUID_PATTERN, YES
 from edc_identifier.models import IdentifierModel
 from edc_screening.age_evaluator import AgeEvaluator
 from edc_screening.constants import ELIGIBLE, NOT_ELIGIBLE
@@ -23,6 +23,7 @@ from edc_screening.utils import (
 
 
 @tag("screening")
+@override_settings(SITE_ID=10)
 class TestScreening(TestCase):
     @override_settings(SUBJECT_SCREENING_MODEL="clinicedc_tests.subjectscreening")
     def test_model_funcs(self):
@@ -101,7 +102,7 @@ class TestScreening(TestCase):
         )
 
     def test_model_screening_eligiblity_resave(self):
-        obj = SubjectScreeningWithoutEligibility.objects.create(age_in_years=17, alive=NO)
+        obj = MySubjectScreening.objects.create(age_in_years=17, alive=NO)
         self.assertFalse(obj.eligible)
         # note model attr is formatted as a string of dict.values()
         self.assertEqual(obj.reasons_ineligible, "must be >=18|must be alive")
@@ -118,4 +119,4 @@ class TestScreening(TestCase):
         obj.save()
         obj.refresh_from_db()
         self.assertTrue(obj.eligible)
-        self.assertEqual(obj.reasons_ineligible, None)
+        self.assertEqual(obj.reasons_ineligible, NULL_STRING)

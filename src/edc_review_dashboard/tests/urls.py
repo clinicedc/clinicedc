@@ -27,7 +27,7 @@ for app_name in [
     "review_dashboard_app",
 ]:
     for p in paths_for_urlpatterns(app_name):
-        urlpatterns.append(p)
+        urlpatterns.append(p)  # noqa: PERF402
 
 urlpatterns += [
     path("administration/", AdministrationView.as_view(), name="administration_url"),

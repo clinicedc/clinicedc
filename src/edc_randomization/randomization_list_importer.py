@@ -67,19 +67,20 @@ class RandomizationListImporter:
     def __init__(
         self,
         randomizer_model_cls=None,
-        randomizer_name: str = None,
-        randomizationlist_path: Path | str = None,
-        assignment_map: dict[str, int] = None,
-        verbose: bool = None,
-        overwrite: bool = None,
-        add: bool = None,
-        dryrun: bool = None,
-        username: str = None,
-        revision: str = None,
-        sid_count_for_tests: int = None,
-        extra_csv_fieldnames: list[str] | None = None,
-        **kwargs,
+        randomizer_name: str | None = None,
+        randomizationlist_path: Path | str | None = None,
+        assignment_map: dict[str, int] | None = None,
+        verbose: bool | None = None,
+        overwrite: bool | None = None,
+        add: bool | None = None,
+        dryrun: bool | None = None,
+        username: str | None = None,
+        revision: str | None = None,
+        sid_count_for_tests: int | None = None,
+        extra_csv_fieldnames: tuple[str] | None = None,
+        **kwargs,  # noqa: ARG002
     ):
+        extra_csv_fieldnames = extra_csv_fieldnames or ()
         self.verify_messages: str | None = None
         self.add = add
         self.overwrite = overwrite
@@ -92,7 +93,7 @@ class RandomizationListImporter:
         self.randomizer_name = randomizer_name
         self.assignment_map = assignment_map
         self.randomizationlist_path: Path = Path(randomizationlist_path).expanduser()
-        self.required_csv_fieldnames.extend(extra_csv_fieldnames or [])
+        self.required_csv_fieldnames = (*self.required_csv_fieldnames, *extra_csv_fieldnames)
 
         if self.dryrun:
             sys.stdout.write(
@@ -223,12 +224,15 @@ class RandomizationListImporter:
             sid_count = self.sid_count_for_tests
         else:
             sid_count = len(self.get_sid_list())
-        with self.randomizationlist_path.open(mode="r") as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in tqdm(reader, total=sid_count):
+        with self.randomizationlist_path.open(mode="r") as f:
+            reader = csv.DictReader(f)
+            all_rows = [{k: v.strip() for k, v in row.items() if k} for row in reader]
+            sorted_rows = sorted(
+                all_rows, key=lambda row: (row.get("site_name", ""), row.get("sid", ""))
+            )
+            for row in tqdm(sorted_rows, total=sid_count):
                 if self.sid_count_for_tests and len(objs) == self.sid_count_for_tests:
                     break
-                row = {k: v.strip() for k, v in row.items()}
                 try:
                     self.randomizer_model_cls.objects.get(sid=row["sid"])
                 except ObjectDoesNotExist:
