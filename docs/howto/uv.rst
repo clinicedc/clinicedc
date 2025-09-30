@@ -1,8 +1,8 @@
 UV
 ==
 
-Delopy with uv
----------------
+Delpoy with uv
+--------------
 
 get uv
 
