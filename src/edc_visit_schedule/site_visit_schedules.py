@@ -95,9 +95,11 @@ class SiteVisitSchedules:
     def get_by_consent_definition(
         self,
         cdef: ConsentDefinition,
-    ) -> tuple[VisitSchedule, Schedule]:
-        """Returns a visit schedule instance or raises."""
-        ret = []
+    ) -> tuple[tuple[VisitSchedule, Schedule], ...]:
+        """Returns a tuple of (visit schedule, schedule instances) that
+        match this cdef or raises.
+        """
+        visit_schedules = []
         attr = "consent_definitions"
         for visit_schedule in self.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
@@ -109,18 +111,12 @@ class SiteVisitSchedules:
                     ) from e
                 for _cdef in consent_definitions:
                     if _cdef == cdef:
-                        ret.append([visit_schedule, schedule])  # noqa: PERF401
-        if not ret:
+                        visit_schedules.append((visit_schedule, schedule))  # noqa: PERF401
+        if not visit_schedules:
             raise SiteVisitScheduleError(
                 f"Schedule not found. No schedule exists for {attr}={cdef}."
             )
-        if len(ret) > 1:
-            raise SiteVisitScheduleError(
-                f"Schedule is ambiguous. More than one schedule exists for "
-                f"{attr}={cdef}. Got {ret}"
-            )
-        visit_schedule, schedule = ret[0]
-        return visit_schedule, schedule
+        return tuple(visit_schedules)
 
     def get_by_onschedule_model(self, onschedule_model: str) -> tuple[VisitSchedule, Schedule]:
         """Returns a tuple of (visit_schedule, schedule)

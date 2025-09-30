@@ -1,9 +1,14 @@
-from django.db.models.signals import pre_save
+import contextlib
+
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from edc_sites import site_sites
+from edc_visit_schedule.exceptions import NotOnScheduleError
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_schedule.subject_schedule import SubjectSchedule
 
-from ..model_mixins import RequiresConsentFieldsModelMixin
+from ..model_mixins import ConsentExtensionModelMixin, RequiresConsentFieldsModelMixin
 from ..site_consents import site_consents
 
 
@@ -50,27 +55,28 @@ def requires_consent_on_pre_save(instance, raw, using, update_fields, **kwargs):
         instance.consent_model = consent_definition.model
 
 
-# @receiver(
-#     post_save,
-#     weak=False,
-#     dispatch_uid="update_appointment_from_consentext_post_save",
-# )
-# def update_appointment_from_consentext_post_save(
-#     sender, instance, raw, created, using, **kwargs
-# ):
-#     if (
-#         not raw
-#         and not kwargs.get("update_fields")
-#         and isinstance(instance, (ConsentExtensionModelMixin,))
-#     ):
-#         cdef = site_consents.get_consent_definition(
-#             model=instance.subject_consent._meta.label_lower,
-#             version=instance.subject_consent.version,
-#         )
-#         visit_schedule, schedule = site_visit_schedules.get_by_consent_definition(cdef)
-#         subject_schedule = SubjectSchedule(
-#             instance.subject_consent.subject_identifier,
-#             visit_schedule=visit_schedule,
-#             schedule=schedule,
-#         )
-#         subject_schedule.refresh_appointments()
+@receiver(
+    post_save,
+    weak=False,
+    dispatch_uid="update_appointment_from_consentext_post_save",
+)
+def update_appointment_from_consentext_post_save(
+    sender, instance, raw, created, using, **kwargs
+):
+    if (
+        not raw
+        and not kwargs.get("update_fields")
+        and isinstance(instance, (ConsentExtensionModelMixin,))
+    ):
+        cdef = site_consents.get_consent_definition(
+            model=instance.subject_consent._meta.label_lower,
+            version=instance.subject_consent.version,
+        )
+        for visit_schedule, schedule in site_visit_schedules.get_by_consent_definition(cdef):
+            subject_schedule = SubjectSchedule(
+                instance.subject_consent.subject_identifier,
+                visit_schedule=visit_schedule,
+                schedule=schedule,
+            )
+            with contextlib.suppress(NotOnScheduleError):
+                subject_schedule.refresh_appointments()

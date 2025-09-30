@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import sys
+from itertools import islice
 from pathlib import Path
 from pprint import pprint
 from uuid import uuid4
@@ -72,6 +73,7 @@ class RandomizationListImporter:
         username: str | None = None,
         revision: str | None = None,
         sid_count_for_tests: int | None = None,
+        skip_verify: bool | None = None,
         extra_csv_fieldnames: tuple[str] | None = None,
         **kwargs,  # noqa: ARG002
     ):
@@ -84,6 +86,7 @@ class RandomizationListImporter:
         self.revision = revision
         self.user = username
         self.sid_count_for_tests = sid_count_for_tests
+        self.skip_verify = skip_verify
         self.randomizer_model_cls = randomizer_model_cls
         self.randomizer_name = randomizer_name
         self.assignment_map = assignment_map
@@ -120,8 +123,9 @@ class RandomizationListImporter:
                 )
             )
         rec_count = self._import_csv_to_model()
-        self.verify_messages = self._verify_data(**kwargs)
-        self._summarize_results()
+        if not self.skip_verify:
+            self.verify_messages = self._verify_data(**kwargs)
+            self._summarize_results()
         if self.verbose:
             sys.stdout.write(
                 style.SUCCESS("\nDone.------------------------------------------------\n")
@@ -221,13 +225,15 @@ class RandomizationListImporter:
             sid_count = len(self.get_sid_list())
         with self.randomizationlist_path.open(mode="r") as f:
             reader = csv.DictReader(f)
+            if self.sid_count_for_tests:
+                reader = islice(reader, self.sid_count_for_tests)
             all_rows = [{k: v.strip() for k, v in row.items() if k} for row in reader]
             sorted_rows = sorted(
                 all_rows, key=lambda row: (row.get("site_name", ""), row.get("sid", ""))
             )
             for row in tqdm(sorted_rows, total=sid_count):
-                if self.sid_count_for_tests and len(objs) == self.sid_count_for_tests:
-                    break
+                # if self.sid_count_for_tests and len(objs) == self.sid_count_for_tests:
+                #     break
                 try:
                     self.randomizer_model_cls.objects.get(sid=row["sid"])
                 except ObjectDoesNotExist:
