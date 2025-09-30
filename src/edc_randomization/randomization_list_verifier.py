@@ -1,5 +1,6 @@
 import csv
 import sys
+from itertools import islice
 from pathlib import Path
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -72,15 +73,16 @@ class RandomizationListVerifier:
 
     def verify(self) -> str | None:
         message = None
-
         # read and sort from CSV file
         with self.randomizationlist_path.open(mode="r") as f:
             reader = csv.DictReader(f)
+            if self.sid_count_for_tests:
+                reader = islice(reader, self.sid_count_for_tests)
             all_rows = [{k: v.strip() for k, v in row.items() if k} for row in reader]
             sorted_rows = sorted(
-                all_rows, key=lambda row: (row.get("site_name", ""), int(row.get("sid", 0)))
+                all_rows,
+                key=lambda row: (row.get("site_name", ""), int(row.get("sid", 0))),
             )
-
         # compare sorted CSV length with DB
         if len(sorted_rows) != self.randomizer_model_cls.objects.all().count():
             expected_cnt = len(sorted_rows)
