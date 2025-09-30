@@ -4,6 +4,7 @@ from .constants import (
     ABNORMAL,
     ABSENT,
     AFTERNOON,
+    AGREE,
     ALIVE,
     ALWAYS,
     ANYTIME,
@@ -11,8 +12,11 @@ from .constants import (
     COMPLETE,
     DEAD,
     DECLINED,
+    DIFFICULT,
+    DISAGREE,
     DONT_KNOW,
     DWTA,
+    EASY,
     EVENING,
     FALSE,
     FASTING,
@@ -26,6 +30,7 @@ from .constants import (
     MORNING,
     NAIVE,
     NEG,
+    NEUTRAL,
     NEVER,
     NO,
     NON_FASTING,
@@ -51,9 +56,13 @@ from .constants import (
     REFUSED,
     SMOKER,
     SOMETIMES,
+    STRONGLY_AGREE,
+    STRONGLY_DISAGREE,
     TBD,
     TRUE,
     UNKNOWN,
+    VERY_DIFFICULT,
+    VERY_EASY,
     VERY_OFTEN,
     WEEKDAYS,
     WEEKENDS,
@@ -832,4 +841,21 @@ WHYNOPARTICIPATE_CHOICE = (
     ("not_sure", _("I'm not sure")),
     ("OTHER", _("Other, specify:")),
     ("not_answering", _("Don't want to answer")),
+)
+
+
+DISAGREE_TO_AGREE_CHOICE = (
+    (STRONGLY_DISAGREE, _("Strongly disagree")),
+    (DISAGREE, _("disagree")),
+    (NEUTRAL, _("Neutral")),
+    (AGREE, _("Agree")),
+    (STRONGLY_AGREE, _("Strongly agree")),
+)
+
+DIFFICULT_TO_EASY_CHOICE = (
+    (VERY_DIFFICULT, _("Very difficult")),
+    (DIFFICULT, _("Difficult")),
+    (NEUTRAL, _("Neutral")),
+    (EASY, _("Easy")),
+    (VERY_EASY, _("Very easy")),
 )
