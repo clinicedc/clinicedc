@@ -18,15 +18,14 @@ class NoteForm(
     FormValidatorMixin,
     forms.ModelForm,
 ):
-
     report_datetime_field_attr = "report_datetime"
     form_validator_cls = NoteFormValidator
 
     class Meta:
         model = Note
         fields = "__all__"
-        help_text = {"subject_identifier": "(read-only)", "name": "(read-only)"}
-        widgets = {
+        help_text = {"subject_identifier": "(read-only)", "name": "(read-only)"}  # noqa: RUF012
+        widgets = {  # noqa: RUF012
             "report_model": forms.TextInput(attrs={"readonly": "readonly"}),
             "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
             "name": forms.TextInput(attrs={"readonly": "readonly"}),

@@ -1,9 +1,10 @@
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 
 from edc_reportable.models import ReferenceRangeCollection
 
 
 @tag("reportable")
+@override_settings(SITE_ID=10)
 class TestReferenceRangeCollection(TestCase):
     def test_ok(self):
         obj = ReferenceRangeCollection.objects.create(

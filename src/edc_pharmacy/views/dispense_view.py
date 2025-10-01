@@ -85,7 +85,7 @@ class DispenseView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Template
             )
         return confirmation_at_site
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         location_id = request.POST.get("location_id")
         location = Location.objects.get(pk=location_id)
         formulation_id = request.POST.get("formulation_id")

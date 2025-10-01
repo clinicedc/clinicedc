@@ -1,11 +1,12 @@
 import csv
-from datetime import datetime
+from pathlib import Path
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 def export_users(path):
-    path = path or f"edc_users_{datetime.now().strftime('%Y%m%d%H%M%S')}.csv"
+    path = path or f"edc_users_{timezone.now().strftime('%Y%m%d%H%M%S')}.csv"
     user = {
         "username": None,
         "password": None,
@@ -21,13 +22,13 @@ def export_users(path):
         "role_names": None,
     }
 
-    with open(path, "w+") as f:
+    with Path(path).open("w+") as f:
         writer = csv.DictWriter(f, fieldnames=user, delimiter="|")
         writer.writeheader()
         for user in User.objects.all().order_by("username"):
             site_names = ",".join([s.name for s in user.userprofile.sites.all()])
             role_names = ",".join([g.name for g in user.userprofile.roles.all()])
-            user = {
+            user = {  # noqa: PLW2901
                 "username": user.username,
                 "password": user.password,
                 "is_staff": user.is_staff,
@@ -42,4 +43,4 @@ def export_users(path):
                 "role_names": role_names or "",
             }
             writer.writerow(user)
-    print(f"Done. See file `{path}` in the current directory.")
+    print(f"Done. See file `{path}` in the current directory.")  # noqa: T201

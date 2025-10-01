@@ -23,9 +23,9 @@ class OnStudyMissingValuesModelAdminMixin(
     include_note_column: bool = True
     site_list_display_insert_pos: int = 2
     qa_report_list_display_insert_pos = 4
-    ordering = ["site", "subject_identifier"]
+    ordering = ("site", "subject_identifier")
 
-    list_display = [
+    list_display = (
         "dashboard",
         "render_button",
         "subject",
@@ -35,16 +35,16 @@ class OnStudyMissingValuesModelAdminMixin(
         "visit",
         "report_date",
         "created",
-    ]
+    )
 
-    list_filter = [
+    list_filter = (
         ScheduleStatusListFilter,
         "label",
         "visit_code",
         "report_datetime",
-    ]
+    )
 
-    search_fields = ["subject_identifier", "label"]
+    search_fields = ("subject_identifier", "label")
 
     @admin.display(description="Update")
     def render_button(self, obj=None):
@@ -64,7 +64,7 @@ class OnStudyMissingValuesModelAdminMixin(
                 f"&appointment={self.related_visit(obj).appointment.id}"
                 f"&requisition={obj.original_id}"
             )
-            title = _(f"Add {crf_model_cls._meta.verbose_name}")
+            title = _("Add {}") % crf_model_cls._meta.verbose_name
             label = _("Add CRF")
             crf_button = render_to_string(
                 "edc_qareports/columns/add_button.html",
@@ -80,7 +80,7 @@ class OnStudyMissingValuesModelAdminMixin(
                 f"{url}?next={self.admin_site.name}:"
                 f"{self.model._meta.label_lower.replace('.', '_')}_changelist"
             )
-            title = _(f"Change {crf_model_cls._meta.verbose_name}")
+            title = _("Change {}") % crf_model_cls._meta.verbose_name
             label = _("Change CRF")
             crf_button = render_to_string(
                 "edc_qareports/columns/change_button.html",

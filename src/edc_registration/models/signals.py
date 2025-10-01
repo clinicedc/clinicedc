@@ -18,4 +18,4 @@ def update_registered_subject_from_model_on_post_save(
             instance.registration_update_or_create()
         except AttributeError as e:
             if "registration_update_or_create" not in str(e):
-                raise AttributeError(str(e))
+                raise AttributeError(str(e)) from e

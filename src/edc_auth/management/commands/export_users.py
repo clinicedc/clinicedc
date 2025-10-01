@@ -25,5 +25,5 @@ class Command(BaseCommand):
             help="Export new users to file",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         export_users(options["csvfile"])

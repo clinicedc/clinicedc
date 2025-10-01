@@ -14,12 +14,12 @@ __all__ = ["in_normal_bounds_or_raise"]
 
 def in_normal_bounds_or_raise(
     reference_range_collection: ReferenceRangeCollection = None,
-    label: str = None,
-    value: int | float = None,
-    units: str = None,
-    gender: str = None,
-    dob: date = None,
-    report_datetime: datetime = None,
+    label: str | None = None,
+    value: int | float | None = None,
+    units: str | None = None,
+    gender: str | None = None,
+    dob: date | None = None,
+    report_datetime: datetime | None = None,
     age_units: str | None = None,
     create_missing_normal: bool | None = None,
 ) -> bool:

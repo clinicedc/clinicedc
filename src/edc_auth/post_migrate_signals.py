@@ -9,8 +9,8 @@ style = color_style()
 def post_migrate_user_groups_and_roles(sender=None, **kwargs):
     """Update Groups, Role model with EDC defaults."""
 
-    from .auth_updater import AuthUpdater
-    from .auth_updater.group_updater import CodenameDoesNotExist
+    from .auth_updater import AuthUpdater  # noqa: PLC0415
+    from .auth_updater.group_updater import CodenameDoesNotExist  # noqa: PLC0415
 
     try:
         AuthUpdater(apps=django_apps, verbose=True)

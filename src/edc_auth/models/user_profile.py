@@ -4,7 +4,6 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.deletion import CASCADE
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from edc_export.choices import EXPORT_FORMATS
@@ -50,7 +49,7 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         blank=True,
         help_text=format_html(
             'Change in <a href="{href}">{label}</a>',
-            href=mark_safe("/edc_label/"),  # nosec B703, B308
+            href="/edc_label/",
             label="Edc Label Administration",
         ),
     )
@@ -61,7 +60,7 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         blank=True,
         help_text=format_html(
             'Change in <a href="{href}">{label}</a>',
-            href=mark_safe("/edc_label/"),  # nosec B703, B308
+            href="/edc_label/",
             label="Edc Label Administration",
         ),
     )
@@ -72,7 +71,7 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
         blank=True,
         help_text=format_html(
             'Change in <a href="{href}">{label}</a>',
-            href=mark_safe("/edc_label/"),  # nosec B703, B308
+            href="/edc_label/",
             label="Edc Label Administration",
         ),
     )
@@ -91,7 +90,7 @@ class UserProfile(NotificationUserProfileModelMixin, models.Model):
     def __str__(self):
         return self.user.username
 
-    def add_groups_for_roles(self, pk_set):
+    def add_groups_for_roles(self, pk_set):  # noqa: ARG002
         """Add groups to this user for the selected roles.
 
         Called by m2m signal.

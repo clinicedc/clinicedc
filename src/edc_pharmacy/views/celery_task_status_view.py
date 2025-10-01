@@ -4,8 +4,7 @@ from django.views import View
 
 
 class CeleryTaskStatusView(View):
-
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):  # noqa: ARG002
         task_id = request.GET.get("task_id")
         response_data = {"task_id": task_id, "status": None}
         try:

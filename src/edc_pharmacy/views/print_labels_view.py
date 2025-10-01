@@ -58,7 +58,7 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
     def model_cls(self):
         return django_apps.get_model(f"edc_pharmacy.{self.kwargs.get('model')}")
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         session_uuid = str(kwargs.get("session_uuid"))
         stock_pks = request.session.get(session_uuid, [])
         url = self.source_changelist_url

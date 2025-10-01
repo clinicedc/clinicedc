@@ -19,12 +19,12 @@ __all__ = ["get_grade_for_value"]
 
 def get_grade_for_value(
     reference_range_collection: ReferenceRangeCollection,
-    value: float | int = None,
-    label: str = None,
-    units: str = None,
-    gender: str = None,
-    dob: date = None,
-    report_datetime: datetime = None,
+    value: float | int | None = None,
+    label: str | None = None,
+    units: str | None = None,
+    gender: str | None = None,
+    dob: date | None = None,
+    report_datetime: datetime | None = None,
     age_units: str | None = None,
     site: Site | None = None,
     create_missing_normal: bool | None = None,
@@ -56,11 +56,11 @@ def get_grade_for_value(
         upper_limit = get_upper_limit(normal_data, grading_data)
         value = float(value)
         condition_str = (
-            f'{"" if lower_limit is None else lower_limit}'
-            f'{grading_data.lower_operator or ""}{value}'
-            f'{grading_data.upper_operator or ""}{"" if upper_limit is None else upper_limit}'
+            f"{'' if lower_limit is None else lower_limit}"
+            f"{grading_data.lower_operator or ''}{value}"
+            f"{grading_data.upper_operator or ''}{'' if upper_limit is None else upper_limit}"
         )
-        if eval(condition_str):  # nosec B307
+        if eval(condition_str):  # nosec B307  # noqa: S307
             if not found_grading_data:
                 found_grading_data = grading_data
                 found_condition_str = (
@@ -104,11 +104,11 @@ def get_upper_limit(
 
 def get_grading_data_instances(
     reference_range_collection: ReferenceRangeCollection,
-    label: str = None,
-    units: str = None,
-    gender: str = None,
-    dob: date = None,
-    report_datetime: datetime = None,
+    label: str | None = None,
+    units: str | None = None,
+    gender: str | None = None,
+    dob: date | None = None,
+    report_datetime: datetime | None = None,
     age_units: str | None = None,
     site: Site | None = None,
 ) -> list[GradingData]:

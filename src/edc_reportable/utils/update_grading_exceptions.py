@@ -21,12 +21,12 @@ def update_grading_exceptions(
             reference_range_collection=reference_range_collection
         ).delete()
     for label, grades in reportable_grades_exceptions.items():
-        grades = [int(g) for g in grades]
+        grades = [int(g) for g in grades]  # noqa: PLW2901
         grading_exception_model_cls().objects.get_or_create(
             reference_range_collection=reference_range_collection,
             label=label,
-            grade1=True if 1 in grades else False,
-            grade2=True if 2 in grades else False,
-            grade3=True if 3 in grades else False,
-            grade4=True if 4 in grades else False,
+            grade1=1 in grades,
+            grade2=2 in grades,  # noqa: PLR2004
+            grade3=3 in grades,  # noqa: PLR2004
+            grade4=4 in grades,  # noqa: PLR2004
         )

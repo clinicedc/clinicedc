@@ -4,7 +4,6 @@ from edc_model.models import BaseUuidModel
 
 
 class GradingException(BaseUuidModel):
-
     reference_range_collection = models.ForeignKey(
         "edc_reportable.ReferenceRangeCollection", on_delete=models.PROTECT
     )
@@ -17,11 +16,7 @@ class GradingException(BaseUuidModel):
     grade4 = models.BooleanField(default=False)
 
     def grades(self) -> list[int]:
-        grades = []
-        for i in range(1, 5):
-            if getattr(self, f"grade{i}"):
-                grades.append(i)
-        return grades
+        return [i for i in range(1, 5) if getattr(self, f"grade{i}")]
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Grading Exception"

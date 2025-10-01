@@ -6,40 +6,40 @@ from .constants import HIGH_VALUE
 from .exceptions import ValueBoundryError
 
 
-class InvalidUnits(Exception):
+class InvalidUnits(Exception):  # noqa: N818
     pass
 
 
-class InvalidLowerBound(Exception):
+class InvalidLowerBound(Exception):  # noqa: N818
     pass
 
 
-class InvalidLowerLimitNormal(Exception):
+class InvalidLowerLimitNormal(Exception):  # noqa: N818
     pass
 
 
-class InvalidUpperLimitNormal(Exception):
+class InvalidUpperLimitNormal(Exception):  # noqa: N818
     pass
 
 
-class InvalidUpperBound(Exception):
+class InvalidUpperBound(Exception):  # noqa: N818
     pass
 
 
-class InvalidCombination(Exception):
+class InvalidCombination(Exception):  # noqa: N818
     pass
 
 
 class Evaluator:
     def __init__(
         self,
-        name: str = None,
-        lower: int | float = None,
-        upper: int | float = None,
-        units: str = None,
+        name: str | None = None,
+        lower: int | float | None = None,
+        upper: int | float | None = None,
+        units: str | None = None,
         lower_inclusive: bool | None = None,
         upper_inclusive: bool | None = None,
-        **kwargs,
+        **kwargs,  # noqa: ARG002
     ) -> None:
         self.name = name
         if lower is not None and not re.match(r"\d+", str(lower)):
@@ -78,8 +78,8 @@ class Evaluator:
 
     def description(
         self,
-        value: int | float = None,
-        show_as_int: bool = None,
+        value: int | float | None = None,
+        show_as_int: bool | None = None,
         placeholder: str | None = None,
     ) -> str:
         placeholder = placeholder or "x"
@@ -98,7 +98,7 @@ class Evaluator:
             f"{self.upper_operator or ''}{upper} {self.units}"
         )
 
-    def in_bounds_or_raise(self, value: int | float, units: str = None) -> bool:
+    def in_bounds_or_raise(self, value: int | float, units: str) -> bool:
         """Raises a ValueBoundryError exception if condition not met.
 
         The condition is evaluated to True or False as a string
@@ -116,6 +116,6 @@ class Evaluator:
             f"{'' if self.lower is None else self.lower}{self.lower_operator or ''}{value}"
             f"{self.upper_operator or ''}{'' if self.upper is None else self.upper}"
         )
-        if not eval(condition_str):  # nosec B307
+        if not eval(condition_str):  # nosec B307  # noqa: S307
             raise ValueBoundryError(condition_str)
         return True

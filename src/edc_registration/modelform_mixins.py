@@ -21,6 +21,6 @@ class ModelFormSubjectIdentifierMixin(SiteModelFormMixin):
             get_registered_subject_model_cls().objects.get(
                 subject_identifier=subject_identifier
             )
-        except ObjectDoesNotExist:
-            raise forms.ValidationError({"subject_identifier": "Invalid."})
+        except ObjectDoesNotExist as e:
+            raise forms.ValidationError({"subject_identifier": "Invalid."}) from e
         return cleaned_data

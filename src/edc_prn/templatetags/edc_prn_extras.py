@@ -23,7 +23,7 @@ def prn_list_items(subject_identifier, **kwargs):
     prn_forms = []
     for prn in site_prn_forms:
         if prn.get_show_on_dashboard(subject_identifier=subject_identifier):
-            prn_forms.append(prn)
+            prn_forms.append(prn)  # noqa: PERF401
     if prn_forms:
         prn_forms = sorted(prn_forms, key=lambda x: x.verbose_name)
     return dict(prn_forms=prn_forms, subject_identifier=subject_identifier)

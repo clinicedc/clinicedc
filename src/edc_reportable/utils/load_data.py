@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ..models import ReferenceRangeCollection
 
 
-class AlreadyLoaded(Exception):
+class AlreadyLoaded(Exception):  # noqa: N818
     pass
 
 

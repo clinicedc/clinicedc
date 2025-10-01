@@ -11,6 +11,7 @@ from ..models import Stock, StorageBin, StorageBinItem
 from .add_to_storage_bin_view import AddToStorageBinView, StorageBinError
 
 p = inflect.engine()
+MAX_STORAGE_BIN_CAPACITY = 50
 
 
 def move_to_bin(
@@ -25,8 +26,11 @@ def move_to_bin(
     new_capacity = StorageBinItem.objects.filter(storage_bin=storage_bin).count() + len(
         stock_codes
     )
-    if new_capacity > 50:
-        raise StorageBinError(f"Storage bin {storage_bin.name} capacity may not exceeded 50")
+    if new_capacity > MAX_STORAGE_BIN_CAPACITY:
+        raise StorageBinError(
+            f"Storage bin {storage_bin.name} capacity "
+            f"may not exceeded {MAX_STORAGE_BIN_CAPACITY}."
+        )
     if new_capacity > storage_bin.capacity:
         storage_bin.capacity = new_capacity
         storage_bin.save()
@@ -89,7 +93,7 @@ class MoveToStorageBinView(AddToStorageBinView):
             return HttpResponseRedirect(url)
         return None
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
         storage_bin = StorageBin.objects.get(id=kwargs.get("storage_bin"))
         items_to_scan = request.POST.get("items_to_scan") or kwargs.get("items_to_scan")

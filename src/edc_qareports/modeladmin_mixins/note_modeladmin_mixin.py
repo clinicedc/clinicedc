@@ -32,7 +32,7 @@ class NoteModelAdminMixin(
     """A modeladmin mixin class for the Note model."""
 
     form = NoteForm
-    ordering = ["site", "subject_identifier"]
+    ordering = ("site", "subject_identifier")
 
     note_template_name = "edc_qareports/qa_report_note.html"
 
@@ -52,26 +52,26 @@ class NoteModelAdminMixin(
         audit_fieldset_tuple,
     )
 
-    list_display = [
+    list_display = (
         "dashboard",
         "subject_identifier",
         "report",
         "status",
         "report_note",
         "report_datetime",
-    ]
+    )
 
-    radio_fields = {"status": admin.VERTICAL}
+    radio_fields = {"status": admin.VERTICAL}  # noqa: RUF012
 
-    list_filter = [
+    list_filter = (
         "report_datetime",
         "status",
         "report_model",
         "user_created",
         "user_modified",
-    ]
+    )
 
-    search_fields = ["subject_identifier", "name"]
+    search_fields = ("subject_identifier", "name")
 
     @admin.display(description="Report", ordering="report_name")
     def report(self, obj=None):

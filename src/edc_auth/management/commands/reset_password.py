@@ -25,11 +25,11 @@ class Command(BaseCommand):
             "--email", action="store_true", dest="email", help="Alternate email"
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         try:
             user = User.objects.get(username=options["username"])
         except ObjectDoesNotExist as e:
-            raise CommandError(e)
+            raise CommandError(e) from e
         else:
             p = PasswordSetter(super_username=options["super_user"])
             p.reset_user(username=options["username"])

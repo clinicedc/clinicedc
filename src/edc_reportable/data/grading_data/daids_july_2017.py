@@ -5,9 +5,9 @@ Creatinine Clearance14 or eGFR, Low
 *Report only one
 NA
 G1 N/A
-G2 < 90 to 60 ml/min or ml/min/1.73 m2 OR 10 to < 30% decrease from participant’s baseline
-G3 < 60 to 30 ml/min or ml/min/1.73 m2 OR 30 to < 50% decrease from participant’s baseline
-G4 < 30 ml/min or ml/min/1.73 m2 OR ≥ 50% decrease from participant’s baseline
+G2 < 90 to 60 ml/min or ml/min/1.73 m2 OR 10 to < 30% decrease from participant's baseline
+G3 < 60 to 30 ml/min or ml/min/1.73 m2 OR 30 to < 50% decrease from participant's baseline
+G4 < 30 ml/min or ml/min/1.73 m2 OR ≥ 50% decrease from participant's baseline
 """
 
 from edc_constants.constants import FEMALE, MALE

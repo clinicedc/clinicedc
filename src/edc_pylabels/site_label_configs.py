@@ -11,7 +11,7 @@ from django.core.management.color import color_style
 from django.utils.module_loading import module_has_submodule
 
 
-class AlreadyRegistered(Exception):
+class AlreadyRegistered(Exception):  # noqa: N818
     pass
 
 
@@ -104,7 +104,7 @@ class SiteLabelConfigs:
                 except ImportError as e:
                     site_label_configs.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SitePharmacyError(str(e))
+                        raise SitePharmacyError(str(e)) from e
             except ImportError:
                 pass
 

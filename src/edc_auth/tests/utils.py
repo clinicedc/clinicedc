@@ -1,6 +1,6 @@
 import csv
-import os
 from importlib import import_module
+from pathlib import Path
 from secrets import choice
 from tempfile import mkdtemp
 
@@ -81,8 +81,8 @@ def create_user_csv_file(
     include_passwords=None,
 ):
     folder = mkdtemp()
-    filename = filename or os.path.join(folder, "users.csv")
-    with open(filename, "w") as f:
+    filename = filename or Path(folder) / "users.csv"
+    with Path(filename).open("w") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter="|")
         writer.writeheader()
         for _ in range(0, user_count or 2):

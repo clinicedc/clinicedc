@@ -23,7 +23,10 @@ class ReportablesFormValidatorMixin:
         return {"age_units": "years"}
 
     def validate_reportable_fields(
-        self, reference_range_collection_name: str, **reportables_evaluator_options
+        self,
+        reference_range_collection_name: str,
+        age_units: str | None = None,
+        **reportables_evaluator_options,
     ):
         """Called in clean() method of the FormValidator.
 
@@ -47,9 +50,10 @@ class ReportablesFormValidatorMixin:
             report_datetime=self.report_datetime,
             value_field_suffix=self.value_field_suffix,
         )
+        age_units = age_units or self.age_units
         options.update(**reportables_evaluator_options)
         reference_range_evaluator = self.reference_range_evaluator_cls(
-            reference_range_collection_name, **options
+            reference_range_collection_name, age_units=age_units, **options
         )
         try:
             reference_range_evaluator.validate_reportable_fields()

@@ -17,7 +17,7 @@ class NoteStatusListFilter(SimpleListFilter):
         self.note_model_cls = model_admin.note_model_cls
         super().__init__(request, params, model, model_admin)
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         status_dict = {tpl[0]: tpl[1] for tpl in self.note_model_status_choices}
         names = [(NEW, status_dict.get(NEW, "New"))]
         qs = (
@@ -27,7 +27,7 @@ class NoteStatusListFilter(SimpleListFilter):
         )
 
         for obj in qs:
-            names.append((f"{obj.get('status')}", status_dict[obj.get("status")]))
+            names.append((f"{obj.get('status')}", status_dict[obj.get("status")]))  # noqa: PERF401
         return tuple(names)
 
     @staticmethod
@@ -39,22 +39,26 @@ class NoteStatusListFilter(SimpleListFilter):
         )
         for obj in qs:
             return obj.get("report_model")
+        return ""
 
-    def queryset(self, request, queryset):
-        if self.value() and self.value() != "none":
-            if report_model := self.report_model(queryset):
-                if self.value() == NEW:
-                    qs = self.note_model_cls.objects.values("subject_identifier").filter(
-                        report_model=report_model
-                    )
-                    queryset = queryset.exclude(
-                        subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
-                    )
-                elif self.value() in [tpl[0] for tpl in self.note_model_status_choices]:
-                    qs = self.note_model_cls.objects.values("subject_identifier").filter(
-                        report_model=report_model, status=self.value()
-                    )
-                    queryset = queryset.filter(
-                        subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
-                    )
+    def queryset(self, request, queryset):  # noqa: ARG002
+        if (
+            self.value()
+            and self.value() != "none"
+            and (report_model := self.report_model(queryset))
+        ):
+            if self.value() == NEW:
+                qs = self.note_model_cls.objects.values("subject_identifier").filter(
+                    report_model=report_model
+                )
+                queryset = queryset.exclude(
+                    subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
+                )
+            elif self.value() in [tpl[0] for tpl in self.note_model_status_choices]:
+                qs = self.note_model_cls.objects.values("subject_identifier").filter(
+                    report_model=report_model, status=self.value()
+                )
+                queryset = queryset.filter(
+                    subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
+                )
         return queryset

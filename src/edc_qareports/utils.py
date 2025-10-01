@@ -1,3 +1,4 @@
+import contextlib
 import sys
 from pathlib import Path
 from warnings import warn
@@ -27,10 +28,10 @@ def read_unmanaged_model_sql(
     parsed_sql = []
     with fullpath.open("r") as f:
         for line in f:
-            line = line.split("#", maxsplit=1)[0]
-            line = line.split("-- ", maxsplit=1)[0]
-            line = line.replace("\n", "")
-            line = line.strip()
+            line = line.split("#", maxsplit=1)[0]  # noqa: PLW2901
+            line = line.split("-- ", maxsplit=1)[0]  # noqa: PLW2901
+            line = line.replace("\n", "")  # noqa: PLW2901
+            line = line.strip()  # noqa: PLW2901
             if line:
                 parsed_sql.append(line)
 
@@ -88,17 +89,15 @@ def recreate_db_view(model_cls, drop: bool | None = None, verbose: bool | None =
     except AttributeError as e:
         raise AttributeError(
             f"Is this model linked to a view? Declare model with `DBView`. Got {e}"
-        )
+        ) from e
     else:
         sql = sql.replace(";", "")
         if verbose:
-            print(f"create view {model_cls._meta.db_table} as {sql};")
+            sys.stdout.write(f"create view {model_cls._meta.db_table} as {sql};\n")
         with connection.cursor() as c:
             if drop:
-                try:
+                with contextlib.suppress(OperationalError):
                     c.execute(f"drop view {model_cls._meta.db_table};")
-                except OperationalError:
-                    pass
             c.execute(f"create view {model_cls._meta.db_table} as {sql};")
         if verbose:
             sys.stdout.write(
@@ -107,14 +106,14 @@ def recreate_db_view(model_cls, drop: bool | None = None, verbose: bool | None =
 
 
 def recreate_dbview_for_all():
-    from .model_mixins import QaReportModelMixin
+    from .model_mixins import QaReportModelMixin  # noqa: PLC0415
 
     for model_cls in django_apps.get_models():
         if issubclass(model_cls, (QaReportModelMixin,)):
-            print(model_cls)
+            sys.stdout.write(f"{model_cls}\n")
             try:
                 model_cls.recreate_db_view()
             except AttributeError as e:
-                print(e)
+                sys.stdout.write(f"{e}\n")
             except TypeError as e:
-                print(e)
+                sys.stdout.write(f"{e}\n")

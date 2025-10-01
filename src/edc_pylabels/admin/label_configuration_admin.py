@@ -29,7 +29,7 @@ class LabelConfigurationAdmin(
     admin.ModelAdmin,
 ):
     show_object_tools = True
-    actions = [print_test_label_sheet_action]
+    actions = (print_test_label_sheet_action,)
     form = LabelConfigurationForm
 
     instructions = (

@@ -10,7 +10,7 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
 
     date_hierarchy = "registration_datetime"
 
-    instructions = []
+    instructions = ()
 
     @staticmethod
     def show_pii(request) -> bool:
@@ -29,25 +29,23 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
     def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
         return (
-            readonly_fields
-            + (
-                "subject_identifier",
-                "sid",
-                "first_name",
-                "last_name",
-                "initials",
-                "dob",
-                "gender",
-                "subject_type",
-                "registration_status",
-                "identity",
-                "screening_identifier",
-                "screening_datetime",
-                "registration_datetime",
-                "randomization_datetime",
-                "consent_datetime",
-            )
-            + audit_fields
+            *readonly_fields,
+            "subject_identifier",
+            "sid",
+            "first_name",
+            "last_name",
+            "initials",
+            "dob",
+            "gender",
+            "subject_type",
+            "registration_status",
+            "identity",
+            "screening_identifier",
+            "screening_datetime",
+            "registration_datetime",
+            "randomization_datetime",
+            "consent_datetime",
+            *audit_fields,
         )
 
     def get_list_display(self, request):

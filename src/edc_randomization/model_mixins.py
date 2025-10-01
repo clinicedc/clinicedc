@@ -71,7 +71,7 @@ class RandomizationListModelMixin(models.Model):
     def save(self, *args, **kwargs):
         self.randomizer_name = self.randomizer_cls.name
         try:
-            self.assignment_description
+            self.assignment_description  # noqa: B018
         except RandomizationError as e:
             raise RandomizationListModelError(e) from e
         try:

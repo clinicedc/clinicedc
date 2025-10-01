@@ -59,5 +59,5 @@ class CrfSubquery:
         try:
             sql = self.template.substitute(**opts).replace(";", "")
         except KeyError as e:
-            raise CrfSubqueryError(e)
+            raise CrfSubqueryError(e) from e
         return sql

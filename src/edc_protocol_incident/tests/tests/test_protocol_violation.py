@@ -155,7 +155,7 @@ class TestProtocolViolation(TestCase):
         form.is_valid()
         self.assertEqual({}, form._errors)
 
-    def test_violation_try_to_close_form(self):
+    def test_violation_try_to_close_form(self):  # noqa: PLR0915
         data = deepcopy(self.data)
         data.update(
             {

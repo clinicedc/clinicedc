@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_constants.constants import FEMALE, MALE
@@ -24,6 +24,7 @@ from edc_reportable.utils import (
 
 
 @tag("reportable")
+@override_settings(SITE_ID=10)
 class TestGrading(TestCase):
     def setUp(self):
         self.reference_range_collection = ReferenceRangeCollection.objects.create(

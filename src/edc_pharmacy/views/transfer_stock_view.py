@@ -54,7 +54,7 @@ class TransferStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
     def model_cls(self):
         return django_apps.get_model("edc_pharmacy.stocktransfer")
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         stock_transfer = StockTransfer.objects.get(pk=self.kwargs.get("stock_transfer"))
         stock_codes = request.POST.getlist("codes")
         if stock_codes:

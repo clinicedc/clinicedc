@@ -10,7 +10,7 @@ from .user_profile import UserProfile
 def update_user_profile_on_post_save(sender, instance, raw, **kwargs):
     if not raw:
         try:
-            instance.userprofile
+            instance.userprofile  # noqa: B018
         except ObjectDoesNotExist:
             UserProfile.objects.create(user=instance)
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import sys
 from pprint import pprint
 from typing import TYPE_CHECKING, Any
 
@@ -24,25 +26,23 @@ def get_user(username: str) -> User | None:
     return user
 
 
-def compare_codenames_for_group(group_name: str = None, expected: list[str] = None) -> None:
+def compare_codenames_for_group(group_name: str, expected: list[str]) -> None:
     group = django_apps.get_model("auth.group").objects.get(name=group_name)
     codenames = [p.codename for p in group.permissions.all()]
     new_expected = []
     for c in expected:
-        try:
+        with contextlib.suppress(IndexError):
             c = c.split(".")[1]
-        except IndexError:
-            pass
         new_expected.append(c)
 
     compared = [c for c in new_expected if c not in codenames]
     if compared:
-        print(group.name, "missing from codenames")
-        pprint(compared)
+        sys.stdout.write(f"{group.name},  missing from codenames\n")
+        pprint(compared)  # noqa: T203
     compared = [c for c in codenames if c not in new_expected]
     if compared:
-        print(group.name, "extra codenames")
-        pprint(compared)
+        sys.stdout.write(f"{group.name},  extra codenames\n")
+        pprint(compared)  # noqa: T203
 
 
 def remove_default_model_permissions_from_edc_permissions(auth_updater: Any, app_label: str):
@@ -119,9 +119,7 @@ def get_codenames_for_user(
     for role in roles.all():
         groups.extend([grp for grp in role.groups.all() if grp not in account_manager_groups])
     if include_groups:
-        for group in user.groups.all():
-            if group not in account_manager_groups:
-                groups.append(group)
+        groups.extend([grp for grp in user.groups.all() if grp not in account_manager_groups])
     groups = list(set(groups))
     for group in groups:
         codenames.extend(

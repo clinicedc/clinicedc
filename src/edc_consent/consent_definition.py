@@ -101,7 +101,10 @@ class ConsentDefinition:
 
     @property
     def model(self):
-        from .managers import ConsentObjectsByCdefManager, CurrentSiteByCdefManager
+        from .managers import (  # noqa: PLC0415
+            ConsentObjectsByCdefManager,
+            CurrentSiteByCdefManager,
+        )
 
         model_cls = django_apps.get_model(self._model)
         if not model_cls._meta.proxy:

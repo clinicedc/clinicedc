@@ -7,7 +7,7 @@ class PrintButtonAdminMixin:
     print_server_error = None
 
     def __init__(self, args, *kwargs):
-        super(PrintButtonAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         app_config = django_apps.get_app_config("edc_label")
         self._print_server = None
         self._printers = {}

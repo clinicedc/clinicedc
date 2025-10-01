@@ -2,6 +2,8 @@
 
 from django.db import models
 
+from edc_constants.constants import NULL_STRING
+
 
 class SingletonPrnModelMixin(models.Model):
     """Enforces one record per subject."""
@@ -11,7 +13,7 @@ class SingletonPrnModelMixin(models.Model):
         max_length=50,
         unique=True,
         help_text="auto updated for unique constraint",
-        null=True,
+        default=NULL_STRING,
         editable=False,
     )
 

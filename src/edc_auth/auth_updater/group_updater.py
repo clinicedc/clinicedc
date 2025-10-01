@@ -139,7 +139,7 @@ class GroupUpdater:
                     errmsg = f"{e} Got codename={codename},app_label={app_label}"
                     if not self.warn_only:
                         raise CodenameDoesNotExist(errmsg) from e
-                    warn(style.ERROR(errmsg))
+                    warn(style.ERROR(errmsg), stacklevel=2)
                 except MultipleObjectsReturned as e:
                     if not allow_multiple_objects:
                         self.delete_and_raise_on_duplicate_codenames(
@@ -219,7 +219,7 @@ class GroupUpdater:
             try:
                 model_cls = self.apps.get_model(model)
             except LookupError as e:
-                warn(f"{e}. Got {model}")
+                warn(f"{e}. Got {model}", stacklevel=2)
             else:
                 content_type = self.content_type_model_cls.objects.get_for_model(model_cls)
                 for codename_tpl in codename_tuples:
@@ -282,8 +282,8 @@ class GroupUpdater:
 
     def remove_permissions_by_codenames(
         self,
-        group: Any = None,
-        codenames: list[str] = None,
+        group,
+        codenames: list[str],
         allow_multiple_objects: bool | None = None,
     ):
         """Remove the given codenames from the given group."""

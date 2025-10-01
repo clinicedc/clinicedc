@@ -62,13 +62,9 @@ class QaReportModelAdminMixin:
         return tuple(list_filter)
 
     def get_note_model_obj_or_raise(self, obj=None):
-        try:
-            note_model_obj = self.note_model_cls.objects.get(
-                report_model=obj.report_model, subject_identifier=obj.subject_identifier
-            )
-        except ObjectDoesNotExist:
-            raise
-        return note_model_obj
+        return self.note_model_cls.objects.get(
+            report_model=obj.report_model, subject_identifier=obj.subject_identifier
+        )
 
     @admin.display(description="Status")
     def status(self, obj) -> str:

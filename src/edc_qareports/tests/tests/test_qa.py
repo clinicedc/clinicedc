@@ -20,7 +20,6 @@ from edc_consent import site_consents
 from edc_constants.constants import YES
 from edc_lab.models import Panel
 from edc_lab_panel.constants import FBC
-from edc_lab_results.action_items import register_actions
 from edc_qareports.sql_generator import CrfCase, CrfCaseError, RequisitionCase
 from edc_qareports.sql_generator.crf_subquery import CrfSubqueryError
 from edc_reportable import TEN_X_9_PER_LITER
@@ -33,10 +32,6 @@ utc_tz = ZoneInfo("UTC")
 @override_settings(SITE_ID=10)
 @time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestQA(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        register_actions()
-
     def setUp(self):
         site_consents.registry = {}
         site_consents.register(consent_v1)

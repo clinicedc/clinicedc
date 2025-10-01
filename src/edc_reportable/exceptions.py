@@ -18,7 +18,7 @@ class SiteReportablesError(Exception):
     pass
 
 
-class AlreadyRegistered(Exception):
+class AlreadyRegistered(Exception):  # noqa: N818
     pass
 
 
@@ -30,13 +30,13 @@ class ValueBoundryError(Exception):
     pass
 
 
-class NotEvaluated(Exception):
+class NotEvaluated(Exception):  # noqa: N818
     pass
 
 
-class BoundariesOverlap(Exception):
+class BoundariesOverlap(Exception):  # noqa: N818
     pass
 
 
-class ConversionNotHandled(Exception):
+class ConversionNotHandled(Exception):  # noqa: N818
     pass

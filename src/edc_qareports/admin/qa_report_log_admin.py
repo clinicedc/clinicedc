@@ -17,15 +17,15 @@ class QaReportLogAdmin(
     TemplatesModelAdminMixin,
     admin.ModelAdmin,
 ):
-    ordering = ["-accessed"]
+    ordering = ("-accessed",)
 
-    list_display = ["report", "username", "site", "accessed", "report_model"]
+    list_display = ("report", "username", "site", "accessed", "report_model")
 
-    list_filter = ["accessed", "report_model", "username", "site"]
+    list_filter = ("accessed", "report_model", "username", "site")
 
-    search_fields = ["report_model", "username"]
+    search_fields = ("report_model", "username")
 
-    readonly_fields = ["report_model", "username", "site", "accessed"]
+    readonly_fields = ("report_model", "username", "site", "accessed")
 
     @admin.display(description="Report", ordering="report_model")
     def report(self, obj=None):

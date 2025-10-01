@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 
 from edc_reportable.age_evaluator import AgeEvaluator
 from edc_reportable.evaluator import (
@@ -17,6 +17,7 @@ from edc_utils import age
 
 
 @tag("reportable")
+@override_settings(SITE_ID=10)
 class TestEvaluators(TestCase):
     @tag("1")
     def test_evaluator_zero(self):
@@ -57,7 +58,7 @@ class TestEvaluators(TestCase):
         self.assertTrue(ref.in_bounds_or_raise(10000, units="mg/dL"))
 
     @tag("1")
-    def test_evaluator(self):
+    def test_evaluator(self):  # noqa: PLR0915
         """Test the basic evaluator."""
 
         ref = Evaluator(lower=10, upper=100, units="mg/dL")
@@ -155,9 +156,9 @@ class TestEvaluators(TestCase):
         rdelta = age(dob, report_datetime)
 
         self.assertEqual(age(dob, report_datetime).years, 25)
-        self.assertTrue(24 < rdelta.years < 26)
-        self.assertFalse(25 < rdelta.years < 26)
-        self.assertFalse(24 < rdelta.years < 25)
+        self.assertTrue(24 < rdelta.years < 26)  # noqa: PLR2004
+        self.assertFalse(25 < rdelta.years < 26)  # noqa: PLR2004
+        self.assertFalse(24 < rdelta.years < 25)  # noqa: PLR2004
 
         age_eval = AgeEvaluator(age_lower=24, age_upper=26)
         self.assertTrue(repr(age_eval))

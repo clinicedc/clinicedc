@@ -31,8 +31,8 @@ class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
     show_object_tools: bool = True
 
     form = UserChangeForm
-    inlines = [UserProfileInline]
-    actions = [send_new_credentials_to_user_action]
+    inlines = (UserProfileInline,)
+    actions = (send_new_credentials_to_user_action,)
 
     list_display = (
         "username",

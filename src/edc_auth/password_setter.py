@@ -37,17 +37,17 @@ class PasswordSetter:
     def get_administrator_fullname(super_username: str) -> str:
         try:
             obj = User.objects.get(username=super_username)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             raise PasswordSetterError(
                 "Need the username of the administrator / super user. Got None."
-            )
+            ) from e
         return f"{obj.first_name} {obj.last_name}"
 
     def reset_all(self) -> None:
         users = User.objects.filter(is_active=True, is_staff=True, is_superuser=False)
         self._reset(users)
 
-    def reset_by_groups(self, group_names: list[str] = None) -> None:
+    def reset_by_groups(self, group_names: list[str]) -> None:
         users = User.objects.filter(
             groups__name__in=group_names,
             is_active=True,
@@ -64,7 +64,7 @@ class PasswordSetter:
         usernames = [username]
         self.reset_users(usernames)
 
-    def reset_by_sites(self, site_names: list[str] = None) -> None:
+    def reset_by_sites(self, site_names: list[str]) -> None:
         users = User.objects.filter(
             userprofile__sites__name__in=site_names,
             is_active=True,

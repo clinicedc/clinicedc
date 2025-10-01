@@ -22,8 +22,8 @@ class NormalData(ReferenceModelMixin, BaseUuidModel):
     def value_in_normal_range_or_raise(
         self,
         value: int | float,
-        dob: date = None,
-        report_datetime: datetime = None,
+        dob: date,
+        report_datetime: datetime,
         age_units: str | None = None,
     ) -> bool:
         """Raises a ValueBoundryError exception if condition not met.
@@ -45,7 +45,7 @@ class NormalData(ReferenceModelMixin, BaseUuidModel):
         value_condition_str = self.get_eval_phrase(value)
         if not re.match(pattern, value_condition_str):
             raise ValueError(f"Invalid condition string. Got {value_condition_str}.")
-        if not eval(value_condition_str):  # nosec B307
+        if not eval(value_condition_str):  # nosec B307  # noqa: S307
             raise ValueBoundryError(
                 f"{self.label}: {value_condition_str}{self.units} [{self.gender}]"
             )

@@ -25,11 +25,11 @@ __all__ = ["get_normal_data_or_raise"]
 
 def get_normal_data_or_raise(
     reference_range_collection: ReferenceRangeCollection = None,
-    label: str = None,
-    units: str = None,
-    gender: str = None,
-    dob: date = None,
-    report_datetime: datetime = None,
+    label: str | None = None,
+    units: str | None = None,
+    gender: str | None = None,
+    dob: date | None = None,
+    report_datetime: datetime | None = None,
     age_units: str | None = None,
     site: Site | None = None,
     create_missing_normal: bool | None = None,
@@ -48,7 +48,7 @@ def get_normal_data_or_raise(
             units=units,
             age_units=age_units,
         )
-    except ObjectDoesNotExist:
+    except ObjectDoesNotExist as e:
         if create_missing_normal:
             opts = dict(
                 reference_range_collection=reference_range_collection,
@@ -68,23 +68,23 @@ def get_normal_data_or_raise(
                 f"age={getattr(age_rdelta, age_units)}{age_units}. "
                 "Perhaps add this to the default normal reference range data or "
                 "pass 'create_missing=True' to convert an existing normal reference."
-            )
-    except MultipleObjectsReturned:
+            ) from e
+    except MultipleObjectsReturned as e:
         raise NotEvaluated(
             f"Value not evaluated. "
             f"Multiple normal references found for `{label}`. "
             f"Using units={units}, gender={gender}, age={getattr(age_rdelta, age_units)}. "
-        )
+        ) from e
     return obj
 
 
 def create_obj_for_new_units_or_raise(
     reference_range_collection: ReferenceRangeCollection = None,
-    label: str = None,
-    units: str = None,
-    gender: str = None,
-    dob: date = None,
-    report_datetime: datetime = None,
+    label: str | None = None,
+    units: str | None = None,
+    gender: str | None = None,
+    dob: date | None = None,
+    report_datetime: datetime | None = None,
     age_units: str | None = None,
 ) -> NormalData | None:
     opts = {}
