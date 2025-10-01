@@ -1,7 +1,8 @@
 import os
+from pathlib import Path
 
 from django.conf import settings
-from django.core.checks import CheckMessage, Warning
+from django.core.checks import CheckMessage, Warning  # noqa: A004
 from django.core.management import color_style
 
 style = color_style()
@@ -10,7 +11,7 @@ style = color_style()
 def check_etc_dir(app_configs, **kwargs) -> list[CheckMessage]:
     errors = []
     try:
-        settings.ETC_DIR
+        settings.ETC_DIR  # noqa: B018
     except AttributeError:
         pass
     else:
@@ -37,11 +38,11 @@ def check_etc_dir(app_configs, **kwargs) -> list[CheckMessage]:
 def check_static_root(app_configs, **kwargs) -> list[CheckMessage]:
     errors = []
     try:
-        settings.STATIC_ROOT
+        settings.STATIC_ROOT  # noqa: B018
     except AttributeError:
         pass
     else:
-        if settings.STATIC_ROOT and not os.path.exists(settings.STATIC_ROOT):
+        if settings.STATIC_ROOT and not Path(settings.STATIC_ROOT).exists():
             errors.append(
                 Warning(
                     f"Folder does not exist. Got {settings.STATIC_ROOT}",
@@ -54,7 +55,7 @@ def check_static_root(app_configs, **kwargs) -> list[CheckMessage]:
 def check_auth_updater(app_configs, **kwargs) -> list[CheckMessage]:
     errors = []
     try:
-        settings.EDC_AUTH_SKIP_AUTH_UPDATER
+        settings.EDC_AUTH_SKIP_AUTH_UPDATER  # noqa: B018
     except AttributeError:
         pass
     else:
@@ -72,7 +73,7 @@ def check_auth_updater(app_configs, **kwargs) -> list[CheckMessage]:
 def check_site_auths(app_configs, **kwargs) -> list[CheckMessage]:
     errors = []
     try:
-        settings.EDC_AUTH_SKIP_AUTH_UPDATER
+        settings.EDC_AUTH_SKIP_AUTH_UPDATER  # noqa: B018
     except AttributeError:
         pass
     else:

@@ -11,5 +11,5 @@ for app_config in django_apps.get_app_configs():
         for model_cls in app_config.get_models():
             app_name, model_name = model_cls._meta.label_lower.split(".")
             for prefix in ["add", "change", "view", "delete"]:
-                codenames.append(f"{app_name}.{prefix}_{model_name}")
+                codenames.append(f"{app_name}.{prefix}_{model_name}")  # noqa: PERF401
 codenames.sort()

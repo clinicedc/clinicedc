@@ -36,5 +36,5 @@ class CrfCase:
             try:
                 cursor.execute(self.sql)
             except OperationalError as e:
-                raise CrfCaseError(f"{e}. See {self}.")
+                raise CrfCaseError(f"{e}. See {self}.") from e
             return cursor.fetchall()

@@ -134,7 +134,9 @@ class ResearchProtocolConfig:
         return getattr(
             settings,
             "EDC_PROTOCOL_SUBJECT_IDENTIFIER_PATTERN",
-            r"%(protocol_number)s\-[0-9\-]+" % dict(protocol_number=self.protocol_number),
+            r"{protocol_number}\-[0-9\-]+".format(
+                **dict(protocol_number=self.protocol_number)
+            ),
         )
 
     @property
@@ -145,14 +147,14 @@ class ResearchProtocolConfig:
     def study_open_datetime(self) -> datetime:
         try:
             study_open_datetime = settings.EDC_PROTOCOL_STUDY_OPEN_DATETIME
-        except AttributeError:
+        except AttributeError as e:
             raise ImproperlyConfigured(
                 self.error_msg1
                 % {
                     "attr": "study_open_datetime",
                     "settings_attr": "EDC_PROTOCOL_STUDY_OPEN_DATETIME",
                 }
-            )
+            ) from e
         if not study_open_datetime:
             raise ImproperlyConfigured(
                 self.error_msg2
@@ -167,14 +169,14 @@ class ResearchProtocolConfig:
     def study_close_datetime(self) -> datetime:
         try:
             study_close_datetime = settings.EDC_PROTOCOL_STUDY_CLOSE_DATETIME
-        except AttributeError:
+        except AttributeError as e:
             raise ImproperlyConfigured(
                 self.error_msg1
                 % {
                     "attr": "study_close_datetime",
                     "settings_attr": "EDC_PROTOCOL_STUDY_CLOSE_DATETIME",
                 }
-            )
+            ) from e
         if not study_close_datetime:
             raise ImproperlyConfigured(
                 self.error_msg2

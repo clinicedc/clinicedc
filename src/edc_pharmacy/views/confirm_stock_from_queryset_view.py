@@ -29,8 +29,8 @@ class ConfirmStockFromQuerySetView(
     navbar_selected_item = "pharmacy"
     codes_per_page = 12
 
-    def get_context_data(self, **kwargs):
-        context = dict(
+    def get_context_data(self, **kwargs):  # noqa: ARG002
+        return dict(
             CONFIRMED=CONFIRMED,
             ALREADY_CONFIRMED=ALREADY_CONFIRMED,
             INVALID=INVALID,
@@ -40,7 +40,6 @@ class ConfirmStockFromQuerySetView(
             source_changelist_url=self.source_changelist_url,
             **self.session_data,
         )
-        return context
 
     @property
     def session_data(self):
@@ -58,10 +57,8 @@ class ConfirmStockFromQuerySetView(
                     [
                         x,
                         ALREADY_CONFIRMED,
-                        _(
-                            "already %(transaction_word)s"
-                            % {"transaction_word": transaction_word}
-                        ),
+                        _("already %(transaction_word)s")
+                        % {"transaction_word": transaction_word},
                     ]
                     for x in session_obj.get("already_confirmed_codes") or []
                 ]
@@ -117,7 +114,7 @@ class ConfirmStockFromQuerySetView(
         label_lower = self.session_data.get("source_label_lower")
         return django_apps.get_model(label_lower)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         stock_codes = request.POST.getlist("stock_codes")
         if len(stock_codes) != len(list(set(stock_codes))):
             messages.add_message(

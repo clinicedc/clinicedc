@@ -57,7 +57,7 @@ def randomizationlist_check(app_configs, **kwargs) -> list:
         ):
             error_msgs = randomizer.verify_list()
             for error_msg in error_msgs:
-                errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))
+                errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))  # noqa: PERF401
         if not settings.DEBUG:
             if not randomizer.get_randomizationlist_path().is_relative_to(settings.ETC_DIR):
                 errors.append(

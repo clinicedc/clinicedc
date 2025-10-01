@@ -1,6 +1,5 @@
 from uuid import uuid4
 
-import pandas as pd
 from celery.states import PENDING
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -9,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django_pandas.io import read_frame
@@ -37,22 +35,24 @@ class PrepareAndReviewStockRequestView(
         df = get_next_scheduled_visit_for_subjects_df(stock_request)
 
         # get unallocated stock that appears in a stock request for this location
-        df_unallocated_request_items = read_frame(
-            StockRequestItem.objects.values(
-                "stock_request__request_identifier",
-                "registered_subject__subject_identifier",
-            ).filter(stock_request__location=stock_request.location, allocation__isnull=True)
+        df_unallocated_request_items = (
+            read_frame(
+                StockRequestItem.objects.values(
+                    "stock_request__request_identifier",
+                    "registered_subject__subject_identifier",
+                ).filter(
+                    stock_request__location=stock_request.location, allocation__isnull=True
+                )
+            )
+            .rename(
+                columns={
+                    "registered_subject__subject_identifier": "subject_identifier",
+                    "stock_request__request_identifier": "request_identifier",
+                },
+            )
+            .reset_index(drop=True)
         )
-        df_unallocated_request_items.rename(
-            columns={
-                "registered_subject__subject_identifier": "subject_identifier",
-                "stock_request__request_identifier": "request_identifier",
-            },
-            inplace=True,
-        )
-        df_unallocated_request_items.reset_index(drop=True, inplace=True)
-        df_unallocated_request_items = pd.merge(
-            df_unallocated_request_items,
+        df_unallocated_request_items = df_unallocated_request_items.merge(
             df[["subject_identifier", "next_visit_code", "next_appt_datetime"]],
             on="subject_identifier",
             how="left",
@@ -60,13 +60,14 @@ class PrepareAndReviewStockRequestView(
         df_unallocated_request_items = df_unallocated_request_items[
             df_unallocated_request_items.next_visit_code.notna()
         ]
-        df_unallocated_request_items.sort_values(by=["subject_identifier"]).reset_index(
-            drop=True, inplace=True
-        )
+        df_unallocated_request_items = df_unallocated_request_items.sort_values(
+            by=["subject_identifier"]
+        ).reset_index()
 
         # exclude unallocated subjects from appts
-        df = df[~df.subject_identifier.isin(df_unallocated_request_items.subject_identifier)]
-        df.reset_index(drop=True, inplace=True)
+        df = df[
+            ~df.subject_identifier.isin(df_unallocated_request_items.subject_identifier)
+        ].reset_index(drop=True)
 
         kwargs.update(
             stock_request=stock_request,
@@ -128,55 +129,46 @@ class PrepareAndReviewStockRequestView(
                 subjects_excluded_by_request=len(
                     df_unallocated_request_items.subject_identifier.unique()
                 ),
-                nostock_table=format_html(
-                    "{}",
-                    mark_safe(
-                        df_nostock.to_html(
-                            columns=[
-                                "subject_identifier",
-                                "next_visit_code",
-                                "next_appt_datetime",
-                            ],
-                            index=True,
-                            border=0,
-                            classes="table table-striped",
-                            table_id="my_table",
-                        )
-                    ),  # nosec B703 B308
+                nostock_table=mark_safe(  # noqa: S308
+                    df_nostock.to_html(
+                        columns=[
+                            "subject_identifier",
+                            "next_visit_code",
+                            "next_appt_datetime",
+                        ],
+                        index=True,
+                        border=0,
+                        classes="table table-striped",
+                        table_id="my_table",
+                    )
                 ),
-                instock_table=format_html(
-                    "{}",
-                    mark_safe(
-                        df_instock.to_html(
-                            columns=[
-                                "subject_identifier",
-                                "next_visit_code",
-                                "next_appt_datetime",
-                                "code",
-                            ],
-                            index=True,
-                            border=0,
-                            classes="table table-striped",
-                            table_id="in_stock_table",
-                        )
-                    ),  # nosec B703 B308
+                instock_table=mark_safe(  # noqa: S308
+                    df_instock.to_html(
+                        columns=[
+                            "subject_identifier",
+                            "next_visit_code",
+                            "next_appt_datetime",
+                            "code",
+                        ],
+                        index=True,
+                        border=0,
+                        classes="table table-striped",
+                        table_id="in_stock_table",
+                    )
                 ),
-                unallocated_table=format_html(
-                    "{}",
-                    mark_safe(
-                        df_unallocated_request_items.to_html(
-                            columns=[
-                                "subject_identifier",
-                                "next_visit_code",
-                                "next_appt_datetime",
-                                "request_identifier",
-                            ],
-                            index=True,
-                            border=0,
-                            classes="table table-striped",
-                            table_id="unallocated_table",
-                        )
-                    ),  # nosec B703 B308
+                unallocated_table=mark_safe(  # noqa: S308
+                    df_unallocated_request_items.to_html(
+                        columns=[
+                            "subject_identifier",
+                            "next_visit_code",
+                            "next_appt_datetime",
+                            "request_identifier",
+                        ],
+                        index=True,
+                        border=0,
+                        classes="table table-striped",
+                        table_id="unallocated_table",
+                    )
                 ),
                 session_uuid=session_uuid,
             )
@@ -190,7 +182,7 @@ class PrepareAndReviewStockRequestView(
     def model_cls(self):
         return django_apps.get_model("edc_pharmacy.stocktransfer")
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         session_uuid = request.POST.get("session_uuid")
         stock_request = StockRequest.objects.get(pk=request.POST.get("stock_request"))
         if not request.POST.get("cancel") and session_uuid:

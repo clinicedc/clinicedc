@@ -65,7 +65,7 @@ class Command(BaseCommand):
             help="Limit import to a single username",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         import_users(
             options["csvfile"],
             resource_name=options["resource_name"],

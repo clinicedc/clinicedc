@@ -95,8 +95,7 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
     def storage_bin_changelist_url(self) -> str:
         if self.storage_bin:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_storagebin_changelist")
-            url = f"{url}?q={self.storage_bin.bin_identifier}"
-            return url
+            return f"{url}?q={self.storage_bin.bin_identifier}"
         return "/"
 
     def redirect_on_has_duplicates(
@@ -144,30 +143,29 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
     def redirect_on_invalid_subject_for_location(
         self, stock_codes: list[str], storage_bin: StorageBin
     ) -> HttpResponseRedirect | None:
-        if stock_codes:
-            if (
-                Stock.objects.filter(code__in=stock_codes)
-                .exclude(location=storage_bin.location)
-                .exists()
-            ):
-                qs = Stock.objects.filter(code__in=stock_codes).exclude(
-                    location=storage_bin.location
-                )
-                messages.add_message(
-                    self.request,
-                    messages.ERROR,
-                    f"Stock not from this location. See {[obj.stock.code for obj in qs]}.",
-                )
-                url = reverse(
-                    "edc_pharmacy:add_to_storage_bin_url",
-                    kwargs={
-                        "storage_bin": storage_bin.id,
-                    },
-                )
-                return HttpResponseRedirect(url)
+        if stock_codes and (
+            Stock.objects.filter(code__in=stock_codes)
+            .exclude(location=storage_bin.location)
+            .exists()
+        ):
+            qs = Stock.objects.filter(code__in=stock_codes).exclude(
+                location=storage_bin.location
+            )
+            messages.add_message(
+                self.request,
+                messages.ERROR,
+                f"Stock not from this location. See {[obj.stock.code for obj in qs]}.",
+            )
+            url = reverse(
+                "edc_pharmacy:add_to_storage_bin_url",
+                kwargs={
+                    "storage_bin": storage_bin.id,
+                },
+            )
+            return HttpResponseRedirect(url)
         return None
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
         storage_bin = StorageBin.objects.get(id=kwargs.get("storage_bin"))
         items_to_scan = request.POST.get("items_to_scan") or kwargs.get("items_to_scan")

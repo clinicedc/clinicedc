@@ -11,7 +11,7 @@ class ResearchProtocolConfigMiddleware:
     def process_view(self, request, *args):
         pass
 
-    def process_template_response(self, request, response):
+    def process_template_response(self, request, response):  # noqa: ARG002
         if not response.context_data:
             response.context_data = {}
         protocol_config = ResearchProtocolConfig()

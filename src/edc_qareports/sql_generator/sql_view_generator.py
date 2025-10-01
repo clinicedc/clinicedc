@@ -30,7 +30,7 @@ class SqlViewGenerator:
         self.footer = f") as A ORDER BY {self.order_by}"
 
     @staticmethod
-    def transpile(sql: str, read: str | None = None, write: str = None) -> str:
+    def transpile(sql: str, read: str | None = None, write: str | None = None) -> str:
         read = read or "mysql"
         sql = sql.replace(";", "")
         return sqlglot.transpile(sql, read=read, write=write)[0]

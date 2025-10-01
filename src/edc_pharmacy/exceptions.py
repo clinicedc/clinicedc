@@ -1,4 +1,4 @@
-class ActivePrescriptionRefillOverlap(Exception):
+class ActivePrescriptionRefillOverlap(Exception):  # noqa: N818
     pass
 
 
@@ -6,7 +6,7 @@ class RefillError(Exception):
     pass
 
 
-class ActiveRefillAlreadyExists(Exception):
+class ActiveRefillAlreadyExists(Exception):  # noqa: N818
     pass
 
 
@@ -34,7 +34,7 @@ class PackagingLotNumberMismatchError(Exception):
     pass
 
 
-class PrescriptionAlreadyExists(Exception):
+class PrescriptionAlreadyExists(Exception):  # noqa: N818
     pass
 
 
@@ -42,15 +42,15 @@ class PrescriptionError(Exception):
     pass
 
 
-class PrescriptionExpired(Exception):
+class PrescriptionExpired(Exception):  # noqa: N818
     pass
 
 
-class RefillAlreadyExists(Exception):
+class RefillAlreadyExists(Exception):  # noqa: N818
     pass
 
 
-class PrescriptionNotStarted(Exception):
+class PrescriptionNotStarted(Exception):  # noqa: N818
     pass
 
 
@@ -74,7 +74,7 @@ class InsufficientStockError(Exception):
     pass
 
 
-class InvalidContainer(Exception):
+class InvalidContainer(Exception):  # noqa: N818
     pass
 
 

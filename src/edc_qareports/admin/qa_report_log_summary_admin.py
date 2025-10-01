@@ -17,7 +17,7 @@ class QaReportLogSummaryAdmin(
     TemplatesModelAdminMixin,
     admin.ModelAdmin,
 ):
-    ordering = ["-last_accessed"]
+    ordering = ("-last_accessed",)
 
     list_display = (
         "username",

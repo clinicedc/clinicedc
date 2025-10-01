@@ -18,7 +18,7 @@ def change_password(user, nwords: int | None = None) -> str:
     return password
 
 
-def send_new_credentials_to_user(user, nwords: int | None = None) -> EmailMessage:
+def send_new_credentials_to_user(user, nwords: int | None = None) -> int:
     body = change_user_template
     site_names = "\n - ".join([s.name for s in user.userprofile.sites.all()])
     role_names = "\n - ".join([r.display_name for r in user.userprofile.roles.all()])

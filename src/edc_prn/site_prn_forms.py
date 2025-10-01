@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from edc_prn import Prn
 
 
-class AlreadyRegistered(Exception):
+class AlreadyRegistered(Exception):  # noqa: N818
     pass
 
 
@@ -72,7 +72,7 @@ class PrnFormsCollection:
                 except ImportError as e:
                     site_prn_forms.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SitePrnFormsError(str(e))
+                        raise SitePrnFormsError(str(e)) from e
             except ImportError:
                 pass
 

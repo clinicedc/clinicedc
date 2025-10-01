@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from edc_model_admin.mixins import TemplatesModelAdminMixin
@@ -12,22 +11,20 @@ from ..models import Role
 class RoleAdmin(TemplatesModelAdminMixin, admin.ModelAdmin):
     fieldsets = ((None, ({"fields": ("display_name", "name", "display_index", "groups")})),)
 
-    list_display_links: tuple[str, ...] = ("display_name", "group_list")
+    list_display_links = ("display_name", "group_list")
 
-    list_display: tuple[str, ...] = ("display_name", "name", "group_list")
+    list_display = ("display_name", "name", "group_list")
 
-    filter_horizontal: tuple[str, ...] = ("groups",)
+    filter_horizontal = ("groups",)
 
-    search_fields: tuple[str, ...] = ("display_name", "name", "groups__name")
+    search_fields = ("display_name", "name", "groups__name")
 
-    ordering: tuple[str, ...] = ("display_index", "display_name")
+    ordering = ("display_index", "display_name")
 
     list_filter = ("groups__name",)
 
     @staticmethod
     def group_list(obj=None) -> str:
-        group_names = []
-        for group in obj.groups.all():
-            group_names.append(group.name)
+        group_names = [group.name for group in obj.groups.all()]
         group_names.sort()
-        return format_html("{}", mark_safe("<BR>".join(group_names)))  # nosec B703 B308
+        return mark_safe("<BR>".join(group_names))  # noqa: S308

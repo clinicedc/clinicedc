@@ -50,5 +50,5 @@ class Command(BaseCommand):
             help="Export path/folder",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         export_daids_grading(path=options["path"])

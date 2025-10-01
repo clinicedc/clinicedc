@@ -10,7 +10,7 @@ class ModelBackendWithSite(ModelBackend):
     associated with the current SITE_ID.
     """
 
-    def authenticate(self, request, username=None, password=None, **kwargs):
+    def authenticate(self, request, username=None, password=None, **kwargs):  # noqa: ARG002
         user = super().authenticate(request, username=username, password=password)
         if user:
             sites = [obj.id for obj in user.userprofile.sites.all()]

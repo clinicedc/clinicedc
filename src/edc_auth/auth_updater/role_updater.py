@@ -36,8 +36,7 @@ class RoleUpdater:
         """
         if self.verbose:
             sys.stdout.write(style.MIGRATE_HEADING(" - Updating roles:\n"))
-        index = 0
-        for role_name, groups in self.roles.items():
+        for index, (role_name, groups) in enumerate(self.roles.items()):
             display_name = role_name.replace("_", " ").lower().title()
             if self.verbose:
                 sys.stdout.write(f"   * updating groups for {role_name}.\n")
@@ -63,7 +62,6 @@ class RoleUpdater:
                     ) from e
                     # group = self.group_model_cls.objects.create(name=group_name)
                 role.groups.add(group)
-            index += 1
         if self.verbose:
             sys.stdout.write("   Done.\n")
             sys.stdout.flush()

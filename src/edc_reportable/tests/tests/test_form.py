@@ -9,7 +9,7 @@ from clinicedc_tests.reportables import grading_data, normal_data
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_consent import site_consents
@@ -38,6 +38,7 @@ class SpecimenResultFormValidator(ReportablesFormValidatorMixin, CrfFormValidato
 
 
 @tag("reportable")
+@override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestSpecimenResultForm(TestCase):
     @classmethod

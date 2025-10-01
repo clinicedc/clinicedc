@@ -41,7 +41,7 @@ class SubjectRefusalModelAdminMixin:
 
     search_fields = ("screening_identifier",)
 
-    radio_fields = {"reason": admin.VERTICAL}
+    radio_fields = {"reason": admin.VERTICAL}  # noqa: RUF012
 
 
 @admin.register(SubjectRefusal, site=edc_refusal_admin)
@@ -70,5 +70,7 @@ class SubjectRefusalAdmin(
             if callable(super().view_on_site):
                 url = super().view_on_site(obj)
             else:
-                raise NoReverseMatch(f"{e}. See subject_dashboard_url_name for {self!r}.")
+                raise NoReverseMatch(
+                    f"{e}. See subject_dashboard_url_name for {self!r}."
+                ) from e
         return url

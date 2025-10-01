@@ -23,20 +23,20 @@ class ModelAdminProtectPiiMixin:
 
     extra_pii_attrs: tuple[str] | None = ()
 
-    def get_extra_pii_attrs(self) -> list[str | tuple[str, str]]:
-        return self.extra_pii_attrs or []
+    def get_extra_pii_attrs(self) -> tuple[str | tuple[str, str]]:
+        return self.extra_pii_attrs
 
     def get_encrypted_fields(self) -> tuple[str, ...]:
-        encrypted_fields = [f.name for f in get_encrypted_fields(self.model)]
-        encrypted_fields.extend(*self.get_extra_pii_attrs())
-        return tuple(set(encrypted_fields))
+        encrypted_fields = tuple([f.name for f in get_encrypted_fields(self.model)])
+        return tuple({*encrypted_fields, *self.get_extra_pii_attrs()})
 
     def get_list_display(self, request) -> tuple[str]:
         list_display = super().get_list_display(request)
         if not request.user.groups.filter(name__in=[PII, PII_VIEW]).exists():
             # TODO: search replace from list_display if extra_pii_attr has tuple
-            list_display = [f for f in list_display if f not in self.get_encrypted_fields()]
-            list_display = tuple(list_display)
+            list_display = tuple(
+                *{f for f in list_display if f not in self.get_encrypted_fields()}
+            )
         return list_display
 
     def get_list_display_links(self, request, list_display) -> list[str] | None:

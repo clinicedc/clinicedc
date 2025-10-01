@@ -1,7 +1,7 @@
 import csv
-import os
 import re
-from datetime import datetime
+import sys
+from pathlib import Path
 from string import Template
 from typing import Any
 
@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
+from django.utils import timezone
 from mempass import PasswordGenerator
 
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
@@ -89,8 +90,8 @@ def import_users(
     site_names: a comma-separated list of sites
     role_names: a comma-separated list of roles
     """
-    path = os.path.expanduser(path)
-    with open(path) as f:
+    path = Path(path)
+    with path.open() as f:
         reader = csv.DictReader(f, delimiter="|")
         for csv_data in reader:
             opts: dict = {}
@@ -111,8 +112,8 @@ def import_users(
             opts.update(email=csv_data.get("email"))
             opts.update(alternate_email=csv_data.get("alternate_email"))
             opts.update(job_title=csv_data.get("job_title"))
-            opts.update(is_active=True if csv_data.get("is_active") == "True" else False)
-            opts.update(is_staff=True if csv_data.get("is_staff") == "True" else False)
+            opts.update(is_active=csv_data.get("is_active") == "True")
+            opts.update(is_staff=csv_data.get("is_staff") == "True")
             UserImporter(
                 resource_name=resource_name,
                 send_email_to_user=send_email_to_user,
@@ -122,7 +123,7 @@ def import_users(
                 **kwargs,
             )
     if export_to_file:
-        export_users(f"edc_users_imported_{datetime.now().strftime('%Y%m%d%H%M%S')}")
+        export_users(f"edc_users_imported_{timezone.now().strftime('%Y%m%d%H%M%S')}")
 
 
 class UserImporter:
@@ -133,18 +134,18 @@ class UserImporter:
 
     def __init__(
         self,
-        username: str = None,
-        first_name: str = None,
-        last_name: str = None,
-        job_title: str = None,
-        email: str = None,
-        alternate_email: str = None,
-        mobile: str = None,
-        site_names: list[str] = None,
-        role_names: list[str] = None,
-        is_active: bool = None,
-        is_staff: bool = None,
-        resource_name: str = None,
+        username: str | None = None,
+        first_name: str | None = None,
+        last_name: str | None = None,
+        job_title: str | None = None,
+        email: str | None = None,
+        alternate_email: str | None = None,
+        mobile: str | None = None,
+        site_names: list[str] | None = None,
+        role_names: list[str] | None = None,
+        is_active: bool | None = None,
+        is_staff: bool | None = None,
+        resource_name: str | None = None,
         created_email_template: Template | None = None,
         updated_email_template: Template | None = None,
         send_email_to_user: Any | None = None,
@@ -200,7 +201,7 @@ class UserImporter:
             try:
                 self.email_message.send(fail_silently=False)
             except ConnectionRefusedError:
-                print(self.email_message.body)
+                sys.stdout.write(f"{self.email_message.body}\n")
 
     def validate_username(self) -> None:
         if not self.username:
@@ -241,12 +242,12 @@ class UserImporter:
         for site_name in site_names:
             try:
                 site = Site.objects.get(name=site_name)
-            except ObjectDoesNotExist:
+            except ObjectDoesNotExist as e:
                 sites = [s.name for s in Site.objects.all()]
                 raise UserImporterError(
                     f"Unknown site for user. Expected one of {sites}. "
                     f"Got {self.user.username}, {site_name}."
-                )
+                ) from e
             else:
                 self.user.userprofile.sites.add(site)
 
@@ -256,11 +257,11 @@ class UserImporter:
         for role_name in role_names:
             try:
                 role = Role.objects.get(name__iexact=role_name)
-            except ObjectDoesNotExist:
+            except ObjectDoesNotExist as e:
                 raise UserImporterError(
                     f"Unknown role for user. Got role `{role_name}` "
                     f"for user `{self.user.username}`"
-                )
+                ) from e
             else:
                 self.user.userprofile.roles.add(role)
 

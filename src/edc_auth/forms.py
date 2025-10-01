@@ -45,36 +45,33 @@ class UserProfileForm(forms.ModelForm):
                 raise forms.ValidationError(
                     {
                         "is_multisite_viewer": (
-                            "Invalid. User has change permissions to other objects. "
-                            f"Got {c}"
+                            f"Invalid. User has change permissions to other objects. Got {c}"
                         )
                     }
                 )
 
         qs = self.cleaned_data.get("email_notifications")
-        if qs and qs.count() > 0:
-            if not get_email_enabled():
-                raise forms.ValidationError(
-                    {
-                        "email_notifications": (
-                            "You may not choose an email "
-                            "notification. Email is not enabled. "
-                            "Contact your EDC administrator."
-                        )
-                    }
-                )
+        if qs and qs.count() > 0 and not get_email_enabled():
+            raise forms.ValidationError(
+                {
+                    "email_notifications": (
+                        "You may not choose an email "
+                        "notification. Email is not enabled. "
+                        "Contact your EDC administrator."
+                    )
+                }
+            )
         qs = self.cleaned_data.get("sms_notifications")
-        if qs and qs.count() > 0:
-            if not settings.TWILIO_ENABLED:
-                raise forms.ValidationError(
-                    {
-                        "sms_notifications": (
-                            "You may not choose an SMS "
-                            "notification. SMS is not enabled. "
-                            "Contact your EDC administrator."
-                        )
-                    }
-                )
+        if qs and qs.count() > 0 and not settings.TWILIO_ENABLED:
+            raise forms.ValidationError(
+                {
+                    "sms_notifications": (
+                        "You may not choose an SMS "
+                        "notification. SMS is not enabled. "
+                        "Contact your EDC administrator."
+                    )
+                }
+            )
         qs = self.cleaned_data.get("roles")
         if qs and qs.count() > 0:
             for role in qs:

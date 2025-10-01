@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from edc_registration.models import RegisteredSubject
 
 
-class RegisteredSubjectDoesNotExist(Exception):
+class RegisteredSubjectDoesNotExist(Exception):  # noqa: N818
     pass
 
 

@@ -12,7 +12,6 @@ from edc_utils import round_half_away_from_zero as rnd
 
 @tag("reportable")
 class TestParser(TestCase):
-
     def test_convert_tbil1(self):
         converted_value = convert_units(
             label="tbil",
@@ -97,7 +96,7 @@ class TestParser(TestCase):
         ]
 
         for value, converted_value in values:
-            converted_value = convert_units(
+            converted_value = convert_units(  # noqa: PLW2901
                 label="creatinine",
                 value=value,
                 units_from=MILLIGRAMS_PER_DECILITER,

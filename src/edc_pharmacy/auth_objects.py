@@ -20,7 +20,7 @@ PHARMACY_SUPER_ROLE = "PHARMACY_SUPER_ROLE"
 navbar_codenames = ["edc_pharmacy.nav_pharmacy_section"]
 navbar_tuples = []
 for codename in navbar_codenames:
-    navbar_tuples.append((codename, f"Can access {codename.split('.')[1]}"))
+    navbar_tuples.append((codename, f"Can access {codename.split('.')[1]}"))  # noqa: PERF401
 
 
 # central pharmacist

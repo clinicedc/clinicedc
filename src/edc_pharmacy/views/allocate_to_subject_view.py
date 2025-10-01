@@ -96,8 +96,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     def stock_request_changelist_url(self) -> str:
         if self.stock_request:
             url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
-            url = f"{url}?q={self.stock_request.request_identifier}"
-            return url
+            return f"{url}?q={self.stock_request.request_identifier}"
         return "/"
 
     @staticmethod
@@ -120,14 +119,13 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                 messages.ERROR,
                 "Nothing saved. Duplicate codes detected in list. Please try again.",
             )
-            url = reverse(
+            return reverse(
                 "edc_pharmacy:allocate_url",
                 kwargs={
                     "stock_request": stock_request.id,
                     "assignment": assignment.id,
                 },
             )
-            return url
         return None
 
     def redirect_on_uncomfirmed_stock_codes(
@@ -153,14 +151,13 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                         f"Got {uncomfirmed_codes}. "
                     ),
                 )
-                url = reverse(
+                return reverse(
                     "edc_pharmacy:allocate_url",
                     kwargs={
                         "stock_request": stock_request.id,
                         "assignment": assignment.id,
                     },
                 )
-                return url
         return None
 
     def redirect_on_invalid_stock_codes(
@@ -183,14 +180,13 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                 messages.ERROR,
                 f"Nothing saved. Invalid codes detected. Got {invalid_codes}. ",
             )
-            url = reverse(
+            return reverse(
                 "edc_pharmacy:allocate_url",
                 kwargs={
                     "stock_request": stock_request.id,
                     "assignment": assignment.id,
                 },
             )
-            return url
         return None
 
     def redirect_on_has_multiple_container_types(
@@ -211,14 +207,13 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     f"only. See Stock request {stock_request.request_identifier} "
                 ),
             )
-            url = reverse(
+            return reverse(
                 "edc_pharmacy:allocate_url",
                 kwargs={
                     "stock_request": stock_request.id,
                     "assignment": assignment.id,
                 },
             )
-            return url
         return None
 
     def redirect_on_stock_already_allocated(
@@ -234,20 +229,19 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             allocated_stock_codes = []
             for stock in Stock.objects.filter(code__in=stock_codes):
                 if stock.allocation:
-                    allocated_stock_codes.append(stock.code)
+                    allocated_stock_codes.append(stock.code)  # noqa: PERF401
             messages.add_message(
                 self.request,
                 messages.ERROR,
                 f"Stock already allocated. Got {','.join(allocated_stock_codes)}.",
             )
-            url = reverse(
+            return reverse(
                 "edc_pharmacy:allocate_url",
                 kwargs={
                     "stock_request": stock_request.id,
                     "assignment": getattr(assignment, "id", None),
                 },
             )
-            return url
         return None
 
     def redirect_on_all_allocated_for_assignment(
@@ -265,14 +259,13 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                 )
                 % {"assignment": assignment.display_name.upper()},
             )
-            url = reverse(
+            return reverse(
                 "edc_pharmacy:allocate_url",
                 kwargs={
                     "stock_request": stock_request.id,
                     "assignment": getattr(assignment, "id", None),
                 },
             )
-            return url
         return None
 
     def redirect_on_incorrect_stock_for_assignment(
@@ -292,14 +285,13 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     f"Expected `{assignment.display_name}` only. Check your work."
                 ),
             )
-            url = reverse(
+            return reverse(
                 "edc_pharmacy:allocate_url",
                 kwargs={
                     "stock_request": stock_request.id,
                     "assignment": getattr(assignment, "id", None),
                 },
             )
-            return url
         return None
 
     def get_counts(self, stock_request: StockRequest) -> tuple[int, int]:
@@ -315,7 +307,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             return remaining_count or 0, total_count
         return 0, 0
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
         subject_identifiers = request.POST.get("subject_identifiers")
         assignment_id = request.POST.get("assignment")

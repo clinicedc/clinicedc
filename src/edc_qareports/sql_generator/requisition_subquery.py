@@ -27,7 +27,7 @@ class RequisitionSubquery(CrfSubquery):
     template: str = field(
         init=False,
         default=Template(
-            "select req.subject_identifier, req.id as original_id, "  # nosec B608
+            "select req.subject_identifier, req.id as original_id, "  # nosec B608  # noqa: S608
             "req.subject_visit_id, req.report_datetime, req.site_id, v.visit_code, "
             "v.visit_code_sequence, "
             "v.schedule_name, req.modified, '${label_lower}' as label_lower, "

@@ -90,7 +90,7 @@ class ConfirmStockFromInstanceView(
     def model_cls(self):
         return django_apps.get_model(f"edc_pharmacy.{self.kwargs.get('model')}")
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         dct = self.get_values_dict(**kwargs)
         codes = request.POST.getlist("codes")
         confirmed, already_confirmed, invalid = confirm_stock(

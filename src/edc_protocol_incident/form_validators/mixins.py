@@ -40,9 +40,12 @@ class IncidentFormvalidatorMixin:
         self.validate_date_not_before_incident("report_closed_datetime")
 
     def validate_date_not_before_incident(self, fld_name):
-        if self.cleaned_data.get(fld_name) and self.cleaned_data.get("incident_datetime"):
-            if self.cleaned_data.get(fld_name) < self.cleaned_data.get("incident_datetime"):
-                self.raise_validation_error(
-                    {fld_name: "May not be before incident date/time"},
-                    error_code=INVALID_ERROR,
-                )
+        if (
+            self.cleaned_data.get(fld_name)
+            and self.cleaned_data.get("incident_datetime")
+            and self.cleaned_data.get(fld_name) < self.cleaned_data.get("incident_datetime")
+        ):
+            self.raise_validation_error(
+                {fld_name: "May not be before incident date/time"},
+                error_code=INVALID_ERROR,
+            )

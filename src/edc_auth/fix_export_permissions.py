@@ -33,23 +33,23 @@ class ExportPermissionsFixer:
         """
 
         if self.verbose:
-            print("Adding `import` and `export` to default permissions.")
+            print("Adding `import` and `export` to default permissions.")  # noqa: T201
         for app_config in self.app_configs:
             if self.verbose:
-                print(f"  * updating {app_config.name}")
+                print(f"  * updating {app_config.name}")  # noqa: T201
             for model in app_config.get_models():
                 self.fix_for_model(model)
         if self.verbose:
-            print("Done")
+            print("Done")  # noqa: T201
 
     def fix_for_model(self, model):
-        from edc_model import models as edc_models
+        from edc_model import models as edc_models  # noqa: PLC0415
 
         if issubclass(model, (edc_models.BaseUuidModel,)):
             permission_model_cls = django_apps.get_model("auth.permission")
             content_type_model_cls = django_apps.get_model("contenttypes.contenttype")
             if self.verbose:
-                print(f"    - {model._meta.label_lower}")
+                print(f"    - {model._meta.label_lower}")  # noqa: T201
             try:
                 app_label, model_name = model._meta.label_lower.split(".")
                 content_type = content_type_model_cls.objects.get(
@@ -58,9 +58,9 @@ class ExportPermissionsFixer:
                 )
             except ObjectDoesNotExist as e:
                 if self.warn_only:
-                    warn(f"ObjectDoesNotExist: {e} Got {model}.")
+                    warn(f"ObjectDoesNotExist: {e} Got {model}.", stacklevel=2)
                 else:
-                    raise ObjectDoesNotExist(f"{e} Got {model}.")
+                    raise ObjectDoesNotExist(f"{e} Got {model}.") from e
             else:
                 for action in ["import", "export"]:
                     codename = f"{action}_{model._meta.label_lower.split('.')[1]}"
@@ -71,7 +71,7 @@ class ExportPermissionsFixer:
                         opts.update(name=f"Can {action} {model._meta.verbose_name}")
                         permission_model_cls.objects.create(**opts)
                         if self.verbose:
-                            print(f"       created for {model._meta.label_lower}")
+                            print(f"       created for {model._meta.label_lower}")  # noqa: T201
                     else:
                         obj.name = f"Can {action} {model._meta.verbose_name}"
                         obj.save()

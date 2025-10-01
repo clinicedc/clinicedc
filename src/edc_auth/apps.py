@@ -11,9 +11,9 @@ class AppConfig(DjangoAppConfig):
     default_auto_field = "django.db.models.BigAutoField"
 
     def ready(self):
-        from edc_appconfig.system_checks import check_for_edc_appconfig
+        from edc_appconfig.system_checks import check_for_edc_appconfig  # noqa: PLC0415
 
-        from .system_checks import (
+        from .system_checks import (  # noqa: PLC0415
             check_auth_updater,
             check_etc_dir,
             check_site_auths,

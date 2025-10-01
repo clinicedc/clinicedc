@@ -26,7 +26,7 @@ class LabelSpecificationAdmin(
     ModelAdminRedirectOnDeleteMixin,
     admin.ModelAdmin,
 ):
-    actions = [copy_label_specification, export_to_csv]
+    actions = (copy_label_specification, export_to_csv)
 
     instructions = (
         "This model captures the dimensions, rows, columns, "

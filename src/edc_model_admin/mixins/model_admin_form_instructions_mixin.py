@@ -46,7 +46,9 @@ class ModelAdminFormInstructionsMixin:
     change_additional_instructions = ()
 
     def get_add_instructions(
-        self, extra_context: dict | None, request: WSGIRequest | None = None
+        self,
+        extra_context: dict | None,
+        request: WSGIRequest | None = None,  # noqa: ARG002
     ):
         extra_context = extra_context or {}
         extra_context["instructions"] = self.add_instructions or self.instructions
@@ -56,7 +58,9 @@ class ModelAdminFormInstructionsMixin:
         return extra_context
 
     def get_change_instructions(
-        self, extra_context: dict | None, request: WSGIRequest | None = None
+        self,
+        extra_context: dict | None,
+        request: WSGIRequest | None = None,  # noqa: ARG002
     ):
         extra_context = extra_context or {}
         extra_context["instructions"] = self.change_instructions or self.instructions
@@ -65,7 +69,9 @@ class ModelAdminFormInstructionsMixin:
         )
         return extra_context
 
-    def add_view(self, request: WSGIRequest, form_url: str = "", extra_context: dict = None):
+    def add_view(
+        self, request: WSGIRequest, form_url: str = "", extra_context: dict | None = None
+    ):
         extra_context = self.get_add_instructions(extra_context, request=request)
         return super().add_view(request, form_url=form_url, extra_context=extra_context)
 

@@ -38,11 +38,7 @@ class ReferenceRangeCollection(BaseUuidModel):
 
         See also model GradingException.
         """
-        grades = []
-        for i in range(1, 5):
-            if getattr(self, f"grade{i}"):
-                grades.append(i)
-        return grades
+        return [i for i in range(1, 5) if getattr(self, f"grade{i}")]
 
     def reportable_grades(self, label: str) -> list[int]:
         if not label:
@@ -96,7 +92,6 @@ class ReferenceRangeCollection(BaseUuidModel):
         gender: str | None = None,
         dob: date | None = None,
         age_units: str | None = None,
-        site: Site | None = None,
     ) -> tuple[bool, NormalData]:
         if subject_identifier:
             rs_obj = RegisteredSubject.objects.get(subject_identifier=subject_identifier)

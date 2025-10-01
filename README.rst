@@ -1,4 +1,4 @@
-s|pypi| |actions| |uv| |ruff| |downloads| |django-packages|
+|pypi| |actions| |uv| |ruff| |downloads| |django-packages|
 
 clinicedc -  A clinical trials data management framework built on Django
 ========================================================================

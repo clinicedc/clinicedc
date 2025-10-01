@@ -38,7 +38,7 @@ def get_app_codenames(
         pass
     else:
         for model_cls in get_models(app_config, exclude_models):
-            codenames.append(f"{app_config.name}.view_{model_cls._meta.model_name}")
+            codenames.append(f"{app_config.name}.view_{model_cls._meta.model_name}")  # noqa: PERF401
     for name in crud_apps:
         try:
             app_config = django_apps.get_app_config(name)
@@ -80,5 +80,5 @@ def get_codename(
             ]
         prefixes = [f"{s}_" for s in permissions]
         for prefix in prefixes:
-            codenames.append(f"{app_name}.{prefix}{model_name}")
+            codenames.append(f"{app_name}.{prefix}{model_name}")  # noqa: PERF401
     return codenames

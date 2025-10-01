@@ -1,7 +1,7 @@
 from clinicedc_tests.reportables import grading_data, normal_data
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_constants.constants import FEMALE, MALE
@@ -24,6 +24,7 @@ from edc_reportable.utils.get_normal_data_or_raise import (
 
 
 @tag("reportable")
+@override_settings(SITE_ID=10)
 class TestLoadData(TestCase):
     def test_load_data(self):
         load_reference_ranges(

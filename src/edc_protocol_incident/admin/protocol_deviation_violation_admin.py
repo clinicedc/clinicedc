@@ -65,7 +65,7 @@ class ProtocolDeviationViolationAdmin(ModelAdminSubjectDashboardMixin, SimpleHis
         audit_fieldset_tuple,
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "action_required": admin.VERTICAL,
         "report_status": admin.VERTICAL,
         "report_type": admin.VERTICAL,
