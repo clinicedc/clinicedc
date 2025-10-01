@@ -30,7 +30,7 @@ class EdcViewMixin(
             edc_device_app_config = django_apps.get_app_config(self.edc_device_app)
         except LookupError as e:
             edc_device_app_config = None
-            warnings.warn(str(e))
+            warnings.warn(str(e), stacklevel=2)
         live_system = getattr(settings, "LIVE_SYSTEM", "TEST")
         kwargs.update(
             {

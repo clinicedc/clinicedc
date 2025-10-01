@@ -24,10 +24,10 @@ class ModelAdminRedirectOnDeleteMixin:
         self.post_url_on_delete = None
         super().__init__(*args)
 
-    def get_post_url_on_delete_name(self, request) -> str:
+    def get_post_url_on_delete_name(self, request) -> str:  # noqa: ARG002
         return url_names.get(self.post_url_on_delete_name)
 
-    def get_post_full_url_on_delete(self, request) -> str | None:
+    def get_post_full_url_on_delete(self, request) -> str | None:  # noqa: ARG002
         return self.post_full_url_on_delete
 
     def get_post_url_on_delete(self, request, obj) -> str | None:
@@ -50,14 +50,14 @@ class ModelAdminRedirectOnDeleteMixin:
             post_url_on_delete = f"{post_url_on_delete}?{querystring}"
         return post_url_on_delete
 
-    def post_url_on_delete_kwargs(self, request, obj) -> dict:
+    def post_url_on_delete_kwargs(self, request, obj) -> dict:  # noqa: ARG002
         """Returns kwargs needed to reverse the url.
 
         Override.
         """
         return {}
 
-    def post_url_on_delete_querystring_kwargs(self, request, obj) -> dict:
+    def post_url_on_delete_querystring_kwargs(self, request, obj) -> dict:  # noqa: ARG002
         """Returns kwargs for a querystring for the reversed url.
 
         Override.
@@ -75,10 +75,8 @@ class ModelAdminRedirectOnDeleteMixin:
         """Overridden to redirect to `post_url_on_delete`, if not None."""
         if self.post_url_on_delete:
             opts = self.model._meta
-            msg = 'The %(name)s "%(obj)s" was deleted successfully.' % {
-                "name": force_str(opts.verbose_name),
-                "obj": force_str(obj_display),
-            }
+            msg = (f'The {force_str(opts.verbose_name)} "{force_str(obj_display)}" '
+                   'was deleted successfully.')
             messages.add_message(request, messages.SUCCESS, msg)
             return HttpResponseRedirect(self.post_url_on_delete)
         return super().response_delete(request, obj_display, obj_id)
