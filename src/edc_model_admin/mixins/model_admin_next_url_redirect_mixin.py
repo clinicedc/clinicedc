@@ -112,9 +112,9 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
                 msg = f"{e}. Got url_name={url_name}, kwargs={options}."
                 try:
                     redirect_url = reverse(url_name)  # retry without kwargs
-                except NoReverseMatch:
+                except NoReverseMatch as e:
                     # raise with first exception msg
-                    raise ModelAdminNextUrlRedirectError(msg)
+                    raise ModelAdminNextUrlRedirectError(msg) from e
                 else:
                     if "q" in options and "changelist" in url_name:
                         redirect_url = f"{redirect_url}?q={options['q']}"
@@ -163,7 +163,7 @@ class ModelAdminNextUrlRedirectMixin(BaseModelAdminRedirectMixin):
             )
         return None
 
-    def get_next_options(self, request=None, **kwargs):
+    def get_next_options(self, request=None, **kwargs):  # noqa: ARG002
         """Returns the key/value pairs from the "next" querystring
         as a dictionary.
         """
