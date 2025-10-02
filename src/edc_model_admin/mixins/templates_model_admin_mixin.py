@@ -59,7 +59,7 @@ class TemplatesModelAdminMixin:
         )
 
     def changelist_view(self, request, extra_context=None):
-        extra_context = {} if not extra_context else extra_context
+        extra_context = extra_context if extra_context else {}
         extra_context.update(
             {
                 "show_object_tools": self.show_object_tools,

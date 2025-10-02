@@ -95,12 +95,12 @@ class SiteModelAdminMixin:
             or self.has_viewallsites_permission(request)
         ) and "site" not in list_display:
             list_display = tuple(list_display)
-            list_display = list_display[:pos], self.site_code, list_display[pos:]
+            list_display = *list_display[:pos], self.site_code, *list_display[pos:]
         elif "site" in list_display:
             list_display = tuple(
                 [x for x in list_display if x not in ["site", self.site_code]]
             )
-            list_display = list_display[:pos], self.site_code, list_display[pos:]
+            list_display = *list_display[:pos], self.site_code, *list_display[pos:]
         return list_display
 
     def get_queryset(self, request) -> QuerySet:

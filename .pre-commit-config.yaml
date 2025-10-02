@@ -30,6 +30,7 @@ repos:
     hooks:
       - id: rstcheck
         additional_dependencies: ['rstcheck[sphinx,toml]']
+        args: ['--ignore-directives', 'toctree']
 
 #  - repo: https://github.com/astral-sh/uv-pre-commit
 #    rev: 0.8.17
