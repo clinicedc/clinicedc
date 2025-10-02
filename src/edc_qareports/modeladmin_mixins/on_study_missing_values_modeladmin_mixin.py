@@ -64,7 +64,7 @@ class OnStudyMissingValuesModelAdminMixin(
                 f"&appointment={self.related_visit(obj).appointment.id}"
                 f"&requisition={obj.original_id}"
             )
-            title = _("Add {}") % crf_model_cls._meta.verbose_name
+            title = _("Add {}").format(crf_model_cls._meta.verbose_name)
             label = _("Add CRF")
             crf_button = render_to_string(
                 "edc_qareports/columns/add_button.html",
@@ -80,7 +80,7 @@ class OnStudyMissingValuesModelAdminMixin(
                 f"{url}?next={self.admin_site.name}:"
                 f"{self.model._meta.label_lower.replace('.', '_')}_changelist"
             )
-            title = _("Change {}") % crf_model_cls._meta.verbose_name
+            title = _("Change {}").format(crf_model_cls._meta.verbose_name)
             label = _("Change CRF")
             crf_button = render_to_string(
                 "edc_qareports/columns/change_button.html",
