@@ -14,8 +14,24 @@ log into you shell and ...
 
 .. code-block:: bash
 
-    mkdir ~/edc
-    mkdir -p ~/.etc/meta
+    mkdir ~/edc && \
+    mkdir -p ~/.clinicedc/meta
+
+add to your bashrc or zshrc
+
+.. code-block::bash
+
+    # >>> EDC using uv >>>
+    export DJANGO_SETTINGS_MODULE=meta_edc.settings.uat
+    export META_PHASE=3
+    export DJANGO_BASE_DIR=/home/uat/edc/
+    export DJANGO_ENV_DIR=/home/uat/.clinicedc/
+    cd ~/edc
+    source /home/uat/edc/.venv/bin/activate
+    export PATH="/home/uat/edc:$PATH"
+    # <<< EDC using uv <<<
+
+build the venv and pip install meta-edc
 
 .. code-block:: bash
 
@@ -24,13 +40,28 @@ log into you shell and ...
     uv pip install -U meta-edc==1.1.10 && \
     wget -O manage.py https://raw.githubusercontent.com/meta-trial/meta-edc/1.1.10/manage.py && \
     uv pip freeze | grep meta-edc && \
-    uv run manage.py check
+    uv run --no-sources manage.py check
+
+or build the venv within a cloned repo
+
+.. code-block:: bash
+
+    cd ~/edc && \
+    git clone https://github.com/meta-trial/meta-edc.git && \
+    git checkout main && \
+    uv venv && \
+    source .venv/bin/activate && \
+    uv sync --no-sources && \
+    uv run --no-sources manage.py check
+
 
 if all is ok, migrate
 
 .. code-block:: bash
 
-    uv run manage.py migrate --settings=meta_edc.settings.uat
+    uv run --no-sources manage.py migrate --settings=meta_edc.settings.uat
+
+now go to the systemd service files.
 
 point gunicorn to the .venv folder in /etc/systemd/system/gunicorn-uat.service
 
@@ -47,7 +78,7 @@ point gunicorn to the .venv folder in /etc/systemd/system/gunicorn-uat.service
     WorkingDirectory=/home/uat/edc
     Environment=DJANGO_SETTINGS_MODULE=meta_edc.settings.uat
     Environment=DJANGO_BASE_DIR=/home/uat/edc
-    Environment=DJANGO_ENV_DIR=/home/uat/.etc/
+    Environment=DJANGO_ENV_DIR=/home/uat/.clinicedc/
     ExecStart=/home/uat/edc/.venv/bin/gunicorn \
         --access-logfile - \
         --workers 2 \

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
@@ -21,6 +22,7 @@ class ModelAdminDashboardMixin:
     show_dashboard_in_list_display_pos = None
     view_on_site_label = _("Subject dashboard")
 
+    @admin.display(description=_("Dashboard"))
     def dashboard(self, obj=None, label=None) -> str:
         url = self.get_subject_dashboard_url(obj=obj)
         if not url:
@@ -37,19 +39,19 @@ class ModelAdminDashboardMixin:
     def get_subject_listboard_url_name(self) -> str:
         return url_names.get(self.subject_listboard_url_name)
 
-    def get_subject_dashboard_url(self, obj=None) -> str | None:
+    def get_subject_dashboard_url(self, obj=None) -> str | None:  # noqa: ARG002
         return None
 
-    def get_subject_dashboard_url_name(self, obj=None) -> str:
+    def get_subject_dashboard_url_name(self, obj=None) -> str:  # noqa: ARG002
         return url_names.get(self.subject_dashboard_url_name)
 
     def get_subject_dashboard_url_kwargs(self, obj) -> dict:
         return dict(subject_identifier=obj.subject_identifier)
 
-    def get_post_url_on_delete_name(self, *args) -> str:
+    def get_post_url_on_delete_name(self, *args) -> str:  # noqa: ARG002
         return self.get_subject_dashboard_url_name()
 
-    def post_url_on_delete_kwargs(self, request, obj) -> dict:
+    def post_url_on_delete_kwargs(self, request, obj) -> dict:  # noqa: ARG002
         return self.get_subject_dashboard_url_kwargs(obj)
 
     def get_registered_subject(self, obj) -> RegisteredSubject:
@@ -85,5 +87,7 @@ class ModelAdminDashboardMixin:
                 if callable(super().view_on_site):
                     url = super().view_on_site(obj)
                 else:
-                    raise NoReverseMatch(f"{e}. See subject_dashboard_url_name for {self!r}.")
+                    raise NoReverseMatch(
+                        f"{e}. See subject_dashboard_url_name for {self!r}."
+                    ) from e
         return url
