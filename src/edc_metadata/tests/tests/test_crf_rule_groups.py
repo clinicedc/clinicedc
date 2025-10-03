@@ -298,7 +298,7 @@ class CrfRuleGroupTestCase(TestCase):
         # create both visits before going back to add crf_one
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=self.subject_visit.visit_code,
                 visit_code_sequence=self.subject_visit.visit_code_sequence,
             ).entry_status,
@@ -314,7 +314,7 @@ class CrfRuleGroupTestCase(TestCase):
         # not required by default @ 1000
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=self.subject_visit.visit_code,
                 visit_code_sequence=self.subject_visit.visit_code_sequence,
             ).entry_status,
@@ -324,7 +324,7 @@ class CrfRuleGroupTestCase(TestCase):
         subject_visit_two = self.get_next_subject_visit(self.subject_visit)
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=subject_visit_two.visit_code,
                 visit_code_sequence=subject_visit_two.visit_code_sequence,
             ).entry_status,
@@ -337,7 +337,7 @@ class CrfRuleGroupTestCase(TestCase):
         # should be required @ 1000
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=self.subject_visit.visit_code,
                 visit_code_sequence=self.subject_visit.visit_code_sequence,
             ).entry_status,
@@ -346,7 +346,7 @@ class CrfRuleGroupTestCase(TestCase):
         # should still be `not required` @ 2000
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=subject_visit_two.visit_code,
                 visit_code_sequence=subject_visit_two.visit_code_sequence,
             ).entry_status,
@@ -359,7 +359,7 @@ class CrfRuleGroupTestCase(TestCase):
         # should change back to not required @ 1000
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=self.subject_visit.visit_code,
                 visit_code_sequence=self.subject_visit.visit_code_sequence,
             ).entry_status,
@@ -369,7 +369,7 @@ class CrfRuleGroupTestCase(TestCase):
         # should still be `not required` @ 2000
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=subject_visit_two.visit_code,
                 visit_code_sequence=subject_visit_two.visit_code_sequence,
             ).entry_status,
@@ -381,7 +381,7 @@ class CrfRuleGroupTestCase(TestCase):
         # should be required @ 1000
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=self.subject_visit.visit_code,
                 visit_code_sequence=self.subject_visit.visit_code_sequence,
             ).entry_status,
@@ -390,7 +390,7 @@ class CrfRuleGroupTestCase(TestCase):
         # should still be `not required` @ 2000
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=subject_visit_two.visit_code,
                 visit_code_sequence=subject_visit_two.visit_code_sequence,
             ).entry_status,
@@ -401,23 +401,23 @@ class CrfRuleGroupTestCase(TestCase):
         """Asserts handles PRNs correctly"""
         # create 1000 then add crf_one then create 2000
 
-        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(1, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
 
         crf_one = CrfOne.objects.create(subject_visit=self.subject_visit, f1="caufield")
         self.assertEqual(
             1,
             CrfMetadata.objects.filter(
-                model="edc_metadata.prnone", entry_status=NOT_REQUIRED
+                model="clinicedc_tests.prnone", entry_status=NOT_REQUIRED
             ).count(),
         )
 
         subject_visit_two = self.get_next_subject_visit(self.subject_visit)
 
-        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(2, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
         self.assertEqual(
             2,
             CrfMetadata.objects.filter(
-                model="edc_metadata.prnone", entry_status=NOT_REQUIRED
+                model="clinicedc_tests.prnone", entry_status=NOT_REQUIRED
             ).count(),
         )
 
@@ -426,7 +426,7 @@ class CrfRuleGroupTestCase(TestCase):
         # should be required @ 1000
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=self.subject_visit.visit_code,
                 visit_code_sequence=self.subject_visit.visit_code_sequence,
             ).entry_status,
@@ -435,7 +435,7 @@ class CrfRuleGroupTestCase(TestCase):
         # should still be `not required` @ 2000
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=subject_visit_two.visit_code,
                 visit_code_sequence=subject_visit_two.visit_code_sequence,
             ).entry_status,
@@ -443,9 +443,9 @@ class CrfRuleGroupTestCase(TestCase):
         )
 
     def test_crf_cannot_be_saved_if_not_in_visits_crfs(self):
-        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(1, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
         subject_visit_two = self.get_next_subject_visit(self.subject_visit)
-        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(2, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
 
         # note: crf_one is not listed as a crf for visit 2000
         # trigger exception just to prove that the crf_one cannot be saved
@@ -454,9 +454,9 @@ class CrfRuleGroupTestCase(TestCase):
             CrfOne.objects.create(subject_visit=subject_visit_two, f1="caufield")
 
     def test_prn_can_be_submitted_if_now_required(self):
-        self.assertEqual(1, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(1, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
         self.get_next_subject_visit(self.subject_visit)
-        self.assertEqual(2, CrfMetadata.objects.filter(model="edc_metadata.prnone").count())
+        self.assertEqual(2, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
         CrfOne.objects.create(subject_visit=self.subject_visit, f1="holden")
         PrnOne.objects.create(subject_visit=self.subject_visit)
 
@@ -465,7 +465,7 @@ class CrfRuleGroupTestCase(TestCase):
         crf_one.delete()
         self.assertEqual(
             CrfMetadata.objects.get(
-                model="edc_metadata.prnone",
+                model="clinicedc_tests.prnone",
                 visit_code=self.subject_visit.visit_code,
                 visit_code_sequence=self.subject_visit.visit_code_sequence,
             ).entry_status,

@@ -71,22 +71,31 @@ class NoteModelAdminMixin(
         "user_modified",
     )
 
-    search_fields = ("subject_identifier", "name")
+    search_fields = ("subject_identifier", "report_model")
 
-    @admin.display(description="Report", ordering="report_name")
+    @admin.display(description="Report", ordering="report_model")
     def report(self, obj=None):
-        app_label, model = obj.report_model_cls._meta.label_lower.split(".")
-        changelist_url = "_".join([app_label, model, "changelist"])
         try:
-            # assume admin site naming convention
-            url = reverse(f"{app_label}_admin:{changelist_url}")
-        except NoReverseMatch:
-            # TODO: find the admin site where this model is registered
-            url = "#"
-        return format_html(
-            '<a data-toggle="tooltip" title="go to report" href="{}?q={}">{}</a>',
-            *(url, obj.subject_identifier, obj.report_model_cls._meta.verbose_name),
-        )
+            app_label, model = obj.report_model_cls._meta.label_lower.split(".")
+        except (LookupError, ValueError):
+            pass
+        else:
+            changelist_url = "_".join([app_label, model, "changelist"])
+            try:
+                # assume admin site naming convention
+                url = reverse(f"{app_label}_admin:{changelist_url}")
+            except NoReverseMatch:
+                # TODO: find the admin site where this model is registered
+                pass
+            else:
+                return format_html(
+                    '<a data-toggle="tooltip" title="go to report" href='
+                    '"{url}?q={subject_identifier}">{report_model_cls}</a>',
+                    url=url,
+                    subject_identifier=obj.subject_identifier,
+                    report_model_cls=obj.report_model_cls._meta.verbose_name,
+                )
+        return obj.report_model
 
     @admin.display(description="QA Note", ordering="note")
     def report_note(self, obj=None):

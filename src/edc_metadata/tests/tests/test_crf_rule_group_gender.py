@@ -177,7 +177,7 @@ class TestMetadataRulesWithGender(TestCase):
                         },
                     )
 
-    @tag("metadata2")
+
     def test_rules_run_if_source_f1_equals_bicycle(self):
         CrfThree.objects.create(subject_visit=self.subject_visit, f1="bicycle")
         for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):

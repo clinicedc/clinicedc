@@ -102,7 +102,7 @@ class QaReportModelAdminMixin:
         url = (
             f"{url}?next={next_url_name},subject_identifier,q"
             f"&subject_identifier={obj.subject_identifier}"
-            f"&report_model={obj.report_model}&q={obj.subject_identifier}"
+            f"&report_model={self.model._meta.label_lower}&q={obj.subject_identifier}"
         )
         label = self.get_notes_label(note_model_obj)
         context = dict(title=title, url=url, label=label)
