@@ -1,6 +1,5 @@
 import contextlib
 import sys
-from pathlib import Path
 from warnings import warn
 
 from django.apps import apps as django_apps
@@ -8,35 +7,6 @@ from django.conf import settings
 from django.db import OperationalError, connection
 
 from edc_auth.get_app_codenames import get_app_codenames
-
-
-def read_unmanaged_model_sql(
-    filename: str | None = None,
-    app_name: str | None = None,
-    fullpath: str | Path | None = None,
-) -> str:
-    """Wait, use DBView instead!!"""
-    uuid_func = "uuid()"
-    if settings.DATABASES["default"]["ENGINE"] == "django.db.backends.postgresql":
-        uuid_func = "gen_random_uuid()"
-
-    if not fullpath:
-        fullpath = Path(settings.BASE_DIR) / app_name / "models" / "unmanaged" / filename
-    else:
-        fullpath = Path(fullpath)
-
-    parsed_sql = []
-    with fullpath.open("r") as f:
-        for line in f:
-            line = line.split("#", maxsplit=1)[0]  # noqa: PLW2901
-            line = line.split("-- ", maxsplit=1)[0]  # noqa: PLW2901
-            line = line.replace("\n", "")  # noqa: PLW2901
-            line = line.strip()  # noqa: PLW2901
-            if line:
-                parsed_sql.append(line)
-
-    sql = " ".join(parsed_sql)
-    return sql.replace("uuid()", uuid_func)
 
 
 def get_qareports_codenames(app_name: str, *note_models: str) -> list[str]:
