@@ -90,7 +90,7 @@ html_js_files += [
 html_context["current_version"] = "latest"
 html_context["display_github"] = True
 html_context["github_user"] = "erikvw"
-html_context["github_repo"] = "edc"
+html_context["github_repo"] = "clinicedc"
 html_context["github_version"] = "main"
 # html_context["conf_py_path"] = ""
 html_context["slug"] = "clinicedc"
@@ -115,7 +115,7 @@ html_theme_options: dict[str, Any] = {
             "class": "",
         },
     ],
-    "source_repository": "https://github.com/clinicedc/edc/",
+    "source_repository": "https://github.com/clinicedc/clinicedc/",
     "source_branch": "main",
     "source_directory": "docs",
 }
