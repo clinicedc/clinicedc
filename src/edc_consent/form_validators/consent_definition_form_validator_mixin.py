@@ -13,12 +13,11 @@ from edc_consent.exceptions import (
     SiteConsentError,
 )
 from edc_consent.site_consents import site_consents
-from edc_consent.stubs import ConsentLikeModel
 from edc_form_validators import INVALID_ERROR
 from edc_sites.site import sites as site_sites
 
 if TYPE_CHECKING:
-    pass
+    from edc_consent.stubs import ConsentLikeModel
 
 
 class ConsentDefinitionFormValidatorMixin:
