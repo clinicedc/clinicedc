@@ -1,4 +1,5 @@
 from edc_constants.constants import FEMALE, MALE
+
 from edc_metadata import NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_rules import CrfRule, CrfRuleGroup, P
 
@@ -79,7 +80,7 @@ class CrfRuleGroupGender(CrfRuleGroup):
         predicate=P("gender", "eq", FEMALE),
         consequence=REQUIRED,
         alternative=NOT_REQUIRED,
-        target_models=["crftwo", "crfthree"],
+        target_models=["crfsix", "crfseven"],
     )
 
     class Meta:
