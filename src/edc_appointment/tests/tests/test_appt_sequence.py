@@ -18,6 +18,7 @@ from django.db.models.signals import post_save
 from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import INCOMPLETE_APPT, NEW_APPT
+from edc_appointment.creators import create_unscheduled_appointment
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.models import Appointment
 from edc_appointment.utils import delete_appointment_in_sequence, get_next_appointment
@@ -65,8 +66,8 @@ class TestMoveAppointment(TestCase):
 
         appointment = Appointment.objects.get(timepoint=0.0)
         create_related_visit(appointment)
-        create_unscheduled_appointment_for_tests(appointment, count=3)
-
+        for _ in range(0, 3):
+            appointment = create_unscheduled_appointment(appointment=appointment)
         self.appt_datetimes = [
             o.appt_datetime for o in Appointment.objects.all().order_by("appt_datetime")
         ]
@@ -101,6 +102,7 @@ class TestMoveAppointment(TestCase):
             get_visit_codes(),
         )
 
+    @tag("appointment1")
     def test_resequence_appointment_correctly3(self):
         def get_visit_codes():
             return [

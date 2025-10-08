@@ -9,7 +9,7 @@ from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.validators import datetime_not_future
 from edc_model_fields.fields import OtherCharField
 from edc_protocol.validators import datetime_not_before_study_start
-from edc_utils import convert_php_dateformat
+from edc_utils.text import convert_php_dateformat
 from edc_visit_schedule.utils import (
     off_all_schedules_or_raise,
     offstudy_datetime_after_all_offschedule_datetimes,

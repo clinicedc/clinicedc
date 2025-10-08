@@ -11,7 +11,7 @@ from ..model_admin_mixin import ModelAdminMixin
 class FormulationAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_object_tools = True
 
-    autocomplete_fields = ["medication"]
+    autocomplete_fields = ("medication",)
 
     form = FormulationForm
 
@@ -45,13 +45,13 @@ class FormulationAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "units": admin.VERTICAL,
         "formulation_type": admin.VERTICAL,
         "route": admin.VERTICAL,
     }
 
-    list_filter: tuple[str, ...] = (
+    list_filter = (
         "imp",
         "strength",
         "units",
@@ -68,6 +68,6 @@ class FormulationAdmin(ModelAdminMixin, admin.ModelAdmin):
         "route",
     )
 
-    search_fields: tuple[str, ...] = ("medication__name",)
+    search_fields = ("medication__name",)
 
-    ordering: tuple[str, ...] = ("medication__name",)
+    ordering = ("medication__name",)

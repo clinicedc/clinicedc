@@ -3,24 +3,22 @@ from unittest.mock import MagicMock
 from zoneinfo import ZoneInfo
 
 import time_machine
-from clinicedc_tests.models import CrfOne, CrfThree, SubjectConsent
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfOne, CrfThree
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
-from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.http.request import HttpRequest
 from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
-from django.utils import timezone
 from django.views.generic.base import ContextMixin, View
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_consent.consent_definition import ConsentDefinition
-from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
@@ -85,52 +83,22 @@ class TestViewMixin(TestCase):
         ]:
             Panel.objects.create(name=name)
 
-        traveller = time_machine.travel(test_datetime)
-        traveller.start()
-
-        consent_v1 = ConsentDefinition(
-            "edc_metadata.subjectconsentv1",
-            version="1",
-            start=timezone.now(),
-            end=timezone.now() + relativedelta(years=3),
-            age_min=18,
-            age_is_adult=18,
-            age_max=64,
-            gender=[MALE, FEMALE],
-        )
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule(consent_v1))
-        self.subject_identifier = "1111111"
+        visit_schedule = get_visit_schedule(consent_v1)
+        site_visit_schedules.register(visit_schedule)
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
 
-        subject_consent = SubjectConsent.objects.create(
-            subject_identifier=self.subject_identifier, consent_datetime=timezone.now()
+        helper = Helper()
+        self.subject_visit = helper.enroll_to_baseline(
+            visit_schedule_name=visit_schedule.name,
+            schedule_name="schedule",
         )
-        _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_visit_schedule.onschedule"
-        )
-        self.schedule.put_on_schedule(
-            subject_identifier=self.subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
-        )
-        self.appointment = Appointment.objects.get(
-            subject_identifier=self.subject_identifier,
-            visit_code=self.schedule.visits.first.code,
-        )
-        self.subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment,
-            subject_identifier=self.subject_identifier,
-            report_datetime=self.appointment.appt_datetime,
-            visit_code=self.appointment.visit_code,
-            visit_code_sequence=self.appointment.visit_code_sequence,
-            visit_schedule_name=self.appointment.visit_schedule_name,
-            schedule_name=self.appointment.schedule_name,
-            reason=SCHEDULED,
-        )
+        self.appointment = self.subject_visit.appointment
+        self.subject_identifier = self.subject_visit.subject_identifier
 
     def test_view_mixin(self):
         request = RequestFactory().get("/?f=f&e=e&o=o&q=q")
@@ -159,7 +127,7 @@ class TestViewMixin(TestCase):
         view.kwargs = {}
         context_data = view.get_context_data()
         for metadata in context_data.get("crfs"):
-            if metadata.model in ["edc_metadata.crfone", "edc_metadata.crfthree"]:
+            if metadata.model in ["clinicedc_tests.crfone", "clinicedc_tests.crfthree"]:
                 self.assertIsNotNone(metadata.model_instance)
             else:
                 self.assertIsNone(metadata.model_instance)

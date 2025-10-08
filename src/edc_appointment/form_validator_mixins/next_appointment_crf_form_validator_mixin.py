@@ -82,7 +82,7 @@ class NextAppointmentCrfFormValidatorMixin(FormValidator):
                 visit_code=self.visit_code,
                 visit_code_sequence=0,
             )
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             self.raise_validation_error(
                 {
                     self.visit_code_fld: (
@@ -91,6 +91,7 @@ class NextAppointmentCrfFormValidatorMixin(FormValidator):
                     )
                 },
                 INVALID_ERROR,
+                exc=e,
             )
         if instance == self.related_visit.appointment:
             self.raise_validation_error(
@@ -117,7 +118,7 @@ class NextAppointmentCrfFormValidatorMixin(FormValidator):
             appointment_validator.validate()
         except ValidationError as e:
             if e.message_dict.get("appt_datetime"):
-                raise ValidationError({"appt_date": e.message_dict["appt_datetime"]})
+                raise ValidationError({"appt_date": e.message_dict["appt_datetime"]}) from e
             raise
 
     @property
@@ -134,9 +135,8 @@ class NextAppointmentCrfFormValidatorMixin(FormValidator):
 
     @property
     def clinic_days(self) -> list[int]:
-        if not self._clinic_days:
-            if self.cleaned_data.get("health_facility"):
-                self._clinic_days = self.health_facility.clinic_days
+        if not self._clinic_days and self.cleaned_data.get("health_facility"):
+            self._clinic_days = self.health_facility.clinic_days
         return self._clinic_days
 
     def validate_date_is_on_clinic_day(self):

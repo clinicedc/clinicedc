@@ -30,7 +30,7 @@ class AppointmentDatetimeError(Exception):
     pass
 
 
-class UnknownVisitCode(Exception):
+class UnknownVisitCode(Exception):  # noqa: N818
     pass
 
 
@@ -38,7 +38,7 @@ class AppointmentWindowError(Exception):
     pass
 
 
-class AppointmentPermissionsRequired(Exception):
+class AppointmentPermissionsRequired(Exception):  # noqa: N818
     pass
 
 
@@ -46,7 +46,7 @@ class AppointmentMissingValuesError(Exception):
     pass
 
 
-class UnscheduledAppointmentNotAllowed(Exception):
+class UnscheduledAppointmentNotAllowed(Exception):  # noqa: N818
     pass
 
 

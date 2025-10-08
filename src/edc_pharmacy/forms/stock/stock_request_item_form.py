@@ -7,7 +7,6 @@ from ...models import StockRequestItem
 
 
 class StockRequestItemForm(forms.ModelForm):
-
     def clean(self):
         cleaned_data = super().clean()
         try:
@@ -16,14 +15,16 @@ class StockRequestItemForm(forms.ModelForm):
                 consent_datetime__isnull=False,
                 randomization_datetime__isnull=False,
             )
-        except ObjectDoesNotExist:
-            raise forms.ValidationError({"subject_identifier": "Subject does not exist"})
+        except ObjectDoesNotExist as e:
+            raise forms.ValidationError(
+                {"subject_identifier": "Subject does not exist"}
+            ) from e
         return cleaned_data
 
     class Meta:
         model = StockRequestItem
         fields = "__all__"
-        help_text = {"request_item_identifier": "(read-only)"}
-        widgets = {
+        help_text = {"request_item_identifier": "(read-only)"}  # noqa: RUF012
+        widgets = {  # noqa: RUF012
             "request_item_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
         }

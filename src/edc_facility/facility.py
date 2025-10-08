@@ -11,7 +11,7 @@ from dateutil.relativedelta import relativedelta, weekday
 from django.conf import settings
 from django.utils import timezone
 
-from edc_utils import convert_php_dateformat, to_utc
+from edc_utils.text import convert_php_dateformat
 
 from .exceptions import FacilityError
 from .holidays import Holidays
@@ -67,10 +67,6 @@ class Facility:
             slots_per_day = 0
         return slots_per_day
 
-    # @property
-    # def weekdays(self) -> list[int]:
-    #     return [d.weekday for d in self.days]
-
     @staticmethod
     def open_slot_on(arr) -> Arrow:
         """Hook for handling load balance by day.
@@ -80,8 +76,8 @@ class Facility:
         """
         return arr
 
-    def is_holiday(self, dt: datetime) -> bool:
-        return self.holidays.is_holiday(utc_datetime=to_utc(dt))
+    def is_holiday(self, dte: datetime) -> bool:
+        return self.holidays.is_holiday(dte=dte)
 
     def available_datetime(self, **kwargs) -> datetime:
         return self.available_arr(**kwargs).datetime
@@ -95,11 +91,11 @@ class Facility:
         """
         # min_arw = self.to_arrow_utc(suggested_arr.datetime - reverse_delta)
         min_arr = Arrow.fromdate(
-            suggested_arr.datetime - reverse_delta, tzinfo=ZoneInfo("UTC")
+            suggested_arr.datetime - reverse_delta, tzinfo=ZoneInfo(settings.TIME_ZONE)
         )
         # max_arw = self.to_arrow_utc(suggested_arw.datetime + forward_delta)
         max_arr = Arrow.fromdate(
-            suggested_arr.datetime + forward_delta, tzinfo=ZoneInfo("UTC")
+            suggested_arr.datetime + forward_delta, tzinfo=ZoneInfo(settings.TIME_ZONE)
         )
         span = [arw[0] for arw in Arrow.span_range("day", min_arr.datetime, max_arr.datetime)]
         span_lt = [arw for arw in span if arw.date() < suggested_arr.date()]
@@ -136,13 +132,13 @@ class Facility:
         close to the suggested datetime.
 
         To exclude datetimes other than holidays, pass a list of
-        datetimes in UTC to `taken_datetimes`.
+        datetimes to `taken_datetimes`.
         """
         available_arr = None
         forward_delta = forward_delta or relativedelta(months=1)
         reverse_delta = reverse_delta or relativedelta(months=0)
         taken_arr = [
-            arrow.Arrow.fromdatetime(dt, tzinfo=ZoneInfo("UTC")).to("utc")
+            arrow.Arrow.fromdatetime(dt, tzinfo=ZoneInfo(settings.TIME_ZONE))
             for dt in taken_datetimes or []
         ]
         if suggested_datetime:

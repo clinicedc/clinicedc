@@ -77,48 +77,48 @@ class CrfRuleGroupTestCase(TestCase):
         """Test before any CRFs are submitted"""
         self.helper.enroll_to_baseline(gender=MALE)
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfone").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfone").entry_status,
             REQUIRED,
         )
         # set to NOT_REQUIRED by CrfRuleGroupOne.crfs_car
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
         # set to NOT_REQUIRED by CrfRuleGroupOne.crfs_bicycle
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
             NOT_REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crffour").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffour").entry_status,
             REQUIRED,
         )
         # set to NOT_REQUIRED by CrfRuleGroupTwo.crfs_truck
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crffive").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             NOT_REQUIRED,
         )
 
     def test_example1(self):
         """Asserts CrfTwo is REQUIRED if f1==\'car\' as specified."""
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
             NOT_REQUIRED,
         )
 
         CrfOne.objects.create(subject_visit=self.subject_visit, f1="car")
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
             NOT_REQUIRED,
         )
 
@@ -126,33 +126,33 @@ class CrfRuleGroupTestCase(TestCase):
         """Asserts CrfThree is REQUIRED if f1==\'bicycle\' as specified."""
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
             NOT_REQUIRED,
         )
 
         CrfOne.objects.create(subject_visit=self.subject_visit, f3="bicycle")
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
             REQUIRED,
         )
 
         self.subject_visit.save()
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
             REQUIRED,
         )
 
@@ -162,22 +162,22 @@ class CrfRuleGroupTestCase(TestCase):
         by edc_example.rule_groups.ExampleRuleGroup2."""
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
             NOT_REQUIRED,
         )
 
         crf_one = CrfOne.objects.create(subject_visit=self.subject_visit, f1="not car")
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
             NOT_REQUIRED,
         )
 
@@ -185,11 +185,11 @@ class CrfRuleGroupTestCase(TestCase):
         crf_one.save()
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
             NOT_REQUIRED,
         )
 
@@ -197,32 +197,32 @@ class CrfRuleGroupTestCase(TestCase):
         crf_one.save()
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
             REQUIRED,
         )
 
     def test_keyed_instance_ignores_rules(self):
         """Asserts if instance exists, rule is ignored."""
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
 
         CrfTwo.objects.create(subject_visit=self.subject_visit)
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             KEYED,
         )
 
         crf_one = CrfOne.objects.create(subject_visit=self.subject_visit, f1="not car")
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             KEYED,
         )
 
@@ -230,50 +230,50 @@ class CrfRuleGroupTestCase(TestCase):
         crf_one.save()
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             KEYED,
         )
 
     def test_recovers_from_missing_metadata(self):
-        metadata_obj = CrfMetadata.objects.get(model="edc_metadata.crftwo")
+        metadata_obj = CrfMetadata.objects.get(model="clinicedc_tests.crftwo")
         self.assertEqual(metadata_obj.entry_status, NOT_REQUIRED)
 
         # note, does not automatically recreate
         metadata_obj.delete()
         self.assertRaises(
-            ObjectDoesNotExist, CrfMetadata.objects.get, model="edc_metadata.crftwo"
+            ObjectDoesNotExist, CrfMetadata.objects.get, model="clinicedc_tests.crftwo"
         )
 
         CrfTwo.objects.create(subject_visit=self.subject_visit)
 
-        metadata_obj = CrfMetadata.objects.get(model="edc_metadata.crftwo")
+        metadata_obj = CrfMetadata.objects.get(model="clinicedc_tests.crftwo")
         self.assertEqual(metadata_obj.entry_status, KEYED)
 
     def test_delete(self):
         """Asserts delete returns to default entry status."""
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
 
         crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit)
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             KEYED,
         )
 
         crf_two.delete()
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
 
     def test_delete_2(self):
         """Asserts delete returns to entry status of rule for crf_two."""
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
 
@@ -282,14 +282,14 @@ class CrfRuleGroupTestCase(TestCase):
         CrfOne.objects.create(subject_visit=self.subject_visit, f1="not car")
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             KEYED,
         )
 
         crf_two.delete()
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="edc_metadata.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
             NOT_REQUIRED,
         )
 

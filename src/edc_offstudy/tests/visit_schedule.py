@@ -2,10 +2,10 @@ from dateutil.relativedelta import relativedelta
 
 from edc_offstudy.tests.consents import consent_v1
 from edc_visit_schedule.schedule import Schedule
-from edc_visit_schedule.visit import Crf, FormsCollection, Visit
+from edc_visit_schedule.visit import Crf, CrfCollection, Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 
-crfs = FormsCollection(
+crfs = CrfCollection(
     Crf(show_order=1, model="edc_offstudy.crfone", required=True),
 )
 
@@ -28,7 +28,7 @@ schedule1 = Schedule(
 
 visits = []
 for index in range(0, 4):
-    visits.append(
+    visits.append(  # noqa: PERF401
         Visit(
             code=f"{index + 1}000",
             title=f"Day {index + 1}",
@@ -38,7 +38,7 @@ for index in range(0, 4):
             rupper=relativedelta(days=6),
             requisitions=None,
             crfs=crfs,
-            allow_unscheduled=True,
+            allow_unscheduled=False,
         )
     )
 for visit in visits:

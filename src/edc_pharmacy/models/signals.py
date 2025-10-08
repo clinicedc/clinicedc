@@ -278,6 +278,5 @@ def create_or_update_refills_on_post_save(
 def update_previous_refill_end_datetime_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ):
-    if not raw and not update_fields:
-        if isinstance(instance, (StudyMedicationCrfModelMixin,)):
-            update_previous_refill_end_datetime(instance)
+    if not raw and not update_fields and isinstance(instance, (StudyMedicationCrfModelMixin,)):
+        update_previous_refill_end_datetime(instance)

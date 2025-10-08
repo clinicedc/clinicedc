@@ -16,38 +16,6 @@ if TYPE_CHECKING:
     from edc_visit_tracking.models import SubjectVisit
 
 
-# def get_appointment(
-#     subject_identifier: str,
-#     visit_code: str | None = None,
-#     visit_code_sequence: int | None = None,
-#     reason: str | None = None,
-#     appt_datetime: datetime | None = None,
-#     timepoint: float | Decimal | None = None,
-# ) -> Appointment:
-#     if timepoint is not None:
-#         appointment = get_appointment_model_cls().objects.get(
-#             subject_identifier=subject_identifier,
-#             timepoint=timepoint,
-#             visit_code_sequence=visit_code_sequence,
-#         )
-#     else:
-#         appointment = get_appointment_model_cls().objects.get(
-#             subject_identifier=subject_identifier,
-#             visit_code=visit_code,
-#             visit_code_sequence=visit_code_sequence,
-#         )
-#     if appt_datetime:
-#         appointment.appt_datetime = appt_datetime
-#         appointment.save()
-#         appointment.refresh_from_db()
-#     if reason and reason == UNSCHEDULED:
-#         appointment = create_unscheduled_appointment(appointment)
-#     appointment.appt_status = IN_PROGRESS_APPT
-#     appointment.save()
-#     appointment.refresh_from_db()
-#     return appointment
-
-
 def create_related_visit(appointment: Appointment, reason: str | None = None) -> SubjectVisit:
     if not appointment.related_visit:
         related_visit = get_related_visit_model_cls().objects.create(
@@ -60,6 +28,7 @@ def create_related_visit(appointment: Appointment, reason: str | None = None) ->
             visit_code_sequence=appointment.visit_code_sequence,
             reason=reason or SCHEDULED,
         )
+        # related_visit.save()
         appointment.appt_status = INCOMPLETE_APPT
         appointment.save_base(update_fields=["appt_status"])
         appointment.refresh_from_db()

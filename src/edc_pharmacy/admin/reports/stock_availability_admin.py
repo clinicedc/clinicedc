@@ -66,8 +66,8 @@ class StockAvailabilityModelAdmin(
     queryset_filter: dict | None = None
     qa_report_list_display_insert_pos = 3
     include_note_column = False
-    ordering = ["relative_days"]
-    list_display = [
+    ordering = ("relative_days",)
+    list_display = (
         "dashboard",
         "subject",
         "site",
@@ -77,17 +77,17 @@ class StockAvailabilityModelAdmin(
         "formatted_codes",
         "formatted_bins",
         "last_updated",
-    ]
+    )
 
-    list_filter = [
+    list_filter = (
         HasCodesListFilter,
         ("appt_date", DateRangeFilterBuilder()),
         ("relative_days", NumericRangeFilterBuilder()),
         "visit_code",
         "site_id",
-    ]
+    )
 
-    search_fields = ["subject_identifier"]
+    search_fields = ("subject_identifier",)
 
     def get_queryset(self, request) -> QuerySet:
         update_report(self, request)
@@ -99,13 +99,17 @@ class StockAvailabilityModelAdmin(
     @admin.display(description="Codes", ordering="codes")
     def formatted_codes(self, obj):
         if obj.codes:
-            return format_html(f'<span style="font-family:courier;">{obj.codes}</span>')
+            return format_html(
+                '<span style="font-family:courier;">{codes}</span>', codes=obj.codes
+            )
         return None
 
     @admin.display(description="Bins", ordering="bins")
     def formatted_bins(self, obj):
         if obj.codes:
-            return format_html(f'<span style="font-family:courier;">{obj.bins}</span>')
+            return format_html(
+                '<span style="font-family:courier;">{bins}</span>', bins=obj.bins
+            )
         return None
 
     @admin.display(description="subject", ordering="subject_identifier")

@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from edc_appointment.utils import get_next_appointment
 from edc_constants.constants import YES
-from edc_utils import formatted_datetime
+from edc_utils.text import formatted_datetime
 from edc_visit_tracking.utils import get_next_related_visit
 
 from ..exceptions import NextStudyMedicationError, StudyMedicationError

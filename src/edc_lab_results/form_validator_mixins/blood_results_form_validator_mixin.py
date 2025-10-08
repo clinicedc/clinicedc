@@ -105,7 +105,7 @@ class BloodResultsFormValidatorMixin(
         for panel in self.panel_list:
             for utest_id in panel.utest_ids:
                 with contextlib.suppress(ValueError):
-                    utest_id, _ = utest_id
+                    utest_id, _ = utest_id  # noqa: PLW2901
                 utest_ids.append(utest_id)
         return tuple(utest_ids)
 

@@ -17,9 +17,9 @@ style = color_style()
 class Command(BaseCommand):
     help = "Update skipped appointments"
 
-    def handle(self, *args, **options) -> None:
+    def handle(self, *args, **options) -> None:  # noqa: ARG002
         errors: dict[str, list[str]] = {}
-        for model, _ in get_allow_skipped_appt_using().items():
+        for model in get_allow_skipped_appt_using():
             crf_model_cls = django_apps.get_model(model)
             qs = RegisteredSubject.objects.all().order_by("subject_identifier")
             total = qs.count()
@@ -47,10 +47,10 @@ class Command(BaseCommand):
                                 errors[subject_visit.subject_identifier].append(msg)
                             except KeyError:
                                 errors.update({subject_visit.subject_identifier: [msg]})
-                            print(msg)
-        print("\nERRORS\n")
+                            print(msg)  # noqa: T201
+        print("\nERRORS\n")  # noqa: T201
         for k, v in errors.items():
-            print(f"{k} ---------------")
+            print(f"{k} ---------------")  # noqa: T201
             for msg in v:
-                print(msg)
-        print("\n\nDone")
+                print(msg)  # noqa: T201
+        print("\n\nDone")  # noqa: T201

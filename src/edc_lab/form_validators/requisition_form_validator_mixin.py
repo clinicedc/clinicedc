@@ -7,7 +7,7 @@ from django import forms
 from django.apps import apps as django_apps
 
 from edc_constants.constants import NO, YES
-from edc_utils import to_utc
+from edc_utils.date import to_local
 
 if TYPE_CHECKING:
     from ..models import Aliquot
@@ -77,8 +77,8 @@ class RequisitionFormValidatorMixin:
         if (
             self.requisition_datetime
             and self.cleaned_data.get("drawn_datetime")
-            and to_utc(self.cleaned_data.get("drawn_datetime")).date()
-            > to_utc(self.requisition_datetime).date()
+            and to_local(self.cleaned_data.get("drawn_datetime")).date()
+            > to_local(self.requisition_datetime).date()
         ):
             raise forms.ValidationError(
                 {"drawn_datetime": "Invalid. Cannot be after requisition date."}

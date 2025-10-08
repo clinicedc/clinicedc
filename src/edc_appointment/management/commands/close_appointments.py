@@ -18,7 +18,7 @@ def close_appointments():
             form.save(commit=False)
         except ValueError:
             obj.refresh_from_db()
-            print(
+            print(  # noqa: T201
                 obj.subject_identifier,
                 obj.visit_code,
                 obj.visit_code_sequence,
@@ -42,7 +42,7 @@ def close_appointments():
             pass
         else:
             obj.refresh_from_db()
-            print(
+            print(  # noqa: T201
                 obj.subject_identifier,
                 obj.visit_code,
                 obj.visit_code_sequence,
@@ -52,5 +52,5 @@ def close_appointments():
 
 
 class Command(BaseCommand):
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         close_appointments()

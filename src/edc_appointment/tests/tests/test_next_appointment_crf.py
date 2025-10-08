@@ -505,7 +505,7 @@ class TestNextAppointmentCrf(TestCase):
 
         # find a weekend date
         appt_date = subject_visit.appointment.next.appt_datetime.date()
-        for i in range(0, 7):
+        for _ in range(0, 7):
             appt_date = appt_date + relativedelta(days=1)
             if appt_date.weekday() in (calendar.SATURDAY, calendar.SUNDAY):
                 break

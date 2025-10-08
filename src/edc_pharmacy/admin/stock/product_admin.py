@@ -55,28 +55,25 @@ class ProductAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
     ordering = ("product_identifier",)
     readonly_fields = ("product_identifier", "name")
-    radio_fields = {"assignment": admin.VERTICAL}
+    radio_fields = {"assignment": admin.VERTICAL}  # noqa: RUF012
 
     @admin.display(description="PRODUCT #", ordering="product_identifier")
     def identifier(self, obj):
         return obj.product_identifier.split("-")[0]
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         if obj:
-            return self.readonly_fields + ("formulation", "assignment")
+            return tuple({*self.readonly_fields, "formulation", "assignment"})
         return self.readonly_fields
 
     def get_list_display(self, request):
         fields = super().get_list_display(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_list_filter(self, request):
         fields = super().get_list_filter(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_search_fields(self, request):
         fields = super().get_search_fields(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)

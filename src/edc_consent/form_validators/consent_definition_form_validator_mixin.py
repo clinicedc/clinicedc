@@ -13,15 +13,15 @@ from edc_consent.exceptions import (
     SiteConsentError,
 )
 from edc_consent.site_consents import site_consents
+from edc_consent.stubs import ConsentLikeModel
 from edc_form_validators import INVALID_ERROR
 from edc_sites.site import sites as site_sites
 
 if TYPE_CHECKING:
-    from django.contrib.sites.models import Site
+    pass
 
 
 class ConsentDefinitionFormValidatorMixin:
-
     @property
     def subject_consent(self):
         cdef = self.get_consent_definition()
@@ -29,48 +29,48 @@ class ConsentDefinitionFormValidatorMixin:
 
     def get_consent_datetime_or_raise(
         self,
-        report_datetime: datetime = None,
-        site: Site = None,
-        fldname: str = None,
-        error_code: str = None,
+        reference_datetime: datetime | None = None,
+        reference_datetime_field: str | None = None,
+        error_code: str | None = None,
     ) -> datetime:
         """Returns the consent_datetime of this subject"""
         consent_obj = self.get_consent_or_raise(
-            report_datetime=report_datetime,
-            site=site,
-            fldname=fldname,
+            reference_datetime=reference_datetime,
+            reference_datetime_field=reference_datetime_field,
             error_code=error_code,
         )
         return consent_obj.consent_datetime
 
     def get_consent_or_raise(
         self,
-        report_datetime: datetime = None,
-        site: Site = None,
-        fldname: str | None = None,
+        reference_datetime: datetime | None = None,
+        reference_datetime_field: str | None = None,
         error_code: str | None = None,
-    ) -> datetime:
+    ) -> ConsentLikeModel:
         """Returns the consent_datetime of this subject.
 
         Wraps func `consent_datetime_or_raise` to re-raise exceptions
         as ValidationError.
         """
 
-        fldname = fldname or "report_datetime"
         error_code = error_code or INVALID_ERROR
         try:
             consent_obj = site_consents.get_consent_or_raise(
                 subject_identifier=self.subject_identifier,
-                report_datetime=report_datetime,
-                site_id=getattr(site, "id", None),
+                report_datetime=reference_datetime or self.report_datetime,
+                site_id=getattr(self.site, "id", None),
             )
         except (NotConsentedError, ConsentDefinitionNotConfiguredForUpdate) as e:
-            self.raise_validation_error({fldname: str(e)}, error_code)
+            self.raise_validation_error(
+                {reference_datetime_field or self.report_datetime_field_attr: str(e)},
+                error_code,
+                exc=e,
+            )
         return consent_obj
 
     def get_consent_definition(
         self,
-        report_datetime: datetime = None,
+        report_datetime: datetime,
         fldname: str = None,
         error_code: str = None,
     ) -> ConsentDefinition:
@@ -84,19 +84,15 @@ class ConsentDefinitionFormValidatorMixin:
                 report_datetime=report_datetime,
             )
         except ConsentDefinitionDoesNotExist as e:
-            self.raise_validation_error({fldname: str(e)}, error_code)
-        except SiteConsentError:
+            self.raise_validation_error({fldname: str(e)}, error_code, exc=e)
+        except SiteConsentError as e:
             possible_consents = "', '".join(
                 [cdef.display_name for cdef in site_consents.consent_definitions]
             )
-            self.raise_validation_error(
-                {
-                    fldname: _(
-                        "Date does not fall within a valid consent period. "
-                        "Possible consents are '%(possible_consents)s'. "
-                        % {"possible_consents": possible_consents}
-                    )
-                },
-                error_code,
-            )
+            msg = _(
+                "Date does not fall within a valid consent period. "
+                "Possible consents are '%(possible_consents)s'. "
+            ) % {"possible_consents": possible_consents}
+
+            self.raise_validation_error({fldname: msg}, error_code, exc=e)
         return consent_definition

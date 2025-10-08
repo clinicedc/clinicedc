@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime
 from typing import TYPE_CHECKING
-from zoneinfo import ZoneInfo
 
 from django.core.exceptions import ObjectDoesNotExist
 
 from edc_constants.constants import NO, YES
 from edc_crf.crf_form_validator import CrfFormValidator
 from edc_form_validators import INVALID_ERROR
-from edc_utils import formatted_datetime
+from edc_utils.text import formatted_datetime
 
 from ...utils import get_rx_model_cls, get_rxrefill_model_cls
 
@@ -28,20 +27,18 @@ class StudyMedicationFormValidator(CrfFormValidator):
         if self.related_visit.appointment.relative_next:
             next_appt_datetime = self.related_visit.appointment.relative_next.appt_datetime
 
-        if next_appt_datetime:
-            if (
-                self.refill_start_datetime
-                and self.refill_start_datetime.astimezone(ZoneInfo("UTC")) > next_appt_datetime
-            ):
-                local_dte = formatted_datetime(next_appt_datetime)
-                error_msg = (
-                    "Refill start date cannot be after next appointmnent date. "
-                    f"Next appointment date is {local_dte}."
-                )
+        if (
+            next_appt_datetime
+            and self.refill_start_datetime
+            and self.refill_start_datetime > next_appt_datetime
+        ):
+            local_dte = formatted_datetime(next_appt_datetime)
+            error_msg = (
+                "Refill start date cannot be after next appointmnent date. "
+                f"Next appointment date is {local_dte}."
+            )
 
-                self.raise_validation_error(
-                    {"refill_start_datetime": error_msg}, INVALID_ERROR
-                )
+            self.raise_validation_error({"refill_start_datetime": error_msg}, INVALID_ERROR)
 
         self.validate_refill_start_date_against_offschedule_date()
 
@@ -66,14 +63,14 @@ class StudyMedicationFormValidator(CrfFormValidator):
     @property
     def refill_start_datetime(self) -> datetime | None:
         if refill_start_datetime := self.cleaned_data.get("refill_start_datetime"):
-            return refill_start_datetime.astimezone(ZoneInfo("UTC"))
-        return refill_start_datetime
+            return refill_start_datetime
+        return None
 
     @property
     def refill_end_datetime(self) -> datetime | None:
         if refill_end_datetime := self.cleaned_data.get("refill_end_datetime"):
-            return refill_end_datetime.astimezone(ZoneInfo("UTC"))
-        return refill_end_datetime
+            return refill_end_datetime
+        return None
 
     @property
     def next_refill(self) -> RxRefill | None:
@@ -93,14 +90,15 @@ class StudyMedicationFormValidator(CrfFormValidator):
     @property
     def rx(self) -> Rx:
         try:
-            return get_rx_model_cls().objects.get(
+            obj = get_rx_model_cls().objects.get(
                 subject_identifier=self.subject_identifier,
                 medications__in=[self.medication],
             )
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             self.raise_validation_error(
-                {"__all__": "Prescription does not exist"}, INVALID_ERROR
+                {"__all__": "Prescription does not exist"}, INVALID_ERROR, exc=e
             )
+        return obj
 
     @property
     def formulation(self) -> Formulation | None:
@@ -109,11 +107,13 @@ class StudyMedicationFormValidator(CrfFormValidator):
     @property
     def medication(self) -> Medication:
         if self.formulation:
-            return self.formulation.medication
-        self.raise_validation_error(
-            {"__all__": "Need the formulation to look up the prescription."},
-            INVALID_ERROR,
-        )
+            medication = self.formulation.medication
+        else:
+            self.raise_validation_error(
+                {"__all__": "Need the formulation to look up the prescription."},
+                INVALID_ERROR,
+            )
+        return medication
 
     @property
     def next_appointment(self) -> Appointment | None:

@@ -85,9 +85,9 @@ class Holidays:
             self._holidays = self.model_cls.objects.filter(country=self.country)
         return self._holidays
 
-    def is_holiday(self, utc_datetime=None) -> bool:
-        """Returns True if the UTC datetime is a holiday."""
-        local_date = to_local(utc_datetime).date()
+    def is_holiday(self, dte=None) -> bool:
+        """Returns True if the datetime is a holiday."""
+        local_date = to_local(dte).date()
         try:
             self.model_cls.objects.get(country=self.country, local_date=local_date)
         except ObjectDoesNotExist:

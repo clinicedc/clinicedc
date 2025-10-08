@@ -8,7 +8,7 @@ from django import forms
 
 from edc_constants.constants import NO, YES
 from edc_model_form.utils import get_field_or_raise
-from edc_utils import AgeValueError, age, formatted_age
+from edc_utils.age import AgeValueError, age, formatted_age
 
 from ...exceptions import ConsentDefinitionValidityPeriodError
 from ...site_consents import site_consents

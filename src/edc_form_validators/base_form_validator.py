@@ -96,11 +96,15 @@ class BaseFormValidator:
                 field_value = self.cleaned_data.get(field)
         return field_value
 
-    def raise_validation_error(self, message: dict[str, str] | str, error_code: str) -> None:
+    def raise_validation_error(
+        self, message: dict[str, str] | str, error_code: str, exc: Exception | None = None
+    ) -> None:
         if isinstance(message, str):
             message = {NON_FIELD_ERRORS: message}
         self._errors.update(message)
         self._error_codes.append(error_code)
+        if exc:
+            raise ValidationError(message, code=error_code or INVALID_ERROR) from exc
         raise ValidationError(message, code=error_code or INVALID_ERROR)
 
     def validate(self) -> dict:

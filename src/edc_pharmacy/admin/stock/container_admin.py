@@ -68,7 +68,7 @@ class ContainerAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "may_dispense_as",
         "created",
     )
-    radio_fields = {"container_type": admin.VERTICAL, "units": admin.VERTICAL}
+    radio_fields = {"container_type": admin.VERTICAL, "units": admin.VERTICAL}  # noqa: RUF012
     search_fields = (
         "name",
         "display_name",
@@ -105,7 +105,7 @@ class ContainerAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def may_dispense(self, obj):
         return obj.may_dispense_as
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         if obj:
-            return self.readonly_fields + ("name",)
+            return tuple({*self.readonly_fields, "name"})
         return self.readonly_fields

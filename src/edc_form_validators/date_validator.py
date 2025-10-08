@@ -6,8 +6,8 @@ from django.conf import settings
 
 from edc_constants.constants import EQ, GT, GTE, LT, LTE
 from edc_model import estimated_date_from_ago
-from edc_utils import convert_php_dateformat
 from edc_utils.date import to_local
+from edc_utils.text import convert_php_dateformat
 
 from .base_form_validator import INVALID_ERROR, BaseFormValidator
 

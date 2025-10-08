@@ -14,4 +14,4 @@ class VisitScheduleAdmin(ModelAdmin):
 @register(SiteProxy, site=edc_pharmacy_admin)
 class SiteProxyAdmin(ModelAdmin):
     ordering = ("name",)
-    search_fields = ["id", "name"]
+    search_fields = ("id", "name")

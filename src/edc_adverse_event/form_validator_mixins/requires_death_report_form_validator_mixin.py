@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from edc_constants.constants import DEAD
-from edc_utils import convert_php_dateformat
+from edc_utils.text import convert_php_dateformat
 
 from ..constants import DEATH_REPORT_NOT_FOUND
 from ..utils import get_ae_model
@@ -46,9 +46,11 @@ class BaseRequiresDeathReportFormValidatorMixin:
             return self.death_report_model_cls.objects.get(
                 subject_identifier=self.subject_identifier
             )
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             verbose_name = self.death_report_model_cls._meta.verbose_name
-            self.raise_validation_error(f"`{verbose_name}` not found.", DEATH_REPORT_NOT_FOUND)
+            self.raise_validation_error(
+                f"`{verbose_name}` not found.", DEATH_REPORT_NOT_FOUND, exc=e
+            )
 
     @property
     def death_report_date(self) -> date:

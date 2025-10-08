@@ -40,12 +40,9 @@ class LocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         ),
     )
 
-    search_fields = ["id", "name", "contact_name"]
+    search_fields = ("id", "name", "contact_name")
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         if obj:
-            return self.readonly_fields + (
-                "name",
-                "display_name",
-            )
+            return tuple({*self.readonly_fields, "name", "display_name"})
         return self.readonly_fields

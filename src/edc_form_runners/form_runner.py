@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+import sys
 import uuid
 from typing import TYPE_CHECKING, Any
 
@@ -25,8 +26,8 @@ class FormRunner:
 
     model_name: str | None = None
     issue_model = "edc_form_runners.issue"
-    extra_formfields: list[str] | None = None
-    exclude_formfields: list[str] | None = None
+    extra_formfields: tuple[str] | None = None
+    exclude_formfields: tuple[str] | None = None
 
     def __init__(
         self,
@@ -68,7 +69,7 @@ class FormRunner:
             self.issue_model_cls.objects.filter(**self.unique_opts(src_obj)).delete()
             self.run_one(src_obj=src_obj, skip_delete=True)
         for k, v in self.messages.items():
-            print(f"Warning: {k}: {v}")
+            sys.stdout.write(f"Warning: {k}: {v}\n")
 
     def run_one(self, src_obj: Model, skip_delete: bool | None = None) -> None:
         if not skip_delete:
@@ -87,17 +88,17 @@ class FormRunner:
                         self.print(str(issue_obj))
 
     @property
-    def issue_model_cls(self) -> Issue:
+    def issue_model_cls(self) -> type[Issue]:
         return django_apps.get_model(self.issue_model)
 
     @property
-    def fieldset_fields(self) -> list[str]:
-        fields = []
+    def fieldset_fields(self) -> tuple[str]:
+        fields = ()
         if self.modeladmin_cls.form != ModelForm:
             if getattr(self.modeladmin_cls, "fieldsets", None):
                 for fieldset in self.modeladmin_cls.fieldsets:
                     _, data = fieldset
-                    fields.extend(data.get("fields"))
+                    fields = {*fields, *data.get("fields")}
             else:
                 self.messages.update(
                     {
@@ -107,10 +108,8 @@ class FormRunner:
                     }
                 )
 
-                fields = [
-                    k for k, v in getattr(self.modeladmin_cls.form(), "fields", {}).items()
-                ]
-        fields = list(set(fields))
+                fields = {k for k in getattr(self.modeladmin_cls.form(), "fields", {})}
+            fields = tuple(fields)
         return fields
 
     def write_to_db(self, fldname: str, errmsg: Any, src_obj: Any) -> Issue:
@@ -208,12 +207,12 @@ class FormRunner:
     def get_src_filter_options(self) -> dict[str, Any]:
         return self.src_filter_options
 
-    def get_extra_formfields(self) -> list[str]:
-        return self.extra_formfields or []
+    def get_extra_formfields(self) -> tuple[str]:
+        return self.extra_formfields or ()
 
-    def get_exclude_formfields(self) -> list[str]:
-        return self.exclude_formfields or []
+    def get_exclude_formfields(self) -> tuple[str]:
+        return self.exclude_formfields or ()
 
     def print(self, msg: str) -> None:
         if self.verbose:
-            print(msg)
+            sys.stdout.write(f"{msg}\n")

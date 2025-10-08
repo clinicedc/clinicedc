@@ -18,7 +18,7 @@ from edc_metadata.utils import (
     get_crf_metadata_model_cls,
     get_requisition_metadata_model_cls,
 )
-from edc_utils import formatted_datetime
+from edc_utils.text import formatted_datetime
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import MISSED_VISIT, UNSCHEDULED

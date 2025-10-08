@@ -54,7 +54,7 @@ class AppointmentAdmin(
 ):
     show_cancel = True
     form = AppointmentForm
-    actions = [appointment_mark_as_done, appointment_mark_as_new]
+    actions = (appointment_mark_as_done, appointment_mark_as_new)
     date_hierarchy = "appt_datetime"
     list_display = (
         "appointment_subject",
@@ -129,7 +129,7 @@ class AppointmentAdmin(
         audit_fieldset_tuple,
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "appt_type": admin.VERTICAL,
         "appt_status": admin.VERTICAL,
         "appt_reason": admin.VERTICAL,
@@ -140,22 +140,22 @@ class AppointmentAdmin(
 
     def get_readonly_fields(self, request, obj=None) -> tuple:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
-        return (
-            readonly_fields
-            + visit_schedule_fields
-            + (
+        return tuple(
+            {
+                *readonly_fields,
+                *visit_schedule_fields,
                 "subject_identifier",
                 "timepoint",
                 "timepoint_datetime",
                 "visit_code_sequence",
                 "facility_name",
-            )
+            }
         )
 
     def get_search_fields(self, request) -> tuple[str, ...]:
         search_fields = super().get_search_fields(request)
         if "subject_identifier" not in search_fields:
-            search_fields = ("subject_identifier",) + search_fields
+            search_fields = tuple({"subject_identifier", *search_fields})
         return search_fields
 
     def has_delete_permission(self, request, obj=None):
@@ -165,19 +165,19 @@ class AppointmentAdmin(
         See `edc_visit_schedule.off_schedule_or_raise()`
         """
         has_delete_permission = super().has_delete_permission(request, obj=obj)
-        if has_delete_permission and obj:
-            if obj.visit_code_sequence == 0 or (
-                obj.visit_code_sequence != 0 and obj.appt_status != NEW_APPT
-            ):
-                try:
-                    off_schedule_or_raise(
-                        subject_identifier=obj.subject_identifier,
-                        report_datetime=obj.appt_datetime,
-                        visit_schedule_name=obj.visit_schedule_name,
-                        schedule_name=obj.schedule_name,
-                    )
-                except OnScheduleError:
-                    has_delete_permission = False
+        if (has_delete_permission and obj) and (
+            (obj.visit_code_sequence == 0)
+            or (obj.visit_code_sequence != 0 and obj.appt_status != NEW_APPT)
+        ):
+            try:
+                off_schedule_or_raise(
+                    subject_identifier=obj.subject_identifier,
+                    report_datetime=obj.appt_datetime,
+                    visit_schedule_name=obj.visit_schedule_name,
+                    schedule_name=obj.schedule_name,
+                )
+            except OnScheduleError:
+                has_delete_permission = False
         return has_delete_permission
 
     @admin.display(description="Timing", ordering="appt_timing")
@@ -262,7 +262,7 @@ class AppointmentAdmin(
             )
         return AppointmentType.objects.all().order_by("display_index")
 
-    def get_appt_reason_choices(self, request) -> tuple[Any, ...]:
+    def get_appt_reason_choices(self, request) -> tuple[Any, ...]:  # noqa: ARG002
         """Return a choices tuple.
 
         Important: left side of the tuple MUST have the default
@@ -280,13 +280,13 @@ class AppointmentAdmin(
             return tuple([tpl for tpl in APPT_TIMING if tpl[0] != NOT_APPLICABLE])
         return APPT_TIMING
 
-    def allow_skipped_appointments(self, request) -> bool:
+    def allow_skipped_appointments(self, request) -> bool:  # noqa: ARG002
         """Returns True if settings.EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING
         has value.
 
         Relates to use of `SKIPPED_APPT` feature.
         """
-        return True if get_allow_skipped_appt_using() else False
+        return bool(get_allow_skipped_appt_using())
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

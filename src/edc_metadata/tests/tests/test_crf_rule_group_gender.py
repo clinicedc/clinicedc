@@ -77,17 +77,14 @@ class TestMetadataRulesWithGender(TestCase):
             gender=FEMALE,
         )
 
-    @tag("metadata1")
     def test_rules_with_source_model(self):
         for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
             self.assertEqual(rule.source_model, "clinicedc_tests.crfone")
 
-    @tag("metadata1")
     def test_rules_without_source_model(self):
         for rule in CrfRuleGroupWithoutSourceModel._meta.options.get("rules"):
             self.assertIsNone(rule.source_model)
 
-    @tag("metadata1")
     def test_rules_source_and_reference_model_is_none(self):
         for rule in CrfRuleGroupWithoutSourceModel._meta.options.get("rules"):
             with self.subTest(rule=rule):
@@ -109,7 +106,6 @@ class TestMetadataRulesWithGender(TestCase):
                         },
                     )
 
-    @tag("metadata1")
     def test_rules_with_source_but_no_explicit_reference_model(self):
         for rule in CrfRuleGroupWithoutExplicitReferenceModel._meta.options.get("rules"):
             with self.subTest(rule=rule):
@@ -132,7 +128,6 @@ class TestMetadataRulesWithGender(TestCase):
                         },
                     )
 
-    @tag("metadata1")
     def test_rules_if_no_source_model_instance(self):
         for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
             with self.subTest(rule=rule):
@@ -154,7 +149,6 @@ class TestMetadataRulesWithGender(TestCase):
                         },
                     )
 
-    @tag("metadata1")
     def test_rules_run_if_source_f1_equals_car(self):
         CrfThree.objects.create(subject_visit=self.subject_visit, f1="car")
         for rule in CrfRuleGroupWithSourceModel._meta.options.get("rules"):
@@ -176,7 +170,6 @@ class TestMetadataRulesWithGender(TestCase):
                             "clinicedc_tests.crfthree": NOT_REQUIRED,
                         },
                     )
-
 
     def test_rules_run_if_source_f1_equals_bicycle(self):
         CrfThree.objects.create(subject_visit=self.subject_visit, f1="bicycle")
@@ -231,10 +224,11 @@ class TestMetadataRulesWithGender(TestCase):
                 )
                 self.assertEqual(obj.entry_status, REQUIRED)
 
+    @tag("metadata4")
     def test_metadata_rules_run_female_not_required(self):
         for target_model in [
-            "clinicedc_tests.crfsix",
-            "clinicedc_tests.crfseven",
+            "clinicedc_tests.crftwo",
+            "clinicedc_tests.crfthree",
         ]:
             with self.subTest(target_model=target_model):
                 obj = CrfMetadata.objects.get(

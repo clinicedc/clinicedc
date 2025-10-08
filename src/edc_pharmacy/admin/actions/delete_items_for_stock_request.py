@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.utils.translation import gettext
+from django.utils.translation import gettext as _
 
 from ...models import StockRequestItem
 
@@ -9,7 +9,7 @@ def delete_items_for_stock_request_action(modeladmin, request, queryset):
         messages.add_message(
             request,
             messages.ERROR,
-            gettext("Select one and only one item"),
+            _("Select one and only one item"),
         )
     else:
         stock_request = queryset.first()
@@ -17,5 +17,6 @@ def delete_items_for_stock_request_action(modeladmin, request, queryset):
         messages.add_message(
             request,
             messages.SUCCESS,
-            gettext(f"Delete {deleted} items for {stock_request}"),
+            _("Delete %(deleted)s items for %(stock_request)s")
+            % dict(deleted=deleted, stock_request=stock_request),
         )

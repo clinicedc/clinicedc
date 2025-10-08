@@ -7,7 +7,6 @@ from ...models import ReceiveItem
 
 
 class ReceiveItemForm(forms.ModelForm):
-
     def clean(self):
         cleaned_data = super().clean()
         if not self.instance.id:
@@ -18,12 +17,15 @@ class ReceiveItemForm(forms.ModelForm):
             if not cleaned_data.get("container"):
                 raise forms.ValidationError({"container": "This field is required"})
 
-        if cleaned_data.get("order_item") and cleaned_data.get("lot"):
-            if (
+        if (
+            cleaned_data.get("order_item")
+            and cleaned_data.get("lot")
+            and (
                 cleaned_data.get("order_item").product.assignment
                 != cleaned_data.get("lot").assignment
-            ):
-                raise forms.ValidationError({"lot": "Lot assignment does not match product"})
+            )
+        ):
+            raise forms.ValidationError({"lot": "Lot assignment does not match product"})
 
         # in unit_qty's
         if cleaned_data.get("qty"):

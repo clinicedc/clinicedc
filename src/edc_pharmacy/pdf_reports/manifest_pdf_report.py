@@ -22,13 +22,12 @@ class NumberedCanvas(BaseNumberedCanvas):
 
 
 class ManifestReport(Report):
-
     def __init__(self, stock_transfer: StockTransfer = None, **kwargs):
         self.stock_transfer = stock_transfer
         self.protocol_name = ResearchProtocolConfig().protocol_title
         super().__init__(**kwargs)
 
-    def draw_header(self, canvas, doc):
+    def draw_header(self, canvas, doc):  # noqa: ARG002
         width, height = A4
         canvas.setFontSize(6)
         text_width = stringWidth(self.protocol_name, "Helvetica", 6)
@@ -48,7 +47,7 @@ class ManifestReport(Report):
             "stock__allocation__registered_subject__subject_identifier"
         )
 
-    def get_report_story(self, document_template: SimpleDocTemplate = None, **kwargs):
+    def get_report_story(self, document_template: SimpleDocTemplate = None, **kwargs):  # noqa: ARG002
         story = []
 
         data = [
@@ -147,7 +146,6 @@ class ManifestReport(Report):
 
     @property
     def stock_transfer_items_as_table(self) -> Table:
-
         style = ParagraphStyle(
             name="line_data_medium",
             alignment=TA_CENTER,
@@ -267,8 +265,7 @@ class ManifestReport(Report):
                 Paragraph(_("Received count"), style=style),
             ],
         ]
-        table = Table(data, colWidths=(None, None, None, None), rowHeights=(10, 10))
-        return table
+        return Table(data, colWidths=(None, None, None, None), rowHeights=(10, 10))
 
     @property
     def comment_box_as_table(self) -> Table:

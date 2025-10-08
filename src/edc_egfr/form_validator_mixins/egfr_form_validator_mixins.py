@@ -28,7 +28,7 @@ class EgfrCkdEpiFormValidatorMixin:
         try:
             value = EgfrCkdEpi(**opts).value
         except (EgfrCalculatorError, CalculatorError, ConversionNotHandled) as e:
-            raise forms.ValidationError(e)
+            raise forms.ValidationError(e) from e
         return value
 
 
@@ -52,5 +52,5 @@ class EgfrCockcroftGaultFormValidatorMixin:
         try:
             value = EgfrCockcroftGault(**opts).value
         except (EgfrCalculatorError, CalculatorError, ConversionNotHandled) as e:
-            self.raise_validation_error({"__all__": str(e)}, INVALID_ERROR)
+            self.raise_validation_error({"__all__": str(e)}, INVALID_ERROR, exc=e)
         return value

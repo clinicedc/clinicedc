@@ -4,6 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
+from django.utils import timezone
 
 safe_allowed_chars = "ABCDEFGHKMNPRTUVWXYZ2346789"
 
@@ -63,9 +64,9 @@ def convert_from_camel(name):
 
 
 def formatted_datetime(
-    aware_datetime: datetime | None,
+    dt: datetime | None,
     php_dateformat: str | None = None,
-    tz: str | None = None,
+    tz: ZoneInfo | None = None,
     format_as_date: bool | None = None,
 ):
     """Returns a formatted datetime string, localized by default.
@@ -73,14 +74,14 @@ def formatted_datetime(
     format_as_date: does not affect the calculation, just the formatted output.
     """
     formatted = ""
-    if aware_datetime:
-        local = aware_datetime.astimezone(tz or ZoneInfo(settings.TIME_ZONE))
+    if dt:
+        localized_dt = timezone.localtime(dt, timezone=tz)
         if format_as_date:
             php_dateformat = php_dateformat or settings.SHORT_DATE_FORMAT
-            formatted = local.date().strftime(convert_php_dateformat(php_dateformat))
+            formatted = localized_dt.date().strftime(convert_php_dateformat(php_dateformat))
         else:
             php_dateformat = php_dateformat or settings.SHORT_DATETIME_FORMAT
-            formatted = local.strftime(convert_php_dateformat(php_dateformat))
+            formatted = localized_dt.strftime(convert_php_dateformat(php_dateformat))
     return formatted
 
 

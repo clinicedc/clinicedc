@@ -16,13 +16,12 @@ from ..utils import get_related_or_none
 
 
 class StockReport(Report):
-
     def __init__(self, queryset: QuerySet[Stock] = None, **kwargs):
         self.queryset = queryset.order_by("from_stock__code", "code")
         self.protocol_name = ResearchProtocolConfig().protocol_title
         super().__init__(**kwargs)
 
-    def draw_header(self, canvas, doc):
+    def draw_header(self, canvas, doc):  # noqa: ARG002
         width, height = self.page.get("pagesize")
         canvas.setFontSize(6)
         text_width = stringWidth(self.protocol_name, "Helvetica", 6)
@@ -72,7 +71,6 @@ class StockReport(Report):
 
     @property
     def stock_items_as_table(self) -> Table:
-
         style = ParagraphStyle(
             name="line_data_medium",
             alignment=TA_CENTER,

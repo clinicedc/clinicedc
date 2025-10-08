@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from django.apps import apps as django_apps
@@ -16,7 +17,7 @@ class NoValueError(Exception):
 
 class BasePredicate:
     @staticmethod
-    def get_value(attr: str = None, source_model: str | None = None, **kwargs) -> Any:
+    def get_value(attr: str | None = None, source_model: str | None = None, **kwargs) -> Any:
         """Returns a value by checking for the attr on each arg.
 
         Each arg in args may be a model instance, queryset, or None.
@@ -62,23 +63,23 @@ class P(BasePredicate):
         predicate = P('age', '<=', 64)
     """
 
-    funcs = {
-        "is": lambda x, y: True if x is y else False,
-        "is not": lambda x, y: True if x is not y else False,
-        "gt": lambda x, y: True if x > y else False,
-        ">": lambda x, y: True if x > y else False,
-        "gte": lambda x, y: True if x >= y else False,
-        ">=": lambda x, y: True if x >= y else False,
-        "lt": lambda x, y: True if x < y else False,
-        "<": lambda x, y: True if x < y else False,
-        "lte": lambda x, y: True if x <= y else False,
-        "<=": lambda x, y: True if x <= y else False,
-        "eq": lambda x, y: True if x == y else False,
-        "equals": lambda x, y: True if x == y else False,
-        "==": lambda x, y: True if x == y else False,
-        "neq": lambda x, y: True if x != y else False,
-        "!=": lambda x, y: True if x != y else False,
-        "in": lambda x, y: True if x in y else False,
+    funcs = {  # noqa: RUF012
+        "is": lambda x, y: x is y,
+        "is not": lambda x, y: x is not y,
+        "gt": lambda x, y: x > y,
+        ">": lambda x, y: x > y,
+        "gte": lambda x, y: x >= y,
+        ">=": lambda x, y: x >= y,
+        "lt": lambda x, y: x < y,
+        "<": lambda x, y: x < y,
+        "lte": lambda x, y: x <= y,
+        "<=": lambda x, y: x <= y,
+        "eq": lambda x, y: x == y,
+        "equals": lambda x, y: x == y,
+        "==": lambda x, y: x == y,
+        "neq": lambda x, y: x != y,
+        "!=": lambda x, y: x != y,
+        "in": lambda x, y: x in y,
     }
 
     def __init__(self, attr: str, operator: str, expected_value: list | str) -> None:
@@ -91,8 +92,7 @@ class P(BasePredicate):
 
     def __repr__(self) -> str:
         return (
-            f"{self.__class__.__name__}({self.attr}, {self.operator}, "
-            f"{self.expected_value})"
+            f"{self.__class__.__name__}({self.attr}, {self.operator}, {self.expected_value})"
         )
 
     def __call__(self, **kwargs) -> bool:
@@ -122,14 +122,12 @@ class PF(BasePredicate):
 
     """
 
-    def __init__(self, *attrs, func: callable = None) -> None:
+    def __init__(self, *attrs, func: Callable | None = None) -> None:
         self.attrs = attrs
         self.func = func
 
     def __call__(self, **kwargs) -> Any:
-        values = []
-        for attr in self.attrs:
-            values.append(self.get_value(attr=attr, **kwargs))
+        values = [self.get_value(attr=attr, **kwargs) for attr in self.attrs]
         return self.func(*values)
 
     def __repr__(self) -> str:

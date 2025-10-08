@@ -10,7 +10,7 @@ from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
 
 from edc_sites.site import sites as site_sites
-from edc_utils import ceil_secs, floor_secs, formatted_date, to_utc
+from edc_utils import ceil_secs, floor_secs, formatted_date, to_local
 
 from .exceptions import (
     AlreadyRegistered,
@@ -154,9 +154,9 @@ class SiteConsents:
             raise_if_not_consented=raise_if_not_consented,
         )
 
-        if consent_obj and to_utc(report_datetime) < consent_obj.consent_datetime:
+        if consent_obj and report_datetime < consent_obj.consent_datetime:
             if not consent_definition.updates:
-                dte = formatted_date(report_datetime)
+                dte = formatted_date(to_local(report_datetime))
                 raise ConsentDefinitionNotConfiguredForUpdate(
                     f"Consent not configured to update any previous versions. "
                     f"Got '{consent_definition.version}'. "
@@ -164,12 +164,12 @@ class SiteConsents:
                     f"'{consent_definition.version}' "
                     f"of consent on or after report_datetime='{dte}'?"
                 )
-            if consent_definition.start <= to_utc(report_datetime) <= consent_definition.end:
+            if consent_definition.start <= report_datetime <= consent_definition.end:
                 # ensures the higher version is returned if there is overlap
                 pass
             elif (
                 consent_definition.updates.start
-                <= to_utc(report_datetime)
+                <= report_datetime
                 <= consent_definition.updates.end
             ):
                 # return the previous version consent (updated_by)
@@ -245,19 +245,19 @@ class SiteConsents:
 
         # filter cdefs to try to get just one.
         # by model, report_datetime, version, site
-        cdefs, error_msg = self._filter_cdefs_by_model_or_raise(model, cdefs, error_messages)
-        cdefs, error_msg = self._filter_cdefs_by_report_datetime_or_raise(
+        cdefs, error_messages = self._filter_cdefs_by_model_or_raise(
+            model, cdefs, error_messages
+        )
+        cdefs, error_messages = self._filter_cdefs_by_report_datetime_or_raise(
             report_datetime, cdefs, error_messages
         )
-        cdefs, error_msg = self._filter_cdefs_by_version_or_raise(
+        cdefs, error_messages = self._filter_cdefs_by_version_or_raise(
             version, cdefs, error_messages
         )
         cdefs = self.filter_cdefs_by_site_or_raise(site, cdefs, error_messages)
-
-        cdefs, error_msg = self._filter_cdefs_by_screening_model_or_raise(
+        cdefs, _ = self._filter_cdefs_by_screening_model_or_raise(
             screening_model, cdefs, error_messages
         )
-
         # apply additional criteria
         for k, v in kwargs.items():
             if v is not None:
@@ -324,17 +324,16 @@ class SiteConsents:
             cdefs = [
                 cdef
                 for cdef in cdefs
-                if floor_secs(cdef.start) <= to_utc(report_datetime) <= ceil_secs(cdef.end)
+                if floor_secs(cdef.start) <= report_datetime <= ceil_secs(cdef.end)
             ]
+            date_string = formatted_date(to_local(report_datetime))
             if not cdefs:
-                date_string = formatted_date(report_datetime)
                 using_msg = "Using " + " and ".join(errror_messages)
                 raise ConsentDefinitionDoesNotExist(
                     "Date does not fall within the validity period of any "
                     f"consent definition. Got {date_string}. {using_msg}. "
                     f"Possible consent definitions are: {consent_definitions}. "
                 )
-            date_string = formatted_date(report_datetime)
             errror_messages.append(f"report_datetime={date_string}")
         return cdefs, errror_messages
 

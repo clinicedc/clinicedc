@@ -1,3 +1,5 @@
+import contextlib
+
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -48,19 +50,19 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     show_form_tools = True
     show_history_label = True
-    autocomplete_fields = ["container"]
+    autocomplete_fields = ("container",)
 
     change_list_note = (
         "C=Confirmed, A=Allocated, T=Transferred to site, "
         "S=Confirmed at site, B=Stored at site, D=Dispensed"
     )
 
-    actions = [
+    actions = (
         print_labels,
         confirm_stock_from_queryset,
         go_to_add_repack_request_action,
         print_stock_report_action,
-    ]
+    )
 
     form = StockForm
 
@@ -184,29 +186,24 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     def get_list_display(self, request):
         fields = super().get_list_display(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_list_display_links(self, request, list_display):
         display_links = super().get_list_display_links(request, list_display)
         if not request.user.userprofile.roles.filter(
             name__in=[PHARMACIST_ROLE, PHARMACY_SUPER_ROLE]
         ).exists():
-            try:
+            with contextlib.suppress(ValueError):
                 display_links.remove("formatted_code")
-            except ValueError:
-                pass
         return display_links
 
     def get_list_filter(self, request):
         fields = super().get_list_filter(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_search_fields(self, request):
         fields = super().get_search_fields(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
@@ -228,12 +225,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 mark_safe('<div style="color:red;">ERROR!</div>'),  # nosec B703, B308
             )
         except AllocationError:
-            return format_html(
-                "{}",
-                mark_safe(
-                    '<div style="color:red;">Allocation<BR>ERROR!</div>'
-                ),  # nosec B703, B308
-            )
+            return mark_safe('<div style="color:red;">Allocation<BR>ERROR!</div>')
         return obj.lot.assignment
 
     @admin.display(description="Lot #", ordering="lot__lot_no")
@@ -259,7 +251,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="C", boolean=True)
     def formatted_confirmation(self, obj):
         if obj:
-            return True if get_related_or_none(obj, "confirmation") else False
+            return bool(get_related_or_none(obj, "confirmation"))
         return None
 
     @admin.display(description="A", boolean=True)
@@ -269,7 +261,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             and get_related_or_none(obj, "confirmation")
             and get_related_or_none(obj, "from_stock")
         ):
-            return True if get_related_or_none(obj, "allocation") else False
+            return bool(get_related_or_none(obj, "allocation"))
         return None
 
     @admin.display(description="T", boolean=True)
@@ -279,7 +271,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             and get_related_or_none(obj, "confirmation")
             and get_related_or_none(obj, "from_stock")
         ):
-            return True if get_related_or_none(obj, "stocktransferitem") else False
+            return bool(get_related_or_none(obj, "stocktransferitem"))
         return None
 
     @admin.display(description="S", boolean=True)
@@ -289,7 +281,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             and get_related_or_none(obj, "confirmation")
             and get_related_or_none(obj, "from_stock")
         ):
-            return True if get_related_or_none(obj, "confirmationatsiteitem") else False
+            return bool(get_related_or_none(obj, "confirmationatsiteitem"))
         return None
 
     @admin.display(description="B", boolean=True)
@@ -301,7 +293,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             and get_related_or_none(obj, "confirmationatsiteitem")
             and not get_related_or_none(obj, "dispenseitem")
         ):
-            return True if get_related_or_none(obj, "storagebinitem") else False
+            return bool(get_related_or_none(obj, "storagebinitem"))
         return None
 
     @admin.display(description="D", boolean=True)
@@ -312,15 +304,12 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             and get_related_or_none(obj, "from_stock")
             and get_related_or_none(obj, "confirmationatsiteitem")
         ):
-            return True if get_related_or_none(obj, "dispenseitem") else False
+            return bool(get_related_or_none(obj, "dispenseitem"))
         return None
 
     @admin.display(description="Container", ordering="container__name")
     def container_str(self, obj):
-        return format_html(
-            "{}",
-            mark_safe("<BR>".join(str(obj.container).split(" "))),  # nosec B703, B308
-        )
+        return mark_safe("<BR>".join(str(obj.container).split(" ")))  # noqa: S308
 
     @admin.display(description="formulation", ordering="product__formulation__name")
     def formulation(self, obj):

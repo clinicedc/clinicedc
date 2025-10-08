@@ -23,8 +23,9 @@ from edc_data_manager.get_longitudinal_value import (
 )
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_randomization.auth_objects import RANDO_UNBLINDED
-from edc_utils import formatted_age, get_static_file
+from edc_utils.age import formatted_age
 from edc_utils.date import to_local
+from edc_utils.get_static_file import get_static_file
 
 from .report import Report
 

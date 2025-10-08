@@ -34,10 +34,10 @@ class AppointmentStatusListFilter(SimpleListFilter):
     parameter_name = "appt_status"
     field_name = "appt_status"
 
-    def lookups(self, request, model_admin) -> tuple:
-        return APPT_STATUS + ((ATTENDED_APPT, "Attended (In progress, incomplete, done)"),)
+    def lookups(self, request, model_admin) -> tuple[tuple[str, str], ...]:  # noqa: ARG002
+        return *APPT_STATUS, (ATTENDED_APPT, "Attended (In progress, incomplete, done)")
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value() == ATTENDED_APPT:
             qs = queryset.filter(
@@ -52,7 +52,7 @@ class AppointmentOverdueListFilter(SimpleListFilter):
     title = "Overdue (days)"
     parameter_name = "overdue"
 
-    def lookups(self, request, model_admin) -> tuple:
+    def lookups(self, request, model_admin) -> tuple[tuple[str, str], ...]:  # noqa: ARG002
         return (
             (LT_30_DAYS, _("2-30 days")),
             (GTE_30_TO_60_DAYS, _("30-60 days")),
@@ -61,7 +61,7 @@ class AppointmentOverdueListFilter(SimpleListFilter):
             (GTE_180, _("180+ days")),
         )
 
-    def queryset(self, request, queryset) -> QuerySet | None:
+    def queryset(self, request, queryset) -> QuerySet | None:  # noqa: ARG002
         now = timezone.now().replace(second=59, hour=23, minute=59)
         qs = None
         if self.value() == LT_30_DAYS:

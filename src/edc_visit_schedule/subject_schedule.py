@@ -15,8 +15,8 @@ from edc_consent.exceptions import ConsentDefinitionError
 from edc_consent.site_consents import site_consents
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import valid_site_for_subject_or_raise
-from edc_utils import convert_php_dateformat, formatted_datetime
 from edc_utils.date import to_local
+from edc_utils.text import convert_php_dateformat, formatted_datetime
 
 from .constants import OFF_SCHEDULE, ON_SCHEDULE
 from .exceptions import (

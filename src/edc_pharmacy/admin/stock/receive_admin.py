@@ -25,8 +25,8 @@ class ReceiveAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     form = ReceiveForm
     ordering = ("-receive_identifier",)
-    actions = [print_labels_from_receive, confirm_received_stock_action]
-    autocomplete_fields = ["supplier"]
+    actions = (print_labels_from_receive, confirm_received_stock_action)
+    autocomplete_fields = ("supplier",)
 
     fieldsets = (
         (

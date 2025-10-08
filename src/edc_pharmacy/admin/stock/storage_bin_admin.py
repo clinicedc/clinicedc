@@ -27,7 +27,7 @@ class StorageBinAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
 
     form = StorageBinForm
 
-    actions = [add_to_storage_bin_action, move_to_storage_bin_action]
+    actions = (add_to_storage_bin_action, move_to_storage_bin_action)
 
     fieldsets = (
         (

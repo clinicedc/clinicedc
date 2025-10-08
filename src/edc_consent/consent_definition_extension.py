@@ -72,8 +72,6 @@ class ConsentDefinitionExtension:
         self.sort_index = self.name
         if not self.start.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
-        if str(self.start.tzinfo) != "UTC":
-            raise ConsentDefinitionError(f"Start date must be UTC. Got {self.start}.")
         self.extends.check_date_within_study_period()
 
     def update_visit_collection(

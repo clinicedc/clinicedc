@@ -4,13 +4,12 @@ from datetime import datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING
 from uuid import uuid4
-from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from edc_utils import convert_php_dateformat
+from edc_utils.text import convert_php_dateformat
 
 from ..exceptions import (
     PrescriptionError,
@@ -43,9 +42,9 @@ class RefillCreator:
         self._next_rx_refill = None
         self._prev_rx_refill = None
         self.refill_identifier = refill_identifier
-        self.refill_end_datetime = refill_end_datetime.astimezone(ZoneInfo("UTC"))
+        self.refill_end_datetime = refill_end_datetime
         self.subject_identifier = subject_identifier
-        self.refill_start_datetime = refill_start_datetime.astimezone(ZoneInfo("UTC"))
+        self.refill_start_datetime = refill_start_datetime
         self.formulation = formulation
         self.dosage_guideline = dosage_guideline
         self.roundup_divisible_by = roundup_divisible_by or 0

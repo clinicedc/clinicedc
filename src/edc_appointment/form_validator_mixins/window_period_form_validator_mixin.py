@@ -38,7 +38,7 @@ class WindowPeriodFormValidatorMixin:
             and appointment.visit_code_sequence > 0
             and appointment.next
             and appointment.next.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
-            and to_local(proposed_appt_datetime) < to_local(appointment.next.appt_datetime)
+            and proposed_appt_datetime < appointment.next.appt_datetime
         ):
             value = True
         return value
@@ -52,13 +52,11 @@ class WindowPeriodFormValidatorMixin:
         if proposed_appt_datetime:
             try:
                 appointment.schedule.datetime_in_window(
-                    timepoint_datetime=to_local(appointment.timepoint_datetime),
-                    dt=to_local(proposed_appt_datetime),
+                    timepoint_datetime=appointment.timepoint_datetime,
+                    dt=proposed_appt_datetime,
                     visit_code=appointment.visit_code,
                     visit_code_sequence=appointment.visit_code_sequence,
-                    baseline_timepoint_datetime=to_local(
-                        self.baseline_timepoint_datetime(appointment)
-                    ),
+                    baseline_timepoint_datetime=self.baseline_timepoint_datetime(appointment),
                 )
             except UnScheduledVisitWindowError:
                 if not self.ignore_window_period_for_unscheduled(
@@ -90,7 +88,9 @@ class WindowPeriodFormValidatorMixin:
                         UNSCHEDULED_WINDOW_ERROR,
                     )
             except ScheduledVisitWindowError as e:
-                self.raise_validation_error({form_field: (str(e))}, SCHEDULED_WINDOW_ERROR)
+                self.raise_validation_error(
+                    {form_field: (str(e))}, SCHEDULED_WINDOW_ERROR, exc=e
+                )
 
     @staticmethod
     def baseline_timepoint_datetime(appointment: Appointment) -> datetime:

@@ -19,10 +19,10 @@ class ConfirmedAtSiteFilter(SimpleListFilter):
     title = "Confirmed at site"
     parameter_name = "confirmed_at_site"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (YES, YES), (NO, NO)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             opts = dict(
@@ -53,7 +53,7 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     show_cancel = True
     list_per_page = 20
 
-    autocomplete_fields = ["stock"]
+    autocomplete_fields = ("stock",)
 
     fieldsets = (
         (

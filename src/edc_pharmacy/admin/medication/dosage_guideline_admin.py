@@ -11,7 +11,7 @@ from ..model_admin_mixin import ModelAdminMixin
 class DosageGuidelineAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_object_tools = True
 
-    autocomplete_fields = ["medication"]
+    autocomplete_fields = ("medication",)
 
     form = DosageGuidelineForm
 
@@ -32,5 +32,5 @@ class DosageGuidelineAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display: tuple[str, ...] = ("__str__", "modified", "user_modified")
-    search_fields: tuple[str, ...] = ("medication__name",)
+    list_display = ("__str__", "modified", "user_modified")
+    search_fields = ("medication__name",)

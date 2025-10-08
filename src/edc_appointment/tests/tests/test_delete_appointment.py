@@ -78,7 +78,7 @@ class TestDeleteAppointment(TestCase):
         appointment.save_base(update_fields=["appt_status"])
         appointment.refresh_from_db()
 
-        for i in range(1, 4):
+        for _ in range(1, 4):
             creator = UnscheduledAppointmentCreator(
                 subject_identifier=subject_consent.subject_identifier,
                 visit_schedule_name=self.visit_schedule1.name,

@@ -24,7 +24,7 @@ from edc_constants.constants import (
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin
-from edc_utils import formatted_datetime
+from edc_utils.text import formatted_datetime
 
 from ..admin_site import edc_data_manager_admin
 from ..auth_objects import DATA_MANAGER

@@ -9,8 +9,8 @@ from django.db.models.deletion import PROTECT
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import convert_php_dateformat
 from edc_utils.round_up import round_half_away_from_zero
+from edc_utils.text import convert_php_dateformat
 
 from ...dosage_calculator import DosageCalculator
 from ...model_mixins import MedicationOrderModelMixin, PreviousNextModelMixin

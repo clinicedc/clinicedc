@@ -4,7 +4,6 @@ from ...models import Order, OrderItem
 
 
 class OrderForm(forms.ModelForm):
-
     def clean(self):
         cleaned_data = super().clean()
         if (
@@ -21,18 +20,17 @@ class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = "__all__"
-        help_text = {"order_identifier": "(read-only)"}
-        widgets = {
+        help_text = {"order_identifier": "(read-only)"}  # noqa: RUF012
+        widgets = {  # noqa: RUF012
             "order_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
         }
 
 
 class OrderFormSuper(forms.ModelForm):
-
     class Meta:
         model = Order
         fields = "__all__"
-        help_text = {"order_identifier": "(read-only)"}
-        widgets = {
+        help_text = {"order_identifier": "(read-only)"}  # noqa: RUF012
+        widgets = {  # noqa: RUF012
             "order_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
         }

@@ -4,7 +4,6 @@ from ...models import Product, Stock
 
 
 class ProductForm(forms.ModelForm):
-
     def clean(self):
         cleaned_data = super().clean()
         if (
@@ -17,7 +16,7 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = "__all__"
-        help_text = {"product_identifier": "(read-only)"}
-        widgets = {
+        help_text = {"product_identifier": "(read-only)"}  # noqa: RUF012
+        widgets = {  # noqa: RUF012
             "product_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
         }

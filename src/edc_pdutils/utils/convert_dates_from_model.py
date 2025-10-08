@@ -16,9 +16,10 @@ def convert_dates_from_model(
     """
     date_cols = []
     for field_cls in model_cls._meta.get_fields():
-        if field_cls.get_internal_type() in date_datatypes:
-            if field_cls.name in source_df.columns:
-                date_cols.append(field_cls.name)
+        if (field_cls.get_internal_type() in date_datatypes) and (
+            field_cls.name in source_df.columns
+        ):
+            date_cols.append(field_cls.name)  # noqa: PERF401
     if date_cols:
         source_df[date_cols] = source_df[date_cols].apply(pd.to_datetime, errors="coerce")
         if normalize:

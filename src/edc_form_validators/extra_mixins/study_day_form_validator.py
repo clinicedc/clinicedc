@@ -5,7 +5,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 
 from edc_crf.crf_form_validator import CrfFormValidator
-from edc_utils import convert_php_dateformat
+from edc_utils.text import convert_php_dateformat
 
 from ..base_form_validator import INVALID_ERROR
 

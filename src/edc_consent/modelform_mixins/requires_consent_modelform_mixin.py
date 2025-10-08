@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING
 from django import forms
 
 from edc_sites import site_sites
-from edc_utils import formatted_date
-from edc_utils.date import to_utc
+from edc_utils import formatted_date, to_local
 
 from ..consent_definition import ConsentDefinition
 from ..exceptions import (
@@ -36,7 +35,7 @@ class RequiresConsentModelFormMixin:
         return cleaned_data
 
     def validate_against_dob(self, consent_obj):
-        if consent_obj and to_utc(self.report_datetime).date() < consent_obj.dob:
+        if consent_obj and to_local(self.report_datetime).date() < consent_obj.dob:
             dte_str = formatted_date(consent_obj.dob)
             raise forms.ValidationError(f"Report datetime cannot be before DOB. Got {dte_str}")
 
@@ -53,7 +52,7 @@ class RequiresConsentModelFormMixin:
                     site_id=self.site.id,
                 )
             except (NotConsentedError, ConsentDefinitionNotConfiguredForUpdate) as e:
-                raise forms.ValidationError({"__all__": str(e)})
+                raise forms.ValidationError({"__all__": str(e)}) from e
         return consent_obj
 
     @property
@@ -66,5 +65,5 @@ class RequiresConsentModelFormMixin:
                 report_datetime=self.report_datetime,
             )
         except ConsentDefinitionDoesNotExist as e:
-            raise forms.ValidationError(e)
+            raise forms.ValidationError(e) from e
         return cdef

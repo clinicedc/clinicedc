@@ -25,8 +25,8 @@ class DeathReportTmgFormValidator(
             obj = get_ae_model("deathreport").objects.get(
                 subject_identifier=self.cleaned_data.get("subject_identifier")
             )
-        except ObjectDoesNotExist:
-            self.raise_validation_error("Death report not found.", INVALID_ERROR)
+        except ObjectDoesNotExist as e:
+            self.raise_validation_error("Death report not found.", INVALID_ERROR, exc=e)
         death_date = getattr(obj, obj.death_date_field)
         try:
             death_date = death_date.date()

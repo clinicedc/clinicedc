@@ -27,7 +27,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     include_audit_fields_in_list_display = False
     ordering = ("-receive_item_identifier",)
 
-    actions = [delete_receive_items_action, print_labels_from_receive_item]
+    actions = (delete_receive_items_action, print_labels_from_receive_item)
 
     fieldsets = (
         (
@@ -143,9 +143,9 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def identifier(self, obj):
         return obj.receive_item_identifier
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         if obj:
-            return self.readonly_fields + ("receive",)
+            return tuple({*self.readonly_fields, "receive"})
         return self.readonly_fields
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

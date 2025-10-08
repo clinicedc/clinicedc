@@ -48,10 +48,10 @@ def repackage(
 
 
 def repackage_for_subject(
-    rando_sid: str = None,
-    subject_identifier: str = None,
-    randomizer_name=None,
-    source_container=None,
+    rando_sid: str,
+    subject_identifier: str | None,
+    randomizer_name: str,
+    source_container,
     **kwargs,
 ):
     site_randomizers.get(randomizer_name)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
@@ -50,7 +51,7 @@ class AppointmentViewMixin:
             if self.appointment.related_visit:
                 report_datetime = self.appointment.related_visit.report_datetime
                 kwargs.update(report_datetime=report_datetime)
-        has_call_manager = True if django_apps.app_configs.get("edc_call_manager") else False
+        has_call_manager = bool(django_apps.app_configs.get("edc_call_manager"))
         kwargs.update(
             appointment=self.appointment,
             appointments=self.appointments,
@@ -92,18 +93,15 @@ class AppointmentViewMixin:
 
     @property
     def appointment(self) -> Appointment:
-        if not self._appointment:
-            if self.appointment_id:
-                try:
-                    self._appointment = self.appointment_model_cls.objects.get(
-                        id=self.appointment_id
-                    )
-                except ObjectDoesNotExist:
-                    if opts := self.appointment_options:
-                        try:
-                            self._appointment = self.appointment_model_cls.objects.get(**opts)
-                        except ObjectDoesNotExist:
-                            pass
+        if not self._appointment and self.appointment_id:
+            try:
+                self._appointment = self.appointment_model_cls.objects.get(
+                    id=self.appointment_id
+                )
+            except ObjectDoesNotExist:
+                if opts := self.appointment_options:
+                    with contextlib.suppress(ObjectDoesNotExist):
+                        self._appointment = self.appointment_model_cls.objects.get(**opts)
         return self._appointment
 
     @property

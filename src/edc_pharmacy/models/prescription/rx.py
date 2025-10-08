@@ -13,7 +13,7 @@ from edc_randomization.site_randomizers import site_randomizers
 from edc_registration.models import RegisteredSubject
 from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
-from edc_utils import formatted_age
+from edc_utils.age import formatted_age
 
 from ...choices import PRESCRIPTION_STATUS
 from ...constants import PRESCRIPTION_ACTION

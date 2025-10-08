@@ -1,3 +1,5 @@
+import contextlib
+
 from django.contrib import admin
 from django_audit_fields import audit_fieldset_tuple
 
@@ -15,7 +17,6 @@ from .stock_admin import StockAdmin
 
 @admin.register(StockProxy, site=edc_pharmacy_admin)
 class StockProxyAdmin(StockAdmin):
-
     fieldsets = (
         (
             "Stock item",
@@ -106,10 +107,8 @@ class StockProxyAdmin(StockAdmin):
         if not request.user.userprofile.roles.filter(
             name__in=[PHARMACIST_ROLE, PHARMACY_SUPER_ROLE]
         ).exists():
-            try:
+            with contextlib.suppress(ValueError):
                 display_links.remove("formatted_code")
-            except ValueError:
-                pass
         return display_links
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:

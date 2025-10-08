@@ -9,7 +9,7 @@ from edc_form_validators import INVALID_ERROR
 from edc_screening.form_validator_mixins import SubjectScreeningFormValidatorMixin
 from edc_sites.site import sites
 from edc_utils import AgeValueError, age
-from edc_utils.date import to_local, to_utc
+from edc_utils.date import to_local
 from edc_utils.text import convert_php_dateformat
 
 from ..site_consents import site_consents
@@ -63,7 +63,7 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
                     self.raise_validation_error(
                         {"consent_datetime": "This field is required."}, INVALID_ERROR
                     )
-                self._consent_datetime = to_utc(self.cleaned_data.get("consent_datetime"))
+                self._consent_datetime = self.cleaned_data.get("consent_datetime")
             else:
                 self._consent_datetime = self.instance.consent_datetime
         return self._consent_datetime
@@ -75,7 +75,7 @@ class SubjectConsentFormValidatorMixin(SubjectScreeningFormValidatorMixin):
         try:
             rdelta = age(self.dob, self.subject_screening.report_datetime.date())
         except AgeValueError as e:
-            self.raise_validation_error(str(e), INVALID_ERROR)
+            self.raise_validation_error(str(e), INVALID_ERROR, exc=e)
         return rdelta.years
 
     def validate_age(self) -> None:

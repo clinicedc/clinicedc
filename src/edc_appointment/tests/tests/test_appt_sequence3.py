@@ -75,7 +75,7 @@ class TestInsertUnscheduled(TestCase):
         import_holidays()
 
     @staticmethod
-    def create_unscheduled(appointment: Appointment, days: int = None):
+    def create_unscheduled(appointment: Appointment, days: int):
         creator = UnscheduledAppointmentCreator(
             subject_identifier=appointment.subject_identifier,
             visit_schedule_name=appointment.visit_schedule_name,
@@ -90,7 +90,7 @@ class TestInsertUnscheduled(TestCase):
         return appointment
 
     @staticmethod
-    def get_visit_codes(by: str = None, visit_schedule_name: str | None = None, **kwargs):
+    def get_visit_codes(by: str, visit_schedule_name: str | None = None, **kwargs):  # noqa: ARG004
         opts = dict(visit_schedule_name=visit_schedule_name)
         return [
             f"{o.visit_code}.{o.visit_code_sequence}"

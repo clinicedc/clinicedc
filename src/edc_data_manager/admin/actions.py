@@ -9,7 +9,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from edc_constants.constants import CLOSED, OPEN
-from edc_utils import formatted_datetime
+from edc_utils.text import formatted_datetime
 
 from ..models import QueryRule
 from ..rule import update_query_rules
