@@ -9,14 +9,6 @@ from django.apps import apps as django_apps
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.text import slugify
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import cm
-from reportlab.lib.utils import ImageReader
-from reportlab.platypus import Paragraph, TableStyle
-from reportlab.platypus.flowables import KeepTogether, Spacer
-from reportlab.platypus.tables import Table
-
 from edc_data_manager.get_longitudinal_value import (
     DataDictionaryError,
     get_longitudinal_value,
@@ -26,13 +18,19 @@ from edc_randomization.auth_objects import RANDO_UNBLINDED
 from edc_utils.age import formatted_age
 from edc_utils.date import to_local
 from edc_utils.get_static_file import get_static_file
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
+from reportlab.lib.utils import ImageReader
+from reportlab.platypus import Paragraph, TableStyle
+from reportlab.platypus.flowables import KeepTogether, Spacer
+from reportlab.platypus.tables import Table
 
 from .report import Report
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
     from django.core.handlers.wsgi import WSGIRequest
-
     from edc_crf.model_mixins import CrfModelMixin
     from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 
@@ -50,7 +48,7 @@ class CrfPdfReport(Report):
     report_url: str = None
     changelist_url: str = None
 
-    default_page = dict(
+    default_page = dict(  # noqa: RUF012
         rightMargin=1.5 * cm,
         leftMargin=1.5 * cm,
         topMargin=2.0 * cm,
@@ -66,7 +64,7 @@ class CrfPdfReport(Report):
 
     open_label = True
 
-    logo_data = {
+    logo_data = {  # noqa: RUF012
         "app_label": "edc_pdf_reports",
         "filename": "clinicedc_logo.jpg",
         "first_page": (0.83 * cm, 0.83 * cm),
