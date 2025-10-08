@@ -44,13 +44,13 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     ordering = ("-repack_identifier",)
 
-    autocomplete_fields = ["from_stock", "container"]
+    autocomplete_fields = ("from_stock", "container")
     form = RepackRequestForm
-    actions = [
+    actions = (
         process_repack_request_action,
         print_labels_from_repack_request,
         confirm_repacked_stock_action,
-    ]
+    )
 
     change_list_note = render_to_string(
         "edc_pharmacy/stock/instructions/repack_instructions.html"
@@ -106,18 +106,15 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     def get_list_display(self, request):
         fields = super().get_list_display(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_list_filter(self, request):
         fields = super().get_list_filter(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_search_fields(self, request):
         fields = super().get_search_fields(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     @admin.display(description="Repack date", ordering="repack_datetime")
     def repack_date(self, obj):
@@ -168,7 +165,7 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         result = get_task_result(obj)
         return getattr(result, "status", None)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         if obj and (obj.processed_qty or Decimal(0)) > Decimal(0):
             f = [
                 "repack_identifier",

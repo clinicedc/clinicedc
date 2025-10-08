@@ -17,8 +17,8 @@ from edc_form_validators import INVALID_ERROR
 from edc_form_validators.form_validator import FormValidator
 from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_sites.form_validator_mixin import SiteFormValidatorMixin
-from edc_utils import formatted_datetime, to_utc
 from edc_utils.date import to_local
+from edc_utils.text import formatted_datetime
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
 from edc_visit_schedule.utils import get_onschedule_model_instance, is_baseline
@@ -219,11 +219,7 @@ class AppointmentFormValidator(
     def validate_not_future_appt_datetime(self: Any) -> None:
         appt_datetime = self.cleaned_data.get("appt_datetime")
         appt_status = self.cleaned_data.get("appt_status")
-        if (
-            appt_datetime
-            and appt_status != NEW_APPT
-            and to_utc(appt_datetime) > timezone.now()
-        ):
+        if appt_datetime and appt_status != NEW_APPT and appt_datetime > timezone.now():
             self.raise_validation_error(
                 {"appt_datetime": "Cannot be a future date/time."},
                 INVALID_APPT_DATE,
@@ -242,14 +238,12 @@ class AppointmentFormValidator(
             appt_datetime = self.cleaned_data.get("appt_datetime")
             appt_status = self.cleaned_data.get("appt_status")
             if appt_datetime and appt_status != NEW_APPT:
-                appt_datetime_utc = to_utc(appt_datetime)
                 consent_datetime = self.get_consent_datetime_or_raise(
-                    report_datetime=appt_datetime_utc,
-                    site=self.site,
-                    fldname="appt_datetime",
+                    reference_datetime=appt_datetime,
+                    reference_datetime_field="appt_datetime",
                     error_code=INVALID_APPT_DATE,
                 )
-                if appt_datetime_utc.date() < consent_datetime.date():
+                if to_local(appt_datetime).date() < to_local(consent_datetime).date():
                     formatted_date = formatted_datetime(
                         to_local(consent_datetime), format_as_date=True
                     )
@@ -283,11 +277,11 @@ class AppointmentFormValidator(
             )
         except AppointmentBaselineError as e:
             self.raise_validation_error(
-                {"appt_timing": str(e)}, INVALID_APPT_STATUS_AT_BASELINE
+                {"appt_timing": str(e)}, INVALID_APPT_STATUS_AT_BASELINE, exc=e
             )
         except UnscheduledAppointmentError as e:
             self.raise_validation_error(
-                {"appt_timing": str(e)}, INVALID_MISSED_APPT_NOT_ALLOWED
+                {"appt_timing": str(e)}, INVALID_MISSED_APPT_NOT_ALLOWED, exc=e
             )
 
         try:
@@ -299,14 +293,14 @@ class AppointmentFormValidator(
             )
         except AppointmentReasonUpdaterCrfsExistsError as e:
             self.raise_validation_error(
-                {"appt_timing": str(e)}, INVALID_APPT_TIMING_CRFS_EXIST
+                {"appt_timing": str(e)}, INVALID_APPT_TIMING_CRFS_EXIST, exc=e
             )
         except AppointmentReasonUpdaterRequisitionsExistsError as e:
             self.raise_validation_error(
-                {"appt_timing": str(e)}, INVALID_APPT_TIMING_REQUISITIONS_EXIST
+                {"appt_timing": str(e)}, INVALID_APPT_TIMING_REQUISITIONS_EXIST, exc=e
             )
         except AppointmentReasonUpdaterError as e:
-            self.raise_validation_error({"appt_timing": str(e)}, INVALID_APPT_TIMING)
+            self.raise_validation_error({"appt_timing": str(e)}, INVALID_APPT_TIMING, exc=e)
 
     def validate_appt_datetime_not_before_previous_appt_datetime(self):
         appt_datetime = self.cleaned_data.get("appt_datetime")
@@ -316,7 +310,7 @@ class AppointmentFormValidator(
             and appt_status
             and appt_status != NEW_APPT
             and self.instance.relative_previous
-            and to_utc(appt_datetime) < self.instance.relative_previous.appt_datetime
+            and appt_datetime < self.instance.relative_previous.appt_datetime
         ):
             formatted_date = formatted_datetime(self.instance.relative_previous.appt_datetime)
             self.raise_validation_error(
@@ -338,7 +332,7 @@ class AppointmentFormValidator(
             and appt_status
             and appt_status != NEW_APPT
             and self.instance.relative_next
-            and to_utc(appt_datetime) > self.instance.relative_next.appt_datetime
+            and appt_datetime > self.instance.relative_next.appt_datetime
         ):
             formatted_date = formatted_datetime(self.instance.relative_next.appt_datetime)
             self.raise_validation_error(
@@ -425,7 +419,7 @@ class AppointmentFormValidator(
                 {
                     "appt_status": format_html(
                         'Invalid. Not all <a href="{url}">required CRFs</a> have been keyed',
-                        url=mark_safe(url),  # nosec B703, B308
+                        url=mark_safe(url),  # nosec B703, B308  # noqa: S308
                     )
                 },
                 INVALID_APPT_STATUS,
@@ -443,7 +437,7 @@ class AppointmentFormValidator(
                             'Invalid. Not all <a href="{url}">required requisitions</a> '
                             "have been keyed"
                         ),
-                        url=mark_safe(url),  # nosec B703, B308
+                        url=mark_safe(url),  # nosec B703, B308  # noqa: S308
                     )
                 },
                 INVALID_APPT_STATUS,
@@ -599,12 +593,11 @@ class AppointmentFormValidator(
     def changelist_url(self: Any, model_name: str) -> Any:
         """Returns the model's changelist url with filter querystring"""
         url = reverse(f"edc_metadata_admin:edc_metadata_{model_name}_changelist")
-        url = (
+        return (
             f"{url}?q={self.subject_identifier}"
             f"&visit_code={self.instance.visit_code}"
             f"&visit_code_sequence={self.instance.visit_code_sequence}"
         )
-        return url
 
     def validate_subject_on_schedule(self: Any) -> None:
         if self.cleaned_data.get("appt_datetime"):
@@ -623,7 +616,7 @@ class AppointmentFormValidator(
                     subject_identifier=subject_identifier,
                     visit_schedule_name=self.instance.visit_schedule_name,
                     schedule_name=self.instance.schedule_name,
-                    reference_datetime=to_utc(appt_datetime),
+                    reference_datetime=appt_datetime,
                 )
             except NotOnScheduleError:
                 self.raise_validation_error(

@@ -48,9 +48,10 @@ class AppointmentReasonUpdater(MetadataHelperMixin):
 
     def __init__(
         self,
-        appointment: Appointment = None,
-        appt_timing: str = None,
-        appt_reason: str = None,
+        *,
+        appointment: Appointment,
+        appt_timing: str,
+        appt_reason: str,
         commit: bool | None = None,
     ):
         self._related_visit = None
@@ -72,7 +73,7 @@ class AppointmentReasonUpdater(MetadataHelperMixin):
                 appointment=appointment, appt_timing=self.appt_timing
             )
         except (AppointmentBaselineError, UnscheduledAppointmentError) as e:
-            raise AppointmentReasonUpdaterError(e)
+            raise AppointmentReasonUpdaterError(e) from e
 
         self.appt_reason = appt_reason or self.appointment.appt_reason
 
@@ -163,7 +164,7 @@ class AppointmentReasonUpdater(MetadataHelperMixin):
                 )
         elif self.requisition_metadata_keyed_exists:
             raise AppointmentReasonUpdaterRequisitionsExistsError(
-                "Invalid. Requisitions have already been entered " "for this timepoint."
+                "Invalid. Requisitions have already been entered for this timepoint."
             )
 
     @property

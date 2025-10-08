@@ -65,7 +65,7 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         audit_fieldset_tuple,
     )
 
-    list_filter: tuple[str, ...] = (
+    list_filter = (
         "lot_no",
         "expiration_date",
         "product",
@@ -75,7 +75,7 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "modified",
     )
 
-    list_display: tuple[str, ...] = (
+    list_display = (
         "lot_no",
         "expiration_date",
         "product",
@@ -84,13 +84,13 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "created",
         "modified",
     )
-    radio_fields: tuple[str, ...] = {"assignment": admin.VERTICAL}
+    radio_fields = {"assignment": admin.VERTICAL}  # noqa: RUF012
 
-    search_fields: tuple[str, ...] = ("lot_no",)
+    search_fields = ("lot_no",)
 
-    ordering: tuple[str, ...] = ("-expiration_date",)
+    ordering = ("-expiration_date",)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         # if obj:
         #     return self.readonly_fields + ("lot_no", "product", "assignment")
         return self.readonly_fields
@@ -114,15 +114,12 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     def get_list_display(self, request):
         fields = super().get_list_display(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_list_filter(self, request):
         fields = super().get_list_filter(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_search_fields(self, request):
         fields = super().get_search_fields(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)

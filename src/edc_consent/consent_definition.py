@@ -82,16 +82,8 @@ class ConsentDefinition:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
         if not self.start.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
-        if str(self.start.tzinfo).upper() != "UTC":
-            raise ConsentDefinitionError(
-                f"Start date must be UTC. Got {self.start} / {self.start.tzinfo}."
-            )
         if not self.end.tzinfo:
-            raise ConsentDefinitionError(f"Naive datetime not allowed Got {self.end}.")
-        if str(self.end.tzinfo).upper() != "UTC":
-            raise ConsentDefinitionError(
-                f"End date must be UTC. Got {self.end} / {self.start.tzinfo}."
-            )
+            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.end}.")
         self.check_date_within_study_period()
 
     def model_create(self, **kwargs) -> ConsentLikeModel:
@@ -147,7 +139,7 @@ class ConsentDefinition:
 
     def get_consent_for(
         self,
-        subject_identifier: str = None,
+        subject_identifier: str,
         site_id: int | None = None,
         raise_if_not_consented: bool | None = None,
     ) -> ConsentLikeModel | None:
@@ -209,9 +201,9 @@ class ConsentDefinition:
                 <= getattr(self, attr)
                 <= ceil_secs(study_close_datetime)
             ):
-                open_date_string = formatted_datetime(study_open_datetime)
-                close_date_string = formatted_datetime(study_close_datetime)
-                attr_date_string = formatted_datetime(getattr(self, attr))
+                open_date_string = formatted_datetime(to_local(study_open_datetime))
+                close_date_string = formatted_datetime(to_local(study_close_datetime))
+                attr_date_string = formatted_datetime(to_local(getattr(self, attr)))
                 raise ConsentDefinitionError(
                     f"Invalid {attr} date. "
                     f"Must be within the opening and closing dates of the protocol. "

@@ -2,12 +2,11 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from dateutil.relativedelta import relativedelta
+from clinicedc_tests.consents import consent_v1
 from django.test import TestCase, override_settings, tag
 
 from edc_consent import site_consents
-from edc_consent.consent_definition import ConsentDefinition
-from edc_constants.constants import FEMALE, MALE
+from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 from edc_metadata import NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_rules import (
@@ -26,7 +25,7 @@ test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 class RuleGroupWithoutRules(CrfRuleGroup):
     class Meta:
-        app_label = "edc_metadata"
+        app_label = "clinicedc_tests"
         source_model = "edc_visit_tracking.subjectvisit"
 
 
@@ -39,7 +38,7 @@ class RuleGroupWithRules(CrfRuleGroup):
     )
 
     class Meta:
-        app_label = "edc_metadata"
+        app_label = "clinicedc_tests"
         source_model = "edc_visit_tracking.subjectvisit"
 
 
@@ -52,7 +51,7 @@ class RuleGroupWithRules2(CrfRuleGroup):
     )
 
     class Meta:
-        app_label = "edc_metadata"
+        app_label = "clinicedc_tests"
         source_model = "edc_visit_tracking.subjectvisit"
 
 
@@ -69,16 +68,6 @@ class TestSiteMetadataRules(TestCase):
 
     def setUp(self):
         site_metadata_rules.registry = {}
-        consent_v1 = ConsentDefinition(
-            "edc_metadata.subjectconsentv1",
-            version="1",
-            start=test_datetime,
-            end=test_datetime + relativedelta(years=3),
-            age_min=18,
-            age_is_adult=18,
-            age_max=64,
-            gender=[MALE, FEMALE],
-        )
         site_consents.registry = {}
         site_consents.register(consent_v1)
 
@@ -97,13 +86,13 @@ class TestSiteMetadataRules(TestCase):
 
     def test_register_rule_group_get_rule_groups_for_app_label(self):
         site_metadata_rules.register(RuleGroupWithRules)
-        rule_groups = site_metadata_rules.rule_groups.get("edc_metadata")
+        rule_groups = site_metadata_rules.rule_groups.get("clinicedc_tests")
         self.assertEqual(rule_groups, [RuleGroupWithRules])
 
     def test_register_rule_group_register_more_than_one_rule_group(self):
         site_metadata_rules.register(RuleGroupWithRules)
         site_metadata_rules.register(RuleGroupWithRules2)
-        rule_groups = site_metadata_rules.rule_groups.get("edc_metadata")
+        rule_groups = site_metadata_rules.rule_groups.get("clinicedc_tests")
         self.assertEqual(rule_groups, [RuleGroupWithRules, RuleGroupWithRules2])
 
     def test_register_twice_raises(self):
@@ -129,10 +118,10 @@ class TestSiteMetadataRules(TestCase):
             )
 
             class Meta:
-                app_label = "edc_metadata"
+                app_label = "clinicedc_tests"
                 source_model = "edc_visit_tracking.subjectvisit"
 
-        self.assertIn("edc_metadata", site_metadata_rules.registry)
+        self.assertIn("clinicedc_tests", site_metadata_rules.registry)
 
     def test_register_decorator_raises(self):
         try:
@@ -140,7 +129,7 @@ class TestSiteMetadataRules(TestCase):
             @register()
             class RuleGroupWithRules:
                 class Meta:
-                    app_label = "edc_metadata"
+                    app_label = "clinicedc_tests"
                     source_model = "edc_visit_tracking.subjectvisit"
 
         except RegisterRuleGroupError:

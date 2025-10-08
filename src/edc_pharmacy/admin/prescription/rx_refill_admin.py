@@ -3,12 +3,12 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
 
 from edc_appointment.models import Appointment
-from edc_utils import convert_php_dateformat, formatted_age
+from edc_utils.age import formatted_age
+from edc_utils.text import convert_php_dateformat
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import RxRefillForm
@@ -20,7 +20,7 @@ from ..model_admin_mixin import ModelAdminMixin
 class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
     show_object_tools = True
 
-    ordering: tuple[str, ...] = ("refill_start_datetime",)
+    ordering = ("refill_start_datetime",)
 
     autocomplete_fields = ("dosage_guideline", "formulation")
 
@@ -64,7 +64,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display: tuple[str, ...] = (
+    list_display = (
         "subject_identifier",
         "dashboard",
         "duration",
@@ -78,7 +78,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "verified_datetime",
     )
 
-    list_filter: tuple[str, ...] = (
+    list_filter = (
         "active",
         "refill_start_datetime",
         "refill_end_datetime",
@@ -88,7 +88,7 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
         "site",
     )
 
-    search_fields: tuple[str, ...] = (
+    search_fields = (
         "id",
         "site__id",
         "rx__id",
@@ -115,14 +115,8 @@ class RxRefillAdmin(ModelAdminMixin, admin.ModelAdmin):
             else "???"
         )
         context = dict(
-            refill_start_date=format_html(
-                "{}",
-                mark_safe("&nbsp;".join(refill_start_date)),  # nosec B703, B308
-            ),
-            refill_end_date=format_html(
-                "{}",
-                mark_safe("&nbsp;".join(refill_end_date)),  # nosec B703, B308
-            ),
+            refill_start_date=mark_safe("&nbsp;".join(refill_start_date)),  # nosec B703, B308  # noqa: S308
+            refill_end_date=mark_safe("&nbsp;".join(refill_end_date)),  # nosec B703, B308  # noqa: S308
             number_of_days=obj.number_of_days,
         )
         return render_to_string("edc_pharmacy/duration.html", context=context)
@@ -177,7 +171,7 @@ class RxRefillInlineAdmin(admin.StackedInline):
 
     model = RxRefill
 
-    fields: tuple[str, ...] = (
+    fields = (
         "dosage_guideline",
         "formulation",
         "refill_start_datetime",
@@ -188,8 +182,8 @@ class RxRefillInlineAdmin(admin.StackedInline):
         "frequency_units",
     )
 
-    search_fields: tuple[str, ...] = "dosage_guideline__medication__name"
+    search_fields = ("dosage_guideline__medication__name",)
 
-    ordering: tuple[str, ...] = ("refill_start_datetime",)
+    ordering = ("refill_start_datetime",)
 
     extra = 0

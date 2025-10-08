@@ -23,8 +23,8 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
     show_cancel = True
     list_per_page = 20
 
-    autocomplete_fields = ["stock"]
-    actions = ["delete_selected"]
+    autocomplete_fields = ("stock",)
+    actions = ("delete_selected",)
 
     change_list_note = "Once an item is dispensed it is automatically removed from storage."
 

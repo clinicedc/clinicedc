@@ -8,8 +8,9 @@ from django.apps import apps as django_apps
 from django.utils import timezone
 
 from edc_facility.utils import get_default_facility_name, get_facility
-from edc_utils import to_local
+from edc_utils.date import to_local
 
+from .crf import Crf
 from .crf_collection import CrfCollection
 from .forms_collection import FormsCollection
 from .requisition_collection import RequisitionCollection
@@ -22,7 +23,6 @@ if TYPE_CHECKING:
 
     from edc_facility.facility import Facility
 
-    from .crf import Crf
     from .requisition import Requisition
 
 
@@ -132,7 +132,9 @@ class Visit:
         self.base_timepoint = base_timepoint or Decimal("0.0")
         self.crfs: CrfCollection = crfs or CrfCollection()
         self.crfs_unscheduled: CrfCollection = crfs_unscheduled or CrfCollection()
-        self.crfs_missed: CrfCollection = crfs_missed or CrfCollection()
+        self.crfs_missed: CrfCollection = crfs_missed or CrfCollection(
+            Crf(show_order=1, model="edc_visit_tracking.subjectvisitmissed", required=True)
+        )
         self.crfs_prn: CrfCollection = crfs_prn or CrfCollection()
         for prn in self.crfs_prn:
             prn.required = False
@@ -181,6 +183,10 @@ class Visit:
         self.name = self.code
         self.facility_name = facility_name or get_default_facility_name()
         self.allow_unscheduled = allow_unscheduled
+        if self.allow_unscheduled and not crfs_unscheduled:
+            raise VisitError(
+                f"crfs_unscheduled may not be null if allow_unscheduled=True. See {self!r}"
+            )
         if timepoint is None:
             raise VisitError(f"Timepoint not specified. Got None. See Visit {code}.")
 

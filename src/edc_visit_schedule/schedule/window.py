@@ -76,8 +76,6 @@ class Window:
         window period for a scheduled `visit` otherwise
         raises an exception.
 
-        Ensure all datetimes in UTC before comparison.
-
         In this case, `visit` is the object from schedule and
         not a model instance.
         """

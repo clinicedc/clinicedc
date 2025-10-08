@@ -46,7 +46,15 @@ class ScheduledVisitWindowError(Exception):
     pass
 
 
+class UnScheduledVisitError(Exception):
+    pass
+
+
 class UnScheduledVisitWindowError(Exception):
+    pass
+
+
+class MissedVisitError(Exception):
     pass
 
 

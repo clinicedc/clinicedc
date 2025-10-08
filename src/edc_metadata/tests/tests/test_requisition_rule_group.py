@@ -2,19 +2,17 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from clinicedc_tests.models import CrfOne, SubjectConsentV1, SubjectRequisition
+from clinicedc_tests.consents import consent_v1
+from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfOne, SubjectRequisition
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
-from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
-from django.utils import timezone
 from faker import Faker
 
-from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_consent.consent_definition import ConsentDefinition
 from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models import Panel
@@ -28,8 +26,6 @@ from edc_metadata.metadata_rules import (
 )
 from edc_metadata.models import RequisitionMetadata
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.models import SubjectVisit
 
 test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
@@ -62,8 +58,8 @@ class BadPanelsRequisitionRuleGroup(RequisitionRuleGroup):
     )
 
     class Meta:
-        app_label = "edc_metadata"
-        source_model = "edc_metadata.crfone"
+        app_label = "clinicedc_tests"
+        source_model = "clinicedc_tests.crfone"
         requisition_model = "subjectrequisition"
 
 
@@ -91,7 +87,7 @@ class RequisitionRuleGroup2(RequisitionRuleGroup):
     )
 
     class Meta:
-        app_label = "edc_metadata"
+        app_label = "clinicedc_tests"
         source_model = "subjectrequisition"
         requisition_model = "subjectrequisition"
 
@@ -107,7 +103,7 @@ class RequisitionRuleGroup3(RequisitionRuleGroup):
     )
 
     class Meta:
-        app_label = "edc_metadata"
+        app_label = "clinicedc_tests"
         source_model = "crfone"
         requisition_model = "subjectrequisition"
 
@@ -135,7 +131,7 @@ class MyRequisitionRuleGroup(BaseRequisitionRuleGroup):
     """A rule group where source model is NOT a requisition."""
 
     class Meta:
-        app_label = "edc_metadata"
+        app_label = "clinicedc_tests"
         source_model = "crfone"
         requisition_model = "subjectrequisition"
 
@@ -162,61 +158,22 @@ class TestRequisitionRuleGroup(TestCase):
         self.panel_seven = Panel.objects.create(name=panel_seven.name)
         self.panel_eight = Panel.objects.create(name=panel_eight.name)
 
-        consent_v1 = ConsentDefinition(
-            "edc_metadata.subjectconsentv1",
-            version="1",
-            start=test_datetime,
-            end=test_datetime + relativedelta(years=3),
-            age_min=18,
-            age_is_adult=18,
-            age_max=64,
-            gender=[MALE, FEMALE],
-        )
-
         site_consents.registry = {}
         site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
-        site_visit_schedules.register(get_visit_schedule(consent_v1))
-
-        _, self.schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_visit_schedule.onschedule"
-        )
+        self.visit_schedule = get_visit_schedule(consent_v1)
+        site_visit_schedules.register(self.visit_schedule)
         site_metadata_rules.registry = {}
 
-    def enroll(self, gender=None):
-        """Returns a subject visit model after enrolling a
-        subject of the given gender.
-        """
-        subject_identifier = fake.credit_card_number()
-        subject_consent = SubjectConsentV1.objects.create(
-            subject_identifier=subject_identifier,
-            consent_datetime=timezone.now(),
-            gender=gender,
-        )
-        self.schedule.put_on_schedule(
-            subject_identifier=subject_identifier,
-            onschedule_datetime=subject_consent.consent_datetime,
-        )
-        self.appointment = Appointment.objects.get(
-            subject_identifier=subject_identifier,
-            visit_code=self.schedule.visits.first.code,
-        )
-        return SubjectVisit.objects.create(
-            appointment=self.appointment,
-            subject_identifier=subject_identifier,
-            report_datetime=self.appointment.appt_datetime,
-            visit_code=self.appointment.visit_code,
-            visit_code_sequence=self.appointment.visit_code_sequence,
-            visit_schedule_name=self.appointment.visit_schedule_name,
-            schedule_name=self.appointment.schedule_name,
-            reason=SCHEDULED,
-        )
+        self.helper = Helper()
 
     @time_machine.travel(test_datetime)
     def test_rule_male(self):
-        subject_visit = self.enroll(gender=MALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name, schedule_name="schedule", gender=MALE
+        )
         rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(related_visit=subject_visit)
         for panel in [self.panel_one, self.panel_two]:
             with self.subTest(panel=panel):
@@ -228,7 +185,11 @@ class TestRequisitionRuleGroup(TestCase):
 
     @time_machine.travel(test_datetime)
     def test_rule_female(self):
-        subject_visit = self.enroll(gender=FEMALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name="schedule",
+            gender=FEMALE,
+        )
         rule_results, _ = MyRequisitionRuleGroup().evaluate_rules(related_visit=subject_visit)
         for panel in [self.panel_one, self.panel_two]:
             with self.subTest(panel=panel):
@@ -244,7 +205,7 @@ class TestRequisitionRuleGroup(TestCase):
 
             class BadRequisitionRuleGroup(BaseRequisitionRuleGroup):
                 class Meta:
-                    app_label = "edc_metadata"
+                    app_label = "clinicedc_tests"
                     source_model = "subjectrequisition"
                     requisition_model = "subjectrequisition"
 
@@ -278,7 +239,7 @@ class TestRequisitionRuleGroup(TestCase):
                 )
 
                 class Meta:
-                    app_label = "edc_metadata"
+                    app_label = "clinicedc_tests"
                     source_model = "crf_one"
                     requisition_model = "subjectrequisition"
 
@@ -292,7 +253,9 @@ class TestRequisitionRuleGroup(TestCase):
 
     @time_machine.travel(test_datetime)
     def test_rule_male_with_source_model_as_requisition(self):
-        subject_visit = self.enroll(gender=MALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name, schedule_name="schedule", gender=MALE
+        )
         rule_results, _ = RequisitionRuleGroup2().evaluate_rules(related_visit=subject_visit)
         for panel_name in ["one", "two"]:
             with self.subTest(panel_name=panel_name):
@@ -307,7 +270,9 @@ class TestRequisitionRuleGroup(TestCase):
         """RequisitionRuleGroup2"""
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
-        subject_visit = self.enroll(gender=MALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name, schedule_name="schedule", gender=MALE
+        )
         SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
         for panel_name in ["one", "two"]:
             with self.subTest(panel_name=panel_name):
@@ -321,7 +286,9 @@ class TestRequisitionRuleGroup(TestCase):
 
     @time_machine.travel(test_datetime)
     def test_metadata_for_rule_male_with_source_model_as_requisition2(self):
-        subject_visit = self.enroll(gender=MALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name, schedule_name="schedule", gender=MALE
+        )
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
         SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
@@ -337,7 +304,11 @@ class TestRequisitionRuleGroup(TestCase):
 
     @time_machine.travel(test_datetime)
     def test_metadata_for_rule_female_with_source_model_as_requisition1(self):
-        subject_visit = self.enroll(gender=FEMALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name="schedule",
+            gender=FEMALE,
+        )
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
         SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
@@ -353,7 +324,11 @@ class TestRequisitionRuleGroup(TestCase):
 
     @time_machine.travel(test_datetime)
     def test_metadata_for_rule_female_with_source_model_as_requisition2(self):
-        subject_visit = self.enroll(gender=FEMALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name="schedule",
+            gender=FEMALE,
+        )
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup2)
         SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_five)
@@ -372,7 +347,11 @@ class TestRequisitionRuleGroup(TestCase):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)
 
-        subject_visit = self.enroll(gender=FEMALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name="schedule",
+            gender=FEMALE,
+        )
 
         for panel, entry_status in [
             (self.panel_one, REQUIRED),
@@ -421,7 +400,11 @@ class TestRequisitionRuleGroup(TestCase):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)
 
-        subject_visit = self.enroll(gender=FEMALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name="schedule",
+            gender=FEMALE,
+        )
 
         # check default entry status
         metadata_obj = RequisitionMetadata.objects.get(
@@ -490,7 +473,11 @@ class TestRequisitionRuleGroup(TestCase):
     @time_machine.travel(test_datetime)
     def test_recovers_from_sequence_problem(self):
         """Asserts if instance exists, rule is ignored."""
-        subject_visit = self.enroll(gender=FEMALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name="schedule",
+            gender=FEMALE,
+        )
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)
         # create CRF that triggers rule to REQUIRED
@@ -533,7 +520,11 @@ class TestRequisitionRuleGroup(TestCase):
     def test_recovers_from_missing_metadata(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(RequisitionRuleGroup3)
-        subject_visit = self.enroll(gender=FEMALE)
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name="schedule",
+            gender=FEMALE,
+        )
         try:
             RequisitionMetadata.objects.get(
                 model="clinicedc_tests.subjectrequisition",

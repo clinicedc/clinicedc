@@ -7,10 +7,11 @@ from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import IN_PROGRESS_APPT, MISSED_APPT
 from edc_appointment.creators import create_unscheduled_appointment
+from edc_appointment.tests.utils import create_related_visit
 from edc_metadata.metadata import CreatesMetadataError
 from edc_metadata.metadata_updater import MetadataUpdater
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
-from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
 
 from .metadata_test_mixin import TestMetadataMixin
@@ -27,20 +28,23 @@ class TestCreatesMetadata(TestMetadataMixin, TestCase):
         self.assertTrue(repr(obj))
 
     def test_creates_metadata_on_scheduled(self):
-        self.assertGreater(CrfMetadata.objects.all().count(), 0)
-        self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
+        self.assertEqual(CrfMetadata.objects.all().count(), 9)
+        self.assertEqual(RequisitionMetadata.objects.all().count(), 4)
 
     def test_creates_metadata_on_unscheduled(self):
-        create_unscheduled_appointment(
-            next_appt_datetime=self.appointment.appt_datetime + relativedelta(days=1),
+        appointment = create_unscheduled_appointment(
             appointment=self.appointment,
+            next_appt_datetime=self.appointment.appt_datetime + relativedelta(days=1),
         )
-        self.assertGreater(CrfMetadata.objects.all().count(), 0)
-        self.assertGreater(RequisitionMetadata.objects.all().count(), 0)
+        create_related_visit(appointment=appointment, reason=UNSCHEDULED)
+        self.assertGreater(CrfMetadata.objects.all().count(), 9)
+        self.assertEqual(RequisitionMetadata.objects.all().count(), 4)
 
     def test_does_not_creates_metadata_on_missed_no_crfs_missed(self):
         self.appointment_2000.appt_timing = MISSED_APPT
-        self.appointment_2000.save_base(update_fields=["appt_timing"])
+        self.appointment_2000.save()
+        create_related_visit(self.appointment_2000, reason=MISSED_VISIT)
+
         self.assertEqual(
             CrfMetadata.objects.filter(visit_code=self.appointment_2000.visit_code).count(),
             1,

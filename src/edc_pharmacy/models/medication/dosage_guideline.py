@@ -83,9 +83,9 @@ class DosageGuideline(BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Dosage Guideline"
         verbose_name_plural = "Dosage Guidelines"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["medication", "dose", "dose_units", "dose_per_kg"],
                 name="%(app_label)s_%(class)s_med_dose_uniq",
-            )
-        ]
+            ),
+        )

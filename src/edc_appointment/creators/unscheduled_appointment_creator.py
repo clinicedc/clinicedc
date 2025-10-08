@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING, Any
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
-from edc_utils import formatted_datetime, to_utc
-from edc_utils.date import to_local
+from edc_utils import formatted_date, formatted_datetime, to_local
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.utils import get_lower_datetime
 
@@ -49,13 +48,14 @@ class UnscheduledAppointmentCreator:
 
     def __init__(
         self,
-        subject_identifier: str = None,
-        visit_schedule_name: str = None,
-        schedule_name: str = None,
-        visit_code: str = None,
-        suggested_visit_code_sequence: int = None,
+        *,
+        subject_identifier: str,
+        visit_schedule_name: str,
+        schedule_name: str,
+        visit_code: str,
+        suggested_visit_code_sequence: int | None = None,
         suggested_appt_datetime: datetime | None = None,
-        facility: Facility = None,
+        facility: Facility | None = None,
         request: Any | None = None,
     ):
         self._parent_appointment = None
@@ -125,7 +125,7 @@ class UnscheduledAppointmentCreator:
                 appt_status=IN_PROGRESS_APPT,
             )
         except MultipleObjectsReturned as e:
-            raise UnscheduledAppointmentError(e)
+            raise UnscheduledAppointmentError(e) from e
         except ObjectDoesNotExist:
             pass
         else:
@@ -154,7 +154,7 @@ class UnscheduledAppointmentCreator:
             msg = str(e).replace("Perhaps catch this in the form", "")
             raise UnscheduledAppointmentError(
                 f"Unable to create unscheduled appointment. {msg}"
-            )
+            ) from e
         self.appointment = appointment_creator.appointment
 
     def has_perm_or_raise(self, request) -> None:
@@ -170,25 +170,32 @@ class UnscheduledAppointmentCreator:
     def suggested_appt_datetime(self):
         return self._suggested_appt_datetime
 
+    def after_calling_appt_or_raise(self, suggested_dte: datetime):
+        """Raises if on same day or before otherwise returns True"""
+        suggested_dt = to_local(suggested_dte).date()
+        calling_dt = to_local(self.calling_appointment.appt_datetime).date()
+        if suggested_dt <= calling_dt:
+            suggested = formatted_date(suggested_dt)
+            calling = formatted_date(calling_dt)
+            raise CreateAppointmentError(
+                "Suggested appointment date must be after the calling appointment date. "
+                f"Got {suggested} not after {calling}."
+            )
+        return True
+
     @suggested_appt_datetime.setter
-    def suggested_appt_datetime(self, value: datetime | None):
-        if value:
-            if to_utc(value).date() <= self.calling_appointment.appt_datetime.date():
-                raise CreateAppointmentError(
-                    "Suggested date/time must be after the calling appointment date/time"
-                )
-            self._suggested_appt_datetime = value
+    def suggested_appt_datetime(self, suggested_dte: datetime | None):
+        if suggested_dte and self.after_calling_appt_or_raise(suggested_dte):
+            self._suggested_appt_datetime = suggested_dte
         else:
             self._suggested_appt_datetime = (
                 self.calling_appointment.appt_datetime + relativedelta(days=1)
             )
-        if self.parent_appointment.next and to_utc(
-            self.suggested_appt_datetime
-        ) >= get_lower_datetime(self.parent_appointment.next):
-            dt = formatted_datetime(to_local(self.suggested_appt_datetime))
-            next_dt = formatted_datetime(
-                to_local(get_lower_datetime(self.parent_appointment.next))
-            )
+        if self.parent_appointment.next and self.suggested_appt_datetime >= get_lower_datetime(
+            self.parent_appointment.next
+        ):
+            dt = formatted_datetime(self.suggested_appt_datetime)
+            next_dt = formatted_datetime(get_lower_datetime(self.parent_appointment.next))
             raise UnscheduledAppointmentError(
                 "Appointment date exceeds window period. Next appointment is "
                 f"{self.parent_appointment.next.visit_code} and lower window starts "

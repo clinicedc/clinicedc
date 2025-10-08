@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
@@ -104,20 +105,14 @@ class SkipAppointments:
         ).exclude(
             appt_status__in=[SKIPPED_APPT, NEW_APPT],
         ):
-            try:
+            with contextlib.suppress(AppointmentAlreadyStarted):
                 reset_appointment(appointment)
-            except AppointmentAlreadyStarted:
-                pass
 
         for appointment in self.scheduled_appointments.filter(
             appt_datetime__gt=self.appointment.appt_datetime,
         ):
-            try:
+            with contextlib.suppress(IntegrityError, AppointmentAlreadyStarted):
                 reset_appointment(appointment)
-            except IntegrityError as e:
-                print(e)
-            except AppointmentAlreadyStarted:
-                pass
 
     def update_appointments(self) -> bool:
         """Return True if next scheduled appointment is updated.
@@ -152,10 +147,8 @@ class SkipAppointments:
                     next_scheduled_appointment_updated = True
                 break
             else:
-                try:
+                with contextlib.suppress(AppointmentAlreadyStarted):
                     skip_appointment(appointment, comment=skip_comment)
-                except AppointmentAlreadyStarted:
-                    pass
             appointment = appointment.relative_next
         for appointment in cancelled_appointments:
             appointment.delete()
@@ -198,7 +191,7 @@ class SkipAppointments:
             except FieldError as e:
                 raise SkipAppointmentsFieldError(
                     f"{e}. See {self.crf_model_cls._meta.label_lower}."
-                )
+                ) from e
         return self._last_crf_obj
 
     @property
@@ -215,11 +208,11 @@ class SkipAppointments:
         if not self._next_appt_date:
             try:
                 self._next_appt_date = getattr(self.last_crf_obj, self.dt_fld)
-            except AttributeError:
+            except AttributeError as e:
                 raise SkipAppointmentsFieldError(
                     f"Unknown field name for next scheduled appointment date. See "
                     f"{self.last_crf_obj._meta.label_lower}. Got `{self.dt_fld}`."
-                )
+                ) from e
         return self._next_appt_date
 
     @property
@@ -265,11 +258,11 @@ class SkipAppointments:
         if not self._next_visit_code:
             try:
                 self._next_visit_code = getattr(self.last_crf_obj, self.visit_code_fld)
-            except AttributeError:
+            except AttributeError as e:
                 raise SkipAppointmentsFieldError(
                     "Unknown field name for visit code. See "
                     f"{self.last_crf_obj._meta.label_lower}. Got `{self.visit_code_fld}`."
-                )
+                ) from e
             self._next_visit_code = getattr(
                 self._next_visit_code, "visit_code", self._next_visit_code
             )
@@ -285,7 +278,7 @@ class SkipAppointments:
         try:
             raise_on_appt_datetime_not_in_window(appointment)
         except AppointmentWindowError as e:
-            raise SkipAppointmentsValueError(e)
+            raise SkipAppointmentsValueError(e) from e
 
         next_appt = get_appointment_by_datetime(
             self.next_appt_datetime,
@@ -309,15 +302,3 @@ class SkipAppointments:
             raise_if_in_gap=False,
         )
         return self.appointment == next_appointment
-
-        # and getattr(
-        #     self.crf_obj, "allow_create_interim", None
-        # ):
-        #         subject_identifier=self.appointment.subject_identifier,
-        #         visit_schedule_name=self.appointment.visit_schedule_name,
-        #         schedule_name=self.appointment.schedule_name,
-        #         timepoint=self.appointment.timepoint,
-        #         visit_code=self.appointment.visit_code,
-        #         visit_code_sequence=self.appointment.visit_code_sequence + 1,
-        #         facility=self.appointment.facility,
-        #     )

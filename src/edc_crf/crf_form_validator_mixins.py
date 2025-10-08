@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from edc_consent.form_validators import ConsentDefinitionFormValidatorMixin
 from edc_form_validators import ReportDatetimeFormValidatorMixin
-from edc_utils import age, to_utc
+from edc_utils import age, to_local
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.visit_schedule import VisitSchedule
 from edc_visit_tracking.modelform_mixins import get_related_visit
@@ -43,7 +43,7 @@ class BaseFormValidatorMixin(
     @property
     def age_in_years(self) -> int | None:
         if self.report_datetime and self.subject_consent.dob:
-            return age(self.subject_consent.dob, to_utc(self.report_datetime)).years
+            return age(self.subject_consent.dob, to_local(self.report_datetime)).years
         return None
 
 
@@ -57,21 +57,6 @@ class CrfFormValidatorMixin(BaseFormValidatorMixin):
     def subject_identifier(self) -> str:
         """Always returns the subject_identifier from related_visit"""
         return self.related_visit.subject_identifier
-
-    @property
-    def report_datetime(self) -> datetime:
-        """Returns report_datetime or raises.
-
-        Report datetime is always a required field on a CRF model,
-        Django will raise a field ValidationError before getting
-        here if report_datetime is None.
-        """
-        report_datetime = None
-        if self.report_datetime_field_attr in self.cleaned_data:
-            report_datetime = self.cleaned_data.get(self.report_datetime_field_attr)
-        elif self.instance:
-            report_datetime = self.instance.report_datetime
-        return report_datetime
 
     @property
     def related_visit_model_attr(self) -> str:

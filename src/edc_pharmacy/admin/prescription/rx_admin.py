@@ -76,14 +76,14 @@ class RxAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
     )
 
     @admin.display
-    def add_refill(self, obj=None, label=None):
+    def add_refill(self, obj=None, label=None):  # noqa: ARG002
         url = reverse("edc_pharmacy_admin:edc_pharmacy_rxrefill_add")
         url = f"{url}?rx={obj.id}"
         context = dict(title="Add refill", url=url, label="Add refill")
         return render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)
 
     @admin.display
-    def refills(self, obj=None, label=None):
+    def refills(self, obj=None, label=None):  # noqa: ARG002
         url = reverse("edc_pharmacy_admin:edc_pharmacy_rxrefill_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(title="RX items", url=url, label="Refills")

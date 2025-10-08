@@ -3,7 +3,6 @@ from decimal import Decimal
 from django.contrib import admin, messages
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_audit_fields.admin import audit_fieldset_tuple
@@ -32,8 +31,8 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     form = OrderItemForm
     ordering = ("-order_item_identifier",)
-    autocomplete_fields = ["product", "container"]
-    actions = [delete_order_items_action]
+    autocomplete_fields = ("product", "container")
+    actions = (delete_order_items_action,)
 
     fieldsets = (
         (
@@ -66,7 +65,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         OrderItemStatusListFilter,
         ProductAssignmentListFilter,
     )
-    radio_fields = {"status": admin.VERTICAL}
+    radio_fields = {"status": admin.VERTICAL}  # noqa: RUF012
     search_fields = (
         "id",
         "order__id",
@@ -79,33 +78,29 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     def get_list_display(self, request):
         fields = super().get_list_display(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_list_filter(self, request):
         fields = super().get_list_filter(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_search_fields(self, request):
         fields = super().get_search_fields(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         if obj:
-            return self.readonly_fields + ("order",)
+            return tuple({*self.readonly_fields, "order"})
         return self.readonly_fields
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
         msg = _("All order items have been received")
-        if not message_in_queue(request, msg):
-            if (
-                queryset.values("unit_qty").filter(unit_qty=0).count()
-                == queryset.model.objects.values("unit_qty").all().count()
-            ):
-                messages.add_message(request, messages.INFO, msg)
+        if not message_in_queue(request, msg) and (
+            queryset.values("unit_qty").filter(unit_qty=0).count()
+            == queryset.model.objects.values("unit_qty").all().count()
+        ):
+            messages.add_message(request, messages.INFO, msg)
         return queryset
 
     @admin.display(description="ORDER ITEM #", ordering="-order_item_identifier")
@@ -185,10 +180,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             received_items_link,
         ]
         renders = [r for r in renders if r]
-        return format_html(
-            "{}",
-            mark_safe("<BR>".join(renders)),  # nosec B703, B308
-        )
+        return mark_safe("<BR>".join(renders))  # noqa: S308
 
     @staticmethod
     def get_receive_obj(obj: OrderItem) -> Receive | None:

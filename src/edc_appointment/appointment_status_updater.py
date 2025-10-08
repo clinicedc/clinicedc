@@ -33,9 +33,9 @@ class AppointmentStatusUpdater:
             self.appointment.appt_status = IN_PROGRESS_APPT
             self.appointment.save_base(update_fields=["appt_status"])
         if clear_others_in_progress:
-            for appointment in self.appointment.__class__.objects.filter(
+            for appt in self.appointment.__class__.objects.filter(
                 visit_schedule_name=self.appointment.visit_schedule_name,
                 schedule_name=self.appointment.schedule_name,
                 appt_status=IN_PROGRESS_APPT,
             ).exclude(id=self.appointment.id):
-                update_appt_status(appointment, save=True)
+                update_appt_status(appt, save=True)

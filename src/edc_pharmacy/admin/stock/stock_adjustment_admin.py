@@ -22,7 +22,7 @@ class StockAdjustmentAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     show_form_tools = True
     show_history_label = True
-    autocomplete_fields = ["stock"]
+    autocomplete_fields = ("stock",)
 
     # form = StockAdjustmentForm
 

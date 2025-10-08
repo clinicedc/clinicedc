@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 
 from edc_model_admin.utils import add_to_messages_once
-from edc_utils import convert_php_dateformat
+from edc_utils.text import convert_php_dateformat
 
 from .constants import TMG_ROLE
 

@@ -21,8 +21,8 @@ class MedicationAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display: tuple[str, ...] = ("name", "display_name", "created", "modified")
+    list_display = ("name", "display_name", "created", "modified")
 
-    search_fields: tuple[str, ...] = ("name",)
+    search_fields = ("name",)
 
-    ordering: tuple[str, ...] = ("name",)
+    ordering = ("name",)

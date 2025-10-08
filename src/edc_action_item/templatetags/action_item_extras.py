@@ -6,8 +6,8 @@ from django import template
 
 from edc_auth.utils import get_user
 from edc_constants.constants import CANCELLED, CLOSED, HIGH_PRIORITY, NEW, OPEN
-from edc_utils import formatted_date
 from edc_utils.date import to_local
+from edc_utils.text import formatted_date
 
 from ..models import ActionItem
 from ..site_action_items import site_action_items

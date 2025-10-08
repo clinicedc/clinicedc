@@ -58,7 +58,7 @@ class ReportablesFormValidatorMixin:
         try:
             reference_range_evaluator.validate_reportable_fields()
         except NotEvaluated as e:
-            self.raise_validation_error({"__all__": str(e)}, INVALID_ERROR)
+            self.raise_validation_error({"__all__": str(e)}, INVALID_ERROR, exc=e)
         reference_range_evaluator.validate_results_abnormal_field()
         self.applicable_if(
             YES, field="results_abnormal", field_applicable="results_reportable"

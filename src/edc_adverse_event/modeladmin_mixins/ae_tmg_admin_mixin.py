@@ -9,7 +9,7 @@ from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_constants.constants import NOT_APPLICABLE, OTHER
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_utils import convert_php_dateformat
+from edc_utils.text import convert_php_dateformat
 
 from ..forms import AeTmgForm
 from ..models import AeClassification

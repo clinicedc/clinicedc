@@ -12,7 +12,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
-from edc_utils import floor_secs, formatted_datetime, to_utc
+from edc_utils import floor_secs, formatted_datetime
 from edc_utils.date import to_local
 
 from .baseline import Baseline
@@ -39,14 +39,14 @@ def get_lower_datetime(instance: Appointment) -> datetime:
     if instance.related_visit:
         dte = instance.appt_datetime
     else:
-        instance.visit.dates.base = to_utc(instance.first.timepoint_datetime)
+        instance.visit.dates.base = instance.first.timepoint_datetime
         dte = instance.visit.dates.lower
     return dte
 
 
 def get_upper_datetime(instance) -> datetime:
     """Returns the datetime of the upper window"""
-    instance.visit.dates.base = to_utc(instance.first.timepoint_datetime)
+    instance.visit.dates.base = instance.first.timepoint_datetime
     return instance.visit.dates.upper
 
 
@@ -271,7 +271,7 @@ def get_onschedule_model_instance(
     try:
         onschedule_obj = model_cls.objects.get(
             subject_identifier=subject_identifier,
-            onschedule_datetime__lte=to_utc(reference_datetime) + relativedelta(seconds=1),
+            onschedule_datetime__lte=reference_datetime + relativedelta(seconds=1),
         )
     except ObjectDoesNotExist as e:
         dte_as_str = formatted_datetime(to_local(reference_datetime))

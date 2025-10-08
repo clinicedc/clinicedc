@@ -16,8 +16,8 @@ class ReceiveForm(forms.ModelForm):
     class Meta:
         model = Receive
         fields = "__all__"
-        help_text = {"receive_identifier": "(read-only)"}
-        widgets = {
+        help_text = {"receive_identifier": "(read-only)"}  # noqa: RUF012
+        widgets = {  # noqa: RUF012
             "receive_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
         }
 
@@ -26,7 +26,7 @@ class ReceiveFormSuper(forms.ModelForm):
     class Meta:
         model = Receive
         fields = "__all__"
-        help_text = {"receive_identifier": "(read-only)"}
-        widgets = {
+        help_text = {"receive_identifier": "(read-only)"}  # noqa: RUF012
+        widgets = {  # noqa: RUF012
             "receive_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
         }

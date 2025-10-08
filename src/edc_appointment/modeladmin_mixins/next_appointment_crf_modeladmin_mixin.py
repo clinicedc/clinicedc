@@ -46,7 +46,7 @@ class NextAppointmentCrfModelAdminMixin(admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "offschedule_today": admin.VERTICAL,
         "crf_status": admin.VERTICAL,
         "info_source": admin.VERTICAL,
@@ -103,5 +103,5 @@ class NextAppointmentCrfModelAdminMixin(admin.ModelAdmin):
             site=next_appt.site
         )
 
-    def get_default_info_source(self, request):
+    def get_default_info_source(self, request):  # noqa: ARG002
         return django_apps.get_model("edc_appointment.infosources").objects.get(name=PATIENT)

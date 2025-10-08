@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from edc_utils import to_local
+from edc_utils.date import to_local
 
 from ..ordered_collection import OrderedCollection
 

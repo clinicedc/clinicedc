@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import date, datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
-from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
@@ -89,13 +88,10 @@ class Egfr:
         if self.dob:
             self.age_in_years = age(
                 born=self.dob,
-                reference_dt=self.report_datetime.astimezone(ZoneInfo("UTC")),
+                reference_dt=self.report_datetime,
             ).years
         elif not self.dob and self.age_in_years:
-            self.dob = (
-                self.report_datetime.astimezone(ZoneInfo("UTC"))
-                - relativedelta(years=self.age_in_years)
-            ).date()
+            self.dob = (self.report_datetime - relativedelta(years=self.age_in_years)).date()
         else:
             raise EgfrError("Expected `age_in_years` or `dob`. Got None for both.")
 
@@ -105,7 +101,7 @@ class Egfr:
             self.percent_drop_threshold = calling_crf.percent_drop_threshold
             self.related_visit = calling_crf.related_visit
             self.report_datetime = calling_crf.report_datetime
-            self.assay_date = calling_crf.assay_datetime.astimezone(ZoneInfo("UTC")).date()
+            self.assay_date = calling_crf.assay_datetime.date()
         else:
             self.creatinine_units = creatinine_units
             self.creatinine_value = creatinine_value
@@ -113,7 +109,7 @@ class Egfr:
             self.related_visit = related_visit
             self.report_datetime = report_datetime
             if assay_datetime:
-                self.assay_date = assay_datetime.astimezone(ZoneInfo("UTC")).date()
+                self.assay_date = assay_datetime.date()
 
         if self.percent_drop_threshold is not None and self.percent_drop_threshold < 1.0:
             raise EgfrError(

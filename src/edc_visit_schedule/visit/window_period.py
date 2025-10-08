@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 
-from edc_utils import to_local
+from edc_utils.date import to_local
 
 
 class WindowPeriod:

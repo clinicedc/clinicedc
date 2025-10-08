@@ -8,6 +8,8 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.utils import timezone
 
+from edc_utils.text import formatted_datetime
+
 
 class AgeValueError(Exception):
     pass
@@ -35,23 +37,23 @@ def get_dob(age_in_years: int, now: date | datetime | None = None) -> date:
 def age(born: date | datetime, reference_dt: date | datetime) -> relativedelta:
     """Returns a relative delta.
 
-    Convert dates or datetimes to UTC datetimes.
+    Convert dates to datetimes in local timezone.
     """
-    if born is None:
+    if born is None or reference_dt is None:
         raise AgeValueError("DOB cannot be None")
-    try:
-        born_utc = born.astimezone(ZoneInfo("UTC"))
-    except AttributeError:
-        born_utc = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo("UTC"))
-    try:
-        reference_dt_utc = reference_dt.astimezone(ZoneInfo("UTC"))
-    except AttributeError:
-        reference_dt_utc = datetime(*[*reference_dt.timetuple()][0:6], tzinfo=ZoneInfo("UTC"))
-    rdelta = relativedelta(reference_dt_utc, born_utc)
-    if born_utc > reference_dt_utc:
+    if reference_dt is None:
+        raise AgeValueError("Reference cannot be None")
+    if not hasattr(born, "date"):
+        born = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo(settings.TIME_ZONE))
+    if not hasattr(reference_dt, "date"):
+        reference_dt = datetime(
+            *[*reference_dt.timetuple()][0:6], tzinfo=ZoneInfo(settings.TIME_ZONE)
+        )
+    rdelta = relativedelta(reference_dt, born)
+    if born > reference_dt:
         raise AgeValueError(
-            f"Reference date {reference_dt} {reference_dt.tzinfo!s} "
-            f"precedes DOB {born} {timezone}. Got {rdelta}"
+            f"Reference date {formatted_datetime(reference_dt)} precedes DOB "
+            f"{formatted_datetime(born)}. Got {rdelta}"
         )
     return rdelta
 
@@ -63,7 +65,7 @@ def formatted_age(
 ) -> str:
     age_as_str = "?"
     if born:
-        tz = tz or getattr(settings, "TIME_ZONE", "UTC")
+        tz = tz or settings.TIME_ZONE
         born = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo(tz))
         reference_dt = reference_dt or timezone.now()
         age_delta = age(born, reference_dt or timezone.now())

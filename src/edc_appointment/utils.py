@@ -3,6 +3,7 @@ from __future__ import annotations
 import calendar
 import sys
 import warnings
+from collections.abc import Callable
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
@@ -18,7 +19,7 @@ from django.core.exceptions import (
     ValidationError,
 )
 from django.core.handlers.wsgi import WSGIRequest
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.db.models import Count, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -33,8 +34,8 @@ from edc_metadata.utils import (
     get_requisition_metadata_model_cls,
     has_keyed_metadata,
 )
-from edc_utils import convert_php_dateformat
 from edc_utils.date import to_local
+from edc_utils.text import convert_php_dateformat
 from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
     UnScheduledVisitWindowError,
@@ -200,6 +201,7 @@ def get_appt_reason_default() -> str:
             "Settings attribute `EDC_APPOINTMENT_DEFAULT_APPT_REASON` has "
             "been deprecated in favor of `EDC_APPOINTMENT_APPT_REASON_DEFAULT`. ",
             DeprecationWarning,
+            stacklevel=2,
         )
     return value or SCHEDULED_APPT
 
@@ -258,10 +260,10 @@ def missed_appointment(appointment: Appointment) -> None:
 
 
 def reset_visit_code_sequence_or_pass(
-    subject_identifier: str = None,
-    visit_schedule_name: str = None,
-    schedule_name: str = None,
-    visit_code: str = None,
+    subject_identifier: str,
+    visit_schedule_name: str,
+    schedule_name: str,
+    visit_code: str,
     appointment: Appointment | None = None,
     write_stdout: bool | None = None,
 ) -> Appointment | None:
@@ -294,36 +296,33 @@ def reset_visit_code_sequence_or_pass(
             visit_code_sequence__gt=0, **opts
         ).delete()
 
-        try:
-            with transaction.atomic():
-                # set appt and related visit visit_code_sequences to the
-                # negative of the current value
-                for obj in get_appointment_model_cls().objects.filter(
-                    visit_code_sequence__gt=0, **opts
-                ):
-                    obj.visit_code_sequence = obj.visit_code_sequence * -1
-                    obj.save_base(update_fields=["visit_code_sequence"])
-                    if getattr(obj, "related_visit", None):
-                        obj.related_visit.visit_code_sequence = obj.visit_code_sequence
-                        obj.related_visit.save_base(update_fields=["visit_code_sequence"])
-                        obj.related_visit.metadata_create()
+        with transaction.atomic():
+            # set appt and related visit visit_code_sequences to the
+            # negative of the current value
+            for obj in get_appointment_model_cls().objects.filter(
+                visit_code_sequence__gt=0, **opts
+            ):
+                obj.visit_code_sequence = obj.visit_code_sequence * -1
+                obj.save_base(update_fields=["visit_code_sequence"])
+                if getattr(obj, "related_visit", None):
+                    obj.related_visit.visit_code_sequence = obj.visit_code_sequence
+                    obj.related_visit.save_base(update_fields=["visit_code_sequence"])
+                    obj.related_visit.metadata_create()
 
-                # reset sequence order by appt_datetime
-                for index, obj in enumerate(
-                    get_appointment_model_cls()
-                    .objects.filter(visit_code_sequence__lt=0, **opts)
-                    .order_by("appt_datetime"),
-                    start=1,
-                ):
-                    obj.visit_code_sequence = index
-                    obj.save_base(update_fields=["visit_code_sequence"])
-                    if getattr(obj, "related_visit", None):
-                        obj.related_visit.visit_code_sequence = index
-                        obj.related_visit.save_base(update_fields=["visit_code_sequence"])
-                        obj.related_visit.metadata_create()
+            # reset sequence order by appt_datetime
+            for index, obj in enumerate(
+                get_appointment_model_cls()
+                .objects.filter(visit_code_sequence__lt=0, **opts)
+                .order_by("appt_datetime"),
+                start=1,
+            ):
+                obj.visit_code_sequence = index
+                obj.save_base(update_fields=["visit_code_sequence"])
+                if getattr(obj, "related_visit", None):
+                    obj.related_visit.visit_code_sequence = index
+                    obj.related_visit.save_base(update_fields=["visit_code_sequence"])
+                    obj.related_visit.metadata_create()
 
-        except IntegrityError:
-            raise
         if appointment:
             # refresh the given appt if not None since
             # appointment visit_code_sequence may have changed
@@ -332,9 +331,9 @@ def reset_visit_code_sequence_or_pass(
 
 
 def reset_visit_code_sequence_for_subject(
-    subject_identifier: str = None,
-    visit_schedule_name: str = None,
-    schedule_name: str = None,
+    subject_identifier: str,
+    visit_schedule_name: str,
+    schedule_name: str,
 ) -> None:
     """Resets / validates appointment `visit code sequences` for any
     `visit code` with unscheduled appointments for the given subject
@@ -376,7 +375,7 @@ def update_appt_status(appointment: Appointment, save: bool | None = None):
     relative to the visit tracking model and CRFs and
     requisitions
     """
-    if appointment.appt_status == CANCELLED_APPT or appointment.appt_status == SKIPPED_APPT:
+    if appointment.appt_status in (CANCELLED_APPT, SKIPPED_APPT):
         pass
     elif not appointment.related_visit:
         appointment.appt_status = NEW_APPT
@@ -640,16 +639,16 @@ def get_appointment_by_datetime(
                 and in_next_window_adjusted
                 and appointment.next.visit.add_window_gap_to_lower
             ):
-                appointment = appointment.next
+                appointment = appointment.next  # noqa: PLW2901
                 break
             if (
                 in_gap
                 and not in_next_window_adjusted
                 and appointment.next.visit.add_window_gap_to_lower
             ):
-                appointment = None
+                appointment = None  # noqa: PLW2901
                 break
-            appointment = appointment.next
+            appointment = appointment.next  # noqa: PLW2901
         else:
             break
     return appointment
@@ -790,7 +789,7 @@ def refresh_appointments(
 
 
 def validate_date_is_on_clinic_day(
-    cleaned_data: dict = None, clinic_days=None, raise_validation_error: callable = None
+    cleaned_data: dict, clinic_days: list[int], raise_validation_error: Callable | None = None
 ):
     raise_validation_error = raise_validation_error or ValidationError
     if cleaned_data.get("appt_date"):
@@ -833,9 +832,6 @@ def validate_date_is_on_clinic_day(
             not in clinic_days
         ):
             days_str = [day_abbr[d] for d in clinic_days]
-            days_str = []
-            for d in clinic_days:
-                days_str.append(day_abbr[d])
             raise raise_validation_error(
                 {
                     "appt_date": _(

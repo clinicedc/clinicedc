@@ -4,7 +4,6 @@ from ...models import RepackRequest
 
 
 class RepackRequestForm(forms.ModelForm):
-
     def clean(self):
         cleaned_data = super().clean()
         if cleaned_data.get("from_stock") and not getattr(
@@ -31,11 +30,14 @@ class RepackRequestForm(forms.ModelForm):
             > cleaned_data.get("from_stock").container.qty
         ):
             raise forms.ValidationError({"container": "Cannot pack into larger container."})
-        if cleaned_data.get("requested_qty") and self.instance.processed_qty:
-            if cleaned_data.get("requested_qty") < self.instance.processed_qty:
-                raise forms.ValidationError(
-                    {"requested_qty": "Cannot be less than the number of containers processed"}
-                )
+        if (
+            cleaned_data.get("requested_qty")
+            and self.instance.processed_qty
+            and cleaned_data.get("requested_qty") < self.instance.processed_qty
+        ):
+            raise forms.ValidationError(
+                {"requested_qty": "Cannot be less than the number of containers processed"}
+            )
         if (
             cleaned_data.get("requested_qty") * cleaned_data.get("container").qty
             > cleaned_data.get("from_stock").unit_qty
@@ -56,9 +58,9 @@ class RepackRequestForm(forms.ModelForm):
     class Meta:
         model = RepackRequest
         fields = "__all__"
-        help_text = {
+        help_text = {  # noqa: RUF012
             "repack_identifier": "(read-only)",
         }
-        widgets = {
+        widgets = {  # noqa: RUF012
             "repack_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
         }

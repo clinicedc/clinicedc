@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 
-from edc_utils import formatted_datetime
+from edc_utils.text import formatted_datetime
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ...utils import OffstudyError, raise_if_offstudy
@@ -54,4 +54,4 @@ class OffstudyCrfModelFormMixin:
                     report_datetime=self.report_datetime,
                 )
             except OffstudyError as e:
-                raise forms.ValidationError(e)
+                raise forms.ValidationError(str(e)) from e

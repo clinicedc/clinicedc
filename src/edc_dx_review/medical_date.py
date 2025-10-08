@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 
 from edc_constants.constants import GT, GTE, LT, LTE
 from edc_model import estimated_date_from_ago
-from edc_utils import convert_php_dateformat
+from edc_utils.text import convert_php_dateformat
 
 FAILED_COMPARISON = "FAILED_COMPARISON"
 BEFORE_AFTER_BOTH_TRUE = "BEFORE_AFTER_BOTH_TRUE"

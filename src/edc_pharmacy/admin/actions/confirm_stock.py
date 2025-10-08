@@ -6,7 +6,7 @@ from django.contrib import admin, messages
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.utils.translation import gettext
+from django.utils.translation import gettext as _
 
 from ...models import Receive, RepackRequest, Stock
 
@@ -17,7 +17,7 @@ def confirm_repacked_stock_action(modeladmin, request, queryset: QuerySet[Repack
         messages.add_message(
             request,
             messages.ERROR,
-            gettext("Select one and only one item"),
+            _("Select one and only one item"),
         )
     else:
         return confirm_stock_from_queryset(modeladmin, request, queryset)
@@ -30,7 +30,7 @@ def confirm_received_stock_action(modeladmin, request, queryset: QuerySet[Repack
         messages.add_message(
             request,
             messages.ERROR,
-            gettext("Select one and only one item"),
+            _("Select one and only one item"),
         )
     else:
         return confirm_stock_from_queryset(modeladmin, request, queryset)

@@ -4,8 +4,6 @@ from datetime import datetime
 
 from django import forms
 
-from edc_utils import to_utc
-
 from ..subject_schedule import InvalidOffscheduleDate
 from .visit_schedule_non_crf_modelform_mixin import VisitScheduleNonCrfModelFormMixin
 
@@ -42,7 +40,7 @@ class OffScheduleModelFormMixin(VisitScheduleNonCrfModelFormMixin):
     @property
     def offschedule_datetime(self) -> datetime | None:
         if self.offschedule_datetime_field_attr in self.cleaned_data:
-            return to_utc(self.cleaned_data.get(self.offschedule_datetime_field_attr))
+            return self.cleaned_data.get(self.offschedule_datetime_field_attr)
         return getattr(self.instance, self.offschedule_datetime_field_attr)
 
     @property

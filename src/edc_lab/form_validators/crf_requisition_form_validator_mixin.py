@@ -4,7 +4,8 @@ from typing import TYPE_CHECKING
 
 from django import forms
 
-from edc_utils import formatted_datetime, to_utc
+from edc_utils.date import to_local
+from edc_utils.text import formatted_datetime
 
 if TYPE_CHECKING:
     from ..model_mixins import RequisitionModelMixin
@@ -65,17 +66,22 @@ class CrfRequisitionFormValidatorMixin:
         requisition: RequisitionModelMixin,
         assay_datetime_field: str | None = None,
     ) -> None:
-        assay_datetime_field = assay_datetime_field or self.assay_datetime_field
-        assay_datetime = self.cleaned_data.get(assay_datetime_field)
-        if assay_datetime:
-            assay_datetime = to_utc(assay_datetime)
-            requisition_datetime = to_utc(requisition.requisition_datetime)
-            if assay_datetime < requisition_datetime:
-                raise forms.ValidationError(
-                    {
-                        assay_datetime_field: (
-                            f"Invalid. Cannot be before date of requisition "
-                            f"{formatted_datetime(requisition_datetime)}."
-                        )
-                    }
-                )
+        """Validate assay datetime is on or after requisition
+        datetime.
+        """
+        assay_datetime = self.cleaned_data.get(
+            assay_datetime_field or self.assay_datetime_field
+        )
+        if assay_datetime > self.report_datetime:
+            raise forms.ValidationError(
+                {assay_datetime_field: "Invalid. Cannot be after report datetime."}
+            )
+        if assay_datetime < requisition.requisition_datetime:
+            raise forms.ValidationError(
+                {
+                    assay_datetime_field: (
+                        "Invalid. Cannot be before requisition date. Requisition date is "
+                        f"{formatted_datetime(to_local(requisition.requisition_datetime))}."
+                    )
+                }
+            )

@@ -7,6 +7,7 @@ from django.contrib.admin.sites import all_sites
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction
 
+from edc_visit_schedule.exceptions import MissedVisitError, UnScheduledVisitError
 from edc_visit_schedule.visit import CrfCollection, RequisitionCollection
 from edc_visit_tracking.constants import MISSED_VISIT
 
@@ -206,17 +207,29 @@ class Creator:
         if self.related_visit.reason == MISSED_VISIT:
             # missed visit CRFs only
             crfs = self.related_visit.visit.crfs_missed.forms
+            if not crfs:
+                raise MissedVisitError(
+                    "Visit not configured for missed visit. "
+                    f"visit.crfs_missed=None. Got {self.related_visit.visit}"
+                )
         elif self.related_visit.visit_code_sequence != 0:
             # unscheduled + prn CRFs only
-            models = [crf.model for crf in self.related_visit.visit.crfs_unscheduled]
-            crfs = self.related_visit.visit.crfs_unscheduled.forms + tuple(
-                [f for f in self.related_visit.visit.crfs_prn if f.model not in models]
+            models = (crf.model for crf in self.related_visit.visit.crfs_unscheduled)
+            crfs = (
+                *self.related_visit.visit.crfs_unscheduled.forms,
+                *{f for f in self.related_visit.visit.crfs_prn if f.model not in models},
             )
+            if not crfs:
+                raise UnScheduledVisitError(
+                    "Visit not configured for unscheduled visit. "
+                    f"visit.crfs_unscheduled=None. Got {self.related_visit.visit}"
+                )
         else:
             # scheduled + prn CRFs only
-            models = [crf.model for crf in self.related_visit.visit.crfs]
-            crfs = self.related_visit.visit.crfs.forms + tuple(
-                [f for f in self.related_visit.visit.crfs_prn if f.model not in models]
+            models = (crf.model for crf in self.related_visit.visit.crfs)
+            crfs = (
+                *self.related_visit.visit.crfs.forms,
+                *{f for f in self.related_visit.visit.crfs_prn if f.model not in models},
             )
         return CrfCollection(*crfs, name="crfs")
 
@@ -278,7 +291,7 @@ class Destroyer:
     def metadata_requisition_model_cls(self) -> RequisitionMetadata:
         return django_apps.get_model(self.metadata_requisition_model)
 
-    def delete(self, entry_status_not_in: list[str] = None) -> int:
+    def delete(self, entry_status_not_in: list[str] | None = None) -> int:
         """Deletes all CRF and requisition metadata for the
         related_visit instance excluding where entry_status in
         [KEYED, NOT_REQUIRED].

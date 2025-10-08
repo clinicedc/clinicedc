@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
-from django.conf import settings
+from django.utils import timezone
 
 
 class EdcDatetimeError(Exception):
@@ -11,21 +11,21 @@ class EdcDatetimeError(Exception):
 
 
 def get_utcnow() -> datetime:
-    return datetime.now().astimezone(ZoneInfo("UTC"))
+    return timezone.localtime(None, timezone=ZoneInfo("UTC"))
 
 
 def get_utcnow_as_date() -> date:
-    return datetime.now().astimezone(ZoneInfo("UTC")).date()
+    return timezone.localtime(None, timezone=ZoneInfo("UTC")).date()
 
 
-def to_utc(dt: datetime) -> datetime:
+def to_utc(dte: datetime) -> datetime:
     """Returns UTC datetime from any aware datetime."""
-    return dt.astimezone(ZoneInfo("UTC"))
+    return timezone.localtime(dte, timezone=ZoneInfo("UTC"))
 
 
-def to_local(dt: datetime) -> datetime:
+def to_local(dte: datetime) -> datetime:
     """Returns local datetime from any aware datetime."""
-    return dt.astimezone(ZoneInfo(settings.TIME_ZONE))
+    return timezone.localtime(dte)
 
 
 def floor_secs(dte) -> datetime:

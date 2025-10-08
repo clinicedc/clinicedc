@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING, Any
 
 from django.db import models, transaction
@@ -43,7 +44,7 @@ class AppointmentManager(models.Manager):
         )
 
     @staticmethod
-    def get_query_options(**kwargs) -> dict[Any]:
+    def get_query_options(**kwargs) -> dict[str, Any]:
         """Returns a dictionary or options.
 
         Dictionary is based on the appointment instance or everything
@@ -53,14 +54,14 @@ class AppointmentManager(models.Manager):
         schedule_name = kwargs.get("schedule_name")
         subject_identifier = kwargs.get("subject_identifier")
         visit_schedule_name = kwargs.get("visit_schedule_name")
-        options: dict[Any] = dict(visit_code_sequence=0)
+        options = dict(visit_code_sequence=0)
         try:
             options.update(
                 subject_identifier=appointment.subject_identifier,
                 visit_schedule_name=appointment.visit_schedule_name,
                 schedule_name=appointment.schedule_name,
             )
-        except AttributeError:
+        except AttributeError as e:
             options.update(subject_identifier=subject_identifier)
             try:
                 visit_schedule_name, schedule_name = visit_schedule_name.split(".")
@@ -75,7 +76,7 @@ class AppointmentManager(models.Manager):
                 raise TypeError(
                     f"Expected visit_schedule_name for schedule_name "
                     f"'{schedule_name}'. Got {visit_schedule_name}"
-                )
+                ) from e
             if schedule_name:
                 options.update(schedule_name=schedule_name)
         return options
@@ -230,10 +231,8 @@ class AppointmentManager(models.Manager):
             f"appt_datetime__{op}": cutoff_datetime,
         }
         if not is_offstudy:
-            try:
+            with contextlib.suppress(ValueError, AttributeError):
                 visit_schedule_name, schedule_name = visit_schedule_name.split(".")
-            except (ValueError, AttributeError):
-                pass
             if not schedule_name or not visit_schedule_name:
                 raise AppointmentManagerError(
                     f"Expected both the visit_schedule_name and schedule_name. "

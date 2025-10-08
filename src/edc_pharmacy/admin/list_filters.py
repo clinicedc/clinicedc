@@ -14,14 +14,15 @@ class MedicationsListFilter(SimpleListFilter):
     title = "Medication"
     parameter_name = "medication_name"
 
-    def lookups(self, request, model_admin):
-        medications = []
-        for medication in Medication.objects.all().order_by("name"):
-            medications.append((medication.name, medication.name.replace("_", " ").title()))
+    def lookups(self, request, model_admin) -> tuple[tuple[str, str], ...]:  # noqa: ARG002
+        medications = [
+            (medication.name, medication.name.replace("_", " ").title())
+            for medication in Medication.objects.all().order_by("name")
+        ]
         medications.append(("none", "None"))
         return tuple(medications)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         """Returns a queryset if the Medication name is in the list of sites"""
         qs = None
         if self.value():
@@ -40,10 +41,10 @@ class ConfirmedListFilter(SimpleListFilter):
     title = "Confirmed"
     parameter_name = "confirmation"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin) -> tuple[tuple[str, str], ...]:  # noqa: ARG002
         return YES_NO
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -57,10 +58,10 @@ class AllocationListFilter(SimpleListFilter):
     title = "Allocated"
     parameter_name = "allocated"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO_NA
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -88,10 +89,10 @@ class StockItemAllocationListFilter(SimpleListFilter):
     title = "Allocated"
     parameter_name = "allocated"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -105,10 +106,10 @@ class StockItemTransferredListFilter(SimpleListFilter):
     title = "Transferred"
     parameter_name = "transferred"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -128,10 +129,10 @@ class TransferredListFilter(SimpleListFilter):
     title = "Transferred"
     parameter_name = "transferred"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO_NA
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -159,13 +160,14 @@ class AssignmentListFilter(SimpleListFilter):
             count=Count(self.lookup_str)
         )
         if not blinded_user(request):
-            choices = []
-            for name in [ann.get(self.lookup_str) for ann in groupby]:
-                choices.append((name, name or "None"))
+            choices = [
+                (name, name or "None")
+                for name in [ann.get(self.lookup_str) for ann in groupby]
+            ]
             return tuple(choices)
         return ("****", "****"), ("****", "****")
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             qs = queryset.filter(**{self.lookup_str: self.value()})
@@ -182,13 +184,13 @@ class HasOrderNumFilter(SimpleListFilter):
     title = "Has Order #"
     parameter_name = "has_order_num"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
-            isnull = True if self.value() == NO else False
+            isnull = self.value() == NO
             qs = queryset.filter(receive_item__order_item__order__isnull=isnull)
         return qs
 
@@ -197,13 +199,13 @@ class HasReceiveNumFilter(SimpleListFilter):
     title = "Has Receive #"
     parameter_name = "has_receive_num"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
-            isnull = True if self.value() == NO else False
+            isnull = self.value() == NO
             qs = queryset.filter(receive_item__receive__isnull=isnull)
         return qs
 
@@ -212,13 +214,13 @@ class HasRepackNumFilter(SimpleListFilter):
     title = "Has Repack #"
     parameter_name = "has_repack_num"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
-            isnull = True if self.value() == NO else False
+            isnull = self.value() == NO
             qs = queryset.filter(repack_request__isnull=isnull)
         return qs
 
@@ -227,10 +229,10 @@ class TransferredFilter(SimpleListFilter):
     title = "Transferred to site"
     parameter_name = "transferred"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (YES, YES), (NO, NO)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             opts = dict(
@@ -249,10 +251,10 @@ class ConfirmedAtSiteFilter(SimpleListFilter):
     title = "Confirmed at site"
     parameter_name = "confirmed_at_site"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (YES, YES), (NO, NO)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             opts = dict(
@@ -272,10 +274,10 @@ class StoredAtSiteFilter(SimpleListFilter):
     title = "Stored at site"
     parameter_name = "stored_at_site_now"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO_NA
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -315,10 +317,10 @@ class DispensedFilter(SimpleListFilter):
     title = "Dispensed"
     parameter_name = "dispensed"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             opts = dict(
@@ -339,10 +341,10 @@ class HasCodesListFilter(SimpleListFilter):
     title = "Has codes"
     parameter_name = "has_codes"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (YES, YES), (NO, NO)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -356,14 +358,14 @@ class StockRequestItemPendingListFilter(SimpleListFilter):
     title = "Request Status"
     parameter_name = "item_status"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (
             ("not_allocated", "Not allocated"),
             ("allocated_only", "Allocated only"),
             ("transferred", "Allocation and transferred"),
         )
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == "not_allocated":
@@ -387,14 +389,14 @@ class OrderItemStatusListFilter(SimpleListFilter):
     title = "Status"
     parameter_name = "order_item_status"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (
             (NEW, _("New")),
             (PARTIAL, _("Partial")),
             (RECEIVED, _("Received")),
         )
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == RECEIVED:
@@ -410,10 +412,10 @@ class DecantedListFilter(SimpleListFilter):
     title = "Decanted"
     parameter_name = "decanted"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -427,10 +429,10 @@ class StorageBinItemDispensedFilter(SimpleListFilter):
     title = "Dispensed"
     parameter_name = "dispensed"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (YES, YES), (NO, NO)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:

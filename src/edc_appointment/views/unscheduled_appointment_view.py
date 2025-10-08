@@ -3,7 +3,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import HttpResponseRedirect
 from django.urls.base import reverse
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 from django.views.generic.base import View
 
 from ..creators import UnscheduledAppointmentCreator
@@ -30,7 +29,7 @@ class UnscheduledAppointmentView(View):
     unscheduled_appointment_cls = UnscheduledAppointmentCreator
     dashboard_template = "subject_dashboard_template"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):  # noqa: ARG002
         kwargs["suggested_visit_code_sequence"] = int(kwargs["visit_code_sequence"])
         kw = dict(
             subject_identifier=kwargs.get("subject_identifier"),
@@ -61,15 +60,15 @@ class UnscheduledAppointmentView(View):
             messages.success(
                 self.request,
                 format_html(
-                    "Appointment {} was created successfully.",
-                    mark_safe(creator.appointment),  # nosec B308, B703
+                    "Appointment {appt} was created successfully.",
+                    appt=creator.appointment,  # nosec B308, B703
                 ),
             )
             messages.warning(
                 self.request,
                 format_html(
-                    "Remember to adjust the appointment date and time on appointment {}.",
-                    mark_safe(creator.appointment),  # nosec B308, B703
+                    "Remember to adjust the appointment date and time on appointment {appt}.",
+                    appt=creator.appointment,  # nosec B308, B703
                 ),
             )
         return HttpResponseRedirect(

@@ -8,8 +8,6 @@ from django.test import TestCase, override_settings, tag
 from edc_metadata.constants import REQUIRED
 from edc_metadata.metadata import CrfMetadataGetter
 from edc_metadata.next_form_getter import NextFormGetter
-from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.models import SubjectVisit
 
 from .metadata_test_mixin import TestMetadataMixin
 
@@ -20,19 +18,6 @@ utc_tz = ZoneInfo("UTC")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestMetadataGetter(TestMetadataMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-        self.subject_visit = SubjectVisit.objects.create(
-            appointment=self.appointment,
-            subject_identifier=self.subject_identifier,
-            report_datetime=self.appointment.appt_datetime,
-            visit_code=self.appointment.visit_code,
-            visit_code_sequence=self.appointment.visit_code_sequence,
-            visit_schedule_name=self.appointment.visit_schedule_name,
-            schedule_name=self.appointment.schedule_name,
-            reason=SCHEDULED,
-        )
-
     def test_objects_not_none_from_appointment(self):
         getter = CrfMetadataGetter(self.appointment)
         self.assertGreater(getter.metadata_objects.count(), 0)
@@ -50,21 +35,21 @@ class TestMetadataGetter(TestMetadataMixin, TestCase):
         self.assertEqual(len(objects), len(visit.crfs) - 1)
 
     def test_next_required_form(self):
-        getter = NextFormGetter(appointment=self.appointment, model="edc_metadata.crftwo")
-        self.assertEqual(getter.next_form.model, "edc_metadata.crfthree")
+        getter = NextFormGetter(appointment=self.appointment, model="clinicedc_tests.crftwo")
+        self.assertEqual(getter.next_form.model, "clinicedc_tests.crfthree")
 
     def test_next_required_form2(self):
-        CrfOne.objects.create(subject_visit=self.subject_visit)
+        CrfTwo.objects.create(subject_visit=self.subject_visit)
         crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit)
         getter = NextFormGetter(model_obj=crf_two)
-        self.assertEqual(getter.next_form.model, "edc_metadata.crfthree")
+        self.assertEqual(getter.next_form.model, "clinicedc_tests.crfthree")
 
     def test_next_required_form3(self):
         CrfOne.objects.create(subject_visit=self.subject_visit)
         CrfTwo.objects.create(subject_visit=self.subject_visit)
         crf_three = CrfThree.objects.create(subject_visit=self.subject_visit)
         getter = NextFormGetter(model_obj=crf_three)
-        self.assertEqual(getter.next_form.model, "edc_metadata.crffour")
+        self.assertEqual(getter.next_form.model, "clinicedc_tests.crffour")
 
     def test_next_requisition(self):
         getter = NextFormGetter(

@@ -8,8 +8,8 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from edc_metadata.utils import has_keyed_metadata
-from edc_utils import convert_php_dateformat
 from edc_utils.date import to_local
+from edc_utils.text import convert_php_dateformat
 from edc_visit_schedule.exceptions import ScheduledVisitWindowError
 
 from ..utils import get_appointment_by_datetime
@@ -46,31 +46,32 @@ class NextAppointmentCrfModelFormMixin:
         )
 
     def validate_suggested_date_with_future_appointments(self):
-        if self.suggested_date and (
-            self.related_visit.appointment.next.related_visit
-            or has_keyed_metadata(self.related_visit.appointment.next)
-        ):
-            if (
+        if (
+            self.suggested_date
+            and (
+                self.related_visit.appointment.next.related_visit
+                or has_keyed_metadata(self.related_visit.appointment.next)
+            )
+            and (
                 self.suggested_date
                 != to_local(self.related_visit.appointment.next.appt_datetime).date()
-            ):
-                appointment = self.related_visit.appointment.next
-                date_format = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-                next_appt_date = (
-                    to_local(appointment.appt_datetime).date().strftime(date_format)
-                )
-                raise forms.ValidationError(
-                    {
-                        self.appt_date_fld: _(
-                            "Invalid. Next visit report already submitted. Expected "
-                            "`%(dt)s`. See `%(visit_code)s`."
-                        )
-                        % {
-                            "dt": next_appt_date,
-                            "visit_code": appointment.visit_code,
-                        }
+            )
+        ):
+            appointment = self.related_visit.appointment.next
+            date_format = convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+            next_appt_date = to_local(appointment.appt_datetime).date().strftime(date_format)
+            raise forms.ValidationError(
+                {
+                    self.appt_date_fld: _(
+                        "Invalid. Next visit report already submitted. Expected "
+                        "`%(dt)s`. See `%(visit_code)s`."
+                    )
+                    % {
+                        "dt": next_appt_date,
+                        "visit_code": appointment.visit_code,
                     }
-                )
+                }
+            )
 
         if (
             self.suggested_date
@@ -107,7 +108,7 @@ class NextAppointmentCrfModelFormMixin:
                     raise_if_in_gap=False,
                 )
             except ScheduledVisitWindowError as e:
-                raise forms.ValidationError({self.appt_date_fld: str(e)})
+                raise forms.ValidationError({self.appt_date_fld: str(e)}) from e
             if not appointment:
                 raise forms.ValidationError(
                     {self.appt_date_fld: _("Invalid. Must be within the followup period.")}

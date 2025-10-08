@@ -20,14 +20,16 @@ def delete_receive_items_action(modeladmin, request, queryset: QuerySet[ReceiveI
         messages.add_message(
             request,
             messages.SUCCESS,
-            gettext(f"Successfully deleted {success_count} {ReceiveItem._meta.verbose_name}."),
+            gettext("Successfully deleted %(success_count)s %(verbose_name)s.")
+            % dict(success_count=success_count, verbose_name=ReceiveItem._meta.verbose_name),
         )
     if failed_count > 0:
         messages.add_message(
             request,
             messages.ERROR,
             gettext(
-                f"Unable to deleted {failed_count} {ReceiveItem._meta.verbose_name}. "
+                "Unable to deleted %(failed_count)s %(verbose_name)s. "
                 "Confirmed stock items exist."
-            ),
+            )
+            % dict(failed_count=failed_count, verbose_name=ReceiveItem._meta.verbose_name),
         )

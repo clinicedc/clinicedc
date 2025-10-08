@@ -10,7 +10,7 @@ from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
 from edc_sites.form_validator_mixin import SiteFormValidatorMixin
-from edc_utils import floor_secs, formatted_datetime, to_utc
+from edc_utils import floor_secs, formatted_datetime
 from edc_utils.date import to_local
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
@@ -65,13 +65,8 @@ class CrfFormValidator(
             # falls within appointment's window period
             self.validate_crf_datetime_in_window_period()
             # not before consent date
-            report_datetime = to_utc(self.report_datetime)
-            consent_datetime = self.get_consent_datetime_or_raise(
-                report_datetime=report_datetime,
-                site=self.site,
-                fldname="report_datetime",
-            )
-            if floor_secs(report_datetime) < floor_secs(consent_datetime):
+            consent_datetime = self.get_consent_datetime_or_raise()
+            if floor_secs(self.report_datetime) < floor_secs(consent_datetime):
                 msg = _("Invalid. Cannot be before date of consent. Participant consented on")
                 formatted_date = formatted_datetime(to_local(consent_datetime))
                 err_message = format_lazy(
@@ -83,24 +78,25 @@ class CrfFormValidator(
                 )
 
     def validate_crf_datetime_in_window_period(self) -> None:
-        opts = [
+        self.datetime_in_window_or_raise(
             self.appointment,
             self.report_datetime,
             self.report_datetime_field_attr,
-        ]
-        self.datetime_in_window_or_raise(*opts)
+        )
 
     @property
     def appointment(self) -> Appointment:
         try:
-            return self.related_visit.appointment
-        except AttributeError:
+            appointment = self.related_visit.appointment
+        except AttributeError as e:
             msg = _("is required")
             verbose_name = self.related_visit._meta.verbose_name
             self.raise_validation_error(
                 format_lazy("{verbose_name} {msg}.", msg=msg, verbose_name=verbose_name),
                 INVALID_ERROR,
+                exc=e,
             )
+        return appointment
 
     @property
     def related_visit_model_attr(self) -> str:
@@ -127,19 +123,17 @@ class CrfFormValidator(
                 self, related_visit_model_attr=self.related_visit_model_attr
             )
         except AttributeError as e:
-            raise CrfFormValidatorError(f"{e}. See {self.__class__}")
+            raise CrfFormValidatorError(f"{e}. See {self.__class__}") from e
 
     def validate_datetime_against_report_datetime(self, field: str) -> None:
         """Datetime cannot be after report_datetime"""
         if (
             self.cleaned_data.get(field)
             and floor_secs(self.report_datetime)
-            and floor_secs(to_utc(self.cleaned_data.get(field)))
-            > floor_secs(self.report_datetime)
+            and floor_secs(self.cleaned_data.get(field)) > floor_secs(self.report_datetime)
         ):
-            self.raise_validation_error(
-                {field: _("Cannot be after report datetime")}, INVALID_ERROR
-            )
+            msg = _("Cannot be after report datetime")
+            self.raise_validation_error({field: msg}, INVALID_ERROR)
 
     def validate_date_against_report_datetime(self, field: str) -> None:
         """Date cannot be after report_datetime"""

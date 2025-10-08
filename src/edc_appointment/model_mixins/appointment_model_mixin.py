@@ -17,7 +17,7 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins import MetadataHelperModelMixin
 from edc_offstudy.model_mixins import OffstudyNonCrfModelMixin
 from edc_timepoint.model_mixins import TimepointModelMixin
-from edc_utils import formatted_datetime, to_utc
+from edc_utils.text import formatted_datetime
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.subject_schedule import NotOnScheduleError
@@ -78,8 +78,7 @@ class AppointmentModelMixin(
                         schedule.onschedule_model
                     ).objects.get(
                         subject_identifier=self.subject_identifier,
-                        onschedule_datetime__lte=to_utc(self.appt_datetime)
-                        + relativedelta(seconds=1),
+                        onschedule_datetime__lte=self.appt_datetime + relativedelta(seconds=1),
                     )
                 except ObjectDoesNotExist as e:
                     dte_as_str = formatted_datetime(self.appt_datetime)
@@ -92,7 +91,7 @@ class AppointmentModelMixin(
                     # update appointment timepoints
                     schedule.put_on_schedule(
                         subject_identifier=self.subject_identifier,
-                        onschedule_datetime=to_utc(self.appt_datetime),
+                        onschedule_datetime=self.appt_datetime,
                         skip_baseline=True,
                     )
             else:

@@ -62,13 +62,15 @@ class StockRequestForm(forms.ModelForm):
 
         if not self.instance.id and cleaned_data.get("cancel") == "CANCEL":
             raise forms.ValidationError("Leave this blank")
-        if cleaned_data.get("cancel") == "CANCEL":
-            if Allocation.objects.filter(
+        if (
+            cleaned_data.get("cancel") == "CANCEL"
+            and Allocation.objects.filter(
                 stock_request_item__stock_request=self.instance
-            ).exists():
-                raise forms.ValidationError(
-                    "May not be cancelled. Stock has been allocated for this request"
-                )
+            ).exists()
+        ):
+            raise forms.ValidationError(
+                "May not be cancelled. Stock has been allocated for this request"
+            )
         return cleaned_data
 
     @staticmethod
@@ -112,7 +114,7 @@ class StockRequestForm(forms.ModelForm):
     class Meta:
         model = StockRequest
         fields = "__all__"
-        help_text = {"request_identifier": "(read-only)"}
-        widgets = {
+        help_text = {"request_identifier": "(read-only)"}  # noqa: RUF012
+        widgets = {  # noqa: RUF012
             "request_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
         }

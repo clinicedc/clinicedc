@@ -5,7 +5,7 @@ from django.conf import settings
 
 from edc_dx_review.utils import raise_if_clinical_review_does_not_exist
 from edc_form_validators import INVALID_ERROR, FormValidator
-from edc_utils import convert_php_dateformat
+from edc_utils.text import convert_php_dateformat
 from edc_visit_schedule.utils import raise_if_baseline
 
 from ..diagnoses import ClinicalReviewBaselineRequired, Diagnoses, InitialReviewRequired

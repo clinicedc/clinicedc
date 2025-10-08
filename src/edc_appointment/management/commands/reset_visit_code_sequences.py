@@ -14,7 +14,7 @@ class Command(BaseCommand):
         "and reset if needed."
     )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         sys.stdout.write(
             "Validating (and resetting, if needed) appointment visit code sequences ...\n"
         )

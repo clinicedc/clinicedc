@@ -1,3 +1,5 @@
+import contextlib
+
 import pandas as pd
 from django.conf import settings
 
@@ -38,10 +40,8 @@ class Helper:
         """Returns a value as Yes/No/not_sure given
         1, 0 True, False, etc.
         """
-        try:
+        with contextlib.suppress(ValueError):
             value = str(int(value))
-        except ValueError:
-            pass
         if value in ["1", "True"]:
             value = YES
         elif value in ["0", "False"]:

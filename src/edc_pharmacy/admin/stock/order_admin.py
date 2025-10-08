@@ -54,7 +54,7 @@ class OrderAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "modified",
     )
     list_filter = ("sent", "status", "order_datetime")
-    radio_fields = {"status": admin.VERTICAL}
+    radio_fields = {"status": admin.VERTICAL}  # noqa: RUF012
     search_fields = ("id", "order_identifier", "title")
     readonly_fields = ("order_identifier", "sent")
 
@@ -95,10 +95,7 @@ class OrderAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             "edc_pharmacy/stock/items_as_link.html", context=context
         )
         rendered = [add_order_items_button, order_items_link]
-        return format_html(
-            "{}",
-            mark_safe("<BR>".join([r for r in rendered if r])),  # nosec B703, B308
-        )
+        return mark_safe("<BR>".join([r for r in rendered if r]))  # noqa: S308
 
     @admin.display(description="Order date", ordering="order_datetime")
     def order_date(self, obj):

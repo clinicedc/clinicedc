@@ -22,7 +22,7 @@ class ConfirmationAtSiteItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHi
     show_cancel = True
     list_per_page = 20
 
-    actions = ["delete_selected"]
+    actions = ("delete_selected",)
 
     ordering = ("-transfer_confirmation_item_identifier",)
 

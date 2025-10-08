@@ -38,16 +38,17 @@ if TYPE_CHECKING:
 class AppointmentCreator:
     def __init__(
         self,
-        timepoint_datetime: datetime = None,
+        *,
+        subject_identifier: str,
+        visit: Visit,  # from edc_visit_schedule
+        visit_schedule_name: str,
+        schedule_name: str,
+        timepoint_datetime: datetime,
         timepoint: Decimal | None = None,
-        visit: Visit | None = None,  # from edc_visit_schedule
         visit_code_sequence: int | None = None,
         facility: Facility | None = None,
-        appointment_model: str = None,
+        appointment_model: str | None = None,
         taken_datetimes: list[datetime] | None = None,
-        subject_identifier: str = None,
-        visit_schedule_name: str = None,
-        schedule_name: str = None,
         default_appt_type: str | None = None,
         default_appt_reason: str | None = None,
         appt_status: str | None = None,
@@ -89,10 +90,10 @@ class AppointmentCreator:
                     f"Naive datetime not allowed. {self!r}. Got {timepoint_datetime}"
                 )
             self.timepoint_datetime = timepoint_datetime
-        except AttributeError:
+        except AttributeError as e:
             raise AppointmentCreatorError(
                 f"Expected 'timepoint_datetime'. Got None. {self!r}."
-            )
+            ) from e
         # suggested_datetime (defaults to timepoint_datetime)
         # If provided, the rules for window period/rdelta relative
         # to timepoint_datetime still apply.

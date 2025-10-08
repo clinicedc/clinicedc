@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields import audit_fieldset_tuple
 from rangefilter.filters import DateRangeFilterBuilder
@@ -39,8 +38,8 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     show_cancel = True
     list_per_page = 20
     form = StockRequestItemForm
-    autocomplete_fields = ["rx"]
-    actions = [print_labels_from_stock_request_item, "delete_selected"]
+    autocomplete_fields = ("rx",)
+    actions = (print_labels_from_stock_request_item, "delete_selected")
 
     fieldsets = (
         (
@@ -98,27 +97,19 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     def get_list_display(self, request):
         fields = super().get_list_display(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_list_filter(self, request):
         fields = super().get_list_filter(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_search_fields(self, request):
         fields = super().get_search_fields(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     @admin.display(description="Product")
     def formulation(self, obj):
-        return format_html(
-            "{}",
-            mark_safe(
-                f"{obj.stock_request.formulation}<BR>{obj.stock_request.container}"
-            ),  # nosec B703, B308
-        )
+        return mark_safe(f"{obj.stock_request.formulation}<BR>{obj.stock_request.container}")  # noqa: S308
 
     @admin.display(description="Date", ordering="request_item_datetime")
     def item_date(self, obj):
@@ -147,13 +138,13 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="A", boolean=True)
     def allocated(self, obj):
         if obj:
-            return True if getattr(obj, "allocation", None) else False
+            return bool(getattr(obj, "allocation", None))
         return None
 
     @admin.display(description="T", boolean=True)
     def transferred(self, obj):
         if obj and getattr(obj, "allocation", None):
-            return True if obj.allocation.stock.stocktransferitem else False
+            return bool(obj.allocation.stock.stocktransferitem)
         return False
 
     @admin.display(description="Subject", ordering="appt_datetime")
@@ -211,7 +202,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return self.readonly_fields + ("stock_request",)
+            return tuple({*self.readonly_fields, "stock_request"})
         return self.readonly_fields
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

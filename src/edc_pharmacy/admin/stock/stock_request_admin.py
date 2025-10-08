@@ -3,7 +3,6 @@ from celery.states import SUCCESS
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_audit_fields import audit_fieldset_tuple
@@ -26,7 +25,7 @@ class StatusListFilter(admin.SimpleListFilter):
     title = _("Status")
     parameter_name = "status"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (
             (PENDING, _("Pending")),
             (COMPLETE, _("Complete")),
@@ -34,7 +33,7 @@ class StatusListFilter(admin.SimpleListFilter):
             ("ZERO", _("Zero total")),
         )
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         if self.value():
             if self.value() == PENDING:
                 return (
@@ -67,15 +66,15 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     list_per_page = 20
     ordering = ("-request_identifier",)
 
-    autocomplete_fields = ["container", "formulation", "location"]
+    autocomplete_fields = ("container", "formulation", "location")
     form = StockRequestForm
 
-    actions = [
+    actions = (
         prepare_stock_request_items_action,
         allocate_stock_to_subject,
         print_labels_from_stock_request_by_code,
         "delete_selected",
-    ]
+    )
 
     fieldsets = (
         (
@@ -194,10 +193,7 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Container", ordering="container_name")
     def container_str(self, obj):
-        return format_html(
-            "{}",
-            mark_safe("<BR>".join(str(obj.container).split(" "))),  # nosec B703, B308
-        )
+        return mark_safe("<BR>".join(str(obj.container).split(" ")))  # noqa: S308
 
     @admin.display(description="Task")
     def task_status(self, obj):

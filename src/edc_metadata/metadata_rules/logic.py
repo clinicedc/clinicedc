@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from ..constants import DO_NOTHING, NOT_REQUIRED, REQUIRED
@@ -24,13 +25,13 @@ class Logic:
     rule; consequence and alternative.
     """
 
-    valid_results = [REQUIRED, NOT_REQUIRED, DO_NOTHING]
+    valid_results = (REQUIRED, NOT_REQUIRED, DO_NOTHING)
 
     def __init__(
         self,
-        predicate: P | PF | callable = None,
-        consequence: str = None,
-        alternative: str = None,
+        predicate: P | PF | Callable | None = None,
+        consequence: str | None = None,
+        alternative: str | None = None,
         comment: str | None = None,
     ) -> None:
         if not callable(predicate):

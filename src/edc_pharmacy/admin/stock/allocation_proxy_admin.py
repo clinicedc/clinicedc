@@ -9,9 +9,8 @@ from .allocation_admin import AllocationAdmin
 
 @admin.register(AllocationProxy, site=edc_pharmacy_admin)
 class AllocationProxyAdmin(AllocationAdmin):
-
     @admin.display(description="Assignment")
-    def assignment(self, obj):
+    def assignment(self, obj):  # noqa: ARG002
         return None
 
     @admin.display(description="Stock #")

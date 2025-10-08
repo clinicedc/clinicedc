@@ -22,10 +22,10 @@ class TransferredFilter(SimpleListFilter):
     title = "Transferred"
     parameter_name = "transferred"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (YES, YES), (NO, NO)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -39,10 +39,10 @@ class DispensedFilter(SimpleListFilter):
     title = "Dispensed"
     parameter_name = "dispensed"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (YES, YES), (NO, NO)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -56,10 +56,10 @@ class HasStockFilter(SimpleListFilter):
     title = "Orphaned"
     parameter_name = "orphaned"
 
-    def lookups(self, request, model_admin):
+    def lookups(self, request, model_admin):  # noqa: ARG002
         return (YES, YES), (NO, NO)
 
-    def queryset(self, request, queryset):
+    def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
@@ -71,7 +71,6 @@ class HasStockFilter(SimpleListFilter):
 
 @admin.register(Allocation, site=edc_pharmacy_admin)
 class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
-
     change_list_title = "Pharmacy: Allocations"
     change_form_title = "Pharmacy: Allocation"
     history_list_display = ()
@@ -79,7 +78,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     show_cancel = True
     list_per_page = 20
 
-    actions = ["delete_selected"]
+    actions = ("delete_selected",)
 
     ordering = (
         "registered_subject__subject_identifier",
@@ -145,18 +144,15 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     def get_list_display(self, request):
         fields = super().get_list_display(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_list_filter(self, request):
         fields = super().get_list_filter(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     def get_search_fields(self, request):
         fields = super().get_search_fields(request)
-        fields = remove_fields_for_blinded_users(request, fields)
-        return fields
+        return remove_fields_for_blinded_users(request, fields)
 
     @admin.display(description="ALLOCATION #", ordering="allocation_identifier")
     def identifier(self, obj):
@@ -168,12 +164,12 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="T", boolean=True)
     def transferred(self, obj):
-        return True if obj.stock.stocktransferitem else False
+        return bool(obj.stock.stocktransferitem)
 
     @admin.display(description="D", boolean=True)
     def dispensed(self, obj):
         if obj:
-            return True if get_related_or_none(obj.stock, "dispenseitem") else False
+            return bool(get_related_or_none(obj.stock, "dispenseitem"))
         return None
 
     @admin.display(description="Product", ordering="stock__product")
@@ -207,7 +203,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(description="Subject #", ordering="registered_subject__subject_identifier")
-    def dashboard(self, obj=None, label=None):
+    def dashboard(self, obj=None, label=None):  # noqa: ARG002
         context = {}
         try:
             url = reverse(

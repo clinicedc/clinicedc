@@ -28,16 +28,16 @@ class AssignmentAdmin(ModelAdminMixin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    list_display: tuple[str, ...] = (
+    list_display = (
         "name",
         "display_name",
         "created",
         "modified",
     )
 
-    search_fields: tuple[str, ...] = ("name", "display_name")
+    search_fields = ("name", "display_name")
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         if obj:
-            return self.readonly_fields + ("name",)
+            return tuple({*self.readonly_fields, "name"})
         return self.readonly_fields
