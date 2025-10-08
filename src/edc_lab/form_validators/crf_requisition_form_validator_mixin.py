@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django import forms
-
 from edc_utils.date import to_local
 from edc_utils.text import formatted_datetime
 
@@ -32,6 +31,7 @@ class CrfRequisitionFormValidatorMixin:
 
     assay_datetime_field: str = "assay_datetime"
     requisition_field: str = "requisition"
+    allow_assay_datetime_after_report_datetime = True
 
     def validate_requisition(
         self,
@@ -68,15 +68,23 @@ class CrfRequisitionFormValidatorMixin:
     ) -> None:
         """Validate assay datetime is on or after requisition
         datetime.
+
+        If `allow_assay_datetime_after_report_datetime` is False,
+        raise if assay datetime is after report_datetime.
+
         """
         assay_datetime = self.cleaned_data.get(
             assay_datetime_field or self.assay_datetime_field
         )
-        if assay_datetime > self.report_datetime:
+        if (
+            not self.allow_assay_datetime_after_report_datetime
+            and assay_datetime
+            and assay_datetime > self.report_datetime
+        ):
             raise forms.ValidationError(
                 {assay_datetime_field: "Invalid. Cannot be after report datetime."}
             )
-        if assay_datetime < requisition.requisition_datetime:
+        if assay_datetime and assay_datetime < requisition.requisition_datetime:
             raise forms.ValidationError(
                 {
                     assay_datetime_field: (
