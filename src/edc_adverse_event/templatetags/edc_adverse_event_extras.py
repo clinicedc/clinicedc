@@ -88,15 +88,13 @@ def format_ae_description(context, ae_initial, wrap_length):
     context["YES"] = YES
     context["ae_initial"] = ae_initial
     try:
-        context["sae_reason"] = format_html(
-            "{}",
-            mark_safe(wrapx(escape_braces(ae_initial.sae_reason.name), wrap_length)),  # nosec B703, B308
+        context["sae_reason"] = mark_safe(  # noqa: S308
+            wrapx(escape_braces(ae_initial.sae_reason.name), wrap_length)
         )
     except AttributeError:
         context["sae_reason"] = ""
-    context["ae_description"] = format_html(
-        "{}",
-        mark_safe(wrapx(escape_braces(ae_initial.ae_description), wrap_length)),  # nosec B703, B308
+    context["ae_description"] = mark_safe(
+        wrapx(escape_braces(ae_initial.ae_description), wrap_length)
     )
     return context
 
@@ -111,11 +109,8 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
     context["ae_followup"] = ae_followup
     context["ae_initial"] = ae_followup.ae_initial
     try:
-        context["sae_reason"] = format_html(
-            "{}",
-            mark_safe(
-                wrapx(escape_braces(ae_followup.ae_initial.sae_reason.name), wrap_length)
-            ),  # nosec B703, B308
+        context["sae_reason"] = mark_safe(  # noqa: S308
+            wrapx(escape_braces(ae_followup.ae_initial.sae_reason.name), wrap_length)
         )
     except AttributeError:
         context["sae_reason"] = ""
@@ -177,55 +172,47 @@ def render_death_report_tmg_panel(context, action_item: ActionItem = None):
 
 
 @register.simple_tag
-def ae_tmg_queryset(subject_identifier: str = None) -> QuerySet[DeathReportTmgModel]:
+def ae_tmg_queryset(subject_identifier) -> QuerySet[DeathReportTmgModel]:
     return get_ae_model("aetmg").objects.filter(subject_identifier=subject_identifier)
 
 
 @register.simple_tag
-def death_report_tmg_queryset(
-    subject_identifier: str = None,
-) -> QuerySet[DeathReportTmgModel]:
+def death_report_tmg_queryset(subject_identifier: str) -> QuerySet[DeathReportTmgModel]:
     return get_ae_model("deathreporttmg").objects.filter(subject_identifier=subject_identifier)
 
 
 @register.simple_tag
-def death_report_tmg2_queryset(
-    subject_identifier: str = None,
-) -> QuerySet[DeathReportTmgSecondModel]:
+def death_report_tmg2_queryset(subject_identifier: str) -> QuerySet[DeathReportTmgSecondModel]:
     return get_ae_model("deathreporttmgsecond").objects.filter(
         subject_identifier=subject_identifier
     )
 
 
 @register.simple_tag
-def death_report_queryset(
-    subject_identifier: str = None,
-) -> QuerySet[DeathReportTmgSecondModel]:
+def death_report_queryset(subject_identifier: str) -> QuerySet[DeathReportTmgSecondModel]:
     return get_ae_model("deathreport").objects.filter(subject_identifier=subject_identifier)
 
 
 @register.simple_tag
 def ae_followup_queryset(
     ae_initial: AeInitialModel = None,
-) -> QuerySet[AeFollowupModel] | None:
+) -> QuerySet[AeFollowupModel]:
     if ae_initial:
         return get_ae_model("aefollowup").objects.filter(ae_initial_id=ae_initial.id)
-    return None
+    return get_ae_model("aefollowup").objects.none()
 
 
 @register.simple_tag
-def ae_tmg_action_item(subject_identifier: str = None) -> ActionItem:
-    try:
-        obj = django_apps.get_model("edc_action_item.actionitem").objects.get(
-            subject_identifier=subject_identifier, action_type__name=AE_TMG_ACTION
-        )
-    except ObjectDoesNotExist:
-        obj = None
-    return obj
+def ae_tmg_action_item_queryset(subject_identifier: str, *status) -> QuerySet[ActionItem]:
+    return django_apps.get_model("edc_action_item.actionitem").objects.filter(
+        subject_identifier=subject_identifier,
+        action_type__name=AE_TMG_ACTION,
+        status__in=status,
+    )
 
 
 @register.simple_tag
-def death_report_tmg_action_item(subject_identifier: str = None) -> ActionItem:
+def death_report_tmg_action_item(subject_identifier: str) -> ActionItem:
     try:
         obj = django_apps.get_model("edc_action_item.actionitem").objects.get(
             subject_identifier=subject_identifier,
@@ -237,7 +224,7 @@ def death_report_tmg_action_item(subject_identifier: str = None) -> ActionItem:
 
 
 @register.simple_tag
-def death_report_tmg_second_action_item(subject_identifier: str = None) -> ActionItem:
+def death_report_tmg_second_action_item(subject_identifier: str) -> ActionItem:
     try:
         obj = django_apps.get_model("edc_action_item.actionitem").objects.get(
             subject_identifier=subject_identifier,
@@ -265,7 +252,7 @@ def render_tmg_panel(
     reference_obj = reference_obj or get_reference_obj(action_item)
     if not action_item and reference_obj:
         action_item = reference_obj.action_item
-    disable_all = True if not has_valid_tmg_perms(request=context["request"]) else False
+    disable_all = bool(not has_valid_tmg_perms(request=context["request"]))
     if action_item:
         params = dict(
             user=context["request"].user,

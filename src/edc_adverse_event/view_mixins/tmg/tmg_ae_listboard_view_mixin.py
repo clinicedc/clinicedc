@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
+from edc_export.constants import CANCELLED
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
@@ -51,24 +52,26 @@ class TmgAeListboardViewMixin(
     ordering = "-report_datetime"
     paginate_by = 10
     search_form_url = "tmg_ae_listboard_url"
-    action_type_names = [
+    action_type_names = (
         AE_TMG_ACTION,
         DEATH_REPORT_TMG_ACTION,
         DEATH_REPORT_TMG_SECOND_ACTION,
-    ]
+    )
 
-    search_fields = [
+    search_fields = (
         "subject_identifier",
         "action_identifier",
         "parent_action_item__action_identifier",
         "related_action_item__action_identifier",
         "user_created",
         "user_modified",
-    ]
+    )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
             AE_TMG_ACTION=AE_TMG_ACTION,
+            NEW=NEW,
+            CANCELLED=CANCELLED,
             utc_date=timezone.now().date(),
             subject_identifier=self.kwargs.get("subject_identifier"),
         )
