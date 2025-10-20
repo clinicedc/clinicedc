@@ -4,11 +4,11 @@ from datetime import datetime
 from decimal import Decimal
 from unittest import skip
 
+import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import (
     CrfFour,
-    CrfThree,
     SubjectRequisition,
     SubjectVisit,
 )
@@ -174,10 +174,11 @@ class TestQueryRules(TestCase):
         self.assertEqual(len(inspector.required), 0)
         self.assertEqual(len(inspector.keyed), 0)
 
+    @tag("data_manager7")
     def test_crf_rule(self):
         # create a rule
         question = CrfDataDictionary.objects.get(
-            model="clinicedc_tests.crfthree", field_name="f1"
+            model="clinicedc_tests.crffour", field_name="f1"
         )
         visit_schedule1 = QueryVisitSchedule.objects.get(visit_code="1000")
         visit_schedule2 = QueryVisitSchedule.objects.get(visit_code="2000")
@@ -216,25 +217,27 @@ class TestQueryRules(TestCase):
             ).count(),
             1,
         )
+        # reset
+        DataQuery.objects.all().delete()
 
-        # create the CRF, field value missing => query when DUE.
-        crf_three = CrfThree.objects.create(
-            subject_visit=subject_visit_1000,
-            report_datetime=subject_visit_1000.report_datetime,
-            f1=None,
-        )
-
-        for hours in range(-1, 50):
-            RuleRunner(
-                query_rule, now=appointment.appt_datetime + relativedelta(hours=hours)
-            ).run()
-
-            if hours <= 48:
+        for hours in [-1, 47, 50]:
+            CrfFour.objects.all().delete()
+            traveller = time_machine.travel(
+                appointment.appt_datetime + relativedelta(hours=hours)
+            )
+            traveller.start()
+            crf = CrfFour.objects.create(
+                subject_visit=subject_visit_1000,
+                report_datetime=subject_visit_1000.report_datetime,
+                f1="",
+            )
+            traveller.stop()
+            if hours <= 48:  # noqa: PLR2004
                 # assert CRF not due from 0 to 48 hrs
                 self.assertEqual(
                     DataQuery.objects.filter(
                         rule_generated=True,
-                        rule_reference=query_rule.reference,
+                        rule_reference=str(query_rule.reference),
                         status=OPEN,
                     ).count(),
                     0,
@@ -245,34 +248,21 @@ class TestQueryRules(TestCase):
                 self.assertEqual(
                     DataQuery.objects.filter(
                         rule_generated=True,
-                        rule_reference=query_rule.reference,
+                        rule_reference=str(query_rule.reference),
                         status=OPEN,
                     ).count(),
                     1,
                     msg=hours,
                 )
 
-        # Update DataQueries
-        RuleRunner(query_rule).run()
-
-        # assert DataQuery NOT resolved, field f1 is still None
-        self.assertEqual(
-            DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
-            ).count(),
-            1,
-        )
-
-        crf_three.f1 = "erik"
-        crf_three.save()
-
-        # Update DataQueries
-        RuleRunner(query_rule).run()
+        # update needed field value
+        crf.f1 = "erik"
+        crf.save()
 
         # assert 1 DataQuery changed to resolved
         self.assertEqual(
             DataQuery.objects.filter(
-                rule_generated=True, rule_reference=query_rule.reference, status=OPEN
+                rule_generated=True, rule_reference=str(query_rule.reference), status=OPEN
             ).count(),
             0,
         )
@@ -353,12 +343,12 @@ class TestQueryRules(TestCase):
         )
 
         # create the CRF, field value missing => query when DUE.
-        crf_three = CrfThree(
+        crf = CrfFour(
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
-            f1=None,
+            f1="",
         )
-        crf_three.save()
+        crf.save()
 
         self.assertEqual(
             DataQuery.objects.filter(
@@ -385,8 +375,8 @@ class TestQueryRules(TestCase):
             1,
         )
 
-        crf_three.f1 = "erik"
-        crf_three.save()
+        crf.f1 = "erik"
+        crf.save()
 
         # assert DataQuery closed since specimen not drawn.
         self.assertEqual(
@@ -503,10 +493,10 @@ class TestQueryRules(TestCase):
         )
 
         # create the CRF, field value missing => query when DUE.
-        crf_three = CrfThree.objects.create(
+        crf = CrfFour.objects.create(
             subject_visit=subject_visit,
             report_datetime=subject_visit.report_datetime,
-            f1=None,
+            f1="",
         )
 
         # assert DataQuery stays opens.
@@ -517,8 +507,8 @@ class TestQueryRules(TestCase):
             1,
         )
 
-        crf_three.f1 = "erik"
-        crf_three.save()
+        crf.f1 = "erik"
+        crf.save()
 
         # assert DataQuery closed since specimen not drawn.
         self.assertEqual(

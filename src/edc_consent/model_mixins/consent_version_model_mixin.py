@@ -24,7 +24,7 @@ class ConsentVersionModelMixin(models.Model):
     update_versions = models.BooleanField(default=False)
 
     consent_definition_name = models.CharField(
-        verbose_name="Consent definition", max_length=50, null=True, editable=False
+        verbose_name="Consent definition", max_length=50, default="", editable=False
     )
 
     def __str__(self):

@@ -23,13 +23,13 @@ class LtfuFormValidatorMixin(FormValidator):
 
         try:
             self.ltfu_model_cls.objects.get(subject_identifier=subject_identifier)
-        except ObjectDoesNotExist:
+        except ObjectDoesNotExist as e:
             if self.offschedule_reason_field not in self.cleaned_data:
                 raise ImproperlyConfigured(
                     "Unknown offschedule_reason_field. "
                     f"Got '{self.offschedule_reason_field}'. "
                     f"See form {self.__class__.__name__}"
-                )
+                ) from e
             if self.cleaned_data.get(self.offschedule_reason_field) == LTFU:
                 raise forms.ValidationError(
                     {
@@ -39,4 +39,4 @@ class LtfuFormValidatorMixin(FormValidator):
                             "form first."
                         )
                     }
-                )
+                ) from e

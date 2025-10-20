@@ -27,6 +27,7 @@ project_settings = DefaultTestSettings(
     EDC_AUTH_CODENAMES_WARN_ONLY=True,
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=True,
+    EDC_NAVBAR_DEFAULT_NAVBAR_NAME="default",
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2029, 8, 1, 8, 00, tzinfo=ZoneInfo("UTC")),
     LABEL_TEMPLATE_FOLDER=base_dir / "tests" / "label_templates",
@@ -138,7 +139,7 @@ project_settings = DefaultTestSettings(
     ],
     add_dashboard_middleware=True,
     add_lab_dashboard_middleware=True,
-    # use_test_urls=True,
+    use_test_urls=True,
 ).settings
 
 

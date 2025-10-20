@@ -24,7 +24,7 @@ utc_tz = ZoneInfo("UTC")
 @time_machine.travel(datetime(2025, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestCreatesMetadata(TestMetadataMixin, TestCase):
     def test_metadata_updater_repr(self):
-        obj = MetadataUpdater()
+        obj = MetadataUpdater(related_visit=None, source_model=None)
         self.assertTrue(repr(obj))
 
     def test_creates_metadata_on_scheduled(self):
@@ -67,10 +67,7 @@ class TestCreatesMetadata(TestMetadataMixin, TestCase):
         self.appointment.appt_status = IN_PROGRESS_APPT
         self.appointment.save()
         self.appointment.refresh_from_db()
-        subject_visit = SubjectVisit.objects.get(
-            appointment=self.appointment,
-            reason="ERIK",
-        )
+        subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
         subject_visit.reason = "ERIK"
         self.assertRaises(
             CreatesMetadataError,

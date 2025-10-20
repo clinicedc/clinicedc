@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import CrfFour
+from clinicedc_tests.models import CrfFour, CrfSix
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule2 import (
     get_visit_schedule,
 )
@@ -33,6 +33,12 @@ from edc_visit_schedule.constants import DAY1, MONTH1, MONTH3, MONTH6, WEEK2
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
+
+
+class CrfSixForm(forms.ModelForm):
+    class Meta:
+        model = CrfSix
+        fields = "__all__"
 
 
 class CrfFourForm(forms.ModelForm):
@@ -131,7 +137,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
     def test_baseline_not_required(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)
-        form = CrfFourForm(data=self.data)
+        form = CrfSixForm(data=self.data)
         form.is_valid()
         self.assertEqual({}, form._errors)
         self.assertRaises(MetadataHandlerError, form.save)
@@ -139,7 +145,7 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
         crf_metadata_getter = CrfMetadataGetter(appointment=self.subject_visit.appointment)
         self.assertFalse(
             crf_metadata_getter.metadata_objects.filter(
-                model="clinicedc_tests.crffour", entry_status=REQUIRED
+                model="clinicedc_tests.crfsix", entry_status=REQUIRED
             ).exists()
         )
 

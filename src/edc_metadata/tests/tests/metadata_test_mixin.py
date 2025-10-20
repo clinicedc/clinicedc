@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
@@ -11,7 +12,6 @@ from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
-from edc_lab.models import Panel
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
@@ -23,14 +23,9 @@ class TestMetadataMixin(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
+        register_actions()
 
     def setUp(self):
-        self.panel_one = Panel.objects.create(name="one")
-        self.panel_two = Panel.objects.create(name="two")
-
-        for name in ["three", "four", "five", "six"]:
-            Panel.objects.create(name=name)
-
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
         self.assertEqual(RequisitionMetadata.objects.all().count(), 0)
 

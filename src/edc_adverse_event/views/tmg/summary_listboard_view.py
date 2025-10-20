@@ -48,14 +48,14 @@ class SummaryListboardView(
         DEATH_REPORT_ACTION,
         AE_FOLLOWUP_ACTION,
     ]
-    search_fields = [
+    search_fields = (
         "subject_identifier",
         "action_identifier",
         "parent_action_item__action_identifier",
         "related_action_item__action_identifier",
         "user_created",
         "user_modified",
-    ]
+    )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(AE_TMG_ACTION=AE_TMG_ACTION, utc_date=timezone.now().date())

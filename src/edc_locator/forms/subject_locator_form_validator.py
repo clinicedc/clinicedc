@@ -49,12 +49,12 @@ class SubjectLocatorFormValidator(FormValidator):
 
     def validate_may_call_fields(self):
         validations = {}
-        number_fields = ["subject_cell", "subject_phone"]
+        number_fields = ("subject_cell", "subject_phone")
         if self.cleaned_data.get("may_call") == YES:
             if all([self.cleaned_data.get(f) is None for f in number_fields]):
                 validations = {k: "This field is required" for k in number_fields}
         elif self.cleaned_data.get("may_call") == NO:
-            number_fields.extend(["subject_cell_alt", "subject_phone_alt"]),
+            number_fields = {*number_fields, "subject_cell_alt", "subject_phone_alt"}
             for field in number_fields:
                 if self.cleaned_data.get(field):
                     validations.update({field: "This field is not required."})

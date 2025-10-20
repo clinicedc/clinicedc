@@ -11,7 +11,7 @@ from .action_view import ActionView
 
 class RequisitionView(EdcViewMixin, ProcessRequisitionViewMixin, ActionView):
     post_action_url = "requisition_listboard_url"
-    valid_form_actions = ["print_labels", "print_aliquot_labels"]
+    valid_form_actions = ("print_labels", "print_aliquot_labels")
     action_name = "requisition"
     label_cls = RequisitionLabel
 

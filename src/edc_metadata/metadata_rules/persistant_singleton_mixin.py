@@ -36,11 +36,9 @@ class PersistantSingletonMixin:
             )
         except ObjectDoesNotExist:
             obj = None
-            required = (
-                True
-                if visit == self.get_last_attended_scheduled_visit(visit)
+            required = bool(
+                visit == self.get_last_attended_scheduled_visit(visit)
                 and visit.visit_code not in exclude_visit_codes
-                else False
             )
         except MultipleObjectsReturned:
             # necessary if the collection schedule changes and a singleton form

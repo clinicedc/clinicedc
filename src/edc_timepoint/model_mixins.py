@@ -32,8 +32,7 @@ class TimepointLookupModelMixin(models.Model):
     timepoint_lookup_cls = TimepointLookup
 
     def save(self, *args, **kwargs):
-        timepoint_lookup_cls = getattr(self, "timepoint_lookup_cls", None)
-        if timepoint_lookup_cls and get_enable_timepoint_checks():
+        if get_enable_timepoint_checks() and getattr(self, "timepoint_lookup_cls", None):
             timepoint_lookup = self.timepoint_lookup_cls()
             if timepoint_lookup.timepoint_model == self._meta.label_lower:
                 raise ImproperlyConfigured(

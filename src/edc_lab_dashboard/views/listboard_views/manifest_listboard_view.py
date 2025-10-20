@@ -11,15 +11,15 @@ from .base_listboard_view import BaseListboardView
 class ManifestListboardView(BaseListboardView):
     navbar_selected_item = "manifest"
 
-    form_action_url = "manifest_form_action_url"
-    listboard_url = "manifest_listboard_url"
+    form_action_url = "manifest_form_action_url"  # url_name
+    listboard_url = "manifest_listboard_url"  # url_name
     listboard_template = "manifest_listboard_template"
     listboard_model = "edc_lab.manifest"
     listboard_view_permission_codename = "edc_lab_dashboard.view_lab_manifest_listboard"
     listboard_view_only_my_permission_codename = None
     listboard_view_filters = ManifestListboardViewFilters()
-    search_form_url = "manifest_listboard_url"
-    print_manifest_url = "print_manifest_url"
+    search_form_url = "manifest_listboard_url"  # url_name
+    print_manifest_url = "print_manifest_url"  # url_name
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(
@@ -31,8 +31,7 @@ class ManifestListboardView(BaseListboardView):
 
     def get(self, request, *args, **kwargs):
         if request.GET.get("pdf"):
-            response = self.print_manifest()
-            return response
+            return self.print_manifest()
         return super().get(request, *args, **kwargs)
 
     @property

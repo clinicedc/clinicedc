@@ -2,7 +2,6 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls.base import reverse
 from django.utils.html import format_html
-
 from edc_constants.constants import OTHER
 from edc_dashboard.url_names import url_names
 from edc_form_validators import FormValidator, FormValidatorMixin
@@ -47,8 +46,7 @@ class AlreadyConsentedFormMixin:
                 kwargs={"subject_identifier": obj.subject_identifier},
             )
             msg = format_html(
-                "Not allowed. Subject has already consented. "
-                'See subject <A href="{}">{}</A>',
+                'Not allowed. Subject has already consented. See subject <A href="{}">{}</A>',
                 url,
                 obj.subject_identifier,
             )

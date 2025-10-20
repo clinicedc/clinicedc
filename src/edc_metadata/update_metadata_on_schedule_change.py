@@ -33,13 +33,11 @@ class UpdateMetadataOnScheduleChange:
                 f"value for field '{self.fieldname}'.\n"
                 f"Old value='{self.old_value}', New value='{self.new_value}'.\n"
             )
-            for name, model_cls in self.models.items():
+            for model_cls in self.models.values():
                 count = model_cls.objects.filter(**{self.fieldname: self.old_value}).count()
                 sys.stdout.write(f"{model_cls._meta.label_lower}. {count} records found.\n")
             sys.stdout.write(
-                style.ERROR(
-                    "No records have been updated. \n" "Set --dry-run=False to update.\n"
-                )
+                style.ERROR("No records have been updated. \nSet --dry-run=False to update.\n")
             )
         else:
             sys.stdout.write(style.SUCCESS("Updating... \n"))

@@ -36,7 +36,7 @@ class AeListboardViewMixin(
     listboard_panel_title = "Adverse Events: AE Initial and Follow-up Reports"
 
     listboard_template = "ae_listboard_template"
-    listboard_url = "ae_listboard_url"
+    listboard_url = "ae_listboard"
     listboard_panel_style = "default"
     listboard_model = "edc_action_item.actionitem"
     listboard_view_permission_codename = "edc_adverse_event.view_ae_listboard"
@@ -51,14 +51,14 @@ class AeListboardViewMixin(
     search_form_url = "ae_listboard_url"
     action_type_names = [AE_INITIAL_ACTION]
 
-    search_fields = [
+    search_fields = (
         "subject_identifier",
         "action_identifier",
         "parent_action_item__action_identifier",
         "related_action_item__action_identifier",
         "user_created",
         "user_modified",
-    ]
+    )
 
     @property
     def ae_initial_model_cls(self):

@@ -1,14 +1,18 @@
 """To customize any of the values below,
 use settings.LAB_DASHBOARD_URL_NAMES.
+
+These have nothing to do with url_names dictionary
 """
+
+import contextlib
 
 from django.conf import settings
 
 dashboard_urls = dict(
     aliquot_listboard_url="edc_lab_dashboard:aliquot_listboard_url",
-    dashboard_url="edc_lab_dashboard:home_url",
+    lab_dashboard_home_url="edc_lab_dashboard:home_url",
     # home_url="edc_lab_dashboard:home_url",
-    listboard_url="edc_lab_dashboard:requisition_listboard_url",
+    # listboard_url="edc_lab_dashboard:requisition_listboard_url",
     manage_box_listboard_url="edc_lab_dashboard:manage_box_listboard_url",
     manage_manifest_listboard_url="edc_lab_dashboard:manage_manifest_listboard_url",
     manifest_listboard_url="edc_lab_dashboard:manifest_listboard_url",
@@ -32,7 +36,5 @@ dashboard_urls = dict(
     verify_box_item_form_action_url="edc_lab_dashboard:verify_box_item_form_action_url",
 )
 
-try:
+with contextlib.suppress(AttributeError):
     dashboard_urls.update(**settings.LAB_DASHBOARD_URL_NAMES)
-except AttributeError:
-    pass

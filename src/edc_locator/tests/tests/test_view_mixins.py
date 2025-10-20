@@ -1,5 +1,6 @@
 from unittest.case import skip
 
+from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.utils import get_request_object_for_tests, get_user_for_tests
 from django.test import TestCase, override_settings, tag
 from django.views.generic.base import ContextMixin
@@ -21,6 +22,7 @@ class TestViewMixins(TestCase):
         self.user = get_user_for_tests()
         self.subject_identifier = "12345"
         RegisteredSubject.objects.create(subject_identifier=self.subject_identifier)
+        register_actions()
 
     def test_subject_locator_raises_on_bad_model(self):
         class MySubjectLocatorViewMixin(

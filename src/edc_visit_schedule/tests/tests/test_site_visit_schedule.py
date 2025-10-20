@@ -17,7 +17,7 @@ class TestSiteVisitSchedule(TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="test.subjectoffstudy",
+            offstudy_model="edc_offstudy.subjectoffstudy",
             death_report_model="clinicedc_tests.deathreport",
         )
 
@@ -31,8 +31,8 @@ class TestSiteVisitSchedule(TestCase):
         site_visit_schedules._registry = {}
         schedule = Schedule(
             name="schedule",
-            onschedule_model="edc_edc_visit_schedule.onschedule",
-            offschedule_model="edc_edc_visit_schedule.offschedule",
+            onschedule_model="edc_visit_schedule.onschedule",
+            offschedule_model="edc_visit_schedule.offschedule",
             appointment_model="edc_appointment.appointment",
             consent_definitions=[consent_v1],
             base_timepoint=1,
@@ -51,7 +51,7 @@ class TestSiteVisitSchedule1(TestCase):
         self.visit_schedule = VisitSchedule(
             name="visit_schedule",
             verbose_name="Visit Schedule",
-            offstudy_model="clinicedc_tests.subjectoffstudy",
+            offstudy_model="edc_offstudy.subjectoffstudy",
             death_report_model="clinicedc_tests.deathreport",
         )
 

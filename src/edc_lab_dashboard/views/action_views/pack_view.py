@@ -14,11 +14,11 @@ from .action_view import ActionView
 
 class PackView(EdcViewMixin, LabPrintersMixin, ActionView):
     post_action_url = "pack_listboard_url"
-    valid_form_actions = [
+    valid_form_actions = (
         "add_selected_to_manifest",
         "remove_selected_items",
         "print_labels",
-    ]
+    )
     label_cls = BoxLabel
 
     def __init__(self, **kwargs):

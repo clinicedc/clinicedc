@@ -2,6 +2,7 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import (
@@ -33,6 +34,7 @@ utc_tz = ZoneInfo("UTC")
 @time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestQA(TestCase):
     def setUp(self):
+        register_actions()
         site_consents.registry = {}
         site_consents.register(consent_v1)
 

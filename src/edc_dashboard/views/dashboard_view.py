@@ -1,5 +1,3 @@
-from typing import Any
-
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.base import TemplateView
 
@@ -8,7 +6,7 @@ from ..view_mixins import TemplateRequestContextMixin, UrlRequestContextMixin
 
 
 class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, TemplateView):
-    dashboard_url_name = None
+    dashboard_url_name = None  # see url_names dictionary
     dashboard_template = None  # may be None if `dashboard_template_name` is defined
     dashboard_template_name = None  # may be None if `dashboard_template` is defined
 
@@ -35,11 +33,11 @@ class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, Templat
             return [self.dashboard_template_name]
         return [self.get_template_from_context(self.dashboard_template)]
 
-    def get_context_data(self, **kwargs) -> dict[str, Any]:
-        kwargs.update(
-            **self.add_url_to_context(
-                new_key="dashboard_url_name",
-                existing_key=self.dashboard_url_name,
-            )
-        )
-        return super().get_context_data(**kwargs)
+    # def get_context_data(self, **kwargs) -> dict[str, Any]:
+    #     kwargs.update(
+    #         **self.add_url_to_context(
+    #             new_key="dashboard_url_name",  # FIXME ???
+    #             existing_key=self.dashboard_url_name,
+    #         )
+    #     )
+    #     return super().get_context_data(**kwargs)

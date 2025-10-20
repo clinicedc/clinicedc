@@ -33,7 +33,7 @@ class DeathReportListboardViewMixin(
     pdf_report_cls = DeathPdfReport
 
     listboard_template = "ae_death_report_listboard_template"
-    listboard_url = "death_report_listboard_url"
+    listboard_url = "death_report_listboard"
     listboard_panel_style = "default"
     listboard_model = "edc_action_item.actionitem"
     listboard_panel_title = "Adverse Events: Death Reports"

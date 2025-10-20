@@ -2,7 +2,6 @@ from copy import copy
 from typing import Any
 
 from django.urls import reverse
-
 from edc_dashboard.url_names import url_names
 from edc_lab.constants import SHIPPED
 
@@ -11,13 +10,13 @@ from .base_box_item_listboard_view import BaseBoxItemListboardView
 
 class VerifyBoxListboardView(BaseBoxItemListboardView):
     action_name = "verify"
-    form_action_url = "verify_box_item_form_action_url"
+    form_action_url = "verify_box_item_form_action_url"  # url_name
     listboard_template = "verify_box_listboard_template"
-    listboard_url = "verify_box_listboard_url"
+    listboard_url = "verify_box_listboard_url"  # url_name
     navbar_selected_item = "pack"
-    search_form_url = "verify_box_listboard_url"
-    manage_box_listboard_url = "manage_box_listboard_url"
-    verify_box_listboard_url = "verify_box_listboard_url"
+    search_form_url = "verify_box_listboard_url"  # url_name
+    manage_box_listboard_url = "manage_box_listboard_url"  # url_name
+    verify_box_listboard_url = "verify_box_listboard_url"  # url_name
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(

@@ -11,7 +11,7 @@ from .action_view import ActionView
 class VerifyBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
     post_action_url = "verify_box_listboard_url"
     box_item_failed = False
-    valid_form_actions = ["verify_item", "reset_box", "verify_box"]
+    valid_form_actions = ("verify_item", "reset_box", "verify_box")
 
     @property
     def url_kwargs(self):

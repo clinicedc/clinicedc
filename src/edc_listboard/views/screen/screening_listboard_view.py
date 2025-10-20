@@ -30,13 +30,13 @@ class ScreeningListboardView(
     ordering = "-report_datetime"
     paginate_by = 10
     search_form_url = "screening_listboard_url"
-    search_fields = [
+    search_fields = (
         "screening_identifier",
         "initials__exact",
         "subject_identifier",
         "user_created",
         "user_modified",
-    ]
+    )
 
     def get_context_data(self, **kwargs) -> dict:
         kwargs.update(

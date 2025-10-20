@@ -8,7 +8,7 @@ navbar.register(
         title="Visit Schedule",
         label="Visit Schedule",
         fa_icon="fa-calendar",
-        url_name="edc_visit_schedule:home_url",
+        url_with_namespace="edc_visit_schedule:home_url",
         codename="edc_navbar.nav_visit_schedule",
     )
 )
@@ -19,9 +19,8 @@ navbar.register(
         title="Subject History",
         label="Subject History",
         fa_icon="fa-history",
-        url_name=(
-            "edc_visit_schedule:edc_visit_schedule_admin:"
-            "edc_visit_schedule_subjectschedulehistory_changelist"
+        url_with_namespace=(
+            "edc_visit_schedule_admin:edc_visit_schedule_subjectschedulehistory_changelist"
         ),
         codename="edc_navbar.nav_visit_schedule",
     )

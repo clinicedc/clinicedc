@@ -39,7 +39,7 @@ if TYPE_CHECKING:
         schedule_name: str
 
 
-class HasKeyedMetadata(Exception):
+class HasKeyedMetadata(Exception):  # noqa: N818
     pass
 
 

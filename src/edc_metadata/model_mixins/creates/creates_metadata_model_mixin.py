@@ -54,14 +54,13 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
         the related_visit.
         """
         visit: Visit = self.visits.get(self.appointment.visit_code)
-        options = dict(
+        return dict(
             visit_schedule_name=self.appointment.visit_schedule_name,
             schedule_name=self.appointment.schedule_name,
             visit_code=visit.code,
             visit_code_sequence=self.appointment.visit_code_sequence,
             timepoint=self.appointment.timepoint,
         )
-        return options
 
     @property
     def crf_metadata(self):

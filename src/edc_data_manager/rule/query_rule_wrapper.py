@@ -87,7 +87,7 @@ class QueryRuleWrapper:
         return getattr(
             self.subject_identifiers,
             "all",
-            lambda: [{"subject_identifier": s for s in self.subject_identifiers}],
+            lambda: [{"subject_identifier": s} for s in self.subject_identifiers],
         )
 
     @staticmethod

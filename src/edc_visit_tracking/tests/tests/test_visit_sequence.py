@@ -57,7 +57,7 @@ class TestPreviousVisit(TestCase):
             onschedule_model="clinicedc_tests.onscheduleone",
             offschedule_model="clinicedc_tests.offscheduleone",
             visit_count=4,
-            allow_unscheduled=True,
+            # allow_unscheduled=True,
         )
         site_visit_schedules.register(visit_schedule=visit_schedule1)
         visit_schedule2 = get_visit_schedule(
@@ -69,7 +69,7 @@ class TestPreviousVisit(TestCase):
             onschedule_model="clinicedc_tests.onscheduletwo",
             offschedule_model="clinicedc_tests.offscheduletwo",
             visit_count=4,
-            allow_unscheduled=True,
+            # allow_unscheduled=True,
         )
         site_visit_schedules.register(visit_schedule=visit_schedule2)
 

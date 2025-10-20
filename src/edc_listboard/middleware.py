@@ -1,3 +1,5 @@
+import contextlib
+
 from django.conf import settings
 
 from .dashboard_templates import dashboard_templates
@@ -10,12 +12,10 @@ class DashboardMiddleware:
     def __call__(self, request):
         return self.get_response(request)
 
-    def process_view(self, request, *args) -> None:
+    def process_view(self, request, *args) -> None:  # noqa: ARG002
         template_data = dashboard_templates
-        try:
+        with contextlib.suppress(AttributeError):
             template_data.update(settings.LISTBOARD_BASE_TEMPLATES)
-        except AttributeError:
-            pass
         request.template_data.update(**template_data)
 
     def process_template_response(self, request, response):

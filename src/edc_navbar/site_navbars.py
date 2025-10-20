@@ -44,16 +44,16 @@ class NavbarCollection:
             navbar_name=name,
         )
 
-    def get_navbar(self, name: str = None, selected_item: str = None) -> Navbar:
+    def get_navbar(self, name: str, selected_item: str | None = None) -> Navbar:
         """Returns a selected navbar in the collection."""
         # does the navbar exist?
         try:
             navbar: Navbar = self.registry[name]
-        except KeyError:
+        except KeyError as e:
             raise NavbarError(
                 f"Navbar '{name}' does not exist. Expected one of "
                 f"{list(self.registry.keys())}. See {self!r}."
-            )
+            ) from e
         else:
             # does the navbar have items?
             if not navbar.navbar_items:
@@ -66,10 +66,9 @@ class NavbarCollection:
                 navbar.set_active(selected_item)
         return navbar
 
-    def show_user_permissions(self, username: str = None, navbar_name: str = None):
+    def show_user_permissions(self, username: str, navbar_name: str):
         user = django_apps.get_model("auth.user").objects.get(username=username)
-        navbar: Navbar = self.registry.get(navbar_name)
-        return navbar.show_user_permissions(user=user)
+        return self.registry.get(navbar_name).show_user_permissions(user=user)
 
     def show_user_codenames(self, username=None, navbar_name=None):
         user_permissions = self.show_user_permissions(username, navbar_name)
@@ -101,7 +100,7 @@ class NavbarCollection:
                     except ImportError as e:
                         site_navbars.registry = before_import_registry
                         if module_has_submodule(mod, module_name):
-                            raise NavbarError(e)
+                            raise NavbarError(e) from e
                 except ImportError:
                     pass
 

@@ -31,8 +31,9 @@ class MetadataUpdater(SourceModelMetadataMixin):
 
     def __init__(
         self,
-        related_visit: RelatedVisitModel = None,
-        source_model: str = None,
+        *,
+        related_visit: RelatedVisitModel,
+        source_model: str,
         allow_create: bool | None = None,
     ):
         super().__init__(source_model, related_visit)
@@ -46,7 +47,7 @@ class MetadataUpdater(SourceModelMetadataMixin):
             f"source_model={self.source_model})"
         )
 
-    def get_and_update(self, entry_status: str = None) -> CrfMetadata | RequisitionMetadata:
+    def get_and_update(self, entry_status: str) -> CrfMetadata | RequisitionMetadata:
         metadata_obj = self.metadata_handler.metadata_obj
         if entry_status != KEYED and self.source_model_obj_exists:
             entry_status = KEYED

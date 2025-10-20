@@ -7,7 +7,7 @@ from edc_model.validators import hm_validator
 
 
 def fasting_model_mixin_factory(
-    prefix: str = None, verbose_names: dict | None = None, **kwargs
+    prefix: str | None = None, verbose_names: dict | None = None, **kwargs
 ):
     prefix = "" if prefix is None else f"{prefix}_"
     verbose_names = verbose_names or {}

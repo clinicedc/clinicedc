@@ -1,3 +1,5 @@
+import contextlib
+
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.sites import all_sites
@@ -43,10 +45,8 @@ class TestFormValidators(SiteTestCaseMixin, TestCase):
     def test_ae_cause_no(self):
         cleaned_data = {"ae_cause": NO, "ae_cause_other": YES}
         form_validator = AeInitialFormValidator(cleaned_data=cleaned_data)
-        try:
+        with contextlib.suppress(forms.ValidationError):
             form_validator.validate()
-        except forms.ValidationError:
-            pass
         self.assertIn("ae_cause_other", form_validator._errors)
         self.assertIn(NOT_REQUIRED_ERROR, form_validator._error_codes)
 

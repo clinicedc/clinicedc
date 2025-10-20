@@ -1,3 +1,7 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.utils import get_user_for_tests
@@ -27,6 +31,7 @@ User = get_user_model()
 
 @tag("review_dashboard")
 @override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestDashboard(WebTest):
     user: User = None
 
@@ -117,14 +122,12 @@ class TestDashboard(WebTest):
 
     def test_url_response_for_subject_identifier(self):
         self.login()
-
-        response = self.app.get(
-            reverse(
-                "edc_review_dashboard:subject_review_listboard_url",
-                kwargs={"subject_identifier": self.subject_identifiers[1]},
-            ),
-            user=self.user,
+        url = reverse(
+            "edc_review_dashboard:subject_review_listboard_url",
+            kwargs={"subject_identifier": self.subject_identifiers[1]},
         )
+
+        response = self.app.get(url, user=self.user)
 
         self.assertIn(f"id-reported-visits-{self.subject_identifiers[1]}", response)
 

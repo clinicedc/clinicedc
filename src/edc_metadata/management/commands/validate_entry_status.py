@@ -15,7 +15,7 @@ from ...models import CrfMetadata, RequisitionMetadata
 class Command(BaseCommand):
     help = "Performs a `get_model` for each target models referenced"
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         grouping = (
             RequisitionMetadata.objects.distinct()
             .values("model")

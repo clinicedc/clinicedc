@@ -21,24 +21,24 @@ class RequisitionMetadataHandler(MetadataHandler):
         super().__init__(**kwargs)
         self.panel = panel
 
-    def _create(self, exception_msg: str | None = None) -> RequisitionMetadata:
+    def _create(self) -> RequisitionMetadata:
         """Returns a created RequisitionMetadata model instance for this
         requisition.
         """
         metadata_obj = None
         try:
-            requisition_object = [
+            requisition_object = next(
                 requisition
                 for requisition in self.creator.related_visit.visit.all_requisitions
                 if requisition.panel.name == self.panel.name
-            ][0]
-        except IndexError as e:
+            )
+        except StopIteration as e:
             if self.related_visit.reason != MISSED_VISIT:
                 raise MetadataHandlerError(
                     "Panel not found. Not in visit.all_requisitions. "
                     f"Panel `{self.panel}` at `{self.creator.related_visit.visit}`. "
                     f"Got {e}. Check your visit schedule."
-                )
+                ) from e
         else:
             metadata_obj = self.creator.create_requisition(requisition_object)
         return metadata_obj

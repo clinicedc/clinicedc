@@ -5,7 +5,7 @@ import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import CrfFour
-from clinicedc_tests.visit_schedules.visit_schedule_crf import visit_schedule
+from clinicedc_tests.visit_schedules.visit_schedule_crf.visit_schedule import visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone

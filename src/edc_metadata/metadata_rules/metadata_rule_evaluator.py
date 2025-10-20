@@ -41,3 +41,4 @@ class MetadataRuleEvaluator:
                 rule_group.evaluate_rules(
                     related_visit=self.related_visit, allow_create=self.allow_create
                 )
+        return 0

@@ -46,7 +46,7 @@ class LtfuModelAdminMixin:
         "number_consecutive_missed_visits",
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "home_visited": admin.VERTICAL,
         "ltfu_category": admin.VERTICAL,
     }

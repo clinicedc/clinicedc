@@ -6,7 +6,6 @@ from django.contrib import messages
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.encoding import force_str
-
 from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 
 
@@ -75,8 +74,10 @@ class ModelAdminRedirectOnDeleteMixin:
         """Overridden to redirect to `post_url_on_delete`, if not None."""
         if self.post_url_on_delete:
             opts = self.model._meta
-            msg = (f'The {force_str(opts.verbose_name)} "{force_str(obj_display)}" '
-                   'was deleted successfully.')
+            msg = (
+                f'The {force_str(opts.verbose_name)} "{force_str(obj_display)}" '
+                "was deleted successfully."
+            )
             messages.add_message(request, messages.SUCCESS, msg)
             return HttpResponseRedirect(self.post_url_on_delete)
         return super().response_delete(request, obj_display, obj_id)

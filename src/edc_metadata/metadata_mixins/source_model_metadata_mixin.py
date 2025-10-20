@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class SourceModelMetadataMixin:
     """Mixin class for Metadata and MetadataUpdater class."""
 
-    def __init__(self, source_model: str, related_visit: RelatedVisitModel = None):
+    def __init__(self, source_model: str, related_visit: RelatedVisitModel):
         self._source_model_obj = None
         self._source_model = source_model
         self.related_visit = related_visit

@@ -16,35 +16,41 @@ class UrlNames:
     registry: dict[str, str] = field(default_factory=dict)
 
     def register(
-        self, name: str | None = None, url: str | None = None, namespace: str | None = None
+        self,
+        key: str,
+        namespace: str | None = None,
+        url: str | None = None,
+        url_with_namespace: str | None = None,
     ) -> None:
-        name = name or url
-        complete_url = f"{namespace}:{url}" if namespace else url
-        if name in self.registry:
-            raise AlreadyRegistered(f"Url already registered. Got {complete_url}.")
-        self.registry.update({name: complete_url})
+        url_with_namespace = url_with_namespace or f"{namespace}:{url}"
+        if key in self.registry:
+            raise AlreadyRegistered(
+                "Url already registered with url_names. "
+                f"See {key}:{self.registry[key]}. Got {url_with_namespace}."
+            )
+        self.registry.update({key: url_with_namespace})
 
     def register_from_dict(self, **urldata: str) -> None:
-        for name, complete_url in urldata.items():
+        for key, url_with_namespace in urldata.items():
             try:
-                namespace, url = complete_url.split(":")
+                namespace, url = url_with_namespace.split(":")
             except ValueError:
-                namespace, url = complete_url, None
-            self.register(name=name, url=url, namespace=namespace)
+                namespace, url = url_with_namespace, None
+            self.register(key, namespace, url=url)
 
     def all(self) -> dict[str, str]:
         return self.registry
 
-    def get(self, name: str) -> str:
-        if name not in self.registry:
+    def get(self, key: str) -> str:
+        if key not in self.registry:
             raise InvalidDashboardUrlName(
-                f"Invalid dashboard url name. Expected one of {self.registry.keys()}. "
-                f"Got '{name}'."
+                f"Invalid key for url_names. Expected one of {self.registry.keys()}. "
+                f"Got '{key}'."
             )
-        return self.registry.get(name)
+        return self.registry.get(key)
 
-    def get_or_raise(self, name: str) -> str:
-        return self.get(name)
+    def get_or_raise(self, key: str) -> str:
+        return self.get(key)
 
 
 url_names = UrlNames()

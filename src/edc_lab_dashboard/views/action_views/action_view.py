@@ -23,13 +23,13 @@ class ActionView(TemplateView):
     aliquot, etc.
     """
 
-    form_action_selected_items_name = "selected_items"
-    post_action_url = None  # key exists in url_names
-    redirect_querystring = {}
-    template_name = dashboard_templates.get("home_template")
-    valid_form_actions = []
+    form_action_selected_items_name: str = "selected_items"
+    post_action_url: str = None  # key exists in url_names
+    redirect_querystring: dict = {}  # noqa: RUF012
+    template_name: str = dashboard_templates.get("home_template")
+    valid_form_actions: tuple[str, ...] = ()
 
-    navbar_name = "specimens"
+    navbar_name: str = "specimens"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

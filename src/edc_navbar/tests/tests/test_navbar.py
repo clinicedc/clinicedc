@@ -1,8 +1,11 @@
+import contextlib
+
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.test.client import RequestFactory
 from django.urls.base import reverse
 
+from edc_dashboard.url_names import AlreadyRegistered as UrlAlreadyRegistered
 from edc_dashboard.url_names import url_names
 
 from ...navbar import Navbar
@@ -15,7 +18,8 @@ User = get_user_model()
 class TestNavbar(TestCase):
     @classmethod
     def setUpClass(cls):
-        url_names.register("dashboard_url", "dashboard_url", "edc_dashboard")
+        with contextlib.suppress(UrlAlreadyRegistered):
+            url_names.register("dashboard_url", "dashboard_url", "edc_dashboard")
         return super().setUpClass()
 
     def setUp(self):
@@ -33,7 +37,7 @@ class TestNavbar(TestCase):
                 title="Navbar1",
                 label="one",
                 codename="edc_navbar.navbar1",
-                url_name="navbar_one_url",
+                url_names_key="navbar_one_url",
             )
         )
 
@@ -43,7 +47,7 @@ class TestNavbar(TestCase):
                 title="Navbar2",
                 label="two",
                 codename="edc_navbar.navbar2",
-                url_name="navbar_two_url",
+                url_names_key="navbar_two_url",
             )
         )
         return testnavbar
@@ -63,7 +67,7 @@ class TestNavbar(TestCase):
             name="navbar_item_one",
             label="Navbar Item One",
             title="navbar_item_one",
-            url_name="navbar_one_url",
+            url_names_key="navbar_one_url",
             codename="edc_navbar.nav_one",
         )
         self.assertEqual(navbar_item.name, "navbar_item_one")
@@ -79,6 +83,7 @@ class TestNavbar(TestCase):
         self.assertFalse(navbar.get("navbar2").active)
         self.assertTrue(navbar.get("navbar1").active)
 
+    @tag("edc_navbar7")
     def test_navbar_urls(self):
         navbar = self.create_navbar()
         for navbar_item in navbar.navbar_items:

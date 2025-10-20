@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+from datetime import datetime
+from typing import TYPE_CHECKING
+
 import arrow
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,6 +19,12 @@ from edc_visit_tracking.utils import (
 
 from ..constants import AUTO_RESOLVED
 from ..models import DataQuery
+
+if TYPE_CHECKING:
+    from edc_registration.models import RegisteredSubject
+    from edc_visit_schedule.visit_schedule import VisitSchedule
+
+    from ..models import QueryRule
 
 
 class QueryRuleHandlerError(Exception):
@@ -57,11 +68,12 @@ class QueryRuleHandler:
 
     def __init__(
         self,
-        query_rule_obj=None,
-        registered_subject=None,
-        visit_schedule_obj=None,
-        visit_code_sequence=None,
-        now=None,
+        *,
+        query_rule_obj: QueryRule,
+        registered_subject: RegisteredSubject,
+        visit_schedule_obj: VisitSchedule,
+        now: datetime,
+        visit_code_sequence: int | None = None,
     ):
         self._field_values = {}
         self._model_obj = None

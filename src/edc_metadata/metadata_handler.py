@@ -25,7 +25,7 @@ class MetadataHandlerError(Exception):
     pass
 
 
-class MetadataObjectDoesNotExist(Exception):
+class MetadataObjectDoesNotExist(Exception):  # noqa: N818
     pass
 
 
@@ -73,15 +73,15 @@ class MetadataHandler:
         """Returns a new metadata model instance for this CRF."""
         metadata_obj = None
         try:
-            crf = [
+            crf = next(
                 f for f in self.creator.related_visit.visit.all_crfs if f.model == self.model
-            ][0]
-        except IndexError as e:
+            )
+        except StopIteration as e:
             if self.related_visit.reason != MISSED_VISIT:
                 raise MetadataHandlerError(
                     "Create failed. Model not found. Not in visit.all_crfs. "
                     f"Model {self.model}. Got {e}"
-                )
+                ) from e
         else:
             metadata_obj = self.creator.create_crf(crf)
         return metadata_obj

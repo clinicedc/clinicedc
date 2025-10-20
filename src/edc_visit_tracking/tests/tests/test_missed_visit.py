@@ -106,7 +106,7 @@ class TestVisit(TestCase):
                     requisitions=None,
                     crfs=crfs,
                     crfs_missed=crfs_missed,
-                    allow_unscheduled=True,
+                    # allow_unscheduled=True,
                 )
             )
         for visit in visits:

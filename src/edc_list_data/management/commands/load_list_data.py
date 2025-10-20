@@ -7,8 +7,8 @@ class Command(BaseCommand):
     help = "Populates list data and other static model data from list_data.py"
     module_name = "list_data"
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         try:
             site_list_data.autodiscover()
         except SiteListDataError as e:
-            raise CommandError(e)
+            raise CommandError(e) from e

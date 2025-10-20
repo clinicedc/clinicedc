@@ -17,7 +17,7 @@ utc_tz = ZoneInfo("UTC")
 class TestSimpleIdentifier(TestCase):
     def test_simple(self):
         obj = SimpleIdentifier()
-        obj.identifier
+        self.assertIsNotNone(obj.identifier)
 
     def test_simple_unique(self):
         obj = SimpleUniqueIdentifier()

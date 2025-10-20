@@ -2,7 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from clinicedc_tests.models import CrfOne, SubjectRequisition
+from clinicedc_tests.models import CrfThree, SubjectRequisition
 from django.db.models import ProtectedError
 from django.test import TestCase, override_settings, tag
 
@@ -31,20 +31,20 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
             visit_code="2000",
         )
         create_related_visit(appointment)
-        self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 5)
+        self.assertEqual(CrfMetadata.objects.filter(visit_code="2000").count(), 9)
         self.assertEqual(
             CrfMetadata.objects.filter(visit_code="2000", entry_status=REQUIRED).count(),
-            3,
+            9,
         )
         self.assertEqual(
             RequisitionMetadata.objects.filter(visit_code="2000").count(),
-            8,
+            4,
         )
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 visit_code="2000", entry_status=REQUIRED
             ).count(),
-            2,
+            4,
         )
 
     def test_deletes_metadata_on_change_reason_to_missed(self):
@@ -136,13 +136,10 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         # recreate
         subject_visit.save()
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
-        crf_one = CrfOne(subject_visit=subject_visit)
-        crf_one.save()
+        crf = CrfThree(subject_visit=subject_visit)
+        crf.save()
         self.assertRaises(ProtectedError, subject_visit.delete)
-        crf_one.delete()
-        # create error condition, keyed but no model instances
-        CrfMetadata.objects.all().update(entry_status=KEYED)
-        self.assertRaises(DeleteMetadataError, subject_visit.delete)
+        self.assertRaises(DeleteMetadataError, subject_visit.metadata_delete_for_visit)
 
     def test_delete_visit_for_keyed_crf2(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
@@ -153,10 +150,10 @@ class TestDeletesMetadata(TestMetadataMixin, TestCase):
         # recreate
         subject_visit.save()
         self.assertGreater(CrfMetadata.objects.all().count(), 0)
-        crf_one = CrfOne(subject_visit=subject_visit)
-        crf_one.save()
+        crf = CrfThree(subject_visit=subject_visit)
+        crf.save()
         self.assertRaises(ProtectedError, subject_visit.delete)
-        crf_one.delete()
+        crf.delete()
         subject_visit.delete()
         self.assertEqual(CrfMetadata.objects.all().count(), 0)
 

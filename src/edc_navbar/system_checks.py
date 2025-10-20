@@ -8,7 +8,7 @@ from edc_navbar import site_navbars
 def edc_navbar_checks(app_configs, **kwargs) -> list[CheckMessage]:
     errors = []
 
-    for navbar_name, navbar in site_navbars.registry.items():
+    for navbar in site_navbars.registry.values():
         for navbar_item in navbar.navbar_items:
             try:
                 app_label, codename = navbar_item.codename.split(".")
@@ -30,13 +30,6 @@ def edc_navbar_checks(app_configs, **kwargs) -> list[CheckMessage]:
                     errors.append(Error(msg, id="edc_navbar.E002"))
             try:
                 navbar_item.get_url(raise_exception=True)
-            except NoReverseMatch:
-                errors.append(
-                    Error(
-                        f"NoReverseMatch for url. Got '{navbar_item.real_url_name}'. "
-                        f"See {navbar_item.name}.",
-                        id="edc_navbar.E003",
-                    )
-                )
-
+            except NoReverseMatch as e:
+                errors.append(Error(str(e), id="edc_navbar.E003"))
     return errors

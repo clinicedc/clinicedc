@@ -1,5 +1,4 @@
 from edc_constants.constants import FEMALE, MALE
-
 from edc_metadata import NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_rules import CrfRule, CrfRuleGroup, P
 
@@ -18,12 +17,12 @@ class CrfRuleGroupWithSourceModel(CrfRuleGroup):
         predicate=P("f1", "eq", "bicycle"),
         consequence=REQUIRED,
         alternative=NOT_REQUIRED,
-        target_models=["crfthree", "crftwo"],
+        target_models=["crfseven", "crfsix"],
     )
 
     class Meta:
         app_label = "clinicedc_tests"
-        source_model = "clinicedc_tests.crfone"
+        source_model = "clinicedc_tests.crfthree"
         related_visit_model = "edc_visit_tracking.subjectvisit"
 
 
@@ -39,7 +38,7 @@ class CrfRuleGroupWithoutSourceModel(CrfRuleGroup):
         predicate=P("gender", "eq", FEMALE),
         consequence=REQUIRED,
         alternative=NOT_REQUIRED,
-        target_models=["crfthree", "crftwo"],
+        target_models=["crfseven", "crfsix"],
     )
 
     class Meta:
@@ -59,12 +58,12 @@ class CrfRuleGroupWithoutExplicitReferenceModel(CrfRuleGroup):
         predicate=P("gender", "eq", FEMALE),
         consequence=REQUIRED,
         alternative=NOT_REQUIRED,
-        target_models=["crfthree", "crftwo"],
+        target_models=["crfseven", "crfsix"],
     )
 
     class Meta:
         app_label = "clinicedc_tests"
-        source_model = "clinicedc_tests.crfone"
+        source_model = "clinicedc_tests.crfthree"
         related_visit_model = "edc_visit_tracking.subjectvisit"
 
 
@@ -93,19 +92,19 @@ class CrfRuleGroupOne(CrfRuleGroup):
         predicate=P("f1", "eq", "car"),
         consequence=REQUIRED,
         alternative=NOT_REQUIRED,
-        target_models=["crftwo"],
+        target_models=["crffour"],
     )
 
     crfs_bicycle = CrfRule(
         predicate=P("f3", "eq", "bicycle"),
         consequence=REQUIRED,
         alternative=NOT_REQUIRED,
-        target_models=["crfthree"],
+        target_models=["crffive"],
     )
 
     class Meta:
         app_label = "clinicedc_tests"
-        source_model = "clinicedc_tests.crfone"
+        source_model = "clinicedc_tests.crfthree"
 
 
 class CrfRuleGroupTwo(CrfRuleGroup):
@@ -113,19 +112,19 @@ class CrfRuleGroupTwo(CrfRuleGroup):
         predicate=P("f1", "eq", "truck"),
         consequence=REQUIRED,
         alternative=NOT_REQUIRED,
-        target_models=["crffive"],
+        target_models=["crfsix"],
     )
 
     crfs_train = CrfRule(
         predicate=P("f1", "eq", "train"),
         consequence=REQUIRED,
         alternative=NOT_REQUIRED,
-        target_models=["crfsix"],
+        target_models=["crfseven"],
     )
 
     class Meta:
         app_label = "clinicedc_tests"
-        source_model = "clinicedc_tests.crfone"
+        source_model = "clinicedc_tests.crfthree"
 
 
 class CrfRuleGroupThree(CrfRuleGroup):
@@ -138,4 +137,4 @@ class CrfRuleGroupThree(CrfRuleGroup):
 
     class Meta:
         app_label = "clinicedc_tests"
-        source_model = "clinicedc_tests.crfone"
+        source_model = "clinicedc_tests.crfthree"

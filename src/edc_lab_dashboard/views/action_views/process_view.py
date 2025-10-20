@@ -9,7 +9,7 @@ from .action_view import ActionView
 
 class ProcessView(EdcViewMixin, ProcessRequisitionViewMixin, ActionView):
     post_action_url = "process_listboard_url"
-    valid_form_actions = ["process"]
+    valid_form_actions = ("process",)
     action_name = "process"
     label_cls = AliquotLabel
 

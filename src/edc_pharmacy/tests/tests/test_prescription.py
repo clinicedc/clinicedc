@@ -1,5 +1,6 @@
 from tempfile import mkdtemp
 
+from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.sites import all_sites
@@ -10,7 +11,6 @@ from django.utils import timezone
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_list_data import site_list_data
 from edc_pharmacy.exceptions import PrescriptionAlreadyExists, PrescriptionError
 from edc_pharmacy.models import (
     DosageGuideline,
@@ -47,15 +47,13 @@ class TestPrescription(TestCase):
         sites.loaded = False
         sites.register(*all_sites)
         add_or_update_django_sites()
-
         site_randomizers.register(MyRandomizer)
         populate_randomization_list_for_tests(
             MyRandomizer.name, site_names=["mochudi"], per_site=15
         )
+        register_actions()
 
     def setUp(self):
-        site_list_data.initialize()
-        site_list_data.autodiscover()
         site_consents.registry = {}
         site_consents.register(consent_v1)
 

@@ -1,5 +1,4 @@
 from django.urls.conf import path, re_path
-
 from edc_dashboard.url_names import url_names
 
 from .dashboard_urls import dashboard_urls
@@ -97,7 +96,7 @@ urlpatterns = [
         name="verify_box_listboard_url",
     ),
     re_path(
-        "listboard/box/(?P<action_name>verify)/" "(?P<position>[0-9]+)/$",
+        "listboard/box/(?P<action_name>verify)/(?P<position>[0-9]+)/$",
         VerifyBoxListboardView.as_view(),
         name="verify_box_listboard_url",
     ),
@@ -158,9 +157,7 @@ urlpatterns = [
         name="manage_box_item_form_action_url",
     ),
     re_path(
-        "box/(?P<box_identifier>[A-Z0-9]+)/"
-        "(?P<action_name>verify)/"
-        "(?P<position>[0-9]+)/$",
+        "box/(?P<box_identifier>[A-Z0-9]+)/(?P<action_name>verify)/(?P<position>[0-9]+)/$",
         VerifyBoxItemView.as_view(),
         name="verify_box_item_form_action_url",
     ),

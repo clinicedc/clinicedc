@@ -8,12 +8,8 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
-from rangefilter.filters import DateRangeFilterBuilder
-
 from edc_appointment.utils import get_appointment_model_cls
 from edc_dashboard.url_names import url_names
-from edc_metadata import KEYED, REQUIRED
-from edc_metadata.admin.list_filters import CreatedListFilter
 from edc_model_admin.mixins import (
     ModelAdminInstitutionMixin,
     ModelAdminNextUrlRedirectMixin,
@@ -22,6 +18,10 @@ from edc_model_admin.mixins import (
     TemplatesModelAdminMixin,
 )
 from edc_sites.admin import SiteModelAdminMixin
+from rangefilter.filters import DateRangeFilterBuilder
+
+from edc_metadata import KEYED, REQUIRED
+from edc_metadata.admin.list_filters import CreatedListFilter
 
 
 class MetadataModelAdminMixin(
@@ -48,6 +48,8 @@ class MetadataModelAdminMixin(
     list_per_page = 20
 
     change_search_field_name = "subject_identifier"
+
+    subject_dashboard_url_name = "subject_dashboard_url"  # url_name
 
     fieldsets = (
         [
@@ -149,8 +151,6 @@ class MetadataModelAdminMixin(
         extra_context.update(show_cancel=True)
         return extra_context
 
-    subject_dashboard_url_name = "subject_dashboard_url"
-
     def get_subject_dashboard_url(self, obj=None) -> str | None:
         opts = {}
         if obj:
@@ -195,9 +195,11 @@ class MetadataModelAdminMixin(
             )
         return obj.get_entry_status_display()
 
-    def get_view_on_site_url(self, obj=None):
+    def get_view_on_site_url(self, obj=None) -> None | str:
+        url = None
         if obj is None or not self.view_on_site:
-            return None
+            url = None
         if hasattr(obj, "get_absolute_url"):
             url = reverse(self.changelist_url)
-            return f"{url}?q={obj.subject_identifier}"
+            url = f"{url}?q={obj.subject_identifier}"
+        return url

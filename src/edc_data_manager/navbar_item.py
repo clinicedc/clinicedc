@@ -5,5 +5,5 @@ dm_navbar_item = NavbarItem(
     title="Data Management",
     label="DM",
     codename="edc_data_manager.nav_data_manager_section",
-    url_name="edc_data_manager:home_url",
+    url_with_namespace="edc_data_manager:home_url",
 )

@@ -7,10 +7,13 @@ class DashboardMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        response = self.get_response(request)
-        return response
+        return self.get_response(request)
 
     def process_view(self, request, *args):
+        try:
+            request.url_name_data  # noqa: B018
+        except AttributeError:
+            request.url_name_data = {}
         request.url_name_data.update(**dashboard_urls)
         template_data = dashboard_templates
         request.template_data.update(**template_data)

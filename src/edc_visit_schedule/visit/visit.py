@@ -217,6 +217,14 @@ class Visit:
 
     @property
     def all_crfs(self) -> CrfCollection:
+        """Return a new collection containing all crfs.
+
+        The new collection contains:
+             * crfs
+             * crfs_unscheduled
+             * crfs_prn
+             * crfs_missed
+        """
         crfs = list(self.crfs) + [
             crf
             for crf in self.crfs_unscheduled
@@ -232,6 +240,13 @@ class Visit:
 
     @property
     def all_requisitions(self) -> RequisitionCollection:
+        """Return a new collection containing all requisitions.
+
+        The new collection contains:
+             * requisitions
+             * requisitions_unscheduled
+             * requisitions_prn
+        """
         names = [r.name for r in self.requisitions]
         requisitions = list(self.requisitions) + [
             r for r in self.requisitions_unscheduled if r.name not in names

@@ -19,5 +19,4 @@ class LtfuAction(ActionWithNotification):
     priority = HIGH_PRIORITY
 
     def get_next_actions(self):
-        next_actions = [END_OF_STUDY_ACTION]
-        return next_actions
+        return [END_OF_STUDY_ACTION]

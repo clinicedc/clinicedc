@@ -7,7 +7,7 @@ from django.db import models
 from django.db.models.deletion import PROTECT
 from django.template.loader import render_to_string
 
-from edc_constants.constants import NORMAL
+from edc_constants.constants import NORMAL, NULL_STRING
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_visit_schedule.constants import DAYS, HOURS, MONTHS, WEEKS
 
@@ -31,7 +31,7 @@ class QueryRuleManager(models.Manager):
 def get_rule_handler_choices(model_name=None):
     choices = []
     for rule_handler in site_data_manager.get_rule_handlers(model_name=model_name):
-        choices.append((rule_handler.name, rule_handler.display_name))
+        choices.append((rule_handler.name, rule_handler.display_name))  # noqa: PERF401
     return tuple(choices) or (
         (DEFAULT_RULE_HANDLER, DEFAULT_RULE_HANDLER.replace("_", " ").title()),
     )
@@ -105,7 +105,7 @@ class QueryRule(BaseUuidModel):
 
     title = models.CharField(max_length=150, unique=True)
 
-    reference_model = models.CharField(max_length=150, null=True, editable=False)
+    reference_model = models.CharField(max_length=150, default=NULL_STRING, editable=False)
 
     sender = models.ForeignKey(
         DataManagerUser,
@@ -152,7 +152,7 @@ class QueryRule(BaseUuidModel):
 
     query_text = models.TextField(
         help_text="Generic query text for auto-generated queries.",
-        null=True,
+        default=NULL_STRING,
         blank=True,
     )
 
@@ -192,7 +192,7 @@ class QueryRule(BaseUuidModel):
 
     reference = models.CharField(max_length=36, default=uuid4, unique=True)
 
-    comment = models.TextField(null=True, blank=True)
+    comment = models.TextField(default=NULL_STRING, blank=True)
 
     objects = QueryRuleManager()
 
@@ -209,13 +209,13 @@ class QueryRule(BaseUuidModel):
     def natural_key(self):
         return (self.title,)
 
-    natural_key.dependencies = [
+    natural_key.dependencies = (
         "edc_data_manager.CrfDataDictionary",
         "edc_data_manager.DataManagerUser",
         "edc_data_manager.QueryUser",
         "edc_data_manager.queryvisitschedule",
         "edc_data_manager.RequisitionPanel",
-    ]
+    )
 
     @property
     def rendered_query_text(self) -> str:

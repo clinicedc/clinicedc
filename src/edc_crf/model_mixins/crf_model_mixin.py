@@ -2,12 +2,16 @@ from django.contrib.sites.models import Site
 
 from edc_model.models import HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
+from edc_timepoint.model_mixins import TimepointLookupModelMixin
+from edc_timepoint.timepoint_lookup import TimepointLookup
 from edc_visit_tracking.managers import CrfCurrentSiteManager, CrfModelManager
 
 from .crf_no_manager_model_mixin import CrfNoManagerModelMixin
 
 
-class CrfModelMixin(SiteModelMixin, CrfNoManagerModelMixin):
+class CrfModelMixin(SiteModelMixin, TimepointLookupModelMixin, CrfNoManagerModelMixin):
+    timepoint_lookup_cls = TimepointLookup
+
     objects = CrfModelManager()
     on_site = CrfCurrentSiteManager()
     history = HistoricalRecords(inherit=True)

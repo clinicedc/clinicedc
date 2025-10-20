@@ -12,7 +12,7 @@ style = color_style()
 class Command(BaseCommand):
     help = "Update metadata and re-run metadatarules"
 
-    def handle(self, *args, **options) -> None:
+    def handle(self, *args, **options) -> None:  # noqa: ARG002
         metadata_refresher = MetadataRefresher(verbose=True)
         sys.stdout.write("Deleting all CrfMetadata...     \r")
         CrfMetadata.objects.all().delete()

@@ -1,5 +1,6 @@
 from django.test import TestCase, override_settings, tag
 from django.urls import reverse
+from edc_dashboard.url_names import url_names
 
 
 @tag("lab_dashboard")
@@ -157,5 +158,5 @@ class TestUrls(TestCase):
         self.assertEqual("/edc_lab_dashboard/aliquot/", url)
 
     def test_home_url(self):
-        url = reverse("edc_lab_dashboard:home_url")
+        url = reverse(url_names.get("lab_dashboard_home_url"))
         self.assertEqual("/edc_lab_dashboard/", url)

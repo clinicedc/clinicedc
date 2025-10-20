@@ -44,7 +44,7 @@ class MetadataRefresher:
     def source_models(self) -> list[str]:
         if not self._source_models:
             self._source_models = []
-            for app_label, rule_groups_list in site_metadata_rules.rule_groups.items():
+            for rule_groups_list in site_metadata_rules.rule_groups.values():
                 for rule_groups in rule_groups_list:
                     if (
                         rule_groups._meta.source_model

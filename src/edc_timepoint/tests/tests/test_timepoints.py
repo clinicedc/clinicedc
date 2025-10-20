@@ -1,10 +1,16 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
+from clinicedc_tests.models import CrfFive, CrfFour
 from clinicedc_tests.sites import all_sites
-from dateutil.relativedelta import relativedelta
+from clinicedc_tests.visit_schedules.visit_schedule_timepoint.visit_schedule import (
+    get_visit_schedule,
+)
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings, tag
-from django.utils import timezone
 
 from edc_appointment.constants import COMPLETE_APPT
 from edc_appointment.models import Appointment
@@ -12,18 +18,17 @@ from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_sites.site import sites
 from edc_sites.utils import add_or_update_django_sites
+from edc_timepoint.constants import CLOSED_TIMEPOINT, OPEN_TIMEPOINT
+from edc_timepoint.model_mixins import UnableToCloseTimepoint
+from edc_timepoint.timepoint import TimepointClosed
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
-
-from ...constants import CLOSED_TIMEPOINT, OPEN_TIMEPOINT
-from ...model_mixins import UnableToCloseTimepoint
-from ...timepoint import TimepointClosed
-from ..models import CrfOne, CrfTwo, SubjectVisit
-from ..visit_schedule import visit_schedule
+from edc_visit_tracking.models import SubjectVisit
 
 
 @tag("timepoint")
-@override_settings(SITE_ID=10, SUBJECT_VISIT_MODEL="edc_timepoint.subjectvisit")
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
+@override_settings(SITE_ID=10, EDC_TIMEPOINT_ENABLE_CHECKS=True)
 class TimepointTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -40,11 +45,10 @@ class TimepointTests(TestCase):
         site_consents.register(consent_v1)
 
         site_visit_schedules._registry = {}
+        visit_schedule = get_visit_schedule(consent_v1)
         self.schedule = visit_schedule.schedules.get("schedule")
         site_visit_schedules.register(visit_schedule)
-        helper = Helper(
-            now=timezone.now() - relativedelta(years=1),
-        )
+        helper = Helper()
         self.subject_visit = helper.enroll_to_baseline(
             visit_schedule_name=visit_schedule.name,
             schedule_name="schedule",
@@ -96,8 +100,8 @@ class TimepointTests(TestCase):
         subject_visit = SubjectVisit.objects.get(
             appointment=self.appointment, reason=SCHEDULED
         )
-        crf_obj = CrfOne.objects.create(subject_visit=subject_visit)
-        CrfTwo.objects.create(subject_visit=subject_visit)
+        crf_obj = CrfFour.objects.create(subject_visit=subject_visit)
+        CrfFive.objects.create(subject_visit=subject_visit)
         self.appointment.appt_status = COMPLETE_APPT
         self.appointment.save()
         self.appointment.refresh_from_db()
@@ -114,8 +118,8 @@ class TimepointTests(TestCase):
         subject_visit = SubjectVisit.objects.get(
             appointment=self.appointment, reason=SCHEDULED
         )
-        CrfOne.objects.create(subject_visit=subject_visit)
-        CrfTwo.objects.create(subject_visit=subject_visit)
+        CrfFour.objects.create(subject_visit=subject_visit)
+        CrfFive.objects.create(subject_visit=subject_visit)
         self.appointment.appt_status = COMPLETE_APPT
         self.appointment.save()
         self.appointment.refresh_from_db()
@@ -134,8 +138,8 @@ class TimepointTests(TestCase):
         subject_visit = SubjectVisit.objects.get(
             appointment=self.appointment, reason=SCHEDULED
         )
-        CrfOne.objects.create(subject_visit=subject_visit)
-        crf_obj = CrfTwo.objects.create(subject_visit=subject_visit)
+        CrfFour.objects.create(subject_visit=subject_visit)
+        crf_obj = CrfFive.objects.create(subject_visit=subject_visit)
         self.appointment.appt_status = COMPLETE_APPT
         self.appointment.save()
         self.appointment.refresh_from_db()
@@ -146,8 +150,8 @@ class TimepointTests(TestCase):
         subject_visit = SubjectVisit.objects.get(
             appointment=self.appointment, reason=SCHEDULED
         )
-        crf_obj = CrfOne.objects.create(subject_visit=subject_visit)
-        CrfTwo.objects.create(subject_visit=subject_visit)
+        crf_obj = CrfFour.objects.create(subject_visit=subject_visit)
+        CrfFive.objects.create(subject_visit=subject_visit)
         self.appointment.appt_status = COMPLETE_APPT
         self.appointment.save()
         self.appointment.refresh_from_db()

@@ -1,5 +1,4 @@
 from django.conf import settings
-
 from edc_lab.constants import SHIPPED
 
 from .dashboard_templates import dashboard_templates
@@ -11,23 +10,23 @@ class DashboardMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        response = self.get_response(request)
-        return response
+        return self.get_response(request)
 
     def process_view(self, request, *args):
+        try:
+            request.url_name_data  # noqa: B018
+        except AttributeError:
+            request.url_name_data = {}
+        lab_dashboard_urls = getattr(settings, "LAB_DASHBOARD_URL_NAMES", {})
+        dashboard_urls.update(**lab_dashboard_urls)
         request.url_name_data.update(**dashboard_urls)
-        try:
-            url_name_data = settings.LAB_DASHBOARD_URL_NAMES
-        except AttributeError:
-            pass
-        else:
-            request.url_name_data.update(**url_name_data)
 
-        template_data = dashboard_templates
         try:
-            template_data.update(settings.LAB_DASHBOARD_BASE_TEMPLATES)
+            request.template_data  # noqa: B018
         except AttributeError:
-            pass
+            request.template_data = {}
+        template_data = getattr(settings, "LAB_DASHBOARD_BASE_TEMPLATES", {})
+        template_data.update(**dashboard_templates)
         request.template_data.update(**template_data)
 
     def process_template_response(self, request, response):

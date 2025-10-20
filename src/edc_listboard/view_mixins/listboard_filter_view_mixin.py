@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class ListboardFilterViewMixin:
     listboard_view_filters = ListboardViewFilters()
-    listboard_filter_url = None
+    listboard_filter_url = None  # url name
 
     def __init__(self, **kwargs):
         self.listboard_view_exclude_filter_applied = False  # TODO: ??

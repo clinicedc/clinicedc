@@ -31,8 +31,8 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
     listboard_template: str | None = None  # an existing key in request.context_data
 
     # if self.listboard_url declared through another mixin.
-    listboard_url: str | None = None  # an existing key in request.context_data
-    listboard_back_url: str | None = None
+    listboard_url: str | None = None  # an existing key in request.context_data.url_names
+    listboard_back_url: str | None = None  # see url_names
 
     # styling
     # default, info, success, danger, warning, etc. See Bootstrap.
@@ -73,14 +73,14 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
             # object_list=self.object_list,
             **self.add_url_to_context(
                 new_key="listboard_url", existing_key=self.listboard_url
-            ),
+            ),  # FIXME
         )
         if self.listboard_back_url:
             kwargs.update(
                 **self.add_url_to_context(
                     new_key="listboard_back_url",
                     existing_key=self.listboard_back_url,
-                )
+                )  # FIXME
             )
         kwargs.update(
             has_listboard_model_perms=self.has_listboard_model_perms,
@@ -90,7 +90,7 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
             **self.add_url_to_context(
                 new_key="paginator_url",
                 existing_key=self.paginator_url or self.listboard_url,
-            ),
+            ),  # FIXME
         )
         return super().get_context_data(**kwargs)
 
@@ -165,14 +165,14 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
                 queryset = queryset.order_by(*ordering)
         return queryset
 
-    def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+    def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:  # noqa: ARG002
         """Returns filtering applied to every queryset"""
         options = dict(site_id__in=sites.get_site_ids_for_user(request=self.request))
         if self.has_view_only_my_listboard_perms:
             options.update(user_created=self.request.user.username)
         return Q(), options
 
-    def get_queryset_exclude_options(self, request, *args, **kwargs) -> tuple[Q, dict]:
+    def get_queryset_exclude_options(self, request, *args, **kwargs) -> tuple[Q, dict]:  # noqa: ARG002
         """Returns exclude options applied to every queryset"""
         return Q(), {}
 
