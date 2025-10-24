@@ -43,10 +43,9 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
 
         Also called by post_save signal after metadata is updated.
         """
-        metadata_rule_evaluator = self.metadata_rule_evaluator_cls(
+        return self.metadata_rule_evaluator_cls(
             related_visit=self, allow_create=allow_create
-        )
-        metadata_rule_evaluator.evaluate_rules()
+        ).evaluate_rules()
 
     @property
     def metadata_query_options(self) -> dict[str, Any]:

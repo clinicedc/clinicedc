@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.urls.conf import re_path
+
 from edc_constants.constants import UUID_PATTERN
 
 from .url_names import url_names
@@ -21,6 +22,15 @@ class UrlConfigError(Exception):
 
 
 class UrlConfig:
+    """A class to generate url_patterns for edc DashboardViews,
+    ListBoardViews and SubjectReviewDashboardView.
+
+    * registers the url_with_namespace to `url_names`
+    * The pretty url uses the `url_names_key` less the '_url' suffix
+    * the url pattern name is the same as the given `url_names_key`
+
+    """
+
     def __init__(
         self,
         *,
@@ -30,15 +40,19 @@ class UrlConfig:
         identifier_label: str,
         identifier_pattern: str,
     ):
-        self.url_names_key = url_names_key
+        if not url_names_key.endswith("_url"):
+            raise UrlConfigError(
+                f"Invalid `url_names_key`. Must end with '_url'. Got {url_names_key}."
+            )
         self.url_pattern_name = url_names_key
+        self.url_pretty_label = url_names_key.replace("_url", "")
         self.view_class = view_class
         self.identifier_label = identifier_label
         self.identifier_pattern = identifier_pattern
 
-        # register {urlname, namespace:urlname} with url_names
+        # register with url_names dictionary / registry
         url_names.register(
-            key=self.url_names_key,
+            key=url_names_key,
             url_with_namespace=f"{namespace}:{self.url_pattern_name}",
         )
 
@@ -54,7 +68,7 @@ class UrlConfig:
                 r"(?P<visit_code>\w+)/"
                 r"(?P<unscheduled>\w+)/".format(
                     **dict(
-                        label=self.url_names_key,
+                        label=self.url_pretty_label,
                         identifier_label=self.identifier_label,
                         identifier_pattern=self.identifier_pattern,
                     )
@@ -69,7 +83,7 @@ class UrlConfig:
                 r"(?P<schedule_name>\w+)/"
                 r"(?P<visit_code>\w+)/".format(
                     **dict(
-                        label=self.url_names_key,
+                        label=self.url_pretty_label,
                         identifier_label=self.identifier_label,
                         identifier_pattern=self.identifier_pattern,
                     )
@@ -84,7 +98,7 @@ class UrlConfig:
                 r"(?P<scanning>\d)/"
                 r"(?P<error>\d)/".format(
                     **dict(
-                        label=self.url_names_key,
+                        label=self.url_pretty_label,
                         identifier_label=self.identifier_label,
                         identifier_pattern=self.identifier_pattern,
                         uuid_pattern=UUID_PATTERN.pattern,
@@ -99,7 +113,7 @@ class UrlConfig:
                 "(?P<appointment>{uuid_pattern})/"
                 r"(?P<reason>\w+)/".format(
                     **dict(
-                        label=self.url_names_key,
+                        label=self.url_pretty_label,
                         identifier_label=self.identifier_label,
                         identifier_pattern=self.identifier_pattern,
                         uuid_pattern=UUID_PATTERN.pattern,
@@ -113,7 +127,7 @@ class UrlConfig:
                 "(?P<{identifier_label}>{identifier_pattern})/"
                 "(?P<appointment>{uuid_pattern})/".format(
                     **dict(
-                        label=self.url_names_key,
+                        label=self.url_pretty_label,
                         identifier_label=self.identifier_label,
                         identifier_pattern=self.identifier_pattern,
                         uuid_pattern=UUID_PATTERN.pattern,
@@ -127,7 +141,7 @@ class UrlConfig:
                 "(?P<{identifier_label}>{identifier_pattern})/"
                 r"(?P<schedule_name>\w+)/".format(
                     **dict(
-                        label=self.url_names_key,
+                        label=self.url_pretty_label,
                         identifier_label=self.identifier_label,
                         identifier_pattern=self.identifier_pattern,
                     )
@@ -138,7 +152,7 @@ class UrlConfig:
             re_path(
                 "{label}/(?P<{identifier_label}>{identifier_pattern})/".format(
                     **dict(
-                        label=self.url_names_key,
+                        label=self.url_pretty_label,
                         identifier_label=self.identifier_label,
                         identifier_pattern=self.identifier_pattern,
                     )
@@ -159,7 +173,7 @@ class UrlConfig:
                 "{label}/(?P<{identifier_label}>{identifier_pattern})/"
                 r"(?P<page>\d+)/".format(
                     **dict(
-                        label=self.url_names_key,
+                        label=self.url_pretty_label,
                         identifier_label=self.identifier_label,
                         identifier_pattern=self.identifier_pattern,
                     )
@@ -170,7 +184,7 @@ class UrlConfig:
             re_path(
                 "{label}/(?P<{identifier_label}>{identifier_pattern})/".format(
                     **dict(
-                        label=self.url_names_key,
+                        label=self.url_pretty_label,
                         identifier_label=self.identifier_label,
                         identifier_pattern=self.identifier_pattern,
                     )
@@ -179,12 +193,12 @@ class UrlConfig:
                 name=self.url_pattern_name,
             ),
             re_path(
-                r"{label}/(?P<page>\d+)/".format(**dict(label=self.url_names_key)),
+                r"{label}/(?P<page>\d+)/".format(**dict(label=self.url_pretty_label)),
                 self.view_class.as_view(),
                 name=self.url_pattern_name,
             ),
             re_path(
-                r"{label}/".format(**dict(label=self.url_names_key)),
+                r"{label}/".format(**dict(label=self.url_pretty_label)),
                 self.view_class.as_view(),
                 name=self.url_pattern_name,
             ),
@@ -197,7 +211,7 @@ class UrlConfig:
                 "{label}/(?P<{identifier_label}>{identifier_pattern})/"
                 "(?P<appointment>{uuid_pattern})/".format(
                     **dict(
-                        label=self.url_names_key,
+                        label=self.url_pretty_label,
                         identifier_label=self.identifier_label,
                         identifier_pattern=self.identifier_pattern,
                         uuid_pattern=UUID_PATTERN.pattern,

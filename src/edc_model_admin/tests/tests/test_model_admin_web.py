@@ -8,7 +8,6 @@ from clinicedc_tests.models import (
     CrfFive,
     CrfFour,
     CrfOne,
-    CrfSix,
     CrfThree,
     CrfTwo,
     SubjectRequisition,
@@ -26,7 +25,6 @@ from django.test import override_settings, tag
 from django.urls.base import reverse
 from django.utils import timezone
 from django_webtest import WebTest
-
 from edc_consent import site_consents
 from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
@@ -113,9 +111,10 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("You are at the subject dashboard", response)
         self.assertIn(self.subject_identifier, response)
 
+    @tag("model_admin7")
     def test_redirect_save_next_crf(self):
         """Assert redirects CRFs for both add and change from
-        crftwo -> crfthree -> dashboard.
+        crffour -> crffive -> dashboard.
         """
         self.login()
 
@@ -125,8 +124,8 @@ class ModelAdminSiteTest(WebTest):
             status=200,
         )
 
-        # add CRF Two
-        model = "crftwo"
+        # add CRF Four
+        model = "crffour"
         query_string = (
             "next=clinicedc_tests:test_dashboard_url,subject_identifier&"
             f"subject_identifier={self.subject_identifier}"
@@ -137,16 +136,16 @@ class ModelAdminSiteTest(WebTest):
 
         # oops, cancel
         response = self.app.get(url, user=self.user)
-        self.assertIn("Add crf two", response)
+        self.assertIn("Add crf four", response)
         form = get_webtest_form(response)
         response = form.submit(name="_cancel").follow()
         self.assertIn("You are at the subject dashboard", response)
 
-        # add CRF Two
+        # add CRF four
         response = self.app.get(url, user=self.user)
-        self.assertIn("Add crf two", response)
+        self.assertIn("Add crf four", response)
         form_data = {
-            "subject_visit": str(self.subject_visit.id),
+            # "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": timezone.now().strftime("%Y-%m-%d"),
             "report_datetime_1": "00:00:00",
             "site": Site.objects.get(id=settings.SITE_ID).id,
@@ -156,8 +155,8 @@ class ModelAdminSiteTest(WebTest):
             form[key] = value
         response = form.submit(name="_savenext").follow()
 
-        # goes directly to CRF Three, add CRF Three
-        self.assertIn("Add crf three", response)
+        # goes directly to CRF Three, add CRF five
+        self.assertIn("Add crf five", response)
         form_data = {
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": timezone.now().strftime("%Y-%m-%d"),
@@ -174,7 +173,9 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn(self.subject_identifier, response)
 
         crftwo = CrfTwo.objects.all()[0]
-        url = reverse("clinicedc_tests_admin:clinicedc_tests_crftwo_change", args=(crftwo.id,))
+        url = reverse(
+            "clinicedc_tests_admin:clinicedc_tests_crffour_change", args=(crftwo.id,)
+        )
         url = url + "?" + query_string
 
         response = self.app.get(url, user=self.user)
@@ -183,7 +184,7 @@ class ModelAdminSiteTest(WebTest):
         self.assertIn("You are at the subject dashboard", response)
 
         response = self.app.get(url, user=self.user)
-        self.assertIn("crftwo change-form", response)
+        self.assertIn("crffour change-form", response)
         form_data = {
             "subject_visit": str(self.subject_visit.id),
             "report_datetime_0": timezone.now().strftime("%Y-%m-%d"),
@@ -195,18 +196,18 @@ class ModelAdminSiteTest(WebTest):
             form[key] = value
         response = form.submit(name="_savenext").follow()
 
-        # skips over crfthree to crffour, since crfthree
+        # skips over crffive to crffour, since crffive
         # has been entered already
         self.assertIn("crffour change-form", response)
 
         crfthree = CrfThree.objects.all()[0]
         url = reverse(
-            "clinicedc_tests_admin:clinicedc_tests_crfthree_change", args=(crfthree.id,)
+            "clinicedc_tests_admin:clinicedc_tests_crffour_change", args=(crfthree.id,)
         )
         url = url + "?" + query_string
 
         response = self.app.get(url, user=self.user)
-        self.assertIn("crfthree change-form", response)
+        self.assertIn("crffour change-form", response)
 
         form_data = {
             "subject_visit": str(self.subject_visit.id),
@@ -398,25 +399,24 @@ class ModelAdminSiteTest(WebTest):
     def test_redirect_on_delete_with_url_name_is_none(self):
         self.login()
 
-        crfsix = CrfSix.objects.create(
+        crffour = CrfFour.objects.create(
             subject_visit=self.subject_visit, report_datetime=timezone.now()
         )
 
-        model = "crfsix"
+        model = "crffour"
         url = reverse(
-            f"clinicedc_tests_admin:clinicedc_tests_{model}_change", args=(crfsix.id,)
+            f"clinicedc_tests_admin:clinicedc_tests_{model}_change", args=(crffour.id,)
         )
         response = self.app.get(url, user=self.user)
         delete_url = reverse(
-            f"clinicedc_tests_admin:clinicedc_tests_{model}_delete", args=(crfsix.id,)
+            f"clinicedc_tests_admin:clinicedc_tests_{model}_delete", args=(crffour.id,)
         )
         response = response.click(href=delete_url)
         form = get_webtest_form(response)
         response = form.submit().follow()
-        self.assertRaises(ObjectDoesNotExist, CrfSix.objects.get, id=crfsix.id)
+        self.assertRaises(ObjectDoesNotExist, CrfFour.objects.get, id=crffour.id)
         self.assertIn("changelist", response)
 
-    @tag("model_admin7")
     def test_add_directly_from_changelist_without_subject_visit_raises(self):
         self.login()
 

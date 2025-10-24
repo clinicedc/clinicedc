@@ -167,6 +167,7 @@ edc-microscopy_             |edc-microscopy|              |pypi-edc-microscopy|
 edc-mnsi_                   |edc-mnsi|                    |pypi-edc-mnsi|
 edc-phq9_                   |edc-phq9|                    |pypi-edc-phq9|
 edc-qol_                    |edc-qol|                     |pypi-edc-qol|
+edc-icecap-a_               |edc-icecap-a|                |pypi-edc-icecap-a|
 =========================== ============================= ==================================
 
 Testing modules
@@ -203,7 +204,7 @@ Lint and format
 
 
 .. |pypi| image:: https://img.shields.io/pypi/v/clinicedc.svg
-    :target: https://pypi.python.org/pypi/edc
+    :target: https://pypi.python.org/pypi/clinicedc
 
 .. |downloads| image:: https://pepy.tech/badge/clinicedc
    :target: https://pepy.tech/project/clinicedc
@@ -214,8 +215,6 @@ Lint and format
 
 
 .. _edc-csf: https://github.com/clinicedc/edc-csf
-.. _edc-dx: https://github.com/clinicedc/edc-dx
-.. _edc-dx-review: https://github.com/clinicedc/edc-dx-review
 .. _edc-he: https://github.com/clinicedc/edc-he
 .. _edc-icecap-a: https://github.com/clinicedc/edc-icecap-a
 .. _edc-mnsi: https://github.com/clinicedc/edc-mnsi
@@ -228,10 +227,6 @@ Lint and format
 
 .. |edc-csf| image:: https://github.com/clinicedc/edc-csf/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-csf/actions/workflows/build.yml
-.. |edc-dx| image:: https://github.com/clinicedc/edc-dx/actions/workflows/build.yml/badge.svg
-  :target: https://github.com/clinicedc/edc-dx/actions/workflows/build.yml
-.. |edc-dx-review| image:: https://github.com/clinicedc/edc-dx-review/actions/workflows/build.yml/badge.svg
-  :target: https://github.com/clinicedc/edc-dx-review/actions/workflows/build.yml
 .. |edc-he| image:: https://github.com/clinicedc/edc-he/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-he/actions/workflows/build.yml
 .. |edc-icecap-a| image:: https://github.com/clinicedc/edc-icecap-a/actions/workflows/build.yml/badge.svg
@@ -255,10 +250,6 @@ Lint and format
 
 .. |pypi-edc-csf| image:: https://img.shields.io/pypi/v/edc-csf.svg
     :target: https://pypi.python.org/pypi/edc-csf
-.. |pypi-edc-dx| image:: https://img.shields.io/pypi/v/edc-dx.svg
-    :target: https://pypi.python.org/pypi/edc-dx
-.. |pypi-edc-dx-review| image:: https://img.shields.io/pypi/v/edc-dx-review.svg
-    :target: https://pypi.python.org/pypi/edc-dx-review
 .. |pypi-edc-he| image:: https://img.shields.io/pypi/v/edc-he.svg
     :target: https://pypi.python.org/pypi/edc-he
 .. |pypi-edc-icecap-a| image:: https://img.shields.io/pypi/v/edc-he.svg

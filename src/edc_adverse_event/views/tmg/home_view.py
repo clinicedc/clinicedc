@@ -38,9 +38,10 @@ class TmgHomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
             .values("status", "site__name")
             .annotate(items=Count("status"))
         )
-        notices = []
-        for item in qs.order_by("status", "site__name"):
-            notices.append([item.get("site__name"), item.get("status"), item.get("items")])
+        notices = [
+            (item.get("site__name"), item.get("status"), item.get("items"))
+            for item in qs.order_by("status", "site__name")
+        ]
         new_count = ActionItem.objects.filter(
             action_type__name=AE_TMG_ACTION,
             site__name=get_current_site(request=self.request).name,

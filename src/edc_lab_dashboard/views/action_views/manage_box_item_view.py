@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.html import format_html
-
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import SHIPPED
@@ -13,7 +12,7 @@ from .action_view import ActionView
 
 
 class ManageBoxItemView(EdcViewMixin, BoxViewMixin, ActionView):
-    post_action_url = "manage_box_listboard"  # url_name
+    post_action_url = "manage_box_listboard_url"  # url_name
     valid_form_actions = ("add_item", "renumber_items", "remove_selected_items")
 
     @property

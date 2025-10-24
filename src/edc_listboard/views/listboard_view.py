@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 from django.views.generic.list import ListView
 
+from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import (
     TemplateRequestContextMixin,
     UrlRequestContextMixin,
@@ -32,7 +33,7 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
 
     # if self.listboard_url declared through another mixin.
     listboard_url: str | None = None  # an existing key in request.context_data.url_names
-    listboard_back_url: str | None = None  # see url_names
+    listboard_back_url: str | None = None  # see url_names, defaults to listboard_url
 
     # styling
     # default, info, success, danger, warning, etc. See Bootstrap.
@@ -65,32 +66,22 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
             self.listboard_fa_icon = f"fas {self.listboard_fa_icon}"
         kwargs.update(
             empty_queryset_message=self.get_empty_queryset_message(),
-            listboard_fa_icon=self.listboard_fa_icon,
-            listboard_panel_style=self.listboard_panel_style,
-            listboard_panel_title=self.listboard_panel_title,
-            listboard_instructions=self.listboard_instructions,
-            show_change_form_button=self.show_change_form_button,
-            # object_list=self.object_list,
-            **self.add_url_to_context(
-                new_key="listboard_url", existing_key=self.listboard_url
-            ),  # FIXME
-        )
-        if self.listboard_back_url:
-            kwargs.update(
-                **self.add_url_to_context(
-                    new_key="listboard_back_url",
-                    existing_key=self.listboard_back_url,
-                )  # FIXME
-            )
-        kwargs.update(
             has_listboard_model_perms=self.has_listboard_model_perms,
             has_view_listboard_perms=self.has_view_listboard_perms,
+            listboard_fa_icon=self.listboard_fa_icon,
+            listboard_instructions=self.listboard_instructions,
+            listboard_panel_style=self.listboard_panel_style,
+            listboard_panel_title=self.listboard_panel_title,
             listboard_view_permission_codename=self.listboard_view_permission_codename,
             permissions_warning_message=self.permissions_warning_message,
-            **self.add_url_to_context(
-                new_key="paginator_url",
-                existing_key=self.paginator_url or self.listboard_url,
-            ),  # FIXME
+            show_change_form_button=self.show_change_form_button,
+            **{"listboard_url": url_names.get(self.listboard_url)},
+            **{"paginator_url": url_names.get(self.paginator_url or self.listboard_url)},
+            **{
+                "listboard_back_url": url_names.get(
+                    self.listboard_back_url or self.listboard_url
+                )
+            },
         )
         return super().get_context_data(**kwargs)
 

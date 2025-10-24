@@ -9,7 +9,6 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
-
 from edc_constants.constants import CONFIRMED
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
@@ -29,8 +28,8 @@ class ConfirmStockFromQuerySetView(
     navbar_selected_item = "pharmacy"
     codes_per_page = 12
 
-    def get_context_data(self, **kwargs):  # noqa: ARG002
-        return dict(
+    def get_context_data(self, **kwargs):
+        kwargs.update(
             CONFIRMED=CONFIRMED,
             ALREADY_CONFIRMED=ALREADY_CONFIRMED,
             INVALID=INVALID,
@@ -40,6 +39,7 @@ class ConfirmStockFromQuerySetView(
             source_changelist_url=self.source_changelist_url,
             **self.session_data,
         )
+        return super().get_context_data(**kwargs)
 
     @property
     def session_data(self):

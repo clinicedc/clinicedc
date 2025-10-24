@@ -8,6 +8,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from edc_constants.constants import CLOSED, NEW, OPEN
+from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_listboard.views import ListboardView as BaseListboardView
@@ -33,7 +34,7 @@ class DeathReportListboardViewMixin(
     pdf_report_cls = DeathPdfReport
 
     listboard_template = "ae_death_report_listboard_template"
-    listboard_url = "death_report_listboard"
+    listboard_url = "death_report_listboard_url"
     listboard_panel_style = "default"
     listboard_model = "edc_action_item.actionitem"
     listboard_panel_title = "Adverse Events: Death Reports"
@@ -70,10 +71,7 @@ class DeathReportListboardViewMixin(
         kwargs.update(
             DEATH_REPORT_ACTION=DEATH_REPORT_ACTION,
             utc_date=timezone.now().date(),
-            **self.add_url_to_context(
-                new_key="ae_home_url",
-                existing_key=self.home_url,
-            ),
+            **{"ae_home_url": url_names.get(self.home_url)},
         )
         return super().get_context_data(**kwargs)
 

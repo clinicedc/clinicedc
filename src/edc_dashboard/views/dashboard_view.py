@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.base import TemplateView
 
@@ -29,15 +31,10 @@ class DashboardView(UrlRequestContextMixin, TemplateRequestContextMixin, Templat
         return url_names.get(self.dashboard_url_name)
 
     def get_template_names(self):
-        if self.dashboard_template_name:
-            return [self.dashboard_template_name]
-        return [self.get_template_from_context(self.dashboard_template)]
+        if self.dashboard_template:
+            return [self.dashboard_template]
+        return [self.get_template_from_context(self.dashboard_template_name)]
 
-    # def get_context_data(self, **kwargs) -> dict[str, Any]:
-    #     kwargs.update(
-    #         **self.add_url_to_context(
-    #             new_key="dashboard_url_name",  # FIXME ???
-    #             existing_key=self.dashboard_url_name,
-    #         )
-    #     )
-    #     return super().get_context_data(**kwargs)
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        kwargs.update(**{self.dashboard_url_name: url_names.get(self.dashboard_url_name)})
+        return super().get_context_data(**kwargs)

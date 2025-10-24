@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.db.models.aggregates import Count
-
 from edc_appointment.view_mixins import AppointmentViewMixin
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -44,6 +43,7 @@ class SubjectReviewListboardView(
 
     listboard_template = "subject_review_listboard_template"
     listboard_url = "subject_review_listboard_url"
+    listboard_back_url = "subject_review_listboard_url"
     listboard_panel_style = "default"
     listboard_panel_title = "Subject Review"
     listboard_view_permission_codename = "edc_review_dashboard.view_subject_review_listboard"
@@ -51,6 +51,7 @@ class SubjectReviewListboardView(
     navbar_selected_item = "subject_review"
     ordering = ("subject_identifier", "visit_code", "visit_code_sequence")
     paginate_by = 25
+    paginator_url = "subject_review_listboard_url"
     search_form_url = "subject_review_listboard_url"
     search_fields = (
         "subject_identifier",
@@ -59,7 +60,8 @@ class SubjectReviewListboardView(
         "user_modified",
     )
 
-    #  attr to call SubjectReviewListboardView.urls in urls.py
+    # Attribute to call SubjectReviewListboardView.urls in urls.py
+    # See UrlRequestContextMixin and UrlConfig
     urlconfig_getattr = "review_listboard_urls"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:

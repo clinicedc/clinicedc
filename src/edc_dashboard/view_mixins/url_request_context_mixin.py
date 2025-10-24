@@ -6,7 +6,6 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils.text import convert_from_camel
 
 from ..url_config import UrlConfig
-from ..url_names import InvalidDashboardUrlName, url_names
 
 if TYPE_CHECKING:
     from django.urls import URLPattern
@@ -52,19 +51,29 @@ class UrlRequestContextMixin:
             identifier_label=identifier_label or cls.urlconfig_identifier_label,
             identifier_pattern=identifier_pattern or cls.urlconfig_identifier_pattern,
         )
+        if cls.urlconfig_getattr not in [
+            "dashboard_urls",
+            "listboard_urls",
+            "review_listboard_urls",
+        ]:
+            raise UrlRequestContextError(
+                f"Invalid urlconfig attr. Got {cls.urlconfig_getattr}."
+            )
         return getattr(urlconfig, cls.urlconfig_getattr)
 
-    @staticmethod
-    def add_url_to_context(new_key=None, existing_key=None) -> dict[str, str]:
-        """Add url as new_key to the context using the value
-        of the existing_key from request.context_data.
-        """
-        try:
-            url_data = {new_key: url_names.get(existing_key)}
-        except InvalidDashboardUrlName as e:
-            raise UrlRequestContextError(
-                f"Url name not defined in url_names. "
-                f"Expected one of {url_names.registry}. Got {e}. "
-                f"Hint: check if dashboard middleware is loaded."
-            ) from e
-        return url_data
+    # @staticmethod
+    # def add_url_to_context(new_key=None, existing_key=None) -> dict[str, str]:
+    #     """Add url as new_key to the context using the value
+    #     of the existing_key from request.context_data.
+    #     """
+    #     if new_key != existing_key:
+    #         try:
+    #             url_data = {new_key: url_names.get(existing_key)}
+    #         except InvalidDashboardUrlName as e:
+    #             raise UrlRequestContextError(
+    #                 f"Url name not defined in url_names. "
+    #                 f"Expected one of {url_names.registry}. Got {e}. "
+    #                 f"Hint: check if dashboard middleware is loaded."
+    #             ) from e
+    #         return url_data
+    #     return {existing_key: url_names.get(existing_key)}
