@@ -11,7 +11,7 @@ class RuleGroupError(Exception):
     pass
 
 
-class TargetModelConflict(Exception):
+class TargetModelConflict(Exception):  # noqa: N818
     pass
 
 
@@ -61,7 +61,7 @@ class RuleGroup:
                         )
 
     @classmethod
-    def _lookup_model(cls, model: str = None, category: str = None) -> Any:
+    def _lookup_model(cls, model: str, category: str) -> Any:
         sys.stdout.write(f"  ( ) {model}\r")
         model_cls = None
         try:

@@ -23,7 +23,6 @@ from django.db import transaction
 from django.db.models import Count, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
-
 from edc_constants.constants import CLINIC, NOT_APPLICABLE, OK
 from edc_constants.constants import ERROR as ERROR_CODE
 from edc_dashboard.url_names import url_names
@@ -67,7 +66,6 @@ if TYPE_CHECKING:
     from decimal import Decimal
 
     from django.db.models import QuerySet
-
     from edc_crf.model_mixins import CrfModelMixin as Base
     from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 
@@ -709,9 +707,8 @@ def skip_appointment(appointment: Appointment, comment: str | None = None):
 
 def get_unscheduled_appointment_url(appointment: Appointment = None) -> str:
     """Returns a url for the unscheduled appointment."""
-    dashboard_url_name = "subject_dashboard_url"
-    dashboard_url = url_names.get(dashboard_url_name)
-    unscheduled_appointment_url_name = "edc_appointment:unscheduled_appointment_url"
+    dashboard_url = url_names.get("subject_dashboard_url")
+    unscheduled_appointment_url = "edc_appointment:unscheduled_appointment_url"
     kwargs = dict(
         subject_identifier=appointment.subject_identifier,
         visit_schedule_name=appointment.visit_schedule_name,
@@ -722,7 +719,7 @@ def get_unscheduled_appointment_url(appointment: Appointment = None) -> str:
     )
     kwargs.update(visit_code_sequence=str(appointment.visit_code_sequence + 1))
     kwargs.update(redirect_url=dashboard_url)
-    return reverse(unscheduled_appointment_url_name, kwargs=kwargs)
+    return reverse(unscheduled_appointment_url, kwargs=kwargs)
 
 
 def update_appt_status_for_timepoint(related_visit: RelatedVisitModel) -> None:

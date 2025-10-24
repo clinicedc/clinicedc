@@ -9,6 +9,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from edc_constants.constants import CLOSED, NEW, OPEN
+from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_listboard.views import ListboardView as BaseListboardView
@@ -49,16 +50,16 @@ class AeListboardViewMixin(
     ordering = "-report_datetime"
     paginate_by = 25
     search_form_url = "ae_listboard_url"
-    action_type_names = [AE_INITIAL_ACTION]
+    action_type_names = (AE_INITIAL_ACTION, )
 
-    search_fields = [
+    search_fields = (
         "subject_identifier",
         "action_identifier",
         "parent_action_item__action_identifier",
         "related_action_item__action_identifier",
         "user_created",
         "user_modified",
-    ]
+    )
 
     @property
     def ae_initial_model_cls(self):
@@ -77,10 +78,7 @@ class AeListboardViewMixin(
         kwargs.update(
             AE_INITIAL_ACTION=AE_INITIAL_ACTION,
             utc_date=timezone.now().date(),
-            **self.add_url_to_context(
-                new_key="ae_home_url",
-                existing_key=self.home_url,
-            ),
+            **{"ae_home_url": url_names.get(self.home_url)},
         )
         return super().get_context_data(**kwargs)
 
@@ -98,7 +96,7 @@ class AeListboardViewMixin(
         pks = []
         for obj in queryset:
             try:
-                obj.reference_obj
+                obj.reference_obj # noqa: B018
             except ObjectDoesNotExist:
                 pks.append(obj.pk)
         return queryset.exclude(pk__in=pks)

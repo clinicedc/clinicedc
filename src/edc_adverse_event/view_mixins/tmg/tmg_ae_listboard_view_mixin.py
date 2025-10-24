@@ -4,14 +4,13 @@ from typing import TYPE_CHECKING, Any
 
 from django.db.models import Min
 from django.utils import timezone
-
 from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_export.constants import CANCELLED
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_listboard.views import ListboardView as BaseListboardView
 from edc_navbar import NavbarViewMixin
-from edc_navbar.get_default_navbar import get_default_navbar
+from edc_navbar.utils import get_default_navbar_name
 
 from ...constants import (
     AE_TMG_ACTION,
@@ -47,7 +46,7 @@ class TmgAeListboardViewMixin(
     listboard_panel_title = "TMG: AE Reports"
     listboard_view_permission_codename = "edc_adverse_event.view_tmg_listboard"
 
-    navbar_name = get_default_navbar()
+    navbar_name = get_default_navbar_name()
     navbar_selected_item = "tmg_home"
     ordering = "-report_datetime"
     paginate_by = 10

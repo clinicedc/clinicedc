@@ -33,7 +33,7 @@ class RequisitionRuleGroupMetaOptions(RuleGroupMetaOptions):
         super().__init__(group_name, attrs)
         self.requisition_model = self.options.get("requisition_model")
         if self.requisition_model:
-            if len(self.requisition_model.split(".")) != 2:
+            if len(self.requisition_model.split(".")) != 2:  # noqa: PLR2004
                 self.requisition_model = f"{self.app_label}.{self.requisition_model}"
                 self.options.update(requisition_model=self.requisition_model)
             self.options.update(target_models=[self.requisition_model])

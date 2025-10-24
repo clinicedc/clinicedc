@@ -95,10 +95,13 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
 
     def test_onschedule_updates_history(self):
         """Asserts returns the correct instances for the schedule."""
+        traveller = time_machine.travel(consent1_v2.start)
+        traveller.start()
         helper = Helper()
         subject_screening, first_name, last_name = helper.screen_subject(
-            report_datetime=timezone.now() - relativedelta(days=21)
+            report_datetime=consent1_v1.start
         )
+        dob = consent1_v1.start - relativedelta(years=25)
         for onschedule_model, schedule_name, cdef in [
             ("clinicedc_tests.onscheduletwo", "schedule_two", consent1_v1),
         ]:
@@ -108,6 +111,7 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
                     subject_screening=subject_screening,
                     first_name=first_name,
                     last_name=last_name,
+                    dob=dob,
                 )
                 visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
                     onschedule_model
@@ -129,8 +133,10 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
                 except ObjectDoesNotExist:
                     self.fail("ObjectDoesNotExist unexpectedly raised")
 
-        traveller = time_machine.travel(timezone.now() + relativedelta(days=52))
+        traveller.stop()
+        traveller = time_machine.travel(consent1_v2.start)
         traveller.start()
+        helper = Helper()
         for onschedule_model, schedule_name, cdef in [
             ("clinicedc_tests.onschedulefour", "schedule_four", consent1_v2),
         ]:
@@ -163,28 +169,37 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
                     self.fail("ObjectDoesNotExist unexpectedly raised")
         traveller.stop()
 
-    def test_multpile_consents(self):
+    def test_multiple_consents(self):
         """Asserts does not raise if more than one consent
         for this subject
         """
+        traveller = time_machine.travel(consent2_v1.start + relativedelta(hours=+2))
+        traveller.start()
         helper = Helper()
         subject_screening, first_name, last_name = helper.screen_subject(
             report_datetime=timezone.now()
         )
-        helper.consent_subject(
+        dob = consent2_v1.start - relativedelta(years=25)
+        subject_consent = helper.consent_subject(
             consent_definition=consent2_v1,
+            consent_datetime=timezone.now(),
             subject_screening=subject_screening,
             first_name=first_name,
             last_name=last_name,
+            dob=dob,
         )
+        traveller.stop()
         # updates
-        traveller = time_machine.travel(timezone.now() + relativedelta(days=52))
+        traveller = time_machine.travel(consent2_v2.start + relativedelta(hours=+2))
         traveller.start()
         subject_consent = helper.consent_subject(
             consent_definition=consent2_v2,
+            consent_datetime=timezone.now(),
             subject_screening=subject_screening,
             first_name=first_name,
             last_name=last_name,
+            dob=dob,
+            subject_identifier=subject_consent.subject_identifier,
         )
 
         visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
@@ -206,15 +221,13 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
 
     def test_resave(self):
         """Asserts returns the correct instances for the schedule."""
+        traveller = time_machine.travel(consent2_v1.start + relativedelta(hours=+2))
+        traveller.start()
         helper = Helper()
-        subject_screening, first_name, last_name = helper.screen_subject(
-            report_datetime=timezone.now()
-        )
-        subject_consent = helper.consent_subject(
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
             consent_definition=consent2_v1,
-            subject_screening=subject_screening,
-            first_name=first_name,
-            last_name=last_name,
         )
         visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
             "edc_visit_schedule.onschedule"
@@ -224,33 +237,18 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             visit_schedule=visit_schedule,
             schedule=schedule,
         )
-        onschedule_datetime: datetime = timezone.now()
+        onschedule_datetime = timezone.now()
         subject_schedule.put_on_schedule(onschedule_datetime)
         subject_schedule.put_on_schedule(onschedule_datetime)
 
     def test_put_on_schedule(self):
+        traveller = time_machine.travel(consent2_v1.start + relativedelta(hours=+2))
+        traveller.start()
         helper = Helper()
-        subject_screening, first_name, last_name = helper.screen_subject(
-            report_datetime=timezone.now()
-        )
-        subject_consent = helper.consent_subject(
+        subject_consent = helper.consent_and_put_on_schedule(
+            visit_schedule_name="visit_schedule",
+            schedule_name="schedule",
             consent_definition=consent2_v1,
-            subject_screening=subject_screening,
-            first_name=first_name,
-            last_name=last_name,
-        )
-        _, schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_visit_schedule.onschedule"
-        )
-        self.assertRaises(
-            ObjectDoesNotExist,
-            OnSchedule.objects.get,
-            subject_identifier=subject_consent.subject_identifier,
-        )
-        schedule.put_on_schedule(
-            subject_identifier=subject_consent.subject_identifier,
-            onschedule_datetime=timezone.now(),
-            # consent_definition=subject_consent.consent_definition,
         )
         try:
             OnSchedule.objects.get(subject_identifier=subject_consent.subject_identifier)
@@ -258,6 +256,8 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             self.fail("ObjectDoesNotExist unexpectedly raised")
 
     def test_take_off_schedule(self):
+        traveller = time_machine.travel(consent2_v1.start + relativedelta(hours=+2))
+        traveller.start()
         helper = Helper()
         subject_consent = helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule",
@@ -268,14 +268,6 @@ class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
             visit_schedule_name="visit_schedule"
         )
         schedule = visit_schedule.schedules.get("schedule")
-        traveller = time_machine.travel(timezone.now() + relativedelta(hours=+2))
-        traveller.start()
-        schedule.put_on_schedule(
-            subject_consent.subject_identifier,
-            timezone.now(),
-            # consent_definition=subject_consent.consent_definition,
-        )
-        traveller.stop()
         traveller = time_machine.travel(timezone.now() + relativedelta(months=+1))
         traveller.start()
         schedule.take_off_schedule(subject_consent.subject_identifier, timezone.now())

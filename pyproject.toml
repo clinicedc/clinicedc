@@ -1,5 +1,80 @@
+[project]
+name = "clinicedc"
+version = "2.0.40"
+description = "A clinical trials data management framework built on Django"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
+authors = [
+    { name = "Erik van Widenfelt", email = "ew2789@gmail.com" },
+    { name = "Jonathan Willitts", email = "j.willitts@ucl.ac.uk" }
+]
+maintainers = [
+    { name = "Erik van Widenfelt", email = "ew2789@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+license = "GPL-3.0-or-later"
+license-files = ["LICEN[CS]E*"]
+requires-python = '>=3.12,<3.14'
+dependencies = [
+    "argon2-cffi>=25.1.0",
+    "arrow>=1.3.0",
+    "beautifulsoup4>=4.13.5",
+    "boto3>=1.39.16",
+    "celery>=5.5.3",
+    "cryptography>=45.0.7",
+    "django>=5.2.4",
+    "django-admin-rangefilter>=0.13.3",
+    "django-audit-fields>=2.0.3",
+    "django-crypto-fields>=1.1.2",
+    "django-db-views>=0.1.11",
+    "django-defender>=0.9.8",
+    "django-environ>=0.12.0",
+    "django-logentry-admin>=1.1.0",
+    "django-multisite2>=2.1.0",
+    "django-pandas>=0.6.7",
+    "django-pylabels>=1.0.1",
+    "django-redis>=6.0.0",
+    "django-revision>=2.0.1",
+    "django-sequences>=3.0",
+    "django-simple-history>=3.10.1",
+    "django-storages>=1.14.6",
+    "djangorestframework>=3.16.0",
+    "fontawesomefree>=6.6.0",
+    "gunicorn>=23.0.0",
+    "inflect>=7.5.0",
+    "mempass>=0.1.2",
+    "mysqlclient>=2.2.7",
+    "psycopg2>=2.9.10",
+    "pycups>=2.0.4",
+    "pypdf>=5.9.0",
+    "python-dateutil>=2.9.0.post0",
+    "python-memcached>=1.62",
+    "reportlab>=4.4.3",
+    "sqlalchemy>=2.0.42",
+    "sqlglot>=27.8.0",
+    "tqdm>=4.67.1",
+    "twilio>=9.7.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/clinicedc/clinicedc"
+Documentation = "https://github.com/clinicedc/clinicedc/docs"
+Repository = "https://github.com/clinicedc/clinicedc.git"
+Changelog = "https://github.com/clinicedc/clinicedc/blob/main/CHANGES"
+
 [build-system]
-requires = ["uv_build>=0.8.2,<0.9.0"]
+requires = ["uv_build>=0.9.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
@@ -80,86 +155,11 @@ source-include = ["edc_*/templates/**", "edc_*/locale/**", "locale/**"]
 source-exclude = ["edc_*/tests/**", "edc_*/notebooks/**", "tests/**", "bin"]
 namespace = false
 
-[project]
-name = "clinicedc"
-version = "2.0.39"
-description = "A clinical trials data management framework built on Django"
-readme = {file = "README.rst", content-type = "text/x-rst"}
-keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
-authors = [
-    { name = "Erik van Widenfelt", email = "ew2789@gmail.com" },
-    { name = "Jonathan Willitts", email = "j.willitts@ucl.ac.uk" }
-]
-maintainers = [
-    { name = "Erik van Widenfelt", email = "ew2789@gmail.com" },
-]
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Web Environment",
-    "Framework :: Django",
-    "Framework :: Django :: 5.2",
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-]
-license = "GPL-3.0-or-later"
-license-files = ["LICEN[CS]E*"]
-requires-python = '>=3.12,<3.14'
-dependencies = [
-    "argon2-cffi>=25.1.0",
-    "arrow>=1.3.0",
-    "beautifulsoup4>=4.13.5",
-    "boto3>=1.39.16",
-    "celery>=5.5.3",
-    "cryptography>=45.0.7",
-    "django>=5.2.4",
-    "django-admin-rangefilter>=0.13.3",
-    "django-audit-fields>=2.0.3",
-    "django-crypto-fields>=1.1.2",
-    "django-db-views>=0.1.11",
-    "django-defender>=0.9.8",
-    "django-environ>=0.12.0",
-    "django-logentry-admin>=1.1.0",
-    "django-multisite2>=2.1.0",
-    "django-pandas>=0.6.7",
-    "django-pylabels>=1.0.1",
-    "django-redis>=6.0.0",
-    "django-revision>=2.0.1",
-    "django-sequences>=3.0",
-    "django-simple-history>=3.10.1",
-    "django-storages>=1.14.6",
-    "djangorestframework>=3.16.0",
-    "fontawesomefree>=6.6.0",
-    "gunicorn>=23.0.0",
-    "inflect>=7.5.0",
-    "mempass>=0.1.2",
-    "mysqlclient>=2.2.7",
-    "psycopg2>=2.9.10",
-    "pycups>=2.0.4",
-    "pypdf>=5.9.0",
-    "python-dateutil>=2.9.0.post0",
-    "python-memcached>=1.62",
-    "reportlab>=4.4.3",
-    "sqlalchemy>=2.0.42",
-    "sqlglot>=27.8.0",
-    "tqdm>=4.67.1",
-    "twilio>=9.7.0",
-]
-
-[project.urls]
-Homepage = "https://github.com/clinicedc/clinicedc"
-Documentation = "https://github.com/clinicedc/clinicedc/docs"
-Repository = "https://github.com/clinicedc/clinicedc.git"
-Changelog = "https://github.com/clinicedc/clinicedc/blob/main/CHANGES"
-
 [tool.ruff]
 line-length = 95
 indent-width = 4
 target-version = "py312"
-exclude = ["migrations", ".tox", ".venv"]
+extend-exclude = ["migrations", ".tox", ".venv"]
 
 [tool.ruff.lint]
 select = [

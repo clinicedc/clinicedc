@@ -8,7 +8,7 @@ device.register(
         label="device",
         fa_icon="fa-calculator",
         codename="edc_navbar.nav_edc_device",
-        url_name="edc_device:home_url",
+        url_with_namespace="edc_device:home_url",
     )
 )
 

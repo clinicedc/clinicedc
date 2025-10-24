@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from edc_appointment.constants import MISSED_APPT
@@ -28,9 +29,9 @@ class Rule:
 
     def __init__(
         self,
-        predicate: P | PF | callable | str = None,
-        consequence: str = None,
-        alternative: str = None,
+        predicate: P | PF | Callable | str,
+        consequence: str,
+        alternative: str,
     ) -> None:
         self.predicate = predicate
         self.consequence = consequence

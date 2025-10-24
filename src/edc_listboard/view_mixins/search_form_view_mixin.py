@@ -11,7 +11,7 @@ class SearchFormViewError(Exception):
 
 
 class SearchFormViewMixin:
-    search_form_url = None
+    search_form_url = None  # url_name in url_names dict
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(search_form_url_reversed=self.search_form_url_reversed)

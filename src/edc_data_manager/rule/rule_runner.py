@@ -21,7 +21,7 @@ class RuleRunner:
     def __init__(
         self,
         query_rule_obj: QueryRule = None,
-        now: datetime = None,
+        now: datetime | None = None,
         verbose: bool | None = None,
     ):
         self.query_rule_obj = query_rule_obj  # query rule model instance
@@ -55,11 +55,11 @@ class RuleRunner:
 
     def run_one(
         self,
-        subject_identifier: str = None,
-        visit_schedule_name: str = None,
-        schedule_name: str = None,
-        visit_code: str = None,
-        timepoint: Decimal = None,
+        subject_identifier: str,
+        visit_schedule_name: str,
+        schedule_name: str,
+        visit_code: str,
+        timepoint: Decimal,
     ):
         visit_schedule_obj = QueryVisitSchedule.objects.get(
             visit_schedule_name=visit_schedule_name,

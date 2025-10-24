@@ -23,7 +23,9 @@ if TYPE_CHECKING:
 class ConsentDefinitionFormValidatorMixin:
     @property
     def subject_consent(self):
-        cdef = self.get_consent_definition()
+        cdef = self.get_consent_definition(
+            self.report_datetime, self.report_datetime_field_attr
+        )
         return cdef.model_cls.objects.get(subject_identifier=self.subject_identifier)
 
     def get_consent_datetime_or_raise(
@@ -71,8 +73,9 @@ class ConsentDefinitionFormValidatorMixin:
         self,
         report_datetime: datetime,
         fldname: str = None,
-        error_code: str = None,
+        error_code: str | None = None,
     ) -> ConsentDefinition:
+        error_code = error_code or INVALID_ERROR
         # get the consent definition (must be from this schedule)
         schedule = getattr(self, "related_visit", self.instance).schedule
 

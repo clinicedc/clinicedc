@@ -1,4 +1,4 @@
-{% extends dashboard_base_template %}
+{% extends dashboard_base_template|default:"edc_dashboard/base.html" %}
 {% load static i18n %}
 {% load edc_visit_schedule_extras edc_subject_dashboard_extras edc_dashboard_extras edc_adverse_event_extras %}
 

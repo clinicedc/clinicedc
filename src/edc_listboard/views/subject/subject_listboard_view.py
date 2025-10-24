@@ -23,7 +23,7 @@ class SubjectListboardView(
     navbar_selected_item: str = "consented_subject"
     search_form_url: str = "subject_listboard_url"
 
-    search_fields: list[str] = [
+    search_fields = (
         "user_created",
         "user_modified",
         "screening_identifier",
@@ -31,7 +31,7 @@ class SubjectListboardView(
         "initials__exact",
         "identity__exact",
         "first_name__exact",
-    ]
+    )
 
     def get_listboard_model(self) -> str:
         return self.listboard_model

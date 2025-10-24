@@ -49,7 +49,9 @@ class TestSubjectVisitFormValidator(TestCase):
         site_consents.register(consent_v1)
         self.helper = self.helper_cls()
         site_visit_schedules._registry = {}
-        site_visit_schedules.register(visit_schedule=get_visit_schedule1(consent_v1))
+        site_visit_schedules.register(
+            visit_schedule=get_visit_schedule1(consent_v1, allow_unscheduled=False)
+        )
         # site_visit_schedules.register(visit_schedule=get_visit_schedule2(consent_v1))
         self.helper.consent_and_put_on_schedule(
             visit_schedule_name="visit_schedule1",

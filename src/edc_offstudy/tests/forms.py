@@ -1,3 +1,4 @@
+from clinicedc_tests.models import CrfFour
 from django import forms
 
 from edc_model_form.mixins import BaseModelFormMixin
@@ -30,6 +31,18 @@ class CrfOneForm(
 
     class Meta:
         model = CrfOne
+        fields = "__all__"
+
+
+class CrfFourForm(
+    OffstudyCrfModelFormMixin,
+    VisitScheduleCrfModelFormMixin,
+    VisitTrackingCrfModelFormMixin,
+    BaseModelFormMixin,
+    forms.ModelForm,
+):
+    class Meta:
+        model = CrfFour
         fields = "__all__"
 
 

@@ -1,6 +1,7 @@
 from django.db import models
 
 
+
 class SingletonCrfModelMixin(models.Model):
     """Enforces one record per subject.
 
@@ -12,7 +13,6 @@ class SingletonCrfModelMixin(models.Model):
         max_length=50,
         unique=True,
         help_text="auto updated for unique constraint",
-        null=True,
         editable=False,
     )
 

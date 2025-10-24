@@ -481,10 +481,12 @@ def render_refresh_appointments_button(
     visit_schedule_name: str | None = None,
     schedule_name: str | None = None,
 ) -> dict:
+    title = "Refresh appointments"
     if context["request"].user.userprofile.is_multisite_viewer or context[
         "request"
     ].user.userprofile.roles.filter(name=AUDITOR_ROLE):
         url = None
+        title = f"{title} (Disabled for Auditor)"
     else:
         url = reverse(
             "edc_subject_dashboard:refresh_appointments_url",
@@ -494,7 +496,7 @@ def render_refresh_appointments_button(
                 schedule_name=schedule_name,
             ),
         )
-    return dict(url=url)
+    return dict(url=url, title=title)
 
 
 @register.inclusion_tag(

@@ -47,7 +47,8 @@ class MetadataValidator:
                 if not model_cls_registered_with_admin_site(source_model_cls):
                     warn(
                         "Model class not registered with Admin. "
-                        f"Deleting related metadata. Got {source_model_cls}."
+                        f"Deleting related metadata. Got {source_model_cls}.",
+                        stacklevel=2,
                     )
                     self.metadata_obj.delete()
                     self.metadata_obj = None
@@ -75,10 +76,7 @@ class MetadataValidator:
     @staticmethod
     def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
         """Returns True if model cls is registered in Admin."""
-        for admin_site in all_sites:
-            if model_cls in admin_site._registry:
-                return True
-        return False
+        return any(model_cls in admin_site._registry for admin_site in all_sites)
 
 
 class MetadataGetter:

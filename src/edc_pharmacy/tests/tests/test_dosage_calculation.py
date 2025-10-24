@@ -2,7 +2,6 @@ from clinicedc_tests.sites import all_sites
 from django.test import TestCase, override_settings, tag
 
 from edc_facility.import_holidays import import_holidays
-from edc_list_data import site_list_data
 from edc_pharmacy.dosage_calculator import DosageCalculator
 from edc_pharmacy.dosage_per_day import DosageError
 from edc_pharmacy.models import (
@@ -30,8 +29,6 @@ class TestDoseCalculator(TestCase):
         add_or_update_django_sites()
 
     def setUp(self):
-        site_list_data.initialize()
-        site_list_data.autodiscover()
         medication = Medication.objects.create(
             name="flucytosine",
             display_name="Flucytosine",

@@ -1,5 +1,4 @@
 from django.urls.conf import path
-
 from edc_dashboard.url_names import url_names
 from edc_metadata.views import RefreshMetadataActionsView
 
@@ -37,6 +36,16 @@ urlpatterns = [
     ),
 ]
 
-url_names.register(url="requisition_print_actions_url", namespace=app_name)
-url_names.register(url="requisition_verify_actions_url", namespace=app_name)
-url_names.register(url="refresh_metadata_actions_url", namespace=app_name)
+url_names.register(
+    key="requisition_print_actions_url",
+    url="requisition_print_actions_url",
+    namespace=app_name,
+)
+url_names.register(
+    key="requisition_verify_actions_url",
+    url="requisition_verify_actions_url",
+    namespace=app_name,
+)
+url_names.register(
+    key="refresh_metadata_actions_url", url="refresh_metadata_actions_url", namespace=app_name
+)

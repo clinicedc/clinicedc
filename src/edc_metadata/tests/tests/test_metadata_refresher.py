@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.models import CrfFive, CrfOne, SubjectVisit
+from clinicedc_tests.models import CrfFive, CrfFour, SubjectVisit
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
@@ -31,8 +31,8 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             with self.subTest(model=model, entry_status=entry_status):
                 try:
                     CrfMetadata.objects.filter(
-                        entry_status=KEYED,
-                        model="edc_metadata.crfone",
+                        entry_status=entry_status,
+                        model=model,
                         visit_code=subject_visit.visit_code,
                     )
                 except ObjectDoesNotExist:
@@ -42,12 +42,12 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
 
     def test_updates_crf_metadata_as_keyed(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
-        CrfOne.objects.create(subject_visit=subject_visit)
+        CrfFour.objects.create(subject_visit=subject_visit)
         CrfMetadata.objects.all().delete()
         expected = {
-            "edc_metadata.crfone": KEYED,
-            "edc_metadata.crftwo": REQUIRED,
-            "edc_metadata.crfthree": REQUIRED,
+            "clinicedc_tests.crffour": KEYED,
+            "clinicedc_tests.crffive": REQUIRED,
+            "clinicedc_tests.crfsix": REQUIRED,
         }
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
@@ -55,46 +55,50 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
 
     def test_updates_after_manual_change(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
-        CrfOne.objects.create(subject_visit=subject_visit)
-        CrfMetadata.objects.all().delete()
         expected = {
-            "edc_metadata.crfone": KEYED,
-            "edc_metadata.crftwo": REQUIRED,
-            "edc_metadata.crfthree": REQUIRED,
+            "clinicedc_tests.crffour": KEYED,
+            "clinicedc_tests.crffive": REQUIRED,
+            "clinicedc_tests.crfsix": REQUIRED,
         }
+        CrfFour.objects.create(subject_visit=subject_visit)
+
+        CrfMetadata.objects.all().delete()
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
-        crf_metadata = CrfMetadata.objects.get(model="edc_metadata.crfone", entry_status=KEYED)
-        crf_metadata.entry_status = REQUIRED
+
+        crf_metadata = CrfMetadata.objects.get(
+            model="clinicedc_tests.crffour", entry_status=KEYED
+        )
         crf_metadata.save()
+
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
         self.check(expected, subject_visit=subject_visit)
 
     def test_updates_after_manual_change2(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
-        crf_one = CrfOne.objects.create(subject_visit=subject_visit)
+        crf = CrfFour.objects.create(subject_visit=subject_visit)
         CrfMetadata.objects.all().delete()
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
         expected = {
-            "edc_metadata.crfone": REQUIRED,
-            "edc_metadata.crftwo": REQUIRED,
-            "edc_metadata.crfthree": REQUIRED,
+            "clinicedc_tests.crffour": KEYED,
+            "clinicedc_tests.crffive": REQUIRED,
+            "clinicedc_tests.crfsix": REQUIRED,
         }
-        CrfMetadata.objects.get(model="edc_metadata.crfone", entry_status=KEYED)
-        crf_one.delete()
+        CrfMetadata.objects.get(model="clinicedc_tests.crffour", entry_status=KEYED)
+        crf.delete()
         crf_metadata = CrfMetadata.objects.get(
-            model="edc_metadata.crfone", entry_status=REQUIRED
+            model="clinicedc_tests.crffour", entry_status=REQUIRED
         )
-        crf_metadata.entry_status = KEYED
         crf_metadata.save()
+
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
         self.check(expected, subject_visit=subject_visit)
 
     @staticmethod
-    def register_new_visit_schedule(crfs, crfs_prn=None):
+    def register_new_visit_schedule(crfs, crfs_prn=None, crfs_unschedule=None):
         site_consents.registry = {}
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
@@ -109,7 +113,8 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             rupper=relativedelta(days=6),
             crfs=crfs,
             crfs_prn=crfs_prn,
-            allow_unscheduled=True,
+            crfs_unscheduled=crfs_unschedule,
+            allow_unscheduled=crfs_unschedule is not None,
             facility_name="5-day-clinic",
         )
         schedule = Schedule(
@@ -131,8 +136,8 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
     def test_after_schedule_change(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
         CrfFive.objects.create(subject_visit=subject_visit)
-        self.assertEqual(len(subject_visit.visit.all_crfs), 7)
-        self.assertEqual(CrfMetadata.objects.all().count(), 7)
+        self.assertEqual(len(subject_visit.visit.all_crfs), 13)
+        self.assertEqual(CrfMetadata.objects.all().count(), 9)
         crfs = CrfCollection(
             Crf(show_order=1, model="clinicedc_tests.crfone", required=True),
             Crf(show_order=2, model="clinicedc_tests.crftwo", required=True),
@@ -140,13 +145,18 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             Crf(show_order=4, model="clinicedc_tests.crffour", required=True),
             Crf(show_order=5, model="clinicedc_tests.crffive", required=False),
         )
-        self.register_new_visit_schedule(crfs)
-        self.assertEqual(len(subject_visit.visit.all_crfs), 5)
-        self.assertEqual(CrfMetadata.objects.all().count(), 7)
+        crfs_unscheduled = CrfCollection(
+            Crf(show_order=101, model="clinicedc_tests.crfsix", required=True),
+            Crf(show_order=102, model="clinicedc_tests.crfseven", required=True),
+        )
+        self.register_new_visit_schedule(crfs, crfs_unschedule=crfs_unscheduled)
 
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
-        self.assertEqual(CrfMetadata.objects.all().count(), 5)
+
+        self.assertEqual(len(subject_visit.visit.all_crfs), 8)  # crfs+unscheduled+missed
+        self.assertEqual(CrfMetadata.objects.all().count(), 5)  # crfs only
+
         expected = {
             "clinicedc_tests.crfone": REQUIRED,
             "clinicedc_tests.crftwo": REQUIRED,
@@ -166,17 +176,17 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             Crf(show_order=3, model="clinicedc_tests.crfthree", required=True),
             Crf(show_order=4, model="clinicedc_tests.crffour", required=True),
         )
-        self.register_new_visit_schedule(crfs)
-        self.assertEqual(len(subject_visit.visit.all_crfs), 4)
+        self.register_new_visit_schedule(crfs, crfs_unschedule=crfs_unscheduled)
+        self.assertEqual(len(subject_visit.visit.all_crfs), 7)
         self.assertEqual(CrfMetadata.objects.all().count(), 5)
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
         # crffive not created!
-        self.assertEqual(CrfMetadata.objects.all().count(), 4)
+        self.assertEqual(CrfMetadata.objects.all().count(), 5)
 
     def test_after_schedule_change2(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
-        self.assertEqual(CrfMetadata.objects.all().count(), 7)
+        self.assertEqual(CrfMetadata.objects.all().count(), 9)
         crfs = CrfCollection(
             Crf(show_order=1, model="clinicedc_tests.crfone", required=True),
             Crf(show_order=2, model="clinicedc_tests.crftwo", required=True),
@@ -184,7 +194,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
             Crf(show_order=4, model="clinicedc_tests.crffour", required=True),
         )
         self.register_new_visit_schedule(crfs)
-        self.assertEqual(CrfMetadata.objects.all().count(), 7)
+        self.assertEqual(CrfMetadata.objects.all().count(), 9)
         metadata_refresher = MetadataRefresher()
         metadata_refresher.run()
         self.assertEqual(CrfMetadata.objects.all().count(), 4)
@@ -198,7 +208,7 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
 
     def test_schedule_change_with_overlapping_crfs_prns_using_save(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
-        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 5)
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 9)
         crfs = CrfCollection(
             Crf(show_order=1, model="clinicedc_tests.crfone", required=True),
             Crf(show_order=2, model="clinicedc_tests.crftwo", required=True),
@@ -226,8 +236,8 @@ class TestMetadataRefresher(TestMetadataMixin, TestCase):
         self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 4)
 
     def test_schedule_change_with_overlapping_crfs_prns_using_metadata_refresher(self):
-        subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
-        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 5)
+        # subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
+        self.assertEqual(CrfMetadata.objects.filter(entry_status=REQUIRED).count(), 9)
         crfs = CrfCollection(
             Crf(show_order=1, model="clinicedc_tests.crfone", required=True),
             Crf(show_order=2, model="clinicedc_tests.crftwo", required=True),

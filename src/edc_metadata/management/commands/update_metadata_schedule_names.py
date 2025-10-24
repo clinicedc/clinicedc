@@ -12,7 +12,7 @@ style = color_style()
 class Command(BaseCommand):
     help = "Update metadata for changed visit_schedule/schedule names"
     pattern = "^[0-9a-z_]+$"
-    fieldnames = ["visit_schedule_name", "schedule_name"]
+    fieldnames = ("visit_schedule_name", "schedule_name")
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -43,15 +43,15 @@ class Command(BaseCommand):
             help="Do a dry run. (Default: True)",
         )
 
-    def handle(self, *args, **options):
-        dry_run = False if options.get("dry_run", "") == "False" else True
+    def handle(self, *args, **options):  # noqa: ARG002
+        dry_run = options.get("dry_run", "") != "False"
 
         try:
             UpdateMetadataOnScheduleChange(
-                fieldname=options.get("field"),
-                new_value=options.get("new_value"),
-                old_value=options.get("old_value"),
+                field=options.get("field"),
+                new_name=options.get("new_value"),
+                old_name=options.get("old_value"),
                 dry_run=dry_run,
             )
         except UpdateMetadataError as e:
-            raise CommandError(e)
+            raise CommandError(e) from e

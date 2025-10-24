@@ -2,9 +2,10 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from clinicedc_tests.models import CrfOne, CrfThree, CrfTwo
+from clinicedc_tests.models import CrfFive, CrfFour, CrfThree
 from django.test import TestCase, override_settings, tag
 
+from edc_lab_panel.panels import fbc_panel, lft_panel, vl_panel
 from edc_metadata.constants import REQUIRED
 from edc_metadata.metadata import CrfMetadataGetter
 from edc_metadata.next_form_getter import NextFormGetter
@@ -35,37 +36,36 @@ class TestMetadataGetter(TestMetadataMixin, TestCase):
         self.assertEqual(len(objects), len(visit.crfs) - 1)
 
     def test_next_required_form(self):
-        getter = NextFormGetter(appointment=self.appointment, model="clinicedc_tests.crftwo")
-        self.assertEqual(getter.next_form.model, "clinicedc_tests.crfthree")
+        getter = NextFormGetter(appointment=self.appointment, model="clinicedc_tests.crffour")
+        self.assertEqual(getter.next_form.model, "clinicedc_tests.crffive")
 
     def test_next_required_form2(self):
-        CrfTwo.objects.create(subject_visit=self.subject_visit)
-        crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit)
-        getter = NextFormGetter(model_obj=crf_two)
-        self.assertEqual(getter.next_form.model, "clinicedc_tests.crfthree")
+        crf_five = CrfFive.objects.create(subject_visit=self.subject_visit)
+        getter = NextFormGetter(model_obj=crf_five)
+        self.assertEqual(getter.next_form.model, "clinicedc_tests.crfsix")
 
     def test_next_required_form3(self):
-        CrfOne.objects.create(subject_visit=self.subject_visit)
-        CrfTwo.objects.create(subject_visit=self.subject_visit)
+        CrfFour.objects.create(subject_visit=self.subject_visit)
+        CrfFive.objects.create(subject_visit=self.subject_visit)
         crf_three = CrfThree.objects.create(subject_visit=self.subject_visit)
         getter = NextFormGetter(model_obj=crf_three)
-        self.assertEqual(getter.next_form.model, "clinicedc_tests.crffour")
+        self.assertEqual(getter.next_form.model, "clinicedc_tests.crfsix")
 
     def test_next_requisition(self):
         getter = NextFormGetter(
             appointment=self.appointment,
             model="clinicedc_tests.subjectrequisition",
-            panel_name="one",
+            panel_name=fbc_panel.name,
         )
         next_form = getter.next_form
         self.assertEqual(next_form.model, "clinicedc_tests.subjectrequisition")
-        self.assertEqual(next_form.panel.name, "two")
+        self.assertEqual(next_form.panel.name, lft_panel.name)
 
     def test_next_requisition_if_last(self):
         getter = NextFormGetter(
             appointment=self.appointment,
             model="clinicedc_tests.subjectrequisition",
-            panel_name="six",
+            panel_name=vl_panel.name,
         )
         next_form = getter.next_form
         self.assertIsNone(next_form)

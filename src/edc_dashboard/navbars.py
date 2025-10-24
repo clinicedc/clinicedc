@@ -7,7 +7,7 @@ navbar.register(
         label="Edc Dashboard",
         fa_icon="fa-cogs",
         codename="edc_navbar.nav_edc_dashboard",
-        url_name="edc_dashboard:home_url",
+        url_with_namespace="edc_dashboard:home_url",
     )
 )
 

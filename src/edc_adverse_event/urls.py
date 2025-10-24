@@ -1,5 +1,5 @@
 from django.urls.conf import path
-
+from edc_dashboard.url_names import url_names
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from .admin_site import edc_adverse_event_admin
@@ -18,27 +18,32 @@ app_name = "edc_adverse_event"
 
 urlpatterns = NewTmgAeListboardView.urls(
     namespace=app_name,
-    label="new_tmg_ae_listboard",
+    url_names_key="new_tmg_ae_listboard_url",
+    identifier_label="subject_identifier",
     identifier_pattern=ResearchProtocolConfig().subject_identifier_pattern,
 )
 urlpatterns += OpenTmgAeListboardView.urls(
     namespace=app_name,
-    label="open_tmg_ae_listboard",
+    url_names_key="open_tmg_ae_listboard_url",
+    identifier_label="subject_identifier",
     identifier_pattern=ResearchProtocolConfig().subject_identifier_pattern,
 )
 urlpatterns += ClosedTmgAeListboardView.urls(
     namespace=app_name,
-    label="closed_tmg_ae_listboard",
+    url_names_key="closed_tmg_ae_listboard_url",
+    identifier_label="subject_identifier",
     identifier_pattern=ResearchProtocolConfig().subject_identifier_pattern,
 )
 urlpatterns += TmgDeathListboardView.urls(
     namespace=app_name,
-    label="tmg_death_listboard",
+    url_names_key="tmg_death_listboard_url",
+    identifier_label="subject_identifier",
     identifier_pattern=ResearchProtocolConfig().subject_identifier_pattern,
 )
 urlpatterns += TmgSummaryListboardView.urls(
     namespace=app_name,
-    label="tmg_summary_listboard",
+    url_names_key="tmg_summary_listboard_url",
+    identifier_label="subject_identifier",
     identifier_pattern=ResearchProtocolConfig().subject_identifier_pattern,
 )
 urlpatterns += [
@@ -47,3 +52,6 @@ urlpatterns += [
     path("admin/", edc_adverse_event_admin.urls),
     path("", AeHomeView.as_view(), name="home_url"),
 ]
+
+url_names.register(key="tmg_home_url", url_with_namespace=f"{app_name}:tmg_home_url")
+url_names.register(key="ae_home_url", url_with_namespace=f"{app_name}:ae_home_url")

@@ -3,7 +3,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import conditional_escape, format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
-
 from edc_dashboard.url_names import url_names
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
@@ -25,9 +24,9 @@ class SubjectScreeningAdmin(
 ):
     # form = SubjectScreeningForm
 
-    post_url_on_delete_name = "screening_listboard_url"
+    post_url_on_delete_name = "screening_listboard_url"  # url_name
 
-    skip_auto_numbering = ["safe_save_id"]
+    skip_auto_numbering = ("safe_save_id",)
 
     additional_instructions = (
         "Patients must meet ALL of the inclusion criteria and NONE of the "
@@ -90,12 +89,12 @@ class SubjectScreeningAdmin(
             audit_fieldset_tuple[0],
             {
                 "classes": audit_fieldset_tuple[1]["classes"],
-                "fields": tuple(audit_fieldset_tuple[1]["fields"] + ["safe_save_id"]),
+                "fields": (*audit_fieldset_tuple[1]["fields"], "safe_save_id"),
             },
         ],
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "consent_ability": admin.VERTICAL,
         "gender": admin.VERTICAL,
         "unsuitable_agreed": admin.VERTICAL,
@@ -130,7 +129,7 @@ class SubjectScreeningAdmin(
         "reasons_ineligible",
     )
 
-    readonly_fields = [
+    readonly_fields = (
         "screening_identifier",
         "subject_identifier",
         "eligible",
@@ -139,7 +138,7 @@ class SubjectScreeningAdmin(
         "reasons_ineligible",
         "consented",
         "refused",
-    ]
+    )
 
     def get_post_url_on_delete_name(self, request) -> str:
         return url_names.get(self.post_url_on_delete_name)
@@ -159,14 +158,14 @@ class SubjectScreeningAdmin(
     @staticmethod
     def reasons(obj=None):
         eligibility = ScreeningEligibility(obj)
-        return mark_safe(
+        return mark_safe(  # noqa: S308
             conditional_escape(eligibility.formatted_reasons_ineligible())
-        )  # nosec #B703 # B308
+        )
 
     @staticmethod
     def eligibility_status(obj=None):
         eligibility = ScreeningEligibility(obj)
-        return mark_safe(conditional_escape(eligibility.display_label))  # nosec #B703 # B308
+        return mark_safe(conditional_escape(eligibility.display_label))  # noqa: S308
 
     def hide_delete_button_on_condition(self, request, object_id) -> bool:
         try:

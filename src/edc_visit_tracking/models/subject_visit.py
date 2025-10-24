@@ -8,6 +8,8 @@ from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.managers import CurrentSiteManager
 from edc_sites.model_mixins import SiteModelMixin
+from edc_timepoint.model_mixins import TimepointLookupModelMixin
+from edc_timepoint.visit_timepoint_lookup import VisitTimepointLookup
 from edc_visit_tracking.choices import (
     VISIT_INFO_SOURCE,
     VISIT_REASON,
@@ -22,8 +24,11 @@ class SubjectVisit(
     CreatesMetadataModelMixin,
     SiteModelMixin,
     RequiresConsentFieldsModelMixin,
+    TimepointLookupModelMixin,
     BaseUuidModel,
 ):
+    timepoint_lookup_cls = VisitTimepointLookup
+
     appointment = models.OneToOneField(
         get_appointment_model_name(),
         on_delete=PROTECT,

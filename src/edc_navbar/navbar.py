@@ -30,7 +30,7 @@ class Navbar:
     def get(self, name: str) -> NavbarItem | None:
         try:
             navbar_item = next(nb for nb in self.navbar_items if nb.name == name)
-        except IndexError:
+        except StopIteration:
             navbar_item = None
         return navbar_item
 

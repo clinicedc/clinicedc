@@ -1,6 +1,3 @@
-from typing import Any
-
-
 class TemplateRequestContextError(Exception):
     pass
 
@@ -13,10 +10,10 @@ class TemplateRequestContextMixin:
             return [self.get_template_from_context(self.listboard_template)]
     """
 
-    def get_context_data(self, **kwargs) -> dict[str, Any]:
-        """Adds template data to context."""
-        kwargs.update(self.request.template_data)
-        return super().get_context_data(**kwargs)
+    # def get_context_data(self, **kwargs) -> dict[str, Any]:
+    #     """Adds template data to context."""
+    #     kwargs.update(self.request.template_data)
+    #     return super().get_context_data(**kwargs)
 
     def get_template_from_context(self, key=None):
         """Returns a template_name from request.context_data."""
@@ -26,5 +23,5 @@ class TemplateRequestContextMixin:
             raise TemplateRequestContextError(
                 f"Template name not defined in request context data. "
                 f"Expected one of {list(self.request.template_data.keys())}. Got {e}. "
-            )
+            ) from e
         return template_name

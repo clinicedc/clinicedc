@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import CrfOne, CrfTwo, PrnOne
+from clinicedc_tests.models import CrfFive, CrfFour, CrfThree, PrnOne
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
@@ -47,260 +47,258 @@ class CrfRuleGroupTestCase(TestCase):
         site_consents.register(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.loaded = False
+        visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules.register(get_visit_schedule(consent_v1))
-
-        # note crfs in visit schedule are all set to REQUIRED by default.
-        visit_schedule, schedule = site_visit_schedules.get_by_onschedule_model(
-            "edc_visit_schedule.onschedule"
-        )
-
+        self.visit_schedule_name = visit_schedule.name
+        self.schedule_name = "schedule"
         site_metadata_rules.registry = {}
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupOne)
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupTwo)
         site_metadata_rules.register(rule_group_cls=CrfRuleGroupThree)
-        self.subject_visit = self.helper.enroll_to_baseline(
-            visit_schedule_name=visit_schedule.name, schedule_name=schedule.name, gender=MALE
-        )
 
     def get_next_subject_visit(self, subject_visit):
+        appointment = subject_visit.appointment.next
         return SubjectVisit.objects.create(
-            appointment=self.appointment.next,
+            appointment=appointment,
             reason=SCHEDULED,
             subject_identifier=subject_visit.subject_identifier,
-            visit_schedule_name=self.appointment.next.visit_schedule_name,
-            schedule_name=self.appointment.next.schedule_name,
-            visit_code=self.appointment.next.visit_code,
-            visit_code_sequence=self.appointment.next.visit_code_sequence,
+            visit_schedule_name=appointment.visit_schedule_name,
+            schedule_name=appointment.schedule_name,
+            visit_code=appointment.visit_code,
+            visit_code_sequence=appointment.visit_code_sequence,
         )
 
-    def test_default_d1(self):
-        """Test before any CRFs are submitted"""
-        self.helper.enroll_to_baseline(gender=MALE)
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfone").entry_status,
-            REQUIRED,
+    def test_f1_eq_car(self):
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
         )
-        # set to NOT_REQUIRED by CrfRuleGroupOne.crfs_car
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
-            NOT_REQUIRED,
-        )
-        # set to NOT_REQUIRED by CrfRuleGroupOne.crfs_bicycle
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
-            NOT_REQUIRED,
-        )
+        CrfThree.objects.create(subject_visit=subject_visit, f1="car")
         self.assertEqual(
             CrfMetadata.objects.get(model="clinicedc_tests.crffour").entry_status,
             REQUIRED,
         )
-        # set to NOT_REQUIRED by CrfRuleGroupTwo.crfs_truck
+        # set to NOT_REQUIRED by CrfRuleGroupOne.crfs_car
         self.assertEqual(
             CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             NOT_REQUIRED,
         )
-
-    def test_example1(self):
-        """Asserts CrfTwo is REQUIRED if f1==\'car\' as specified."""
+        # set to NOT_REQUIRED by CrfRuleGroupOne.crfs_bicycle
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfsix").entry_status,
             NOT_REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfseven").entry_status,
             NOT_REQUIRED,
         )
-
-        CrfOne.objects.create(subject_visit=self.subject_visit, f1="car")
-
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
-            REQUIRED,
-        )
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.prnone").entry_status,
             NOT_REQUIRED,
         )
 
     def test_example2(self):
         """Asserts CrfThree is REQUIRED if f1==\'bicycle\' as specified."""
 
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
+        CrfThree.objects.create(subject_visit=subject_visit, f3="bicycle")
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffour").entry_status,
             NOT_REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
-            NOT_REQUIRED,
-        )
-
-        CrfOne.objects.create(subject_visit=self.subject_visit, f3="bicycle")
-
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
-            NOT_REQUIRED,
-        )
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             REQUIRED,
         )
-
-        self.subject_visit.save()
-
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfsix").entry_status,
             NOT_REQUIRED,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crfseven").entry_status,
+            NOT_REQUIRED,
+        )
+        self.assertEqual(
+            CrfMetadata.objects.get(model="clinicedc_tests.prnone").entry_status,
+            NOT_REQUIRED,
+        )
+
+        subject_visit.save()
+
+        self.assertEqual(
+            CrfMetadata.objects.get(model="clinicedc_tests.crffour").entry_status,
+            NOT_REQUIRED,
+        )
+        self.assertEqual(
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             REQUIRED,
+        )
+        self.assertEqual(
+            CrfMetadata.objects.get(model="clinicedc_tests.crfsix").entry_status,
+            NOT_REQUIRED,
+        )
+        self.assertEqual(
+            CrfMetadata.objects.get(model="clinicedc_tests.crfseven").entry_status,
+            NOT_REQUIRED,
+        )
+        self.assertEqual(
+            CrfMetadata.objects.get(model="clinicedc_tests.prnone").entry_status,
+            NOT_REQUIRED,
         )
 
     def test_example4(self):
-        """Asserts CrfThree is REQUIRED if f1==\'bicycle\' but then not
-        when f1 is changed to \'car\' as specified
-        by edc_example.rule_groups.ExampleRuleGroup2."""
-
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
-            NOT_REQUIRED,
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
         )
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             NOT_REQUIRED,
         )
-
-        crf_one = CrfOne.objects.create(subject_visit=self.subject_visit, f1="not car")
+        crf = CrfThree.objects.create(subject_visit=subject_visit, f1="car")
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
-            NOT_REQUIRED,
-        )
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             NOT_REQUIRED,
         )
 
-        crf_one.f1 = "car"
-        crf_one.save()
+        crf.f1 = "not_car"
+        crf.save()
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
-            REQUIRED,
-        )
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             NOT_REQUIRED,
         )
 
-        crf_one.f3 = "bicycle"
-        crf_one.save()
+        crf.f3 = "bicycle"
+        crf.save()
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
-            REQUIRED,
-        )
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crfthree").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             REQUIRED,
         )
 
     def test_keyed_instance_ignores_rules(self):
         """Asserts if instance exists, rule is ignored."""
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             NOT_REQUIRED,
         )
 
-        CrfTwo.objects.create(subject_visit=self.subject_visit)
+        CrfFive.objects.create(subject_visit=subject_visit)
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             KEYED,
         )
 
-        crf_one = CrfOne.objects.create(subject_visit=self.subject_visit, f1="not car")
+        CrfThree.objects.create(subject_visit=subject_visit, f3="bicycle")
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
-            KEYED,
-        )
-
-        crf_one.f1 = "car"
-        crf_one.save()
-
-        self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             KEYED,
         )
 
     def test_recovers_from_missing_metadata(self):
-        metadata_obj = CrfMetadata.objects.get(model="clinicedc_tests.crftwo")
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
+        metadata_obj = CrfMetadata.objects.get(model="clinicedc_tests.crffive")
         self.assertEqual(metadata_obj.entry_status, NOT_REQUIRED)
 
         # note, does not automatically recreate
         metadata_obj.delete()
         self.assertRaises(
-            ObjectDoesNotExist, CrfMetadata.objects.get, model="clinicedc_tests.crftwo"
+            ObjectDoesNotExist, CrfMetadata.objects.get, model="clinicedc_tests.crffive"
         )
 
-        CrfTwo.objects.create(subject_visit=self.subject_visit)
+        CrfFive.objects.create(subject_visit=subject_visit)
 
-        metadata_obj = CrfMetadata.objects.get(model="clinicedc_tests.crftwo")
+        metadata_obj = CrfMetadata.objects.get(model="clinicedc_tests.crffive")
         self.assertEqual(metadata_obj.entry_status, KEYED)
 
     def test_delete(self):
         """Asserts delete returns to default entry status."""
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             NOT_REQUIRED,
         )
 
-        crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit)
+        crf = CrfFive.objects.create(subject_visit=subject_visit)
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             KEYED,
         )
 
-        crf_two.delete()
+        crf.delete()
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffive").entry_status,
             NOT_REQUIRED,
         )
 
     def test_delete_2(self):
-        """Asserts delete returns to entry status of rule for crf_two."""
+        """Asserts delete returns to entry status of rule for crf_four."""
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffour").entry_status,
             NOT_REQUIRED,
         )
 
-        crf_two = CrfTwo.objects.create(subject_visit=self.subject_visit)
-
-        CrfOne.objects.create(subject_visit=self.subject_visit, f1="not car")
+        CrfThree.objects.create(subject_visit=subject_visit, f1="not_car")
+        self.assertEqual(
+            CrfMetadata.objects.get(model="clinicedc_tests.crffour").entry_status,
+            NOT_REQUIRED,
+        )
+        crf = CrfFour.objects.create(subject_visit=subject_visit)
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffour").entry_status,
             KEYED,
         )
 
-        crf_two.delete()
+        crf.delete()
 
         self.assertEqual(
-            CrfMetadata.objects.get(model="clinicedc_tests.crftwo").entry_status,
+            CrfMetadata.objects.get(model="clinicedc_tests.crffour").entry_status,
             NOT_REQUIRED,
         )
 
     def test_prn_is_created_as_not_required_by_default(self):
         """Asserts handles PRNs correctly"""
-        # create both visits before going back to add crf_one
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
         self.assertEqual(
             CrfMetadata.objects.get(
                 model="clinicedc_tests.prnone",
-                visit_code=self.subject_visit.visit_code,
-                visit_code_sequence=self.subject_visit.visit_code_sequence,
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
             ).entry_status,
             NOT_REQUIRED,
         )
@@ -309,19 +307,24 @@ class CrfRuleGroupTestCase(TestCase):
         """Asserts handles PRNs correctly"""
         # create both visits before going back to add crf_one
 
-        # rule = prnone is required if crf_one.f1 == holden
+        # rule = prnone is required if crf_three.f1 == holden
 
         # not required by default @ 1000
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
         self.assertEqual(
             CrfMetadata.objects.get(
                 model="clinicedc_tests.prnone",
-                visit_code=self.subject_visit.visit_code,
-                visit_code_sequence=self.subject_visit.visit_code_sequence,
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
             ).entry_status,
             NOT_REQUIRED,
         )
         # not required by default @ 2000
-        subject_visit_two = self.get_next_subject_visit(self.subject_visit)
+        subject_visit_two = self.get_next_subject_visit(subject_visit)
         self.assertEqual(
             CrfMetadata.objects.get(
                 model="clinicedc_tests.prnone",
@@ -332,14 +335,14 @@ class CrfRuleGroupTestCase(TestCase):
         )
 
         # submit crf_one to trigger rule
-        crf_one = CrfOne.objects.create(subject_visit=self.subject_visit, f1="holden")
+        crf_one = CrfThree.objects.create(subject_visit=subject_visit, f1="holden")
 
         # should be required @ 1000
         self.assertEqual(
             CrfMetadata.objects.get(
                 model="clinicedc_tests.prnone",
-                visit_code=self.subject_visit.visit_code,
-                visit_code_sequence=self.subject_visit.visit_code_sequence,
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
             ).entry_status,
             REQUIRED,
         )
@@ -360,8 +363,8 @@ class CrfRuleGroupTestCase(TestCase):
         self.assertEqual(
             CrfMetadata.objects.get(
                 model="clinicedc_tests.prnone",
-                visit_code=self.subject_visit.visit_code,
-                visit_code_sequence=self.subject_visit.visit_code_sequence,
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
             ).entry_status,
             NOT_REQUIRED,
         )
@@ -382,8 +385,8 @@ class CrfRuleGroupTestCase(TestCase):
         self.assertEqual(
             CrfMetadata.objects.get(
                 model="clinicedc_tests.prnone",
-                visit_code=self.subject_visit.visit_code,
-                visit_code_sequence=self.subject_visit.visit_code_sequence,
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
             ).entry_status,
             REQUIRED,
         )
@@ -401,9 +404,14 @@ class CrfRuleGroupTestCase(TestCase):
         """Asserts handles PRNs correctly"""
         # create 1000 then add crf_one then create 2000
 
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
         self.assertEqual(1, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
 
-        crf_one = CrfOne.objects.create(subject_visit=self.subject_visit, f1="caufield")
+        crf_one = CrfThree.objects.create(subject_visit=subject_visit, f1="caufield")
         self.assertEqual(
             1,
             CrfMetadata.objects.filter(
@@ -411,7 +419,7 @@ class CrfRuleGroupTestCase(TestCase):
             ).count(),
         )
 
-        subject_visit_two = self.get_next_subject_visit(self.subject_visit)
+        subject_visit_two = self.get_next_subject_visit(subject_visit)
 
         self.assertEqual(2, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
         self.assertEqual(
@@ -427,8 +435,8 @@ class CrfRuleGroupTestCase(TestCase):
         self.assertEqual(
             CrfMetadata.objects.get(
                 model="clinicedc_tests.prnone",
-                visit_code=self.subject_visit.visit_code,
-                visit_code_sequence=self.subject_visit.visit_code_sequence,
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
             ).entry_status,
             REQUIRED,
         )
@@ -443,31 +451,46 @@ class CrfRuleGroupTestCase(TestCase):
         )
 
     def test_crf_cannot_be_saved_if_not_in_visits_crfs(self):
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
         self.assertEqual(1, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
-        subject_visit_two = self.get_next_subject_visit(self.subject_visit)
+        subject_visit_two = self.get_next_subject_visit(subject_visit)
         self.assertEqual(2, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
 
         # note: crf_one is not listed as a crf for visit 2000
-        # trigger exception just to prove that the crf_one cannot be saved
+        # trigger exception just to prove that the crf_three cannot be saved
         # if not listed in crfs for visit 2000
-        with contextlib.suppress(MetadataHandlerError):
-            CrfOne.objects.create(subject_visit=subject_visit_two, f1="caufield")
+        with contextlib.suppress(MetadataHandlerError) as cm:
+            CrfThree.objects.create(subject_visit=subject_visit_two, f1="caufield")
 
     def test_prn_can_be_submitted_if_now_required(self):
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
         self.assertEqual(1, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
-        self.get_next_subject_visit(self.subject_visit)
+        self.get_next_subject_visit(subject_visit)
         self.assertEqual(2, CrfMetadata.objects.filter(model="clinicedc_tests.prnone").count())
-        CrfOne.objects.create(subject_visit=self.subject_visit, f1="holden")
-        PrnOne.objects.create(subject_visit=self.subject_visit)
+        CrfThree.objects.create(subject_visit=subject_visit, f1="holden")
+        PrnOne.objects.create(subject_visit=subject_visit)
 
     def test_prn_resets_on_delete(self):
-        crf_one = CrfOne.objects.create(subject_visit=self.subject_visit, f1="holden")
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule_name,
+            schedule_name=self.schedule_name,
+            gender=MALE,
+        )
+        crf_one = CrfThree.objects.create(subject_visit=subject_visit, f1="holden")
         crf_one.delete()
         self.assertEqual(
             CrfMetadata.objects.get(
                 model="clinicedc_tests.prnone",
-                visit_code=self.subject_visit.visit_code,
-                visit_code_sequence=self.subject_visit.visit_code_sequence,
+                visit_code=subject_visit.visit_code,
+                visit_code_sequence=subject_visit.visit_code_sequence,
             ).entry_status,
             NOT_REQUIRED,
         )

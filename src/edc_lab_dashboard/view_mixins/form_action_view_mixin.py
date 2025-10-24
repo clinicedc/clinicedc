@@ -2,7 +2,6 @@ from typing import Any
 
 from django.urls.base import reverse
 from django.views.generic.base import ContextMixin
-
 from edc_dashboard.url_names import url_names
 
 
@@ -14,7 +13,7 @@ class FormActionViewMixin(ContextMixin):
     action_name = None
     form_action_name = "form_action"
     form_action_selected_items_name = "selected_items"
-    form_action_url = None
+    form_action_url = None  # url name
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(

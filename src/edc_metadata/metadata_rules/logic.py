@@ -29,9 +29,9 @@ class Logic:
 
     def __init__(
         self,
-        predicate: P | PF | Callable | None = None,
-        consequence: str | None = None,
-        alternative: str | None = None,
+        predicate: P | PF | Callable,
+        consequence: str,
+        alternative: str,
         comment: str | None = None,
     ) -> None:
         if not callable(predicate):

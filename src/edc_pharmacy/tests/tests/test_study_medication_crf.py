@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.forms import StudyMedicationForm
 from clinicedc_tests.helper import Helper
@@ -58,6 +59,7 @@ class TestMedicationCrf(TestCase):
         site_action_items.autodiscover()
 
     def setUp(self) -> None:
+        register_actions()
         site_consents.registry = {}
         site_consents.register(consent_v1)
 

@@ -11,6 +11,8 @@ from edc_document_status.model_mixins import DocumentStatusModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins import MetadataHelperModelMixin
 from edc_offstudy.model_mixins import OffstudyNonCrfModelMixin
+from edc_timepoint.model_mixins import TimepointLookupModelMixin
+from edc_timepoint.visit_timepoint_lookup import VisitTimepointLookup
 from edc_visit_schedule.model_mixins import VisitScheduleModelMixin
 
 from ...constants import MISSED_VISIT, NO_FOLLOW_UP_REASONS
@@ -29,6 +31,7 @@ class VisitModelMixin(
     MetadataHelperModelMixin,
     OffstudyNonCrfModelMixin,
     RequiresConsentFieldsModelMixin,
+    TimepointLookupModelMixin,
     models.Model,
 ):
     """
@@ -40,6 +43,8 @@ class VisitModelMixin(
             class Meta(VisitModelMixin.Meta):
                 app_label = 'my_app'
     """
+
+    timepoint_lookup_cls = VisitTimepointLookup
 
     metadata_helper_instance_attr = None
 

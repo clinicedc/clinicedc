@@ -16,7 +16,7 @@ class ManageManifestViewError(Exception):
 
 class ManageManifestView(EdcViewMixin, ManifestViewMixin, ActionView):
     post_action_url = "manage_manifest_listboard_url"
-    valid_form_actions = ["add_item", "remove_selected_items"]
+    valid_form_actions = ("add_item", "remove_selected_items")
 
     @property
     def url_kwargs(self):

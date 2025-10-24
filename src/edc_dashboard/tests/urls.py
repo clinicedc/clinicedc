@@ -11,7 +11,7 @@
 # app_name = "edc_dashboard"
 #
 # subject_listboard_url_config = UrlConfig(
-#     url_name="listboard_url",
+#     url_names_key="listboard_url",
 #     namespace=app_name,
 #     view_class=ListboardView,
 #     label="subject_listboard",

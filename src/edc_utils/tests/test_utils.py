@@ -91,7 +91,7 @@ class TestUtils(TestCase):
     def test_age_without_tz(self):
         born = datetime(1990, 5, 1).astimezone(ZoneInfo("UTC"))
         reference_dt = datetime(2000, 5, 1)  # noqa: DTZ001
-        self.assertEqual(age(born, reference_dt).years, 10)
+        self.assertRaises(TypeError, age, born, reference_dt)
 
     def test_age_born_date(self):
         born = date(1990, 5, 1)

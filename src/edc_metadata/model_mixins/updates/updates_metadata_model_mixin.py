@@ -42,7 +42,7 @@ class UpdatesMetadataModelMixin(models.Model):
     metadata_updater_cls = MetadataUpdater
     metadata_category: str = CRF
 
-    def metadata_update(self: CrfModel | RequisitionModel, entry_status: str = None) -> None:
+    def metadata_update(self: CrfModel | RequisitionModel, entry_status: str) -> None:
         """Updates metatadata."""
         self.metadata_updater.get_and_update(entry_status=entry_status)
 

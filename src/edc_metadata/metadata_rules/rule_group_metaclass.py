@@ -51,7 +51,7 @@ class RuleGroupMetaclass(type):
         return super().__new__(mcs, name, bases, attrs)
 
     @classmethod
-    def __get_rules(mcs, name: str, attrs: dict, meta: Any) -> tuple:
+    def __get_rules(mcs, name: str, attrs: dict, meta: Any) -> tuple:  # noqa: N804
         """Returns a list of rules after updating each rule's attrs
         with values from Meta.
 
@@ -59,28 +59,27 @@ class RuleGroupMetaclass(type):
         """
         rules = []
         for key, value in attrs.items():
-            if not key.startswith("_"):
-                if isinstance(value, Rule):
-                    rule = value
-                    rule.name = key
-                    rule.group = name
-                    if isinstance(rule.predicate, (str,)):
-                        predicates = getattr(meta, "predicates", None)
-                        if not predicates:
-                            raise RuleGroupError(
-                                "RuleGroup Meta attr `predicates` may not be `None` if a "
-                                "rule.predicate in the RuleGroup is a string. "
-                                f"See {attrs.get('__qualname__')}."
-                            )
-                        rule.predicate = getattr(meta.predicates, rule.predicate)
-                    for k, v in meta.options.items():
-                        setattr(rule, k, v)
-                    rule.target_models = mcs.__get_target_models(rule, meta)
-                    rules.append(rule)
+            if not key.startswith("_") and isinstance(value, Rule):
+                rule = value
+                rule.name = key
+                rule.group = name
+                if isinstance(rule.predicate, (str,)):
+                    predicates = getattr(meta, "predicates", None)
+                    if not predicates:
+                        raise RuleGroupError(
+                            "RuleGroup Meta attr `predicates` may not be `None` if a "
+                            "rule.predicate in the RuleGroup is a string. "
+                            f"See {attrs.get('__qualname__')}."
+                        )
+                    rule.predicate = getattr(meta.predicates, rule.predicate)
+                for k, v in meta.options.items():
+                    setattr(rule, k, v)
+                rule.target_models = mcs.__get_target_models(rule, meta)
+                rules.append(rule)
         return tuple(rules)
 
     @classmethod
-    def __get_target_models(mcs, rule: Any, meta: Any) -> Any:
+    def __get_target_models(mcs, rule: Any, meta: Any) -> Any:  # noqa: N804
         """Returns target models as a list of label_lowers.
 
         Target models are the models whose metadata is acted upon.
@@ -90,7 +89,7 @@ class RuleGroupMetaclass(type):
         """
         target_models = []
         for target_model in rule.target_models:
-            if len(target_model.split(".")) != 2:
-                target_model = f"{meta.app_label}.{target_model}"
+            if len(target_model.split(".")) != 2:  # noqa: PLR2004
+                target_model = f"{meta.app_label}.{target_model}"  # noqa: PLW2901
             target_models.append(target_model)
         return target_models

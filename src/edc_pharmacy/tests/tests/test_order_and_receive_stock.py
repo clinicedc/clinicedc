@@ -4,6 +4,7 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.sites import all_sites
@@ -18,7 +19,6 @@ from sequences import get_next_value
 from edc_consent import site_consents
 from edc_constants.constants import COMPLETE
 from edc_facility.import_holidays import import_holidays
-from edc_list_data import site_list_data
 from edc_pharmacy.analytics import get_next_scheduled_visit_for_subjects_df
 from edc_pharmacy.exceptions import RepackRequestError
 from edc_pharmacy.models import (
@@ -72,11 +72,10 @@ class TestOrderReceive(TestCase):
         sites.loaded = False
         sites.register(*all_sites)
         add_or_update_django_sites()
+        register_actions()
 
     def setUp(self):
         self.helper = self.helper_cls()
-        site_list_data.initialize()
-        site_list_data.autodiscover()
 
         site_consents.registry = {}
         site_consents.loaded = False

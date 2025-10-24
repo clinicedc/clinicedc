@@ -9,12 +9,13 @@ from edc_label.printers_mixin import PrintersMixin
 
 class BaseRequisitionView(LoginRequiredMixin, PrintersMixin, View):
     success_url_name = "subject_dashboard_url"
+    lab_home_url_name = "requisition_listboard_url"
 
     def get_success_url(self):
         return url_names.get(self.success_url_name)
 
     def get(self, request, *args, **kwargs):  # noqa: ARG002
-        url = reverse("edc_lab_dashboard:home_url")
+        url = reverse(url_names.get(self.lab_home_url_name))
         return HttpResponseRedirect(url)
 
     def head(self, request, *args, **kwargs):

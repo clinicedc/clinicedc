@@ -27,7 +27,7 @@ def load_model_data(model_data: dict, apps: AppConfig | None = None) -> int:
     n = 0
     for model_name, options in model_data.items():
         try:
-            model_name, unique_field = model_name
+            model_name, unique_field = model_name  # noqa: PLW2901
         except ValueError:
             unique_field = None
         model = apps.get_model(model_name)

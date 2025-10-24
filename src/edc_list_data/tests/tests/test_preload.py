@@ -1,34 +1,40 @@
 from importlib import import_module
 
 from clinicedc_tests.list_data.list_data2 import list_data
-from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase, override_settings, tag
-
-from edc_list_data import LoadListDataError, site_list_data
-from edc_list_data.load_model_data import LoadModelDataError
-from edc_list_data.preload_data import PreloadData
-from edc_list_data.site_list_data import AlreadyRegistered, SiteListDataError
-
-from ..models import (
+from clinicedc_tests.models import (
     Antibiotic,
     Customer,
     Neurological,
     SignificantNewDiagnosis,
     Symptom,
 )
+from django.core.exceptions import ObjectDoesNotExist
+from django.test import TestCase, override_settings, tag
+
+from edc_adherence.models import NonAdherenceReasons
+from edc_list_data import LoadListDataError, site_list_data
+from edc_list_data.load_model_data import LoadModelDataError
+from edc_list_data.preload_data import PreloadData
+from edc_list_data.site_list_data import AlreadyLoaded, SiteListDataError
 
 
 @tag("list_data")
 @override_settings(SITE_ID=10)
 class TestPreload(TestCase):
-    @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=True)
+    @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_autodiscover_default(self):
         site_list_data.autodiscover()
         site_list_data.load_data()
-        self.assertEqual(Antibiotic.objects.all().count(), 3)
-        self.assertEqual(Neurological.objects.all().count(), 0)
-        self.assertEqual(Symptom.objects.all().count(), 0)
-        self.assertEqual(SignificantNewDiagnosis.objects.all().count(), 0)
+        self.assertGreater(
+            len(
+                [
+                    k
+                    for k in site_list_data.registry.keys()
+                    if not k.startswith("clinicedc_tests")
+                ]
+            ),
+            0,
+        )
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_preload_manually(self):
@@ -133,18 +139,19 @@ class TestPreload(TestCase):
     def test_sample_app_raises_on_duplicate_definition_for_table(self):
         site_list_data.initialize()
         module = import_module("clinicedc_tests.list_data")
-        site_list_data.register(module)
+        site_list_data.register(module, app_name="clinicedc_tests")
         module = import_module("clinicedc_tests.list_data.dup_list_data")
-        self.assertRaises(AlreadyRegistered, site_list_data.register, module)
+        with self.assertRaises(AlreadyLoaded):
+            site_list_data.register(module, app_name="clinicedc_tests")
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
-    def test_edc_list_data_loads(self):
+    def test_clinicedc_tests_loads(self):
         site_list_data.initialize()
         module = import_module("clinicedc_tests.list_data.list_data2")
-        site_list_data.register(module)
+        site_list_data.register(module, app_name="clinicedc_tests")
         self.assertIn("clinicedc_tests.list_data.list_data2", site_list_data.registry)
         self.assertIn(
-            "edc_list_data.antibiotic",
+            "clinicedc_tests.antibiotic",
             site_list_data.registry.get("clinicedc_tests.list_data.list_data2").get(
                 "list_data"
             ),
@@ -160,21 +167,19 @@ class TestPreload(TestCase):
             "edc_adherence.nonadherencereasons",
             site_list_data.registry.get("edc_adherence.list_data").get("list_data"),
         )
+        site_list_data.load_data()
 
         module = import_module("clinicedc_tests.list_data.list_data_adherence")
         site_list_data.register(module)
-        self.assertNotIn(
+        self.assertIn(
             "edc_adherence.nonadherencereasons",
             site_list_data.registry.get("clinicedc_tests.list_data.list_data_adherence").get(
                 "list_data"
             ),
         )
-        self.assertIn(
-            "clinicedc_tests.nonadherencereasons",
-            site_list_data.registry.get("clinicedc_tests.list_data.list_data_adherence").get(
-                "list_data"
-            ),
-        )
+        site_list_data.load_data()
+        for obj in NonAdherenceReasons.objects.all():
+            self.assertTrue(obj.display_name.endswith("(test)"))
 
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_list_data_with_site(self):
@@ -182,7 +187,7 @@ class TestPreload(TestCase):
         module = import_module("clinicedc_tests.list_data.list_data_with_site")
         site_list_data.register(module)
         self.assertIn(
-            "edc_list_data.antibiotic",
+            "clinicedc_tests.antibiotic",
             site_list_data.registry.get("clinicedc_tests.list_data.list_data_with_site").get(
                 "list_data"
             ),

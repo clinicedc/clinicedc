@@ -153,7 +153,7 @@ def convert_units(
     units_from: str | None = None,
     units_to: str | None = None,
     places: int | None = None,
-):
+) -> int | float:
     return UnitsConverter(
         label=label,
         value=value,

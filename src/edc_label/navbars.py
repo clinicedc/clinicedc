@@ -7,7 +7,7 @@ label.register(
         name="label",
         label="Label",
         fa_icon="fa-film",
-        url_name="edc_label:home_url",
+        url_with_namespace="edc_label:home_url",
         codename="edc_navbar.nav_label",
     )
 )

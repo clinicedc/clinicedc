@@ -42,20 +42,20 @@ class SummaryListboardView(
     ordering = "-report_datetime"
     paginate_by = 25
     search_form_url = "tmg_summary_listboard_url"
-    action_type_names = [
+    action_type_names = (
         AE_TMG_ACTION,
         DEATH_REPORT_TMG_ACTION,
         DEATH_REPORT_ACTION,
         AE_FOLLOWUP_ACTION,
-    ]
-    search_fields = [
+    )
+    search_fields = (
         "subject_identifier",
         "action_identifier",
         "parent_action_item__action_identifier",
         "related_action_item__action_identifier",
         "user_created",
         "user_modified",
-    ]
+    )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(AE_TMG_ACTION=AE_TMG_ACTION, utc_date=timezone.now().date())

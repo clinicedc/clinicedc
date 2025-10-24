@@ -2,9 +2,10 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import TestModel
+from clinicedc_tests.models import CrfFour
 from clinicedc_tests.utils import get_request_object_for_tests, get_user_for_tests
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings
@@ -18,8 +19,6 @@ from edc_locator.view_mixins import SubjectLocatorViewMixin
 from edc_sites.view_mixins import SiteViewMixin
 from edc_subject_dashboard.view_mixins import (
     RegisteredSubjectViewMixin,
-    SubjectVisitViewMixin,
-    SubjectVisitViewMixinError,
 )
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
@@ -38,8 +37,8 @@ utc_tz = ZoneInfo("UTC")
 @override_settings(SITE_ID=10)
 class TestViewMixins(TestCase):
     def setUp(self):
-
         self.user = get_user_for_tests()
+        register_actions()
 
         site_consents.registry = {}
         site_consents.register(consent_v1)
@@ -59,22 +58,7 @@ class TestViewMixins(TestCase):
             appointment=self.appointment,
             reason=SCHEDULED,
         )
-        self.test_model = TestModel.objects.create(subject_visit=self.subject_visit)
-
-    def test_subject_visit_incorrect_relation(self):
-        """Asserts raises if relation is not one to one."""
-
-        class MySubjectVisitViewMixin(
-            SubjectVisitViewMixin,
-            RegisteredSubjectViewMixin,
-            ContextMixin,
-        ):
-            visit_attr = "badsubjectvisit"
-
-        mixin = MySubjectVisitViewMixin()
-        mixin.kwargs = {"subject_identifier": self.subject_identifier}
-        mixin.request = get_request_object_for_tests(self.user)
-        self.assertRaises(SubjectVisitViewMixinError, mixin.get_context_data)
+        self.test_model = CrfFour.objects.create(subject_visit=self.subject_visit)
 
     def test_subject_locator_raises_on_bad_model(self):
         class MySubjectLocatorViewMixin(

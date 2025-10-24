@@ -5,13 +5,14 @@ import time_machine
 from clinicedc_tests.models import (
     CrfFive,
     CrfFour,
-    CrfOne,
     CrfSix,
     SubjectRequisition,
 )
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 
+from edc_lab.models import Panel
+from edc_lab_panel.panels import fbc_panel, lft_panel
 from edc_metadata.constants import KEYED, NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_handler import MetadataHandlerError
 from edc_metadata.metadata_inspector import MetaDataInspector
@@ -24,9 +25,9 @@ from .metadata_test_mixin import TestMetadataMixin
 utc_tz = ZoneInfo("UTC")
 
 
-@tag("metadata")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
+@tag("metadata")
 class TestMetadataUpdater(TestMetadataMixin, TestCase):
     def test_updates_crf_metadata_as_keyed(self):
         CrfFour.objects.create(subject_visit=self.subject_visit)
@@ -72,12 +73,15 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
 
     def test_updates_requisition_metadata_as_keyed(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
-        SubjectRequisition.objects.create(subject_visit=subject_visit, panel=self.panel_one)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit,
+            panel=Panel.objects.get(name=fbc_panel.name),
+        )
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=KEYED,
                 model="clinicedc_tests.subjectrequisition",
-                panel_name=self.panel_one.name,
+                panel_name=fbc_panel.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
             1,
@@ -86,7 +90,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
                 model="clinicedc_tests.subjectrequisition",
-                panel_name=self.panel_two.name,
+                panel_name=lft_panel.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
             1,
@@ -124,14 +128,15 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
     def test_resets_requisition_metadata_on_delete1(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
         obj = SubjectRequisition.objects.create(
-            subject_visit=subject_visit, panel=self.panel_one
+            subject_visit=subject_visit,
+            panel=Panel.objects.get(name=fbc_panel.name),
         )
         obj.delete()
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
                 model="clinicedc_tests.subjectrequisition",
-                panel_name=self.panel_one.name,
+                panel_name=fbc_panel.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
             1,
@@ -140,7 +145,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
                 model="clinicedc_tests.subjectrequisition",
-                panel_name=self.panel_two.name,
+                panel_name=lft_panel.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
             1,
@@ -149,14 +154,15 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
     def test_resets_requisition_metadata_on_delete2(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
         obj = SubjectRequisition.objects.create(
-            subject_visit=subject_visit, panel=self.panel_two
+            subject_visit=subject_visit,
+            panel=Panel.objects.get(name=lft_panel.name),
         )
         obj.delete()
         self.assertEqual(
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
                 model="clinicedc_tests.subjectrequisition",
-                panel_name=self.panel_one.name,
+                panel_name=fbc_panel.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
             1,
@@ -165,7 +171,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             RequisitionMetadata.objects.filter(
                 entry_status=REQUIRED,
                 model="clinicedc_tests.subjectrequisition",
-                panel_name=self.panel_two.name,
+                panel_name=lft_panel.name,
                 visit_code=subject_visit.visit_code,
             ).count(),
             1,
@@ -174,8 +180,8 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
     def test_get_metadata_for_subject_visit(self):
         """Asserts can get metadata for a subject and visit code."""
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
-        self.assertEqual(len(subject_visit.visit.all_crfs), 10)
-        self.assertEqual(len(subject_visit.visit.all_requisitions), 9)
+        self.assertEqual(len(subject_visit.visit.all_crfs), 13)
+        self.assertEqual(len(subject_visit.visit.all_requisitions), 4)
 
         metadata_a = []
         for values in subject_visit.metadata.values():
@@ -197,7 +203,7 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
     def test_metadata_inspector(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
         inspector = MetaDataInspector(
-            model_cls=CrfOne,
+            model_cls=CrfFour,
             visit_schedule_name=subject_visit.visit_schedule_name,
             schedule_name=subject_visit.schedule_name,
             visit_code=subject_visit.visit_code,
@@ -206,10 +212,10 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
         self.assertEqual(len(inspector.required), 1)
         self.assertEqual(len(inspector.keyed), 0)
 
-        CrfOne.objects.create(subject_visit=subject_visit)
+        CrfFour.objects.create(subject_visit=subject_visit)
 
         inspector = MetaDataInspector(
-            model_cls=CrfOne,
+            model_cls=CrfFour,
             visit_schedule_name=subject_visit.visit_schedule_name,
             schedule_name=subject_visit.schedule_name,
             visit_code=subject_visit.visit_code,
@@ -269,11 +275,12 @@ class TestMetadataUpdater(TestMetadataMixin, TestCase):
             entry_status=NOT_REQUIRED,
         )
 
+    @tag("metadata8")
     def test_crf_model_not_scheduled(self):
         subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
         metadata_updater = MetadataUpdater(
             related_visit=subject_visit,
-            source_model="clinicedc_tests.crfseven",
+            source_model="clinicedc_tests.resultcrf",
         )
         self.assertRaises(
             MetadataHandlerError,

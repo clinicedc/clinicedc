@@ -2,7 +2,6 @@ from typing import Any
 
 from django.urls import reverse
 from django.views.generic import TemplateView
-
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin, UrlRequestContextMixin
 from edc_navbar import NavbarViewMixin
@@ -37,6 +36,6 @@ class AeHomeView(UrlRequestContextMixin, EdcViewMixin, NavbarViewMixin, Template
             ae_initial_changelist_url=ae_initial_changelist_url,
             death_report_changelist_url=death_report_changelist_url,
             death_report_listboard_url=death_report_listboard_url,
-            **self.add_url_to_context(new_key="ae_home_url", existing_key=self.url_name),
+            **{self.url_name: url_names.get(self.url_name)},
         )
         return super().get_context_data(**kwargs)

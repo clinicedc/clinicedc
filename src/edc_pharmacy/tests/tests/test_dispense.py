@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.sites import all_sites
@@ -41,6 +42,7 @@ class TestDispense(TestCase):
         sites.loaded = False
         sites.register(*all_sites)
         add_or_update_django_sites()
+        register_actions()
 
     def setUp(self):
         site_consents.registry = {}

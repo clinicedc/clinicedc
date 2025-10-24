@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
@@ -10,6 +11,7 @@ from .metadata import CrfMetadataGetter, RequisitionMetadataGetter
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
+    from edc_model.utils import CrfLikeModel
     from edc_visit_schedule.visit import Crf, Requisition, Visit
 
     from .metadata import MetadataGetter
@@ -22,10 +24,10 @@ class NextFormGetter:
 
     def __init__(
         self,
-        model_obj=None,
-        appointment: Appointment = None,
-        model: str = None,
-        panel_name: str = None,
+        model_obj: CrfLikeModel | None = None,
+        appointment: Appointment | None = None,
+        model: str | None = None,
+        panel_name: str | None = None,
     ):
         self._getter = None
         self._next_metadata_obj = None
@@ -58,7 +60,7 @@ class NextFormGetter:
         """
         if not self._model_obj:
             model_cls = django_apps.get_model(self.model)
-            try:
+            with contextlib.suppress(ObjectDoesNotExist):
                 self._model_obj = model_cls.objects.get(
                     **{
                         f"{model_cls.related_visit_model_attr()}__appointment": (
@@ -66,8 +68,6 @@ class NextFormGetter:
                         )
                     }
                 )
-            except ObjectDoesNotExist:
-                pass
         return self._model_obj
 
     @property
@@ -94,23 +94,19 @@ class NextFormGetter:
 
     @property
     def next_panel(self) -> str | None:
-        if not self._next_panel:
-            if self.next_metadata_obj:
-                try:
-                    self._next_panel = self.next_metadata_obj.panel_name
-                except AttributeError:
-                    pass
+        if not self._next_panel and self.next_metadata_obj:
+            with contextlib.suppress(AttributeError):
+                self._next_panel = self.next_metadata_obj.panel_name
         return self._next_panel
 
     @property
     def panel_name(self) -> str | None:
         """Returns a panel_name or None."""
-        if not self._panel_name:
-            if self.model_obj:
-                try:
-                    self._panel_name = self.model_obj.panel.name
-                except AttributeError:
-                    self._panel_name = None
+        if not self._panel_name and self.model_obj:
+            try:
+                self._panel_name = self.model_obj.panel.name
+            except AttributeError:
+                self._panel_name = None
         return self._panel_name
 
     @property

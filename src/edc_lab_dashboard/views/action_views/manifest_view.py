@@ -13,11 +13,11 @@ from .action_view import ActionView
 
 class ManifestView(EdcViewMixin, ManifestViewMixin, LabPrintersMixin, ActionView):
     post_action_url = "manifest_listboard_url"
-    valid_form_actions = [
+    valid_form_actions = (
         "remove_selected_items",
         "print_labels",
         "ship_selected_items",
-    ]
+    )
     label_cls = ManifestLabel
 
     def process_form_action(self, request=None):

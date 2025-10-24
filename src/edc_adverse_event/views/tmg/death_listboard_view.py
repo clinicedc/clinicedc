@@ -5,7 +5,6 @@ from typing import Any
 
 from django.db.models import Q
 
-from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_listboard.views import ListboardView as BaseListboardView
@@ -21,10 +20,11 @@ class DeathListboardView(
     SearchFormViewMixin,
     BaseListboardView,
 ):
+    subject_dashboard_url_name = "subject_dashboard_url"  # see url_names
     listboard_back_url = "tmg_home_url"
 
     listboard_template = "tmg_death_listboard_template"
-    listboard_url = "tmg_death_listboard_url"
+    listboard_url = "tmg_death_listboard_url"  # url_name
     listboard_panel_style = "warning"
     listboard_model = f"{get_adverse_event_app_label()}.deathreport"
     listboard_model_manager_name = "objects"
@@ -33,18 +33,20 @@ class DeathListboardView(
     navbar_selected_item = "tmg_home"
     ordering = "-created"
     paginate_by = 25
-    search_form_url = "tmg_death_listboard_url"
-    search_fields = [
+    search_form_url = "tmg_death_listboard_url"  # url_name
+    search_fields = (
         "subject_identifier",
         "action_identifier",
         "parent_action_item__action_identifier",
         "related_action_item__action_identifier",
         "user_created",
         "user_modified",
-    ]
+    )
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        kwargs.update({"subject_dashboard_url": url_names.get("subject_dashboard_url")})
+        # kwargs.update(
+        #     {"subject_dashboard_url": url_names.get(self.subject_dashboard_url_name)}
+        # )
         if self.kwargs.get("subject_identifier"):
             kwargs.update({"q": self.kwargs.get("subject_identifier")})
         return super().get_context_data(**kwargs)

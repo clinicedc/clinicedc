@@ -8,7 +8,7 @@ protocol.register(
         title="Protocol",
         label="protocol",
         codename="edc_navbar.nav_edc_protocol",
-        url_name="edc_protocol:home_url",
+        url_with_namespace="edc_protocol:home_url",
     )
 )
 

@@ -6,7 +6,7 @@ pharmacy_navbar_item = NavbarItem(
     title="",
     fa_icon="fa-prescription",
     codename="edc_pharmacy.nav_pharmacy_section",
-    url_name="edc_pharmacy:home_url",
+    url_with_namespace="edc_pharmacy:home_url",
 )
 
 navbar = Navbar(name="pharmacy")

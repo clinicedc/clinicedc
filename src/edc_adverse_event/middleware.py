@@ -1,22 +1,23 @@
+from edc_dashboard.middleware_mixins import EdcTemplateMiddlewareMixin
+
 from .dashboard_templates import dashboard_templates
 from .dashboard_urls import dashboard_urls
 
 
-class DashboardMiddleware:
+class DashboardMiddleware(EdcTemplateMiddlewareMixin):
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        response = self.get_response(request)
-        return response
+        self.check_for_required_request_attrs(request)
+        return self.get_response(request)
 
     def process_view(self, request, *args):
         request.url_name_data.update(**dashboard_urls)
-        template_data = dashboard_templates
-        request.template_data.update(**template_data)
+        request.template_data.update(**dashboard_templates)
 
     def process_template_response(self, request, response):
-        if response.context_data:
+        if getattr(response, "context_data", None):
             response.context_data.update(**request.url_name_data)
             response.context_data.update(**request.template_data)
         return response

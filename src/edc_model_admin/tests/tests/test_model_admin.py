@@ -1,5 +1,9 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+import time_machine
 from clinicedc_tests.models import TestModel
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
 
 from edc_model_admin.mixins import (
@@ -8,6 +12,8 @@ from edc_model_admin.mixins import (
 )
 
 
+@override_settings(SITE_ID=10)
+@time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestModelAdmin(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -15,7 +21,7 @@ class TestModelAdmin(TestCase):
     def test_next_url(self):
         obj = TestModel()
         request = self.factory.get(
-            "/?next=my_url_name,arg1,arg2&agr1=value1&arg2=" "value2&arg3=value3&arg4=value4"
+            "/?next=my_url_name,arg1,arg2&agr1=value1&arg2=value2&arg3=value3&arg4=value4"
         )
         mixin = ModelAdminNextUrlRedirectMixin()
         self.assertRaises(ModelAdminNextUrlRedirectError, mixin.redirect_url, request, obj)
@@ -23,7 +29,7 @@ class TestModelAdmin(TestCase):
     def test_next_url1(self):
         obj = TestModel()
         request = self.factory.get(
-            "/?next=my_url_name,arg1,arg2&arg1=value1&arg2=" "value2&arg3=value3&arg4=value4"
+            "/?next=my_url_name,arg1,arg2&arg1=value1&arg2=value2&arg3=value3&arg4=value4"
         )
         mixin = ModelAdminNextUrlRedirectMixin()
         try:
@@ -34,7 +40,7 @@ class TestModelAdmin(TestCase):
     def test_next_url4(self):
         obj = TestModel()
         request = self.factory.get(
-            "/?next=my_url_name,arg1,arg2&arg1=value1&arg2=" "value2&arg3=value3&arg4=value4"
+            "/?next=my_url_name,arg1,arg2&arg1=value1&arg2=value2&arg3=value3&arg4=value4"
         )
         mixin = ModelAdminNextUrlRedirectMixin()
         try:

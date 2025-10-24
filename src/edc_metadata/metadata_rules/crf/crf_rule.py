@@ -19,7 +19,7 @@ class CrfRuleModelConflict(Exception):  # noqa: N818
 
 
 class CrfRule(Rule):
-    def __init__(self, target_models: list[str] = None, **kwargs) -> None:
+    def __init__(self, target_models: list[str], **kwargs) -> None:
         super().__init__(**kwargs)
         self.metadata_category = CRF
         self.target_models = target_models

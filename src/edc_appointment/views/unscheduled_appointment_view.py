@@ -27,7 +27,7 @@ class UnscheduledAppointmentView(View):
     """
 
     unscheduled_appointment_cls = UnscheduledAppointmentCreator
-    dashboard_template = "subject_dashboard_template"
+    dashboard_template_name = "subject_dashboard_template"
 
     def get(self, request, *args, **kwargs):  # noqa: ARG002
         kwargs["suggested_visit_code_sequence"] = int(kwargs["visit_code_sequence"])

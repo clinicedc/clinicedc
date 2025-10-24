@@ -8,6 +8,6 @@ offline_models = []
 app_config = django_apps.get_app_config("edc_metadata")
 for model in app_config.get_models():
     if not issubclass(model, ListModelMixin):
-        offline_models.append(model._meta.label_lower)
+        offline_models.append(model._meta.label_lower)  # noqa: PERF401
 
 site_offline_models.register(offline_models, OfflineModel)

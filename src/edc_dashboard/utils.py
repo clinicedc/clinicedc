@@ -5,14 +5,14 @@ from django.conf import settings
 from django.template.loader import select_template
 
 
-class EdcTemplateDoesNotExist(Exception):
+class EdcTemplateDoesNotExist(Exception):  # noqa: N818
     pass
 
 
 def get_index_page() -> int:
     index_page = getattr(settings, "INDEX_PAGE", None)
     if not index_page:
-        warn("Settings attribute not set. See settings.INDEX_PAGE")
+        warn("Settings attribute not set. See settings.INDEX_PAGE", stacklevel=2)
     return getattr(settings, "INDEX_PAGE", None)
 
 
@@ -44,8 +44,8 @@ def select_edc_template(relative_path, default_app_label):
     default_path = default_app_label
     return select_template(
         [
-            os.path.join(local_path, relative_path),
-            os.path.join(default_path, relative_path),
+            str(os.path.join(local_path, relative_path)),  # noqa: PTH118
+            str(os.path.join(default_path, relative_path)),  # noqa: PTH118
         ]
     )
 

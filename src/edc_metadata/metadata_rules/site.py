@@ -9,7 +9,7 @@ from django.utils.module_loading import import_module, module_has_submodule
 style = color_style()
 
 
-class SiteMetadataRulesAlreadyRegistered(Exception):
+class SiteMetadataRulesAlreadyRegistered(Exception):  # noqa: N818
     pass
 
 

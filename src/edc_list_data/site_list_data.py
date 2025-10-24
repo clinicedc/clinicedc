@@ -13,11 +13,11 @@ from .load_list_data import LoadListDataError
 from .preload_data import PreloadData
 
 
-class AlreadyRegistered(Exception):
+class AlreadyRegistered(Exception):  # noqa: N818
     pass
 
 
-class AlreadyLoaded(Exception):
+class AlreadyLoaded(Exception):  # noqa: N818
     pass
 
 
@@ -35,7 +35,7 @@ class SiteListData:
     Called in AppConfig or by management command.
     """
 
-    default_module_prefixes = ["edc_"]
+    default_module_prefixes = ("edc_",)
     default_module_name = "list_data"
 
     def __init__(self, module_name=None):
@@ -87,7 +87,7 @@ class SiteListData:
               * only edc_* modules can provide defaults
         """
         models = []
-        for label_lower, data in opts.get(self.module_name).items():
+        for label_lower in opts.get(self.module_name):
             default_module_name = self._get_default_module_name(module, label_lower)
             if label_lower not in self.models:
                 models.append(label_lower)
