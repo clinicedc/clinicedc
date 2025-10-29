@@ -122,7 +122,7 @@ A randomised placebo-controlled double-blind phase II trial to determine the eff
 
 (3 sites in Tanzania)
 
-https://github.com/meta-trial/meta-edc (2019-2021)
+https://github.com/meta-trial/meta2-edc (2019-2021)
 
 http://www.isrctn.com/ISRCTN76157257
 
