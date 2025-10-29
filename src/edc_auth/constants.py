@@ -31,3 +31,4 @@ PII_MODELS_KEY = "pii_models"
 CUSTOM_PERMISSIONS_TUPLES_KEY = "custom_permissions_tuples"
 
 TMG_ROLE = "tmg"
+AE_ROLE = "ae_role"

@@ -1,13 +1,12 @@
-from clinicedc_constants import NOT_APPLICABLE, YES
+from clinicedc_constants import COPIES_PER_MILLILITER, NOT_APPLICABLE, YES
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
 from edc_constants.choices import YES_NO, YES_NO_NA, YES_NO_PENDING_NA
 from edc_lab.choices import VL_QUANTIFIER_NA
 from edc_model import estimated_date_from_ago
 from edc_model import models as edc_models
 from edc_model.validators import date_not_future
-from edc_reportable import CELLS_PER_MILLIMETER_CUBED_DISPLAY, COPIES_PER_MILLILITER
+from edc_reportable.units import CELLS_PER_MILLIMETER_CUBED_DISPLAY
 
 
 class HivArvInitiationModelMixin(models.Model):

@@ -1,15 +1,12 @@
-from clinicedc_constants import NO, YES
+from clinicedc_constants import LTFU, NO, YES
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-
 from edc_form_validators import FormValidator
 from edc_utils.text import convert_php_dateformat
 from edc_visit_tracking.constants import MISSED_VISIT
 from edc_visit_tracking.utils import get_related_visit_model_cls
-
-from .constants import LOST_TO_FOLLOWUP
 
 
 class LossToFollowupFormValidator(FormValidator):
@@ -53,7 +50,7 @@ class RequiresLtfuFormValidatorMixin:
 
     ltfu_model = None  # "inte_prn.losstofollowup"
     ltfu_date_field = None  # "ltfu_date"
-    ltfu_reason = LOST_TO_FOLLOWUP
+    ltfu_reason = LTFU
 
     @property
     def ltfu_model_cls(self):

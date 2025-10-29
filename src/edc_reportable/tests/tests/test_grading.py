@@ -12,10 +12,10 @@ from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
-from edc_reportable import Formula
 from edc_reportable.adult_age_options import adult_age_options
 from edc_reportable.constants import HIGH_VALUE
 from edc_reportable.exceptions import BoundariesOverlap, NotEvaluated
+from edc_reportable.formula import Formula
 from edc_reportable.models import ReferenceRangeCollection
 from edc_reportable.utils import (
     get_grade_for_value,
