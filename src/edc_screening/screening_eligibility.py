@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import NO, PENDING, TBD, YES
 from django.utils.safestring import mark_safe
-
-from edc_constants.constants import NO, PENDING, TBD, YES
 
 from .exceptions import (
     ScreeningEligibilityAttributeError,

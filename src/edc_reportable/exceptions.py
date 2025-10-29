@@ -36,7 +36,3 @@ class NotEvaluated(Exception):  # noqa: N818
 
 class BoundariesOverlap(Exception):  # noqa: N818
     pass
-
-
-class ConversionNotHandled(Exception):  # noqa: N818
-    pass

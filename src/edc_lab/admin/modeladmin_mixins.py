@@ -1,11 +1,11 @@
 from uuid import UUID
 
+from clinicedc_constants import UUID_PATTERN, YES
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from edc_constants.constants import UUID_PATTERN, YES
 from edc_lab.admin.fieldsets import (
     requisition_identifier_fields,
     requisition_verify_fields,

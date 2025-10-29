@@ -1,13 +1,13 @@
+from clinicedc_constants import NO, TMG, YES
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch.dispatcher import receiver
 from django.utils import timezone
 
-from edc_constants.constants import NO, YES
 from edc_notification.models import Notification
 
-from ..constants import AE_TMG_ACTION, DEATH_REPORT_TMG_ACTION, TMG
+from ..constants import AE_TMG_ACTION, DEATH_REPORT_TMG_ACTION
 from ..utils import get_ae_model
 
 

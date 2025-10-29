@@ -1,6 +1,7 @@
 import re
 import sys
 
+from clinicedc_constants import CLOSED, NEW, OPEN
 from django.core.exceptions import (
     FieldError,
     MultipleObjectsReturned,
@@ -8,8 +9,6 @@ from django.core.exceptions import (
 )
 from django.db import connection
 from django.db.models.signals import post_delete, post_save, pre_save
-
-from edc_constants.constants import CLOSED, NEW, OPEN
 
 from .site_action_items import site_action_items
 

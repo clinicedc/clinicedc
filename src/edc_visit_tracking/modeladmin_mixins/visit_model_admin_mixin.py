@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import OTHER
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django_audit_fields.admin import audit_fieldset_tuple
 
 from edc_appointment.utils import get_appointment_model_cls
-from edc_constants.constants import OTHER
 from edc_document_status.fieldsets import document_status_fieldset_tuple
 from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin
 from edc_visit_schedule.fieldsets import (

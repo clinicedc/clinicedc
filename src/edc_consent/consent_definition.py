@@ -4,10 +4,10 @@ from dataclasses import KW_ONLY, dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import FEMALE, MALE
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
-from edc_constants.constants import FEMALE, MALE
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_screening.utils import get_subject_screening_model
 from edc_sites import site_sites

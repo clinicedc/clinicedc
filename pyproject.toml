@@ -32,6 +32,8 @@ dependencies = [
     "beautifulsoup4>=4.13.5",
     "boto3>=1.39.16",
     "celery>=5.5.3",
+    "clinicedc-utils>=0.4.0",
+    "clinicedc-constants>=1.1.0",
     "cryptography>=45.0.7",
     "django>=5.2.4",
     "django-admin-rangefilter>=0.13.3",
@@ -300,6 +302,7 @@ develop = [
 [tool.uv.sources]
 clinicedc = { workspace = true }
 clinicedc-tests = { path = "../clinicedc-tests", editable = true }
+clinicedc-utils = { path = "../clinicedc-utils", editable = true }
 django-audit-fields = { path = "../django-audit-fields", editable = true }
 django-crypto-fields = { path = "../django-crypto-fields", editable = true }
 django-revision = { path = "../django-revision", editable = true }

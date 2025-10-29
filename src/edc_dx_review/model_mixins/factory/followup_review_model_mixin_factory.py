@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from clinicedc_constants import CHOL, DM, HIV, HTN, NOT_APPLICABLE
 from django.db import models
 
 from edc_constants.choices import YES_NO_NA
-from edc_constants.constants import CHOL, DM, HIV, HTN, NOT_APPLICABLE
 from edc_dx import get_diagnosis_labels
 
 default_prompts = {

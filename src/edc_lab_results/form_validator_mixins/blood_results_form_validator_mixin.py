@@ -2,7 +2,8 @@ import contextlib
 from collections import namedtuple
 from typing import Any
 
-from edc_constants.constants import NO, NULL_STRING, YES
+from clinicedc_constants import NO, NULL_STRING, YES
+
 from edc_lab import RequisitionPanel
 from edc_lab.form_validators import CrfRequisitionFormValidatorMixin
 from edc_reportable.forms import ReportablesFormValidatorMixin

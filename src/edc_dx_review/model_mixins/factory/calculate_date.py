@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from datetime import date
 
+from clinicedc_constants import NO, NOT_APPLICABLE, YES
 from django.db import models
 
-from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_model import duration_to_date
 
 

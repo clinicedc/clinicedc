@@ -1,9 +1,9 @@
+from clinicedc_constants import NULL_STRING
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from edc_constants.choices import YES_NO
-from edc_constants.constants import NULL_STRING
 
 
 class DrugRefillModelMixin(models.Model):

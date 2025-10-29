@@ -1,18 +1,25 @@
-from edc_constants.constants import DEAD, GRADE3, GRADE4, GRADE5, NOT_APPLICABLE, OTHER
-from edc_ltfu.constants import LOST_TO_FOLLOWUP
-from edc_reportable import MILD, MODERATE, SEVERE, SEVERITY_INCREASED_FROM_G3
-
-from .constants import (
+from clinicedc_constants import (
     AE_WITHDRAWN,
     CONTINUING_UPDATE,
+    DEAD,
     DEFINITELY_RELATED,
+    GRADE3,
+    GRADE4,
+    GRADE5,
+    LTFU,
+    MILD,
+    MODERATE,
+    NOT_APPLICABLE,
     NOT_RECOVERED,
     NOT_RELATED,
+    OTHER,
     POSSIBLY_RELATED,
     PROBABLY_RELATED,
     RECOVERED,
     RECOVERED_WITH_SEQUELAE,
     RECOVERING,
+    SEVERE,
+    SEVERITY_INCREASED_FROM_G3,
     UNLIKELY_RELATED,
 )
 
@@ -43,7 +50,7 @@ AE_OUTCOME = (
     (RECOVERED, "Recovered/Resolved"),
     (RECOVERING, "Recovering/Resolving at end of study"),
     (NOT_RECOVERED, "Not Recovered/Resolved at end of study"),
-    (LOST_TO_FOLLOWUP, "Unknown/Lost to follow-up"),
+    (LTFU, "Unknown/Lost to follow-up"),
     (RECOVERED_WITH_SEQUELAE, "Recovered with sequelae"),
     (DEAD, "Death"),
     (AE_WITHDRAWN, "Adverse event report withdrawn after TMG review"),

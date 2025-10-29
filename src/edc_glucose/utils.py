@@ -1,9 +1,9 @@
 from decimal import Decimal
 
+from clinicedc_constants import MILLIMOLES_PER_LITER
+from clinicedc_utils import ConversionNotHandled, convert_units
 from django import forms
 
-from edc_reportable import MILLIMOLES_PER_LITER, ConversionNotHandled
-from edc_reportable.utils import convert_units
 from edc_utils.round_up import round_half_away_from_zero
 
 from .constants import GLUCOSE_HIGH_READING

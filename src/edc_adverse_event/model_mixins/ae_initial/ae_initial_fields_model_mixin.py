@@ -1,7 +1,7 @@
 import django.utils.timezone
+from clinicedc_constants import NOT_APPLICABLE
 from django.db import models
 
-from edc_constants.constants import NOT_APPLICABLE
 from edc_model.validators import date_not_future
 from edc_model_fields.fields.other_charfield import OtherCharField
 

@@ -1,6 +1,6 @@
+from clinicedc_constants import ABNORMAL
 from django.db.models import Q
 
-from edc_constants.constants import ABNORMAL
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_screening.utils import get_subject_screening_model

@@ -2,13 +2,13 @@ from pathlib import Path
 from random import shuffle
 from tempfile import mkdtemp, mkstemp
 
+from clinicedc_constants import FEMALE
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.test.utils import override_settings, tag
 from multisite import SiteID
 
-from edc_constants.constants import FEMALE
 from edc_randomization.constants import ACTIVE, PLACEBO
 from edc_randomization.decorators import register
 from edc_randomization.exceptions import (

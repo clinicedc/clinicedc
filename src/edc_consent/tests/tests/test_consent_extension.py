@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import NO, YES
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import SubjectConsentV1Ext
 from clinicedc_tests.sites import all_sites
@@ -15,7 +16,6 @@ from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_consent.consent_definition_extension import ConsentDefinitionExtension
 from edc_consent.tests.consent_test_utils import consent_factory
-from edc_constants.constants import NO, YES
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites

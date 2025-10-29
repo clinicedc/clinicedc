@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import FEMALE, MALE
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.labs import lab_profile
@@ -14,7 +15,6 @@ from django.test import TestCase, override_settings, tag
 from faker import Faker
 
 from edc_consent import site_consents
-from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_lab import site_labs
 from edc_lab.models import Panel

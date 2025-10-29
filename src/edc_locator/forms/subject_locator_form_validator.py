@@ -1,6 +1,6 @@
+from clinicedc_constants import NO, YES
 from django import forms
 
-from edc_constants.constants import NO, YES
 from edc_form_validators.form_validator import FormValidator
 
 

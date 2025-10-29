@@ -1,9 +1,9 @@
-from edc_adverse_event.constants import TMG_ROLE
 from edc_auth.constants import (
     AUDITOR_ROLE,
     CLINICIAN_ROLE,
     CLINICIAN_SUPER_ROLE,
     NURSE_ROLE,
+    TMG_ROLE,
 )
 from edc_auth.site_auths import site_auths
 from edc_auth.utils import remove_default_model_permissions_from_edc_permissions

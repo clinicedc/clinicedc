@@ -1,4 +1,5 @@
-from edc_constants.constants import CLOSED, NO
+from clinicedc_constants import CLOSED, NO
+
 from edc_form_validators import FormValidator
 
 

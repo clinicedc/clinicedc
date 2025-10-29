@@ -1,10 +1,10 @@
+from clinicedc_constants import LTFU
 from django import forms
 from django.apps import apps as django_apps
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 
 from edc_form_validators import FormValidator
 
-from ..constants import LTFU
 from ..utils import get_ltfu_model_name
 
 

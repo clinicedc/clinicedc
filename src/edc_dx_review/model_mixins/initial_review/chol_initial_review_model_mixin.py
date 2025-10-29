@@ -1,7 +1,7 @@
+from clinicedc_constants import NOT_APPLICABLE
 from django.db import models
 
 from edc_constants.choices import YES_NO
-from edc_constants.constants import NOT_APPLICABLE
 
 from ...choices import CHOL_MANAGEMENT
 from ..dx_location_model_mixin import DxLocationModelMixin

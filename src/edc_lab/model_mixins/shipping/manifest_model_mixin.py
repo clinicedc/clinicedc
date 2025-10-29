@@ -1,7 +1,7 @@
+from clinicedc_constants import CLOSED, OPEN, OTHER
 from django.db import models
 from django.utils import timezone
 
-from edc_constants.constants import CLOSED, OPEN, OTHER
 from edc_sites.model_mixins import SiteModelMixin
 
 from ...constants import STORAGE, TESTING

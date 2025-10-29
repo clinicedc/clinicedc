@@ -1,3 +1,4 @@
+from clinicedc_constants import NOT_APPLICABLE
 from django.contrib import admin
 from django.contrib.admin import display
 from django.template.loader import render_to_string
@@ -7,7 +8,6 @@ from django_audit_fields.admin import audit_fieldset_tuple
 
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
-from edc_constants.constants import NOT_APPLICABLE
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_notification.utils import get_email_contacts
 from edc_pdf_reports.admin import PdfButtonModelAdminMixin, print_selected_to_pdf_action

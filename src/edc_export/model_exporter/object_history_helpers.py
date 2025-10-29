@@ -1,9 +1,8 @@
+from clinicedc_constants import NEW
 from django.apps import apps as django_apps
 from django.core import serializers
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.utils import timezone
-
-from edc_constants.constants import NEW
 
 from ..constants import EXPORTED, INSERT, UPDATE
 

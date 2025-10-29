@@ -1,10 +1,10 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from clinicedc_constants import OTHER
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings, tag
 
-from edc_constants.constants import OTHER
 from edc_metadata.tests.tests.metadata_test_mixin import TestMetadataMixin
 from edc_transfer.form_validators import SubjectTransferFormValidator
 from edc_transfer.forms import SubjectTransferForm

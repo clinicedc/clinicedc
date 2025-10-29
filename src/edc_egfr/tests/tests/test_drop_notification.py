@@ -1,3 +1,12 @@
+from clinicedc_constants import (
+    BLACK,
+    CLOSED,
+    COMPLETE,
+    INCOMPLETE,
+    MALE,
+    MICROMOLES_PER_LITER,
+    OPEN,
+)
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.labs import lab_profile
@@ -8,13 +17,11 @@ from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_consent import site_consents
-from edc_constants.constants import BLACK, CLOSED, COMPLETE, INCOMPLETE, MALE, OPEN
 from edc_egfr.egfr import Egfr
 from edc_facility.import_holidays import import_holidays
 from edc_lab import site_labs
 from edc_lab.models import Panel
 from edc_lab_panel.panels import rft_panel
-from edc_reportable import MICROMOLES_PER_LITER
 from edc_reportable.data.grading_data.daids_july_2017 import grading_data
 from edc_reportable.data.normal_data.africa import normal_data
 from edc_reportable.utils import load_reference_ranges

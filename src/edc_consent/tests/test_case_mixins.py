@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import FEMALE
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -10,7 +11,6 @@ from django.utils import timezone
 from model_bakery import baker
 
 from edc_consent.utils import get_consent_model_name
-from edc_constants.constants import FEMALE
 
 if TYPE_CHECKING:
     from clinicedc_tests.models import SubjectScreening

@@ -1,15 +1,16 @@
 from textwrap import fill
 
 import inflect
+from clinicedc_constants import OTHER
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from edc_constants.constants import OTHER
-from edc_pdf_reports.crf_pdf_report import CrfPdfReport
 from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.platypus.flowables import Spacer
 from reportlab.platypus.para import Paragraph
 from reportlab.platypus.tables import Table
+
+from edc_pdf_reports.crf_pdf_report import CrfPdfReport
 
 from ..utils import get_adverse_event_app_label, get_ae_model
 

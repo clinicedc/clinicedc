@@ -1,8 +1,11 @@
+from clinicedc_constants import AE, AE_REVIEW, AE_ROLE, AE_SUPER, TMG, TMG_REVIEW
+
 from edc_auth.constants import (
     AUDITOR_ROLE,
     CLINICIAN_ROLE,
     CLINICIAN_SUPER_ROLE,
     NURSE_ROLE,
+    TMG_ROLE,
 )
 from edc_auth.site_auths import site_auths
 from edc_auth.utils import remove_default_model_permissions_from_edc_permissions
@@ -15,7 +18,6 @@ from .auth_objects import (
     tmg_dashboard_tuples,
     tmg_navbar_tuples,
 )
-from .constants import AE, AE_REVIEW, AE_ROLE, AE_SUPER, TMG, TMG_REVIEW, TMG_ROLE
 
 
 def update_site_auths():

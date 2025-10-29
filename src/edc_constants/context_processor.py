@@ -1,6 +1,4 @@
-from django.conf import settings
-
-from .constants import (
+from clinicedc_constants import (
     ABNORMAL,
     CANCELLED,
     CLOSED,
@@ -20,6 +18,7 @@ from .constants import (
     UNKNOWN,
     YES,
 )
+from django.conf import settings
 
 
 def constants(request) -> dict:

@@ -1,6 +1,5 @@
+from clinicedc_constants import INCOMPLETE
 from django.apps import apps as django_apps
-
-from edc_constants.constants import INCOMPLETE
 
 from .model_mixins import CrfStatusModelMixin
 from .update_crf_status_for_instance import update_crf_status_for_instance

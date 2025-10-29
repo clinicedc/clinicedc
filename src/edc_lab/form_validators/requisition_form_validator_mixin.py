@@ -3,10 +3,10 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import NO, YES
 from django import forms
 from django.apps import apps as django_apps
 
-from edc_constants.constants import NO, YES
 from edc_utils.date import to_local
 
 if TYPE_CHECKING:

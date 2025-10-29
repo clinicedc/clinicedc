@@ -1,3 +1,4 @@
+from clinicedc_constants import NEVER, NO, OTHER, YES
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import MedicationAdherence
@@ -12,7 +13,6 @@ from edc_adherence.models import NonAdherenceReasons
 from edc_adherence.tests.admin import MedicationAdherenceAdmin, my_admin_site
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import NEVER, NO, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_list_data.site_list_data import site_list_data
 from edc_sites.site import sites as site_sites

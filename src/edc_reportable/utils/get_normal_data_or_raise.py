@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
+from clinicedc_utils import convert_units
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
 from django.utils import timezone
@@ -11,7 +12,6 @@ from edc_model_to_dataframe.constants import SYSTEM_COLUMNS
 from edc_utils import age as get_age
 
 from ..exceptions import NotEvaluated
-from .convert_units import convert_units
 from .normal_data_model_cls import normal_data_model_cls
 
 if TYPE_CHECKING:

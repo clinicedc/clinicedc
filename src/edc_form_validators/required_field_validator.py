@@ -1,9 +1,8 @@
 from copy import copy
 
+from clinicedc_constants import DWTA, NOT_APPLICABLE, NULL_STRING
 from django.db.models import QuerySet
 from django.utils.translation import gettext_lazy as _
-
-from edc_constants.constants import DWTA, NOT_APPLICABLE, NULL_STRING
 
 from .base_form_validator import (
     NOT_REQUIRED_ERROR,

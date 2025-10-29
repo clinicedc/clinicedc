@@ -1,8 +1,7 @@
 from __future__ import annotations
 
+from clinicedc_constants import YES
 from dateutil.relativedelta import relativedelta
-
-from edc_constants.constants import YES
 
 from ..utils import validate_glucose_as_millimoles_per_liter
 

@@ -1,8 +1,7 @@
 from typing import Any
 
+from clinicedc_constants import NEVER, OTHER, YES
 from django import forms
-
-from edc_constants.constants import NEVER, OTHER, YES
 
 
 class MedicationAdherenceFormValidatorMixin:

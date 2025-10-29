@@ -1,7 +1,6 @@
-from edc_adverse_event.constants import AE_WITHDRAWN
-from edc_constants.constants import YES
+from clinicedc_constants import AE_WITHDRAWN, SEVERITY_INCREASED_FROM_G3, YES
+
 from edc_form_validators import INVALID_ERROR, FormValidator
-from edc_reportable import SEVERITY_INCREASED_FROM_G3
 
 
 class AeFollowupFormValidator(FormValidator):

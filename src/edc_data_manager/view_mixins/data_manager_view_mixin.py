@@ -1,9 +1,9 @@
 from typing import Any
 
+from clinicedc_constants import NEW, OPEN, RESOLVED
 from django.db.models import QuerySet
 
 from edc_action_item.models import ActionItem
-from edc_constants.constants import NEW, OPEN, RESOLVED
 from edc_data_manager.models import DataQuery
 from edc_sites.site import sites
 

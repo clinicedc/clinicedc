@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from clinicedc_constants import CLOSED, OPEN
 from django.conf import settings
 from django.contrib import admin, messages
 from django.core.exceptions import ObjectDoesNotExist
@@ -8,7 +9,6 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from edc_constants.constants import CLOSED, OPEN
 from edc_utils.text import formatted_datetime
 
 from ..models import QueryRule

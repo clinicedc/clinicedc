@@ -4,10 +4,10 @@ from dataclasses import KW_ONLY, dataclass, field
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import YES
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
-from edc_constants.constants import YES
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites import site_sites
 from edc_utils import formatted_date

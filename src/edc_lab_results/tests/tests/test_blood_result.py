@@ -1,3 +1,13 @@
+from clinicedc_constants import (
+    FEMALE,
+    GRADE3,
+    GRAMS_PER_DECILITER,
+    NO,
+    NOT_APPLICABLE,
+    PERCENT,
+    TEN_X_9_PER_LITER,
+    YES,
+)
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import BloodResultsFbc
@@ -6,10 +16,8 @@ from django.apps import apps as django_apps
 from django.test import TestCase, override_settings, tag
 
 from edc_consent import site_consents
-from edc_constants.constants import FEMALE, GRADE3, NO, NOT_APPLICABLE, YES
 from edc_lab.models import Panel
 from edc_lab_results.get_summary import get_summary
-from edc_reportable import GRAMS_PER_DECILITER, PERCENT, TEN_X_9_PER_LITER
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 

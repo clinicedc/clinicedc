@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from clinicedc_constants import CLOSED, NEW, OPEN
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -50,7 +50,7 @@ class AeListboardViewMixin(
     ordering = "-report_datetime"
     paginate_by = 25
     search_form_url = "ae_listboard_url"
-    action_type_names = (AE_INITIAL_ACTION, )
+    action_type_names = (AE_INITIAL_ACTION,)
 
     search_fields = (
         "subject_identifier",
@@ -96,7 +96,7 @@ class AeListboardViewMixin(
         pks = []
         for obj in queryset:
             try:
-                obj.reference_obj # noqa: B018
+                obj.reference_obj  # noqa: B018
             except ObjectDoesNotExist:
                 pks.append(obj.pk)
         return queryset.exclude(pk__in=pks)

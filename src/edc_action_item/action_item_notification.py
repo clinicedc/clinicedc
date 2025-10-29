@@ -1,7 +1,7 @@
+from clinicedc_constants import CLOSED, NEW, OPEN
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
-from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_notification.notification import Notification
 
 NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ = "notify_on_new_and_no_reference_obj"

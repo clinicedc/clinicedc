@@ -4,10 +4,10 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
+from clinicedc_constants import NO
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from edc_constants.constants import NO
 from edc_form_validators import INVALID_ERROR, FormValidator
 
 from ..constants import NEW_APPT

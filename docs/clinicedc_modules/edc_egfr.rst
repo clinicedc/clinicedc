@@ -13,7 +13,7 @@ The calculators use ``edc_reportable`` to reference DAIDS tox tables.
 
 .. code-block:: python
 
-    egfr1 = EgfrCkdEpi(
+    egfr1 = EgfrCkdEpi2009(
             gender=MALE,
             ethnicity=BLACK,
             creatinine_value=53.0,

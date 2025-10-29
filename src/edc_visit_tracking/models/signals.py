@@ -1,8 +1,8 @@
+from clinicedc_constants import NOT_APPLICABLE, PATIENT
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from edc_appointment.constants import ONTIME_APPT
-from edc_constants.constants import NOT_APPLICABLE, PATIENT
 from edc_metadata import REQUIRED
 from edc_metadata.metadata import CrfMetadataGetter
 from edc_pharmacy.constants import IN_PROGRESS_APPT

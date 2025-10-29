@@ -1,4 +1,5 @@
 from django.urls.conf import path
+
 from edc_dashboard.url_names import url_names
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 

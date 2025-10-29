@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import YES
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import (
@@ -25,8 +26,8 @@ from django.test import override_settings, tag
 from django.urls.base import reverse
 from django.utils import timezone
 from django_webtest import WebTest
+
 from edc_consent import site_consents
-from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_lab.tests import SiteLabsTestHelper

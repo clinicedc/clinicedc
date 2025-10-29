@@ -1,11 +1,10 @@
 import re
 from uuid import uuid4
 
+from clinicedc_constants import UUID_PATTERN
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
-
-from edc_constants.constants import UUID_PATTERN
 
 from .exceptions import IdentifierError
 from .subject_identifier import SubjectIdentifier

@@ -1,9 +1,8 @@
 from typing import Any
 
+from clinicedc_constants import COMPLETE, INCOMPLETE
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
-
-from edc_constants.constants import COMPLETE, INCOMPLETE
 
 
 def update_crf_status_for_instance(instance: Any) -> None:

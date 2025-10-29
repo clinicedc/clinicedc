@@ -1,10 +1,12 @@
+from clinicedc_constants import (
+    MICROMOLES_PER_LITER,
+    MILLIGRAMS_PER_DECILITER,
+    MILLIMOLES_PER_LITER,
+)
 from django.db import models
 
 from edc_reportable.units import (
-    MICROMOLES_PER_LITER,
     MICROMOLES_PER_LITER_DISPLAY,
-    MILLIGRAMS_PER_DECILITER,
-    MILLIMOLES_PER_LITER,
     MILLIMOLES_PER_LITER_DISPLAY,
 )
 

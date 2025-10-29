@@ -1,4 +1,4 @@
-from edc_constants.constants import (
+from clinicedc_constants import (
     HOSPITAL_NOTES,
     IN_PERSON,
     NEXT_OF_KIN,

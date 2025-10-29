@@ -1,7 +1,7 @@
+from clinicedc_constants import DWTA, NO, NOT_APPLICABLE, NULL_STRING, YES
 from django import forms
 from django.test import TestCase, tag
 
-from edc_constants.constants import DWTA, NO, NOT_APPLICABLE, NULL_STRING, YES
 from edc_form_validators.form_validator import FormValidator
 
 

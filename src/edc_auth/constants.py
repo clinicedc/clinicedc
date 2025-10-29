@@ -29,3 +29,5 @@ GROUPS_KEY = "groups"
 ROLES_KEY = "roles"
 PII_MODELS_KEY = "pii_models"
 CUSTOM_PERMISSIONS_TUPLES_KEY = "custom_permissions_tuples"
+
+TMG_ROLE = "tmg"

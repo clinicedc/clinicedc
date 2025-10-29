@@ -25,7 +25,7 @@ An example ``list_data.py``:
 
 .. code-block:: python
 
-	from edc_constants.constants import OTHER
+	from clinicedc_constants import OTHER
 
 	list_data = {
 	    'my_lists_app.antibiotic': [

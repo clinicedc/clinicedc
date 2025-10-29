@@ -1,8 +1,8 @@
+from clinicedc_constants import UNKNOWN
 from django.core.validators import MinValueValidator
 from django.db import models
 
 from edc_constants.choices import YES_NO
-from edc_constants.constants import UNKNOWN
 
 
 class TreatmentPayMethodsModelMixin(models.Model):

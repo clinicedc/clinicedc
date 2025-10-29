@@ -4,17 +4,7 @@ from django_pandas.io import read_frame
 
 from edc_appointment.models import AppointmentType
 
-from ..utils import convert_dates_from_model
-
-
-def convert_visit_code_to_float(df):
-    """Convert visit_code to float using visit_code_sequence"""
-    df["visit_code"] = df["visit_code"].astype(float)
-    df["visit_code_sequence"] = df["visit_code_sequence"].astype(float)
-    df["visit_code_sequence"] = df["visit_code_sequence"].apply(
-        lambda x: x / 10.0 if x > 0.0 else 0.0
-    )
-    df["visit_code"] = df["visit_code"] + df["visit_code_sequence"]
+from ..utils import convert_dates_from_model, convert_visit_code_to_float
 
 
 def get_subject_visit(

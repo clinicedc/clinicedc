@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 
+from clinicedc_constants import COMPLETE
 from django.utils.translation import gettext as _
 
 from edc_appointment.constants import IN_PROGRESS_APPT
-from edc_constants.constants import COMPLETE
 from edc_view_utils import CHANGE, VIEW, NextQuerystring
 from edc_visit_tracking.view_utils import RelatedVisitButton
 

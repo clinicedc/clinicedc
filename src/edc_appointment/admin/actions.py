@@ -1,6 +1,6 @@
+from clinicedc_constants import NEW
 from django.apps import apps as django_apps
 
-from edc_constants.constants import NEW
 from edc_metadata import REQUIRED
 
 from ..constants import COMPLETE_APPT, IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT

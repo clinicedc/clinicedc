@@ -1,12 +1,12 @@
 from typing import Any
 
+from clinicedc_constants import NO, YES
 from django.db import models
 from django.db.models.deletion import PROTECT
 
 from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
 from edc_appointment.constants import MISSED_APPT
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
-from edc_constants.constants import NO, YES
 from edc_document_status.model_mixins import DocumentStatusModelMixin
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins import MetadataHelperModelMixin

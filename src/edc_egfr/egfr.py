@@ -4,18 +4,19 @@ from datetime import date, datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
+from clinicedc_constants import NEW
+from clinicedc_constants.units import EGFR_UNITS, PERCENT
+from clinicedc_utils import EgfrCkdEpi2009, EgfrCockcroftGault, egfr_percent_change
+from clinicedc_utils.constants import CKD_EPI, COCKCROFT_GAULT
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.utils import timezone
 
-from edc_constants.constants import NEW
 from edc_reportable.models import ReferenceRangeCollection
-from edc_reportable.units import EGFR_UNITS, PERCENT
 from edc_reportable.utils import get_grade_for_value
 from edc_utils.age import age
 
-from .calculators import EgfrCkdEpi, EgfrCockcroftGault, egfr_percent_change
 from .get_drop_notification_model import get_egfr_drop_notification_model_cls
 
 if TYPE_CHECKING:
@@ -27,7 +28,7 @@ class EgfrError(Exception):
 
 
 class Egfr:
-    calculators: dict = {"ckd-epi": EgfrCkdEpi, "cockcroft-gault": EgfrCockcroftGault}  # noqa: RUF012
+    calculators: dict = {CKD_EPI: EgfrCkdEpi2009, COCKCROFT_GAULT: EgfrCockcroftGault}  # noqa: RUF012
 
     def __init__(
         self,
@@ -54,16 +55,11 @@ class Egfr:
         self._egfr_grade = None
         self._egfr_drop_value: Decimal | None = None
         self._egfr_drop_grade = None
+        self._formula_name = formula_name
         self.assay_date: date | None = None
         self.related_visit = None
-
         self.baseline_egfr_value = baseline_egfr_value
-        if formula_name not in self.calculators:
-            raise EgfrError(
-                f"Invalid formula_name. Expected one of {list(self.calculators.keys())}. "
-                f"Got {formula_name}."
-            )
-        self.calculator_cls = self.calculators.get(formula_name)
+        self.calculator_cls = self.calculators.get(self.formula_name)
         self.age_in_years = age_in_years
         self.dob = dob
         self.weight_in_kgs = weight_in_kgs
@@ -121,6 +117,15 @@ class Egfr:
 
         self.on_percent_drop_threshold_reached()
 
+    @property
+    def formula_name(self) -> str:
+        if self._formula_name not in self.calculators:
+            raise EgfrError(
+                f"Invalid formula_name. Expected one of {list(self.calculators.keys())}. "
+                f"Got {self._formula_name}."
+            )
+        return self._formula_name
+
     def on_value_threshold_reached(self) -> None:
         """A hook to respond if egfr value is at or beyond the value
         threshold.
@@ -141,14 +146,17 @@ class Egfr:
     @property
     def egfr_value(self) -> float:
         if self._egfr_value is None:
-            self._egfr_value = self.calculator_cls(
+            opts = dict(
                 gender=self.gender,
-                ethnicity=self.ethnicity,
                 age_in_years=self.age_in_years,
                 creatinine_value=self.creatinine_value,
                 creatinine_units=self.creatinine_units,
-                weight=self.get_weight_in_kgs(),
-            ).value
+            )
+            if self.formula_name == COCKCROFT_GAULT:
+                opts.update(weight=self.get_weight_in_kgs())
+            elif self.formula_name == CKD_EPI:
+                opts.update(ethnicity=self.ethnicity)
+            self._egfr_value = self.calculator_cls(**opts).value
         return self._egfr_value
 
     @property

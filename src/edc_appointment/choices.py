@@ -1,6 +1,5 @@
+from clinicedc_constants import NOT_APPLICABLE, PATIENT
 from django.utils.translation import gettext_lazy as _
-
-from edc_constants.constants import NOT_APPLICABLE, PATIENT
 
 from .constants import (
     CANCELLED_APPT,

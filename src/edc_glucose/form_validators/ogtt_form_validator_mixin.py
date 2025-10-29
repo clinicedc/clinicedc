@@ -1,8 +1,7 @@
 from __future__ import annotations
 
+from clinicedc_constants import NO
 from django import forms
-
-from edc_constants.constants import NO
 
 
 class OgttFormValidatorMixin:

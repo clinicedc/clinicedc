@@ -1,6 +1,5 @@
 import pandas as pd
-
-from edc_constants.constants import FEMALE, MALE
+from clinicedc_constants import FEMALE, MALE
 
 from .row_statistics import RowStatistics
 

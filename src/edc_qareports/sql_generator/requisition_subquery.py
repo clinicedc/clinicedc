@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from string import Template
 
-from edc_constants.constants import YES
+from clinicedc_constants import YES
 
 from .crf_subquery import CrfSubquery
 

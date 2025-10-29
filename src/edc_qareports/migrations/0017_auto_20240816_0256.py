@@ -3,7 +3,7 @@
 from django.db import migrations
 from django.db.migrations import RunPython
 
-from edc_constants.constants import FEEDBACK, PENDING
+from clinicedc_constants import FEEDBACK, PENDING
 
 
 def update_status(apps, schema_editor):
@@ -17,7 +17,6 @@ def update_status(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("edc_qareports", "0016_alter_note_options_alter_qareportlog_options"),
     ]

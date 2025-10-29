@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 
+from clinicedc_constants import INCOMPLETE
 from django.utils.translation import gettext as _
 
 from edc_appointment.constants import (
@@ -12,7 +13,6 @@ from edc_appointment.constants import (
     INCOMPLETE_APPT,
     SKIPPED_APPT,
 )
-from edc_constants.constants import INCOMPLETE
 from edc_view_utils import ADD, CHANGE, VIEW, DashboardModelButton
 
 if TYPE_CHECKING:

@@ -1,16 +1,17 @@
+from clinicedc_constants import HIGH_PRIORITY
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
 from edc_action_item.action_with_notification import ActionWithNotification
-from edc_adverse_event.constants import (
+from edc_visit_schedule.utils import get_offschedule_models
+
+from ..constants import (
+    ADVERSE_EVENT_ADMIN_SITE,
+    ADVERSE_EVENT_APP_LABEL,
     AE_FOLLOWUP_ACTION,
     AE_INITIAL_ACTION,
     DEATH_REPORT_ACTION,
 )
-from edc_constants.constants import HIGH_PRIORITY
-from edc_visit_schedule.utils import get_offschedule_models
-
-from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
 class DeathReportAction(ActionWithNotification):
@@ -35,8 +36,7 @@ class DeathReportAction(ActionWithNotification):
         next_actions = []
         if self.enable_tmg_workflow:
             next_actions = self.append_next_death_tmg_action(next_actions)
-        next_actions = self.append_next_off_schedule_action(next_actions)
-        return next_actions
+        return self.append_next_off_schedule_action(next_actions)
 
     def append_next_death_tmg_action(self, next_actions):
         if self.death_report_tmg_model:

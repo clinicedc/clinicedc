@@ -1,4 +1,4 @@
-from edc_constants.constants import OTHER, UNKNOWN
+from clinicedc_constants import OTHER, UNKNOWN
 
 list_data = {
     "edc_dx_review.diagnosislocations": [

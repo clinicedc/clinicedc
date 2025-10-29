@@ -2,6 +2,15 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import (
+    ALIVE,
+    DEAD,
+    HOSPITALIZED,
+    NO,
+    NOT_APPLICABLE,
+    OTHER,
+    YES,
+)
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.forms import SubjectVisitMissedForm
 from clinicedc_tests.helper import Helper
@@ -18,15 +27,6 @@ from edc_appointment.constants import MISSED_APPT, ONTIME_APPT, SCHEDULED_APPT
 from edc_appointment.exceptions import AppointmentBaselineError
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_constants.constants import (
-    ALIVE,
-    DEAD,
-    HOSPITALIZED,
-    NO,
-    NOT_APPLICABLE,
-    OTHER,
-    YES,
-)
 from edc_facility.import_holidays import import_holidays
 from edc_list_data import load_list_data
 from edc_metadata.models import CrfMetadata

@@ -1,4 +1,5 @@
-from edc_constants.constants import OTHER, YES
+from clinicedc_constants import OTHER, YES
+
 from edc_dx import get_diagnosis_labels
 from edc_dx.form_validators import DiagnosisFormValidatorMixin
 from edc_visit_schedule.utils import raise_if_baseline

@@ -1,10 +1,10 @@
 import sys
 from typing import TYPE_CHECKING
 
+from clinicedc_utils.constants import molecular_weights
 from django.apps import apps as django_apps
 from django.core.management import color_style
 
-from .data import molecular_weights
 from .utils import load_all_reference_ranges
 
 if TYPE_CHECKING:

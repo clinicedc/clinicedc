@@ -1,7 +1,7 @@
+from clinicedc_constants import NEW
 from django.db import models
 from sequences import get_next_value
 
-from edc_constants.constants import NEW
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ...choices import ORDER_CHOICES
@@ -16,7 +16,6 @@ class Manager(models.Manager):
 
 
 class OrderItem(BaseUuidModel):
-
     order_item_identifier = models.CharField(
         max_length=36,
         unique=True,

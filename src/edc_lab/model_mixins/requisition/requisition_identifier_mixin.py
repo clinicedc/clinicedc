@@ -1,8 +1,8 @@
 import re
 
+from clinicedc_constants import UUID_PATTERN, YES
 from django.db import models
 
-from edc_constants.constants import UUID_PATTERN, YES
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_utils import get_uuid
 

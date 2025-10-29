@@ -1,12 +1,12 @@
 from uuid import uuid4
 
+from clinicedc_constants import NEW
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import PROTECT, Index
 from django.utils import timezone
 
 from edc_action_item.models import ActionModelMixin
-from edc_constants.constants import NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 from edc_randomization.site_randomizers import site_randomizers

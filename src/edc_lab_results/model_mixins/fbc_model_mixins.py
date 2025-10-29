@@ -1,3 +1,11 @@
+from clinicedc_constants import (
+    CELLS_PER_MILLIMETER_CUBED,
+    FEMTOLITERS_PER_CELL,
+    GRAMS_PER_DECILITER,
+    PERCENT,
+    PICOGRAMS_PER_CELL,
+    TEN_X_9_PER_LITER,
+)
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -15,14 +23,7 @@ from edc_lab_panel.constants import (
     RBC,
     WBC,
 )
-from edc_reportable import GRAMS_PER_DECILITER, PERCENT
-from edc_reportable.units import (
-    CELLS_PER_MILLIMETER_CUBED,
-    CELLS_PER_MILLIMETER_CUBED_DISPLAY,
-    FEMTOLITERS_PER_CELL,
-    PICOGRAMS_PER_CELL,
-    TEN_X_9_PER_LITER,
-)
+from edc_reportable.units import CELLS_PER_MILLIMETER_CUBED_DISPLAY
 
 from ..model_mixin_factories import reportable_result_model_mixin_factory
 

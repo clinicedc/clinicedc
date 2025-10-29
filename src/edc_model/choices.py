@@ -1,4 +1,4 @@
-from edc_constants.constants import CLOSED, OPEN
+from clinicedc_constants import CLOSED, OPEN
 
 REPORT_STATUS = (
     (OPEN, "Open. Some information is still pending."),

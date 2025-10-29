@@ -3,12 +3,12 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import HIV, YES
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from edc_constants.constants import HIV, YES
 from edc_model.utils import model_exists_or_raise
 from edc_visit_schedule.baseline import VisitScheduleBaselineError
 from edc_visit_schedule.utils import is_baseline

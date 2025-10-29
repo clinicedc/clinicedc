@@ -1,6 +1,6 @@
+from clinicedc_constants import DM, HIV
 from django.test import TestCase, override_settings, tag
 
-from edc_constants.constants import DM, HIV
 from edc_dx import get_diagnosis_labels_prefixes
 
 

@@ -1,8 +1,8 @@
+from clinicedc_constants import CANCELLED, CLOSED, OPEN
 from django.db import models
 from django.utils import timezone
 from sequences import get_next_value
 
-from edc_constants.constants import CANCELLED, CLOSED, OPEN
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_registration.models import RegisteredSubject
 

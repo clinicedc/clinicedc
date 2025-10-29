@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from django.db.models.aggregates import Count
+
 from edc_appointment.view_mixins import AppointmentViewMixin
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin

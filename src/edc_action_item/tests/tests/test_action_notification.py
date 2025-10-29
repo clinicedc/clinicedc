@@ -3,6 +3,7 @@ from unittest.case import skip
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import NEW
 from clinicedc_tests.action_items import FormZeroAction, register_actions
 from clinicedc_tests.models import FormZero
 from django.core import mail
@@ -13,7 +14,6 @@ from edc_action_item.action_item_notification import (
     NOTIFY_ON_NEW_AND_NO_REFERENCE_OBJ,
 )
 from edc_action_item.site_action_items import site_action_items
-from edc_constants.constants import NEW
 from edc_notification.notification import NewModelNotification, UpdatedModelNotification
 from edc_notification.site_notifications import site_notifications
 
@@ -26,7 +26,6 @@ utc_tz = ZoneInfo("UTC")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 @override_settings(SITE_ID=30)
 class TestActionNotification(TestCaseMixin, TestCase):
-
     def setUp(self):
         register_actions()
         self.subject_identifier = self.fake_enroll()

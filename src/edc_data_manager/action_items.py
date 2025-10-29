@@ -1,10 +1,4 @@
-from django.conf import settings
-from django.template.loader import render_to_string
-from django.utils import timezone
-
-from edc_action_item.action import Action
-from edc_action_item.site_action_items import site_action_items
-from edc_constants.constants import (
+from clinicedc_constants import (
     CLOSED,
     FEEDBACK,
     HIGH_PRIORITY,
@@ -12,6 +6,12 @@ from edc_constants.constants import (
     NORMAL,
     RESOLVED,
 )
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils import timezone
+
+from edc_action_item.action import Action
+from edc_action_item.site_action_items import site_action_items
 
 from .constants import CLOSED_WITH_ACTION
 

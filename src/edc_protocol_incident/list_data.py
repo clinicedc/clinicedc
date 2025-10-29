@@ -1,4 +1,4 @@
-from edc_constants.constants import NOT_APPLICABLE, OTHER
+from clinicedc_constants import NOT_APPLICABLE, OTHER
 
 list_data = {
     "edc_protocol_incident.protocolviolations": [

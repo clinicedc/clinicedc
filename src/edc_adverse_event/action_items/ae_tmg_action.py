@@ -1,12 +1,14 @@
+from clinicedc_constants import CLOSED, HIGH_PRIORITY
+
 from edc_action_item.action_with_notification import ActionWithNotification
-from edc_adverse_event.constants import (
+
+from ..constants import (
+    ADVERSE_EVENT_ADMIN_SITE,
+    ADVERSE_EVENT_APP_LABEL,
     AE_FOLLOWUP_ACTION,
     AE_INITIAL_ACTION,
     AE_TMG_ACTION,
 )
-from edc_constants.constants import CLOSED, HIGH_PRIORITY
-
-from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
 class AeTmgAction(ActionWithNotification):

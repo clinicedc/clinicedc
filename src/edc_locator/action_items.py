@@ -1,6 +1,7 @@
+from clinicedc_constants import HIGH_PRIORITY
+
 from edc_action_item.action import Action
 from edc_action_item.site_action_items import site_action_items
-from edc_constants.constants import HIGH_PRIORITY
 from edc_locator.utils import get_locator_model
 
 SUBJECT_LOCATOR_ACTION = "submit-subject-locator"

@@ -1,9 +1,9 @@
+from clinicedc_constants import NO
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
-from edc_constants.constants import NO
 from edc_utils.text import formatted_datetime
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.utils import get_related_visit_model_cls

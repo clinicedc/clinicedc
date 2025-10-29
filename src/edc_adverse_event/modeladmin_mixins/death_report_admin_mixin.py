@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from clinicedc_constants import CANCELLED, OTHER
 from django.contrib import admin
 from django.contrib.admin import display
 from django.template.loader import render_to_string
@@ -9,7 +10,6 @@ from django_audit_fields.admin import audit_fieldset_tuple
 
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
-from edc_constants.constants import CANCELLED, OTHER
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.list_filters import ReportDateListFilter
 from edc_pdf_reports.admin import PdfButtonModelAdminMixin, print_selected_to_pdf_action

@@ -4,6 +4,7 @@ from uuid import uuid4
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import FEMALE, MALE, NO, NOT_APPLICABLE, SUBJECT, YES
 from clinicedc_tests.consents import consent1_v1, consent1_v2, consent1_v3
 from clinicedc_tests.forms import SubjectConsentForm, SubjectConsentFormValidator
 from clinicedc_tests.helper import Helper
@@ -21,7 +22,6 @@ from faker import Faker
 from model_bakery import baker
 
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import FEMALE, MALE, NO, NOT_APPLICABLE, SUBJECT, YES
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites

@@ -4,6 +4,7 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import COMPLETE
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
@@ -17,7 +18,6 @@ from django.utils import timezone
 from sequences import get_next_value
 
 from edc_consent import site_consents
-from edc_constants.constants import COMPLETE
 from edc_facility.import_holidays import import_holidays
 from edc_pharmacy.analytics import get_next_scheduled_visit_for_subjects_df
 from edc_pharmacy.exceptions import RepackRequestError

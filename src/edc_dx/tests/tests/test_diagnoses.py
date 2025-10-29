@@ -1,8 +1,8 @@
+from clinicedc_constants import DM, HIV, HTN, NO, YES
 from django.test import TestCase, override_settings, tag
 from model_bakery import baker
 
 from edc_appointment.constants import INCOMPLETE_APPT
-from edc_constants.constants import DM, HIV, HTN, NO, YES
 from edc_dx.diagnoses import (
     ClinicalReviewBaselineRequired,
     Diagnoses,

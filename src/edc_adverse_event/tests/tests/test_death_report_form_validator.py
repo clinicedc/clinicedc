@@ -1,3 +1,4 @@
+from clinicedc_constants import BACTERAEMIA, OTHER, UNKNOWN
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
@@ -6,8 +7,6 @@ from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_adverse_event.form_validators import DeathReportFormValidator as Base
-from edc_constants.constants import OTHER, UNKNOWN
-from edc_constants.disease_constants import BACTERAEMIA
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidatorTestCaseMixin
 from edc_form_validators.tests.mixins import FormValidatorTestMixin

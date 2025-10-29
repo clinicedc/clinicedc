@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from clinicedc_constants import CLOSED, RESOLVED
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -9,7 +10,6 @@ from django.urls.base import reverse
 from django.utils import timezone
 
 from edc_action_item.models.action_model_mixin import ActionModelMixin
-from edc_constants.constants import CLOSED, RESOLVED
 from edc_dashboard.url_names import InvalidDashboardUrlName, url_names
 from edc_model.models import BaseUuidModel
 from edc_sites.managers import CurrentSiteManager

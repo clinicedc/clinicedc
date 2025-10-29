@@ -1,6 +1,4 @@
-from django.utils.translation import gettext_lazy as _
-
-from edc_constants.constants import (
+from clinicedc_constants import (
     CLINIC,
     ESTIMATED,
     HOME,
@@ -13,6 +11,7 @@ from edc_constants.constants import (
     PATIENT_REPRESENTATIVE,
     TELEPHONE,
 )
+from django.utils.translation import gettext_lazy as _
 
 list_data = {
     "edc_appointment.appointmenttype": [

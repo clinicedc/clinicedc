@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
+from clinicedc_constants import YES
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
-from edc_constants.constants import YES
 from edc_dx_review.utils import (
     get_clinical_review_baseline_model_cls,
     get_clinical_review_model_cls,
@@ -183,8 +183,7 @@ class Diagnoses:
                     subject_visit = self.initial_diagnosis_visit(name)
                     if subject_visit:
                         visit_label = (
-                            f"{subject_visit.visit_code}."
-                            f"{subject_visit.visit_code_sequence}"
+                            f"{subject_visit.visit_code}.{subject_visit.visit_code_sequence}"
                         )
                         extra_msg = f"{description} was reported on visit {visit_label}. "
                     raise InitialReviewRequired(

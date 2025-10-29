@@ -1,7 +1,6 @@
 from django.db import models
 
 
-
 class SingletonCrfModelMixin(models.Model):
     """Enforces one record per subject.
 

@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
+from clinicedc_constants import CLOSED, OTHER
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 
-from edc_constants.constants import CLOSED, OTHER
 from edc_form_validators.base_form_validator import INVALID_ERROR
 from edc_utils.text import convert_php_dateformat
 

@@ -3,10 +3,10 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+from clinicedc_constants import NO, YES
 from dateutil.relativedelta import relativedelta
 from django import forms
 
-from edc_constants.constants import NO, YES
 from edc_model_form.utils import get_field_or_raise
 from edc_utils.age import AgeValueError, age, formatted_age
 

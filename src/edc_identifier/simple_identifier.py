@@ -3,12 +3,11 @@ from __future__ import annotations
 from secrets import choice
 from typing import TYPE_CHECKING, Any
 
+from clinicedc_constants import NULL_STRING
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
-
-from edc_constants.constants import NULL_STRING
 
 from .utils import convert_to_human_readable
 

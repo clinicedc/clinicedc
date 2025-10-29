@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import INCOMPLETE
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
-from edc_constants.constants import INCOMPLETE
 from edc_visit_tracking.constants import MISSED_VISIT
 
 from ..appointment_reason_updater import AppointmentReasonUpdater

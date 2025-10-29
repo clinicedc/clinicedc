@@ -1,11 +1,11 @@
 from uuid import uuid4
 
+from clinicedc_constants import YES
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import PROTECT
 
 from edc_constants.choices import YES_NO
-from edc_constants.constants import YES
 
 
 class StudyMedicationRefillModelMixin(models.Model):

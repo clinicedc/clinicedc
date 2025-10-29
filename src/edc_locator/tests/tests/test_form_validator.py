@@ -1,7 +1,7 @@
+from clinicedc_constants import NO, YES
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings, tag
 
-from edc_constants.constants import NO, YES
 from edc_locator.forms import SubjectLocatorFormValidator
 
 

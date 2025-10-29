@@ -1,6 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from clinicedc_constants import OTHER
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.conf import settings
@@ -13,7 +14,6 @@ from django.test.utils import override_settings, tag
 from multisite import SiteID
 from multisite.models import Alias
 
-from edc_constants.constants import OTHER
 from edc_sites.forms import SiteModelFormMixin
 from edc_sites.models import SiteProfile
 from edc_sites.single_site import SingleSite

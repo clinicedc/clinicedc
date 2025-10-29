@@ -5,13 +5,13 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 from zoneinfo import ZoneInfo
 
+from clinicedc_constants import OTHER
 from django import forms
 from django.conf import settings
 
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
 from edc_appointment.form_validators import validate_appt_datetime_unique
-from edc_constants.constants import OTHER
 from edc_form_validators import INVALID_ERROR, REQUIRED_ERROR, FormValidator
 from edc_metadata.constants import KEYED
 from edc_metadata.utils import (

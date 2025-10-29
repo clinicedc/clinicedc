@@ -1,3 +1,4 @@
+from clinicedc_constants import CLOSED, NEW, NO, OTHER, YES
 from clinicedc_tests.sites import all_sites
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
@@ -6,7 +7,6 @@ from model_bakery import baker
 from edc_action_item.models.action_item import ActionItem
 from edc_adverse_event.constants import DEATH_REPORT_TMG_SECOND_ACTION
 from edc_adverse_event.models import CauseOfDeath
-from edc_constants.constants import CLOSED, NEW, NO, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
@@ -17,7 +17,6 @@ from .mixins import DeathReportTestMixin
 @tag("adverse_event")
 @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=30)
 class TestDeathReportTmg(DeathReportTestMixin, TestCase):
-
     @classmethod
     def setUpTestData(cls):
         import_holidays()
