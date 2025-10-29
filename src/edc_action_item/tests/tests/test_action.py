@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import CLOSED, NEW, NO, YES
 from clinicedc_tests.action_items import (
     FormFourAction,
     FormOneAction,
@@ -19,7 +20,6 @@ from django.test import TestCase, override_settings, tag
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import site_action_items
-from edc_constants.constants import CLOSED, NEW, NO, YES
 from edc_sites.exceptions import InvalidSiteForSubjectError
 
 from ..test_case_mixin import TestCaseMixin

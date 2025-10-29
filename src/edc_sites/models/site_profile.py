@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import json
 
+from clinicedc_constants import NULL_STRING
 from django.contrib.sites.models import Site
 from django.db import models
-
-from edc_constants.constants import NULL_STRING
 
 
 class SiteProfile(models.Model):

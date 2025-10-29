@@ -4,6 +4,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import FEMALE, MALE
 from clinicedc_tests.helper import Helper
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -15,7 +16,6 @@ from edc_appointment.creators import AppointmentCreator
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_visit_schedule.schedule import Schedule

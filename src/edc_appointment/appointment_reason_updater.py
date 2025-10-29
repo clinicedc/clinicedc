@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import INCOMPLETE, NOT_APPLICABLE
 from django.core.exceptions import ObjectDoesNotExist
 
-from edc_constants.constants import INCOMPLETE, NOT_APPLICABLE
 from edc_metadata import KEYED
 from edc_metadata.metadata_helper import MetadataHelperMixin
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED

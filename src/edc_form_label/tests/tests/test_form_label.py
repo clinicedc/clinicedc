@@ -3,6 +3,7 @@ from unittest import skip
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import NO
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.forms import TestModel5Form
 from clinicedc_tests.helper import Helper
@@ -17,7 +18,6 @@ from django.test.client import RequestFactory
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_constants.constants import NO
 from edc_facility.import_holidays import import_holidays
 from edc_form_label.custom_label_condition import CustomLabelCondition
 from edc_form_label.form_label import FormLabel

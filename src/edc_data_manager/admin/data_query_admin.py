@@ -1,5 +1,15 @@
 from textwrap import wrap
 
+from clinicedc_constants import (
+    CLOSED,
+    FEEDBACK,
+    HIGH_PRIORITY,
+    NEW,
+    NO,
+    OPEN,
+    RESOLVED,
+    YES,
+)
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.decorators import register
@@ -11,16 +21,6 @@ from django_audit_fields.admin import audit_fieldset_tuple
 
 from edc_action_item.fieldsets import action_fields, action_fieldset_tuple
 from edc_appointment.models import Appointment
-from edc_constants.constants import (
-    CLOSED,
-    FEEDBACK,
-    HIGH_PRIORITY,
-    NEW,
-    NO,
-    OPEN,
-    RESOLVED,
-    YES,
-)
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin

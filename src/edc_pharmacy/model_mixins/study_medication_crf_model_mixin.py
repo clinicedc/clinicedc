@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import YES
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
 from edc_appointment.utils import get_next_appointment
-from edc_constants.constants import YES
 from edc_utils.text import formatted_datetime
 from edc_visit_tracking.utils import get_next_related_visit
 

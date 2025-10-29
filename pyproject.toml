@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "2.0.41"
+version = "2.0.42"
 description = "A clinical trials data management framework built on Django"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -32,6 +32,8 @@ dependencies = [
     "beautifulsoup4>=4.13.5",
     "boto3>=1.39.16",
     "celery>=5.5.3",
+    "clinicedc-utils>=0.4.0",
+    "clinicedc-constants>=1.1.0",
     "cryptography>=45.0.7",
     "django>=5.2.4",
     "django-admin-rangefilter>=0.13.3",
@@ -300,8 +302,9 @@ develop = [
 [tool.uv.sources]
 clinicedc = { workspace = true }
 clinicedc-tests = { path = "../clinicedc-tests", editable = true }
+clinicedc-utils = { path = "../clinicedc-utils", editable = true }
+clinicedc-constants = { path = "../clinicedc-constants", editable = true }
 django-audit-fields = { path = "../django-audit-fields", editable = true }
 django-crypto-fields = { path = "../django-crypto-fields", editable = true }
 django-revision = { path = "../django-revision", editable = true }
-# django-multisite2 = { path = "../django-multisite2", editable = true }
 edc-test-settings = { path = "../edc-test-settings", editable = true }

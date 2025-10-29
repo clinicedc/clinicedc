@@ -1,7 +1,5 @@
+from clinicedc_constants import EQ, PERCENT
 from django.db import models
-
-from edc_lab.constants import EQ
-from edc_reportable import PERCENT
 
 from ..constants import GLUCOSE_HIGH_READING
 

@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from typing import Any
 
+from clinicedc_constants import YES
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q
 from django.utils.html import format_html
-
-from edc_constants.constants import YES
 
 from ..listboard_filters import RequisitionListboardViewFilters
 from .base_listboard_view import BaseListboardView

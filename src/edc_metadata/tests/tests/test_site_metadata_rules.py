@@ -2,11 +2,11 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import MALE
 from clinicedc_tests.consents import consent_v1
 from django.test import TestCase, override_settings, tag
 
 from edc_consent import site_consents
-from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 from edc_metadata import NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_rules import (

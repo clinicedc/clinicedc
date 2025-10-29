@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.views.generic import TemplateView
+
 from edc_navbar import NavbarViewMixin
 
 from ..view_mixins import AdministrationViewMixin, EdcViewMixin

@@ -1,6 +1,5 @@
+from clinicedc_constants import NOT_APPLICABLE
 from django.db import models
-
-from edc_constants.constants import NOT_APPLICABLE
 
 
 class AeFollowupMethodsModelMixin(models.Model):

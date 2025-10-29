@@ -4,11 +4,11 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 import arrow
+from clinicedc_constants import NO, OPEN, RESOLVED
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
-from edc_constants.constants import NO, OPEN, RESOLVED
 from edc_lab.utils import get_requisition_model
 from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata

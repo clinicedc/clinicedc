@@ -1,6 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.checks import CheckMessage, Error
 from django.urls import NoReverseMatch
+from edc_dashboard.url_names import InvalidDashboardUrlName
 
 from edc_navbar import site_navbars
 
@@ -32,4 +33,6 @@ def edc_navbar_checks(app_configs, **kwargs) -> list[CheckMessage]:
                 navbar_item.get_url(raise_exception=True)
             except NoReverseMatch as e:
                 errors.append(Error(str(e), id="edc_navbar.E003"))
+            except InvalidDashboardUrlName as e:
+                errors.append(Error(str(e), id="edc_navbar.E004"))
     return errors

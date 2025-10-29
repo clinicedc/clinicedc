@@ -1,10 +1,11 @@
+import contextlib
+
 import numpy as np
 import pandas as pd
+from django.core.exceptions import ImproperlyConfigured
 
-try:
+with contextlib.suppress(ModuleNotFoundError, ImproperlyConfigured):
     from django_crypto_fields.field_cryptor import FieldCryptor
-except ModuleNotFoundError:
-    pass
 
 
 class DecryptError(Exception):
@@ -13,7 +14,7 @@ class DecryptError(Exception):
 
 def decrypt(row, column_name, algorithm, access_mode):
     value = np.nan
-    if pd.notnull(row[column_name]):
+    if pd.notna(row[column_name]):
         field_cryptor = FieldCryptor(algorithm, access_mode)
         value = field_cryptor.decrypt(row[column_name])
         if value.startswith("enc1::"):

@@ -1,13 +1,11 @@
+from clinicedc_constants import MALE, MILLIMOLES_PER_LITER
 from django.test import TestCase, tag
 
-from edc_constants.constants import MALE
-from edc_reportable import MILLIMOLES_PER_LITER
 from edc_reportable.formula import Formula, FormulaError, clean_and_validate_phrase
 
 
 @tag("reportable")
 class TestParser(TestCase):
-
     def test1(self):
         f = Formula("7<x<8")
         self.assertEqual(f.lower, 7)

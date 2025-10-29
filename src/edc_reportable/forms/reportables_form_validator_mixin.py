@@ -1,6 +1,7 @@
 from copy import deepcopy
 
-from edc_constants.constants import YES
+from clinicedc_constants import YES
+
 from edc_form_validators import INVALID_ERROR
 from edc_registration import get_registered_subject_model_cls
 

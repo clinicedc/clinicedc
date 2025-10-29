@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from clinicedc_constants import NO, NOT_APPLICABLE, UNKNOWN, YES
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.sites import all_sites
 from django import forms
@@ -7,7 +8,6 @@ from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_adverse_event.form_validators import HospitalizationFormValidator as Base
-from edc_constants.constants import NO, NOT_APPLICABLE, UNKNOWN, YES
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import FormValidatorTestCaseMixin
 from edc_form_validators.tests.mixins import FormValidatorTestMixin

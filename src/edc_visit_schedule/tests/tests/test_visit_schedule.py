@@ -2,13 +2,13 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import FEMALE, MALE
 from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.sites import all_sites
 from django.test import TestCase, override_settings, tag
 
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import FEMALE, MALE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites

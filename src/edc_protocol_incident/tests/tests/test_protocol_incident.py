@@ -3,6 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import CLOSED, NO, NOT_APPLICABLE, OPEN, OTHER
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.sites import all_sites
@@ -16,7 +17,6 @@ from django.utils import timezone
 
 from edc_action_item.site_action_items import site_action_items
 from edc_consent import site_consents
-from edc_constants.constants import CLOSED, NO, NOT_APPLICABLE, OPEN, OTHER
 from edc_facility.import_holidays import import_holidays
 from edc_list_data import site_list_data
 from edc_protocol_incident import list_data

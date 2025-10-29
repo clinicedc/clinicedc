@@ -1,14 +1,15 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
-
-from edc_reportable import GRAMS_PER_DECILITER, MICROMOLES_PER_LITER
-from edc_reportable.units import (
+from clinicedc_constants import (
+    GRAMS_PER_DECILITER,
     GRAMS_PER_LITER,
     IU_LITER,
-    IU_LITER_DISPLAY,
+    MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
     MILLIGRAMS_PER_LITER,
 )
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+
+from edc_reportable.units import IU_LITER_DISPLAY
 
 from ..model_mixin_factories import reportable_result_model_mixin_factory
 

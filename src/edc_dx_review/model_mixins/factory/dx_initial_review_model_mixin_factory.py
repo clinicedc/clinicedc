@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from datetime import date
 
+from clinicedc_constants import NOT_APPLICABLE, YES
 from django.db import models
 
 from edc_constants.choices import YES_NO
-from edc_constants.constants import NOT_APPLICABLE, YES
 from edc_dx import Diagnoses
 from edc_model.models import DurationYMDField
 from edc_model.utils import get_report_datetime_field_name

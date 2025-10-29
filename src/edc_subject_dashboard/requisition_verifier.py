@@ -1,10 +1,10 @@
 import contextlib
 
+from clinicedc_constants import NO, YES
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 from edc_appointment.models import Appointment
-from edc_constants.constants import NO, YES
 from edc_lab.constants import TUBE
 from edc_lab.model_mixins import RequisitionModelMixin
 

@@ -1,3 +1,4 @@
+from clinicedc_constants import NO, PARTIAL, YES
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count
@@ -6,7 +7,6 @@ from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
 from rangefilter.filters import DateRangeFilterBuilder
 
-from edc_constants.constants import NO, PARTIAL, YES
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 

@@ -1,8 +1,8 @@
+from clinicedc_constants import YES
 from django import forms
 from django.core.exceptions import ValidationError
 from django.test import TestCase, tag
 
-from edc_constants.constants import YES
 from edc_vitals.form_validators import BloodPressureFormValidatorMixin
 from edc_vitals.utils import has_severe_htn
 

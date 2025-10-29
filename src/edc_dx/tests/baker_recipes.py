@@ -1,3 +1,4 @@
+from clinicedc_constants import NO
 from django.contrib.sites.models import Site
 from dx_app.models import (
     ClinicalReviewBaseline,
@@ -6,8 +7,6 @@ from dx_app.models import (
     HtnInitialReview,
 )
 from model_bakery.recipe import Recipe
-
-from edc_constants.constants import NO
 
 clinicalreviewbaseline = Recipe(
     ClinicalReviewBaseline,

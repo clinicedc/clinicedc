@@ -4,6 +4,7 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import CLINIC, NO, PATIENT
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.forms import (
     NextAppointmentCrfForm,
@@ -23,7 +24,6 @@ from django.utils import timezone
 from edc_appointment.exceptions import AppointmentWindowError
 from edc_appointment.models import Appointment, InfoSources
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import CLINIC, NO, PATIENT
 from edc_facility.import_holidays import import_holidays
 from edc_facility.models import HealthFacility, HealthFacilityTypes
 from edc_facility.utils import get_health_facility_model_cls

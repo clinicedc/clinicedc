@@ -1,5 +1,14 @@
 from copy import deepcopy
 
+from clinicedc_constants import (
+    GRADE3,
+    GRADE4,
+    GRAMS_PER_DECILITER,
+    NO,
+    NOT_APPLICABLE,
+    PERCENT,
+    YES,
+)
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import SubjectRequisition
@@ -15,11 +24,9 @@ from django.test import TestCase, override_settings, tag
 
 from edc_action_item.site_action_items import site_action_items
 from edc_consent import site_consents
-from edc_constants.constants import GRADE3, GRADE4, NO, NOT_APPLICABLE, YES
 from edc_lab import site_labs
 from edc_lab.models import Panel
 from edc_lab_results.action_items import register_actions
-from edc_reportable import GRAMS_PER_DECILITER, PERCENT
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..forms import BloodResultsFbcForm, BloodResultsHba1cForm

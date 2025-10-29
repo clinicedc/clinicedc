@@ -21,11 +21,10 @@ Female: 9 - 36
 >20.0 x ULN if baseline was normal; >20.0 x baseline if baseline was abnormal
 """
 
-from edc_constants.constants import FEMALE, MALE
+from clinicedc_constants import FEMALE, IU_LITER, MALE
 
 from ...adult_age_options import adult_age_options
 from ...formula import Formula
-from ...units import IU_LITER
 
 ggt_baseline_normal = (
     [

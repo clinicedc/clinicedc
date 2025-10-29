@@ -1,16 +1,17 @@
+from clinicedc_constants import (
+    FEMALE,
+    MALE,
+    MICROMOLES_PER_LITER,
+    MILLIGRAMS_PER_DECILITER,
+    MILLIMOLES_PER_LITER,
+)
 from clinicedc_tests.reportables import grading_data, normal_data
+from clinicedc_utils import ConversionNotHandled
 from dateutil.relativedelta import relativedelta
 from django.db.models import Count
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
-from edc_constants.constants import FEMALE, MALE
-from edc_reportable import (
-    MICROMOLES_PER_LITER,
-    MILLIGRAMS_PER_DECILITER,
-    MILLIMOLES_PER_LITER,
-    ConversionNotHandled,
-)
 from edc_reportable.evaluator import ValueBoundryError
 from edc_reportable.models import GradingData, MolecularWeight, NormalData
 from edc_reportable.utils import (

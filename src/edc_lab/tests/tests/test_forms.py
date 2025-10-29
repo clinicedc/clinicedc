@@ -1,3 +1,4 @@
+from clinicedc_constants import NO, NOT_APPLICABLE, OTHER, YES
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import SubjectRequisition
@@ -8,7 +9,6 @@ from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_consent import site_consents
-from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_form_validators import FormValidator
 from edc_lab.form_validators.requisition_form_validator import (
     RequisitionFormValidatorMixin,

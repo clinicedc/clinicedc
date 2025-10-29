@@ -1,4 +1,4 @@
-from .constants import QUESTION_RETIRED
+from clinicedc_constants import QUESTION_RETIRED
 
 
 def get_display(choices, label) -> str | None:
@@ -13,5 +13,4 @@ def get_display(choices, label) -> str | None:
 def append_question_retired_choice(choices) -> tuple[tuple[str, str], ...]:
     choices = list(choices)
     choices.append((QUESTION_RETIRED, QUESTION_RETIRED))
-    choices = tuple(choices)
-    return choices
+    return tuple(choices)

@@ -3,11 +3,11 @@ from __future__ import annotations
 import contextlib
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import NULL_STRING
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import CharField, TextField
 
-from edc_constants.constants import NULL_STRING
 from edc_model import DEFAULT_BASE_FIELDS
 
 from ..utils import get_registered_subject_model_cls

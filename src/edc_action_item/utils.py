@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import contextlib
 
+from clinicedc_constants import CLOSED, NEW
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from tqdm import tqdm
-
-from edc_constants.constants import CLOSED, NEW
 
 from .create_or_update_action_type import create_or_update_action_type
 from .identifiers import ActionIdentifier

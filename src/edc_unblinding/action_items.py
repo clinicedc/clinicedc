@@ -1,5 +1,6 @@
+from clinicedc_constants import HIGH_PRIORITY, TBD, YES
+
 from edc_action_item.action_with_notification import ActionWithNotification
-from edc_constants.constants import HIGH_PRIORITY, TBD, YES
 from edc_offstudy.constants import END_OF_STUDY_ACTION
 
 from .constants import UNBLINDING_REQUEST_ACTION, UNBLINDING_REVIEW_ACTION

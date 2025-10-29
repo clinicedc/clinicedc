@@ -1,8 +1,7 @@
+from clinicedc_constants import INCOMPLETE
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-from edc_constants.constants import INCOMPLETE
 
 
 @receiver(

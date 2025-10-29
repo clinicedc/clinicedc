@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import INCOMPLETE
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import CrfFour
@@ -14,7 +15,6 @@ from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import INCOMPLETE
 from edc_crf.crf_form_validator_mixins import CrfFormValidatorMixin
 from edc_crf.modelform_mixins import CrfModelFormMixin
 from edc_facility.import_holidays import import_holidays

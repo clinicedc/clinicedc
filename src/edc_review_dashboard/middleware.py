@@ -1,6 +1,7 @@
 import contextlib
 
 from django.conf import settings
+
 from edc_dashboard.middleware_mixins import EdcTemplateMiddlewareMixin
 
 from .dashboard_templates import dashboard_templates

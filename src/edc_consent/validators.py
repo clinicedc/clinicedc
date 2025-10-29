@@ -1,9 +1,8 @@
 import re
 
+from clinicedc_constants import DECLINED, MALE, NEG, NO, POS, UNKNOWN, YES
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
-
-from edc_constants.constants import DECLINED, MALE, NEG, NO, POS, UNKNOWN, YES
 
 
 @deconstructible
@@ -14,7 +13,7 @@ class SubjectTypeValidator:
     def __call__(self, value):
         if value not in self.subject_types:
             raise ValidationError(
-                "Undefined subject type. Expected one of '{subject_types}'. " "Got '{value}'.",
+                "Undefined subject type. Expected one of '{subject_types}'. Got '{value}'.",
                 params={
                     "subject_types": "' or '".join(self.subject_types),
                     "value": value,
@@ -74,20 +73,16 @@ def eligible_if_male(value):
 
 def eligible_if_negative(value):
     if value != NEG:
-        raise ValidationError(
-            "Participant must be HIV Negative." "Participant is not eligible."
-        )
+        raise ValidationError("Participant must be HIV Negative.Participant is not eligible.")
 
 
 def eligible_if_positive(value):
     if value != POS:
-        raise ValidationError(
-            "Participant must be HIV Positive." "Participant is not eligible."
-        )
+        raise ValidationError("Participant must be HIV Positive.Participant is not eligible.")
 
 
 def eligible_not_positive(value):
     if value == POS:
         raise ValidationError(
-            "Participant must be HIV Negative / Unknown." "Participant is not eligible."
+            "Participant must be HIV Negative / Unknown.Participant is not eligible."
         )

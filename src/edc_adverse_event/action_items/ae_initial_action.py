@@ -1,14 +1,16 @@
+from clinicedc_constants import DEAD, GRADE3, GRADE4, GRADE5, HIGH_PRIORITY, NO, YES
+
 from edc_action_item.action_with_notification import ActionWithNotification
-from edc_adverse_event.constants import (
+
+from ..constants import (
+    ADVERSE_EVENT_ADMIN_SITE,
+    ADVERSE_EVENT_APP_LABEL,
     AE_FOLLOWUP_ACTION,
     AE_INITIAL_ACTION,
     AE_SUSAR_ACTION,
     AE_TMG_ACTION,
     DEATH_REPORT_ACTION,
 )
-from edc_constants.constants import DEAD, GRADE3, GRADE4, GRADE5, HIGH_PRIORITY, NO, YES
-
-from ..constants import ADVERSE_EVENT_ADMIN_SITE, ADVERSE_EVENT_APP_LABEL
 
 
 class AeInitialAction(ActionWithNotification):
@@ -25,11 +27,9 @@ class AeInitialAction(ActionWithNotification):
 
     @property
     def deceased(self):
-        if (self.reference_obj.ae_grade and self.reference_obj.ae_grade == GRADE5) or (
+        return (self.reference_obj.ae_grade and self.reference_obj.ae_grade == GRADE5) or (
             self.reference_obj.sae_reason.name and self.reference_obj.sae_reason.name == DEAD
-        ):
-            return True
-        return False
+        )
 
     def get_next_actions(self):
         """Returns next actions."""
@@ -37,19 +37,17 @@ class AeInitialAction(ActionWithNotification):
         next_actions = self.append_ae_followup_next_action(next_actions)
         next_actions = self.append_ae_susar_next_action(next_actions)
         next_actions = self.append_ae_tmg_next_action(next_actions)
-        next_actions = self.append_death_report_next_action(next_actions)
-        return next_actions
+        return self.append_death_report_next_action(next_actions)
 
     def append_ae_susar_next_action(self, next_actions=None):
         """Add next AE_SUSAR_ACTION if SUSAR == YES."""
-        next_actions = self.append_to_next_if_required(
+        return self.append_to_next_if_required(
             next_actions=next_actions,
             action_name=AE_SUSAR_ACTION,
             required=(
                 self.reference_obj.susar == YES and self.reference_obj.susar_reported == NO
             ),
         )
-        return next_actions
 
     def append_ae_followup_next_action(self, next_actions=None):
         """Add next AeFollowup if not deceased."""
@@ -72,18 +70,16 @@ class AeInitialAction(ActionWithNotification):
             required=self.reference_obj.ae_grade == GRADE4,
         )
         # add next AeTmgAction if G3 and is an SAE
-        next_actions = self.append_to_next_if_required(
+        return self.append_to_next_if_required(
             next_actions=next_actions,
             action_name=AE_TMG_ACTION,
             required=(self.reference_obj.ae_grade == GRADE3 and self.reference_obj.sae == YES),
         )
-        return next_actions
 
     def append_death_report_next_action(self, next_actions=None):
         """Add next Death report if G5/Death."""
-        next_actions = self.append_to_next_if_required(
+        return self.append_to_next_if_required(
             next_actions=next_actions,
             action_name=DEATH_REPORT_ACTION,
             required=self.deceased,
         )
-        return next_actions

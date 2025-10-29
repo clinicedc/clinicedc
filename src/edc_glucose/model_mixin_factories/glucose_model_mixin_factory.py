@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from clinicedc_constants import NOT_APPLICABLE
 from django.db import models
 
-from edc_constants.constants import NOT_APPLICABLE
 from edc_lab.choices import GLUCOSE_UNITS_NA, RESULT_QUANTIFIER_NA
 
 from ..constants import GLUCOSE_HIGH_READING

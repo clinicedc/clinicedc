@@ -1,4 +1,5 @@
-from edc_constants.constants import ALIVE, NO, OTHER, UNKNOWN, YES
+from clinicedc_constants import ALIVE, NO, OTHER, UNKNOWN, YES
+
 from edc_form_validators import FormValidator
 
 

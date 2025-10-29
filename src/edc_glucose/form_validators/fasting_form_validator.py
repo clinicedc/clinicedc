@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from edc_constants.constants import YES
+from clinicedc_constants import YES
 
 
 class FastingFormValidatorMixin:

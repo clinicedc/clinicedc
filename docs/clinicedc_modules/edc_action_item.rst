@@ -44,7 +44,7 @@ In it define actions using the ``Action`` class.
 
     from edc_action_item.action import Action
     from edc_action_item.site_action_items import site_action_items
-    from edc_constants.constants import HIGH_PRIORITY
+    from clinicedc_constants import HIGH_PRIORITY
     from ambition_ae.action_items import AeFollowupAction, AeTmgAction
 
     class AeInitialAction(Action):

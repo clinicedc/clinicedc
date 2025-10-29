@@ -3,6 +3,7 @@ from .convert_numbers_to_float64_int64 import convert_numbers_to_float64_int64
 from .convert_numbers_to_nullable_dtype import convert_numbers_to_nullable_dtype
 from .convert_numerics_from_model import convert_numerics_from_model
 from .convert_timedelta_from_model import convert_timedelta_from_model
+from .convert_visit_code_to_float import convert_visit_code_to_float
 from .datetime_to_date import datetime_to_date
 from .decrypt import DecryptError, decrypt
 from .get_export_folder import get_export_folder

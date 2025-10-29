@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path
+
 from edc_data_manager.views import HomeView
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 

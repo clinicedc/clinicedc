@@ -1,7 +1,7 @@
+from clinicedc_constants import NO, TBD, YES
 from clinicedc_tests.models import SubjectScreening
 from django.test import TestCase, override_settings, tag
 
-from edc_constants.constants import NO, TBD, YES
 from edc_screening.exceptions import (
     ScreeningEligibilityAttributeError,
     ScreeningEligibilityError,

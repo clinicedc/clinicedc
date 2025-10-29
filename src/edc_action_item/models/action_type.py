@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from clinicedc_constants import HIGH_PRIORITY
 from django.apps import apps as django_apps
 from django.db import models
 
-from edc_constants.constants import HIGH_PRIORITY
 from edc_model.models import BaseUuidModel
 
 from ..choices import PRIORITY

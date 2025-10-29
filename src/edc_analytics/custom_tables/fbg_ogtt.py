@@ -1,6 +1,5 @@
 import pandas as pd
-
-from edc_constants.constants import FEMALE, MALE
+from clinicedc_constants import FEMALE, MALE
 
 from ..constants import N_ONLY, N_WITH_COL_PROP, N_WITH_ROW_PROP
 from ..row import RowDefinition, RowDefinitions

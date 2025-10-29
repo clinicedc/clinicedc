@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from random import choice
 
+from clinicedc_constants import OTHER, YES
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
@@ -11,7 +12,6 @@ from model_bakery import baker
 from edc_action_item.models import ActionItem
 from edc_adverse_event.models import CauseOfDeath
 from edc_consent import site_consents
-from edc_constants.constants import OTHER, YES
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 

@@ -4,14 +4,13 @@ from datetime import date
 from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
+from clinicedc_constants import DEAD, DEATH_REPORT_NOT_FOUND
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from edc_constants.constants import DEAD
 from edc_utils.text import convert_php_dateformat
 
-from ..constants import DEATH_REPORT_NOT_FOUND
 from ..utils import get_ae_model
 
 if TYPE_CHECKING:

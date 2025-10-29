@@ -1,12 +1,6 @@
 from __future__ import annotations
 
-from dateutil.relativedelta import MO, relativedelta
-from django.contrib.admin import SimpleListFilter
-from django.db.models import QuerySet
-from django.utils import timezone
-from django.utils.translation import gettext as _
-
-from edc_constants.constants import (
+from clinicedc_constants import (
     FUTURE_DATE,
     IS_NULL,
     LAST_WEEK,
@@ -17,6 +11,11 @@ from edc_constants.constants import (
     TODAY,
     TOMORROW,
 )
+from dateutil.relativedelta import MO, relativedelta
+from django.contrib.admin import SimpleListFilter
+from django.db.models import QuerySet
+from django.utils import timezone
+from django.utils.translation import gettext as _
 
 
 class FutureDateListFilter(SimpleListFilter):

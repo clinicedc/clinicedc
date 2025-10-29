@@ -1,15 +1,15 @@
-from edc_action_item.auth_objects import (
-    ACTION_ITEM,
-    ACTION_ITEM_EXPORT,
-    ACTION_ITEM_VIEW_ONLY,
-)
-from edc_adverse_event.constants import (
+from clinicedc_constants import (
     AE,
     AE_REVIEW,
     AE_SUPER,
     TMG,
     TMG_REVIEW,
-    TMG_ROLE,
+)
+
+from edc_action_item.auth_objects import (
+    ACTION_ITEM,
+    ACTION_ITEM_EXPORT,
+    ACTION_ITEM_VIEW_ONLY,
 )
 from edc_appointment.auth_objects import (
     APPOINTMENT,
@@ -23,6 +23,7 @@ from edc_auth.constants import (
     CLINICIAN_ROLE,
     CLINICIAN_SUPER_ROLE,
     NURSE_ROLE,
+    TMG_ROLE,
 )
 from edc_auth.site_auths import site_auths
 from edc_data_manager.auth_objects import (

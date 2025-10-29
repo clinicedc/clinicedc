@@ -4,6 +4,7 @@ from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import ALIVE, OTHER, YES
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.sites import all_sites
@@ -17,7 +18,6 @@ from django.utils import timezone
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_constants.constants import ALIVE, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import APPLICABLE_ERROR, REQUIRED_ERROR
 from edc_sites.site import sites as site_sites

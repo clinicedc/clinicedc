@@ -10,18 +10,15 @@ G3 < 60 to 30 ml/min or ml/min/1.73 m2 OR 30 to < 50% decrease from participant'
 G4 < 30 ml/min or ml/min/1.73 m2 OR ≥ 50% decrease from participant's baseline
 """
 
-from edc_constants.constants import FEMALE, MALE
-
-from ...adult_age_options import adult_age_options
-from ...constants import HIGH_VALUE
-from ...formula import Formula
-from ...units import (
+from clinicedc_constants import (
     CELLS_PER_MILLIMETER_CUBED,
     EGFR_UNITS,
+    FEMALE,
     FEMTOLITERS_PER_CELL,
     GRAMS_PER_DECILITER,
     GRAMS_PER_LITER,
     IU_LITER,
+    MALE,
     MICROMOLES_PER_LITER,
     MILLIGRAMS_PER_DECILITER,
     MILLIGRAMS_PER_LITER,
@@ -31,6 +28,10 @@ from ...units import (
     PLUS,
     TEN_X_9_PER_LITER,
 )
+
+from ...adult_age_options import adult_age_options
+from ...constants import HIGH_VALUE
+from ...formula import Formula
 
 __all__ = [
     "chemistries",

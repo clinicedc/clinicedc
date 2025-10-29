@@ -1,5 +1,6 @@
 import re
 
+from clinicedc_constants import MALE, NO, NULL_STRING, UUID_PATTERN, YES
 from clinicedc_tests.models import (
     MySubjectScreening,
     SubjectScreening,
@@ -8,7 +9,6 @@ from clinicedc_tests.models import (
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 
-from edc_constants.constants import MALE, NO, NULL_STRING, UUID_PATTERN, YES
 from edc_identifier.models import IdentifierModel
 from edc_screening.age_evaluator import AgeEvaluator
 from edc_screening.constants import ELIGIBLE, NOT_ELIGIBLE

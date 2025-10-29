@@ -8,8 +8,12 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+from rangefilter.filters import DateRangeFilterBuilder
+
 from edc_appointment.utils import get_appointment_model_cls
 from edc_dashboard.url_names import url_names
+from edc_metadata import KEYED, REQUIRED
+from edc_metadata.admin.list_filters import CreatedListFilter
 from edc_model_admin.mixins import (
     ModelAdminInstitutionMixin,
     ModelAdminNextUrlRedirectMixin,
@@ -18,10 +22,6 @@ from edc_model_admin.mixins import (
     TemplatesModelAdminMixin,
 )
 from edc_sites.admin import SiteModelAdminMixin
-from rangefilter.filters import DateRangeFilterBuilder
-
-from edc_metadata import KEYED, REQUIRED
-from edc_metadata.admin.list_filters import CreatedListFilter
 
 
 class MetadataModelAdminMixin(

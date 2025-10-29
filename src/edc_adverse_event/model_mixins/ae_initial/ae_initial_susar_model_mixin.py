@@ -1,7 +1,7 @@
+from clinicedc_constants import NOT_APPLICABLE
 from django.db import models
 
 from edc_constants.choices import YES_NO, YES_NO_NA
-from edc_constants.constants import NOT_APPLICABLE
 
 
 class AeInitialSusarModelMixin(models.Model):
@@ -12,7 +12,7 @@ class AeInitialSusarModelMixin(models.Model):
         choices=YES_NO,
         max_length=5,
         help_text=(
-            "If yes, SUSAR must be reported to Principal " "Investigator and TMG immediately,"
+            "If yes, SUSAR must be reported to Principal Investigator and TMG immediately,"
         ),
     )
 

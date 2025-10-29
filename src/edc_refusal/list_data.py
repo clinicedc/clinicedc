@@ -1,4 +1,4 @@
-from edc_constants.constants import OTHER
+from clinicedc_constants import OTHER
 
 list_data = {
     "edc_refusal.refusalreasons": [

@@ -82,10 +82,9 @@ A grading reference is declared like this:
 
 .. code-block:: python
 
-    from edc_constants.constants import FEMALE, MALE
+    from clinicedc_constants import HIGH_VALUE, IU_LITER, FEMALE, MALE
+
     from ...adult_age_options import adult_age_options
-    from ...constants import HIGH_VALUE
-    from ...units import IU_LITER
 
     grading_data = {
         "amylase": [

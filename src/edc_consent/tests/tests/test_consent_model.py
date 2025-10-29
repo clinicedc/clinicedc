@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import YES
 from clinicedc_tests.consents import consent1_v1, consent1_v2, consent1_v3
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import (
@@ -27,7 +28,6 @@ from edc_consent.consent_definition_extension import ConsentDefinitionExtension
 from edc_consent.exceptions import ConsentDefinitionDoesNotExist, NotConsentedError
 from edc_consent.field_mixins import IdentityFieldsMixinError
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites

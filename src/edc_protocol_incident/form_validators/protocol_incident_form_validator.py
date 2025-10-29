@@ -1,4 +1,5 @@
-from edc_constants.constants import YES
+from clinicedc_constants import YES
+
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_prn.modelform_mixins import PrnFormValidatorMixin
 from edc_utils.date import to_local

@@ -1,9 +1,9 @@
+from clinicedc_constants import NULL_STRING
 from clinicedc_tests.models import TestModelSlug, TestModelSlugExtra
 from django.db import models
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
-from edc_constants.constants import NULL_STRING
 from edc_search.generate_slug import generate_slug
 from edc_search.model_mixins import SearchSlugModelMixin
 

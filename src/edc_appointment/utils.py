@@ -7,6 +7,8 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+from clinicedc_constants import CLINIC, NOT_APPLICABLE, OK
+from clinicedc_constants import ERROR as ERROR_CODE
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -23,8 +25,7 @@ from django.db import transaction
 from django.db.models import Count, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from edc_constants.constants import CLINIC, NOT_APPLICABLE, OK
-from edc_constants.constants import ERROR as ERROR_CODE
+
 from edc_dashboard.url_names import url_names
 from edc_form_validators import INVALID_ERROR
 from edc_metadata.constants import CRF, REQUIRED, REQUISITION
@@ -66,6 +67,7 @@ if TYPE_CHECKING:
     from decimal import Decimal
 
     from django.db.models import QuerySet
+
     from edc_crf.model_mixins import CrfModelMixin as Base
     from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 

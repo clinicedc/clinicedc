@@ -1,7 +1,6 @@
+from clinicedc_constants import OPEN
 from django.db import models
 from django.utils import timezone
-
-from edc_constants.constants import OPEN
 
 from ...constants import VERIFIED
 

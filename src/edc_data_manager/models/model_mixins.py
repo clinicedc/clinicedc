@@ -1,8 +1,7 @@
+from clinicedc_constants import CLOSED, NEW, NORMAL, OPEN, RESOLVED
 from django.db import models
 from django.db.models import PROTECT
 from django.utils import timezone
-
-from edc_constants.constants import CLOSED, NEW, NORMAL, OPEN, RESOLVED
 
 from ..choices import DM_STATUS, QUERY_PRIORITY, RESPONSE_STATUS
 from ..constants import CLOSED_WITH_ACTION

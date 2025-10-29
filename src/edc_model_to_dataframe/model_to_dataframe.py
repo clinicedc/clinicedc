@@ -5,6 +5,7 @@ from copy import copy
 
 import numpy as np
 import pandas as pd
+from clinicedc_constants import NULL_STRING
 from django.apps import apps as django_apps
 from django.contrib.sites.models import Site
 from django.core.exceptions import FieldError
@@ -13,7 +14,6 @@ from django.db.models import QuerySet
 from django_crypto_fields.utils import get_encrypted_fields, has_encrypted_fields
 from django_pandas.io import read_frame
 
-from edc_constants.constants import NULL_STRING
 from edc_lab.models import Panel
 from edc_list_data.model_mixins import ListModelMixin, ListUuidModelMixin
 

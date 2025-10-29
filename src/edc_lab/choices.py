@@ -1,25 +1,22 @@
-from django.utils.translation import gettext_lazy as _
-
-from edc_constants.constants import (
+from clinicedc_constants import (
     COMPLETE,
     EQ,
     GT,
     GTE,
     LT,
     LTE,
+    MICROMOLES_PER_LITER,
+    MILLIGRAMS_PER_DECILITER,
+    MILLIMOLES_PER_LITER,
     NOT_APPLICABLE,
     OTHER,
     PARTIAL,
     PENDING,
 )
+from django.utils.translation import gettext_lazy as _
+
 from edc_metadata.constants import NOT_REQUIRED
-from edc_reportable import (
-    MICROMOLES_PER_LITER,
-    MICROMOLES_PER_LITER_DISPLAY,
-    MILLIGRAMS_PER_DECILITER,
-    MILLIMOLES_PER_LITER,
-    MILLIMOLES_PER_LITER_DISPLAY,
-)
+from edc_reportable.units import MICROMOLES_PER_LITER_DISPLAY, MILLIMOLES_PER_LITER_DISPLAY
 
 from .constants import FILL_ACROSS, FILL_DOWN, FINGER_PRICK, TUBE
 

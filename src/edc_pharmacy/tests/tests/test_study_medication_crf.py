@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import YES
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.forms import StudyMedicationForm
@@ -20,7 +21,6 @@ from edc_appointment.creators import UnscheduledAppointmentCreator
 from edc_appointment.models import Appointment
 from edc_appointment.utils import get_next_appointment
 from edc_consent import site_consents
-from edc_constants.constants import YES
 from edc_facility.import_holidays import import_holidays
 from edc_pharmacy.exceptions import NextStudyMedicationError, StudyMedicationError
 from edc_pharmacy.models import (

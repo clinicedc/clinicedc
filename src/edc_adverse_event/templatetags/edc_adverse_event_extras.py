@@ -4,6 +4,7 @@ import os
 from textwrap import wrap
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import AE_WITHDRAWN, CLOSED, OPEN, OTHER, YES
 from django import template
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -16,16 +17,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from edc_action_item.utils import get_reference_obj
-from edc_constants.constants import CLOSED, OPEN, OTHER, YES
+from edc_auth.constants import TMG_ROLE
 from edc_model_admin.utils import add_to_messages_once
 from edc_utils import escape_braces
 
 from ..constants import (
     AE_TMG_ACTION,
-    AE_WITHDRAWN,
     DEATH_REPORT_TMG_ACTION,
     DEATH_REPORT_TMG_SECOND_ACTION,
-    TMG_ROLE,
 )
 from ..utils import get_adverse_event_app_label, get_ae_model, has_valid_tmg_perms
 from ..view_utils import TmgButton

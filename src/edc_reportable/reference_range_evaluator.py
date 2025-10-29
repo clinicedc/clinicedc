@@ -3,13 +3,19 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import (
+    ALREADY_REPORTED,
+    INVALID_REFERENCE,
+    NO,
+    NOT_APPLICABLE,
+    PRESENT_AT_BASELINE,
+    YES,
+)
 from django import forms
 from django.apps import apps as django_apps
 
-from edc_constants.constants import NO, NOT_APPLICABLE, YES
 from edc_metadata.constants import REQUIRED
 
-from .constants import ALREADY_REPORTED, INVALID_REFERENCE, PRESENT_AT_BASELINE
 from .exceptions import NotEvaluated, ValueBoundryError
 from .utils import get_grade_for_value, get_normal_data_or_raise
 

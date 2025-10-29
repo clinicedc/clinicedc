@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import CANCELLED, CLOSED, NEW, OPEN
 from clinicedc_tests.action_items import (
     FormOneAction,
     FormThreeAction,
@@ -26,7 +27,6 @@ from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.site_action_items import site_action_items
 from edc_consent import site_consents
-from edc_constants.constants import CANCELLED, CLOSED, NEW, OPEN
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..test_case_mixin import TestCaseMixin
@@ -38,7 +38,6 @@ utc_tz = ZoneInfo("UTC")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 @override_settings(SITE_ID=30)
 class TestActionItem(TestCaseMixin, TestCase):
-
     def setUp(self):
         helper = Helper()
         site_consents.registry = {}

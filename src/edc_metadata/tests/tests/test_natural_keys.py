@@ -3,6 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import MALE
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
@@ -13,7 +14,6 @@ from django.conf import settings
 from django.test import TestCase, override_settings, tag
 
 from edc_consent import site_consents
-from edc_constants.constants import MALE
 from edc_facility.import_holidays import import_holidays
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 

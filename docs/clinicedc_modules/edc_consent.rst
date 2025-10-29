@@ -99,7 +99,7 @@ on the ``start`` date, ``end`` date, ``version`` and ``model`` for now.
 
     from edc_consent.consent_definition import ConsentDefinition
     from edc_consent.site_consents import site_consents
-    from edc_constants.constants import MALE, FEMALE
+    from clinicedc_constants import MALE, FEMALE
 
     consent_v1 = ConsentDefinition(
         'edc_example.subjectconsentv1',

@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import KW_ONLY, dataclass, field
 
-from edc_constants.constants import FEMALE, MALE
+from clinicedc_constants import FEMALE, MALE
 
 from .adult_age_options import adult_age_options
 

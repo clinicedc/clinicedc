@@ -3,8 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+from clinicedc_constants import UUID_PATTERN
+
 from edc_consent.fieldsets import REQUIRES_CONSENT_FIELDS
-from edc_constants.constants import UUID_PATTERN
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest

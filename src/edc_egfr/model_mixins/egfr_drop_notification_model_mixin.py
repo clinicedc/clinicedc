@@ -1,10 +1,16 @@
+from clinicedc_constants import (
+    COMPLETE,
+    EGFR_UNITS,
+    INCOMPLETE,
+    MICROMOLES_PER_LITER,
+    NEW,
+    OPEN,
+)
 from django.db import models
 
-from edc_constants.constants import COMPLETE, INCOMPLETE, NEW, OPEN
 from edc_lab.choices import SERUM_CREATININE_UNITS
 from edc_lab_results.model_mixin_factories import reportable_result_model_mixin_factory
 from edc_model import REPORT_STATUS
-from edc_reportable.units import EGFR_UNITS, MICROMOLES_PER_LITER
 from edc_vitals.models import WeightField
 
 

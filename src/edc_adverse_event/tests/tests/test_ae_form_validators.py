@@ -1,5 +1,6 @@
 import contextlib
 
+from clinicedc_constants import AE_WITHDRAWN, NO, NOT_APPLICABLE, OTHER, YES
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.sites import all_sites
@@ -7,14 +8,12 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings, tag
 
-from edc_adverse_event.constants import AE_WITHDRAWN
 from edc_adverse_event.form_validators import (
     AeFollowupFormValidator,
     AeInitialFormValidator,
     AeTmgFormValidator,
 )
 from edc_adverse_event.models import AeClassification, SaeReason
-from edc_constants.constants import NO, NOT_APPLICABLE, OTHER, YES
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import NOT_REQUIRED_ERROR
 from edc_sites.site import sites as site_sites

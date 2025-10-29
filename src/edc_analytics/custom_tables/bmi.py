@@ -1,6 +1,5 @@
 import pandas as pd
-
-from edc_constants.constants import FEMALE, MALE
+from clinicedc_constants import FEMALE, MALE
 
 from ..constants import (
     MEDIAN_IQR,
@@ -14,7 +13,6 @@ from ..table import Table
 
 
 class BmiTable(Table):
-
     colname = "calculated_bmi_value"
 
     def __init__(self, main_df: pd.DataFrame = None):

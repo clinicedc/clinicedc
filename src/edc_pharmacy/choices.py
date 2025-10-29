@@ -1,6 +1,5 @@
+from clinicedc_constants import COMPLETE, NEW, NOT_APPLICABLE, OTHER
 from django.utils.translation import gettext as _
-
-from edc_constants.constants import COMPLETE, NEW, NOT_APPLICABLE, OTHER
 
 from .constants import (
     ALLOCATED,

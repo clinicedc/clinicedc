@@ -1,6 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 
+from clinicedc_constants import FEMALE
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule_action_item import (
@@ -14,7 +15,6 @@ from django.utils import timezone
 
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import FEMALE
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites as site_sites

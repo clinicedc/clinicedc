@@ -1,4 +1,4 @@
-from edc_constants.constants import OTHER
+from clinicedc_constants import OTHER
 
 LTFU_CHOICES = (
     ("unknown_address", "Changed to an unknown address"),

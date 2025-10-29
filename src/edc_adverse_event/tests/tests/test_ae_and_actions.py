@@ -1,5 +1,17 @@
 from unittest.mock import PropertyMock, patch
 
+from clinicedc_constants import (
+    CLOSED,
+    CONTINUING_UPDATE,
+    DEAD,
+    GRADE5,
+    LTFU,
+    NEW,
+    NO,
+    RECOVERED,
+    RECOVERING,
+    YES,
+)
 from clinicedc_tests.action_items import (
     AeFollowupAction,
     AeInitialAction,
@@ -18,12 +30,9 @@ from model_bakery import baker
 
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models.action_item import ActionItem
-from edc_adverse_event.constants import CONTINUING_UPDATE, RECOVERED, RECOVERING
 from edc_adverse_event.models import AeClassification
 from edc_consent import site_consents
-from edc_constants.constants import CLOSED, DEAD, GRADE5, NEW, NO, YES
 from edc_facility.import_holidays import import_holidays
-from edc_ltfu.constants import LOST_TO_FOLLOWUP
 from edc_registration.models import RegisteredSubject
 from edc_registration.utils import RegisteredSubjectDoesNotExist
 from edc_sites.site import sites as site_sites
@@ -541,7 +550,7 @@ class TestAeAndActions(TestCase):
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             report_datetime=timezone.now(),
-            outcome=LOST_TO_FOLLOWUP,
+            outcome=LTFU,
         )
         try:
             ActionItem.objects.get(
@@ -572,7 +581,7 @@ class TestAeAndActions(TestCase):
             ae_initial=ae_initial,
             subject_identifier=self.subject_identifier,
             report_datetime=timezone.now(),
-            outcome=LOST_TO_FOLLOWUP,
+            outcome=LTFU,
         )
 
     @patch("edc_adverse_event.action_items.ae_followup_action.site_action_items.get_by_model")

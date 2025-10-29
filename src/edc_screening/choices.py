@@ -1,4 +1,4 @@
-from edc_constants.constants import (
+from clinicedc_constants import (
     PURPOSIVELY_SELECTED,
     RANDOM_SAMPLING,
     SEQUENTIAL,

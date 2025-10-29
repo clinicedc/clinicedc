@@ -1,4 +1,4 @@
-from edc_constants.constants import CLOSED, NEW, OPEN
+from clinicedc_constants import CLOSED, NEW, OPEN
 
 from ...view_mixins import StatusTmgAeListboardView
 

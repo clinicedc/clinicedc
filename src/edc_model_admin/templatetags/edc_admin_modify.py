@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 from warnings import warn
 
+from clinicedc_constants import NO, YES
 from django import template
 from django.contrib.admin.templatetags.admin_modify import (
     submit_row as django_submit_row,
@@ -12,7 +13,6 @@ from django.urls.base import reverse
 from django.urls.exceptions import NoReverseMatch
 from django_revision.revision import site_revision
 
-from edc_constants.constants import NO, YES
 from edc_model_admin.utils import get_next_url
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 

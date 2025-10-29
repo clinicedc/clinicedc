@@ -1,5 +1,6 @@
+from clinicedc_constants import HIGH_PRIORITY
+
 from edc_action_item.action_with_notification import ActionWithNotification
-from edc_constants.constants import HIGH_PRIORITY
 
 from ..constants import (
     ADVERSE_EVENT_ADMIN_SITE,

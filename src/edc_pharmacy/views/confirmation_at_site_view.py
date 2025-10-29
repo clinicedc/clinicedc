@@ -4,6 +4,7 @@ import contextlib
 import uuid
 from uuid import uuid4
 
+from clinicedc_constants import CONFIRMED
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -15,7 +16,6 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic.base import TemplateView
 
-from edc_constants.constants import CONFIRMED
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin

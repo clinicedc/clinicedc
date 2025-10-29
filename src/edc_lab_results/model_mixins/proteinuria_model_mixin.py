@@ -1,6 +1,5 @@
+from clinicedc_constants import PLUS
 from django.db import models
-
-from edc_reportable.units import PLUS
 
 from ..model_mixin_factories import reportable_result_model_mixin_factory
 

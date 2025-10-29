@@ -1,5 +1,6 @@
 from tempfile import mkdtemp
 
+from clinicedc_constants import YES
 from django.contrib import messages
 from django.utils import timezone
 from reportlab.graphics.barcode import code39
@@ -8,7 +9,6 @@ from reportlab.lib.units import cm, mm
 from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
 
 from edc_appointment.models import Appointment
-from edc_constants.constants import YES
 from edc_identifier.utils import convert_to_human_readable
 from edc_lab.model_mixins import RequisitionModelMixin
 from edc_lab.models.manifest.shipper import Shipper

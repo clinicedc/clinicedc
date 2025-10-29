@@ -1,4 +1,4 @@
-from edc_constants.constants import NEVER
+from clinicedc_constants import NEVER
 
 MISSED_PILLS = (
     ("today", "today"),

@@ -1,6 +1,4 @@
-from django.utils.translation import gettext_lazy as _
-
-from .constants import (
+from clinicedc_constants import (
     ABNORMAL,
     ABSENT,
     AFTERNOON,
@@ -68,6 +66,7 @@ from .constants import (
     WEEKENDS,
     YES,
 )
+from django.utils.translation import gettext_lazy as _
 
 ACU_EST = (
     ("Acute", _("Acute")),

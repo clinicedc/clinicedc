@@ -1,3 +1,4 @@
+from clinicedc_constants import GRADE3, GRADE4, GRADE5, NO, YES
 from clinicedc_tests.sites import all_sites
 from django.core import mail
 from django.test import TestCase, override_settings, tag
@@ -7,7 +8,6 @@ from edc_adverse_event.notifications import (
     AeInitialG3EventNotification,
     AeInitialG4EventNotification,
 )
-from edc_constants.constants import GRADE3, GRADE4, GRADE5, NO, YES
 from edc_facility.import_holidays import import_holidays
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites

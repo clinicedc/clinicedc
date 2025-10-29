@@ -3,10 +3,10 @@ import os
 import re
 from datetime import datetime
 
+from clinicedc_constants import UUID_PATTERN
 from django.db import models
 from django.db.models import Index
 
-from edc_constants.constants import UUID_PATTERN
 from edc_model.models import BaseUuidModel
 
 from .file_history import FileHistory

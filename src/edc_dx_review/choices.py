@@ -1,4 +1,4 @@
-from edc_constants.constants import NOT_APPLICABLE, OTHER
+from clinicedc_constants import NOT_APPLICABLE, OTHER
 
 from .constants import DIET_LIFESTYLE, DRUGS, INSULIN, THIS_CLINIC
 

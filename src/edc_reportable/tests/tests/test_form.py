@@ -2,6 +2,18 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import (
+    FEMALE,
+    GRAMS_PER_DECILITER,
+    IU_LITER,
+    MICROMOLES_PER_LITER,
+    MILLIGRAMS_PER_DECILITER,
+    MILLIMOLES_PER_LITER,
+    NO,
+    NOT_APPLICABLE,
+    TEN_X_9_PER_LITER,
+    YES,
+)
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import SpecimenResult
@@ -13,17 +25,8 @@ from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_consent import site_consents
-from edc_constants.constants import FEMALE, NO, NOT_APPLICABLE, YES
 from edc_crf.crf_form_validator import CrfFormValidator
-from edc_reportable import (
-    GRAMS_PER_DECILITER,
-    IU_LITER,
-    MICROMOLES_PER_LITER,
-    MILLIMOLES_PER_LITER,
-    TEN_X_9_PER_LITER,
-)
 from edc_reportable.forms import ReportablesFormValidatorMixin
-from edc_reportable.units import MILLIGRAMS_PER_DECILITER
 from edc_reportable.utils import load_reference_ranges
 from edc_visit_schedule.constants import DAY01
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules

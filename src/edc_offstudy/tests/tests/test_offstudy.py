@@ -3,6 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import DEAD, INCOMPLETE
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import CrfFour, SubjectConsent
@@ -20,7 +21,6 @@ from edc_action_item.site_action_items import AlreadyRegistered, site_action_ite
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_constants.constants import DEAD, INCOMPLETE
 from edc_facility.import_holidays import import_holidays
 from edc_offstudy.models import SubjectOffstudy
 from edc_offstudy.utils import OffstudyError

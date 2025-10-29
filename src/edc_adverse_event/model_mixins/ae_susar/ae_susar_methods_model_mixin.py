@@ -1,6 +1,5 @@
+from clinicedc_constants import CLOSED, OPEN
 from django.db import models
-
-from edc_constants.constants import CLOSED, OPEN
 
 
 class AeSusarMethodsModelMixin(models.Model):

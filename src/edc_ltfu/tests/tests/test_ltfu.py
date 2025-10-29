@@ -2,6 +2,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import CLOSED, YES
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.sites import all_sites
@@ -14,7 +15,6 @@ from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
 from edc_adverse_event.constants import DEATH_REPORT_ACTION
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import CLOSED, YES
 from edc_facility.import_holidays import import_holidays
 from edc_ltfu.action_items import LtfuAction
 from edc_ltfu.constants import LTFU_ACTION

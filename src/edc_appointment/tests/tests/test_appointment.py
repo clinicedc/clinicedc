@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import INCOMPLETE
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import OnScheduleOne, OnScheduleTwo, SubjectConsent
@@ -29,7 +30,6 @@ from edc_appointment.exceptions import AppointmentBaselineError
 from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.utils import get_appointment_model_cls
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import INCOMPLETE
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import sites as site_sites

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from clinicedc_constants import CLOSED, NEW, OPEN
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from edc_constants.constants import CLOSED, NEW, OPEN
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin

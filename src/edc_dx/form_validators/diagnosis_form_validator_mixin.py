@@ -1,6 +1,5 @@
+from clinicedc_constants import YES
 from django import forms
-
-from edc_constants.constants import YES
 
 from ..diagnoses import (
     ClinicalReviewBaselineRequired,

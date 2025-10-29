@@ -1,4 +1,5 @@
-from edc_constants.constants import YES
+from clinicedc_constants import YES
+
 from edc_form_validators import FormValidator
 
 from .ltfu_form_validator_mixin import LtfuFormValidatorMixin

@@ -1,4 +1,4 @@
-from edc_constants.constants import DM, HIV, HTN, NCD, OTHER
+from clinicedc_constants import DM, HIV, HTN, NCD, OTHER
 
 list_data = {
     "edc_facility.healthfacilitytypes": [

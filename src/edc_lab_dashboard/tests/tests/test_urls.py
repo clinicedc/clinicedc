@@ -1,5 +1,6 @@
 from django.test import TestCase, override_settings, tag
 from django.urls import reverse
+
 from edc_dashboard.url_names import url_names
 
 

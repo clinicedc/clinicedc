@@ -1,8 +1,7 @@
 # do not delete
 
+from clinicedc_constants import NULL_STRING
 from django.db import models
-
-from edc_constants.constants import NULL_STRING
 
 
 class SingletonPrnModelMixin(models.Model):

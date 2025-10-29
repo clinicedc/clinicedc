@@ -1,6 +1,6 @@
 from typing import Any
 
-from edc_constants.constants import NOT_APPLICABLE, NULL_STRING
+from clinicedc_constants import NOT_APPLICABLE, NULL_STRING
 
 from .base_form_validator import (
     APPLICABLE_ERROR,

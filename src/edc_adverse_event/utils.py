@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from django import forms
@@ -10,10 +11,9 @@ from django.contrib.messages import ERROR
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 
+from edc_auth.constants import TMG_ROLE
 from edc_model_admin.utils import add_to_messages_once
 from edc_utils.text import convert_php_dateformat
-
-from .constants import TMG_ROLE
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
@@ -28,19 +28,16 @@ if TYPE_CHECKING:
 def validate_ae_initial_outcome_date(form_obj):
     ae_initial = form_obj.cleaned_data.get("ae_initial")
     if not ae_initial and form_obj.instance:
-        try:
+        with contextlib.suppress(ObjectDoesNotExist):
             ae_initial = form_obj.instance.ae_initial
-        except ObjectDoesNotExist:
-            pass
     outcome_date = form_obj.cleaned_data.get("outcome_date")
-    if ae_initial and outcome_date:
-        if outcome_date < ae_initial.ae_start_date:
-            formatted_dte = ae_initial.ae_start_date.strftime(
-                convert_php_dateformat(settings.SHORT_DATE_FORMAT)
-            )
-            raise forms.ValidationError(
-                {"outcome_date": f"May not be before the AE start date {formatted_dte}."}
-            )
+    if ae_initial and outcome_date and outcome_date < ae_initial.ae_start_date:
+        formatted_dte = ae_initial.ae_start_date.strftime(
+            convert_php_dateformat(settings.SHORT_DATE_FORMAT)
+        )
+        raise forms.ValidationError(
+            {"outcome_date": f"May not be before the AE start date {formatted_dte}."}
+        )
 
 
 def get_adverse_event_admin_site() -> str:
@@ -79,7 +76,7 @@ def get_ae_model_name(model_name: str) -> str:
     return f"{get_adverse_event_app_label()}.{model_name}"
 
 
-def has_valid_tmg_perms(request: WSGIRequest, add_message: bool = None):
+def has_valid_tmg_perms(request: WSGIRequest, add_message: bool | None = None):
     """Checks if user has TMG_ROLE but not granted add/change
     perms to any non-TMG AE models.
 

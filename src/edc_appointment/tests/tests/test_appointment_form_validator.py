@@ -3,6 +3,7 @@ from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import NOT_APPLICABLE
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
@@ -37,7 +38,6 @@ from edc_appointment.form_validators.appointment_form_validator import (
 from edc_appointment.models import Appointment
 from edc_appointment.utils import get_previous_appointment
 from edc_consent.site_consents import site_consents
-from edc_constants.constants import NOT_APPLICABLE
 from edc_facility.import_holidays import import_holidays
 from edc_form_validators import ModelFormFieldValidatorError
 from edc_metadata import KEYED, REQUIRED

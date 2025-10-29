@@ -1,6 +1,5 @@
+from clinicedc_constants import YES
 from django import forms
-
-from edc_constants.constants import YES
 
 from ..utils import calculate_avg_bp, has_severe_htn
 

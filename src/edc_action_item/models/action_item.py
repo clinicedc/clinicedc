@@ -3,13 +3,13 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import CANCELLED, NEW
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.deletion import PROTECT
 from django.utils import timezone
 
-from edc_constants.constants import CANCELLED, NEW
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_notification.model_mixins import NotificationModelMixin

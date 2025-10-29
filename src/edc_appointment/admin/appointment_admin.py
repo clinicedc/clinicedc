@@ -3,6 +3,7 @@ from __future__ import annotations
 import calendar
 from typing import TYPE_CHECKING, Any
 
+from clinicedc_constants import NOT_APPLICABLE
 from django.contrib import admin
 from django.db.models import DurationField, ExpressionWrapper, F
 from django.template.loader import render_to_string
@@ -13,7 +14,6 @@ from django.utils.translation import gettext as _
 from django_audit_fields.admin import audit_fieldset_tuple
 from rangefilter.filters import DateRangeFilterBuilder
 
-from edc_constants.constants import NOT_APPLICABLE
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_document_status.fieldsets import document_status_fieldset_tuple
 from edc_document_status.modeladmin_mixins import DocumentStatusModelAdminMixin

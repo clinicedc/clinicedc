@@ -3,11 +3,9 @@ from warnings import warn
 import pandas as pd
 from django.apps import apps as django_apps
 
-from edc_model_to_dataframe.model_to_dataframe import ModelToDataframe
-
 
 def missing_subject_identifiers(
-    self, model=None, subject_identifiers=None, remove_uuids=None, verbose=None
+    model=None, subject_identifiers=None, remove_uuids=None, verbose=None
 ):
     """Returns a series of subject_identifiers not in model.
 
@@ -16,6 +14,8 @@ def missing_subject_identifiers(
             model='edc_registration.registeredsubject',
             subject_identifiers=[a list of subject identifiers])
     """
+    from edc_model_to_dataframe.model_to_dataframe import ModelToDataframe  # noqa: PLC0415
+
     # convert list of subject identifiers to a dataframe
     df_subject_identifiers = pd.DataFrame(subject_identifiers, columns=["subject_identifier"])
     df_subject_identifiers["identifier"] = df_subject_identifiers["subject_identifier"]
@@ -43,6 +43,7 @@ def missing_subject_identifiers(
     if len(df_missing.index) > 0 and verbose:
         warn(
             f"There are {len(df_missing['identifier'])} subject identifiers "
-            f"missing from {model}."
+            f"missing from {model}.",
+            stacklevel=2,
         )
     return df_missing["identifier"]

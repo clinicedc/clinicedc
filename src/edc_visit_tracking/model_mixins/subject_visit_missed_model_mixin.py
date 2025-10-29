@@ -1,9 +1,9 @@
+from clinicedc_constants import NO, NOT_APPLICABLE
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from edc_constants.choices import ALIVE_DEAD_UNKNOWN, YES_NO, YES_NO_NA
-from edc_constants.constants import NO, NOT_APPLICABLE
 from edc_model import models as edc_models
 from edc_model.validators import date_not_future
 from edc_protocol.validators import date_not_before_study_start

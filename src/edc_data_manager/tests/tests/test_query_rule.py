@@ -5,6 +5,7 @@ from decimal import Decimal
 from unittest import skip
 
 import time_machine
+from clinicedc_constants import NO, OPEN, YES
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
 from clinicedc_tests.models import (
@@ -25,7 +26,6 @@ from django.test import TestCase, override_settings, tag
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
-from edc_constants.constants import NO, OPEN, YES
 from edc_data_manager.models import (
     CrfDataDictionary,
     DataQuery,

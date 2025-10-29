@@ -2,6 +2,7 @@ import datetime as dt
 from zoneinfo import ZoneInfo
 
 import time_machine
+from clinicedc_constants import TEN_X_9_PER_LITER, YES
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
@@ -18,12 +19,10 @@ from django.test import TestCase, override_settings, tag
 from edc_appointment.models import Appointment
 from edc_auth.get_app_codenames import get_app_codenames
 from edc_consent import site_consents
-from edc_constants.constants import YES
 from edc_lab.models import Panel
 from edc_lab_panel.constants import FBC
 from edc_qareports.sql_generator import CrfCase, CrfCaseError, RequisitionCase
 from edc_qareports.sql_generator.crf_subquery import CrfSubqueryError
-from edc_reportable import TEN_X_9_PER_LITER
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")

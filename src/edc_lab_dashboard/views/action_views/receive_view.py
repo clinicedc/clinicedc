@@ -1,8 +1,8 @@
+from clinicedc_constants import YES
 from django.apps import apps as django_apps
 from django.contrib import messages
 from django.utils import timezone
 
-from edc_constants.constants import YES
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_lab import Specimen
 from edc_lab.labels import AliquotLabel

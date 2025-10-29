@@ -1,4 +1,5 @@
 from django.conf import settings
+
 from edc_dashboard.middleware_mixins import EdcTemplateMiddlewareMixin
 from edc_lab.constants import SHIPPED
 

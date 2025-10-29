@@ -1,4 +1,4 @@
-from edc_constants.constants import DEAD, NOT_APPLICABLE, OTHER, UNKNOWN
+from clinicedc_constants import DEAD, NOT_APPLICABLE, OTHER, UNKNOWN
 
 list_data = {
     "edc_adverse_event.aeclassification": [

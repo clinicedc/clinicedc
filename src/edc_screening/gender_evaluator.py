@@ -1,4 +1,4 @@
-from edc_constants.constants import FEMALE, MALE
+from clinicedc_constants import FEMALE, MALE
 
 
 class GenderEvaluator:

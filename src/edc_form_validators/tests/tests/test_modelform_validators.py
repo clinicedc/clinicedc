@@ -1,8 +1,8 @@
+from clinicedc_constants import NO, YES
 from clinicedc_tests.models import TestModelWithFk
 from django import forms
 from django.test import TestCase, tag
 
-from edc_constants.constants import NO, YES
 from edc_form_validators.base_form_validator import (
     InvalidModelFormFieldValidator,
     ModelFormFieldValidatorError,
