@@ -15,6 +15,7 @@ How-to
    mysql_roles_and_read_only_users
    reset_odbc_connector
    sql_examples
+   postgres.rst
    conda
    uv
    redis

@@ -29,8 +29,8 @@ repos:
     rev: v6.2.5
     hooks:
       - id: rstcheck
-        additional_dependencies: ['rstcheck[sphinx,toml]']
-        args: ['--ignore-directives', 'toctree']
+        additional_dependencies: ['rstcheck[sphinx,toml,codespan]']
+        args: ['--ignore-directives', 'toctree,doctest']
 
 #  - repo: https://github.com/astral-sh/uv-pre-commit
 #    rev: 0.8.17
