@@ -1,4 +1,4 @@
-edc_crf
+edc-crf
 =======
 
 In longitudinal clinical trials, CRFs (case report forms) are the most common

@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "2.0.43"
+version = "2.0.44"
 description = "A clinical trials data management framework built on Django"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -244,6 +244,7 @@ docs = [
     "sphinx>=8.2.3",
     "sphinx-design>=0.6.1",
     "sphinx-inline-tabs>=2023.4.21",
+    "sphinx-rtd-theme>=3.0.2",
 ]
 lint = [
     "ruff>=0.13.2",
