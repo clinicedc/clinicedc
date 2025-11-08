@@ -2,7 +2,7 @@ from ..df_handlers import NonCrfDfHandler
 from .tables_exporter import TablesExporter
 
 
-class CsvExporterNoTables(Exception):
+class DataframeExporterNoTables(Exception):
     pass
 
 

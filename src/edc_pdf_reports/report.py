@@ -1,20 +1,18 @@
 from __future__ import annotations
 
-from abc import ABC
 from uuid import uuid4
 
 from django.conf import settings
 from django.core.handlers.wsgi import WSGIRequest
 from django.utils import timezone
 from django_revision.revision import Revision
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_utils.date import to_local
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, StyleSheet1, getSampleStyleSheet
 from reportlab.lib.units import cm
 from reportlab.platypus import SimpleDocTemplate
-
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
-from edc_utils.date import to_local
 
 from .numbered_canvas import NumberedCanvas
 
@@ -25,7 +23,7 @@ class ReportError(Exception):
         self.code = code
 
 
-class Report(ABC):
+class Report:
     document_template = SimpleDocTemplate
     watermark_word: str | None = getattr(settings, "EDC_PDF_REPORTS_WATERMARK_WORD", None)
     watermark_font: tuple[str, int] | None = getattr(

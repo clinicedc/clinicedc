@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import os
 import socket
 import sys
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from django.core.exceptions import ValidationError
 from django.core.mail.message import EmailMessage
-
+from django.utils import timezone
 from edc_notification.utils import get_email_contacts
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
@@ -22,18 +22,50 @@ class FilesEmailerError(ValidationError):
 class FilesEmailer:
     def __init__(
         self,
-        path: str = None,
-        user: User = None,
-        file_ext: str | None = None,
-        summary: str | None = None,
+        path_to_files: Path,
+        *,
+        file_ext: str,
+        user: User,
+        export_filenames: list[str],
         verbose: bool | None = None,
     ):
-        self.file_ext = file_ext or ".csv"
+        self.path_to_files = path_to_files
+        self.file_ext = file_ext
         self.user = user
-        self.path = path
-        self.summary = summary
+        self.export_filenames = export_filenames
         self.verbose = verbose
+
+        self.summary = [str(x) for x in self.export_filenames]
+        self.summary.sort()
+        self.emailed_to = self.user.email
+
         self.email_files()
+
+        self.emailed_datetime = timezone.now()
+
+    def email_files(self) -> None:
+        email_message = self.get_email_message()
+        files = [f for f in self.path_to_files.iterdir() if f.suffix == self.file_ext]
+        x = 0
+        index = 0
+        for index, file in enumerate(files):
+            email_message.attach_file(str(file))
+            x += 1
+            if x >= 10:
+                email_message.subject = (
+                    f"{email_message.subject} (items "
+                    f"{index + 2 - x}-{index + 1} of {len(files)})"
+                )
+                self.send(email_message)
+                email_message = self.get_email_message()
+                x = 0
+        if x > 0:
+            email_message.subject = (
+                f"{email_message.subject} (items {index + 2 - x}-{index + 1} of {len(files)})"
+            )
+            self.send(email_message)
+        if self.verbose:
+            sys.stdout.write(f"\nEmailed export files to {self.user.email}.\n")
 
     def get_email_message(self) -> EmailMessage:
         body = [
@@ -69,33 +101,7 @@ class FilesEmailer:
     def send(email_message) -> None:
         try:
             email_message.send()
-        except socket.gaierror:
-            raise FilesEmailerError("Unable to connect to email server.", code="gaierror")
-
-    def email_files(self) -> None:
-        email_message = self.get_email_message()
-        files = []
-        for filename in os.listdir(self.path):
-            if os.path.splitext(filename)[1] == self.file_ext:
-                files.append(os.path.join(self.path, filename))
-        x = 0
-        index = 0
-        for index, file in enumerate(files):
-            email_message.attach_file(file)
-            x += 1
-            if x >= 10:
-                email_message.subject = (
-                    f"{email_message.subject} (items "
-                    f"{index + 2 - x}-{index + 1} of {len(files)})"
-                )
-                self.send(email_message)
-                email_message = self.get_email_message()
-                x = 0
-        if x > 0:
-            email_message.subject = (
-                f"{email_message.subject} (items "
-                f"{index + 2 - x}-{index + 1} of {len(files)})"
-            )
-            self.send(email_message)
-        if self.verbose:
-            sys.stdout.write(f"\nEmailed export files to {self.user.email}.\n")
+        except socket.gaierror as e:
+            raise FilesEmailerError(
+                "Unable to connect to email server.", code="gaierror"
+            ) from e

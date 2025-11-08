@@ -1,18 +1,17 @@
 from textwrap import fill
 
-import inflect
 from clinicedc_constants import OTHER, YES
 from django.conf import settings
+from edc_pdf_reports.crf_pdf_report import CrfPdfReport
+from inflect import engine
 from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Table
 from reportlab.platypus.flowables import KeepTogether, Spacer
 
-from edc_pdf_reports.crf_pdf_report import CrfPdfReport
-
 from ..utils import get_adverse_event_app_label, get_ae_model
 
-p = inflect.engine()
+p = engine()
 
 
 class AePdfReport(CrfPdfReport):

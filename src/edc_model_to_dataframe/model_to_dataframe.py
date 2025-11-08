@@ -2,24 +2,26 @@ from __future__ import annotations
 
 import contextlib
 from copy import copy
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 from clinicedc_constants import NULL_STRING
 from django.apps import apps as django_apps
-from django.contrib.sites.models import Site
 from django.core.exceptions import FieldError
 from django.db import OperationalError
 from django.db.models import QuerySet
 from django_crypto_fields.utils import get_encrypted_fields, has_encrypted_fields
 from django_pandas.io import read_frame
-
-from edc_lab.models import Panel
-from edc_list_data.model_mixins import ListModelMixin, ListUuidModelMixin
+from edc_sites.utils import get_site_model_cls
 
 from .constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
 
 __all__ = ["ModelToDataframe", "ModelToDataframeError"]
+
+
+if TYPE_CHECKING:
+    pass
 
 
 class ModelToDataframeError(Exception):
@@ -37,7 +39,7 @@ class ModelToDataframe:
     Protections are in place for models or related models with
     encrypted fields.
 
-    We are not using django_pandas read_frame since a model class
+    This class extendd django_pandas read_frame since a model class
     may have M2M fields and read_frame does not handle M2M fields
     well. read_frame does not know about edc encrypted fields.
 
@@ -78,7 +80,7 @@ class ModelToDataframe:
     ):
         self._columns = None
         self._has_encrypted_fields = None
-        self._list_columns = None
+        self._list_model_related_columns = None
         self._encrypted_columns = None
         self._site_columns = None
         self._dataframe = pd.DataFrame()
@@ -279,14 +281,12 @@ class ModelToDataframe:
             for column_name in columns_list:
                 if column_name.endswith("_visit_id"):
                     with contextlib.suppress(FieldError):
-                        columns = self.add_columns_for_subject_visit(
-                            column_name=column_name, columns=columns
-                        )
+                        columns = self.add_columns_for_subject_visit(column_name, columns)
                 if column_name.endswith("_requisition") or column_name.endswith(
                     "requisition_id"
                 ):
                     columns = self.add_columns_for_subject_requisitions(columns)
-            columns = self.add_columns_for_site(columns=columns)
+            columns = self.add_columns_for_site(columns)
             columns = self.add_list_model_name_columns(columns)
             columns = self.add_other_columns(columns)
             columns = self.add_subject_identifier_column(columns)
@@ -325,20 +325,24 @@ class ModelToDataframe:
         return self._encrypted_columns
 
     @property
-    def list_columns(self) -> list[str]:
-        """Return a list of column names with fk to a list model."""
+    def list_model_related_columns(self) -> list[str]:
+        """Return a list of column names with fk to a ListModel."""
+        from edc_list_data.model_mixins import (  # noqa: PLC0415
+            ListModelMixin,
+            ListUuidModelMixin,
+        )
 
-        if not self._list_columns:
-            list_columns = []
+        if not self._list_model_related_columns:
+            list_model_related_columns = []
             for fld_cls in self.model_cls._meta.get_fields():
                 if (
                     hasattr(fld_cls, "related_model")
                     and fld_cls.related_model
                     and issubclass(fld_cls.related_model, (ListModelMixin, ListUuidModelMixin))
                 ):
-                    list_columns.append(fld_cls.attname)  # noqa: PERF401
-            self._list_columns = list(set(list_columns))
-        return self._list_columns
+                    list_model_related_columns.append(fld_cls.attname)  # noqa: PERF401
+            self._list_model_related_columns = list(set(list_model_related_columns))
+        return self._list_model_related_columns
 
     @property
     def site_columns(self) -> list[str]:
@@ -350,27 +354,27 @@ class ModelToDataframe:
                 if (
                     hasattr(fld_cls, "related_model")
                     and fld_cls.related_model
-                    and issubclass(fld_cls.related_model, (Site,))
+                    and issubclass(fld_cls.related_model, (get_site_model_cls(),))
                 ):
-                    site_columns.append(fld_cls.attname)
+                    site_columns.append(fld_cls.attname)  # noqa: PERF401
             self._site_columns = list(set(site_columns))
         return self._site_columns
 
     @property
     def other_columns(self) -> list[str]:
-        """Return other column names with fk to a common models."""
-        related_model = [Site, Panel]
-        if not self._list_columns:
-            list_columns = []
+        """Return OTHER column names with fk to a common models."""
+        related_model = [get_site_model_cls(), django_apps.get_model("edc_lab.panel")]
+        if not self._list_model_related_columns:
+            list_model_related_columns = []
             for fld_cls in self.model_cls._meta.get_fields():
                 if (
                     hasattr(fld_cls, "related_model")
                     and fld_cls.related_model
                     and fld_cls.related_model in related_model
                 ):
-                    list_columns.append(fld_cls.attname)
-            self._list_columns = list(set(list_columns))
-        return self._list_columns
+                    list_model_related_columns.append(fld_cls.attname)  # noqa: PERF401
+            self._list_model_related_columns = list(set(list_model_related_columns))
+        return self._list_model_related_columns
 
     def add_subject_identifier_column(self, columns: dict[str, str]) -> dict[str, str]:
         if "subject_identifier" not in [v for v in columns.values()]:
@@ -391,7 +395,7 @@ class ModelToDataframe:
 
     @staticmethod
     def add_columns_for_subject_visit(
-        column_name: str = None, columns: dict[str, str] = None
+        column_name: str, columns: dict[str, str]
     ) -> dict[str, str]:
         if "subject_identifier" not in [v for v in columns.values()]:
             columns.update(
@@ -407,9 +411,7 @@ class ModelToDataframe:
         return columns
 
     @staticmethod
-    def add_columns_for_subject_requisitions(
-        columns: dict[str, str] = None,
-    ) -> dict[str, str]:
+    def add_columns_for_subject_requisitions(columns: dict[str, str]) -> dict[str, str]:
         for col in copy(columns):
             if col.endswith("_requisition_id"):
                 col_prefix = col.split("_")[0]
@@ -427,21 +429,21 @@ class ModelToDataframe:
                 columns.update({f"{column_name}__is_drawn": f"{col_prefix}_is_drawn"})
         return columns
 
-    def add_columns_for_site(self, columns: dict[str, str] = None) -> dict[str, str]:
+    def add_columns_for_site(self, columns: dict[str, str]) -> dict[str, str]:
         for col in copy(columns):
             if col in self.site_columns:
                 col_prefix = col.split("_id")[0]
                 columns.update({f"{col_prefix}__name": f"{col_prefix}_name"})
         return columns
 
-    def add_list_model_name_columns(self, columns: dict[str, str] = None) -> dict[str, str]:
+    def add_list_model_name_columns(self, columns: dict[str, str]) -> dict[str, str]:
         for col in copy(columns):
-            if col in self.list_columns:
+            if col in self.list_model_related_columns:
                 column_name = col.split("_id")[0]
                 columns.update({f"{column_name}__name": f"{column_name}_name"})
         return columns
 
-    def add_other_columns(self, columns: dict[str, str] = None) -> dict[str, str]:
+    def add_other_columns(self, columns: dict[str, str]) -> dict[str, str]:
         for col in copy(columns):
             if col in self.other_columns:
                 column_name = col.split("_id")[0]

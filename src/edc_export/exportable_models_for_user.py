@@ -5,23 +5,13 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin import sites
 from django.core.exceptions import ObjectDoesNotExist
-
-from edc_randomization.site_randomizers import site_randomizers
+from edc_auth.is_custom_permissions_model import is_custom_permissions_model
+from edc_randomization.utils import is_randomization_list_model
 
 from .constants import EXPORT
 from .model_options import ModelOptions
 
-
-def is_randomization_list_model(model=None) -> bool:
-    """Returns True if model is a randomization list model."""
-    for randomizer in site_randomizers._registry.values():
-        if (
-            model._meta.label_lower == randomizer.model
-            or model._meta.label_lower
-            == randomizer.model_cls().history.model._meta.label_lower
-        ):
-            return True
-    return False
+__all__ = ["ExportablesModelsForUser"]
 
 
 class Exportable(OrderedDict):
@@ -35,7 +25,9 @@ class Exportable(OrderedDict):
         self.name = app_config.name
         self.verbose_name = app_config.verbose_name
         for model in app_config.get_models():
-            if is_randomization_list_model(model=model):
+            if is_randomization_list_model(model=model) or is_custom_permissions_model(
+                model=model
+            ):
                 continue
             model_opts = ModelOptions(model=model._meta.label_lower)
             if model_opts.is_historical:
@@ -79,7 +71,7 @@ class Exportable(OrderedDict):
         return self._inlines.get(app_label)
 
 
-class Exportables(OrderedDict):
+class ExportablesModelsForUser(OrderedDict):
     """A dictionary-like object that creates a "list" of
     models, historical models, and list models that may be exported.
 

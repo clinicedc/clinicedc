@@ -14,7 +14,7 @@ class Command(BaseCommand):
             dest="models",
             nargs="*",
             default=None,
-            help=("run for a select list of models (label_lower syntax)"),
+            help="run for a select list of models (label_lower syntax)",
         )
 
     def handle(self, *args, **options):
