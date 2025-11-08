@@ -58,9 +58,7 @@ def remove_default_model_permissions_from_edc_permissions(auth_updater: Any, app
         )
 
 
-def make_view_only_group_permissions(
-    prefix: str, group: Group, model: str|None = None
-):
+def make_view_only_group_permissions(prefix: str, group: Group, model: str | None = None):
     """Remove all but view permissions for model.
 
     Accepts a prefix as well, e.g. `historical`.

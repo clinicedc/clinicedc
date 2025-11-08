@@ -15,7 +15,7 @@ from django.utils import timezone
 from edc_consent import site_consents
 from edc_export.utils import get_export_folder
 from edc_facility.import_holidays import import_holidays
-from edc_pdutils.df_exporters import CsvModelExporter
+from edc_pdutils.df_exporters import ModelExporter
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -55,7 +55,7 @@ class TestExport(TestCase):
 
     def test_encrypted_to_csv_from_qs(self):
         CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
-        model_exporter = CsvModelExporter(
+        model_exporter = ModelExporter(
             queryset=CrfEncrypted.objects.all(),
             export_folder=get_export_folder(),
         )
@@ -63,20 +63,20 @@ class TestExport(TestCase):
 
     def test_encrypted_to_csv_from_model(self):
         CrfEncrypted.objects.create(subject_visit=self.subject_visit, encrypted1="encrypted1")
-        model_exporter = CsvModelExporter(
+        model_exporter = ModelExporter(
             model="clinicedc_tests.CrfEncrypted",
             export_folder=get_export_folder(),
         )
         model_exporter.to_csv()
 
     def test_records_to_csv_from_qs(self):
-        model_exporter = CsvModelExporter(
+        model_exporter = ModelExporter(
             queryset=CrfThree.objects.all(), export_folder=get_export_folder()
         )
         model_exporter.to_csv()
 
     def test_records_to_csv_from_model(self):
-        model_exporter = CsvModelExporter(
+        model_exporter = ModelExporter(
             model="clinicedc_tests.crfone",
             sort_by=["subject_identifier", "visit_code"],
             export_folder=get_export_folder(),

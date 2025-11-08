@@ -9,15 +9,18 @@ __all__ = ["read_frame_edc"]
 
 
 def read_frame_edc(
-    queryset: QuerySet | str,
+    model_or_queryset: QuerySet | str,
+    *,
     drop_sys_columns: bool | None = None,
     drop_action_item_columns: bool | None = None,
     read_frame_verbose: bool | None = None,
 ):
-    if not isinstance(queryset, QuerySet):
-        queryset = django_apps.get_model(queryset).objects.all()
+    if not isinstance(model_or_queryset, QuerySet):
+        qs = django_apps.get_model(model_or_queryset).objects.all()
+    else:
+        qs = model_or_queryset
     m = ModelToDataframe(
-        queryset=queryset,
+        queryset=qs,
         drop_sys_columns=drop_sys_columns,
         drop_action_item_columns=drop_action_item_columns,
         read_frame_verbose=read_frame_verbose,

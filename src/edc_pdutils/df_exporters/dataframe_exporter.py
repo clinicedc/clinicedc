@@ -10,7 +10,6 @@ from django.conf import settings
 from django.core.management.color import color_style
 from django.db.models import QuerySet
 from django.utils import timezone
-
 from edc_export.exceptions import (
     ExporterExportFolder,
     ExporterFileExists,
@@ -37,7 +36,7 @@ class Exported:
         return f"{self.model_name} {self.record_count}"
 
 
-class CsvExporter:
+class DataframeExporter:
     date_format: str | None = None
     delimiter: str = "|"
     encoding: str = "utf-8"
@@ -255,5 +254,5 @@ class CsvExporter:
         )
 
 
-class Exporter(CsvExporter):
+class Exporter(DataframeExporter):
     pass

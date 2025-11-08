@@ -16,6 +16,7 @@ Clinicedc modules
    edc_device
    edc_dx
    edc_egfr
+   edc_export
    edc_facility
    edc_fieldsets
    edc_form_describer

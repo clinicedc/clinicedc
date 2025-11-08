@@ -33,7 +33,7 @@ class CsvCrfInlineTablesExporter(CsvCrfTablesExporter):
                     )
                     df = self.get_prepped_inline_df(table_name=row.table_name, df=df)
                     label = row.column_name.replace("_id", "").replace("_", "")
-                    csv_exporter = self.csv_exporter_cls(
+                    csv_exporter = self.df_exporter_cls(
                         data_label=f"{row.table_name}_{label}_merged",
                         export_folder=export_folder,
                         **kwargs,

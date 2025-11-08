@@ -10,7 +10,6 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django_pandas.io import read_frame
-
 from edc_pdutils.constants import SYSTEM_COLUMNS
 from edc_sites.site import sites
 
@@ -178,3 +177,16 @@ def export_randomization_list(
     df.to_csv(**opts)
     sys.stdout.write(f"{filename!s}\n")
     return Path(filename)
+
+
+def is_randomization_list_model(model=None) -> bool:
+    """Returns True if model is a randomization list model."""
+    for randomizer in site_randomizers._registry.values():
+        if (
+            "randomization" in model._meta.label_lower
+            or model._meta.label_lower == randomizer.model
+            or model._meta.label_lower
+            == randomizer.model_cls().history.model._meta.label_lower
+        ):
+            return True
+    return False
