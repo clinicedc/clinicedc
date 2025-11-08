@@ -20,7 +20,7 @@ If you are running a notebook you can load the DJANGO environment likes this:
 
 
 Note:
-    If you cannot load the Django environment try ``clinicedc_utils`` function ``export_raw_tables`` instead of ``ModelsToFile``. Function ``export_raw_tables`` passes simple SELECT ALL statements for each model in a project to pandas ``read_sql`` to generate CSV and STATA files. However, ``export_raw_tables`` does not expand foreign keys and M2M columns.
+    If you cannot load the Django environment try ``clinicedc_utils`` function ``export_raw_tables`` instead of ``ModelsToFile``. Function ``export_raw_tables`` passes simple SELECT ALL statements for each model in a project to pandas ``read_sql`` to generate CSV and STATA files. However, ``export_raw_tables`` does not expand foreign keys and M2M columns. See the example below.
 
 Exporting a clinicedc projects models
 +++++++++++++++++++++++++++++++++++++
@@ -99,3 +99,47 @@ To export all relevant models from a typical clinicedc project:
 
     # archive (zip) will be in a temp folder. Copy the path and move the file to a more convenient location.
     print(models_to_file.archive_filename)
+
+Exporting raw tables
+++++++++++++++++++++
+
+See also ``remote_read_sql``
+
+``export_raw_tables`` does not expand foreign keys and M2M columns.
+
+.. code-block:: python
+
+    from pathlib import Path
+    from clinicedc_utils import export_raw_tables
+
+    # change as needed (see remote_read_sql)
+
+    # include ssh_config_path to export from a remote database
+    # using an ssh tunnel
+    ssh_config_path = Path("~/.remote_read_sql")
+
+    # mysql conf. If accessing a remote DB it is recommended
+    # to use a read_only/SELECT only mysql account
+    my_cnf_path = Path("~/.my.cnf")
+    my_cnf_connection_name = "my.database.server"
+
+    db_name = "meta3_production"
+
+    # all CSV files will be here
+    data_folder = Path("~/raw_tables/meta3/csv/").expanduser()
+
+    conn_opts = dict(
+        ssh_config_path=ssh_config_path, # remove if not remote
+        my_cnf_path=my_cnf_path,
+        my_cnf_connection_name=my_cnf_connection_name,
+        db_name=db_name,
+    )
+
+    problems = export_raw_tables(
+        data_folder=data_folder,
+        subject_visit_table="meta_subject_subjectvisit",
+        subject_consent_table="meta_consent_subjectconsent",
+        **conn_opts
+    )
+
+    print(problems)
