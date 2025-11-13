@@ -32,7 +32,7 @@ dependencies = [
     "beautifulsoup4>=4.13.5",
     "boto3>=1.39.16",
     "celery>=5.5.3",
-    "clinicedc-utils>=1.0.0",
+    "clinicedc-utils>=1.0.2",
     "clinicedc-constants>=1.2.0",
     "cryptography>=45.0.7",
     "django>=5.2.4",
@@ -240,7 +240,7 @@ ignore_directives = ["toctree"]
 
 [dependency-groups]
 dev = [
-    "clinicedc-tests>=1.0.0",
+    "clinicedc-tests>=1.0.1",
     "django-webtest>=1.9.14",
 ]
 docs = [
