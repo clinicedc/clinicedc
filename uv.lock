@@ -625,13 +625,13 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.13.5" },
     { name = "boto3", specifier = ">=1.39.16" },
     { name = "celery", specifier = ">=5.5.3" },
-    { name = "clinicedc-constants", editable = "../clinicedc-constants" },
-    { name = "clinicedc-utils", editable = "../clinicedc-utils" },
+    { name = "clinicedc-constants", specifier = ">=1.2.0" },
+    { name = "clinicedc-utils", specifier = ">=1.0.2" },
     { name = "cryptography", specifier = ">=45.0.7" },
-    { name = "django", specifier = ">=5.2.4" },
+    { name = "django", specifier = ">=5.2.8" },
     { name = "django-admin-rangefilter", specifier = ">=0.13.3" },
-    { name = "django-audit-fields", specifier = ">=2.0.3" },
-    { name = "django-crypto-fields", specifier = ">=1.1.2" },
+    { name = "django-audit-fields", specifier = ">=2.0.6" },
+    { name = "django-crypto-fields", specifier = ">=1.2.0" },
     { name = "django-db-views", specifier = ">=0.1.11" },
     { name = "django-defender", specifier = ">=0.9.8" },
     { name = "django-environ", specifier = ">=0.12.0" },
@@ -640,7 +640,7 @@ requires-dist = [
     { name = "django-pandas", specifier = ">=0.6.7" },
     { name = "django-pylabels", specifier = ">=1.0.1" },
     { name = "django-redis", specifier = ">=6.0.0" },
-    { name = "django-revision", specifier = ">=2.0.1" },
+    { name = "django-revision", specifier = ">=2.1.0" },
     { name = "django-sequences", specifier = ">=3.0" },
     { name = "django-simple-history", specifier = ">=3.10.1" },
     { name = "django-storages", specifier = ">=1.14.6" },
@@ -664,7 +664,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "clinicedc-tests", editable = "../clinicedc-tests" },
+    { name = "clinicedc-tests", specifier = ">=1.0.1" },
     { name = "django-webtest", specifier = ">=1.9.14" },
 ]
 docs = [
@@ -692,12 +692,16 @@ notebook = [
 [[package]]
 name = "clinicedc-constants"
 version = "1.2.0"
-source = { editable = "../clinicedc-constants" }
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/47/77/a66d474d7f84c26dfc6128c006d89e20afb590450a3b79a1250f22dd5f3f/clinicedc_constants-1.2.0.tar.gz", hash = "sha256:bda60e8bf40d2ed829dfb23127472efc150773622df5059351819c67aad5d4bc", size = 6554, upload-time = "2025-11-08T15:30:48.682Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3e/c2/b82dffb957426f2f2a992ee53aaaea20dedf45823b79fe9c11e586e299fb/clinicedc_constants-1.2.0-py3-none-any.whl", hash = "sha256:c1709b63748ff3804801af007bd3dfe6b88805e4a94c94bb6a3abe1d5689b29a", size = 8412, upload-time = "2025-11-08T15:30:47.68Z" },
+]
 
 [[package]]
 name = "clinicedc-tests"
 version = "1.0.1"
-source = { editable = "../clinicedc-tests" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "coverage" },
     { name = "faker" },
@@ -706,34 +710,15 @@ dependencies = [
     { name = "tox" },
     { name = "tox-uv" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "coverage", specifier = ">=7.10.1" },
-    { name = "faker", specifier = ">=37.4.2" },
-    { name = "model-bakery", specifier = ">=1.20.5" },
-    { name = "time-machine", specifier = ">=2.16.0" },
-    { name = "tox", specifier = ">=4.32.0" },
-    { name = "tox-uv", specifier = ">=1.26.2" },
-]
-
-[package.metadata.requires-dev]
-docs = [
-    { name = "furo", specifier = ">=2025.7.19" },
-    { name = "sphinx", specifier = ">=8.2.3" },
-    { name = "sphinx-design", specifier = ">=0.6.1" },
-    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
-]
-lint = [
-    { name = "black", specifier = ">=25.1.0" },
-    { name = "isort", specifier = "==5.13.2" },
-    { name = "ruff", specifier = ">=0.12.5" },
+sdist = { url = "https://files.pythonhosted.org/packages/f2/65/d447562ee2ed0bfa61101ebf03097a49e1f33d6e2a3fdad763ae0750db45/clinicedc_tests-1.0.1.tar.gz", hash = "sha256:1ed7841a3c3058a3bc6bd7ad4f996e64e0050c408d3c379b5f1d7f4e3a7ae1a7", size = 54860, upload-time = "2025-11-13T05:27:53.459Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ab/a2/6aab36c16204b9c3a3696e8356afd76d479b4c685962d913d1146da2507e/clinicedc_tests-1.0.1-py3-none-any.whl", hash = "sha256:ece05006f2f2d49a3bec7b55d3bd3297522cab83f66b85057e85a4b786ec6e4c", size = 96618, upload-time = "2025-11-13T05:27:52.116Z" },
 ]
 
 [[package]]
 name = "clinicedc-utils"
 version = "1.0.2"
-source = { editable = "../clinicedc-utils" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "clinicedc-constants" },
     { name = "pandas" },
@@ -741,14 +726,9 @@ dependencies = [
     { name = "sqlalchemy" },
     { name = "tqdm" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "clinicedc-constants", specifier = ">=1.0.1" },
-    { name = "pandas", specifier = ">=2.3.3" },
-    { name = "remote-read-sql", specifier = ">=1.2.3" },
-    { name = "sqlalchemy", specifier = ">=2.0.44" },
-    { name = "tqdm", specifier = ">=4.67.1" },
+sdist = { url = "https://files.pythonhosted.org/packages/78/7f/c2147ddeaa5de2c804fc46e840e133e7d9200b3b680072c116215434c8f1/clinicedc_utils-1.0.2.tar.gz", hash = "sha256:2447ad546945c2e1d2a5efc365a4568550b66ea51c4a71f05e55344e8931f733", size = 8879, upload-time = "2025-11-13T05:29:32.998Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/14/c1/cb07248cd9f0de68821f6581c25f290a3650c0e8465600b0f14b33e3341d/clinicedc_utils-1.0.2-py3-none-any.whl", hash = "sha256:6d0bfc1cd4dd6da9490d807106e2905506ace60289e06bf52f79123ed9bb9513", size = 20540, upload-time = "2025-11-13T05:29:31.658Z" },
 ]
 
 [[package]]
@@ -1021,7 +1001,7 @@ wheels = [
 
 [[package]]
 name = "django-crypto-fields"
-version = "1.1.2"
+version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django-audit-fields" },
@@ -1031,9 +1011,9 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2b/4a/eb240c6b68fe93d1d29392ad20839c8622ef3f42066429623b78ce6ac123/django_crypto_fields-1.1.2.tar.gz", hash = "sha256:ecbaa1ca8df5a0e7f7697409126e7843f8083d95b7e100c61e2baf34489a3623", size = 40218, upload-time = "2025-09-25T23:53:44.932Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d3/92/8418a1f8b019ab46c28a41a33114df4f81bb2f95fe6ae888b46c4e1a9bbb/django_crypto_fields-1.2.0.tar.gz", hash = "sha256:08a374a844315a23c894d45eacc8455bf1e6a04254509d0e73f1a05f11015f02", size = 40226, upload-time = "2025-11-13T05:49:26.905Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d8/eb/702228c2572ddd14d7f0013a7683d870e18934f461745abdba09b4b89280/django_crypto_fields-1.1.2-py3-none-any.whl", hash = "sha256:134536e4534c2cc3020e4e68b18a7bef6baddd83da8138f619f232f03b92edd9", size = 65079, upload-time = "2025-09-25T23:53:43.419Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/24/e7e212ba302dacec71eb550eca692ef468ebdc652e83136259484dc4b749/django_crypto_fields-1.2.0-py3-none-any.whl", hash = "sha256:2a1402d0d13b01217ba6bdf71d467248958d997bd63493e1905d15f2c6689c1d", size = 65095, upload-time = "2025-11-13T05:49:25.821Z" },
 ]
 
 [[package]]
