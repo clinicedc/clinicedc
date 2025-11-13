@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "2.2.0"
+version = "2.2.1"
 description = "A clinical trials data management framework built on Django"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -35,10 +35,9 @@ dependencies = [
     "clinicedc-utils>=1.0.2",
     "clinicedc-constants>=1.2.0",
     "cryptography>=45.0.7",
-    "django>=5.2.4",
     "django-admin-rangefilter>=0.13.3",
-    "django-audit-fields>=2.0.3",
-    "django-crypto-fields>=1.1.2",
+    "django-audit-fields>=2.0.6",
+    "django-crypto-fields>=1.2.0",
     "django-db-views>=0.1.11",
     "django-defender>=0.9.8",
     "django-environ>=0.12.0",
@@ -47,7 +46,7 @@ dependencies = [
     "django-pandas>=0.6.7",
     "django-pylabels>=1.0.1",
     "django-redis>=6.0.0",
-    "django-revision>=2.0.1",
+    "django-revision>=2.1.0",
     "django-sequences>=3.0",
     "django-simple-history>=3.10.1",
     "django-storages>=1.14.6",
@@ -67,6 +66,7 @@ dependencies = [
     "sqlglot>=27.8.0",
     "tqdm>=4.67.1",
     "twilio>=9.7.0",
+    "django>=5.2.8",
 ]
 
 [project.urls]

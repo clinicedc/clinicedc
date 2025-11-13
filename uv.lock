@@ -544,7 +544,7 @@ wheels = [
 
 [[package]]
 name = "clinicedc"
-version = "2.2.0"
+version = "2.2.1"
 source = { editable = "." }
 dependencies = [
     { name = "argon2-cffi" },
@@ -628,10 +628,10 @@ requires-dist = [
     { name = "clinicedc-constants", editable = "../clinicedc-constants" },
     { name = "clinicedc-utils", editable = "../clinicedc-utils" },
     { name = "cryptography", specifier = ">=45.0.7" },
-    { name = "django", specifier = ">=5.2.4" },
+    { name = "django", specifier = ">=5.2.8" },
     { name = "django-admin-rangefilter", specifier = ">=0.13.3" },
-    { name = "django-audit-fields", specifier = ">=2.0.3" },
-    { name = "django-crypto-fields", specifier = ">=1.1.2" },
+    { name = "django-audit-fields", specifier = ">=2.0.6" },
+    { name = "django-crypto-fields", specifier = ">=1.2.0" },
     { name = "django-db-views", specifier = ">=0.1.11" },
     { name = "django-defender", specifier = ">=0.9.8" },
     { name = "django-environ", specifier = ">=0.12.0" },
@@ -640,7 +640,7 @@ requires-dist = [
     { name = "django-pandas", specifier = ">=0.6.7" },
     { name = "django-pylabels", specifier = ">=1.0.1" },
     { name = "django-redis", specifier = ">=6.0.0" },
-    { name = "django-revision", specifier = ">=2.0.1" },
+    { name = "django-revision", specifier = ">=2.1.0" },
     { name = "django-sequences", specifier = ">=3.0" },
     { name = "django-simple-history", specifier = ">=3.10.1" },
     { name = "django-storages", specifier = ">=1.14.6" },
@@ -1021,7 +1021,7 @@ wheels = [
 
 [[package]]
 name = "django-crypto-fields"
-version = "1.1.2"
+version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django-audit-fields" },
@@ -1031,9 +1031,9 @@ dependencies = [
     { name = "python-dateutil" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2b/4a/eb240c6b68fe93d1d29392ad20839c8622ef3f42066429623b78ce6ac123/django_crypto_fields-1.1.2.tar.gz", hash = "sha256:ecbaa1ca8df5a0e7f7697409126e7843f8083d95b7e100c61e2baf34489a3623", size = 40218, upload-time = "2025-09-25T23:53:44.932Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d3/92/8418a1f8b019ab46c28a41a33114df4f81bb2f95fe6ae888b46c4e1a9bbb/django_crypto_fields-1.2.0.tar.gz", hash = "sha256:08a374a844315a23c894d45eacc8455bf1e6a04254509d0e73f1a05f11015f02", size = 40226, upload-time = "2025-11-13T05:49:26.905Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d8/eb/702228c2572ddd14d7f0013a7683d870e18934f461745abdba09b4b89280/django_crypto_fields-1.1.2-py3-none-any.whl", hash = "sha256:134536e4534c2cc3020e4e68b18a7bef6baddd83da8138f619f232f03b92edd9", size = 65079, upload-time = "2025-09-25T23:53:43.419Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/24/e7e212ba302dacec71eb550eca692ef468ebdc652e83136259484dc4b749/django_crypto_fields-1.2.0-py3-none-any.whl", hash = "sha256:2a1402d0d13b01217ba6bdf71d467248958d997bd63493e1905d15f2c6689c1d", size = 65095, upload-time = "2025-11-13T05:49:25.821Z" },
 ]
 
 [[package]]
