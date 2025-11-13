@@ -6,7 +6,7 @@ from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
-from ..exportable_models_for_user import ExportablesModelsForUser
+from ..exportable_models_for_user import ExportableModelsForUser
 
 
 class ExportModelsView(EdcViewMixin, NavbarViewMixin, TemplateView):
@@ -23,5 +23,5 @@ class ExportModelsView(EdcViewMixin, NavbarViewMixin, TemplateView):
             else:
                 messages.info(self.request, "Nothing has been exported.")
         user = User.objects.get(username=self.request.user)
-        kwargs.update(exportables=ExportablesModelsForUser(request=self.request, user=user))
+        kwargs.update(exportables=ExportableModelsForUser(request=self.request, user=user))
         return super().get_context_data(**kwargs)

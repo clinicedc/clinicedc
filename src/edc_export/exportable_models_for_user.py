@@ -11,7 +11,7 @@ from edc_randomization.utils import is_randomization_list_model
 from .constants import EXPORT
 from .model_options import ModelOptions
 
-__all__ = ["ExportablesModelsForUser"]
+__all__ = ["ExportableModelsForUser"]
 
 
 class Exportable(OrderedDict):
@@ -71,7 +71,7 @@ class Exportable(OrderedDict):
         return self._inlines.get(app_label)
 
 
-class ExportablesModelsForUser(OrderedDict):
+class ExportableModelsForUser(OrderedDict):
     """A dictionary-like object that creates a "list" of
     models, historical models, and list models that may be exported.
 

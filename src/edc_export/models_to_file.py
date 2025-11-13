@@ -9,11 +9,12 @@ from typing import TYPE_CHECKING
 from django.apps import apps as django_apps
 from django.db import OperationalError
 from django.utils import timezone
+from tqdm import tqdm
 
 from edc_model_to_dataframe.model_to_dataframe import ModelToDataframe
 from edc_sites.site import sites
 
-from .constants import CSV, STATA_14
+from .constants import CSV, STATA_14, STATA_15
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -23,6 +24,10 @@ if TYPE_CHECKING:
     from pandas import pd
 
     from edc_data_manager.models import DataDictionary
+
+
+class ModelsToFileError(Exception):
+    pass
 
 
 class ModelsToFileNothingExportedError(Exception):
@@ -45,16 +50,26 @@ class ModelsToFile:
         *,
         user: User | AbstractBaseUser | AnonymousUser,
         models: list[str],
-        site_ids: list[str] | None = None,
+        export_folder: Path | None = None,
+        site_ids: list[int] | None = None,
         decrypt: bool | None = None,
         archive_to_single_file: bool | None = None,
         export_format: str | int | None = None,
+        use_simple_filename: bool | None = None,
+        date_format: str | None = None,
     ):
         self.archive_filename: str | None = None
         self.emailed_datetime: datetime | None = None
         self.emailed_to: str | None = None
         self.exported_filenames: list = []
         self.export_format = export_format or CSV
+        if export_format not in [CSV, STATA_14, STATA_15]:
+            raise ModelsToFileError(
+                f"Invalid export format. Expected one of {[CSV, STATA_14, STATA_15]}. "
+                f"Got {export_format}"
+            )
+        self.use_simple_filename = use_simple_filename
+        self.date_format = date_format or self.date_format
 
         self.archive_to_single_file: bool = (
             True if archive_to_single_file is None else archive_to_single_file
@@ -62,19 +77,23 @@ class ModelsToFile:
         self.decrypt: bool = decrypt or False
         self.models: list[str] = models or []
         self.user = user
+
         self.site_ids = site_ids or [sites.get_current_site().site_id]
         for site_id in self.site_ids:
             if not sites.get_site_ids_for_user(user=self.user, site_id=site_id):
                 self.site_ids = [s for s in self.site_ids if s != site_id]
 
-        # sys.stdout.write(f"Exporting tables for sites: [{','.join(self.site_ids)}]\n")
-
-        self.tmp_folder: Path = Path(mkdtemp())
+        if export_folder and not export_folder.exists():
+            raise ModelsToFileError(f"Export folder does not exist. Got {export_folder}.")
+        self.export_folder: Path = export_folder if export_folder else Path(mkdtemp())
         formatted_date: str = timezone.now().strftime("%Y%m%d%H%M%S")
-        self.working_name = f"{self.user.username}_{formatted_date}"
-        (self.tmp_folder / self.working_name).mkdir(parents=False, exist_ok=False)
+        self.sub_folder = (
+            f"{self.user.username}_{'csv' if export_format == CSV else 'stata'}_"
+            f"{formatted_date}"
+        )
+        (self.export_folder / self.sub_folder).mkdir(parents=False, exist_ok=False)
 
-        for model in self.models:
+        for model in tqdm(self.models, total=len(self.models)):
             if filename := self.model_to_file(model):
                 self.exported_filenames.append(filename)
         if not self.exported_filenames:
@@ -83,7 +102,7 @@ class ModelsToFile:
             self.archive_filename = self.create_archive_file()
             sys.stdout.write(f"{self.archive_filename}\n")
 
-    def model_to_file(self, model: str) -> str:
+    def model_to_file(self, model: str) -> str | None:
         """Convert model to a dataframe and export as CSV or STATA
         using pandas.Dataframe to_csv() or to_stata().
         """
@@ -96,7 +115,7 @@ class ModelsToFile:
                 drop_sys_columns=False,
                 drop_action_item_columns=True,
                 read_frame_verbose=False,
-                remove_timezone=False,
+                remove_timezone=True,
             ).dataframe
         except OperationalError as e:
             if "1142" not in str(e):
@@ -104,39 +123,46 @@ class ModelsToFile:
             sys.stdout.write(f"Skipping. Got {e}\n")
         else:
             if not dataframe.empty:
+                fname = (
+                    model.split(".")[-1:][0].upper() if self.use_simple_filename else model
+                ).replace(".", "_")
                 if self.export_format == CSV:
-                    path = self.tmp_folder / self.working_name / f"{model}.csv"
-                    sys.stdout.write(f"{path}\n")
+                    path = self.export_folder / self.sub_folder / f"{fname}.csv"
                     dataframe.to_csv(
                         path_or_buf=path,
                         index=False,
                         encoding=self.encoding,
                         sep=self.delimiter,
-                        # date_format=self.date_format,
+                        date_format=self.date_format,
                     )
-                    filename = path.name
-                elif self.export_format in [STATA_14]:
-                    path = self.tmp_folder / self.working_name / f"{model}.dta"
+                elif self.export_format in [STATA_14, STATA_15]:
+                    path = self.export_folder / self.sub_folder / f"{fname}.dta"
                     dataframe.to_stata(
                         path,
                         data_label=str(path),
                         version=118,
                         variable_labels=self.stata_variable_labels(dataframe, model=model),
+                        write_index=False,
                     )
-                    filename = path.name
                 else:
                     raise ModelsToFileNothingExportedError(
                         "Invalid file format. Expected CSV or STATA"
                     )
+                filename = path.name
             return filename
         return None
 
+    def get_filename_without_ext(self, model_name: str) -> str:
+        return (
+            model_name.split("_")[-1:][0].upper() if self.use_simple_filename else model_name
+        )
+
     def create_archive_file(self):
         return shutil.make_archive(
-            str(self.tmp_folder / self.working_name),
+            str(self.export_folder / self.sub_folder),
             "zip",
-            root_dir=self.tmp_folder,
-            base_dir=self.working_name,
+            root_dir=self.export_folder,
+            base_dir=self.sub_folder,
         )
 
     def stata_variable_labels(self, dataframe: pd.DataFrame, model: str) -> dict[str, str]:
@@ -144,7 +170,7 @@ class ModelsToFile:
         qs = self.data_dictionary_model_cls.objects.values("field_name", "prompt").filter(
             model=model, field_name__in=list(dataframe.columns)
         )
-        variable_labels.update({obj.field_name: obj.prompt[:79] for obj in qs})
+        variable_labels.update({obj.get("field_name"): obj.get("prompt")[:79] for obj in qs})
         return variable_labels
 
     @property

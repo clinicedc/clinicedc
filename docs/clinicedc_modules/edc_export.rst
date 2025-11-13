@@ -22,8 +22,8 @@ If you are running a notebook you can load the DJANGO environment likes this:
 Note:
     If you cannot load the Django environment try ``clinicedc_utils`` function ``export_raw_tables`` instead of ``ModelsToFile``. Function ``export_raw_tables`` passes simple SELECT ALL statements for each model in a project to pandas ``read_sql`` to generate CSV and STATA files. However, ``export_raw_tables`` does not expand foreign keys and M2M columns. See the example below.
 
-Exporting a clinicedc projects models
-+++++++++++++++++++++++++++++++++++++
+Exporting models from a clinicedc project
++++++++++++++++++++++++++++++++++++++++++
 
 ``ModelsToFile`` creates dataframes for each model and exports to either CSV or STATA (118) using pandas ``to_csv`` or ``to_stata``. Each dataframe is created using class ``ModelToDataframe``. ``ModelToDataframe`` attempts to convert datatypes (datetime, int, float, string) and:
 
@@ -100,12 +100,55 @@ To export all relevant models from a typical clinicedc project:
     # archive (zip) will be in a temp folder. Copy the path and move the file to a more convenient location.
     print(models_to_file.archive_filename)
 
+Export management command
++++++++++++++++++++++++++
+
+You can also use the management command ``export_data`` to export to either CSV or STATA.
+
+To export the same tables as the example above use the ``--trial-prefix`` parameter. The ``--trial-prefix`` parameter assumes you have structured your project as a standard ``clinicedc`` project. In the case of the META Trial, the trial prefix is "meta". That is, all trial apps start with ``meta_`` -- meta_ae, meta_prn, meta_subject, etc. A few models for edc apps are included as well.
+
+.. code-block:: bash
+
+    uv run manage,py export_data -f stata -p ~/my/export/folder --trial-prefix meta
+
+If you want better control of what is being exported, use the ``-a`` or ``-m`` parameters instead of ``--trial-prefix``.
+
+When you use ``-a``, all models in the listed apps are exported
+
+.. code-block:: bash
+
+    uv run manage,py export_data -f stata -p ~/my/export/folder -a meta_subject,meta_prn
+
+Or you can list the models you want with the ``-m`` parameter. Models are listed in label_lower format.
+
+.. code-block:: bash
+
+    uv run manage,py export_data -f stata -p ~/my/export/folder \
+      -m edc_appointment.appointment,edc_metadata.crfmetadata,meta_subject.subjectvisit
+
+or combine them
+
+.. code-block:: bash
+
+    uv run manage,py export_data -f stata -p ~/my/export/folder \
+      -a meta_subject \
+      -m edc_appointment.appointment,edc_metadata.crfmetadata,meta_subject.subjectvisit
+
+See the management command for other options
+
+.. code-block:: bash
+
+    uv run manage,py help export_data
+
+
 Exporting raw tables
 ++++++++++++++++++++
 
 See also ``remote_read_sql``
 
-``export_raw_tables`` does not expand foreign keys and M2M columns.
+The examples above require access to the Django application. If that is not an option, you can export raw tables with the utility ``export_raw_tables``.
+
+Foreign keys and M2M columns are not expanded in raw tables. You have to do the merging manually.
 
 .. code-block:: python
 

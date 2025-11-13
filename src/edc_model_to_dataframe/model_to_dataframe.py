@@ -9,10 +9,10 @@ import pandas as pd
 from clinicedc_constants import NULL_STRING
 from django.apps import apps as django_apps
 from django.core.exceptions import FieldError
-from django.db import OperationalError
 from django.db.models import QuerySet
 from django_crypto_fields.utils import get_encrypted_fields, has_encrypted_fields
 from django_pandas.io import read_frame
+
 from edc_sites.utils import get_site_model_cls
 
 from .constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
@@ -84,9 +84,10 @@ class ModelToDataframe:
         self._encrypted_columns = None
         self._site_columns = None
         self._dataframe = pd.DataFrame()
+        self._model_field_names: list[str] = []
         self.read_frame_verbose = False if read_frame_verbose is None else read_frame_verbose
         self.sites = sites
-        self.drop_sys_columns = True if drop_sys_columns is None else drop_sys_columns
+        self.drop_sys_columns = drop_sys_columns
         self.drop_action_item_columns = (
             True if drop_action_item_columns is None else drop_action_item_columns
         )
@@ -94,39 +95,18 @@ class ModelToDataframe:
         self.m2m_columns = []
         self.query_filter = query_filter or {}
         self.remove_timezone = True if remove_timezone is None else remove_timezone
-        if queryset:
-            self.model = queryset.model._meta.label_lower
-        else:
-            self.model = model
+        self.queryset = queryset
+        self.model = queryset.model._meta.label_lower if self.queryset else model
+
         try:
             self.model_cls = django_apps.get_model(self.model)
         except LookupError as e:
             raise LookupError(f"Model is {self.model}. Got `{e}`") from e
-        if self.sites:
-            try:
-                if queryset:
-                    self.queryset = queryset.filter(site__in=sites)
-                else:
-                    self.queryset = self.model_cls.objects.filter(site__in=sites)
-            except FieldError as e:
-                if "Cannot resolve keyword 'site' into field" not in str(e):
-                    raise
-                self.queryset = queryset or self.model_cls.objects.all()
-        else:
-            self.queryset = queryset or self.model_cls.objects.all()
-        # trigger query
-        self.row_count = self.get_row_count()
 
-    def get_row_count(self):
-        try:
-            row_count = self.queryset.count()
-        except OperationalError as e:
-            if "The user specified as a definer" in str(e) and self.model_cls.recreate_db_view:
-                self.model_cls.recreate_db_view()
-                row_count = self.queryset.count()
-            else:
-                raise
-        return row_count
+        if (
+            self.sites and "site" in self.model_field_names
+        ) or "site_id" in self.model_field_names:
+            self.query_filter.update({"site__in": self.sites})
 
     @property
     def dataframe(self) -> pd.DataFrame:
@@ -140,56 +120,46 @@ class ModelToDataframe:
             column "visit_reason" would become a Dataframe instead
             of a Series like all other columns.
         """
-        if self._dataframe.empty and self.row_count > 0:
-            if self.decrypt and self.has_encrypted_fields:
-                dataframe = self.get_dataframe_with_encrypted_fields(self.row_count)
-            else:
-                dataframe = self.get_dataframe_without_encrypted_fields()
+        if self._dataframe.empty:
+            df = read_frame(
+                (self.queryset or self.model_cls.objects)
+                .values(*self.columns)
+                .filter(**self.query_filter),
+                verbose=self.read_frame_verbose,
+            )[[col for col in self.columns]]
 
-            dataframe = self.merge_m2ms(dataframe)
+            df = self.merge_m2ms(df)
 
-            dataframe = dataframe.rename(columns=self.columns)
+            df = df.rename(columns=self.columns)
 
             # remove timezone if asked
             if self.remove_timezone:
-                for column in list(dataframe.select_dtypes(include=["datetimetz"]).columns):
-                    dataframe[column] = pd.to_datetime(dataframe[column]).dt.tz_localize(None)
+                for column in list(
+                    df.select_dtypes(include=["datetimetz", "datetime64"]).columns
+                ):
+                    df[column] = pd.to_datetime(df[column]).dt.tz_localize(None)
 
             # convert bool to int64
-            for column in list(dataframe.select_dtypes(include=["bool"]).columns):
-                dataframe[column] = (
-                    dataframe[column].astype("int64").replace({True: 1, False: 0})
-                )
+            for column in list(df.select_dtypes(include=["bool"]).columns):
+                df[column] = df[column].astype("int64").replace({True: 1, False: 0})
 
             # convert object to str
-            for column in list(dataframe.select_dtypes(include=["object"]).columns):
-                dataframe[column] = dataframe[column].fillna("")
-                dataframe[column] = dataframe[column].astype(str)
+            for column in list(df.select_dtypes(include=["object"]).columns):
+                df[column] = df[column].fillna("")
+                df[column] = df[column].astype(str)
 
             # convert timedeltas to secs
-            for column in list(dataframe.select_dtypes(include=["timedelta64"]).columns):
-                dataframe[column] = dataframe[column].dt.total_seconds()
+            for column in list(df.select_dtypes(include=["timedelta64"]).columns):
+                df[column] = df[column].dt.total_seconds()
 
             # fillna
-            dataframe = dataframe.fillna(value=np.nan, axis=0)
+            df = df.fillna(value=np.nan, axis=0)
 
             # remove illegal chars
-            for column in list(dataframe.select_dtypes(include=["object"]).columns):
-                dataframe[column] = dataframe.apply(
-                    lambda x, col=column: self._clean_chars(x[col]), axis=1
-                )
-            self._dataframe = dataframe
+            for column in list(df.select_dtypes(include=["object"]).columns):
+                df[column] = df.apply(lambda x, col=column: self._clean_chars(x[col]), axis=1)
+            self._dataframe = df
         return self._dataframe
-
-    def get_dataframe_without_encrypted_fields(self) -> pd.DataFrame:
-        queryset = self.queryset.values_list(*self.columns).filter(**self.query_filter)
-        return pd.DataFrame(list(queryset), columns=[v for v in self.columns])
-
-    def get_dataframe_with_encrypted_fields(self, row_count: int) -> pd.DataFrame:  # noqa: ARG002
-        df = read_frame(
-            self.queryset.filter(**self.query_filter), verbose=self.read_frame_verbose
-        )
-        return df[[col for col in self.columns]]
 
     def merge_m2ms(self, dataframe):
         """Merge m2m data into main dataframe.
@@ -225,9 +195,17 @@ class ModelToDataframe:
                 .filter(**{f"{m2m_field_name}__isnull": False})
                 .values("id", m2m_field_name)
             )
-            df_m2m = df_m2m.groupby("id")[m2m_field_name].apply(",".join).reset_index()
-            df_m2m = df_m2m.rename(columns={m2m_field_name: m2m_field_name.split("__")[0]})
-            dataframe = dataframe.merge(df_m2m, on="id", how="left")
+            df_m2m = (
+                df_m2m.groupby("id")[m2m_field_name]
+                .apply(",".join)
+                .reset_index()
+                .rename(columns={m2m_field_name: m2m_field_name.split("__")[0]})
+            )
+            dataframe = (
+                dataframe.drop(columns=[m2m_field_name.split("__")[0]])
+                .merge(df_m2m, on="id", how="left", suffixes=("_x", ""))
+                .reset_index(drop=True)
+            )
         return dataframe
 
     def _clean_chars(self, s: str) -> str:
@@ -274,15 +252,14 @@ class ModelToDataframe:
 
     @property
     def columns(self) -> dict[str, str]:
-        """Return a dictionary of column names."""
+        """Return a dictionary of column names for the Dataframe."""
         if not self._columns:
-            columns_list = self.get_columns_list()
-            columns = {col: col for col in columns_list}
-            for column_name in columns_list:
-                if column_name.endswith("_visit_id"):
+            columns = {col: col for col in self.model_field_names}
+            for field_name in self.model_field_names:
+                if field_name.endswith("_visit_id"):
                     with contextlib.suppress(FieldError):
-                        columns = self.add_columns_for_subject_visit(column_name, columns)
-                if column_name.endswith("_requisition") or column_name.endswith(
+                        columns = self.add_columns_for_subject_visit(field_name, columns)
+                if field_name.endswith("_requisition") or field_name.endswith(
                     "requisition_id"
                 ):
                     columns = self.add_columns_for_subject_requisitions(columns)
@@ -298,29 +275,28 @@ class ModelToDataframe:
             self._columns = columns
         return self._columns
 
-    def get_columns_list(self) -> list[str]:
-        try:
-            columns_list = list(self.queryset.first().__dict__.keys())
-        except AttributeError as e:
-            if "__dict__" in str(e):
-                columns_list = list(self.queryset._fields)
-            else:
-                raise
-        for name in self.sys_field_names:
-            with contextlib.suppress(ValueError):
-                columns_list.remove(name)
-        if not self.decrypt:
-            columns_list = [col for col in columns_list if col not in self.encrypted_columns]
-        return columns_list
+    @property
+    def model_field_names(self) -> list[str]:
+        if not self._model_field_names:
+            self._model_field_names = [
+                f.attname for f in self.model_cls._meta.get_fields() if f.concrete
+            ]
+            for name in self.sys_field_names:
+                with contextlib.suppress(ValueError):
+                    self._model_field_names.remove(name)
+            if not self.decrypt:
+                self._model_field_names = [
+                    col for col in self._model_field_names if col not in self.encrypted_columns
+                ]
+        return self._model_field_names
 
     @property
     def encrypted_columns(self) -> list[str]:
         """Return a sorted list of column names that use encryption."""
         if not self._encrypted_columns:
-            self._encrypted_columns = [
-                field.name for field in get_encrypted_fields(self.model_cls)
-            ]
-            self._encrypted_columns = list(set(self._encrypted_columns))
+            self._encrypted_columns = list(
+                set([f.name for f in get_encrypted_fields(self.model_cls)])
+            )
             self._encrypted_columns.sort()
         return self._encrypted_columns
 

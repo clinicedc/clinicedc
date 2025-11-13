@@ -1,9 +1,9 @@
-import os
+from pathlib import Path
 
 
-def get_export_folder() -> str:
-    from django.conf import settings
+def get_export_folder() -> Path:
+    from django.conf import settings  # noqa: PLC0415
 
     if path := getattr(settings, "EDC_EXPORT_EXPORT_FOLDER", None):
-        return os.path.expanduser(path)
-    return os.path.join(settings.MEDIA_ROOT, "data_folder", "export")
+        return Path(path).expanduser()
+    return Path(settings.MEDIA_ROOT) / "data_folder" / "export"

@@ -7,8 +7,6 @@ from django.contrib.sites.management import create_default_site
 from django.core.checks import register
 from django.core.management.color import color_style
 from django.db.models.signals import post_migrate
-from multisite.apps import post_migrate_sync_alias
-
 from edc_action_item.post_migrate_signals import update_action_types
 from edc_action_item.site_action_items import site_action_items
 from edc_action_item.system_checks import edc_action_item_checks
@@ -33,7 +31,6 @@ from edc_navbar.site_navbars import site_navbars
 from edc_navbar.system_checks import edc_navbar_checks
 from edc_notification.post_migrate_signals import post_migrate_update_notifications
 from edc_notification.site_notifications import site_notifications
-from edc_pdutils.site_values_mappings import site_values_mappings
 from edc_prn.site_prn_forms import site_prn_forms
 from edc_pylabels.site_label_configs import site_label_configs
 from edc_randomization.site_randomizers import site_randomizers
@@ -49,6 +46,7 @@ from edc_visit_schedule.system_checks import (
     check_subject_schedule_history,
     visit_schedule_check,
 )
+from multisite.apps import post_migrate_sync_alias
 
 installed_apps = [x.split(".apps")[0] for x in settings.INSTALLED_APPS]
 
@@ -99,7 +97,6 @@ class AppConfig(DjangoAppConfig):
             edc_metadata=site_metadata_rules.autodiscover,
             edc_visit_schedule=site_visit_schedules.autodiscover,
             edc_navbar=site_navbars.autodiscover,
-            edc_pdutils=site_values_mappings.autodiscover,
             edc_prn=site_prn_forms.autodiscover,
             edc_randomization=site_randomizers.autodiscover,
             edc_pylabels=site_label_configs.autodiscover,

@@ -5,10 +5,10 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
 
+from django.contrib.sites.models import Site
 from django.utils import timezone
 
 from edc_consent import site_consents
-from edc_pdutils.site import Site
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_view_utils import ModelButton
 
