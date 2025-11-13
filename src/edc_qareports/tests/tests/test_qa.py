@@ -152,7 +152,7 @@ class TestQA(TestCase):
     def test_subquery_with_recs_crfcase(self):
         appointment = Appointment.objects.get(visit_code="1000", visit_code_sequence=0)
         subject_visit = SubjectVisit.objects.get(appointment=appointment)
-        CrfThree.objects.create(subject_visit=subject_visit, f1=None, f2=YES)
+        CrfThree.objects.create(subject_visit=subject_visit, f1="", f2=YES)
         crf_case = CrfCase(
             label="No F1 when F2 is YES",
             dbtable="clinicedc_tests_crfthree",

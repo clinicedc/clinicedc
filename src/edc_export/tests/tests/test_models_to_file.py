@@ -1,5 +1,5 @@
-import os
 import shutil
+from pathlib import Path
 from tempfile import mkdtemp
 
 from clinicedc_tests.sites import all_sites
@@ -7,12 +7,12 @@ from clinicedc_tests.utils import get_user_for_tests
 from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.test.utils import override_settings, tag
-
-from edc_export.archive_exporter import ArchiveExporter, ArchiveExporterNothingExported
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
+
+from edc_export.models_to_file import ModelsToFile, ModelsToFileNothingExportedError
 
 
 @tag("export")
@@ -35,29 +35,37 @@ class TestArchiveExporter(TestCase):
         self.models = ["auth.user", "edc_registration.registeredsubject"]
 
     def test_request_archive(self):
-        exporter = ArchiveExporter(models=self.models, user=self.user, archive=True)
-        folder = mkdtemp()
+        exporter = ModelsToFile(
+            models=self.models, user=self.user, archive_to_single_file=True
+        )
+        folder = Path(mkdtemp())
         shutil.unpack_archive(exporter.archive_filename, folder, "zip")
-        filenames = os.listdir(folder)
+        filenames = [f for f in folder.iterdir()]
         self.assertGreater(len([f for f in filenames]), 0)
 
     def test_request_archive_filename_exists(self):
-        exporter = ArchiveExporter(models=self.models, user=self.user, archive=True)
-        filename = exporter.archive_filename
+        exporter = ModelsToFile(
+            models=self.models, user=self.user, archive_to_single_file=True
+        )
+        filename = Path(exporter.archive_filename)
         self.assertIsNotNone(filename)
-        self.assertTrue(os.path.exists(filename), msg=f"file '{filename}' does not exist")
+        self.assertTrue(filename.exists(), msg=f"file '{filename}' does not exist")
 
     def test_requested_with_invalid_table(self):
         models = ["auth.blah", "edc_registration.registeredsubject"]
         self.assertRaises(
-            LookupError, ArchiveExporter, models=models, user=self.user, archive=True
+            LookupError,
+            ModelsToFile,
+            models=models,
+            user=self.user,
+            archive_to_single_file=True,
         )
 
     def test_requested_with_nothing(self):
         self.assertRaises(
-            ArchiveExporterNothingExported,
-            ArchiveExporter,
+            ModelsToFileNothingExportedError,
+            ModelsToFile,
             models=[],
             user=self.user,
-            archive=True,
+            archive_to_single_file=True,
         )

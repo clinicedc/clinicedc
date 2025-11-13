@@ -6,10 +6,10 @@ from django.contrib.sites.models import Site
 from django.db import models
 from django_pandas.io import read_frame
 
+from edc_model_to_dataframe.constants import SYSTEM_COLUMNS
 from edc_model_to_dataframe.read_frame_edc import read_frame_edc
 from edc_registration.models import RegisteredSubject
 
-from ..constants import SYSTEM_COLUMNS
 from ..utils import (
     convert_dates_from_model,
     convert_numbers_to_nullable_dtype,

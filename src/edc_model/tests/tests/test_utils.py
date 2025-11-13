@@ -110,7 +110,7 @@ class TestUtils(TestCase):
         )
         self.assertIsNone(estimated_date)
 
-        obj = SimpleModel.objects.create(ago=None)
+        obj = SimpleModel.objects.create(ago="")
         estimated_date = estimated_date_from_ago(instance=obj, ago_field="ago")
         self.assertIsNone(estimated_date)
 

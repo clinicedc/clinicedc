@@ -104,7 +104,7 @@ class TestOffstudy(TestCase):
         now = timezone.now()
         OffSchedule.objects.create(
             subject_identifier=self.subject_identifier,
-            report_datetime=timezone.now(),
+            report_datetime=now,
             offschedule_datetime=now,
         )
 
@@ -112,7 +112,7 @@ class TestOffstudy(TestCase):
             OffstudyError,
             SubjectOffstudy.objects.create,
             subject_identifier=self.subject_identifier,
-            offstudy_datetime=now,
+            offstudy_datetime=now - relativedelta(days=1),
         )
 
     def test_offstudy_not_before_offschedule(self):

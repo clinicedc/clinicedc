@@ -14,7 +14,7 @@ from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 
 from ..constants import CSV
-from ..exportable_models_for_user import ExportablesModelsForUser
+from ..exportable_models_for_user import ExportableModelsForUser
 from ..files_emailer import FilesEmailerError
 from ..model_options import ModelOptions
 from ..models_to_file import ModelsToFile, ModelsToFileNothingExportedError
@@ -107,7 +107,7 @@ class ExportSelectedModelsView(EdcViewMixin, TemplateView):
         """Returns a list of selected models from the POST
         as ModelOptions.
         """
-        exportables = ExportablesModelsForUser(request=request, user=request.user)
+        exportables = ExportableModelsForUser(request=request, user=request.user)
         selected_models = []
         for exportable in exportables:
             selected_models.extend(request.POST.getlist(f"chk_{exportable}_models") or [])

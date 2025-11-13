@@ -10,7 +10,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django_pandas.io import read_frame
-from edc_pdutils.constants import SYSTEM_COLUMNS
+
+from edc_model_to_dataframe.constants import SYSTEM_COLUMNS
 from edc_sites.site import sites
 
 from .exceptions import RandomizationListExporterError, SubjectNotRandomization

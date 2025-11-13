@@ -12,7 +12,7 @@ from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
 from edc_export.auths import update_site_auths
 from edc_export.constants import EXPORT
-from edc_export.exportable_model_for_user import ExportablesModelsForUser
+from edc_export.exportable_models_for_user import ExportableModelsForUser
 from edc_export.model_options import ModelOptions
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
@@ -76,7 +76,7 @@ class TestExportable(TestCase):
         appointment_opts = ModelOptions(model=Appointment._meta.label_lower)
         edc_appointment = django_apps.get_app_config("edc_appointment")
         edc_registration = django_apps.get_app_config("edc_registration")
-        exportables = ExportablesModelsForUser(
+        exportables = ExportableModelsForUser(
             app_configs=[edc_registration, edc_appointment],
             request=self.request,
             user=self.user,
@@ -108,7 +108,7 @@ class TestExportable(TestCase):
         self.assertFalse(exportables.get("edc_registration").list_models)
 
     def test_default_exportables(self):
-        exportables = ExportablesModelsForUser(
+        exportables = ExportableModelsForUser(
             app_configs=None,
             request=self.request,
             user=self.user,
