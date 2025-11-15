@@ -6,9 +6,11 @@ from pathlib import Path
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING
 
+import pandas as pd
 from django.apps import apps as django_apps
 from django.db import OperationalError
 from django.utils import timezone
+from tabulate import tabulate
 from tqdm import tqdm
 
 from edc_model_to_dataframe.model_to_dataframe import ModelToDataframe
@@ -62,6 +64,7 @@ class ModelsToFile:
         self.emailed_datetime: datetime | None = None
         self.emailed_to: str | None = None
         self.exported_filenames: list = []
+        self.export_history = dict(model=[], rows=[])
         self.export_format = export_format or CSV
         if export_format not in [CSV, STATA_14, STATA_15]:
             raise ModelsToFileError(
@@ -98,6 +101,21 @@ class ModelsToFile:
                 self.exported_filenames.append(filename)
         if not self.exported_filenames:
             raise ModelsToFileNothingExportedError(f"Nothing exported. Got models={models}.")
+        if self.export_history:
+            with (self.export_folder / self.sub_folder / "README.txt").open("w") as f:
+                f.write("\nExport Summary\n")
+                f.write(
+                    tabulate(
+                        pd.DataFrame(data=self.export_history)
+                        .sort_values("model")
+                        .reset_index(drop=True),
+                        tablefmt="fancy_grid",
+                        headers="keys",
+                        showindex=False,
+                    )
+                )
+                f.write("\n")
+                f.write(f"{timezone.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         if self.archive_to_single_file:
             self.archive_filename = self.create_archive_file()
             sys.stdout.write(f"{self.archive_filename}\n")
@@ -123,6 +141,8 @@ class ModelsToFile:
             sys.stdout.write(f"Skipping. Got {e}\n")
         else:
             if not dataframe.empty:
+                self.export_history["model"].append(model)
+                self.export_history["rows"].append(len(dataframe))
                 fname = (
                     model.split(".")[-1:][0].upper() if self.use_simple_filename else model
                 ).replace(".", "_")

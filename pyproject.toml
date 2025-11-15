@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "2.2.2"
+version = "2.2.3"
 description = "A clinical trials data management framework built on Django"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -67,6 +67,7 @@ dependencies = [
     "tqdm>=4.67.1",
     "twilio>=9.7.0",
     "django>=5.2.8",
+    "tabulate>=0.9.0",
 ]
 
 [project.urls]
