@@ -585,6 +585,7 @@ dependencies = [
     { name = "reportlab" },
     { name = "sqlalchemy" },
     { name = "sqlglot" },
+    { name = "tabulate" },
     { name = "tqdm" },
     { name = "twilio" },
 ]
@@ -658,6 +659,7 @@ requires-dist = [
     { name = "reportlab", specifier = ">=4.4.3" },
     { name = "sqlalchemy", specifier = ">=2.0.42" },
     { name = "sqlglot", specifier = ">=27.8.0" },
+    { name = "tabulate", specifier = ">=0.9.0" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "twilio", specifier = ">=9.7.0" },
 ]

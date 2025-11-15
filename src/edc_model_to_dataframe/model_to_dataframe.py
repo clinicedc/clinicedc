@@ -28,6 +28,10 @@ class ModelToDataframeError(Exception):
     pass
 
 
+class ModelToDataframeRowCountError(Exception):
+    pass
+
+
 class ModelToDataframe:
     """A class to return a model or queryset as a pandas dataframe
     with custom handling for EDC models.
@@ -121,14 +125,26 @@ class ModelToDataframe:
             of a Series like all other columns.
         """
         if self._dataframe.empty:
+            model_row_count = (
+                (self.queryset or self.model_cls.objects)
+                .filter(**self.query_filter)
+                .all()
+                .count()
+            )
+
             df = read_frame(
                 (self.queryset or self.model_cls.objects)
                 .values(*self.columns)
-                .filter(**self.query_filter),
+                .filter(**self.query_filter)
+                .all(),
                 verbose=self.read_frame_verbose,
             )[[col for col in self.columns]]
 
+            self.validate_row_count(model_row_count, df, step_name="read_frame")
+
             df = self.merge_m2ms(df)
+
+            self.validate_row_count(model_row_count, df, step_name="m2m")
 
             df = df.rename(columns=self.columns)
 
@@ -158,8 +174,22 @@ class ModelToDataframe:
             # remove illegal chars
             for column in list(df.select_dtypes(include=["object"]).columns):
                 df[column] = df.apply(lambda x, col=column: self._clean_chars(x[col]), axis=1)
+
+            # check merges worked correctly
+            self.validate_row_count(model_row_count, df, step_name="final")
             self._dataframe = df
         return self._dataframe
+
+    def validate_row_count(
+        self, model_row_count: int, df: pd.DataFrame, step_name: str
+    ) -> bool:
+        if model_row_count != len(df):
+            model = (self.queryset or self.model_cls)._meta.label_lower
+            raise ModelToDataframeRowCountError(
+                "Dataframe row count mismatch. "
+                f"See {model}. Expected {model_row_count}. Got {len(df)} at step {step_name}."
+            )
+        return True
 
     def merge_m2ms(self, dataframe):
         """Merge m2m data into main dataframe.
@@ -201,11 +231,7 @@ class ModelToDataframe:
                 .reset_index()
                 .rename(columns={m2m_field_name: m2m_field_name.split("__")[0]})
             )
-            dataframe = (
-                dataframe.drop(columns=[m2m_field_name.split("__")[0]])
-                .merge(df_m2m, on="id", how="left", suffixes=("_x", ""))
-                .reset_index(drop=True)
-            )
+            dataframe = dataframe.merge(df_m2m, on="id", how="left").reset_index(drop=True)
         return dataframe
 
     def _clean_chars(self, s: str) -> str:
@@ -279,7 +305,9 @@ class ModelToDataframe:
     def model_field_names(self) -> list[str]:
         if not self._model_field_names:
             self._model_field_names = [
-                f.attname for f in self.model_cls._meta.get_fields() if f.concrete
+                f.attname
+                for f in self.model_cls._meta.get_fields()
+                if f.concrete and not f.many_to_many
             ]
             for name in self.sys_field_names:
                 with contextlib.suppress(ValueError):
