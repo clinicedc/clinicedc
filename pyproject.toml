@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "2.2.3"
+version = "2.2.4"
 description = "A clinical trials data management framework built on Django"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
