@@ -12,7 +12,6 @@ from django.core.exceptions import FieldError
 from django.db.models import QuerySet
 from django_crypto_fields.utils import get_encrypted_fields, has_encrypted_fields
 from django_pandas.io import read_frame
-
 from edc_sites.utils import get_site_model_cls
 
 from .constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
@@ -107,9 +106,10 @@ class ModelToDataframe:
         except LookupError as e:
             raise LookupError(f"Model is {self.model}. Got `{e}`") from e
 
-        if (
-            self.sites and "site" in self.model_field_names
-        ) or "site_id" in self.model_field_names:
+        # by default exports for all sites
+        if self.sites and (
+            "site" in self.model_field_names or "site_id" in self.model_field_names
+        ):
             self.query_filter.update({"site__in": self.sites})
 
     @property
