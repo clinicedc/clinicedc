@@ -5,7 +5,6 @@ from warnings import warn
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.db import OperationalError, connection
-
 from edc_auth.get_app_codenames import get_app_codenames
 
 
@@ -40,6 +39,7 @@ def recreate_db_view(model_cls, drop: bool | None = None, verbose: bool | None =
         GRANT SELECT ON effect_prod.* to 'edc-effect-live'@'10.131.23.168';
 
     You can run through all models using this mixin and recreate:
+
         from django.apps import apps as django_apps
         from edc_qareports.model_mixins import QaReportModelMixin
 

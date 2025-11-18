@@ -220,3 +220,39 @@ In this example the app is called ``meta_reports`` and the group is ``META_REPOR
     site_auths.add_group(*reports_codenames, name=META_REPORTS)
     # add the group to the QA_REPORTS role
     site_auths.update_role(META_REPORTS, name=QA_REPORTS_ROLE)
+
+Recreating DB Views
++++++++++++++++++++
+
+Sometimes Django raises an OperationalError with a restored DB complaining of:
+
+``The user specified as a definer (user@host) does not exist``
+
+or some variation of an OperationalError with:
+
+``SELECT command denied to user...``
+
+To fix this you can recreate the DB views
+
+.. code-block:: python
+
+    from django.apps import apps as django_apps
+    from edc_qareports.model_mixins import QaReportModelMixin
+
+    for model_cls in django_apps.get_models():
+        if issubclass(model_cls, (QaReportModelMixin,)):
+            print(model_cls)
+            try:
+                model_cls.recreate_db_view()
+            except AttributeError as e:
+                print(e)
+            except TypeError as e:
+                print(e)
+
+or just run
+
+.. code-block:: python
+
+    from edc_qareports.utils import recreate_dbview_for_all
+
+    recreate_dbview_for_all()
