@@ -1,7 +1,6 @@
 from django.apps import apps as django_apps
 from django.db import models
 from django.db.models import UniqueConstraint
-
 from edc_model.models import BaseUuidModel
 
 from ..managers import CrfMetadataManager
@@ -42,6 +41,7 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
     class Meta(CrfMetadataModelMixin.Meta, BaseUuidModel.Meta):
         verbose_name = "Crf collection status"
         verbose_name_plural = "Crf collection status"
+        ordering = ("subject_identifier", "visit_code", "visit_code_sequence", "show_order")
         unique_together = ()
         constraints = (
             UniqueConstraint(
@@ -61,27 +61,31 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
             *BaseUuidModel.Meta.indexes,
             models.Index(
                 fields=[
-                    "site",
-                    "entry_status",
+                    "subject_identifier",
                     "visit_code",
                     "visit_code_sequence",
-                    "model",
-                    "subject_identifier",
-                    "schedule_name",
-                    "visit_schedule_name",
-                ],
-            ),
-            models.Index(
-                fields=[
-                    "subject_identifier",
-                    "visit_schedule_name",
-                    "schedule_name",
-                    "visit_code",
-                    "visit_code_sequence",
-                    "model",
-                    "entry_status",
-                    "timepoint",
                     "show_order",
                 ],
+                name="%(app_label)s_%(class)s_a0idx",
+            ),
+            models.Index(
+                fields=["site"],
+                name="%(app_label)s_%(class)s_a1idx",
+            ),
+            models.Index(
+                fields=["entry_status"],
+                name="%(app_label)s_%(class)s_a2idx",
+            ),
+            models.Index(
+                fields=["model"],
+                name="%(app_label)s_%(class)s_a3idx",
+            ),
+            models.Index(
+                fields=["due_datetime"],
+                name="%(app_label)s_%(class)s_a4idx",
+            ),
+            models.Index(
+                fields=["fill_datetime"],
+                name="%(app_label)s_%(class)s_a5idx",
             ),
         )

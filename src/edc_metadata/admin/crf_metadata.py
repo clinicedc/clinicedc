@@ -18,7 +18,7 @@ class CrfMetadataForm(forms.ModelForm):
 @admin.register(CrfMetadata, site=edc_metadata_admin)
 class CrfMetadataAdmin(MetadataModelAdminMixin):
     form = CrfMetadataForm
-
+    ordering = ()
     changelist_url = "edc_metadata_admin:edc_metadata_crfmetadata_changelist"
     change_list_title = "CRF collection status"
     change_form_title = "CRF collection status"

@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import UniqueConstraint
-
 from edc_model.models import BaseUuidModel
 from edc_sites.managers import CurrentSiteManager
 
@@ -71,6 +70,7 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
         app_label = "edc_metadata"
         verbose_name = "Requisition collection status"
         verbose_name_plural = "Requisition collection status"
+        ordering = ("subject_identifier", "visit_code", "visit_code_sequence", "show_order")
         constraints = (
             UniqueConstraint(
                 fields=[
@@ -90,29 +90,16 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
             *BaseUuidModel.Meta.indexes,
             models.Index(
                 fields=[
-                    "site",
-                    "entry_status",
+                    "subject_identifier",
                     "visit_code",
                     "visit_code_sequence",
-                    "model",
-                    "panel_name",
-                    "subject_identifier",
-                    "schedule_name",
-                    "visit_schedule_name",
-                ],
-            ),
-            models.Index(
-                fields=[
-                    "subject_identifier",
-                    "visit_schedule_name",
-                    "schedule_name",
-                    "visit_code",
-                    "visit_code_sequence",
-                    "model",
-                    "panel_name",
-                    "entry_status",
-                    "timepoint",
                     "show_order",
                 ],
             ),
+            models.Index(fields=["site"]),
+            models.Index(fields=["entry_status"]),
+            models.Index(fields=["model"]),
+            models.Index(fields=["panel_name"]),
+            models.Index(fields=["due_datetime"]),
+            models.Index(fields=["fill_datetime"]),
         )
