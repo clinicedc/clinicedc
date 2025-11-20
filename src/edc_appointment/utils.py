@@ -25,7 +25,6 @@ from django.db import transaction
 from django.db.models import Count, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
-
 from edc_dashboard.url_names import url_names
 from edc_form_validators import INVALID_ERROR
 from edc_metadata.constants import CRF, REQUIRED, REQUISITION
@@ -67,7 +66,6 @@ if TYPE_CHECKING:
     from decimal import Decimal
 
     from django.db.models import QuerySet
-
     from edc_crf.model_mixins import CrfModelMixin as Base
     from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 
@@ -741,6 +739,23 @@ def update_appt_status_for_timepoint(related_visit: RelatedVisitModel) -> None:
         related_visit.appointment.save_base(update_fields=["appt_status"])
 
 
+def offschedule(subject_identifier: str, offschedule_model: str, request: WSGIRequest):
+    try:
+        django_apps.get_model(offschedule_model).objects.get(
+            subject_identifier=subject_identifier
+        )
+    except ObjectDoesNotExist:
+        retval = False
+    else:
+        retval = True
+        messages.add_message(
+            request=request,
+            level=ERROR,
+            message=_("Unable to refreshing appointments. Subject is off schedule."),
+        )
+    return retval
+
+
 def refresh_appointments(
     subject_identifier: str,
     visit_schedule_name: str,
@@ -751,39 +766,40 @@ def refresh_appointments(
     status = OK
     visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
     schedule = visit_schedule.schedules.get(schedule_name)
-    try:
-        schedule.refresh_schedule(subject_identifier)
-    except AppointmentDatetimeError as e:
-        if request and not warn_only:
-            status = ERROR_CODE
-            messages.add_message(
-                request=request,
-                level=ERROR,
-                message=_(
-                    "An error was encountered when refreshing appointments. "
-                    "Contact your administrator. Got '%(error_msg)s'."
+    if not offschedule(subject_identifier, schedule.offschedule_model, request):
+        try:
+            schedule.refresh_schedule(subject_identifier)
+        except AppointmentDatetimeError as e:
+            if request and not warn_only:
+                status = ERROR_CODE
+                messages.add_message(
+                    request=request,
+                    level=ERROR,
+                    message=_(
+                        "An error was encountered when refreshing appointments. "
+                        "Contact your administrator. Got '%(error_msg)s'."
+                    )
+                    % dict(error_msg=str(e)),
                 )
-                % dict(error_msg=str(e)),
-            )
-        elif warn_only:
-            warnings.warn(str(e), stacklevel=2)
+            elif warn_only:
+                warnings.warn(str(e), stacklevel=2)
+            else:
+                raise
         else:
-            raise
-    else:
-        for appointment in get_appointment_model_cls().objects.filter(
-            subject_identifier=subject_identifier,
-            visit_schedule_name=visit_schedule_name,
-            schedule_name=schedule_name,
-        ):
-            if appointment.related_visit:
-                update_appt_status_for_timepoint(appointment.related_visit)
-    if status == OK and request:
-        messages.add_message(
-            request,
-            SUCCESS,
-            _("The appointments for %(subject_identifier)s have been refreshed")
-            % dict(subject_identifier=subject_identifier),
-        )
+            for appointment in get_appointment_model_cls().objects.filter(
+                subject_identifier=subject_identifier,
+                visit_schedule_name=visit_schedule_name,
+                schedule_name=schedule_name,
+            ):
+                if appointment.related_visit:
+                    update_appt_status_for_timepoint(appointment.related_visit)
+        if status == OK and request:
+            messages.add_message(
+                request,
+                SUCCESS,
+                _("The appointments for %(subject_identifier)s have been refreshed")
+                % dict(subject_identifier=subject_identifier),
+            )
     return subject_identifier, status
 
 
