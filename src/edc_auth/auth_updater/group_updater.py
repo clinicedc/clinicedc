@@ -36,7 +36,7 @@ class GroupUpdater:
 
     def __init__(
         self,
-        groups: dict | None = None,
+        groups: dict[str, list[str]] | None = None,
         apps=None,
         verbose=None,
         pii_models: list | None = None,

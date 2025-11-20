@@ -29,64 +29,60 @@ class AuthUpdater:
     group_updater_cls = GroupUpdater
     role_updater_cls = RoleUpdater
 
-    def __init__(
-        self,
-        groups: dict | None = None,
-        roles: dict | None = None,
-        pii_models: dict | None = None,
-        pre_update_funcs: dict | None = None,
-        post_update_funcs: list[tuple[str, Callable]] | None = None,
-        custom_permissions_tuples: dict | None = None,
-        apps=None,
-        verbose: bool | None = None,
-        warn_only: bool | None = None,
-    ):
+    def __init__(self, apps=None, verbose: bool | None = None, warn_only: bool | None = None):
+        self.group_updater: GroupUpdater | None = None
+        self.role_updater: RoleUpdater | None = None
+
+        self.apps = apps or django_apps
+        self.warn_only = warn_only
+        self.verbose = verbose
+
         site_auths.verify_and_populate(warn_only=warn_only)
-        custom_permissions_tuples = (
-            custom_permissions_tuples or site_auths.custom_permissions_tuples
-        )
-        groups = groups or site_auths.groups
-        pii_models = pii_models or site_auths.pii_models
-        post_update_funcs = post_update_funcs or [f for f in site_auths.post_update_funcs]
+
+        self.custom_permissions_tuples = site_auths.custom_permissions_tuples
+        self.groups: dict[str, list[str]] = site_auths.groups
+        self.pii_models: list[str] = site_auths.pii_models
+        self.post_update_funcs = [f for f in site_auths.post_update_funcs]
         site_auths.registry[POST_UPDATE_FUNCS_KEY] = []
-        pre_update_funcs = pre_update_funcs or [f for f in site_auths.pre_update_funcs]
+        self.pre_update_funcs = [f for f in site_auths.pre_update_funcs]
         site_auths.registry[PRE_UPDATE_FUNCS_KEY] = []
-        roles = roles or site_auths.roles
-        self.apps = apps
+        self.roles: dict[str, list[str]] = site_auths.roles
+
         if not self.edc_auth_skip_auth_updater:
-            self.verbose = verbose
-            self.apps = apps
-            if self.verbose:
-                sys.stdout.write(style.MIGRATE_HEADING("Updating groups and permissions:\n"))
-            self.group_updater = self.group_updater_cls(
-                groups=groups,
-                pii_models=pii_models,
-                custom_permissions_tuples=custom_permissions_tuples,
-                verbose=self.verbose,
-                apps=self.apps,
-                warn_only=warn_only,
-            )
-            self.role_updater = self.role_updater_cls(
-                roles=roles,
-                verbose=self.verbose,
-            )
-            self.run_pre_updates(pre_update_funcs)
-            self.group_updater.create_custom_permissions_from_tuples()
-            self.groups = self.group_updater.update_groups()
-            self.roles = self.role_updater.update_roles()
-            self.run_post_updates(post_update_funcs)
-            self.refresh_groups_in_roles_per_user()
-            if verbose:
-                sys.stdout.write(
-                    style.MIGRATE_HEADING("Done updating groups and permissions.\n\n")
-                )
-                sys.stdout.flush()
+            self.update_all()
 
     def __repr__(self):
         return (
             f"{self.__class__.__name__}(edc_auth_skip_auth_updater="
             f"{self.edc_auth_skip_auth_updater})"
         )
+
+    def update_all(self):
+        if self.verbose:
+            sys.stdout.write(style.MIGRATE_HEADING("Updating groups and permissions:\n"))
+        self.group_updater = self.group_updater_cls(
+            groups=self.groups,
+            pii_models=self.pii_models,
+            custom_permissions_tuples=self.custom_permissions_tuples,
+            verbose=self.verbose,
+            apps=self.apps,
+            warn_only=self.warn_only,
+        )
+        self.role_updater = self.role_updater_cls(
+            roles=self.roles,
+            verbose=self.verbose,
+        )
+        self.run_pre_updates(self.pre_update_funcs)
+        self.group_updater.create_custom_permissions_from_tuples()
+        self.groups = self.group_updater.update_groups()
+        self.roles = self.role_updater.update_roles()
+        self.run_post_updates(self.post_update_funcs)
+        self.refresh_groups_in_roles_per_user()
+        if self.verbose:
+            sys.stdout.write(
+                style.MIGRATE_HEADING("Done updating groups and permissions.\n\n")
+            )
+            sys.stdout.flush()
 
     @property
     def edc_auth_skip_auth_updater(self):

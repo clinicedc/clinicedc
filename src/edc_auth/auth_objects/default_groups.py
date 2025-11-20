@@ -12,7 +12,7 @@ from ..constants import (
 from .codenames import account_manager, administration, celery_manager, everyone
 
 
-def get_default_groups():
+def get_default_groups() -> dict[str, list[str]]:
     return {
         ACCOUNT_MANAGER: account_manager,
         ADMINISTRATION: administration,

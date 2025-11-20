@@ -336,7 +336,7 @@ class SiteAuths:
             before_import_registry = None
             module_name = module_name or "auths"
             writer = sys.stdout.write if verbose else lambda x: x
-            writer(f" * checking for site {module_name} ...\n")
+            writer(f" * checking site for {module_name} ...\n")
             for app_name in django_apps.app_configs:
                 writer(f" * searching {app_name}           \r")
                 try:
