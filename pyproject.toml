@@ -2,7 +2,7 @@
 name = "clinicedc"
 version = "2.2.7"
 description = "A clinical trials data management framework built on Django"
-readme = {file = "README.rst", content-type = "text/x-rst"}
+readme = { file = "README.rst", content-type = "text/x-rst" }
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
 authors = [
     { name = "Erik van Widenfelt", email = "ew2789@gmail.com" },
@@ -162,7 +162,11 @@ namespace = false
 line-length = 95
 indent-width = 4
 target-version = "py312"
-extend-exclude = ["migrations", ".tox", ".venv"]
+extend-exclude = [
+    "migrations",
+    ".tox",
+    ".venv",
+]
 
 [tool.ruff.lint]
 select = [
@@ -208,7 +212,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-    "__init__.py" = ["F401"]
+"__init__.py" = ["F401"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 12
@@ -232,8 +236,8 @@ show_missing = true
 skip_covered = true
 omit = ["requirements.txt", "*/migrations/*"]
 exclude_lines = [
-  "pragma: no cover",
-  "if TYPE_CHECKING:",
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
 ]
 
 [tool.rstcheck]
@@ -243,6 +247,7 @@ ignore_directives = ["toctree"]
 dev = [
     "clinicedc-tests>=1.0.1",
     "django-webtest>=1.9.14",
+    "ruff>=0.14.9",
 ]
 docs = [
     "furo>=2025.7.19",
