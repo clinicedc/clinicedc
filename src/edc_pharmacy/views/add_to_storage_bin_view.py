@@ -11,6 +11,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.views.generic.base import TemplateView
 
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -37,8 +39,9 @@ def update_bin(
                 code=code,
                 allocation__isnull=False,
                 stocktransferitem__isnull=False,
-                confirmationatsiteitem__isnull=False,
+                stocktransferitem__confirmationatlocationitem__isnull=False,
                 dispenseitem__isnull=True,
+                stocktransferitem__stock_transfer__to_location=storage_bin.location,
                 location=storage_bin.location,
             )
         except ObjectDoesNotExist:
@@ -151,10 +154,12 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
             qs = Stock.objects.filter(code__in=stock_codes).exclude(
                 location=storage_bin.location
             )
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
+            stock_links = [f'<a href="{url}?q={obj.code}">{obj.code}</a>' for obj in qs]
             messages.add_message(
                 self.request,
                 messages.ERROR,
-                f"Stock not from this location. See {[obj.stock.code for obj in qs]}.",
+                format_html("Stock not from this location. See {}", mark_safe(stock_links)),  # noqa: S308
             )
             url = reverse(
                 "edc_pharmacy:add_to_storage_bin_url",

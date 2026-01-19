@@ -45,7 +45,7 @@ def move_to_bin(
             stock_obj = Stock.objects.get(
                 code=code,
                 allocation__isnull=False,
-                confirmationatsiteitem__isnull=False,
+                confirmationatlocationitem__isnull=False,
                 stored_at_site=True,
                 dispenseitem__isnull=True,
                 location=storage_bin.location,

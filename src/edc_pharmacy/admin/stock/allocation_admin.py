@@ -5,14 +5,12 @@ from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext
 from django_audit_fields import audit_fieldset_tuple
-from rangefilter.filters import DateRangeFilterBuilder
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import Allocation
-from ...utils import get_related_or_none
 from ..list_filters import AssignmentListFilter
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
@@ -73,6 +71,7 @@ class HasStockFilter(SimpleListFilter):
 class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Allocations"
     change_form_title = "Pharmacy: Allocation"
+    change_list_note = "T=Transferred to location, CL=Confirmed at location, D=Dispensed"
     history_list_display = ()
     show_object_tools = True
     show_cancel = True
@@ -105,6 +104,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "identifier",
         "allocation_date",
         "transferred",
+        "confirmed_at_location",
         "dispensed",
         "dashboard",
         "stock_changelist",
@@ -119,8 +119,9 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock__location",
         AssignmentListFilter,
         ("allocation_datetime", DateRangeFilterBuilder()),
-        TransferredFilter,
-        DispensedFilter,
+        "stock__in_transit",
+        "stock__confirmed_at_location",
+        "stock__dispensed",
         "allocated_by",
         HasStockFilter,
     )
@@ -164,13 +165,15 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="T", boolean=True)
     def transferred(self, obj):
-        return bool(obj.stock.stocktransferitem)
+        return obj.stock.in_transit
+
+    @admin.display(description="CL", boolean=True)
+    def confirmed_at_location(self, obj):
+        return obj.stock.confirmed_at_location
 
     @admin.display(description="D", boolean=True)
     def dispensed(self, obj):
-        if obj:
-            return bool(get_related_or_none(obj.stock, "dispenseitem"))
-        return None
+        return obj.stock.dispensed
 
     @admin.display(description="Product", ordering="stock__product")
     def stock_product(self, obj):

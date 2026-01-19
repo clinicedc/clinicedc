@@ -1,18 +1,18 @@
 from django.urls import path
 
 from .admin_site import edc_pharmacy_admin
+from .constants import CENTRAL_LOCATION
 from .views import (
     AddToStorageBinView,
     AllocateToSubjectView,
     CeleryTaskStatusView,
-    ConfirmationAtSiteView,
+    ConfirmaAtLocationView,
     ConfirmStockFromQuerySetView,
     DispenseView,
     HomeView,
     MoveToStorageBinView,
     PrepareAndReviewStockRequestView,
     PrintLabelsView,
-    ReturnView,
     TransferStockView,
     get_stock_transfers_view,
     print_stock_transfer_manifest_view,
@@ -31,26 +31,31 @@ urlpatterns = [
     ),
     path("get-stock-transfers/", get_stock_transfers_view, name="get_stock_transfers_url"),
     path(
-        "confirmation-at-site/<uuid:session_uuid>/<str:stock_transfer_identifier>/"
+        "confirm-at-location/<uuid:session_uuid>/<str:stock_transfer_identifier>/"
         "<int:location_id>/<int:items_to_scan>/",
-        ConfirmationAtSiteView.as_view(),
-        name="confirmation_at_site_url",
+        ConfirmaAtLocationView.as_view(),
+        name="confirm_at_location_url",
     ),
     path(
-        "confirmation-at-site/<str:stock_transfer_identifier>/"
+        "confirm-at-location/<str:stock_transfer_identifier>/"
         "<int:location_id>/<int:items_to_scan>/",
-        ConfirmationAtSiteView.as_view(),
-        name="confirmation_at_site_url",
+        ConfirmaAtLocationView.as_view(),
+        name="confirm_at_location_url",
     ),
     path(
-        "confirmation-at-site/<int:location_id>/<int:items_to_scan>/",
-        ConfirmationAtSiteView.as_view(),
-        name="confirmation_at_site_url",
+        "confirm-at-location/<int:location_id>/<int:items_to_scan>/",
+        ConfirmaAtLocationView.as_view(),
+        name="confirm_at_location_url",
     ),
     path(
-        "confirmation-at-site/<int:site_id>/",
-        ConfirmationAtSiteView.as_view(),
-        name="confirmation_at_site_url",
+        "confirm-at-location/<int:site_id>/",
+        ConfirmaAtLocationView.as_view(),
+        name="confirm_at_location_url",
+    ),
+    path(
+        "confirm-at-location/<str:location_name>/",
+        ConfirmaAtLocationView.as_view(),
+        name="confirm_at_location_url",
     ),
     path(
         "review-stock-request/<uuid:stock_request>/<uuid:session_uuid>/",
@@ -130,19 +135,16 @@ urlpatterns = [
     ),
     path(
         "stock-transfer-confirmation/",
-        ConfirmationAtSiteView.as_view(),
-        name="confirmation_at_site_url",
+        ConfirmaAtLocationView.as_view(),
+        name="confirm_at_location_url",
     ),
     path(
         "dispense/",
         DispenseView.as_view(),
         name="dispense_url",
     ),
-    path(
-        "return/",
-        ReturnView.as_view(),
-        name="return_url",
-    ),
     path("admin/", edc_pharmacy_admin.urls),
+    # path("admin/history/", edc_pharmacy_history_admin.urls),
     path("", HomeView.as_view(), name="home_url"),
 ]
+1

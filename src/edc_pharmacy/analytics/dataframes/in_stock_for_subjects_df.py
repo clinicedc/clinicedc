@@ -32,7 +32,7 @@ def in_stock_for_subjects_df(
             allocation__isnull=False,
             confirmation__isnull=False,
             stocktransferitem__isnull=False,
-            confirmationatsiteitem__isnull=False,
+            confirmationatlocationitem__isnull=False,
             container__name=container_name,
             dispenseitem__isnull=True,
             product__name__icontains=product_name,

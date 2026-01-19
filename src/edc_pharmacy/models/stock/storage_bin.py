@@ -42,7 +42,8 @@ class StorageBin(SiteModelMixin, BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.location.site.id}:{self.bin_identifier}"
+        location = self.location.site.id if self.location.site else self.location.name
+        return f"{location}:{self.bin_identifier}"
 
     def save(self, *args, **kwargs):
         self.site = self.location.site

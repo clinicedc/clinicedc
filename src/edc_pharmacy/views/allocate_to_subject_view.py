@@ -128,7 +128,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             )
         return None
 
-    def redirect_on_uncomfirmed_stock_codes(
+    def redirect_on_unconfirmed_stock_codes(
         self,
         stock_codes: list[str],
         stock_request: StockRequest,
@@ -140,7 +140,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                 confirmation__isnull=False,
             ).values_list("code", flat=True)
             if len(confirmed_codes) != len(stock_codes):
-                uncomfirmed_codes = ", ".join(
+                unconfirmed_codes = ", ".join(
                     [code for code in stock_codes if code not in confirmed_codes]
                 )
                 messages.add_message(
@@ -148,7 +148,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     messages.ERROR,
                     (
                         f"Nothing saved. Unconfirmed stock codes detected. "
-                        f"Got {uncomfirmed_codes}. "
+                        f"Got {unconfirmed_codes}. "
                     ),
                 )
                 return reverse(
@@ -321,7 +321,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             return HttpResponseRedirect(url)
         if url := self.redirect_on_invalid_stock_codes(stock_codes, stock_request, assignment):
             return HttpResponseRedirect(url)
-        if url := self.redirect_on_uncomfirmed_stock_codes(
+        if url := self.redirect_on_unconfirmed_stock_codes(
             stock_codes, stock_request, assignment
         ):
             return HttpResponseRedirect(url)

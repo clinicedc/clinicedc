@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pandas as pd
 from django_pandas.io import read_frame
-
 from edc_visit_schedule.models import SubjectScheduleHistory
 
 from ...models import Stock, StorageBinItem
@@ -23,7 +22,6 @@ def remove_exact_duplicates(s):
 
 
 def stock_for_subjects_df() -> pd.DataFrame:
-
     visit_schedule_names, schedule_names = get_imp_schedule_names()
 
     df_schedule = read_frame(
@@ -38,11 +36,10 @@ def stock_for_subjects_df() -> pd.DataFrame:
             offschedule_datetime__isnull=True,
         )
     )
-
     df_stock_on_site = read_frame(
         Stock.objects.values(
             "code", "allocation__registered_subject__subject_identifier"
-        ).filter(confirmationatsiteitem__isnull=False, dispenseitem__isnull=True),
+        ).filter(confirmationatlocationitem__isnull=False, dispenseitem__isnull=True),
         verbose=False,
     ).rename(
         columns={"allocation__registered_subject__subject_identifier": "subject_identifier"}

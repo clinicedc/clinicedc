@@ -14,8 +14,8 @@ import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
 
-import edc_pharmacy.models.stock.confirmation_at_site
-import edc_pharmacy.models.stock.confirmation_at_site_item
+import edc_pharmacy.models.stock.confirmation_at_location
+import edc_pharmacy.models.stock.confirmation_at_location_item
 import django.utils.timezone
 import django.utils.timezone
 
@@ -382,7 +382,7 @@ class Migration(migrations.Migration):
                 "default_manager_name": "objects",
             },
             managers=[
-                ("objects", edc_pharmacy.models.stock.confirmation_at_site.Manager()),
+                ("objects", edc_pharmacy.models.stock.confirmation_at_location.Manager()),
             ],
         ),
         migrations.CreateModel(
@@ -722,7 +722,7 @@ class Migration(migrations.Migration):
             managers=[
                 (
                     "objects",
-                    edc_pharmacy.models.stock.confirmation_at_site_item.Manager(),
+                    edc_pharmacy.models.stock.confirmation_at_location_item.Manager(),
                 ),
             ],
         ),

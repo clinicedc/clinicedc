@@ -16,12 +16,12 @@ from ..utils import (
     create_new_stock_on_receive,
     process_repack_request,
     update_previous_refill_end_datetime,
-    update_stock_instance,
+    update_stock_instance_qty,
 )
 from .stock import (
     Allocation,
+    ConfirmationAtLocationItem,
     DispenseItem,
-    Location,
     OrderItem,
     Receive,
     ReceiveItem,
@@ -39,7 +39,7 @@ from .stock import (
 def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty and other columns"""
     if not raw and not update_fields:
-        instance = update_stock_instance(instance)
+        instance = update_stock_instance_qty(instance)
         if instance.from_stock:
             # adjust the unit_qty_out, unit_qty_out on the source stock item
             # (from_stock). If insufficient, will bomb out here.
@@ -164,7 +164,21 @@ def stock_transfer_item_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:
     if not raw and not update_fields:
-        pass
+        instance.stock.in_transit = True
+        instance.stock.save(update_fields=["in_transit"])
+
+
+@receiver(
+    post_save,
+    sender=ConfirmationAtLocationItem,
+    dispatch_uid="confirm_at_location_item_on_post_save",
+)
+def confirm_at_location_item_on_post_save(
+    sender, instance, raw, created, update_fields, **kwargs
+) -> None:
+    if not raw and not update_fields:
+        instance.stock.confirmed_at_location = True
+        instance.stock.save(update_fields=["confirmed_at_location"])
 
 
 @receiver(
@@ -189,9 +203,10 @@ def dispense_item_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:
     if not raw and not update_fields:
+        instance.stock.dispensed = True
         instance.stock.qty_out = 1
         instance.stock.unit_qty_out = instance.stock.container.qty * 1
-        instance.stock.save(update_fields=["qty_out", "unit_qty_out"])
+        instance.stock.save(update_fields=["dispensed", "qty_out", "unit_qty_out"])
         StorageBinItem.objects.filter(stock=instance.stock).delete()
 
 
@@ -225,8 +240,18 @@ def allocation_post_delete(sender, instance, using, **kwargs) -> None:
     dispatch_uid="stock_transfer_item_post_delete",
 )
 def stock_transfer_item_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.stock.location = Location.objects.get(name="central")
-    instance.stock.save(update_fields=["location"])
+    instance.stock.in_transit = False
+    instance.stock.save(update_fields=["in_transit"])
+
+
+@receiver(
+    post_delete,
+    sender=ConfirmationAtLocationItem,
+    dispatch_uid="confirm_at_location_item_post_delete",
+)
+def confirm_at_location_item_post_delete(sender, instance, using, **kwargs) -> None:
+    instance.stock.confirmed_at_location = False
+    instance.stock.save(update_fields=["confirmed_at_location"])
 
 
 @receiver(
@@ -245,9 +270,10 @@ def storage_bin_item_post_delete(sender, instance, using, **kwargs) -> None:
     dispatch_uid="dispense_item_on_post_delete",
 )
 def dispense_item_on_post_delete(sender, instance, using, **kwargs) -> None:
+    instance.stock.dispensed = False
     instance.stock.qty_out = 0
     instance.stock.unit_qty_out = 0
-    instance.stock.save(update_fields=["qty_out", "unit_qty_out"])
+    instance.stock.save(update_fields=["dispensed", "qty_out", "unit_qty_out"])
 
 
 @receiver(

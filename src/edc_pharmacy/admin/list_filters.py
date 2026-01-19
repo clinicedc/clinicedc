@@ -1,9 +1,8 @@
-from clinicedc_constants import NEW, NO, NOT_APPLICABLE, PARTIAL, RECEIVED, YES
+from clinicedc_constants import NEW, NO, NOT_APPLICABLE, NULL_STRING, PARTIAL, RECEIVED, YES
 from django.contrib.admin import SimpleListFilter
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Count, F, Q
 from django.utils.translation import gettext as _
-
 from edc_constants.choices import YES_NO, YES_NO_NA
 
 from ..models import Medication, Rx
@@ -247,9 +246,9 @@ class TransferredFilter(SimpleListFilter):
         return qs
 
 
-class ConfirmedAtSiteFilter(SimpleListFilter):
-    title = "Confirmed at site"
-    parameter_name = "confirmed_at_site"
+class ConfirmedAtLocationFilter(SimpleListFilter):
+    title = "Confirmed at location"
+    parameter_name = "confirmed_at_location"
 
     def lookups(self, request, model_admin):  # noqa: ARG002
         return (YES, YES), (NO, NO)
@@ -264,9 +263,9 @@ class ConfirmedAtSiteFilter(SimpleListFilter):
                 stocktransferitem__isnull=False,
             )
             if self.value() == YES:
-                qs = queryset.filter(confirmationatsiteitem__isnull=False, **opts)
+                qs = queryset.filter(confirmationatlocationitem__isnull=False, **opts)
             elif self.value() == NO:
-                qs = queryset.filter(confirmationatsiteitem__isnull=True, **opts)
+                qs = queryset.filter(confirmationatlocationitem__isnull=True, **opts)
         return qs
 
 
@@ -286,7 +285,7 @@ class StoredAtSiteFilter(SimpleListFilter):
                     confirmation__isnull=False,
                     allocation__isnull=False,
                     stocktransferitem__isnull=False,
-                    confirmationatsiteitem__isnull=False,
+                    confirmationatlocationitem__isnull=False,
                     storagebinitem__isnull=False,
                     dispenseitem__isnull=True,
                 )
@@ -296,7 +295,7 @@ class StoredAtSiteFilter(SimpleListFilter):
                     confirmation__isnull=False,
                     allocation__isnull=False,
                     stocktransferitem__isnull=False,
-                    confirmationatsiteitem__isnull=False,
+                    confirmationatlocationitem__isnull=False,
                     storagebinitem__isnull=True,
                     dispenseitem__isnull=True,
                 )
@@ -306,7 +305,7 @@ class StoredAtSiteFilter(SimpleListFilter):
                     confirmation__isnull=False,
                     allocation__isnull=False,
                     stocktransferitem__isnull=False,
-                    confirmationatsiteitem__isnull=False,
+                    confirmationatlocationitem__isnull=False,
                     storagebinitem__isnull=True,
                     dispenseitem__isnull=False,
                 )
@@ -328,12 +327,37 @@ class DispensedFilter(SimpleListFilter):
                 confirmation__isnull=False,
                 allocation__isnull=False,
                 stocktransferitem__isnull=False,
-                confirmationatsiteitem__isnull=False,
+                confirmationatlocationitem__isnull=False,
             )
             if self.value() == YES:
                 qs = queryset.filter(dispenseitem__isnull=False, **opts)
             elif self.value() == NO:
                 qs = queryset.filter(dispenseitem__isnull=True, **opts)
+        return qs
+
+
+class ReturnedFilter(SimpleListFilter):
+    title = "Returned"
+    parameter_name = "returned"
+
+    def lookups(self, request, model_admin):  # noqa: ARG002
+        return YES_NO
+
+    def queryset(self, request, queryset):  # noqa: ARG002
+        qs = None
+        if self.value():
+            opts = dict(
+                from_stock__isnull=False,
+                confirmation__isnull=False,
+                allocation__isnull=False,
+                stocktransferitem__isnull=False,
+                confirmationatlocationitem__isnull=False,
+                dispenseitem__isnull=True,
+            )
+            if self.value() == YES:
+                qs = queryset.filter(stockreturnitem__isnull=False, **opts)
+            elif self.value() == NO:
+                qs = queryset.filter(stockreturnitem__isnull=True, **opts)
         return qs
 
 
@@ -348,9 +372,9 @@ class HasCodesListFilter(SimpleListFilter):
         qs = None
         if self.value():
             if self.value() == YES:
-                qs = queryset.filter(codes__isnull=False)
+                qs = queryset.exclude(codes=NULL_STRING)
             elif self.value() == NO:
-                qs = queryset.filter(codes__isnull=True)
+                qs = queryset.filter(codes=NULL_STRING)
         return qs
 
 

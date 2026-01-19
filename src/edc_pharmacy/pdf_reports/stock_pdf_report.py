@@ -202,7 +202,7 @@ class StockReport(Report):
         catsd += "C" if get_related_or_none(stock_obj, "confirmation") else "-"
         catsd += "A" if get_related_or_none(stock_obj, "allocation") else "-"
         catsd += "T" if get_related_or_none(stock_obj, "stocktransferitem") else "-"
-        catsd += "S" if get_related_or_none(stock_obj, "confirmationatsiteitem") else "-"
+        catsd += "S" if get_related_or_none(stock_obj, "confirmationatlocationitem") else "-"
         catsd += "B" if get_related_or_none(stock_obj, "stored_at_site") else "-"
         catsd += "D" if get_related_or_none(stock_obj, "dispenseitem") else "-"
         return catsd

@@ -1,6 +1,6 @@
 from clinicedc_constants import NOT_APPLICABLE, OTHER
 
-from .constants import PER_DAY, PER_HR, SINGLE
+from .constants import CENTRAL_LOCATION, PER_DAY, PER_HR, SINGLE
 
 list_data = {
     "edc_pharmacy.formulationtype": [
@@ -49,6 +49,6 @@ list_data = {
         ("tablet", "Tablet"),
     ],
     "edc_pharmacy.location": [
-        ("central", "Central"),
+        (CENTRAL_LOCATION, "Central"),
     ],
 }

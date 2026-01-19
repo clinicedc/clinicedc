@@ -6,20 +6,15 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import PROTECT
 from django.utils import timezone
-from sequences import get_next_value
-
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from sequences import get_next_value
 
 from ...choices import STOCK_STATUS
 from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
-from ...exceptions import AllocationError, AssignmentError
+from ...exceptions import AllocationError, AssignmentError, StockError
 from ...utils import get_random_code
 from .allocation import Allocation
-
-# from .confirmation import Confirmation
 from .container import Container
-
-# from .dispense import Dispense
 from .location import Location
 from .lot import Lot
 from .managers import StockManager
@@ -142,7 +137,17 @@ class Stock(BaseUuidModel):
 
     description = models.CharField(max_length=100, default="", blank=True)
 
-    stored_at_site = models.BooleanField(default=False)
+    in_transit = models.BooleanField(default=False, help_text="See stocktransferitem.")
+
+    confirmed_at_location = models.BooleanField(
+        default=False, help_text="See confirmeatlocationitem."
+    )
+
+    stored_at_location = models.BooleanField(default=False, help_text="See storagebinitem.")
+
+    dispensed = models.BooleanField(default=False)
+
+    destroyed = models.BooleanField(default=False)
 
     subject_identifier = models.CharField(max_length=50, default="", blank=True)
 
@@ -164,6 +169,38 @@ class Stock(BaseUuidModel):
         self.verify_assignment_or_raise()
         self.verify_assignment_or_raise(self.from_stock)
         self.update_status()
+
+        # in_transit
+        if "in_transit" not in kwargs.get("update_fields", []):
+            original_instance = Stock.objects.get(pk=self.pk)
+            if self.in_transit != original_instance.in_transit:
+                raise StockError(
+                    "Invalid attempt to change field. The value of field `in_transit` "
+                    "is only set in the post-save/delete signals of model StockTransferItem."
+                )
+
+        # received / confirmed at location
+
+        # stored_at_site
+        if "stored_at_site" not in kwargs.get("update_fields", []):
+            original_instance = Stock.objects.get(pk=self.pk)
+            if self.stored_at_site != original_instance.stored_at_site:
+                raise StockError(
+                    "Invalid attempt to change field. The value of field `stored_at_site` "
+                    "is only set in the post-save/delete signals of model StorageBinItem."
+                )
+
+        # dispensed
+        if "dispensed" not in kwargs.get("update_fields", []):
+            original_instance = Stock.objects.get(pk=self.pk)
+            if self.dispensed != original_instance.dispensed:
+                raise StockError(
+                    "Invalid attempt to change field. The value of field `dispensed` "
+                    "is only set in the post-save/delete signals of model DispenseItem."
+                )
+
+        # destroyed
+
         # do this in the post-save signal?
         # self.unit_qty_in = Decimal(self.qty_in) * Decimal(self.container.qty)
         super().save(*args, **kwargs)

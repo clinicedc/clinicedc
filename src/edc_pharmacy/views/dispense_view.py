@@ -14,7 +14,7 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
-from ..models import ConfirmationAtSite, Formulation, Location, Rx
+from ..models import ConfirmationAtLocation, Formulation, Location, Rx
 from ..utils import dispense
 
 
@@ -74,16 +74,16 @@ class DispenseView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Template
         return rx
 
     @property
-    def confirmation_at_site(self):
-        confirmation_at_site_id = self.kwargs.get("confirmation_at_site")
+    def confirm_at_location(self):
+        confirm_at_location_id = self.kwargs.get("confirm_at_location")
         try:
-            confirmation_at_site = ConfirmationAtSite.objects.get(id=confirmation_at_site_id)
+            confirm_at_location = ConfirmationAtLocation.objects.get(id=confirm_at_location_id)
         except ObjectDoesNotExist:
-            confirmation_at_site = None
+            confirm_at_location = None
             messages.add_message(
                 self.request, messages.ERROR, "Invalid stock transfer confirmation."
             )
-        return confirmation_at_site
+        return confirm_at_location
 
     def post(self, request, *args, **kwargs):  # noqa: ARG002
         location_id = request.POST.get("location_id")
@@ -94,40 +94,40 @@ class DispenseView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Template
         container_count = request.POST.get("container_count")
         stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
         rx = self.get_rx(subject_identifier, location, formulation)
-        if not stock_codes and location and formulation and rx and container_count:
-            url = reverse(
-                "edc_pharmacy:dispense_url",
-                kwargs={
-                    "location_id": location.id,
-                    "formulation_id": formulation.id,
-                    "subject_identifier": subject_identifier,
-                    "container_count": container_count,
-                },
-            )
-            return HttpResponseRedirect(url)
 
-        if stock_codes and location and formulation and rx and container_count:
-            dispense_qs = dispense(
-                stock_codes,
-                location,
-                rx,
-                request.user.username,
-                request,
-            )
-            if dispense_qs:
-                messages.add_message(
-                    self.request,
-                    messages.SUCCESS,
-                    f"Dispensed {dispense_qs.count()} item.",
+        if location and formulation and rx and container_count:
+            if stock_codes:
+                dispense_qs = dispense(
+                    stock_codes,
+                    location,
+                    rx,
+                    request.user.username,
+                    request,
                 )
-            url = reverse(
-                "edc_pharmacy:dispense_url",
-                kwargs={
-                    "location_id": location.id,
-                    "formulation_id": formulation.id,
-                    "subject_identifier": subject_identifier,
-                    "container_count": container_count,
-                },
-            )
+                if dispense_qs:
+                    messages.add_message(
+                        self.request,
+                        messages.SUCCESS,
+                        f"Dispensed {dispense_qs.count()} item.",
+                    )
+                url = reverse(
+                    "edc_pharmacy:dispense_url",
+                    kwargs={
+                        "location_id": location.id,
+                        "formulation_id": formulation.id,
+                        "subject_identifier": subject_identifier,
+                        "container_count": container_count,
+                    },
+                )
+            else:
+                url = reverse(
+                    "edc_pharmacy:dispense_url",
+                    kwargs={
+                        "location_id": location.id,
+                        "formulation_id": formulation.id,
+                        "subject_identifier": subject_identifier,
+                        "container_count": container_count,
+                    },
+                )
             return HttpResponseRedirect(url)
         return HttpResponseRedirect(reverse("edc_pharmacy:home_url"))

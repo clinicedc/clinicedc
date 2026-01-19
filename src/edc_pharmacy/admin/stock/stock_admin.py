@@ -6,15 +6,14 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
-from rangefilter.filters import DateRangeFilterBuilder
-
 from edc_model_admin.history import SimpleHistoryAdmin
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE
 from ...exceptions import AllocationError, AssignmentError
 from ...forms import StockForm
-from ...models import RepackRequest, Stock
+from ...models import RepackRequest, Stock, StockTransferItem
 from ...utils import format_qty, get_related_or_none
 from ..actions import (
     confirm_stock_from_queryset,
@@ -24,15 +23,12 @@ from ..actions import (
 )
 from ..list_filters import (
     AllocationListFilter,
-    ConfirmedAtSiteFilter,
     ConfirmedListFilter,
     DecantedListFilter,
-    DispensedFilter,
     HasOrderNumFilter,
     HasReceiveNumFilter,
     HasRepackNumFilter,
     ProductAssignmentListFilter,
-    StoredAtSiteFilter,
     TransferredFilter,
 )
 from ..model_admin_mixin import ModelAdminMixin
@@ -53,8 +49,8 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     autocomplete_fields = ("container",)
 
     change_list_note = (
-        "C=Confirmed, A=Allocated, T=Transferred to site, "
-        "S=Confirmed at site, B=Stored at site, D=Dispensed"
+        "C=Confirmed, A=Allocated, T=Transferred to location, "
+        "CL=Confirmed at location, D=Dispensed"
     )
 
     actions = (
@@ -92,6 +88,20 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             {"fields": ("qty_in", "qty_out", "unit_qty_in", "unit_qty_out")},
         ),
         (
+            "status",
+            {
+                "fields": (
+                    "confirmed",
+                    "allocation",
+                    "in_transit",
+                    "confirmed_at_location",
+                    "stored_at_location",
+                    "dispensed",
+                    "destroyed",
+                )
+            },
+        ),
+        (
             "Receive / Repack",
             {
                 "fields": (
@@ -107,13 +117,14 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     list_display = (
         "formatted_code",
         "from_stock_changelist",
+        "formulation",
         "formatted_confirmation",
         "formatted_allocation",
         "formatted_transferred",
-        "formatted_confirmed_at_site",
-        "formatted_stored_at_site",
-        "dispensed",
-        "formulation",
+        "formatted_confirmed_at_location",
+        "formatted_dispensed",
+        "location",
+        "formatted_stored_at_location",
         "verified_assignment",
         "qty",
         "container_str",
@@ -124,7 +135,6 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock_request_changelist",
         "allocation_changelist",
         "stock_transfer_item_changelist",
-        "location",
         "dispense_changelist",
         "created",
         "modified",
@@ -136,13 +146,14 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         ConfirmedListFilter,
         AllocationListFilter,
         TransferredFilter,
-        ConfirmedAtSiteFilter,
-        StoredAtSiteFilter,
-        DispensedFilter,
+        "confirmed_at_location",
+        "stored_at_location",
+        "dispensed",
         ProductAssignmentListFilter,
         "product",
         "confirmation__confirmed_by",
         ("confirmation__confirmed_datetime", DateRangeFilterBuilder()),
+        ("dispenseitem__dispense_item_datetime", DateRangeFilterBuilder()),
         HasOrderNumFilter,
         HasReceiveNumFilter,
         HasRepackNumFilter,
@@ -168,20 +179,27 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "dispenseitem__dispense__id",
     )
     readonly_fields = (
+        "allocation",
         "code",
         "confirmation",
+        "confirmed",
+        "confirmed_at_location",
         "container",
+        "destroyed",
+        "dispensed",
         "from_stock",
+        "in_transit",
         "location",
-        "repack_request",
         "lot",
         "product",
         "qty_in",
         "qty_out",
+        "receive_item",
+        "repack_request",
+        "stock_identifier",
+        "stored_at_location",
         "unit_qty_in",
         "unit_qty_out",
-        "receive_item",
-        "stock_identifier",
     )
 
     def get_list_display(self, request):
@@ -256,56 +274,60 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="A", boolean=True)
     def formatted_allocation(self, obj):
-        if (
-            obj
-            and get_related_or_none(obj, "confirmation")
-            and get_related_or_none(obj, "from_stock")
-        ):
-            return bool(get_related_or_none(obj, "allocation"))
-        return None
+        # if (
+        #     obj
+        #     and get_related_or_none(obj, "confirmation")
+        #     and get_related_or_none(obj, "from_stock")
+        # ):
+        return bool(get_related_or_none(obj, "allocation"))
+        # return None
 
     @admin.display(description="T", boolean=True)
     def formatted_transferred(self, obj):
-        if (
-            obj
-            and get_related_or_none(obj, "confirmation")
-            and get_related_or_none(obj, "from_stock")
-        ):
-            return bool(get_related_or_none(obj, "stocktransferitem"))
-        return None
+        return obj.in_transit
+        # if StockTransferItem.objects.filter(code=obj.code).exists():
+        #     return True
+        # return None
 
-    @admin.display(description="S", boolean=True)
-    def formatted_confirmed_at_site(self, obj):
-        if (
-            obj
-            and get_related_or_none(obj, "confirmation")
-            and get_related_or_none(obj, "from_stock")
-        ):
-            return bool(get_related_or_none(obj, "confirmationatsiteitem"))
-        return None
+    @admin.display(description="CL", boolean=True)
+    def formatted_confirmed_at_location(self, obj):
+        return obj.confirmed_at_location
+        # if (
+        #     obj
+        #     and get_related_or_none(obj, "confirmation")
+        #     and get_related_or_none(obj, "from_stock")
+        # ):
+        #     confirmed = False
+        #     if (
+        #         stock_transfer_item := StockTransferItem.objects.filter(stock=obj)
+        #         .order_by("transfer_item_datetime")
+        #         .last()
+        #     ):
+        #         with contextlib.suppress(ObjectDoesNotExist):
+        #             confirmed = bool(stock_transfer_item.confirmationatlocationitem)
+        #     return confirmed
+        # return None
 
-    @admin.display(description="B", boolean=True)
-    def formatted_stored_at_site(self, obj):
-        if (
-            obj
-            and get_related_or_none(obj, "confirmation")
-            and get_related_or_none(obj, "from_stock")
-            and get_related_or_none(obj, "confirmationatsiteitem")
-            and not get_related_or_none(obj, "dispenseitem")
-        ):
-            return bool(get_related_or_none(obj, "storagebinitem"))
+    @admin.display(description="Bin")
+    def formatted_stored_at_location(self, obj):
+        if obj and obj.stored_at_location:
+            label = obj.storagebinitem.storage_bin.bin_identifier
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_storagebin_changelist")
+            url = f"{url}?q={label}"
+            context = dict(
+                url=url,
+                label=label,
+                title="Go to storage bin",
+            )
+            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
     @admin.display(description="D", boolean=True)
-    def dispensed(self, obj):
-        if (
-            obj
-            and get_related_or_none(obj, "confirmation")
-            and get_related_or_none(obj, "from_stock")
-            and get_related_or_none(obj, "confirmationatsiteitem")
-        ):
-            return bool(get_related_or_none(obj, "dispenseitem"))
-        return None
+    def formatted_dispensed(self, obj):
+        return obj.dispensed
+        # if obj.location.name == CENTRAL_LOCATION:
+        #     return None
+        # return is_dispensed(obj)
 
     @admin.display(description="Container", ordering="container__name")
     def container_str(self, obj):
@@ -403,22 +425,6 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
 
-    @admin.display(
-        description="Transfer #",
-        ordering="stock_transfer_item.to_location",
-    )
-    def stock_transfer_item_changelist(self, obj):
-        if obj and get_related_or_none(obj, "stocktransferitem"):
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferitem_changelist")
-            url = f"{url}?q={obj.code}"
-            context = dict(
-                url=url,
-                label=obj.stocktransferitem.stock_transfer.transfer_identifier,
-                title="Go to stock transfer item",
-            )
-            return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
-        return None
-
     @admin.display(description="Request #")
     def stock_request_changelist(self, obj):
         if obj and get_related_or_none(obj, "allocation"):
@@ -430,6 +436,33 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 title="Go to stock request",
             )
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+        return None
+
+    @admin.display(
+        description="Transfer #",
+        ordering="stock_transfer_item.to_location",
+    )
+    def stock_transfer_item_changelist(self, obj):
+        if obj:
+            try:
+                stock_transfer_item_obj = obj.stocktransferitem_set.get(
+                    stock_transfer__to_location=obj.location
+                )
+            except Stock.DoesNotExist:
+                pass
+            except StockTransferItem.DoesNotExist:
+                pass
+            else:
+                url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferitem_changelist")
+                url = f"{url}?q={obj.code}"
+                context = dict(
+                    url=url,
+                    label=stock_transfer_item_obj.stock_transfer.transfer_identifier,
+                    title="Go to stock transfer item",
+                )
+                return render_to_string(
+                    "edc_pharmacy/stock/items_as_link.html", context=context
+                )
         return None
 
     @admin.display(description="DISPENSE #")

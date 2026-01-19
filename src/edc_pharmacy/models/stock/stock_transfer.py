@@ -13,6 +13,10 @@ class Manager(models.Manager):
 
 
 class StockTransfer(BaseUuidModel):
+    """A model to track allocated stock transfers from Central
+    to a site location.
+    """
+
     """A model to track allocated stock transfers from location A
     to location B.
     """
@@ -33,7 +37,7 @@ class StockTransfer(BaseUuidModel):
         null=True,
         blank=False,
         related_name="from_location",
-        limit_choices_to={"site__isnull": True},
+        # limit_choices_to={"site__isnull": True},
     )
     to_location = models.ForeignKey(
         Location,
@@ -41,7 +45,7 @@ class StockTransfer(BaseUuidModel):
         null=True,
         blank=False,
         related_name="to_location",
-        limit_choices_to={"site__isnull": False},
+        # limit_choices_to={"site__isnull": False},
     )
 
     item_count = models.PositiveIntegerField(null=True, blank=False)
@@ -59,18 +63,6 @@ class StockTransfer(BaseUuidModel):
             if self.from_location == self.to_location:
                 raise StockTransferError("Locations cannot be the same")
         super().save(*args, **kwargs)
-
-    @property
-    def comfirmed_items(self) -> int:
-        return self.stocktransferitem_set.filter(
-            stock__confirmationatsiteitem__isnull=False
-        ).count()
-
-    @property
-    def uncomfirmed_items(self) -> int:
-        return self.stocktransferitem_set.filter(
-            stock__confirmationatsiteitem__isnull=True
-        ).count()
 
     @property
     def export_references(self):
@@ -109,6 +101,18 @@ class StockTransfer(BaseUuidModel):
             "postal_code": "0000",
             "country": "Tanzania",
         }
+
+    @property
+    def confirmed_items(self) -> int:
+        return self.stocktransferitem_set.filter(
+            confirmationatlocationitem__isnull=False
+        ).count()
+
+    @property
+    def unconfirmed_items(self) -> int:
+        return self.stocktransferitem_set.filter(
+            confirmationatlocationitem__isnull=True
+        ).count()
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Stock transfer"

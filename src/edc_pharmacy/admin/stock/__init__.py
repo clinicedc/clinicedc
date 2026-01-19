@@ -1,12 +1,17 @@
 from .allocation_admin import AllocationAdmin
 from .allocation_proxy_admin import AllocationProxyAdmin
 from .confirmation_admin import ConfirmationAdmin
-from .confirmation_at_site_admin import ConfirmationAtSiteAdmin
-from .confirmation_at_site_item_admin import ConfirmationAtSiteItemAdmin
+from .confirmation_at_location_admin import ConfirmationAtLocationAdmin
+from .confirmation_at_location_item_admin import ConfirmationAtLocationItemAdmin
 from .container_admin import ContainerAdmin
 from .container_type_admin import ContainerTypeAdmin
 from .dispense_admin import DispenseAdmin
 from .dispense_item_admin import DispenseItemAdmin
+from .history import (
+    ConfirmationAtLocationHistoryAdmin,
+    ConfirmationAtLocationItemHistoryAdmin,
+    StorageBinItemHistoryAdmin,
+)
 from .location_admin import LocationAdmin
 from .lot_admin import LotAdmin
 from .order_admin import OrderAdmin

@@ -5,8 +5,8 @@ import django.db.models.manager
 from django.db import migrations, models
 
 import edc_pharmacy.models.stock.allocation
-import edc_pharmacy.models.stock.confirmation_at_site
-import edc_pharmacy.models.stock.confirmation_at_site_item
+import edc_pharmacy.models.stock.confirmation_at_location
+import edc_pharmacy.models.stock.confirmation_at_location_item
 import edc_pharmacy.models.stock.dispense
 import edc_pharmacy.models.stock.dispense_item
 import edc_sites.managers
@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
         migrations.AlterModelManagers(
             name="stocktransferconfirmation",
             managers=[
-                ("objects", edc_pharmacy.models.stock.confirmation_at_site.Manager()),
+                ("objects", edc_pharmacy.models.stock.confirmation_at_location.Manager()),
                 ("on_site", edc_sites.managers.CurrentSiteManager()),
             ],
         ),
@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
             managers=[
                 (
                     "objects",
-                    edc_pharmacy.models.stock.confirmation_at_site_item.Manager(),
+                    edc_pharmacy.models.stock.confirmation_at_location_item.Manager(),
                 ),
                 ("on_site", edc_sites.managers.CurrentSiteManager()),
             ],

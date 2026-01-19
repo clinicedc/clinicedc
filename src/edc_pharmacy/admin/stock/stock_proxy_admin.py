@@ -7,7 +7,7 @@ from ...admin_site import edc_pharmacy_admin
 from ...auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE
 from ...models import StockProxy
 from ..list_filters import (
-    ConfirmedAtSiteFilter,
+    ConfirmedAtLocationFilter,
     DispensedFilter,
     StoredAtSiteFilter,
     TransferredListFilter,
@@ -17,6 +17,7 @@ from .stock_admin import StockAdmin
 
 @admin.register(StockProxy, site=edc_pharmacy_admin)
 class StockProxyAdmin(StockAdmin):
+    change_list_note = "T=Transferred to location, CL=Confirmed at location, D=Dispensed"
     fieldsets = (
         (
             "Stock item",
@@ -38,13 +39,14 @@ class StockProxyAdmin(StockAdmin):
     list_display = (
         "formatted_code",
         "formatted_transferred",
-        "formatted_confirmed_at_site",
-        "formatted_stored_at_site",
-        "dispensed",
-        "stock_request_changelist",
-        "stock_transfer_item_changelist",
-        "allocation_changelist",
+        "formatted_confirmed_at_location",
+        "formatted_dispensed",
+        "location",
+        "formatted_stored_at_location",
         "dispense_changelist",
+        "allocation_changelist",
+        "stock_transfer_item_changelist",
+        "stock_request_changelist",
         "formulation",
         "qty",
         "container_str",
@@ -54,7 +56,7 @@ class StockProxyAdmin(StockAdmin):
     )
     list_filter = (
         TransferredListFilter,
-        ConfirmedAtSiteFilter,
+        ConfirmedAtLocationFilter,
         StoredAtSiteFilter,
         DispensedFilter,
         "product__formulation__description",

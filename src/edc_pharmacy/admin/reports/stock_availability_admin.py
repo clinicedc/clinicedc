@@ -1,14 +1,15 @@
+from clinicedc_constants import NULL_STRING
 from django.contrib import admin
 from django.db.models import QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
-from rangefilter.filters import DateRangeFilterBuilder, NumericRangeFilterBuilder
-
+from django.utils.safestring import mark_safe
 from edc_model_admin.dashboard import ModelAdminDashboardMixin
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 from edc_qareports.modeladmin_mixins import QaReportModelAdminMixin
 from edc_sites.admin import SiteModelAdminMixin
+from rangefilter.filters import DateRangeFilterBuilder, NumericRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...analytics.dataframes.no_stock_for_subjects_df import stock_for_subjects_df
@@ -26,16 +27,17 @@ def update_report(modeladmin, request):
     modeladmin.model.objects.all().delete()
 
     df = stock_for_subjects_df()
+
     url = reverse("edc_pharmacy_admin:edc_pharmacy_storagebinitem_changelist")
     df.loc[~df["codes"].isna(), "codes"] = df.loc[~df["codes"].isna(), "codes"].apply(
         lambda s: wrap_html(s, url)
     )
-    df.loc[df["codes"].isna(), "codes"] = None
+    df.loc[df["codes"].isna(), "codes"] = NULL_STRING
 
     df.loc[~df["bins"].isna(), "bins"] = df.loc[~df["bins"].isna(), "bins"].apply(
         lambda s: wrap_html(s, url)
     )
-    df.loc[df["bins"].isna(), "bins"] = None
+    df.loc[df["bins"].isna(), "bins"] = NULL_STRING
     if not df.empty:
         data = [
             modeladmin.model(
@@ -87,7 +89,7 @@ class StockAvailabilityModelAdmin(
         "site_id",
     )
 
-    search_fields = ("subject_identifier",)
+    search_fields = ("subject_identifier", "codes", "bins")
 
     def get_queryset(self, request) -> QuerySet:
         update_report(self, request)
@@ -100,7 +102,7 @@ class StockAvailabilityModelAdmin(
     def formatted_codes(self, obj):
         if obj.codes:
             return format_html(
-                '<span style="font-family:courier;">{codes}</span>', codes=obj.codes
+                '<span style="font-family:courier;">{codes}</span>', codes=mark_safe(obj.codes)
             )
         return None
 
@@ -108,7 +110,7 @@ class StockAvailabilityModelAdmin(
     def formatted_bins(self, obj):
         if obj.codes:
             return format_html(
-                '<span style="font-family:courier;">{bins}</span>', bins=obj.bins
+                '<span style="font-family:courier;">{bins}</span>', bins=mark_safe(obj.bins)
             )
         return None
 

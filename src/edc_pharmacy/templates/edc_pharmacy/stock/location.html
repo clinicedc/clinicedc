@@ -1,0 +1,5 @@
+{% if is_current_location %}
+    <span style="color:green;white-space: nowrap;" title="current location">{{ location }}{{ flag }}</span>
+{% else %}
+    {{ location }}
+{% endif %}

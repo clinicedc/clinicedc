@@ -5,19 +5,18 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
-from rangefilter.filters import DateRangeFilterBuilder
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import StockTransferItem
 from ..model_admin_mixin import ModelAdminMixin
 
 
-class ConfirmedAtSiteFilter(SimpleListFilter):
-    title = "Confirmed at site"
-    parameter_name = "confirmed_at_site"
+class ConfirmedAtLocationFilter(SimpleListFilter):
+    title = "Confirmed at location"
+    parameter_name = "confirmed_at_location"
 
     def lookups(self, request, model_admin):  # noqa: ARG002
         return (YES, YES), (NO, NO)
@@ -29,16 +28,15 @@ class ConfirmedAtSiteFilter(SimpleListFilter):
                 stock__from_stock__isnull=False,
                 stock__confirmation__isnull=False,
                 stock__allocation__isnull=False,
-                stock__stocktransferitem__isnull=False,
             )
             if self.value() == YES:
                 qs = queryset.filter(
-                    stock__confirmationatsiteitem__isnull=False,
+                    confirmationatlocationitem__isnull=False,
                     **opts,
                 )
             elif self.value() == NO:
                 qs = queryset.filter(
-                    stock__confirmationatsiteitem__isnull=True,
+                    confirmationatlocationitem__isnull=True,
                     **opts,
                 )
         return qs
@@ -62,27 +60,28 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 "fields": (
                     "transfer_item_identifier",
                     "transfer_item_datetime",
+                    "stock_transfer",
                     "stock",
                 )
             },
         ),
         audit_fieldset_tuple,
     )
-
     list_display = (
         "identifier",
         "stock_transfer_changelist",
         "transfer_item_date",
         "stock_changelist",
         "allocation_changelist",
-        "confirmation_at_site_item_changelist",
-        "location",
+        "confirmation_at_location_item_changelist",
+        "formatted_from_location",
+        "formatted_to_location",
     )
 
     list_filter = (
         "stock_transfer__to_location",
         ("transfer_item_datetime", DateRangeFilterBuilder()),
-        ConfirmedAtSiteFilter,
+        ConfirmedAtLocationFilter,
     )
 
     search_fields = (
@@ -97,19 +96,36 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "transfer_item_identifier",
         "transfer_item_datetime",
         "stock",
+        "stock_transfer",
     )
 
     @admin.display(description="TRANSFER ITEM #", ordering="transfer_item_identifier")
     def identifier(self, obj):
         return obj.transfer_item_identifier
 
-    @admin.display(description="Location", ordering="stock__location")
-    def location(self, obj):
-        return (
-            obj.stock.location
-            if obj.stock.confirmationatsiteitem
-            else f">>> {obj.stock.location}"
-        )
+    @admin.display(description="From", ordering="stock__location")
+    def formatted_from_location(self, obj):
+        return obj.stock_transfer.from_location.display_name
+
+    @admin.display(description="To", ordering="stock__location")
+    def formatted_to_location(self, obj):
+        if obj:
+            is_current_location = obj.stock_transfer.to_location == obj.stock.location
+            context = dict(
+                location=obj.stock_transfer.to_location.display_name,
+                is_current_location=is_current_location,
+            )
+            return render_to_string("edc_pharmacy/stock/location.html", context=context)
+        return None
+
+    @admin.display(description="Loc", ordering="stock__location")
+    def formatted_location(self, obj):
+        try:
+            obj.confirmationatlocationitem  # noqa: B018
+        except ObjectDoesNotExist:
+            return f"{obj.stock.location.display_name} > {obj.stock_transfer.to_location.display_name}"
+        else:
+            return obj.stock.location.display_name
 
     @admin.display(description="Transfer date", ordering="transfer_item_datetime")
     def transfer_item_date(self, obj):
@@ -145,21 +161,23 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     @admin.display(
-        description="Site Confirmation #",
-        ordering="stock__confirmationatsiteitem__transfer_confirmation_item_identifier",
+        description="Confirmation #",
+        ordering="stock__confirmationatlocationitem__transfer_confirmation_item_identifier",
     )
-    def confirmation_at_site_item_changelist(self, obj):
+    def confirmation_at_location_item_changelist(self, obj):
         try:
-            transfer_confirmation_item = obj.stock.confirmationatsiteitem
+            transfer_confirmation_item = obj.confirmationatlocationitem
         except ObjectDoesNotExist:
-            url = reverse("edc_pharmacy:confirmation_at_site_url")
+            url = reverse("edc_pharmacy:confirm_at_location_url")
             context = dict(
                 url=url,
                 label="Pending",
                 title="Go to stock transfer site confirmation",
             )
         else:
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_confirmationatsiteitem_changelist")
+            url = reverse(
+                "edc_pharmacy_admin:edc_pharmacy_confirmationatlocationitem_changelist"
+            )
             url = f"{url}?q={transfer_confirmation_item.pk}"
             context = dict(
                 url=url,

@@ -1,0 +1,3 @@
+from .confirmation_at_location_history_admin import ConfirmationAtLocationHistoryAdmin
+from .confirmation_at_location_item_history_admin import ConfirmationAtLocationItemHistoryAdmin
+from .storage_bin_item_history_admin import StorageBinItemHistoryAdmin

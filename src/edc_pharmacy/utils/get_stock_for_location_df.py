@@ -8,7 +8,6 @@ from django.db.models import Count
 from django_pandas.io import read_frame
 
 if TYPE_CHECKING:
-
     from ..models import Location
 
 
@@ -25,7 +24,7 @@ def get_stock_for_location_df(location: Location) -> pd.DataFrame:
             "confirmation",
             "allocation__registered_subject__subject_identifier",
             "stocktransferitem",
-            "confirmationatsiteitem",
+            "confirmationatlocationitem",
             "dispenseitem",
             "location__name",
         )
@@ -36,7 +35,7 @@ def get_stock_for_location_df(location: Location) -> pd.DataFrame:
         columns={
             "allocation__registered_subject__subject_identifier": "subject_identifier",
             "location__name": "location",
-            # "confirmationatsiteitem": "confirmed_at_site",
+            # "confirmationatlocationitem": "confirmed_at_site",
             "count": "stock_qty",
         }
     )
@@ -47,7 +46,7 @@ def get_stock_for_location_df(location: Location) -> pd.DataFrame:
     df_stock["transferred"] = False
     df_stock.loc[~df_stock["stocktransferitem"].isna(), "transferred"] = True
     df_stock["confirmed_at_site"] = False
-    df_stock.loc[~df_stock["confirmationatsiteitem"].isna(), "confirmed_at_site"] = True
+    df_stock.loc[~df_stock["confirmationatlocationitem"].isna(), "confirmed_at_site"] = True
     df_stock["dispensed"] = False
     df_stock.loc[~df_stock["dispenseitem"].isna(), "dispensed"] = True
     df_stock = df_stock.reset_index(drop=True)

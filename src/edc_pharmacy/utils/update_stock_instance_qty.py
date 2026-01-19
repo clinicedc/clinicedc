@@ -19,7 +19,7 @@ def get_stockadjustment_model_cls() -> StockAdjustment:
     return django_apps.get_model("edc_pharmacy.stockadjustment")
 
 
-def update_stock_instance(stock: Stock) -> Stock:
+def update_stock_instance_qty(stock: Stock, save_instance: bool | None = None) -> Stock:
     """Update stock instance fields 'unit_qty_in', 'unit_qty_out',
     'qty', 'qty_out'
     """
@@ -42,6 +42,7 @@ def update_stock_instance(stock: Stock) -> Stock:
     if stock.unit_qty_out == stock.unit_qty_in:
         stock.qty_out = 1
         stock.qty = 0
-    stock.save(update_fields=["unit_qty_in", "unit_qty_out", "qty", "qty_out"])
-    stock.refresh_from_db()
+    if save_instance:
+        stock.save(update_fields=["unit_qty_in", "unit_qty_out", "qty", "qty_out"])
+        stock.refresh_from_db()
     return stock

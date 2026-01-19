@@ -26,7 +26,7 @@ def dispense(
         "edc_pharmacy.dispenseitem"
     )
 
-    assignment_mismatch = False
+    dispense_cancelled = False
     for stock in stock_model_cls.objects.filter(code__in=stock_codes):
         if stock.allocation.registered_subject.subject_identifier != rx.subject_identifier:
             messages.add_message(
@@ -34,10 +34,22 @@ def dispense(
                 messages.ERROR,
                 f"Stock not allocated to subject. Got {stock.code}. Dispensing cancelled.",
             )
-            assignment_mismatch = True
+            dispense_cancelled = True
+            break
+        if stock.allocation.registered_subject.site.id != stock.location.site.id:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                (
+                    "Stock location does not match subject's site. "
+                    f"Stock item {stock.code} not at site "
+                    f"{stock.allocation.registered_subject.site.id}. Dispensing cancelled."
+                ),
+            )
+            dispense_cancelled = True
             break
 
-    if not assignment_mismatch:
+    if not dispense_cancelled:
         dispense_obj = dispense_model_cls.objects.create(
             rx=rx, location=location, dispensed_by=dispensed_by
         )
