@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django_audit_fields import audit_fieldset_tuple
-
 from edc_action_item.fieldsets import action_fields, action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -10,7 +9,6 @@ class HospitalizationModelAdminMixin(
     ModelAdminSubjectDashboardMixin,
     ActionItemModelAdminMixin,
 ):
-
     add_form_template: str = "edc_adverse_event/admin/change_form.html"
     change_list_template = "edc_adverse_event/admin/change_list.html"
     change_form_template = "edc_adverse_event/admin/change_form.html"
@@ -44,7 +42,7 @@ class HospitalizationModelAdminMixin(
 
     list_display = ("subject_identifier", "action_identifier")
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "admitted_date_estimated": admin.VERTICAL,
         "discharged": admin.VERTICAL,
         "discharged_date_estimated": admin.VERTICAL,
