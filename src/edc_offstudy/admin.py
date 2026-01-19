@@ -1,5 +1,4 @@
 from django.contrib import admin
-
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 
@@ -36,6 +35,6 @@ class SubjectOffstudyAdmin(ModelAdminSubjectDashboardMixin, SimpleHistoryAdmin):
 
     list_filter = ("offstudy_datetime",)
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "offstudy_reason": admin.VERTICAL,
     }

@@ -1,5 +1,4 @@
 from django.contrib.admin import AdminSite as DjangoAdminSite
-
 from edc_model_admin.admin_site import EdcAdminSite
 
 from .apps import AppConfig
@@ -21,9 +20,6 @@ class EdcPharmacyHistoryAdmin(DjangoAdminSite):
     enable_nav_sidebar = False
     final_catch_all_view = True
     site_url = "/administration/"
-
-    # add the url below to the project urls
-    # path("edc_pharmacy/history/", edc_pharmacy_history_admin.urls),
 
 
 edc_pharmacy_history_admin = EdcPharmacyHistoryAdmin(name="edc_pharmacy_history_admin")
