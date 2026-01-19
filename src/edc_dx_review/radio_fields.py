@@ -1,6 +1,4 @@
-
 from django.contrib import admin
-
 from edc_dx import get_diagnosis_labels_prefixes
 
 

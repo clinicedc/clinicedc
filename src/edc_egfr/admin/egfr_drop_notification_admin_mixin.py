@@ -1,12 +1,11 @@
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
-
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_crf.fieldset import crf_status_fieldset
 
 
 class EgfrDropNotificationAdminMixin:
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "report_status": admin.VERTICAL,
         "creatinine_units": admin.VERTICAL,
     }

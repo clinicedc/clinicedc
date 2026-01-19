@@ -4,7 +4,6 @@ from django.urls.base import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
-
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin
@@ -59,7 +58,7 @@ class ActionItemAdmin(
         audit_fieldset_tuple,
     )
 
-    radio_fields = {"status": admin.VERTICAL}
+    radio_fields = {"status": admin.VERTICAL}  # noqa: RUF012
 
     list_display = (
         "identifier",
