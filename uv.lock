@@ -553,7 +553,7 @@ wheels = [
 
 [[package]]
 name = "clinicedc"
-version = "2.2.7"
+version = "2.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "argon2-cffi" },
@@ -636,8 +636,8 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.13.5" },
     { name = "boto3", specifier = ">=1.39.16" },
     { name = "celery", specifier = ">=5.5.3" },
-    { name = "clinicedc-constants", specifier = ">=1.2.0" },
-    { name = "clinicedc-utils", specifier = ">=1.0.2" },
+    { name = "clinicedc-constants", editable = "../clinicedc-constants" },
+    { name = "clinicedc-utils", editable = "../clinicedc-utils" },
     { name = "cryptography", specifier = ">=45.0.7" },
     { name = "django", specifier = ">=5.2.8" },
     { name = "django-admin-rangefilter", specifier = ">=0.13.3" },
@@ -676,7 +676,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "clinicedc-tests", specifier = ">=1.0.1" },
+    { name = "clinicedc-tests", editable = "../clinicedc-tests" },
     { name = "django-webtest", specifier = ">=1.9.14" },
     { name = "ruff", specifier = ">=0.14.9" },
 ]
@@ -705,16 +705,12 @@ notebook = [
 [[package]]
 name = "clinicedc-constants"
 version = "1.2.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/47/77/a66d474d7f84c26dfc6128c006d89e20afb590450a3b79a1250f22dd5f3f/clinicedc_constants-1.2.0.tar.gz", hash = "sha256:bda60e8bf40d2ed829dfb23127472efc150773622df5059351819c67aad5d4bc", size = 6554, upload-time = "2025-11-08T15:30:48.682Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3e/c2/b82dffb957426f2f2a992ee53aaaea20dedf45823b79fe9c11e586e299fb/clinicedc_constants-1.2.0-py3-none-any.whl", hash = "sha256:c1709b63748ff3804801af007bd3dfe6b88805e4a94c94bb6a3abe1d5689b29a", size = 8412, upload-time = "2025-11-08T15:30:47.68Z" },
-]
+source = { editable = "../clinicedc-constants" }
 
 [[package]]
 name = "clinicedc-tests"
 version = "1.1.0"
-source = { registry = "https://pypi.org/simple" }
+source = { editable = "../clinicedc-tests" }
 dependencies = [
     { name = "coverage" },
     { name = "django-mock-queries" },
@@ -724,15 +720,31 @@ dependencies = [
     { name = "tox" },
     { name = "tox-uv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/70/94/065ed2b9a415710b3c7f0bbaf2d59e2cf782c73ed703a6ca8afee7c625ee/clinicedc_tests-1.1.0.tar.gz", hash = "sha256:39bc161ecab0e8450a7fecf8120690d0dbd63f0df2937df35048b03aec33215c", size = 54815, upload-time = "2025-11-15T23:03:38.016Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/06/8d/987e744e4a5ce979a8ee931d78fff3077c323c93379247de240cf167ab82/clinicedc_tests-1.1.0-py3-none-any.whl", hash = "sha256:3383ec5447ada28976a1909783d25e1d1c329a8ec1f5c2e85b6cef162e9ae6d7", size = 96633, upload-time = "2025-11-15T23:03:36.755Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "coverage", specifier = ">=7.10.1" },
+    { name = "django-mock-queries", specifier = ">=2.3.0" },
+    { name = "faker", specifier = ">=37.4.2" },
+    { name = "model-bakery", specifier = ">=1.20.5" },
+    { name = "time-machine", specifier = ">=2.16.0" },
+    { name = "tox", specifier = ">=4.32.0" },
+    { name = "tox-uv", specifier = ">=1.26.2" },
 ]
+
+[package.metadata.requires-dev]
+docs = [
+    { name = "furo", specifier = ">=2025.7.19" },
+    { name = "sphinx", specifier = ">=8.2.3" },
+    { name = "sphinx-design", specifier = ">=0.6.1" },
+    { name = "sphinx-inline-tabs", specifier = ">=2023.4.21" },
+]
+lint = [{ name = "ruff", specifier = ">=0.12.5" }]
 
 [[package]]
 name = "clinicedc-utils"
 version = "1.0.2"
-source = { registry = "https://pypi.org/simple" }
+source = { editable = "../clinicedc-utils" }
 dependencies = [
     { name = "clinicedc-constants" },
     { name = "pandas" },
@@ -740,9 +752,14 @@ dependencies = [
     { name = "sqlalchemy" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/78/7f/c2147ddeaa5de2c804fc46e840e133e7d9200b3b680072c116215434c8f1/clinicedc_utils-1.0.2.tar.gz", hash = "sha256:2447ad546945c2e1d2a5efc365a4568550b66ea51c4a71f05e55344e8931f733", size = 8879, upload-time = "2025-11-13T05:29:32.998Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/14/c1/cb07248cd9f0de68821f6581c25f290a3650c0e8465600b0f14b33e3341d/clinicedc_utils-1.0.2-py3-none-any.whl", hash = "sha256:6d0bfc1cd4dd6da9490d807106e2905506ace60289e06bf52f79123ed9bb9513", size = 20540, upload-time = "2025-11-13T05:29:31.658Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "clinicedc-constants", specifier = ">=1.0.1" },
+    { name = "pandas", specifier = ">=2.3.3" },
+    { name = "remote-read-sql", specifier = ">=1.2.3" },
+    { name = "sqlalchemy", specifier = ">=2.0.44" },
+    { name = "tqdm", specifier = ">=4.67.1" },
 ]
 
 [[package]]
