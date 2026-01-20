@@ -5,17 +5,32 @@ from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext
 from django_audit_fields import audit_fieldset_tuple
-from rangefilter.filters import DateRangeFilterBuilder
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import Allocation
-from ...utils import get_related_or_none
 from ..list_filters import AssignmentListFilter
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
+
+
+class HasStockListFilter(SimpleListFilter):
+    title = "Stock"
+    parameter_name = "has_stock"
+
+    def lookups(self, request, model_admin):  # noqa: ARG002
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):  # noqa: ARG002
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(stock__isnull=False)
+            elif self.value() == NO:
+                qs = queryset.filter(stock__isnull=True)
+        return qs
 
 
 class TransferredFilter(SimpleListFilter):
@@ -73,6 +88,7 @@ class HasStockFilter(SimpleListFilter):
 class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Allocations"
     change_form_title = "Pharmacy: Allocation"
+    change_list_note = "T=Transferred to location, CL=Confirmed at location, D=Dispensed"
     history_list_display = ()
     show_object_tools = True
     show_cancel = True
@@ -105,6 +121,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "identifier",
         "allocation_date",
         "transferred",
+        "confirmed_at_location",
         "dispensed",
         "dashboard",
         "stock_changelist",
@@ -119,8 +136,10 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock__location",
         AssignmentListFilter,
         ("allocation_datetime", DateRangeFilterBuilder()),
-        TransferredFilter,
-        DispensedFilter,
+        HasStockListFilter,
+        "stock__in_transit",
+        "stock__confirmed_at_location",
+        "stock__dispensed",
         "allocated_by",
         HasStockFilter,
     )
@@ -130,6 +149,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock__code",
         "stock_request_item__id",
         "stock_request_item__stock_request__id",
+        "stock_request_item__stock_request__request_identifier",
         "registered_subject__subject_identifier",
     )
 
@@ -164,13 +184,15 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="T", boolean=True)
     def transferred(self, obj):
-        return bool(obj.stock.stocktransferitem)
+        return obj.stock.in_transit
+
+    @admin.display(description="CL", boolean=True)
+    def confirmed_at_location(self, obj):
+        return obj.stock.confirmed_at_location
 
     @admin.display(description="D", boolean=True)
     def dispensed(self, obj):
-        if obj:
-            return bool(get_related_or_none(obj.stock, "dispenseitem"))
-        return None
+        return obj.stock.dispensed
 
     @admin.display(description="Product", ordering="stock__product")
     def stock_product(self, obj):
@@ -184,7 +206,10 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def stock_container(self, obj):
         return obj.stock.container
 
-    @admin.display(description="Request #")
+    @admin.display(
+        description="Request #",
+        ordering="stock_request_item__stock_request__request_identifier",
+    )
     def stock_request_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
         url = f"{url}?q={obj.stock_request_item.stock_request.id}"

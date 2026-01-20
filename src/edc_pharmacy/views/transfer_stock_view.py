@@ -11,8 +11,9 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
+from ..exceptions import StockTransferError
 from ..models import Location, StockTransfer, StockTransferItem
-from ..utils import transfer_stock
+from ..utils import transfer_stock_to_location
 
 
 @method_decorator(login_required, name="dispatch")
@@ -58,25 +59,49 @@ class TransferStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
         stock_transfer = StockTransfer.objects.get(pk=self.kwargs.get("stock_transfer"))
         stock_codes = request.POST.getlist("codes")
         if stock_codes:
-            transferred, skipped_codes, invalid_codes = transfer_stock(
-                stock_transfer, stock_codes, request=request
-            )
-            messages.add_message(
-                request,
-                messages.SUCCESS,
-                f"Successfully transferred {len(transferred)} stock items. ",
-            )
+            transferred, dispensed_codes, skipped_codes, invalid_codes = [], [], [], []
+            try:
+                transferred, dispensed_codes, skipped_codes, invalid_codes = (
+                    transfer_stock_to_location(stock_transfer, stock_codes, request=request)
+                )
+            except StockTransferError as e:
+                messages.add_message(request, messages.ERROR, f"An error occured. {e}")
+
+            if len(transferred) > 0:
+                messages.add_message(
+                    request,
+                    messages.SUCCESS,
+                    f"Successfully transferred {len(transferred)} stock items. ",
+                )
             if skipped_codes:
                 messages.add_message(
                     request,
                     messages.WARNING,
-                    f"Skipped {len(skipped_codes)}. Check location/site. Got {skipped_codes}",
+                    (
+                        f"Skipped {len(skipped_codes)} "
+                        f"stock item{'s' if len(skipped_codes) != 1 else ''}. "
+                        f"Not from {stock_transfer.from_location}. "
+                        f"See {StockTransfer._meta.verbose_name} "
+                        f"{stock_transfer.transfer_identifier}. "
+                        f"Got {', '.join(skipped_codes)}"
+                    ),
                 )
+            if dispensed_codes:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    f"Skipped {len(dispensed_codes)} stock item"
+                    f"{'s' if len(dispensed_codes) != 1 else ''}. "
+                    f"Already dispensed. Got {', '.join(dispensed_codes)}",
+                )
+
             if invalid_codes:
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    f"{len(invalid_codes)} are invalid. Got {invalid_codes}",
+                    f"Skipped {len(invalid_codes)} stock item"
+                    f"{'s' if len(invalid_codes) != 1 else ''}. "
+                    f" are invalid. Got {', '.join(invalid_codes)}",
                 )
 
         transferred_count = StockTransferItem.objects.filter(

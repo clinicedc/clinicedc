@@ -9,14 +9,14 @@ from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
-from ...models import ConfirmationAtSite
+from ...models import ConfirmationAtLocation
 from ..model_admin_mixin import ModelAdminMixin
 
 
-@admin.register(ConfirmationAtSite, site=edc_pharmacy_admin)
-class ConfirmationAtSiteAdmin(ModelAdminMixin, SimpleHistoryAdmin):
-    change_list_title = "Pharmacy: Stock confirmations at site"
-    change_form_title = "Pharmacy: Stock confirmation at site"
+@admin.register(ConfirmationAtLocation, site=edc_pharmacy_admin)
+class ConfirmationAtLocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
+    change_list_title = "Pharmacy: Stock confirmations at location"
+    change_form_title = "Pharmacy: Stock confirmation at location"
     history_list_display = ()
     show_object_tools = True
     show_cancel = True
@@ -44,7 +44,7 @@ class ConfirmationAtSiteAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "identifier",
         "transfer_confirmation_date",
         "location",
-        "confirmation_at_site_item_changelist",
+        "confirmation_at_location_item_changelist",
         "stock_transfer_changelist",
     )
 
@@ -62,11 +62,11 @@ class ConfirmationAtSiteAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     search_fields = (
         "pk",
+        "transfer_confirmation_identifier",
         "stock_transfer__pk",
-        "confirmationatsiteitem__stock__code",
+        "confirmationatlocationitem__code",
         (
-            "confirmationatsiteitem__stock__allocation__"
-            "registered_subject__subject_identifier"
+            "confirmationatlocationitem__stock_transfer_item__stock__allocation__registered_subject__subject_identifier"
         ),
     )
 
@@ -79,9 +79,9 @@ class ConfirmationAtSiteAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         return to_local(obj.transfer_confirmation_datetime).date()
 
     @admin.display(description="Confirmed items")
-    def confirmation_at_site_item_changelist(self, obj):
-        item_count = obj.confirmationatsiteitem_set.all().count()
-        url = reverse("edc_pharmacy_admin:edc_pharmacy_confirmationatsiteitem_changelist")
+    def confirmation_at_location_item_changelist(self, obj):
+        item_count = obj.confirmationatlocationitem_set.all().count()
+        url = reverse("edc_pharmacy_admin:edc_pharmacy_confirmationatlocationitem_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(
             url=url,

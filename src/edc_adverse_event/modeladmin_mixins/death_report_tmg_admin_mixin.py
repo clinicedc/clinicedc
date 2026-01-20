@@ -3,7 +3,6 @@ from __future__ import annotations
 from clinicedc_constants import OTHER
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
-
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -37,7 +36,7 @@ class DeathReportTmgModelAdminMixin(
         audit_fieldset_tuple,
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "cause_of_death": admin.VERTICAL,
         "cause_of_death_agreed": admin.VERTICAL,
         "report_status": admin.VERTICAL,

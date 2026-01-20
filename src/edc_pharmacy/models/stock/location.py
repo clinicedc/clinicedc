@@ -22,6 +22,16 @@ class Location(ListModelMixin, BaseUuidModel):
 
     site = models.ForeignKey(Site, on_delete=models.PROTECT, null=True, blank=True)
 
+    # manages_bulk_stock = models.BooleanField(
+    #     verbose_name="Manages bulk stock",
+    #     default=False,
+    # )
+    #
+    # may_receive_returned_stock = models.BooleanField(
+    #     verbose_name="May receive returned stock",
+    #     default=False,
+    # )
+    #
     contact_name = models.CharField(max_length=150, default="", blank=True)
     contact_tel = models.CharField(
         max_length=150,

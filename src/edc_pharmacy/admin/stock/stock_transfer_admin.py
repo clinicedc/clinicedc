@@ -1,52 +1,80 @@
-from clinicedc_constants import NO, PARTIAL, YES
+from clinicedc_constants import NO, YES
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Count
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django_audit_fields import audit_fieldset_tuple
-from rangefilter.filters import DateRangeFilterBuilder
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
+from ...constants import CENTRAL_LOCATION
 from ...forms import StockTransferForm
-from ...models import ConfirmationAtSiteItem, StockTransfer, StockTransferItem
+from ...models import ConfirmationAtLocationItem, Location, StockTransfer, StockTransferItem
 from ..actions import print_transfer_stock_manifest_action, transfer_stock_action
 from ..model_admin_mixin import ModelAdminMixin
 
 
-class ConfirmedAtSiteListFilter(SimpleListFilter):
-    title = "Confirmed at site"
-    parameter_name = "confirmed_at_site"
+class LocationListFilterMixin:
+    title = "To location"
+    parameter_name = "tolocation"
 
     def lookups(self, request, model_admin):  # noqa: ARG002
-        return (YES, YES), (PARTIAL, "Partial"), (NO, NO)
+        locations = [
+            (obj.get("name"), obj.get("display_name"))
+            for obj in Location.objects.values("name", "display_name")
+            .filter(name=CENTRAL_LOCATION)
+            .distinct()
+            .order_by("display_name")
+        ]
+        locations.extend(
+            [
+                (obj.get("name"), obj.get("display_name"))
+                for obj in Location.objects.values("name", "display_name")
+                .exclude(name=CENTRAL_LOCATION)
+                .distinct()
+                .order_by("display_name")
+            ]
+        )
+        return tuple(locations)
+
+    def queryset(self, request, queryset):  # noqa: ARG002
+        qs = None
+        if self.value():
+            qs = queryset.filter(**{self.parameter_name: self.value()})
+        return qs
+
+
+class ToLocationListFilter(LocationListFilterMixin, SimpleListFilter):
+    title = "To location"
+    parameter_name = "to_location__name"
+
+
+class FromLocationListFilter(LocationListFilterMixin, SimpleListFilter):
+    title = "From location"
+    parameter_name = "from_location__name"
+
+
+class ConfirmedAtSiteListFilter(SimpleListFilter):
+    title = "Confirmed at location"
+    parameter_name = "confirmed_at_location"
+
+    def lookups(self, request, model_admin):  # noqa: ARG002
+        return (YES, YES), (NO, NO)
 
     def queryset(self, request, queryset):  # noqa: ARG002
         qs = None
         if self.value():
             if self.value() == YES:
-                qs = (
-                    queryset.filter(
-                        confirmationatsite__isnull=False,
-                        stocktransferitem__stock__confirmationatsiteitem__isnull=False,
-                    )
-                    .exclude(
-                        stocktransferitem__stock__confirmationatsiteitem__isnull=True,
-                    )
-                    .annotate(Count("transfer_identifier"))
-                )
-            elif self.value() == PARTIAL:
                 qs = queryset.filter(
-                    confirmationatsite__isnull=False,
-                    stocktransferitem__stock__confirmationatsiteitem__isnull=True,
+                    stocktransferitem__stock__confirmed_at_location=True,
                 ).annotate(Count("transfer_identifier"))
             elif self.value() == NO:
                 qs = queryset.filter(
-                    confirmationatsite__isnull=True,
-                    stocktransferitem__stock__confirmationatsiteitem__isnull=True,
+                    stocktransferitem__stock__confirmed_at_location=False,
                 ).annotate(Count("transfer_identifier"))
 
         return qs
@@ -56,6 +84,7 @@ class ConfirmedAtSiteListFilter(SimpleListFilter):
 class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Stock Transfer"
     change_form_title = "Pharmacy: Stock Transfers"
+    change_list_note = "T=Transferred to location or 'in transit', CL=Confirmed at location"
     history_list_display = ()
     show_object_tools = True
     show_cancel = True
@@ -86,8 +115,8 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     list_display = (
         "identifier",
         "transfer_date",
-        "from_location",
-        "to_location",
+        "location",
+        "n",
         "stock_transfer_item_changelist",
         "stock_transfer_item_confirmed_changelist",
         "stock_transfer_item_unconfirmed_changelist",
@@ -96,14 +125,15 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     list_filter = (
         ("transfer_datetime", DateRangeFilterBuilder()),
-        "from_location",
-        "to_location",
+        FromLocationListFilter,
+        ToLocationListFilter,
         ConfirmedAtSiteListFilter,
     )
 
     search_fields = (
         "id",
         "transfer_identifier",
+        "stocktransferitem__stock__code",
         "stocktransferitem__stock__allocation__registered_subject__subject_identifier",
     )
 
@@ -115,7 +145,17 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def transfer_date(self, obj):
         return to_local(obj.transfer_datetime).date()
 
-    @admin.display(description="Transfered")
+    @admin.display(description="expected", ordering="item_count")
+    def n(self, obj):
+        if obj.item_count != StockTransferItem.objects.filter(stock_transfer=obj).count():
+            return f"{StockTransferItem.objects.filter(stock_transfer=obj).count()}/{obj.item_count}"
+        return obj.item_count
+
+    @admin.display(description="Location", ordering="to_location")
+    def location(self, obj):
+        return mark_safe(f"{obj.from_location}&nbsp;&gt;&gt;&nbsp;{obj.to_location}")  # noqa: S308
+
+    @admin.display(description="T")
     def stock_transfer_item_changelist(self, obj):
         count = StockTransferItem.objects.filter(stock_transfer=obj).count()
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferitem_changelist")
@@ -123,10 +163,10 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         context = dict(url=url, label=count, title="Go to stock transfer items")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
-    @admin.display(description="Confirmed at site")
+    @admin.display(description="CL")
     def stock_transfer_item_confirmed_changelist(self, obj):
-        num_confirmed_at_site = ConfirmationAtSiteItem.objects.filter(
-            stock__stocktransferitem__stock_transfer=obj
+        num_confirmed_at_site = ConfirmationAtLocationItem.objects.filter(
+            stock_transfer_item__stock_transfer=obj
         ).count()
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferitem_changelist")
         url = f"{url}?q={obj.id}&confirmed_at_site={YES}"
@@ -137,19 +177,16 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
-    @admin.display(description="Unconfirmed")
+    @admin.display(description="not CL")
     def stock_transfer_item_unconfirmed_changelist(self, obj):
-        num_transferred = StockTransferItem.objects.filter(
-            stock_transfer=obj, stock__confirmationatsiteitem__isnull=False
-        ).count()
-        num_confirmed_at_site = ConfirmationAtSiteItem.objects.filter(
-            stock__stocktransferitem__stock_transfer=obj
+        num = StockTransferItem.objects.filter(
+            stock_transfer=obj, stock__confirmed_at_location=False
         ).count()
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransferitem_changelist")
         url = f"{url}?q={obj.id}&confirmed_at_site={NO}"
         context = dict(
             url=url,
-            label=num_transferred - num_confirmed_at_site,
+            label=num,
             title="Items not confirmed at site",
         )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)

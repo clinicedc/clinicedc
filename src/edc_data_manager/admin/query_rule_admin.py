@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.contrib.admin.decorators import register
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,
@@ -53,7 +52,7 @@ class QueryRuleModelAdminMixin:
 
     @staticmethod
     def query_timing(obj=None):
-        return f"{obj.timing} {obj.get_timing_units_display()} " f"from {obj.reference_date}"
+        return f"{obj.timing} {obj.get_timing_units_display()} from {obj.reference_date}"
 
     @staticmethod
     def requisition(obj=None):
@@ -100,7 +99,7 @@ class QueryRuleAdmin(
 
     list_filter = ("query_priority", "active", "rule_handler_name")
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "reference_date": admin.VERTICAL,
         "timing_units": admin.VERTICAL,
         "query_priority": admin.VERTICAL,

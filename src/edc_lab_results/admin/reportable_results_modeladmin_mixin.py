@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
-
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 
 
@@ -11,7 +10,7 @@ class ReportableResultsModelAdminMixin(ActionItemModelAdminMixin, ModelAdmin):
 
     autocomplete_fields = ["requisition"]
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "results_abnormal": admin.VERTICAL,
         "results_reportable": admin.VERTICAL,
     }

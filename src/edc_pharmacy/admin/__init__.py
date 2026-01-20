@@ -16,6 +16,8 @@ from .stock import (
     AllocationAdmin,
     AllocationProxyAdmin,
     ConfirmationAdmin,
+    ConfirmationAtLocationHistoryAdmin,
+    ConfirmationAtLocationItemHistoryAdmin,
     ContainerAdmin,
     ContainerTypeAdmin,
     DispenseAdmin,

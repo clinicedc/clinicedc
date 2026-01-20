@@ -69,7 +69,7 @@ class MedicationAdherenceAdminMixin:
         audit_fieldset_tuple,
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "pill_count_performed": admin.VERTICAL,
         "last_missed_pill": admin.VERTICAL,
     }

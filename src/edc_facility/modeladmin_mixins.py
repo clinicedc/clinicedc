@@ -51,7 +51,7 @@ class HealthFacilityModelAdminMixin:
         "health_facility_type",
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "health_facility_type": admin.VERTICAL,
     }
 

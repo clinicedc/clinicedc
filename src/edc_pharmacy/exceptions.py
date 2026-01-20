@@ -138,5 +138,5 @@ class StorageBinError(Exception):
     pass
 
 
-class ConfirmAtSiteError(Exception):
+class ConfirmAtLocationError(Exception):
     pass

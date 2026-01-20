@@ -37,7 +37,7 @@ class BoxAdmin(BaseModelAdmin, admin.ModelAdmin):
         audit_fieldset_tuple,
     )
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "box_type": admin.VERTICAL,
         "category": admin.VERTICAL,
         "status": admin.VERTICAL,

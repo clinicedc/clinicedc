@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
-
 from edc_fieldsets.fieldset import Fieldset
 
 from ..admin_site import edc_lab_admin
@@ -45,7 +44,7 @@ class AliquotAdmin(BaseModelAdmin, admin.ModelAdmin):
 
     search_fields = ("aliquot_identifier", "subject_identifier")
 
-    radio_fields = {"condition": admin.VERTICAL}
+    radio_fields = {"condition": admin.VERTICAL}  # noqa: RUF012
 
     def get_list_display(self, request) -> tuple:
         list_display = super().get_list_display(request)

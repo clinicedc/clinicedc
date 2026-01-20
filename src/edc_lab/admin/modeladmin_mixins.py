@@ -5,12 +5,12 @@ from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from edc_lab.admin.fieldsets import (
     requisition_identifier_fields,
     requisition_verify_fields,
 )
-from edc_visit_tracking.utils import get_related_visit_model_cls
 
 
 class RequisitionAdminMixin:
@@ -22,7 +22,7 @@ class RequisitionAdminMixin:
 
     date_hierarchy = "requisition_datetime"
 
-    radio_fields = {
+    radio_fields = {  # noqa: RUF012
         "is_drawn": admin.VERTICAL,
         "reason_not_drawn": admin.VERTICAL,
         "item_type": admin.VERTICAL,

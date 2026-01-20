@@ -1,5 +1,5 @@
+from clinicedc_constants import CANCEL
 from django import forms
-
 from edc_registration.models import RegisteredSubject
 
 from ...models import Allocation, StockRequest
@@ -60,10 +60,10 @@ class StockRequestForm(forms.ModelForm):
                 }
             )
 
-        if not self.instance.id and cleaned_data.get("cancel") == "CANCEL":
+        if not self.instance.id and cleaned_data.get("cancel") == CANCEL:
             raise forms.ValidationError("Leave this blank")
         if (
-            cleaned_data.get("cancel") == "CANCEL"
+            cleaned_data.get("cancel") == CANCEL
             and Allocation.objects.filter(
                 stock_request_item__stock_request=self.instance
             ).exists()

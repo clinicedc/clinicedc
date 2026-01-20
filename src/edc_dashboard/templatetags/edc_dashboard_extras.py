@@ -6,7 +6,6 @@ from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django.urls.base import reverse
 from django.utils import timezone
-
 from edc_utils.age import AgeValueError, age
 
 register = template.Library()

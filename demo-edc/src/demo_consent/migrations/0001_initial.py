@@ -51,14 +51,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -402,14 +402,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -753,14 +753,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
@@ -1104,14 +1104,14 @@ class Migration(migrations.Migration):
                     "created",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (
                     "modified",
                     models.DateTimeField(
                         blank=True,
-                        default=timezone.now,
+                        default=django.utils.timezone.now,
                     ),
                 ),
                 (

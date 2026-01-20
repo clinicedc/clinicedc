@@ -13,7 +13,7 @@ import simple_history.models
 from django.conf import settings
 from django.db import migrations, models
 
-import edc_pharmacy.models.stock.confirmation_at_site_item
+import edc_pharmacy.models.stock.confirmation_at_location_item
 import edc_sites.managers
 
 
