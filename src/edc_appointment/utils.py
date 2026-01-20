@@ -739,7 +739,12 @@ def update_appt_status_for_timepoint(related_visit: RelatedVisitModel) -> None:
         related_visit.appointment.save_base(update_fields=["appt_status"])
 
 
-def offschedule(subject_identifier: str, offschedule_model: str, request: WSGIRequest):
+def offschedule(
+    subject_identifier: str,
+    offschedule_model: str,
+    request: WSGIRequest,
+    verbose: bool | None = None,
+):
     try:
         django_apps.get_model(offschedule_model).objects.get(
             subject_identifier=subject_identifier
@@ -748,11 +753,18 @@ def offschedule(subject_identifier: str, offschedule_model: str, request: WSGIRe
         retval = False
     else:
         retval = True
-        messages.add_message(
-            request=request,
-            level=ERROR,
-            message=_("Unable to refreshing appointments. Subject is off schedule."),
-        )
+        msg = _(
+            "Unable to refreshing appointments. Subject '%(subject_identifier)s' "
+            "is off schedule."
+        ) % dict(subject_identifier=subject_identifier)
+        if request:
+            messages.add_message(
+                request=request,
+                level=ERROR,
+                message=msg,
+            )
+        elif verbose:
+            sys.stdout.write(f"{msg}\n")
     return retval
 
 
@@ -762,13 +774,17 @@ def refresh_appointments(
     schedule_name: str,
     request: WSGIRequest | None = None,
     warn_only: bool | None = None,
+    skip_get_current_site: bool | None = None,
 ) -> tuple[str, str]:
     status = OK
     visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
     schedule = visit_schedule.schedules.get(schedule_name)
     if not offschedule(subject_identifier, schedule.offschedule_model, request):
         try:
-            schedule.refresh_schedule(subject_identifier)
+            schedule.refresh_schedule(
+                subject_identifier,
+                skip_get_current_site=skip_get_current_site,
+            )
         except AppointmentDatetimeError as e:
             if request and not warn_only:
                 status = ERROR_CODE
