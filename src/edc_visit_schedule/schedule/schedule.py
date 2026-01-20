@@ -7,7 +7,6 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
-
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import (
     ConsentDefinitionDoesNotExist,
@@ -297,8 +296,14 @@ class Schedule:
             consent_definition=consent_definition,
         )
 
-    def refresh_schedule(self, subject_identifier: str) -> None:
-        self.subject(subject_identifier).refresh_appointments()
+    def refresh_schedule(
+        self,
+        subject_identifier: str,
+        skip_get_current_site: bool | None = None,
+    ) -> None:
+        self.subject(subject_identifier).refresh_appointments(
+            skip_get_current_site=skip_get_current_site
+        )
 
     def take_off_schedule(
         self, subject_identifier: str, offschedule_datetime: datetime

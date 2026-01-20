@@ -7,7 +7,6 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.utils import timezone
-
 from edc_appointment.constants import COMPLETE_APPT, IN_PROGRESS_APPT
 from edc_appointment.creators import AppointmentsCreator
 from edc_consent.consent_definition import ConsentDefinition
@@ -129,7 +128,8 @@ class SubjectSchedule:
             )
 
         site = valid_site_for_subject_or_raise(
-            self.subject_identifier, skip_get_current_site=skip_get_current_site
+            self.subject_identifier,
+            skip_get_current_site=skip_get_current_site,
         )
         single_site = site_sites.get(site.id)
         site_consents.filter_cdefs_by_site_or_raise(
@@ -183,7 +183,7 @@ class SubjectSchedule:
                 skip_get_current_site=skip_get_current_site,
             )
 
-    def refresh_appointments(self):
+    def refresh_appointments(self, skip_get_current_site: bool | None = None):
         creator = self.appointments_creator_cls(
             report_datetime=self.onschedule_obj.onschedule_datetime,
             subject_identifier=self.subject_identifier,
@@ -193,7 +193,10 @@ class SubjectSchedule:
             site_id=self.registered_or_raise().site.id,
             skip_baseline=True,
         )
-        creator.create_appointments(self.onschedule_obj.onschedule_datetime)
+        creator.create_appointments(
+            self.onschedule_obj.onschedule_datetime,
+            skip_get_current_site=skip_get_current_site,
+        )
 
         try:
             offschedule_obj = self.offschedule_model_cls.objects.get(
