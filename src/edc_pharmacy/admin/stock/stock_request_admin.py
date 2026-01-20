@@ -1,16 +1,15 @@
 from celery.result import AsyncResult
 from celery.states import SUCCESS
-from clinicedc_constants import CANCELLED, COMPLETE, PENDING
+from clinicedc_constants import CANCEL, CANCELLED, COMPLETE, NULL_STRING, PENDING
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_audit_fields import audit_fieldset_tuple
-from rangefilter.filters import DateRangeFilterBuilder
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestForm
@@ -38,22 +37,22 @@ class StatusListFilter(admin.SimpleListFilter):
             if self.value() == PENDING:
                 return (
                     queryset.filter(
-                        stockrequestitem__allocation__isnull=True, cancel__isnull=True
+                        stockrequestitem__allocation__isnull=True, cancel=NULL_STRING
                     )
                     .exclude(item_count=0)
                     .distinct()
                 )
             if self.value() == COMPLETE:
                 return (
-                    queryset.filter(cancel__isnull=True)
+                    queryset.filter(cancel=NULL_STRING)
                     .exclude(stockrequestitem__allocation__isnull=True)
                     .exclude(item_count=0)
                     .distinct()
                 )
             if self.value() == CANCELLED:
-                return queryset.filter(cancel__isnull=False)
+                return queryset.exclude(cancel=NULL_STRING)
             if self.value() == "ZERO":
-                return queryset.filter(item_count=0, cancel__isnull=True)
+                return queryset.filter(item_count=0, cancel=NULL_STRING)
         return None
 
 
@@ -140,7 +139,9 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "id",
         "request_identifier",
         "stockrequestitem__allocation__id",
+        "stockrequestitem__allocation__registered_subject__subject_identifier",
         "stockrequestitem__allocation__stock__id",
+        "stockrequestitem__allocation__stock__code",
     )
 
     readonly_fields = ("item_count",)
@@ -148,7 +149,7 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def redirect_url(self, request, obj, post_url_continue=None) -> str | None:
         """Redirect to the review page immediately after saving model."""
         redirect_url = super().redirect_url(request, obj, post_url_continue)
-        if obj.cancel == "CANCEL":
+        if obj.cancel == CANCEL:
             pass
         elif not obj.stockrequestitem_set.all().exists():
             redirect_url = reverse(
@@ -242,7 +243,7 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Status")
     def stock_request_status(self, obj):
-        if obj.cancel == "CANCEL":
+        if obj.cancel == CANCEL:
             return "CANCELLED"
         context = stock_request_status_counts(obj)
         context.update(task_status=self.task_status(obj), success=SUCCESS)

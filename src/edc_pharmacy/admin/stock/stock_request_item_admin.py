@@ -3,11 +3,10 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django_audit_fields import audit_fieldset_tuple
-from rangefilter.filters import DateRangeFilterBuilder
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_model_admin.list_filters import FutureDateListFilter
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import StockRequestItemForm
@@ -16,6 +15,7 @@ from ..actions.print_labels import print_labels_from_stock_request_item
 from ..list_filters import (
     AssignmentListFilter,
     StockItemAllocationListFilter,
+    StockItemConfirmedAtLocationListFilter,
     StockItemTransferredListFilter,
     StockRequestItemPendingListFilter,
 )
@@ -33,6 +33,11 @@ class ApptDatetimeListFilter(FutureDateListFilter):
 @admin.register(StockRequestItem, site=edc_pharmacy_admin)
 class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Requested stock items"
+    change_list_note = mark_safe(
+        "A stock request item is linked to a physical stock item when allocated to a "
+        "subject<BR>A=Allocated, T=Transferred to location or 'in transit', "
+        "CL=Confirmed at location"
+    )
     history_list_display = ()
     show_object_tools = False
     show_cancel = True
@@ -67,8 +72,9 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "request_changelist",
         "allocated",
         "transferred",
-        "location",
         "subject",
+        "location",
+        "confirmed_at_location",
         "formulation",
         "allocation_changelist",
         "stock_changelist",
@@ -80,6 +86,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock_request__location",
         StockItemAllocationListFilter,
         StockItemTransferredListFilter,
+        StockItemConfirmedAtLocationListFilter,
         AssignmentListFilter,
         StockRequestItemPendingListFilter,
         "visit_code",
@@ -143,9 +150,11 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="T", boolean=True)
     def transferred(self, obj):
-        if obj and getattr(obj, "allocation", None):
-            return bool(obj.allocation.stock.stocktransferitem)
-        return False
+        return obj.allocation.stock.in_transit
+
+    @admin.display(description="CL", boolean=True)
+    def confirmed_at_location(self, obj):
+        return obj.allocation.stock.confirmed_at_location
 
     @admin.display(description="Subject", ordering="appt_datetime")
     def subject(self, obj):

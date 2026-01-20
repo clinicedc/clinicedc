@@ -3,11 +3,10 @@ from __future__ import annotations
 from decimal import Decimal
 
 from celery.states import PENDING
-from clinicedc_constants import COMPLETE, PARTIAL
+from clinicedc_constants import CANCEL, COMPLETE, PARTIAL
 from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-
 from edc_utils.celery import get_task_result, run_task_sync_or_async
 
 from ..exceptions import InsufficientStockError
@@ -114,7 +113,7 @@ def stock_request_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:
     if not raw and not update_fields:
-        if instance.cancel == "CANCEL":
+        if instance.cancel == CANCEL:
             if not Allocation.objects.filter(
                 stock_request_item__stock_request=instance
             ).exists():
@@ -157,6 +156,16 @@ def repack_request_on_post_save(
 
 @receiver(
     post_save,
+    sender=Allocation,
+    dispatch_uid="allocation_on_post_save",
+)
+def allocation_on_post_save(sender, instance, raw, created, update_fields, **kwargs) -> None:
+    instance.stock.subject_identifier = instance.registered_subject.subject_identifier
+    instance.stock.save(update_fields=["subject_identifier"])
+
+
+@receiver(
+    post_save,
     sender=StockTransferItem,
     dispatch_uid="stock_transfer_item_on_post_save",
 )
@@ -190,8 +199,8 @@ def storage_bin_item_on_post_save(
     sender, instance, raw, created, update_fields, **kwargs
 ) -> None:
     if not raw and not update_fields:
-        instance.stock.stored_at_site = True
-        instance.stock.save(update_fields=["stored_at_site"])
+        instance.stock.stored_at_location = True
+        instance.stock.save(update_fields=["stored_at_location"])
 
 
 @receiver(
@@ -231,7 +240,8 @@ def stock_on_post_delete(sender, instance, using, **kwargs) -> None:
 )
 def allocation_post_delete(sender, instance, using, **kwargs) -> None:
     if getattr(instance, "stock", None):
-        pass
+        instance.stock.subject_identifier = None
+        instance.stock.save(update_fields=["subject_identifier"])
 
 
 @receiver(
@@ -260,8 +270,8 @@ def confirm_at_location_item_post_delete(sender, instance, using, **kwargs) -> N
     dispatch_uid="storage_bin_item_post_delete",
 )
 def storage_bin_item_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.stock.stored_at_site = False
-    instance.stock.save(update_fields=["stored_at_site"])
+    instance.stock.stored_at_location = False
+    instance.stock.save(update_fields=["stored_at_location"])
 
 
 @receiver(

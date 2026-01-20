@@ -1,3 +1,4 @@
+from clinicedc_constants import NULL_STRING
 from django.db import models
 from django.utils import timezone
 from edc_model.models import BaseUuidModel, HistoricalRecords
@@ -36,6 +37,14 @@ class DispenseItem(SiteModelMixin, VisitCodeFieldsModelMixin, BaseUuidModel):
 
     stock = models.OneToOneField(Stock, on_delete=models.PROTECT)
 
+    code = models.CharField(
+        verbose_name="Stock code",
+        max_length=15,
+        default=NULL_STRING,
+        blank=True,
+        editable=False,
+    )
+
     objects = Manager()
 
     history = HistoricalRecords()
@@ -44,6 +53,7 @@ class DispenseItem(SiteModelMixin, VisitCodeFieldsModelMixin, BaseUuidModel):
         return self.dispense_item_identifier
 
     def save(self, *args, **kwargs):
+        self.code = self.stock.code
         self.site = self.dispense.site
         if not self.dispense_item_identifier:
             self.dispense_item_identifier = f"{get_next_value(self._meta.label_lower):010d}"

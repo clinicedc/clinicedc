@@ -30,6 +30,7 @@ class StorageBinItemHistoryAdmin(
         "site__id",
         "code",
         "storage_bin_changelist",
+        "revision",
         "history_id",
     )
 

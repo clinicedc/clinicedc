@@ -1,8 +1,7 @@
 from django.db import models
 from django.utils import timezone
-from sequences import get_next_value
-
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from sequences import get_next_value
 
 from ...exceptions import StockTransferError
 from .location import Location
@@ -48,7 +47,9 @@ class StockTransfer(BaseUuidModel):
         # limit_choices_to={"site__isnull": False},
     )
 
-    item_count = models.PositiveIntegerField(null=True, blank=False)
+    item_count = models.PositiveIntegerField(
+        null=True, blank=False, help_text="Suggested item count"
+    )
 
     objects = Manager()
 

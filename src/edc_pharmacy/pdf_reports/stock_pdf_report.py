@@ -1,5 +1,7 @@
 from django.db.models import QuerySet, Sum
 from django.utils.translation import gettext as _
+from edc_pdf_reports import Report
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from reportlab.graphics.barcode import code128
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
@@ -7,9 +9,6 @@ from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import cm, mm
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
-
-from edc_pdf_reports import Report
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from ..models import Stock
 from ..utils import get_related_or_none
@@ -203,6 +202,6 @@ class StockReport(Report):
         catsd += "A" if get_related_or_none(stock_obj, "allocation") else "-"
         catsd += "T" if get_related_or_none(stock_obj, "stocktransferitem") else "-"
         catsd += "S" if get_related_or_none(stock_obj, "confirmationatlocationitem") else "-"
-        catsd += "B" if get_related_or_none(stock_obj, "stored_at_site") else "-"
+        catsd += "B" if get_related_or_none(stock_obj, "stored_at_location") else "-"
         catsd += "D" if get_related_or_none(stock_obj, "dispenseitem") else "-"
         return catsd

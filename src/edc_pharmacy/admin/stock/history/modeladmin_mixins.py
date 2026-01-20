@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
-
 from edc_utils import to_local
 
 
@@ -20,7 +19,7 @@ class HistoricalModelAdminMixin:
     @admin.display(description="History date", ordering="history_date")
     def formatted_history_date(self, obj):
         if obj.history_date:
-            return to_local(obj.history_date).date()
+            return to_local(obj.history_date)
         return None
 
     def has_add_permission(self, request):

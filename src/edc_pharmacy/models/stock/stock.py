@@ -149,7 +149,9 @@ class Stock(BaseUuidModel):
 
     destroyed = models.BooleanField(default=False)
 
-    subject_identifier = models.CharField(max_length=50, default="", blank=True)
+    subject_identifier = models.CharField(
+        max_length=50, default="", blank=True, editable=False
+    )
 
     objects = StockManager()
 
@@ -181,12 +183,12 @@ class Stock(BaseUuidModel):
 
         # received / confirmed at location
 
-        # stored_at_site
-        if "stored_at_site" not in kwargs.get("update_fields", []):
+        # stored_at_location
+        if "stored_at_location" not in kwargs.get("update_fields", []):
             original_instance = Stock.objects.get(pk=self.pk)
-            if self.stored_at_site != original_instance.stored_at_site:
+            if self.stored_at_location != original_instance.stored_at_location:
                 raise StockError(
-                    "Invalid attempt to change field. The value of field `stored_at_site` "
+                    "Invalid attempt to change field. The value of field `stored_at_location` "
                     "is only set in the post-save/delete signals of model StorageBinItem."
                 )
 

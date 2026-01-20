@@ -1,10 +1,9 @@
 from django.db import models
 from django.utils import timezone
-from sequences import get_next_value
-
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_randomization.site_randomizers import site_randomizers
 from edc_registration.models import RegisteredSubject
+from sequences import get_next_value
 
 from ...exceptions import AllocationError
 from .. import Assignment, Rx
@@ -50,6 +49,20 @@ class Allocation(BaseUuidModel):
 
     allocated_by = models.CharField(max_length=50, default="", blank=True)
 
+    subject_identifier = models.CharField(
+        max_length=50, default="", blank=True, editable=False
+    )
+
+    code = models.CharField(
+        verbose_name="Stock code",
+        max_length=15,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="A unique alphanumeric code",
+        editable=False,
+    )
+
     objects = Manager()
 
     history = HistoricalRecords()
@@ -62,6 +75,8 @@ class Allocation(BaseUuidModel):
             self.allocation_identifier = f"{get_next_value(self._meta.label_lower):06d}"
         if not self.stock_request_item:
             raise AllocationError("Stock request item may not be null")
+        self.subject_identifier = self.registered_subject.subject_identifier
+        self.code = self.stock.code
         self.assignment = self.get_assignment()
         super().save(*args, **kwargs)
 

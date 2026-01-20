@@ -16,6 +16,23 @@ from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
 
+class HasStockListFilter(SimpleListFilter):
+    title = "Stock"
+    parameter_name = "has_stock"
+
+    def lookups(self, request, model_admin):  # noqa: ARG002
+        return (YES, YES), (NO, NO)
+
+    def queryset(self, request, queryset):  # noqa: ARG002
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(stock__isnull=False)
+            elif self.value() == NO:
+                qs = queryset.filter(stock__isnull=True)
+        return qs
+
+
 class TransferredFilter(SimpleListFilter):
     title = "Transferred"
     parameter_name = "transferred"
@@ -119,6 +136,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock__location",
         AssignmentListFilter,
         ("allocation_datetime", DateRangeFilterBuilder()),
+        HasStockListFilter,
         "stock__in_transit",
         "stock__confirmed_at_location",
         "stock__dispensed",
@@ -131,6 +149,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock__code",
         "stock_request_item__id",
         "stock_request_item__stock_request__id",
+        "stock_request_item__stock_request__request_identifier",
         "registered_subject__subject_identifier",
     )
 
@@ -187,7 +206,10 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def stock_container(self, obj):
         return obj.stock.container
 
-    @admin.display(description="Request #")
+    @admin.display(
+        description="Request #",
+        ordering="stock_request_item__stock_request__request_identifier",
+    )
     def stock_request_changelist(self, obj):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
         url = f"{url}?q={obj.stock_request_item.stock_request.id}"

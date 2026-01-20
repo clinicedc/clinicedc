@@ -46,6 +46,7 @@ class ConfirmedAtLocationFilter(SimpleListFilter):
 class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Stock Transfer Item"
     change_form_title = "Pharmacy: Stock Transfer Items"
+    change_list_note = "D=Dispensed"
     history_list_display = ()
     show_object_tools = True
     show_cancel = True
@@ -74,6 +75,7 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock_changelist",
         "allocation_changelist",
         "confirmation_at_location_item_changelist",
+        "dispensed",
         "formatted_from_location",
         "formatted_to_location",
     )
@@ -82,6 +84,7 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock_transfer__to_location",
         ("transfer_item_datetime", DateRangeFilterBuilder()),
         ConfirmedAtLocationFilter,
+        "stock__dispensed",
     )
 
     search_fields = (
@@ -102,6 +105,10 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     @admin.display(description="TRANSFER ITEM #", ordering="transfer_item_identifier")
     def identifier(self, obj):
         return obj.transfer_item_identifier
+
+    @admin.display(description="D", ordering="stock__dispensed", boolean=True)
+    def dispensed(self, obj):
+        return obj.stock.dispensed
 
     @admin.display(description="From", ordering="stock__location")
     def formatted_from_location(self, obj):

@@ -7,18 +7,9 @@ from tqdm import tqdm
 from edc_pharmacy.models import StockTransferItem, StorageBinItem
 
 
-def update_stock_code(apps, schema_editor):
-    qs = StockTransferItem.objects.all()
-    for obj in tqdm(qs, total=qs.count()):
-        obj.save()
-    qs = StorageBinItem.objects.all()
-    for obj in tqdm(qs, total=qs.count()):
-        obj.save()
-
-
 class Migration(migrations.Migration):
     dependencies = [
         ("edc_pharmacy", "0096_auto_20260114_1800"),
     ]
 
-    operations = [RunPython(update_stock_code)]
+    operations = []

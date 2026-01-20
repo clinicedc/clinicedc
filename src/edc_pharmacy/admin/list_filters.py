@@ -109,17 +109,43 @@ class StockItemTransferredListFilter(SimpleListFilter):
         return YES_NO
 
     def queryset(self, request, queryset):  # noqa: ARG002
+        """Note that the only way a stock item can be tranferred is if it
+        first is allocated to a subject.
+        """
         qs = None
         if self.value():
             if self.value() == YES:
                 qs = queryset.filter(
-                    allocation__isnull=False,
-                    allocation__stock__stocktransferitem__isnull=False,
+                    allocation__stock__in_transit=True,
                 )
             elif self.value() == NO:
                 qs = queryset.filter(
-                    allocation__isnull=True,
-                    allocation__stock__stocktransferitem__isnull=True,
+                    Q(allocation__isnull=True) | Q(allocation__stock__in_transit=False),
+                )
+        return qs
+
+
+class StockItemConfirmedAtLocationListFilter(SimpleListFilter):
+    title = "Confirmed at location"
+    parameter_name = "confirmed_at_location"
+
+    def lookups(self, request, model_admin):  # noqa: ARG002
+        return YES_NO
+
+    def queryset(self, request, queryset):  # noqa: ARG002
+        """Note that the only way a stock item can be confirmed_at_location is if it
+        first is allocated to a subject.
+        """
+        qs = None
+        if self.value():
+            if self.value() == YES:
+                qs = queryset.filter(
+                    allocation__stock__confirmed_at_location=True,
+                )
+            elif self.value() == NO:
+                qs = queryset.filter(
+                    Q(allocation__isnull=True)
+                    | Q(allocation__stock__confirmed_at_location=False),
                 )
         return qs
 
@@ -270,8 +296,8 @@ class ConfirmedAtLocationFilter(SimpleListFilter):
 
 
 class StoredAtSiteFilter(SimpleListFilter):
-    title = "Stored at site"
-    parameter_name = "stored_at_site_now"
+    title = "Stored at location"
+    parameter_name = "stored_at_location_now"
 
     def lookups(self, request, model_admin):  # noqa: ARG002
         return YES_NO_NA

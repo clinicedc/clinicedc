@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import contextlib
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
-from django.db.models import F
 from django.utils import timezone
 
 from ..constants import CENTRAL_LOCATION
@@ -83,7 +81,7 @@ def transfer_stock_to_location(
                         # remove stock from the storage bin, if stored at
                         # a site bin
                         storage_bin_item_model_cls.objects.filter(stock=stock_obj).delete()
-                        stock_obj.stored_at_site = False
+                        stock_obj.stored_at_location = False
 
                         # delete confirmation (you can still see it in history)
                         confirmation_at_location_item_model_cls.objects.filter(

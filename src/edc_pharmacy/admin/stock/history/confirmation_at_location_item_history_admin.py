@@ -1,10 +1,9 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
-from rangefilter.filters import DateRangeFilterBuilder
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ....admin_site import edc_pharmacy_history_admin
 from ....models import ConfirmationAtLocationItem
@@ -33,6 +32,7 @@ class ConfirmationAtLocationItemHistoryAdmin(
         "location_name",
         "code",
         "confirm_at_location_changelist",
+        "revision",
         "history_id",
     )
 
