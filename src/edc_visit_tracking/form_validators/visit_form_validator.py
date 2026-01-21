@@ -8,10 +8,11 @@ from zoneinfo import ZoneInfo
 from clinicedc_constants import OTHER
 from django import forms
 from django.conf import settings
-
+from django.core.exceptions import ValidationError
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
 from edc_appointment.form_validators import validate_appt_datetime_unique
+from edc_appointment.utils import allow_extended_window_period
 from edc_form_validators import INVALID_ERROR, REQUIRED_ERROR, FormValidator
 from edc_metadata.constants import KEYED
 from edc_metadata.utils import (
@@ -19,6 +20,7 @@ from edc_metadata.utils import (
     get_requisition_metadata_model_cls,
 )
 from edc_utils.text import formatted_datetime
+from edc_visit_schedule.exceptions import ScheduledVisitWindowError
 from edc_visit_schedule.utils import is_baseline
 
 from ..constants import MISSED_VISIT, UNSCHEDULED
@@ -128,12 +130,20 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         See also `edc_visit_schedule`.
         """
         if self.report_datetime:
-            args = [
-                self.appointment,
-                self.report_datetime,
-                self.report_datetime_field_attr,
-            ]
-            self.datetime_in_window_or_raise(*args)
+            try:
+                # self.datetime_in_window_or_raise(appointment, proposed_appt_datetime, *args)
+                self.datetime_in_window_or_raise(
+                    self.appointment,
+                    self.report_datetime,
+                    self.report_datetime_field_attr,
+                )
+            except (ScheduledVisitWindowError, ValidationError):
+                if not allow_extended_window_period(
+                    self.appointment.appt_timing,
+                    self.report_datetime,
+                    self.appointment,
+                ):
+                    raise
 
     def validate_visit_datetime_unique(self: Any) -> None:
         """Assert one visit report per day"""

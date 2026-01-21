@@ -3,15 +3,17 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING
 
+from django.core.exceptions import ValidationError
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
-
 from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
+from edc_appointment.utils import allow_extended_window_period
 from edc_form_validators import INVALID_ERROR, FormValidator
 from edc_registration import get_registered_subject_model_cls
 from edc_sites.form_validator_mixin import SiteFormValidatorMixin
 from edc_utils import floor_secs, formatted_datetime
 from edc_utils.date import to_local
+from edc_visit_schedule.exceptions import ScheduledVisitWindowError
 from edc_visit_tracking.modelform_mixins import get_related_visit
 
 from .crf_form_validator_mixins import CrfFormValidatorMixin
@@ -78,11 +80,19 @@ class CrfFormValidator(
                 )
 
     def validate_crf_datetime_in_window_period(self) -> None:
-        self.datetime_in_window_or_raise(
-            self.appointment,
-            self.report_datetime,
-            self.report_datetime_field_attr,
-        )
+        try:
+            self.datetime_in_window_or_raise(
+                self.appointment,
+                self.report_datetime,
+                self.report_datetime_field_attr,
+            )
+        except (ScheduledVisitWindowError, ValidationError):
+            if not allow_extended_window_period(
+                self.appointment.appt_timing,
+                self.report_datetime,
+                self.appointment,
+            ):
+                raise
 
     @property
     def appointment(self) -> Appointment:

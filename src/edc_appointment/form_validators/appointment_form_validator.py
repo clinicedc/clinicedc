@@ -3,6 +3,7 @@ from __future__ import annotations
 from logging import warning
 from typing import TYPE_CHECKING, Any
 
+from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.urls import reverse
@@ -10,7 +11,6 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-
 from edc_consent.form_validators import ConsentDefinitionFormValidatorMixin
 from edc_facility.utils import get_facilities
 from edc_form_validators import INVALID_ERROR
@@ -27,6 +27,7 @@ from ..appointment_reason_updater import AppointmentReasonUpdater
 from ..constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
+    EXTENDED_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
     INVALID_APPT_DATE,
@@ -79,6 +80,26 @@ class AppointmentFormValidator(
     def clean(self: Any):
         # TODO: do not allow a missed appt (in window) to be followed by an unscheduled appt
         #  that is also within window.
+
+        if self.cleaned_data.get("appt_timing") == EXTENDED_APPT:
+            if not self.instance.visit.rupper_extended:
+                raise forms.ValidationError(
+                    {
+                        "appt_timing": (
+                            "Invalid. The window period for this visit may not be extended."
+                        )
+                    }
+                )
+            if self.instance.next:
+                raise forms.ValidationError(
+                    {
+                        "appt_timing": (
+                            "Invalid. Selection only valid for final appointments. "
+                            "Next appointment exists."
+                        )
+                    }
+                )
+
         self.validate_scheduled_parent_not_missed()
         if self.cleaned_data.get("appt_status") in [CANCELLED_APPT, SKIPPED_APPT]:
             self.validate_appt_status_if_skipped()
@@ -100,6 +121,7 @@ class AppointmentFormValidator(
             self.validate_appt_datetime_in_window_period(
                 self.instance,
                 self.cleaned_data.get("appt_datetime"),
+                self.cleaned_data.get("appt_timing"),
                 "appt_datetime",
             )
             self.validate_subject_on_schedule()

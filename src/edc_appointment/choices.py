@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from .constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
+    EXTENDED_APPT,
     IN_PROGRESS_APPT,
     INCOMPLETE_APPT,
     MISSED_APPT,
@@ -31,6 +32,7 @@ APPT_STATUS = (
 APPT_TIMING = (
     (ONTIME_APPT, _("On time (within window period)")),
     (MISSED_APPT, _("Missed")),
+    (EXTENDED_APPT, _("Extended (extended window period for final appointment)")),
     (NOT_APPLICABLE, _("Not applicable")),
 )
 

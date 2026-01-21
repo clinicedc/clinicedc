@@ -14,6 +14,17 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
 from django.test import TestCase, override_settings, tag
+from edc_consent.site_consents import site_consents
+from edc_facility.import_holidays import import_holidays
+from edc_form_validators import ModelFormFieldValidatorError
+from edc_metadata import KEYED, REQUIRED
+from edc_metadata.models import CrfMetadata, RequisitionMetadata
+from edc_visit_schedule.constants import DAY01
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from edc_visit_tracking.constants import SCHEDULED
+from edc_visit_tracking.model_mixins import PreviousVisitError
+from edc_visit_tracking.models import SubjectVisit
+from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,
@@ -37,17 +48,6 @@ from edc_appointment.form_validators.appointment_form_validator import (
 )
 from edc_appointment.models import Appointment
 from edc_appointment.utils import get_previous_appointment
-from edc_consent.site_consents import site_consents
-from edc_facility.import_holidays import import_holidays
-from edc_form_validators import ModelFormFieldValidatorError
-from edc_metadata import KEYED, REQUIRED
-from edc_metadata.models import CrfMetadata, RequisitionMetadata
-from edc_visit_schedule.constants import DAY01
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
-from edc_visit_tracking.constants import SCHEDULED
-from edc_visit_tracking.model_mixins import PreviousVisitError
-from edc_visit_tracking.models import SubjectVisit
-from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
 utc_tz = ZoneInfo("UTC")
 
