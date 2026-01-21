@@ -1,7 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.utils.translation import gettext as _
-
 from edc_utils import (
     ceil_secs,
     convert_php_dateformat,
@@ -15,11 +14,8 @@ from ..exceptions import (
     ScheduleError,
     UnScheduledVisitWindowError,
 )
+from ..utils import get_enforce_window_period_enabled
 from .visit_collection import VisitCollectionError
-
-enforce_window_period_enabled = getattr(
-    settings, "EDC_VISIT_SCHEDULE_ENFORCE_WINDOW_PERIOD", True
-)
 
 
 class Window:
@@ -35,15 +31,17 @@ class Window:
     ):
         self.name = name
         self.visits = visits
-        self.timepoint_datetime = to_local(timepoint_datetime)
-        self.dt = to_local(dt)
         self.visit_code = visit_code
         self.visit_code_sequence = visit_code_sequence
+
+        # convert dates to local tzinfo
+        self.timepoint_datetime = to_local(timepoint_datetime)
+        self.dt = to_local(dt)
         self.baseline_timepoint_datetime = to_local(baseline_timepoint_datetime)
 
     @property
     def datetime_in_window(self):
-        if enforce_window_period_enabled:
+        if get_enforce_window_period_enabled():
             if not self.dt:
                 raise UnScheduledVisitWindowError("Invalid datetime")
             try:

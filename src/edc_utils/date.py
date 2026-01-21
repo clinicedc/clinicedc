@@ -18,14 +18,14 @@ def get_utcnow_as_date() -> date:
     return timezone.localtime(None, timezone=ZoneInfo("UTC")).date()
 
 
-def to_utc(dte: datetime) -> datetime:
+def to_utc(dte: datetime) -> datetime | None:
     """Returns UTC datetime from any aware datetime."""
-    return timezone.localtime(dte, timezone=ZoneInfo("UTC"))
+    return timezone.localtime(dte, timezone=ZoneInfo("UTC")) if dte else None
 
 
-def to_local(dte: datetime) -> datetime:
+def to_local(dte: datetime) -> datetime | None:
     """Returns local datetime from any aware datetime."""
-    return timezone.localtime(dte)
+    return timezone.localtime(dte) if dte else None
 
 
 def floor_secs(dte) -> datetime:

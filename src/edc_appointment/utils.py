@@ -33,7 +33,7 @@ from edc_metadata.utils import (
     get_requisition_metadata_model_cls,
     has_keyed_metadata,
 )
-from edc_utils.date import to_local
+from edc_utils.date import to_local, to_utc
 from edc_utils.text import convert_php_dateformat
 from edc_visit_schedule.exceptions import (
     ScheduledVisitWindowError,
@@ -47,6 +47,7 @@ from .choices import DEFAULT_APPT_REASON_CHOICES
 from .constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
+    EXTENDED_APPT,
     INCOMPLETE_APPT,
     MISSED_APPT,
     NEW_APPT,
@@ -110,6 +111,21 @@ def get_allow_skipped_appt_using() -> dict[str, tuple[str, str]]:
         raise ImproperlyConfigured(
             "Only one model may be specified. See "
             f"settings.EDC_APPOINTMENT_ALLOW_SKIPPED_APPT_USING. Got {dct}."
+        )
+    return dct
+
+
+def get_allow_unscheduled_for_appt_using() -> dict[str, tuple[str, str]]:
+    """Return dict from settings or empty dictionary.
+
+    For example:
+         = {"my_app.crfone": ("next_appt_date", "next_visit_code")}
+    """
+    dct = getattr(settings, "EDC_APPOINTMENT_ALLOW_UNSCHEDULED_FOR_APPT_USING", {})
+    if len(dct.keys()) > 1:
+        raise ImproperlyConfigured(
+            "Only one model may be specified. See "
+            f"settings.EDC_APPOINTMENT_ALLOW_UNSCHEDULED_FOR_APPT_USING. Got {dct}."
         )
     return dct
 
@@ -875,3 +891,37 @@ def validate_date_is_on_clinic_day(
                 },
                 INVALID_ERROR,
             )
+
+
+def allow_extended_window_period(
+    proposed_appt_timing: str,
+    proposed_appt_datetime: datetime,
+    appointment: Appointment,
+):
+    """Allow to save an appt with an appt datetime beyond the upper
+    boundary of the window period.
+
+    The visit object (not the model instance) must have
+    rupper_extended set to a relativedelta(). Also, the appt_timing
+    must be EXTENDED_APPT. There may NOT be a 'next' appointment to
+    avoid clashes with the next appointment lower boundary.
+
+    The scenario is rare, but it may be that some additional data
+    comes in months after the expected upper window period of the
+    last visit. Such data may be allowed if the PI approves.
+
+    In the case of the 2025 META Phase III trial, some subjects
+    extended the 36m schedule to 48m, others did not. For both
+    groups, supplies for the OGTT were unavailable at their final
+    visit. The PI agreed to allow patients to come in for the OGTT
+    months beyond the upper bounary of the final appt's defined
+    window period (36m or 48m).
+    """
+    return bool(
+        proposed_appt_timing == EXTENDED_APPT
+        and not appointment.next
+        and appointment.visit.rupper_extended
+        and appointment.timepoint_datetime
+        <= to_utc(proposed_appt_datetime)
+        <= appointment.timepoint_datetime + appointment.visit.rupper_extended
+    )

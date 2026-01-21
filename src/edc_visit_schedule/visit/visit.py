@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.utils import timezone
-
 from edc_facility.utils import get_default_facility_name, get_facility
 from edc_utils.date import to_local
 
@@ -20,7 +19,6 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from dateutil.relativedelta import relativedelta
-
     from edc_facility.facility import Facility
 
     from .requisition import Requisition
@@ -106,6 +104,7 @@ class Visit:
         rbase: relativedelta,
         rlower: relativedelta,
         rupper: relativedelta,
+        rupper_extended: relativedelta | None = None,
         title: str | None = None,
         facility_name: str | None = None,
         crfs: CrfCollection | None = None,
@@ -156,6 +155,7 @@ class Visit:
         self.rbase = rbase
         self.rlower = rlower
         self.rupper = rupper
+        self.rupper_extended = rupper_extended
         self.rlower_late = self.rlower if rlower_late is None else rlower_late
         self.rupper_late = self.rupper if rupper_late is None else rupper_late
         self.add_window_gap_to_lower = add_window_gap_to_lower

@@ -11,7 +11,6 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-
 from edc_utils import floor_secs, formatted_datetime
 from edc_utils.date import to_local
 
@@ -21,7 +20,6 @@ from .site_visit_schedules import site_visit_schedules
 
 if TYPE_CHECKING:
     from django.db import models
-
     from edc_appointment.models import Appointment
 
     from .model_mixins import OnScheduleModelMixin
@@ -32,6 +30,10 @@ if TYPE_CHECKING:
 
 def get_default_max_visit_window_gap():
     return getattr(settings, "EDC_VISIT_SCHEDULE_DEFAULT_MAX_VISIT_GAP_ALLOWED", 7)
+
+
+def get_enforce_window_period_enabled() -> bool:
+    return getattr(settings, "EDC_VISIT_SCHEDULE_ENFORCE_WINDOW_PERIOD", True)
 
 
 def get_lower_datetime(instance: Appointment) -> datetime:

@@ -1,5 +1,4 @@
 from django.db import models
-
 from edc_model_fields.fields import OtherCharField
 
 from ..choices import APPT_STATUS, APPT_TIMING, DEFAULT_APPT_REASON_CHOICES
@@ -76,6 +75,7 @@ class AppointmentFieldsModelMixin(models.Model):
         default=ONTIME_APPT,
         help_text=(
             "If late, you may also be required to complete a protocol incident report. "
+            "Extended window period may be allowed for the final appointment. "
             "Refer to the protocol documentation for the allowed window periods "
             "of scheduled appointments."
         ),
