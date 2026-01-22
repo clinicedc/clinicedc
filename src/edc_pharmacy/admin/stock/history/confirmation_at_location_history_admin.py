@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
+from edc_model.admin import HistoricalModelAdminMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils import to_local
 from rangefilter.filters import DateRangeFilterBuilder
@@ -8,7 +9,6 @@ from rangefilter.filters import DateRangeFilterBuilder
 from ....admin_site import edc_pharmacy_history_admin
 from ....models import ConfirmationAtLocation
 from ...model_admin_mixin import ModelAdminMixin
-from .modeladmin_mixins import HistoricalModelAdminMixin
 
 
 @admin.register(ConfirmationAtLocation.history.model, site=edc_pharmacy_history_admin)

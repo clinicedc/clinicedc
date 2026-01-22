@@ -1,3 +1,4 @@
+from .historical_note_modeladmin import HistoricalNoteModelAdmin
 from .note_modeladmin import NoteModelAdmin
 from .qa_report_log_admin import QaReportLogAdmin
 from .qa_report_log_summary_admin import QaReportLogSummaryAdmin

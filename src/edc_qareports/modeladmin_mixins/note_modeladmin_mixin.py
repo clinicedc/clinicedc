@@ -4,7 +4,6 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.html import format_html
 from django_audit_fields import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
-
 from edc_model_admin.dashboard import ModelAdminDashboardMixin
 from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,
@@ -102,6 +101,6 @@ class NoteModelAdminMixin(
         context = dict(note=obj.note)
         return render_to_string(self.note_template_name, context)
 
-    def redirect_url(self, request, obj, post_url_continue=None) -> str | None:
-        redirect_url = super().redirect_url(request, obj, post_url_continue=post_url_continue)
-        return f"{redirect_url}?q={obj.subject_identifier}"
+    # def redirect_url(self, request, obj, post_url_continue=None) -> str | None:
+    #     redirect_url = super().redirect_url(request, obj, post_url_continue=post_url_continue)
+    #     return f"{redirect_url}?q={obj.subject_identifier}"

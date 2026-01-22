@@ -1,18 +1,19 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
+from edc_model.admin import HistoricalModelAdminMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 
 from ....admin_site import edc_pharmacy_history_admin
 from ....models import Allocation
 from ...model_admin_mixin import ModelAdminMixin
-from .modeladmin_mixins import HistoricalModelAdminMixin
 
 
 @admin.register(Allocation.history.model, site=edc_pharmacy_history_admin)
 class AllocationHistoryAdmin(ModelAdminMixin, HistoricalModelAdminMixin, SimpleHistoryAdmin):
     change_list_title = "Pharmacy: Allocations (History)"
     change_form_title = "Pharmacy: Allocation (History)"
+    change_list_note_url_name = "edc_pharmacy_admin:edc_pharmacy_allocation_changelist"
     history_list_display = ()
     show_object_tools = True
     show_cancel = True

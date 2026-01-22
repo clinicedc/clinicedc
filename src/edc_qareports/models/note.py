@@ -1,7 +1,6 @@
 from django.db.models import UniqueConstraint
-
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_model.models import BaseUuidModel, default_permissions
+from edc_model.models import BaseUuidModel, HistoricalRecords, default_permissions
 
 from ..model_mixins import NoteModelMixin
 
@@ -14,6 +13,8 @@ class Note(NonUniqueSubjectIdentifierFieldMixin, NoteModelMixin):
 
     See also, NoteModelAdminMixin
     """
+
+    history = HistoricalRecords()
 
     def __str__(self) -> str:
         return f"{self._meta.verbose_name}: {self.subject_identifier}"
