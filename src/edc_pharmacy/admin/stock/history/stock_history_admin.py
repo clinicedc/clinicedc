@@ -1,10 +1,10 @@
 from django.contrib import admin
+from edc_model.admin import HistoricalModelAdminMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 
 from ....admin_site import edc_pharmacy_history_admin
 from ....models import Stock
 from ...model_admin_mixin import ModelAdminMixin
-from .modeladmin_mixins import HistoricalModelAdminMixin
 
 
 @admin.register(Stock.history.model, site=edc_pharmacy_history_admin)

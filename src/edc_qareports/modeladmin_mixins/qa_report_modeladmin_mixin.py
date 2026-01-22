@@ -5,7 +5,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext as _
-
 from edc_utils import truncate_string
 
 from ..models import QaReportLog
@@ -63,7 +62,7 @@ class QaReportModelAdminMixin:
 
     def get_note_model_obj_or_raise(self, obj=None):
         return self.note_model_cls.objects.get(
-            report_model=obj.report_model, subject_identifier=obj.subject_identifier
+            report_model=obj._meta.label_lower, subject_identifier=obj.subject_identifier
         )
 
     @admin.display(description="Status")

@@ -42,20 +42,19 @@ class NoteStatusListFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):  # noqa: ARG002
         if (
-            self.value()
-            and self.value() != "none"
-            and (report_model := self.report_model(queryset))
+            self.value() and self.value() != "none"
+            # and (report_model := self.report_model(queryset))
         ):
             if self.value() == NEW:
                 qs = self.note_model_cls.objects.values("subject_identifier").filter(
-                    report_model=report_model
+                    report_model=queryset.model._meta.label_lower
                 )
                 queryset = queryset.exclude(
                     subject_identifier__in=[obj.get("subject_identifier") for obj in qs]
                 )
             elif self.value() in [tpl[0] for tpl in self.note_model_status_choices]:
                 qs = self.note_model_cls.objects.values("subject_identifier").filter(
-                    report_model=report_model, status=self.value()
+                    report_model=queryset.model._meta.label_lower, status=self.value()
                 )
                 queryset = queryset.filter(
                     subject_identifier__in=[obj.get("subject_identifier") for obj in qs]

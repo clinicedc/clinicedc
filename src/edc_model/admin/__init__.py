@@ -1,0 +1,1 @@
+from .historical_modeladmin_mixin import HistoricalModelAdminMixin
