@@ -4,12 +4,11 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from clinicedc_constants import UUID_PATTERN
-
+from django.contrib import admin
 from edc_consent.fieldsets import REQUIRES_CONSENT_FIELDS
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
-
     from edc_crf.model_mixins import CrfModelMixin
 
     from ..model_mixins import VisitModelMixin
@@ -32,6 +31,9 @@ class CrfModelAdminMixin:
     def visit_code_sequence(self, obj: CrfModelMixin | None = None) -> int:
         return getattr(obj, self.related_visit_model_attr).visit_code_sequence
 
+    @admin.display(
+        description="subject identifier", ordering="subject_visit__subject_identifier"
+    )
     def subject_identifier(self, obj: CrfModelMixin | None = None) -> str:
         return getattr(obj, self.related_visit_model_attr).subject_identifier
 
@@ -45,7 +47,7 @@ class CrfModelAdminMixin:
         )
         return (
             *fields_first,
-            *[f for f in list_display if f not in fields_first],
+            *[f for f in list_display if f not in fields_first and f != "__str__"],
             "__str__",
         )
 
