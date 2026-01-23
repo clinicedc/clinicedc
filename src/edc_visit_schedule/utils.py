@@ -373,3 +373,29 @@ def check_visit_models(visit: Visit):
         except LookupError as e:
             errors.append(f"{e} Got Visit {visit.code} requisition.model={model}.")
     return errors
+
+
+def allow_unscheduled(appointment: Appointment | None = None):
+    """Validate if an unschedule appointment is allowed.
+
+    Defined on the Visit object of the visit schedule.
+
+    Normal case: Visit object  allow_unscheduled=True and there is a
+    next appointment and the next appointment date is at least one
+    day before the main .0 appointment.
+
+    Special case: The special case would allow an unscheduled
+    appointment to follow the last appointment in the schedule. This
+    condition is rare and not recommended or at least should be
+    considered carefully. If Visit `allow_unscheduled_extended` is
+    True and there are no further appointments in the schedule, then
+    the unscheduled appointment is allowed.
+
+    See also visit.rupper_extended.
+    """
+    return (
+        not appointment.relative_next and appointment.visit.allow_unscheduled_extended
+    ) or (
+        appointment.appt_datetime.date() + relativedelta(days=1)
+        != appointment.relative_next.appt_datetime.date()
+    )

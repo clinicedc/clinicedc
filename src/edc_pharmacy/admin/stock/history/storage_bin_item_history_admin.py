@@ -43,8 +43,8 @@ class StorageBinItemHistoryAdmin(
     search_fields = (
         "code",
         "history_id",
+        "storage_bin__bin_identifier",
         "item_identifier",
-        "storage_bin__item_identifier",
     )
 
     @admin.display(description="ITEM#", ordering="item_identifier")
