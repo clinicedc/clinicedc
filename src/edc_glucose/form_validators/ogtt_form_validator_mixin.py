@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from clinicedc_constants import NO
+from clinicedc_constants import NO, YES
 from django import forms
 
 
@@ -15,6 +15,34 @@ class OgttFormValidatorMixin:
         """
         ogtt = ogtt_prefix or "ogtt"
         fasting = fasting_prefix or "fasting"
+
+        self.required_if(
+            NO,
+            field=f"{ogtt}_performed",
+            field_required=f"{ogtt}_not_performed_reason",
+        )
+
+        self.required_if(
+            YES,
+            field=f"{ogtt}_performed",
+            field_required=f"{ogtt}_base_datetime",
+            not_required_msg="Not performed",
+        )
+
+        self.not_required_if(
+            NO,
+            field=f"{ogtt}_performed",
+            field_required=f"{ogtt}_datetime",
+            not_required_msg="Not performed",
+            inverse=False,
+        )
+
+        self.required_if_true(
+            self.cleaned_data.get(f"{ogtt}_datetime"),
+            field_required=f"{ogtt}_base_datetime",
+            inverse=False,
+        )
+
         self.required_if_true(
             self.cleaned_data.get(f"{ogtt}_datetime"),
             field_required=f"{ogtt}_value",
@@ -32,12 +60,21 @@ class OgttFormValidatorMixin:
             field=fasting,
             field_not_required=f"{ogtt}_base_datetime",
             inverse=False,
+            not_required_msg="Not fasted",
         )
         self.not_required_if(
-            NO, field=fasting, field_not_required=f"{ogtt}_datetime", inverse=False
+            NO,
+            field=fasting,
+            field_not_required=f"{ogtt}_datetime",
+            inverse=False,
+            not_required_msg="Not fasted",
         )
         self.not_required_if(
-            NO, field=fasting, field_not_required=f"{ogtt}_value", inverse=False
+            NO,
+            field=fasting,
+            field_not_required=f"{ogtt}_value",
+            inverse=False,
+            not_required_msg="Not fasted",
         )
 
         self.required_if_true(
@@ -46,7 +83,16 @@ class OgttFormValidatorMixin:
         )
 
         self.not_required_if(
-            NO, field=fasting, field_not_required=f"{ogtt}_units", inverse=False
+            NO,
+            field=fasting,
+            field_not_required=f"{ogtt}_units",
+            inverse=False,
+            not_required_msg="Not fasted",
+        )
+
+        self.applicable_if_true(
+            self.cleaned_data.get(f"{ogtt}_value"),
+            field_applicable=f"{ogtt}_diagnostic_device",
         )
 
     def validate_ogtt_dates(self, ogtt_prefix: str | None = None) -> None:

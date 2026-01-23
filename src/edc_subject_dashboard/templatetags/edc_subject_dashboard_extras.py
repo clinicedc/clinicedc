@@ -3,13 +3,11 @@ from __future__ import annotations
 from collections import namedtuple
 from typing import TYPE_CHECKING, TypeVar
 
-from dateutil.relativedelta import relativedelta
 from django import template
 from django.apps import apps as django_apps
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.urls import reverse
 from django.utils import timezone
-
 from edc_appointment.constants import (
     CANCELLED_APPT,
     COMPLETE_APPT,
@@ -28,6 +26,7 @@ from edc_auth.constants import AUDITOR_ROLE
 from edc_metadata import KEYED, REQUIRED
 from edc_metadata.metadata_helper import MetadataHelper
 from edc_view_utils import PrnButton, render_history_and_query_buttons
+from edc_visit_schedule.utils import allow_unscheduled
 from edc_visit_tracking.view_utils import RelatedVisitButton
 
 from ..view_utils import (
@@ -416,11 +415,7 @@ def render_unscheduled_appointment_button(
         and appointment.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
         and appointment
         and appointment.site.id == context["request"].site.id
-        and appointment.relative_next
-        and (
-            appointment.appt_datetime.date() + relativedelta(days=1)
-            != appointment.relative_next.appt_datetime.date()
-        )
+        and allow_unscheduled(appointment)
     ):
         show_button = True
         anchor_id = (

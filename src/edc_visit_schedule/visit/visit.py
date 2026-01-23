@@ -119,6 +119,7 @@ class Visit:
         add_window_gap_to_lower: bool | None = None,
         max_window_gap_to_lower: int | None = None,
         allow_unscheduled: bool | None = None,
+        allow_unscheduled_extended: bool | None = None,
         instructions: str | None = None,
         base_timepoint: int | float | Decimal | None = None,
         grouping=None,
@@ -183,6 +184,7 @@ class Visit:
         self.name = self.code
         self.facility_name = facility_name or get_default_facility_name()
         self.allow_unscheduled = allow_unscheduled
+        self.allow_unscheduled_extended = allow_unscheduled_extended
         if self.allow_unscheduled and not crfs_unscheduled:
             raise VisitError(
                 f"crfs_unscheduled may not be null if allow_unscheduled=True. See {self!r}"
