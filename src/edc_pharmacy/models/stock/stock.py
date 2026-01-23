@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from decimal import Decimal
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -174,32 +175,37 @@ class Stock(BaseUuidModel):
 
         # in_transit
         if "in_transit" not in kwargs.get("update_fields", []):
-            original_instance = Stock.objects.get(pk=self.pk)
-            if self.in_transit != original_instance.in_transit:
-                raise StockError(
-                    "Invalid attempt to change field. The value of field `in_transit` "
-                    "is only set in the post-save/delete signals of model StockTransferItem."
-                )
+            with contextlib.suppress(Stock.DoesNotExist):
+                original_instance = Stock.objects.get(pk=self.pk)
+                if self.in_transit != original_instance.in_transit:
+                    raise StockError(
+                        "Invalid attempt to change field. The value of field `in_transit` "
+                        "is only set in the post-save/delete signals of model "
+                        "StockTransferItem."
+                    )
 
         # received / confirmed at location
 
         # stored_at_location
         if "stored_at_location" not in kwargs.get("update_fields", []):
-            original_instance = Stock.objects.get(pk=self.pk)
-            if self.stored_at_location != original_instance.stored_at_location:
-                raise StockError(
-                    "Invalid attempt to change field. The value of field `stored_at_location` "
-                    "is only set in the post-save/delete signals of model StorageBinItem."
-                )
+            with contextlib.suppress(Stock.DoesNotExist):
+                original_instance = Stock.objects.get(pk=self.pk)
+                if self.stored_at_location != original_instance.stored_at_location:
+                    raise StockError(
+                        "Invalid attempt to change field. The value of field "
+                        "`stored_at_location` is only set in the post-save/delete "
+                        "signals of model StorageBinItem."
+                    )
 
         # dispensed
         if "dispensed" not in kwargs.get("update_fields", []):
-            original_instance = Stock.objects.get(pk=self.pk)
-            if self.dispensed != original_instance.dispensed:
-                raise StockError(
-                    "Invalid attempt to change field. The value of field `dispensed` "
-                    "is only set in the post-save/delete signals of model DispenseItem."
-                )
+            with contextlib.suppress(Stock.DoesNotExist):
+                original_instance = Stock.objects.get(pk=self.pk)
+                if self.dispensed != original_instance.dispensed:
+                    raise StockError(
+                        "Invalid attempt to change field. The value of field `dispensed` "
+                        "is only set in the post-save/delete signals of model DispenseItem."
+                    )
 
         # destroyed
 
