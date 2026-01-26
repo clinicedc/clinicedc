@@ -35,39 +35,43 @@ def update_pharmacy(apps, schema_editor):
 
     # consolidate 'bucket' containers
     with transaction.atomic():
-        container = Container.objects.get(name="BUCKET 16000")
-        container.name = "bucket_of_tablets"
-        container.display_name = "Bucket of tablets (Max. 30000)"
-        container.save()
-        container.refresh_from_db()
+        try:
+            container = Container.objects.get(name="BUCKET 16000")
+        except Container.DoesNotExist:
+            pass
+        else:
+            container.name = "bucket_of_tablets"
+            container.display_name = "Bucket of tablets (Max. 30000)"
+            container.save()
+            container.refresh_from_db()
 
-        for name in [
-            "bucket_11978",
-            "bucket_14664",
-            "bucket_16550",
-            "bucket_9195",
-            "BUCKET-16000",
-            "bottle30k"
-        ]:
-            OrderItem.objects.filter(
-                container__name=name,
-                container_unit_qty=F("container__unit_qty_default")
-            ).update(container=container)
-            ReceiveItem.objects.filter(
-                container__name=name,
-                container_unit_qty=F("container__unit_qty_default")
-            ).update(container=container)
-            Stock.objects.filter(
-                container__name=name,
-                unit_qty_in=F("container__unit_qty_default"),
-                container_unit_qty=F("container__unit_qty_default")
-            ).update(container=container)
+            for name in [
+                "bucket_11978",
+                "bucket_14664",
+                "bucket_16550",
+                "bucket_9195",
+                "BUCKET-16000",
+                "bottle30k"
+            ]:
+                OrderItem.objects.filter(
+                    container__name=name,
+                    container_unit_qty=F("container__unit_qty_default")
+                ).update(container=container)
+                ReceiveItem.objects.filter(
+                    container__name=name,
+                    container_unit_qty=F("container__unit_qty_default")
+                ).update(container=container)
+                Stock.objects.filter(
+                    container__name=name,
+                    unit_qty_in=F("container__unit_qty_default"),
+                    container_unit_qty=F("container__unit_qty_default")
+                ).update(container=container)
 
-    Stock.objects.filter(
-        container_unit_qty__isnull=True, container__name="bottle128"
-        ).update(container_unit_qty=Decimal("128.0"))
-    Stock.objects.filter(container_unit_qty__isnull=True
-        ).update(container_unit_qty=F("unit_qty_in"))
+        Stock.objects.filter(
+            container_unit_qty__isnull=True, container__name="bottle128"
+            ).update(container_unit_qty=Decimal("128.0"))
+        Stock.objects.filter(container_unit_qty__isnull=True
+            ).update(container_unit_qty=F("unit_qty_in"))
 
 
 class Migration(migrations.Migration):
