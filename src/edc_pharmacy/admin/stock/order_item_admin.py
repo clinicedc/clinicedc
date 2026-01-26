@@ -1,13 +1,12 @@
 from decimal import Decimal
 
-from clinicedc_constants import NEW, PARTIAL, RECEIVED
+from clinicedc_constants import COMPLETE, NEW, PARTIAL, RECEIVED
 from django.contrib import admin, messages
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_audit_fields.admin import audit_fieldset_tuple
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils import message_in_queue
 
@@ -37,11 +36,24 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     fieldsets = (
         (
             None,
-            {"fields": (["order", "product", "container"])},
+            {"fields": ("order", "product")},
+        ),
+        (
+            "Container",
+            {"fields": ("container", "container_unit_qty")},
         ),
         (
             "Quantity",
-            {"fields": (["qty", "unit_qty", "unit_qty_received"])},
+            {
+                "fields": (
+                    [
+                        "item_qty_ordered",
+                        "unit_qty_ordered",
+                        "unit_qty_received",
+                        "unit_qty_pending",
+                    ]
+                )
+            },
         ),
         ("Status", {"fields": (["status"])}),
         audit_fieldset_tuple,
@@ -52,8 +64,11 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "product__name",
         "assignment",
         "container",
-        "formatted_qty",
+        "formatted_item_qty",
         "formatted_unit_qty",
+        "formatted_unit_qty_received",
+        "formatted_unit_qty_pending",
+        "status",
         "order_status",
         "order_changelist",
         "receive_changelist",
@@ -72,8 +87,9 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "order__order_identifier",
     )
     readonly_fields = (
-        "unit_qty",
+        "unit_qty_ordered",
         "unit_qty_received",
+        "unit_qty_pending",
     )
 
     def get_list_display(self, request):
@@ -97,8 +113,8 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         queryset = super().get_queryset(request)
         msg = _("All order items have been received")
         if not message_in_queue(request, msg) and (
-            queryset.values("unit_qty").filter(unit_qty=0).count()
-            == queryset.model.objects.values("unit_qty").all().count()
+            queryset.values("unit_qty_pending").filter(unit_qty_pending=0).count()
+            == queryset.model.objects.values("unit_qty_pending").all().count()
         ):
             messages.add_message(request, messages.INFO, msg)
         return queryset
@@ -111,13 +127,21 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def assignment(self, obj):
         return obj.product.assignment
 
-    @admin.display(description="QTY", ordering="qty")
-    def formatted_qty(self, obj):
-        return format_qty(obj.qty, obj.container)
+    @admin.display(description="Items Ord", ordering="item_qty_ordered")
+    def formatted_item_qty(self, obj):
+        return format_qty(obj.item_qty_ordered, obj.container)
 
-    @admin.display(description="Units", ordering="qty")
+    @admin.display(description="Units Ord", ordering="unit_qty_ordered")
     def formatted_unit_qty(self, obj):
-        return format_qty(obj.unit_qty, obj.container)
+        return format_qty(obj.unit_qty_ordered, obj.container)
+
+    @admin.display(description="Units recv", ordering="unit_qty_received")
+    def formatted_unit_qty_received(self, obj):
+        return format_qty(obj.unit_qty_received, obj.container)
+
+    @admin.display(description="Units Pending", ordering="unit_qty_pending")
+    def formatted_unit_qty_pending(self, obj):
+        return format_qty(obj.unit_qty_pending, obj.container)
 
     @admin.display(description="Product", ordering="product__name")
     def product_name(self, obj):
@@ -160,9 +184,9 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_status_label(self, obj: OrderItem) -> tuple[str, str]:
-        if obj.unit_qty == 0:
+        if obj.status == COMPLETE:
             return RECEIVED, _("Received")
-        if obj.unit_qty == obj.unit_qty_ordered:
+        if obj.status == NEW:
             return NEW, _("New")
         return PARTIAL, _("Partial")
 
@@ -172,7 +196,7 @@ class OrderItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         receive = self.get_receive_obj(obj)
         if not receive:
             return self.render_start_receiving_button(obj)
-        if (obj.unit_qty_received or Decimal(0)) < obj.unit_qty_ordered:
+        if (obj.unit_qty_received or Decimal("0.0")) < obj.unit_qty_ordered:
             receive_this_item_button = self.render_receive_this_item_button(obj, receive)
         received_items_link = self.render_received_items_link(obj)
         renders = [

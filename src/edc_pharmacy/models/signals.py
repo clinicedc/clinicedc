@@ -1,24 +1,26 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from celery.states import PENDING
-from clinicedc_constants import CANCEL, COMPLETE, PARTIAL
+from clinicedc_constants import CANCEL, COMPLETE, NEW
 from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from edc_utils.celery import get_task_result, run_task_sync_or_async
 
+from ..constants import PARTIAL
 from ..exceptions import InsufficientStockError
 from ..model_mixins import StudyMedicationCrfModelMixin
 from ..utils import (
     create_new_stock_on_receive,
     process_repack_request,
     update_previous_refill_end_datetime,
-    update_stock_instance_qty,
 )
 from .stock import (
     Allocation,
+    Confirmation,
     ConfirmationAtLocationItem,
     DispenseItem,
     OrderItem,
@@ -33,22 +35,56 @@ from .stock import (
     StorageBinItem,
 )
 
+if TYPE_CHECKING:
+    from .stock import Order
 
-@receiver(post_save, sender=Stock, dispatch_uid="update_stock_on_post_save")
+
+def update_order_status(order: Order):
+    unit_qty_received = OrderItem.objects.filter(order=order).aggregate(
+        unit_qty=Sum("unit_qty_received")
+    )["unit_qty"] or Decimal("0.0")
+    unit_qty_ordered = OrderItem.objects.filter(order=order).aggregate(
+        unit_qty=Sum("unit_qty_ordered")
+    )["unit_qty"] or Decimal("0.0")
+    if unit_qty_received is None or unit_qty_received == Decimal("0.0"):
+        order.status = NEW
+    elif unit_qty_received == unit_qty_ordered:
+        order.status = COMPLETE
+    elif unit_qty_received > Decimal("0.0"):
+        order.status = PARTIAL
+    order.save(update_fields=["status"])
+    order.refresh_from_db()
+
+
+def update_orderitem_status(order_item: OrderItem):
+    if order_item.unit_qty_received == Decimal("0.0"):
+        order_item.status = NEW
+    elif order_item.unit_qty_received == order_item.unit_qty_ordered:
+        order_item.status = COMPLETE
+    else:
+        order_item.status = PARTIAL
+    order_item.save(update_fields=["status"])
+    order_item.refresh_from_db()
+
+
+@receiver(post_save, sender=Confirmation, dispatch_uid="confirmation_on_post_save")
+def confirmation_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
+    """Update confirmed"""
+    if not raw and not update_fields:
+        instance.stock.confirmed = True
+        instance.stock.save(update_fields=["confirmed"])
+
+
+@receiver(post_save, sender=Stock, dispatch_uid="stock_on_post_save")
 def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty and other columns"""
-    if not raw and not update_fields:
-        instance = update_stock_instance_qty(instance)
-        if instance.from_stock:
-            # adjust the unit_qty_out, unit_qty_out on the source stock item
-            # (from_stock). If insufficient, will bomb out here.
-            instance.from_stock.save()
+    pass
 
 
 @receiver(
     post_save,
     sender=StockAdjustment,
-    dispatch_uid="update_stock_adjustment_on_post_save",
+    dispatch_uid="stock_adjustment_on_post_save",
 )
 def stock_adjustment_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty"""
@@ -62,13 +98,18 @@ def stock_adjustment_on_post_save(sender, instance, raw, created, update_fields,
         instance.stock.save(update_fields=["unit_qty_in"])
 
 
-@receiver(post_save, sender=OrderItem, dispatch_uid="update_order_item_on_post_save")
+@receiver(post_save, sender=OrderItem, dispatch_uid="order_item_on_post_save")
 def order_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     if not raw and not update_fields:
-        # recalculate unit_qty
-        unit_qty_ordered = instance.qty * instance.container.qty
-        instance.unit_qty = unit_qty_ordered - (instance.unit_qty_received or Decimal(0))
-        instance.save(update_fields=["unit_qty"])
+        # recalculate unit_qty_pending
+        instance.unit_qty_ordered = instance.item_qty_ordered * instance.container_unit_qty
+        instance.unit_qty_pending = instance.unit_qty_ordered - (
+            instance.unit_qty_received or Decimal("0.0")
+        )
+        instance.save(update_fields=["unit_qty_pending", "unit_qty_ordered"])
+        instance.refresh_from_db()
+        update_orderitem_status(order_item=instance)
+        update_order_status(order=instance.order)
 
 
 @receiver(post_save, sender=Receive, dispatch_uid="receive_on_post_save")
@@ -77,32 +118,27 @@ def receive_on_post_save(sender, instance, raw, created, update_fields, **kwargs
         pass
 
 
-@receiver(post_save, sender=ReceiveItem, dispatch_uid="update_receive_item_on_post_save")
+@receiver(post_save, sender=ReceiveItem, dispatch_uid="receive_item_on_post_save")
 def receive_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
-    if not raw and update_fields != ["added_to_stock"]:
+    if not raw and update_fields in (["added_to_stock"], ["container_unit_qty"]):
+        # update receive item_count after receive_item
         receive_items = ReceiveItem.objects.filter(receive=instance.receive)
         instance.receive.item_count = receive_items.count()
-        instance.order_item.unit_qty_received = (
-            instance.order_item.receiveitem_set.all().aggregate(unit_qty=Sum("unit_qty"))[
-                "unit_qty"
-            ]
-        ) or Decimal(0.0)
-        if instance.order_item.unit_qty_received == instance.order_item.unit_qty:
-            instance.order_item.status = COMPLETE
-        elif instance.order_item.unit_qty_received < instance.order_item.unit_qty:
-            instance.order_item.status = PARTIAL
-        instance.order_item.save()
+        instance.receive.save(update_fields=["item_count"])
 
-        order = instance.receive.order
-        unit_qty_received = OrderItem.objects.filter(order=order).aggregate(
-            unit_qty_received=Sum("unit_qty_received")
-        )["unit_qty_received"] or Decimal(0.0)
-        unit_qty = OrderItem.objects.filter(order=order).aggregate(unit_qty=Sum("unit_qty"))[
-            "unit_qty"
-        ] or Decimal(0.0)
-        if unit_qty_received == unit_qty:
-            order.status = COMPLETE
-            order.save()
+        # update order_item after receive_item
+        instance.order_item.unit_qty_received = (
+            instance.order_item.receiveitem_set.all().aggregate(
+                unit_qty=Sum("unit_qty_received")
+            )["unit_qty"]
+        ) or Decimal("0.0")
+
+        instance.order_item.save(update_fields=["unit_qty_received"])
+
+        update_orderitem_status(order_item=instance.order_item)
+
+        # update order status
+        update_order_status(order=instance.order_item.order)
 
         # add to stock
         create_new_stock_on_receive(receive_item_pk=instance.id)
@@ -160,8 +196,9 @@ def repack_request_on_post_save(
     dispatch_uid="allocation_on_post_save",
 )
 def allocation_on_post_save(sender, instance, raw, created, update_fields, **kwargs) -> None:
-    instance.stock.subject_identifier = instance.registered_subject.subject_identifier
-    instance.stock.save(update_fields=["subject_identifier"])
+    stock = Stock.objects.get(code=instance.code)
+    stock.subject_identifier = instance.registered_subject.subject_identifier
+    stock.save(update_fields=["subject_identifier"])
 
 
 @receiver(
@@ -214,15 +251,22 @@ def dispense_item_on_post_save(
     if not raw and not update_fields:
         instance.stock.dispensed = True
         instance.stock.qty_out = 1
-        instance.stock.unit_qty_out = instance.stock.container.qty * 1
+        instance.stock.unit_qty_out = instance.stock.container_unit_qty * 1
         instance.stock.save(update_fields=["dispensed", "qty_out", "unit_qty_out"])
         StorageBinItem.objects.filter(stock=instance.stock).delete()
+
+
+@receiver(post_delete, sender=Confirmation, dispatch_uid="confirmation_on_post_delete")
+def confirmation_on_post_delete(ender, instance, using, **kwargs):
+    """Update confirmed"""
+    instance.stock.confirmed = False
+    instance.stock.save(update_fields=["confirmed"])
 
 
 @receiver(post_delete, sender=ReceiveItem, dispatch_uid="receive_item_on_post_delete")
 def receive_item_on_post_delete(sender, instance, using, **kwargs) -> None:
     instance.order_item.unit_qty_received = (
-        instance.order_item.unit_qty_received - instance.unit_qty
+        instance.order_item.unit_qty_received - instance.unit_qty_received
     )
     instance.order_item.save()
 

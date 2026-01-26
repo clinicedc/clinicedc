@@ -6,11 +6,10 @@ from django.contrib.admin.widgets import AutocompleteSelect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
-from rangefilter.filters import DateRangeFilterBuilder
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.celery import get_task_result
 from edc_utils.date import to_local
+from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import RepackRequestForm
@@ -58,17 +57,28 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     fieldsets = (
         (
-            "Section A: Repack",
+            "Repack",
             {
                 "fields": (
                     "repack_identifier",
                     "repack_datetime",
                     "from_stock",
-                    "container",
-                    "requested_qty",
-                    "processed_qty",
                 )
             },
+        ),
+        (
+            "Repack container",
+            {
+                "fields": (
+                    "container",
+                    "container_unit_qty",
+                    "override_container_unit_qty",
+                )
+            },
+        ),
+        (
+            "Repack quantity",
+            {"fields": ("item_qty_repack", "item_qty_processed", "unit_qty_processed")},
         ),
         (
             "Task",
@@ -83,9 +93,9 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "from_stock_changelist",
         "assignment",
         "stock_changelist",
-        "formatted_requested_qty",
-        "formatted_processed_qty",
+        "formatted_item_qty_repack",
         "confirmed_qty",
+        "formatted_unit_qty_processed",
         "container",
         "from_stock__product__name",
         "task_status",
@@ -102,7 +112,7 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "from_stock__code",
     )
 
-    readonly_fields = ("processed_qty", "task_id")
+    readonly_fields = ("item_qty_processed", "unit_qty_processed", "task_id")
 
     def get_list_display(self, request):
         fields = super().get_list_display(request)
@@ -145,16 +155,19 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def identifier(self, obj):
         return obj.repack_identifier
 
-    @admin.display(description="Requested", ordering="requested_qty")
-    def formatted_requested_qty(self, obj):
-        return format_qty(obj.requested_qty, obj.container)
+    @admin.display(description="Repacked", ordering="item_qty_repack")
+    def formatted_item_qty_repack(self, obj):
+        return (
+            f"{format_qty(obj.item_qty_repack, obj.container)}/"
+            f"{format_qty(obj.item_qty_processed, obj.container)}"
+        )
 
-    @admin.display(description="Created", ordering="processed_qty")
-    def formatted_processed_qty(self, obj):
+    @admin.display(description="Units", ordering="unit_qty_processed")
+    def formatted_unit_qty_processed(self, obj):
         result = get_task_result(obj)
         if getattr(result, "status", "") == PENDING:
             return PENDING
-        return format_qty(obj.processed_qty, obj.container)
+        return format_qty(obj.unit_qty_processed, obj.container)
 
     @admin.display(description="Confirmed")
     def confirmed_qty(self, obj):
@@ -166,7 +179,7 @@ class RequestRepackAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         return getattr(result, "status", None)
 
     def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
-        if obj and (obj.processed_qty or Decimal(0)) > Decimal(0):
+        if obj and (obj.item_qty_processed or Decimal("0.0")) > Decimal("0.0"):
             f = [
                 "repack_identifier",
                 "repack_datetime",

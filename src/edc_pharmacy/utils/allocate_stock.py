@@ -67,6 +67,7 @@ def allocate_stock(
             with transaction.atomic():
                 allocation = allocation_model_cls.objects.create(
                     stock_request_item=stock_request_item,
+                    code=stock_obj.code,
                     registered_subject=rs_obj,
                     allocation_datetime=timezone.now(),
                     allocated_by=allocated_by,

@@ -1,8 +1,10 @@
-from clinicedc_constants import NEW
-from django.db import models
-from sequences import get_next_value
+from decimal import Decimal
 
+from clinicedc_constants import NEW
+from django.core.validators import MinValueValidator
+from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from sequences import get_next_value
 
 from ...choices import ORDER_CHOICES
 from ...exceptions import InvalidContainer, OrderItemError
@@ -36,18 +38,53 @@ class OrderItem(BaseUuidModel):
         blank=False,
     )
 
-    qty = models.DecimalField(null=True, blank=False, decimal_places=2, max_digits=20)
-
-    unit_qty_ordered = models.DecimalField(decimal_places=2, max_digits=20, null=True)
-
-    unit_qty = models.DecimalField(
-        decimal_places=2,
-        max_digits=20,
+    container_unit_qty = models.DecimalField(
+        verbose_name="Container unit quantity",
         null=True,
-        help_text="unit qty ordered less unit qty received",
+        blank=False,
+        decimal_places=2,
+        max_digits=10,
+        validators=[MinValueValidator(Decimal("1.0"))],
+        help_text=(
+            "Number of units in the container(s). "
+            "Must be the same for all containers in the record."
+        ),
     )
 
-    unit_qty_received = models.DecimalField(decimal_places=2, max_digits=20, null=True)
+    item_qty_ordered = models.IntegerField(
+        verbose_name="Number of containers ordered",
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(1)],
+        help_text="Number of containers",
+    )
+
+    unit_qty_ordered = models.DecimalField(
+        verbose_name="Unit quantity ordered",
+        null=True,
+        decimal_places=2,
+        max_digits=10,
+        validators=[MinValueValidator(Decimal("1.0"))],
+        help_text="Updated automatically (containers * unit_quantity per container)",
+    )
+
+    unit_qty_pending = models.DecimalField(
+        verbose_name="Unit quantity pending",
+        null=True,
+        decimal_places=2,
+        max_digits=10,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        help_text="Unit quantity ordered - Unit quantity received. Updated automatically",
+    )
+
+    unit_qty_received = models.DecimalField(
+        verbose_name="Unit quantity received",
+        decimal_places=2,
+        max_digits=10,
+        null=True,
+        validators=[MinValueValidator(Decimal("0.0"))],
+        help_text="Updated automatically when units are received",
+    )
 
     status = models.CharField(
         max_length=25,
@@ -66,8 +103,8 @@ class OrderItem(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.id:
             self.order_item_identifier = f"{get_next_value(self._meta.label_lower):06d}"
-            self.unit_qty_ordered = self.qty * self.container.qty
-            self.unit_qty = self.qty * self.container.qty
+            self.unit_qty_pending = self.item_qty_ordered * self.container_unit_qty
+        self.unit_qty_ordered = self.item_qty_ordered * self.container_unit_qty
         if not self.order:
             raise OrderItemError("Order may not be null.")
         if not self.product:

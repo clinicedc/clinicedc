@@ -9,9 +9,9 @@ if TYPE_CHECKING:
 
 def format_qty(qty: Decimal, container: Container):
     qty = 0 if qty is None else qty
-    if container.qty_decimal_places == 0:
+    if container.unit_qty_places == 0:
         return str(int(qty))
-    if container.qty_decimal_places == 1:
+    if container.unit_qty_places == 1:
         return f"{qty:0.1f}"
     return f"{qty:0.2f}"
 

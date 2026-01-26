@@ -76,7 +76,7 @@ class Allocation(BaseUuidModel):
         if not self.stock_request_item:
             raise AllocationError("Stock request item may not be null")
         self.subject_identifier = self.registered_subject.subject_identifier
-        self.code = self.stock.code
+        # self.code = self.stock.code
         self.assignment = self.get_assignment()
         super().save(*args, **kwargs)
 

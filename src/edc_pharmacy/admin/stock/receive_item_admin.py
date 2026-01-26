@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields.admin import audit_fieldset_tuple
-
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 
@@ -32,15 +31,19 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     fieldsets = (
         (
             None,
-            {"fields": ("receive", "order_item", "container", "lot")},
+            {"fields": ("receive", "order_item", "lot", "reference")},
+        ),
+        (
+            "Container",
+            {"fields": ("container", "container_unit_qty")},
         ),
         (
             "Quantity",
-            {"fields": ("qty", "unit_qty")},
+            {"fields": ("item_qty_received", "unit_qty_received")},
         ),
         (
-            "Reference",
-            {"fields": ("reference", "comment")},
+            "Comment",
+            {"fields": ("comment",)},
         ),
         audit_fieldset_tuple,
     )
@@ -51,7 +54,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "order_item_product",
         "formatted_lot",
         "container",
-        "formatted_qty",
+        "formatted_item_qty",
         "formatted_unit_qty",
         "order_changelist",
         "order_items_changelist",
@@ -80,7 +83,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "comment",
     )
 
-    readonly_fields = ("unit_qty",)
+    readonly_fields = ("unit_qty_received",)
 
     @admin.display(description="Item date", ordering="receive_item_datetime")
     def item_date(self, obj):
@@ -90,13 +93,13 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     def formatted_lot(self, obj):
         return obj.lot.lot_no
 
-    @admin.display(description="QTY", ordering="qty")
-    def formatted_qty(self, obj):
-        return format_qty(obj.qty, obj.container)
+    @admin.display(description="Items", ordering="qty")
+    def formatted_item_qty(self, obj):
+        return format_qty(obj.item_qty_received, obj.container)
 
     @admin.display(description="Units", ordering="qty")
     def formatted_unit_qty(self, obj):
-        return format_qty(obj.unit_qty, obj.container)
+        return format_qty(obj.unit_qty_received, obj.container)
 
     @admin.display(description="Product", ordering="-order_item__product__name")
     def order_item_product(self, obj):
@@ -145,7 +148,7 @@ class ReceiveItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         if obj:
-            return tuple({*self.readonly_fields, "receive"})
+            return tuple({*self.readonly_fields, "receive", "order_item", "container", "lot"})
         return self.readonly_fields
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

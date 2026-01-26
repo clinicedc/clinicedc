@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
 from django.utils import timezone
@@ -70,27 +69,28 @@ def confirm_stock_at_location(
         )
         if obj.code in valid_codes
     ]
-    for stock_code in [c for c in valid_codes if c not in already_confirmed_codes]:
-        stock_transfer_item = stock_transfer_item_model_cls.objects.get(
-            stock__code=stock_code, stock_transfer=stock_transfer
-        )
-        obj = confirmation_at_location_item_model_cls(
-            confirm_at_location=confirm_at_location,
-            # stock=stock,
-            code=stock_code,
-            stock_transfer_item=stock_transfer_item,
-            confirmed_datetime=timezone.now(),
-            confirmed_by=confirmed_by,
-            user_created=confirmed_by,
-            created=timezone.now(),
-        )
-        try:
-            obj.save()
-        except ConfirmAtLocationError as e:
-            messages.add_message(request, messages.ERROR, str(e))
-            invalid_codes.append(stock_code)
-        else:
-            confirmed_codes.append(stock_code)
+    with transaction.atomic():
+        for stock_code in [c for c in valid_codes if c not in already_confirmed_codes]:
+            stock_transfer_item = stock_transfer_item_model_cls.objects.get(
+                stock__code=stock_code, stock_transfer=stock_transfer
+            )
+            obj = confirmation_at_location_item_model_cls(
+                confirm_at_location=confirm_at_location,
+                stock=stock_transfer_item.stock,
+                code=stock_code,
+                stock_transfer_item=stock_transfer_item,
+                confirmed_datetime=timezone.now(),
+                confirmed_by=confirmed_by,
+                user_created=confirmed_by,
+                created=timezone.now(),
+            )
+            try:
+                obj.save()
+            except ConfirmAtLocationError as e:
+                messages.add_message(request, messages.ERROR, str(e))
+                invalid_codes.append(stock_code)
+            else:
+                confirmed_codes.append(stock_code)
     return confirmed_codes, already_confirmed_codes, invalid_codes
 
 

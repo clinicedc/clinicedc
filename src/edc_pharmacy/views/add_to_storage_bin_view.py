@@ -14,11 +14,11 @@ from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic.base import TemplateView
-
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
+from ..constants import CENTRAL_LOCATION
 from ..exceptions import StorageBinError
 from ..models import Stock, StorageBin, StorageBinItem
 
@@ -34,8 +34,16 @@ def update_bin(
     codes_created = []
     codes_not_created = []
     for code in stock_codes:
-        try:
-            stock_obj = Stock.objects.get(
+        if storage_bin.location.name == CENTRAL_LOCATION:
+            opts = dict(
+                code=code,
+                confirmed=True,
+                dispenseitem__isnull=True,
+                location=storage_bin.location,
+                container=storage_bin.container,
+            )
+        else:
+            opts = dict(
                 code=code,
                 allocation__isnull=False,
                 stocktransferitem__isnull=False,
@@ -43,7 +51,10 @@ def update_bin(
                 dispenseitem__isnull=True,
                 stocktransferitem__stock_transfer__to_location=storage_bin.location,
                 location=storage_bin.location,
+                container=storage_bin.container,
             )
+        try:
+            stock_obj = Stock.objects.get(**opts)
         except ObjectDoesNotExist:
             stock_obj = None
             codes_not_created.append(code)

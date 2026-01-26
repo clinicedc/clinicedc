@@ -47,7 +47,7 @@ def in_stock_for_subjects_df(
             "location",
             "product",
         )
-        .annotate(container_qty=difference)
+        .annotate(container_unit_qty=difference)
         .filter(qty__gte=Decimal("1.00"))
     )
 

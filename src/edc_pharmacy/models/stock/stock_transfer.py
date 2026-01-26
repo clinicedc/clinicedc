@@ -1,3 +1,4 @@
+from clinicedc_constants import NULL_STRING
 from django.db import models
 from django.utils import timezone
 from edc_model.models import BaseUuidModel, HistoricalRecords
@@ -49,6 +50,20 @@ class StockTransfer(BaseUuidModel):
 
     item_count = models.PositiveIntegerField(
         null=True, blank=False, help_text="Suggested item count"
+    )
+
+    comment = models.TextField(
+        max_length=255,
+        default=NULL_STRING,
+        blank=True,
+    )
+
+    cancel = models.CharField(
+        verbose_name="To cancel this transfer, type 'CANCEL'",
+        max_length=15,
+        default=NULL_STRING,
+        blank=True,
+        help_text="Leave blank. Otherwise type 'CANCEL' to cancel this transfer.",
     )
 
     objects = Manager()

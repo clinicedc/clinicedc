@@ -51,10 +51,14 @@ from .stock import (
     StockProxy,
     StockRequest,
     StockRequestItem,
+    StockTransaction,
+    StockTransactionType,
     StockTransfer,
     StockTransferItem,
     StorageBin,
     StorageBinItem,
+    StorageBinItemProxy,
+    StorageBinProxy,
     Supplier,
 )
 from .storage import (

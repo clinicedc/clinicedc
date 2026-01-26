@@ -1,12 +1,10 @@
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
-
 from edc_model_admin.history import SimpleHistoryAdmin
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import ContainerForm
 from ...models import Container
-from ...utils import format_qty
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -29,13 +27,14 @@ class ContainerAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                         "display_name",
                         "container_type",
                         "units",
-                        "qty",
-                        "qty_decimal_places",
+                        "unit_qty_default",
+                        "unit_qty_places",
+                        "unit_qty_max",
                         "may_order_as",
                         "may_receive_as",
                         "may_repack_as",
                         "may_request_as",
-                        "max_per_subject",
+                        "max_items_per_subject",
                         "may_dispense_as",
                     ]
                 )
@@ -45,16 +44,16 @@ class ContainerAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
 
     list_display = (
-        "display_name",
+        "name",
         "container_type",
+        "unit_qty_max",
         "formatted_units",
-        "decimal_places",
         "may_order",
         "may_receive",
         "may_repack",
         "may_request",
-        "max_per_subject",
         "may_dispense",
+        "max_items_per_subject",
         "created",
         "modified",
     )
@@ -77,13 +76,7 @@ class ContainerAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Units", ordering="units")
     def formatted_units(self, obj):
-        if obj.qty > 1:
-            return f"{format_qty(obj.qty, obj)} {obj.units.plural_name}"
-        return f"{format_qty(obj.qty, obj)} {obj.units.display_name}"
-
-    @admin.display(description="Places", ordering="qty_decimal_places")
-    def decimal_places(self, obj):
-        return obj.qty_decimal_places
+        return obj.units.plural_name
 
     @admin.display(description="order", ordering="may_order_as", boolean=True)
     def may_order(self, obj):

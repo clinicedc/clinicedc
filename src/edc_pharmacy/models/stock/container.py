@@ -1,5 +1,8 @@
-from django.db import models
+from decimal import Decimal
 
+from clinicedc_constants import NULL_STRING
+from django.core.validators import MinValueValidator
+from django.db import models
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from .container_type import ContainerType
@@ -11,24 +14,46 @@ class Manager(models.Manager):
 
 
 class Container(BaseUuidModel):
+    name = models.CharField(max_length=50, unique=True, blank=False)
 
-    name = models.CharField(max_length=50, unique=True, blank=True)
-
-    display_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    display_name = models.CharField(
+        max_length=100, unique=True, default=NULL_STRING, blank=False
+    )
 
     container_type = models.ForeignKey(ContainerType, on_delete=models.PROTECT, null=True)
 
     units = models.ForeignKey(ContainerUnits, on_delete=models.PROTECT, null=True)
 
-    qty = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-
-    qty_decimal_places = models.IntegerField(default=0)
-
-    max_per_subject = models.DecimalField(
-        max_digits=10,
+    unit_qty_default = models.DecimalField(
+        verbose_name="Default qty",
         decimal_places=2,
+        max_digits=10,
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(Decimal("1.0"))],
+        help_text="May be adjusted. Default value for entry form",
+    )
+
+    unit_qty_places = models.IntegerField(
+        default=0.0,
+        blank=False,
+        validators=[MinValueValidator(0)],
+        help_text="May NOT be adjusted at receiving",
+    )
+
+    unit_qty_max = models.DecimalField(
+        decimal_places=2,
+        max_digits=10,
+        null=True,
+        blank=False,
+        validators=[MinValueValidator(Decimal("1.0"))],
+        help_text="Maximum unit capacity of container",
+    )
+
+    max_items_per_subject = models.IntegerField(
         null=True,
         blank=True,
+        validators=[MinValueValidator(0)],
         help_text=(
             "Maximum number of this container that may be "
             "allocated to a subject per stock request. "
@@ -49,7 +74,8 @@ class Container(BaseUuidModel):
     )
 
     may_request_as = models.BooleanField(
-        verbose_name="Container may be used for stock request", default=False
+        verbose_name="Container may be used for stock request",
+        default=False,
     )
 
     may_dispense_as = models.BooleanField(
@@ -64,11 +90,6 @@ class Container(BaseUuidModel):
         return self.display_name or self.name
 
     def save(self, *args, **kwargs):
-        if not self.name:
-            self.name = self.container_type.name
-            if self.qty > 1.0:
-                self.name = f"{self.name} of {self.qty}"
-            self.display_name = self.display_name or self.name
         if self.may_request_as or self.may_repack_as:
             self.may_order_as = False
             self.may_receive_as = False

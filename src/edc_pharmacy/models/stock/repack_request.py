@@ -3,12 +3,10 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
+from edc_model.models import BaseUuidModel, HistoricalRecords
 from sequences import get_next_value
 
-from edc_model.models import BaseUuidModel, HistoricalRecords
-
 from ...exceptions import RepackRequestError
-from ...utils import get_related_or_none
 from .container import Container
 
 
@@ -53,21 +51,36 @@ class RepackRequest(BaseUuidModel):
         limit_choices_to={"may_repack_as": True},
     )
 
-    requested_qty = models.DecimalField(
-        verbose_name="Containers requested",
-        null=True,
-        blank=False,
+    container_unit_qty = models.DecimalField(
+        verbose_name="Container unit quantity",
         decimal_places=2,
-        max_digits=20,
-        validators=[MinValueValidator(Decimal("0.0"))],
+        max_digits=10,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(Decimal("1.0"))],
+        help_text="Leave blank for default.",
     )
 
-    processed_qty = models.DecimalField(
-        verbose_name="Containers processed",
+    override_container_unit_qty = models.BooleanField(default=False)
+
+    item_qty_repack = models.IntegerField(
+        verbose_name="Number of containers to repack",
         null=True,
         blank=False,
+        validators=[MinValueValidator(0)],
+    )
+
+    item_qty_processed = models.IntegerField(
+        verbose_name="Number of containers processed", blank=False, default=0
+    )
+
+    unit_qty_processed = models.DecimalField(
+        verbose_name="Unit quantity processed",
+        default=Decimal("0.0"),
+        blank=False,
         decimal_places=2,
-        max_digits=20,
+        max_digits=10,
+        help_text="Automatically calculated",
     )
 
     stock_count = models.IntegerField(null=True, blank=True)
@@ -86,12 +99,15 @@ class RepackRequest(BaseUuidModel):
             next_id = get_next_value(self._meta.label_lower)
             self.repack_identifier = f"{next_id:06d}"
             self.processed = False
-        if not get_related_or_none(self.from_stock, "confirmation"):
+        if not self.from_stock.confirmed:
             raise RepackRequestError(
                 "Unconfirmed stock item. Only confirmed stock items may "
                 "be used to repack. Perhaps catch this in the form"
             )
-        self.processed_qty = Decimal(0) if self.processed_qty is None else self.processed_qty
+        self.container_unit_qty = self.container_unit_qty or self.container.unit_qty_default
+        self.item_qty_processed = (
+            0 if self.item_qty_processed is None else self.item_qty_processed
+        )
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

@@ -198,10 +198,10 @@ class StockReport(Report):
     @staticmethod
     def get_catsbd(stock_obj: Stock) -> str:
         catsd = ""
-        catsd += "C" if get_related_or_none(stock_obj, "confirmation") else "-"
+        catsd += "C" if stock_obj.confirmed else "-"
         catsd += "A" if get_related_or_none(stock_obj, "allocation") else "-"
-        catsd += "T" if get_related_or_none(stock_obj, "stocktransferitem") else "-"
-        catsd += "S" if get_related_or_none(stock_obj, "confirmationatlocationitem") else "-"
-        catsd += "B" if get_related_or_none(stock_obj, "stored_at_location") else "-"
-        catsd += "D" if get_related_or_none(stock_obj, "dispenseitem") else "-"
+        catsd += "T" if stock_obj.in_transit else "-"
+        catsd += "S" if stock_obj.confirmed_at_location else "-"
+        catsd += "B" if stock_obj.stored_at_location else "-"
+        catsd += "D" if stock_obj.dispensed else "-"
         return catsd

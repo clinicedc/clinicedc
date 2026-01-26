@@ -109,6 +109,15 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 )
             },
         ),
+        (
+            "Comment",
+            {
+                "fields": (
+                    "comment",
+                    # "cancel",
+                )
+            },
+        ),
         audit_fieldset_tuple,
     )
 
@@ -136,6 +145,19 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stocktransferitem__stock__code",
         "stocktransferitem__stock__allocation__registered_subject__subject_identifier",
     )
+
+    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
+        fields = super().get_readonly_fields(request, obj)
+        if obj:
+            fields = (
+                *fields,
+                "transfer_identifier",
+                "transfer_datetime",
+                "from_location",
+                "to_location",
+                "item_count",
+            )
+        return fields
 
     @admin.display(description="TRANSFER #", ordering="transfer_identifier")
     def identifier(self, obj):

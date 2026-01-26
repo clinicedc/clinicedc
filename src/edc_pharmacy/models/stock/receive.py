@@ -1,8 +1,8 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
-from sequences import get_next_value
-
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from sequences import get_next_value
 
 from ...exceptions import ReceiveError
 from .location import Location
@@ -25,7 +25,11 @@ class Receive(BaseUuidModel):
 
     receive_datetime = models.DateTimeField(default=timezone.now)
 
-    item_count = models.IntegerField(verbose_name="Item count", null=True)
+    item_count = models.IntegerField(
+        verbose_name="Item count",
+        null=True,
+        validators=[MinValueValidator(1)],
+    )
 
     location = models.ForeignKey(
         Location,

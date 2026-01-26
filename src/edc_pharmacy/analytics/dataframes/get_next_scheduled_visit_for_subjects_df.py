@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from django.db.models import Q
 from django_pandas.io import read_frame
-
 from edc_appointment.analytics import get_appointment_df
 from edc_appointment.constants import NEW_APPT
 from edc_registration import get_registered_subject_model_cls
@@ -43,14 +42,18 @@ def get_next_scheduled_visit_for_subjects_df(
         if stock_request:
             if stock_request.start_datetime:
                 df_appt = df_appt[
-                    df_appt.next_appt_datetime
-                    >= pd.Timestamp(stock_request.start_datetime.date()).to_datetime64()
+                    df_appt.next_appt_datetime.dt.normalize()
+                    >= stock_request.start_datetime.replace(
+                        hour=0, minute=0, second=0, microsecond=0
+                    )
                 ]
                 df_appt = df_appt.reset_index(drop=True)
             if stock_request.cutoff_datetime:
                 df_appt = df_appt[
-                    df_appt.next_appt_datetime
-                    <= pd.Timestamp(stock_request.cutoff_datetime.date()).to_datetime64()
+                    df_appt.next_appt_datetime.dt.normalize()
+                    <= stock_request.cutoff_datetime.replace(
+                        hour=0, minute=0, second=0, microsecond=0
+                    )
                 ]
                 df_appt = df_appt.reset_index(drop=True)
         # get the first appointment due

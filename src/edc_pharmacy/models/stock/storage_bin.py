@@ -4,11 +4,11 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import PROTECT
 from django.utils import timezone
-from sequences import get_next_value
-
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
+from sequences import get_next_value
 
+from .container import Container
 from .location import Location
 
 
@@ -31,6 +31,8 @@ class StorageBin(SiteModelMixin, BaseUuidModel):
         help_text="May be left blank or set to any unique name.",
     )
 
+    container = models.ForeignKey(Container, on_delete=models.PROTECT, null=True, blank=False)
+
     location = models.ForeignKey(Location, on_delete=PROTECT, null=True, blank=False)
 
     capacity = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
@@ -48,10 +50,13 @@ class StorageBin(SiteModelMixin, BaseUuidModel):
     def save(self, *args, **kwargs):
         self.site = self.location.site
         if not self.id:
-            self.bin_identifier = f"{get_next_value(self._meta.label_lower):06d}"
+            self.bin_identifier = self._get_bin_identifier()
         if not self.name:
             self.name = self.bin_identifier
         super().save(*args, **kwargs)
+
+    def _get_bin_identifier(self):
+        return f"{get_next_value(self._meta.label_lower):06d}" if not self.id else None
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Storage bin"

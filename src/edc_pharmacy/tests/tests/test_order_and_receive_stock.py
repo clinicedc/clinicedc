@@ -15,10 +15,15 @@ from django.contrib.sites.models import Site
 from django.db.models import Sum
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
-from sequences import get_next_value
-
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
+from edc_randomization.constants import ACTIVE, PLACEBO
+from edc_randomization.models import RandomizationList
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
+from sequences import get_next_value
+
 from edc_pharmacy.analytics import get_next_scheduled_visit_for_subjects_df
 from edc_pharmacy.exceptions import RepackRequestError
 from edc_pharmacy.models import (
@@ -50,11 +55,6 @@ from edc_pharmacy.utils import (
     get_instock_and_nostock_data,
     process_repack_request,
 )
-from edc_randomization.constants import ACTIVE, PLACEBO
-from edc_randomization.models import RandomizationList
-from edc_sites.site import sites
-from edc_sites.utils import add_or_update_django_sites
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
 
@@ -424,7 +424,7 @@ class TestOrderReceive(TestCase):
             RepackRequest.objects.create(
                 from_stock=stock,
                 container=container_128,
-                requested_qty=39,
+                item_qty_repack=39,
             )
         self.assertIn("Unconfirmed stock item", str(cm.exception))
 
@@ -443,7 +443,7 @@ class TestOrderReceive(TestCase):
             repack_request = RepackRequest.objects.create(
                 from_stock=stock,
                 container=container_128,
-                requested_qty=39,
+                item_qty_repack=39,
             )
             # process
             process_repack_request(repack_request.pk, username=None)
@@ -564,7 +564,7 @@ class TestOrderReceive(TestCase):
             repack_request = RepackRequest.objects.create(
                 from_stock=stock,
                 container=container_128,
-                requested_qty=39,
+                item_qty_repack=39,
             )
             # process
             process_repack_request(repack_request.pk, username=None)
@@ -597,7 +597,7 @@ class TestOrderReceive(TestCase):
         container = Container.objects.get(name="bottle of 128")
         container.may_request_as = True
         container.may_dispense_as = True
-        container.max_per_subject = 3
+        container.max_items_per_subject = 3
         container.save()
 
         # user creates in Admin
