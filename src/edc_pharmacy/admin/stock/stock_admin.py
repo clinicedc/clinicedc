@@ -77,7 +77,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         ),
         (
             "Product",
-            {"fields": ("product", "container")},
+            {"fields": ("product", "container", "container_unit_qty")},
         ),
         (
             "Batch",
@@ -187,6 +187,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "confirmed",
         "confirmed_at_location",
         "container",
+        "container_unit_qty",
         "destroyed",
         "dispensed",
         "from_stock",
