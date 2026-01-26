@@ -393,9 +393,16 @@ def allow_unscheduled(appointment: Appointment | None = None):
 
     See also visit.rupper_extended.
     """
+    if appointment.visit.allow_unscheduled_extended and not appointment.relative_next:
+        return True
     return (
-        not appointment.relative_next and appointment.visit.allow_unscheduled_extended
-    ) or (
-        appointment.appt_datetime.date() + relativedelta(days=1)
+        appointment.relative_next
+        and appointment.appt_datetime.date() + relativedelta(days=1)
         != appointment.relative_next.appt_datetime.date()
     )
+    # return (
+    #     not appointment.relative_next and appointment.visit.allow_unscheduled_extended
+    # ) or (
+    #     appointment.appt_datetime.date() + relativedelta(days=1)
+    #     != appointment.relative_next.appt_datetime.date()
+    # )
