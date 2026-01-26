@@ -1,8 +1,8 @@
+from clinicedc_constants import NULL_STRING
 from django.db import models
 from django.utils import timezone
-from sequences import get_next_value
-
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from sequences import get_next_value
 
 
 class Manager(models.Manager):
@@ -32,6 +32,14 @@ class Confirmation(BaseUuidModel):
         null=True,
     )
 
+    code = models.CharField(
+        verbose_name="Stock code",
+        max_length=15,
+        default=NULL_STRING,
+        blank=True,
+        editable=False,
+    )
+
     confirmed_datetime = models.DateTimeField(default=timezone.now)
 
     confirmed_by = models.CharField(max_length=100, default="", blank=True)
@@ -46,6 +54,7 @@ class Confirmation(BaseUuidModel):
     def save(self, *args, **kwargs):
         if not self.confirmation_identifier:
             self.confirmation_identifier = f"{get_next_value(self._meta.label_lower):06d}"
+        self.code = self.stock.code
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):

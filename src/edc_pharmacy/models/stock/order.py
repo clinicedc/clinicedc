@@ -1,8 +1,8 @@
 from clinicedc_constants import NEW
+from django.core.validators import MinValueValidator
 from django.db import models
-from sequences import get_next_value
-
 from edc_model.models import BaseUuidModel, HistoricalRecords
+from sequences import get_next_value
 
 from ...choices import ORDER_CHOICES
 from .supplier import Supplier
@@ -23,7 +23,11 @@ class Order(BaseUuidModel):
 
     order_datetime = models.DateTimeField(verbose_name="Order date/time")
 
-    item_count = models.IntegerField(verbose_name="Item count", null=True)
+    item_count = models.IntegerField(
+        verbose_name="Item count",
+        null=True,
+        validators=[MinValueValidator(1)],
+    )
 
     title = models.CharField(
         max_length=50,

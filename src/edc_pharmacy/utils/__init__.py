@@ -11,7 +11,6 @@ from .get_imp_schedule_names import get_imp_schedule_names
 from .get_random_code import get_random_code
 from .get_related_or_none import get_related_or_none
 from .get_stock_for_location_df import get_stock_for_location_df
-from .get_unit_qty_out import get_unit_qty_out
 from .is_dispensed import is_dispensed
 from .miscellaneous import get_rx_model_cls, get_rxrefill_model_cls
 from .process_repack_request import process_repack_request
@@ -19,7 +18,6 @@ from .process_repack_request_queryset import process_repack_request_queryset
 from .stock_request import bulk_create_stock_request_items, get_instock_and_nostock_data
 from .transfer_stock_to_location import transfer_stock_to_location
 from .update_previous_refill_end_datetime import update_previous_refill_end_datetime
-from .update_stock_instance_qty import update_stock_instance_qty
 
 __all__ = [
     "allocate_stock",
@@ -39,11 +37,9 @@ __all__ = [
     "get_rx_model_cls",
     "get_rxrefill_model_cls",
     "get_stock_for_location_df",
-    "get_unit_qty_out",
     "is_dispensed",
     "process_repack_request",
     "process_repack_request_queryset",
     "transfer_stock_to_location",
     "update_previous_refill_end_datetime",
-    "update_stock_instance_qty",
 ]

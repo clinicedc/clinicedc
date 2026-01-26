@@ -3,6 +3,7 @@ import contextlib
 from django.contrib import admin
 from django_audit_fields import audit_fieldset_tuple
 
+from ..actions import print_labels, print_stock_report_action
 from ...admin_site import edc_pharmacy_admin
 from ...auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE
 from ...models import StockProxy
@@ -18,6 +19,12 @@ from .stock_admin import StockAdmin
 @admin.register(StockProxy, site=edc_pharmacy_admin)
 class StockProxyAdmin(StockAdmin):
     change_list_note = "T=Transferred to location, CL=Confirmed at location, D=Dispensed"
+
+    actions = (
+        print_labels,
+        print_stock_report_action,
+    )
+
     fieldsets = (
         (
             "Stock item",

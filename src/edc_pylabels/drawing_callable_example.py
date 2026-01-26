@@ -54,7 +54,7 @@ def draw_callable_example(
     label.add(String(15, height - 40, "Medication for the research", fontSize=10))
     label.add(String(15, height - 50, "trial TEST!!.", fontSize=10))
     label.add(String(15, height - 70, "Take 4 pills only at night.", fontSize=10))
-    label.add(String(15, 20, f"{obj.request.container.qty} tabs", fontSize=10))
+    label.add(String(15, 20, f"{obj.request.container_unit_qty} tabs", fontSize=10))
     lab = RlLabel(x=width - 20, y=40, fontSize=10, angle=90)
     lab.setText(str(obj.sid))
     label.add(lab)

@@ -1,6 +1,7 @@
 from .allocation_history_admin import AllocationHistoryAdmin
 from .confirmation_at_location_history_admin import ConfirmationAtLocationHistoryAdmin
 from .confirmation_at_location_item_history_admin import ConfirmationAtLocationItemHistoryAdmin
+from .confirmation_history_admin import ConfirmationHistoryAdmin
 from .dispense_item_history_admin import DispenseItemHistoryAdmin
 from .stock_history_admin import StockHistoryAdmin
 from .storage_bin_item_history_admin import StorageBinItemHistoryAdmin

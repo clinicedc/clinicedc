@@ -1,65 +1,88 @@
 from django import forms
 
 from ...constants import CENTRAL_LOCATION
-from ...models import StockTransfer, StockTransferItem
+from ...models import StockTransfer
 
 
 class StockTransferForm(forms.ModelForm):
+    @property
+    def to_location(self):
+        return self.cleaned_data.get("to_location") or self.instance.to_location
+
+    @property
+    def from_location(self):
+        return self.cleaned_data.get("from_location") or self.instance.from_location
+
     def clean(self):
         cleaned_data = super().clean()
-        items_qs = StockTransferItem.objects.filter(stock_transfer__pk=self.instance.pk)
-        if cleaned_data.get("to_location") == cleaned_data.get("from_location"):
-            raise forms.ValidationError(
-                {"__all__": "Invalid location combination. Locations cannot be the same"}
-            )
-        # at least one location must be CENTRAL
-        if CENTRAL_LOCATION not in [
-            cleaned_data.get("to_location").name,
-            cleaned_data.get("from_location").name,
-        ]:
-            raise forms.ValidationError(
-                {"__all__": "Invalid location combination. One location must be Central"}
-            )
-        # stock items can either be returned to central or transferred
-        # to the site of allocation
-        if (
-            cleaned_data.get("to_location")
-            and items_qs.count() > 0
-            and not (
-                (
-                    items_qs[0].stock.allocation.registered_subject.site
-                    == cleaned_data.get("to_location").site
+
+        # assuming all fields expect 'comment' are set to readonly on EDIT
+        if not self.instance.id:
+            # items_qs = StockTransferItem.objects.filter(stock_transfer__pk=self.instance.pk)
+            # if items_qs.count() == 0:
+            #     raise forms.ValidationError("Nothing to transfer")
+
+            # TO/FROM locations cannot be the same
+            if self.to_location == self.from_location:
+                raise forms.ValidationError(
+                    {
+                        "__all__": "Invalid location combination. 'TO' and 'FROM' locations "
+                        "cannot be the same"
+                    }
                 )
-                or (cleaned_data.get("to_location").name == CENTRAL_LOCATION)
-            )
-        ):
-            raise forms.ValidationError(
-                {
-                    "to_location": (
-                        "Invalid location. Does not match the allocated location of "
-                        "the stock items for this transfer."
-                    )
-                }
-            )
-        # check the current stock site if not the same as to_location
-        if items_qs.count() > 0 and items_qs[0].stock.location == cleaned_data.get(
-            "to_location"
-        ):
-            raise forms.ValidationError(
-                {"to_location": "Invalid location. Stock is already at this location."}
-            )
-        if (
-            cleaned_data.get("item_count") is not None
-            and items_qs.count() > 0
-            and items_qs.count() > cleaned_data.get("item_count")
-        ):
-            raise forms.ValidationError(
-                {
-                    "item_count": (
-                        f"Invalid. Expected a value greater than or equal to {items_qs.count()}"
-                    )
-                }
-            )
+
+            # at least one location must be CENTRAL
+            if CENTRAL_LOCATION not in [self.to_location.name, self.from_location.name]:
+                raise forms.ValidationError(
+                    {"__all__": "Invalid location combination. One location must be Central"}
+                )
+
+            # check the current stock site if not the same as to_location
+            # if items_qs[0].stock.location == self.to_location:
+            #     raise forms.ValidationError(
+            #         {
+            #             "__all__": "Invalid 'TO' location. Stock is already at this location. "
+            #             f"Got {self.to_location}"
+            #         }
+            #     )
+
+            # if FROM central, TO must be subject's site
+            # if self.from_location.name == CENTRAL_LOCATION and (
+            #     items_qs[0].stock.allocation.registered_subject.site != self.to_location.site
+            # ):
+            #     raise forms.ValidationError(
+            #         {
+            #             "__all__": (
+            #                 "Invalid 'TO' location. Does not match the allocated subject's "
+            #                 "location / study site."
+            #             )
+            #         }
+            #     )
+
+            # if TO central, FROM must be subject's site
+            # if self.to_location.name == CENTRAL_LOCATION and (
+            #     items_qs[0].stock.allocation.registered_subject.site != self.from_location.site
+            # ):
+            #     raise forms.ValidationError(
+            #         {
+            #             "__all__": (
+            #                 "Invalid 'FROM' location. Does not match the allocated subject's "
+            #                 "location / study site."
+            #             )
+            #         }
+            #     )
+
+            # if cleaned_data.get(
+            #     "item_count"
+            # ) is not None and items_qs.count() > cleaned_data.get("item_count"):
+            #     raise forms.ValidationError(
+            #         {
+            #             "__all__": (
+            #                 "Invalid item count. Expected a value "
+            #                 f"greater than or equal to {items_qs.count()}"
+            #             )
+            #         }
+            #     )
 
         return cleaned_data
 

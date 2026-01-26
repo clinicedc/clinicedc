@@ -102,10 +102,13 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
 
     @admin.display(
         description="Subject #",
-        ordering="stock__allocation__registered_subject__subject_identifier",
+        # ordering="stock__allocation__registered_subject__subject_identifier",
     )
     def subject(self, obj):
-        return obj.stock.allocation.registered_subject.subject_identifier
+        try:
+            return obj.stock.allocation.registered_subject.subject_identifier
+        except AttributeError:
+            return None
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

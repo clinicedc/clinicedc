@@ -13,6 +13,9 @@
                 <a id="home_list_group_stockrequest" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}" class="list-group-item"><B>Manage Requests:</B> Allocate stock to subjects</a>
                 <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stocktransfer_changelist' %}" class="list-group-item"><b>Transfer stock to site</b></a>
                 <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy:confirm_at_location_url' location_name=CENTRAL_LOCATION %}" class="list-group-item"><B>Confirm returned stock</B></a>
+                <a id="home_list_group_dispense" href="{% url 'edc_pharmacy_admin:edc_pharmacy_storagebinproxy_changelist' %}" class="list-group-item"><b>Add/Update storage bins</b></a>
+                <a id="home_list_group_dispense" href="{% url 'edc_pharmacy_admin:edc_pharmacy_storagebinitemproxy_changelist' %}" class="list-group-item"><b>Search storage bins</b></a>
+
             {% endif %}
         </div>
         <div class="panel-heading"></div>

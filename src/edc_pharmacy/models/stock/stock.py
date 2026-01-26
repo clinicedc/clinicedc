@@ -89,6 +89,15 @@ class Stock(BaseUuidModel):
 
     container = models.ForeignKey(Container, on_delete=models.PROTECT, null=True, blank=False)
 
+    container_unit_qty = models.DecimalField(
+        verbose_name="Units per container",
+        null=True,
+        blank=False,
+        decimal_places=2,
+        max_digits=20,
+        help_text="Number of units per container. ",
+    )
+
     location = models.ForeignKey(Location, on_delete=PROTECT, null=True, blank=False)
 
     qty = models.DecimalField(
@@ -146,7 +155,7 @@ class Stock(BaseUuidModel):
 
     stored_at_location = models.BooleanField(default=False, help_text="See storagebinitem.")
 
-    dispensed = models.BooleanField(default=False)
+    dispensed = models.BooleanField(default=False, help_text="See dispenseitem.")
 
     destroyed = models.BooleanField(default=False)
 
@@ -159,7 +168,7 @@ class Stock(BaseUuidModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return f"{self.code}: {self.description}"
+        return f"{self.code}: {self.product.name} - {self.container.container_type}"
 
     def save(self, *args, **kwargs):
         if not self.stock_identifier:
@@ -167,8 +176,8 @@ class Stock(BaseUuidModel):
             self.stock_identifier = f"{next_id:010d}"
             self.code = get_random_code(self.__class__, 6, 10000)
             self.product = self.get_receive_item().order_item.product
-        if not self.description:
-            self.description = f"{self.product.name} - {self.container.name}"
+        # if not self.description:
+        #     self.description = f"{self.product.name} - {self.container.name}"
         self.verify_assignment_or_raise()
         self.verify_assignment_or_raise(self.from_stock)
         self.update_status()
@@ -210,7 +219,7 @@ class Stock(BaseUuidModel):
         # destroyed
 
         # do this in the post-save signal?
-        # self.unit_qty_in = Decimal(self.qty_in) * Decimal(self.container.qty)
+        # self.unit_qty_in = Decimal(self.qty_in) * Decimal(self.container_unit_qty)
         super().save(*args, **kwargs)
 
     def update_transferred(self) -> bool:

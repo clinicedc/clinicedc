@@ -6,11 +6,11 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
-
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
+from ..constants import CENTRAL_LOCATION
 from ..exceptions import StockTransferError
 from ..models import Location, StockTransfer, StockTransferItem
 from ..utils import transfer_stock_to_location
@@ -74,13 +74,18 @@ class TransferStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
                     f"Successfully transferred {len(transferred)} stock items. ",
                 )
             if skipped_codes:
+                location = (
+                    stock_transfer.to_location
+                    if stock_transfer.from_location.name == CENTRAL_LOCATION
+                    else stock_transfer.from_location
+                )
                 messages.add_message(
                     request,
                     messages.WARNING,
                     (
                         f"Skipped {len(skipped_codes)} "
                         f"stock item{'s' if len(skipped_codes) != 1 else ''}. "
-                        f"Not from {stock_transfer.from_location}. "
+                        f"Not for {location}. "
                         f"See {StockTransfer._meta.verbose_name} "
                         f"{stock_transfer.transfer_identifier}. "
                         f"Got {', '.join(skipped_codes)}"

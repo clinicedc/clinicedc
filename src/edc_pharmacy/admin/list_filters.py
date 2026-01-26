@@ -47,9 +47,9 @@ class ConfirmedListFilter(SimpleListFilter):
         qs = None
         if self.value():
             if self.value() == YES:
-                qs = queryset.filter(confirmation__isnull=False)
+                qs = queryset.filter(confirmed=True)
             elif self.value() == NO:
-                qs = queryset.filter(confirmation__isnull=True)
+                qs = queryset.filter(confirmed=False)
         return qs
 
 

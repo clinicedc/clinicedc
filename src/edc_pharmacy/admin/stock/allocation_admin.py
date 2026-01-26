@@ -110,6 +110,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                     "allocation_datetime",
                     "stock_request_item",
                     "registered_subject",
+                    "code",
                     "allocated_by",
                 )
             },
@@ -146,7 +147,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     search_fields = (
         "id",
-        "stock__code",
+        "code",
         "stock_request_item__id",
         "stock_request_item__stock_request__id",
         "stock_request_item__stock_request__request_identifier",
@@ -159,6 +160,7 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "allocation_datetime",
         "registered_subject",
         "stock_request_item",
+        "code",
         "allocated_by",
     )
 

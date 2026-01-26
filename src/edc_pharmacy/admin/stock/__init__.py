@@ -29,4 +29,6 @@ from .stock_transfer_admin import StockTransferAdmin
 from .stock_transfer_item_admin import StockTransferItemAdmin
 from .storage_bin_admin import StorageBinAdmin
 from .storage_bin_item_admin import StorageBinItemAdmin
+from .storage_bin_item_proxy_admin import StorageBinItemProxyAdmin
+from .storage_bin_proxy_admin import StorageBinProxyAdmin
 from .supplier_admin import SupplierAdmin
