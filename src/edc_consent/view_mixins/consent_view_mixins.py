@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any
 
 from django.contrib import messages
 from django.contrib.messages import ERROR
-
 from edc_sites import site_sites
 
 from .. import site_consents
@@ -60,8 +59,10 @@ class ConsentViewMixin:
                     report_datetime=self.report_datetime,
                     site_id=self.request.site.id,
                 )
-            except NotConsentedError as e:
-                messages.add_message(self.request, message=str(e), level=ERROR)
+            except (NotConsentedError, ConsentDefinitionDoesNotExist) as e:
+                messages.add_message(
+                    self.request, message=f"{self.subject_identifier} {e}"[:250], level=ERROR
+                )
         return self._consent
 
     @property
