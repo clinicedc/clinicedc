@@ -67,3 +67,6 @@ class AeSusarModelAdminMixin(
         """Returns a formatted comprehensive description."""
         context = format_ae_susar_description({}, obj, 50)
         return render_to_string(select_description_template("aesusar"), context)
+
+    class Media:
+        css = {"all": ("edc_adverse_event/css/extras.css",)}  # noqa: RUF012

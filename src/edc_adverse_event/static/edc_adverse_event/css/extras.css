@@ -1,0 +1,24 @@
+/* Adverse Event Description Styling */
+.ae_description {
+    max-width: 90vw;
+    min-width: 280px;
+    overflow-x: auto;
+    display: inline-block;
+    padding-right: 20px;
+    vertical-align: top;
+
+    /* Native-feeling momentum scroll for mobile devices */
+    -webkit-overflow-scrolling: touch;
+
+    /* Optional: custom scrollbar styling for a cleaner look */
+    scrollbar-width: thin;
+}
+
+/* Adjustments for tablets and desktops */
+@media (min-width: 768px) {
+    .ae_description {
+        min-width: 450px;
+        max-width: 70vw;
+        padding-right: 30px;
+    }
+}

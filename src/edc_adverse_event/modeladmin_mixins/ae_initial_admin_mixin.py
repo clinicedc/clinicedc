@@ -81,7 +81,7 @@ class AeInitialModelAdminMixin(
 
     ordering = ("-ae_awareness_date",)
 
-    actions = [print_to_pdf_action]
+    actions = (print_to_pdf_action,)
 
     email_contact = get_email_contacts("ae_reports")
     additional_instructions = format_html(  # nosec B308, B703
@@ -152,3 +152,7 @@ class AeInitialModelAdminMixin(
         """
         context = format_ae_description({}, obj, None)
         return render_to_string(select_description_template("aeinitial"), context)
+
+    class Media:
+        css = {"all": ("edc_adverse_event/css/extras.css",)}  # noqa: RUF012
+        js = ModelAdminSubjectDashboardMixin.Media.js
