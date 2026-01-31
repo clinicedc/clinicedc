@@ -33,7 +33,7 @@ class DeathReportModelAdminMixin(
 
     ordering = ("-report_datetime",)
 
-    actions = [print_to_pdf_action]
+    actions = (print_to_pdf_action,)
 
     fieldsets = (
         (

@@ -102,8 +102,14 @@ def transfer_stock_to_location(
                             + len(skipped_codes)
                             + len(invalid_codes)
                         ):
+                            # show diff codes
+                            codes = (
+                                transferred + dispensed_codes + skipped_codes + invalid_codes
+                            )
+                            suspect_codes = [c for c in stock_codes if c not in codes]
                             raise StockTransferError(
-                                "Some codes were not accounted for. Cancelling transfer"
+                                f"Some codes were not accounted for. Got {suspect_codes} "
+                                "Cancelling transfer"
                             )
     return transferred, dispensed_codes, skipped_codes, invalid_codes
 

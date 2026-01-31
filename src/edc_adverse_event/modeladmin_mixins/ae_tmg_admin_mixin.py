@@ -70,20 +70,26 @@ class AeTmgModelAdminMixin(
         "investigator_ae_classification": admin.VERTICAL,
     }
 
-    def get_list_display(self, request) -> tuple[str]:
+    def get_list_display(self, request) -> tuple[str, ...]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "subject_identifier",
             "dashboard",
+            "formatted_action_identifier",
+            "tmg_date",
             "status",
             "ae_initial",
-            "report_datetime",
-            "officials_notified",
+            "susar_notified",
             "report_closed_datetime",
         )
-        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
 
-    def get_list_filter(self, request) -> tuple[str]:
+        return custom_fields + tuple(
+            f
+            for f in list_display
+            if f not in custom_fields and f not in ["__str__", "report_datetime"]
+        )
+
+    def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
         custom_fields = ("report_datetime", "report_status")
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
@@ -91,6 +97,18 @@ class AeTmgModelAdminMixin(
     @staticmethod
     def status(obj=None):
         return obj.report_status.title()
+
+    @admin.display(description="AE TMG date")
+    def tmg_date(self, obj=None):
+        return obj.report_datetime
+
+    @admin.display(description="susar date")
+    def susar_notified(self, obj=None):
+        return obj.officials_notified
+
+    @admin.display(description="AE TMG", ordering="action_identifier")
+    def formatted_action_identifier(self, obj=None):
+        return f"{obj.action_identifier[-9:]}"
 
     def get_queryset(self, request):
         """Returns for the current user if has `view_aetmg` permissions."""
@@ -129,3 +147,14 @@ class AeTmgModelAdminMixin(
                 ).id,
             )
         return initial
+
+    # @admin.display(description="AE INITIAL", ordering="ae_initial__action_identifier")
+    # def ae_initial_changelist(self, obj=None):
+    #     url = reverse("edc_pharmacy_admin:edc_pharmacy_stockproxy_changelist")
+    #     url = f"{url}?q={obj.stock.code}"
+    #     context = dict(url=url, label=f"{obj.stock.code}", title="Go to stock")
+    #     return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    class Media:
+        css = {"all": ("edc_adverse_event/css/extras.css",)}  # noqa: RUF012
+        js = ModelAdminSubjectDashboardMixin.Media.js

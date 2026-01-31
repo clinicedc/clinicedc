@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.contrib.admin import display
 from django.template.loader import render_to_string
 from django_audit_fields.admin import audit_fieldset_tuple
-
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
@@ -70,7 +69,8 @@ class AeFollowupModelAdminMixin(
             "description_column",
             "documents_column",
         )
-        return tuple({*list_display, *custom_fields})
+        list_display = [col for col in list_display if col != "__str__"]
+        return *custom_fields, *list_display
 
     def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
@@ -90,3 +90,7 @@ class AeFollowupModelAdminMixin(
         """
         context = format_ae_followup_description({}, obj, None)
         return render_to_string(select_description_template("aefollowup"), context)
+
+    class Media:
+        css = {"all": ("edc_adverse_event/css/extras.css",)}  # noqa: RUF012
+        js = ModelAdminSubjectDashboardMixin.Media.js
