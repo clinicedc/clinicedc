@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import copy
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
@@ -35,8 +36,15 @@ def transfer_stock_to_location(
     confirmation_at_location_item_model_cls: type[ConfirmationAtLocationItem] = (
         django_apps.get_model("edc_pharmacy.confirmationatlocationitem")
     )
-    transferred, dispensed_codes, skipped_codes, invalid_codes = [], [], [], []
+    transferred, dispensed_codes, skipped_codes, invalid_codes = (
+        [],
+        [],
+        [],
+        [],
+    )
+    unprocessed_codes = copy(stock_codes)
     for stock_code in stock_codes:
+        unprocessed_codes.remove(stock_code)
         if not stock_model_cls.objects.filter(code=stock_code).exists():
             invalid_codes.append(stock_code)
             continue
@@ -97,7 +105,8 @@ def transfer_stock_to_location(
                         transferred.append(stock_code)
 
                         if len(stock_codes) != (
-                            len(transferred)
+                            len(unprocessed_codes)
+                            + len(transferred)
                             + len(dispensed_codes)
                             + len(skipped_codes)
                             + len(invalid_codes)
