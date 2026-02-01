@@ -1,2 +1,7 @@
 {% load l10n %}
-<span style="white-space: nowrap;">{{ report_datetime.date|localize }}</span><BR><span class="text text-muted small">{{ utc_date|timeuntil:report_datetime.date }} ago</span>
+{% load tz %}
+{% localtime on %}
+    <span style="white-space: nowrap;">{{ report_datetime.date|localize }}</span>
+    <BR>
+    <span class="text text-muted small">{{ utc_date|timeuntil:report_datetime.date }} ago</span>
+{% endlocaltime %}
