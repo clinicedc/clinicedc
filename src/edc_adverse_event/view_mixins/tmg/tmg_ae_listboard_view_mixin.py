@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from clinicedc_constants import CLOSED, NEW, OPEN
 from django.db.models import Min
 from django.utils import timezone
-
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_export.constants import CANCELLED
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class Qs:
-    def __init__(self, subject_identifier, report_datetime):
+    def __init__(self, subject_identifier: str, report_datetime: datetime):
         self.subject_identifier = subject_identifier
         self.report_datetime = report_datetime
 
@@ -81,8 +81,8 @@ class TmgAeListboardViewMixin(
         queryset = super().get_queryset()
         return [
             Qs(
-                obj.get("subject_identifier"),
-                obj.get("report_datetime"),
+                subject_identifier=obj.get("subject_identifier"),
+                report_datetime=obj.get("report_datetime"),
             )
             for obj in queryset.values("subject_identifier").annotate(
                 report_datetime=Min("report_datetime"),

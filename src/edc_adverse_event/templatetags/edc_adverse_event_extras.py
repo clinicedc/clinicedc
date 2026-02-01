@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os
+from pathlib import Path
 from textwrap import wrap
 from typing import TYPE_CHECKING
 
@@ -15,7 +15,6 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-
 from edc_action_item.utils import get_reference_obj
 from edc_auth.constants import TMG_ROLE
 from edc_model_admin.utils import add_to_messages_once
@@ -31,7 +30,6 @@ from ..view_utils import TmgButton
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
-
     from edc_action_item.models import ActionItem
     from edc_model.models import BaseUuidModel
 
@@ -64,17 +62,17 @@ def wrapx(text: str, length: int) -> str:
 
 def select_ae_template(relative_path):
     """Returns a template object."""
-    local_path = get_adverse_event_app_label()
-    default_path = "edc_adverse_event"
+    local_path = Path(get_adverse_event_app_label())
+    default_path = Path("edc_adverse_event")
     return select_template(
         [
-            os.path.join(local_path, relative_path),
-            os.path.join(default_path, relative_path),
+            local_path / relative_path,
+            default_path / relative_path,
         ]
     )
 
 
-def select_description_template(model):
+def select_description_template(model) -> Path | str:
     """Returns a template name."""
     return select_ae_template(f"{model}_description.html").template.name
 
@@ -87,14 +85,10 @@ def format_ae_description(context, ae_initial, wrap_length):
     context["YES"] = YES
     context["ae_initial"] = ae_initial
     try:
-        context["sae_reason"] = mark_safe(  # noqa: S308
-            wrapx(escape_braces(ae_initial.sae_reason.name), wrap_length)
-        )
+        context["sae_reason"] = ae_initial.sae_reason.display_name
     except AttributeError:
         context["sae_reason"] = ""
-    context["ae_description"] = mark_safe(
-        wrapx(escape_braces(ae_initial.ae_description), wrap_length)
-    )
+    context["ae_description"] = ae_initial.ae_description
     return context
 
 
@@ -193,11 +187,9 @@ def death_report_queryset(subject_identifier: str) -> QuerySet[DeathReportTmgSec
 
 
 @register.simple_tag
-def ae_followup_queryset(
-    ae_initial: AeInitialModel = None,
-) -> QuerySet[AeFollowupModel]:
+def ae_followup_queryset(ae_initial: AeInitialModel = None) -> QuerySet[AeFollowupModel]:
     if ae_initial:
-        return get_ae_model("aefollowup").objects.filter(ae_initial_id=ae_initial.id)
+        return get_ae_model("aefollowup").objects.filter(ae_initial=ae_initial)
     return get_ae_model("aefollowup").objects.none()
 
 
@@ -277,7 +269,9 @@ def render_tmg_panel(
         # panel_label
         display_name = action_item.display_name.replace("Submit", "").replace("pending", "")
         identifier = action_item.identifier or "New"
-        panel_label = _(f"{display_name} {identifier}")
+        panel_label = _("%(display_name)s %(identifier)s") % dict(
+            display_name=display_name, identifier=identifier
+        )
         return dict(
             btn=btn,
             panel_color=panel_color,
@@ -305,7 +299,6 @@ def has_perms_for_tmg_role(context):
                 "Contact your administrator."
             ),
         )
-
     return has_perms
 
 
