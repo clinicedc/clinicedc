@@ -185,14 +185,33 @@ Env
 
     uv venv
     source .venv/bin/activate
-    uv sync --no-sources --upgrade
+    uv sync --no-dev --no-sources --upgrade
+
+Development server run
+----------------------
+Assuming you have an EDC project using clinicedc ...
+
+.. code-block:: bash
+
+    uv run --dev manage.py migrate --settings=my_edc.settings.debug
+    uv run --dev manage.py runserver
+
+Non-dev server run
+------------------
+Assuming you have an EDC project using clinicedc ...
+
+.. code-block:: bash
+
+    uv run --no-dev --no-sources manage.py migrate --settings=my_edc.settings.debug
+    uv run --no-dev --no-sources manage.py runserver
+
 
 Tests
 -----
 
 .. code-block:: bash
 
-    uv run --group test runtests.py
+    uv run --dev runtests.py
 
 
 Lint and format
