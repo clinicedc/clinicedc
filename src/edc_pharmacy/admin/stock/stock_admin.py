@@ -425,7 +425,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(
         description="Transfer #",
-        ordering="stock_transfer_item.to_location",
+        ordering="stock_transfer_item__stock_transfer__to_location",
     )
     def stock_transfer_item_changelist(self, obj):
         if obj and (

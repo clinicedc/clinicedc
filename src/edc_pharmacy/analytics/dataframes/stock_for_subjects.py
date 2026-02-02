@@ -98,7 +98,8 @@ def stock_for_subjects_df() -> pd.DataFrame:
     df = df.merge(df_appt, how="left", on="subject_identifier")
     df = df[(df.appt_datetime.notna())].reset_index(drop=True)
 
-    utc_now = pd.Timestamp.utcnow().tz_localize(None)
+    utc_now = pd.Timestamp.utcnow()
+
     df["relative_days"] = (df.appt_datetime - utc_now).dt.days
     # df = df[(df.relative_days >= -105)]
     df["appt_date"] = df.appt_datetime.dt.date
