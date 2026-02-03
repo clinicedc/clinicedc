@@ -45,12 +45,15 @@ def stock_for_subjects_df() -> pd.DataFrame:
         columns={"allocation__registered_subject__subject_identifier": "subject_identifier"}
     )
 
-    df = pd.merge(
-        df_schedule[["subject_identifier", "offschedule_datetime"]],
-        df_stock_on_site,
-        on="subject_identifier",
-        how="left",
-    ).fillna("")
+    df = (
+        df_schedule[["subject_identifier", "offschedule_datetime"]]
+        .merge(
+            df_stock_on_site,
+            on="subject_identifier",
+            how="left",
+        )
+        .fillna("")
+    )
 
     df_storage = read_frame(
         StorageBinItem.objects.values("stock__code", "storage_bin__name").filter(
@@ -108,5 +111,4 @@ def stock_for_subjects_df() -> pd.DataFrame:
     df.loc[~df["bin"].isna(), "bin"] = df.loc[~df["bin"].isna(), "bin"].apply(
         remove_exact_duplicates
     )
-    df = df.rename(columns={"code": "codes", "bin": "bins"}).reset_index(drop=True)
-    return df
+    return df.rename(columns={"code": "codes", "bin": "bins"}).reset_index(drop=True)
