@@ -66,8 +66,8 @@ def select_ae_template(relative_path):
     default_path = Path("edc_adverse_event")
     return select_template(
         [
-            local_path / relative_path,
-            default_path / relative_path,
+            str(local_path / relative_path),
+            str(default_path / relative_path),
         ]
     )
 
