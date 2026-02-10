@@ -7,6 +7,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
+
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import (
     ConsentDefinitionDoesNotExist,
@@ -320,8 +321,10 @@ class Schedule:
             return False
         return True
 
-    def datetime_in_window(self, **kwargs):
-        return self.window_cls(name=self.name, visits=self.visits, **kwargs).datetime_in_window
+    def datetime_in_window(self, visit=None, next_visit=None, **kwargs):
+        return self.window_cls(
+            name=self.name, visit=visit, next_visit=next_visit, **kwargs
+        ).datetime_in_window
 
     @property
     def onschedule_model_cls(self) -> type[OnSchedule]:

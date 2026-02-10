@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
+
 from edc_utils import formatted_date
 from edc_utils.date import floor_secs, to_local
 from edc_visit_schedule.exceptions import (
@@ -44,18 +45,25 @@ class WindowPeriodFormValidatorMixin:
     def ignore_window_period_for_unscheduled(
         appointment: Appointment, proposed_appt_datetime: datetime
     ) -> bool:
-        """Returns True if this is an unscheduled appt"""
-        # TODO: verify proposed_appt_datetime is UTC
-        value = False
-        if (
-            appointment
-            and appointment.visit_code_sequence > 0
-            and appointment.next
-            and appointment.next.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
-            and proposed_appt_datetime < to_local(appointment.next.appt_datetime)
-        ):
-            value = True
-        return value
+        """Returns True if this is an unscheduled appt
+
+        There is a 'special case' where the last visit in
+        the schedule allows an unscheduled appt/visit to
+        follow. See visit.allow_unscheduled_extended.
+        Normally, 'allow_unscheduled_extended' is False.
+        """
+        if appointment:
+            normal_case = bool(
+                appointment.visit_code_sequence > 0
+                and appointment.next
+                and appointment.next.appt_status in [INCOMPLETE_APPT, COMPLETE_APPT]
+                and proposed_appt_datetime < appointment.next.appt_datetime
+            )
+            special_case = bool(
+                appointment.next is None and appointment.visit.allow_unscheduled_extended
+            )
+            return bool(special_case or normal_case)
+        return False
 
     def datetime_in_window_or_raise(
         self,
@@ -67,18 +75,20 @@ class WindowPeriodFormValidatorMixin:
             proposed_appt_datetime = to_local(proposed_appt_datetime)
             try:
                 appointment.schedule.datetime_in_window(
-                    timepoint_datetime=to_local(appointment.timepoint_datetime),
                     dt=proposed_appt_datetime,
-                    visit_code=appointment.visit_code,
-                    visit_code_sequence=appointment.visit_code_sequence,
                     baseline_timepoint_datetime=to_local(
                         self.baseline_timepoint_datetime(appointment)
                     ),
+                    timepoint_datetime=to_local(appointment.timepoint_datetime),
+                    visit=appointment.visit,
+                    next_visit=getattr(appointment.next, "visit", None),
+                    visit_code_sequence=appointment.visit_code_sequence,
                 )
             except UnScheduledVisitWindowError:
                 # note the conditions to allow the window period
                 # to be ignored; that is, amongst other things,
-                # the next appt must be INCOMPLETE, COMPLETE.
+                # the next appt must be INCOMPLETE, COMPLETE,
+                # or visit.allow_unscheduled_extended.
                 if not self.ignore_window_period_for_unscheduled(
                     appointment, proposed_appt_datetime
                 ):
@@ -100,9 +110,7 @@ class WindowPeriodFormValidatorMixin:
                             form_field: (
                                 _(
                                     "Invalid. Expected a date between "
-                                    "%(dt_lower)s and %(dt_upper)s (U). "
-                                    "Note: This error may be raised because "
-                                    "the next appt is NEW."
+                                    "%(dt_lower)s and %(dt_upper)s (U)."
                                 )
                                 % dict(dt_lower=dt_lower, dt_upper=dt_upper)
                             )

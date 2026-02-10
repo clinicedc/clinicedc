@@ -30,7 +30,7 @@ from edc_appointment.exceptions import (
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_visit_schedule.exceptions import ScheduleError
+from edc_visit_schedule.schedule.visit_collection import VisitCollectionError
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -692,7 +692,7 @@ class TestUnscheduledAppointmentCreator(SiteTestCaseMixin, TestCase):
         )
         next_appointment.appt_status = INCOMPLETE_APPT
         next_appointment.visit_code = "1111"
-        self.assertRaises(ScheduleError, next_appointment.save)
+        self.assertRaises(VisitCollectionError, next_appointment.save)
 
     def test_appt_datetime_is_after_calling_appointment(self):
         self.helper.consent_and_put_on_schedule(

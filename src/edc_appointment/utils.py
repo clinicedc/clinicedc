@@ -25,6 +25,7 @@ from django.db import transaction
 from django.db.models import Count, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
+
 from edc_dashboard.url_names import url_names
 from edc_form_validators import INVALID_ERROR
 from edc_metadata.constants import CRF, REQUIRED, REQUISITION
@@ -67,6 +68,7 @@ if TYPE_CHECKING:
     from decimal import Decimal
 
     from django.db.models import QuerySet
+
     from edc_crf.model_mixins import CrfModelMixin as Base
     from edc_metadata.model_mixins.creates import CreatesMetadataModelMixin
 
@@ -520,18 +522,19 @@ def raise_on_appt_datetime_not_in_window(
         try:
             appointment.schedule.datetime_in_window(
                 dt=appt_datetime or appointment.appt_datetime,
-                timepoint_datetime=appointment.timepoint_datetime,
-                visit_code=appointment.visit_code,
-                visit_code_sequence=appointment.visit_code_sequence,
                 baseline_timepoint_datetime=baseline_timepoint_datetime,
+                timepoint_datetime=appointment.timepoint_datetime,
+                visit=appointment.visit,
+                next_visit=getattr(appointment.next, "visit", None),
+                visit_code_sequence=appointment.visit_code_sequence,
             )
         except ScheduledVisitWindowError as e:
             msg = str(e)
-            msg.replace("Invalid datetime", "Invalid appointment datetime (S)")
+            msg = msg.replace("Invalid datetime", "Invalid appointment datetime (S)")
             raise AppointmentWindowError(msg) from e
         except UnScheduledVisitWindowError as e:
             msg = str(e)
-            msg.replace("Invalid datetime", "Invalid appointment datetime (U)")
+            msg = msg.replace("Invalid datetime", "Invalid appointment datetime (U)")
             raise AppointmentWindowError(msg) from e
 
 
