@@ -12,6 +12,7 @@ from .get_random_code import get_random_code
 from .get_related_or_none import get_related_or_none
 from .get_stock_for_location_df import get_stock_for_location_df
 from .is_dispensed import is_dispensed
+from .may_delete_allocation import may_delete_allocation
 from .miscellaneous import get_rx_model_cls, get_rxrefill_model_cls
 from .process_repack_request import process_repack_request
 from .process_repack_request_queryset import process_repack_request_queryset
@@ -38,6 +39,7 @@ __all__ = [
     "get_rxrefill_model_cls",
     "get_stock_for_location_df",
     "is_dispensed",
+    "may_delete_allocation",
     "process_repack_request",
     "process_repack_request_queryset",
     "transfer_stock_to_location",

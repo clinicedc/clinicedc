@@ -4,10 +4,13 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from celery.states import PENDING
-from clinicedc_constants import CANCEL, COMPLETE, NEW
-from django.db.models import Sum
-from django.db.models.signals import post_delete, post_save
+from clinicedc_constants import CANCEL, COMPLETE, NEW, NULL_STRING
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import ProtectedError, Sum
+from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
+from django.utils.translation import gettext as _
+
 from edc_utils.celery import get_task_result, run_task_sync_or_async
 
 from ..constants import PARTIAL
@@ -278,14 +281,37 @@ def stock_on_post_delete(sender, instance, using, **kwargs) -> None:
 
 
 @receiver(
+    pre_delete,
+    sender=Allocation,
+    dispatch_uid="allocation_pre_delete",
+)
+def allocation_pre_delete(sender, instance, using, **kwargs) -> None:
+    if getattr(instance, "stock", None):
+        try:
+            obj = StockTransferItem.objects.get(code=instance.stock.code)
+        except ObjectDoesNotExist:
+            pass
+        else:
+            raise ProtectedError(
+                _(
+                    "%s object can't be deleted because it has already been transferred "
+                    "to another location. See %s"
+                )
+                % (instance._meta.object_name, obj.stock_transfer.transfer_identifier),
+                {instance},
+            )
+
+
+@receiver(
     post_delete,
     sender=Allocation,
     dispatch_uid="allocation_post_delete",
 )
 def allocation_post_delete(sender, instance, using, **kwargs) -> None:
-    if getattr(instance, "stock", None):
-        instance.stock.subject_identifier = None
-        instance.stock.save(update_fields=["subject_identifier"])
+    if stock := getattr(instance, "stock", None):
+        stock.subject_identifier = NULL_STRING
+        stock.allocation = None
+        stock.save(update_fields=["subject_identifier", "allocation"])
 
 
 @receiver(
