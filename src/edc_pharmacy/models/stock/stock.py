@@ -7,8 +7,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import PROTECT
 from django.utils import timezone
-from edc_model.models import BaseUuidModel, HistoricalRecords
 from sequences import get_next_value
+
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ...choices import STOCK_STATUS
 from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
@@ -75,7 +76,7 @@ class Stock(BaseUuidModel):
 
     allocation = models.OneToOneField(
         Allocation,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         help_text="Subject allocation",

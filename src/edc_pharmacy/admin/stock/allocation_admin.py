@@ -5,12 +5,14 @@ from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext
 from django_audit_fields import audit_fieldset_tuple
+from rangefilter.filters import DateRangeFilterBuilder
+
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
-from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import Allocation
+from ...utils import may_delete_allocation
 from ..list_filters import AssignmentListFilter
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
@@ -248,3 +250,19 @@ class AllocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         if url:
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
         return None
+
+    def has_delete_permission(self, request, obj=None):
+        """Hack to block delete if the stock instance has been
+        transferred to a location other than CENTRAL.
+
+        Block as if the user does not have permissions to
+        delete. An additional message shows why.
+
+        User requires explicit permission to delete this model
+        (which is not the default for any role).
+        """
+        return (
+            super().has_delete_permission(request, obj)
+            if may_delete_allocation(self, request, obj)
+            else False
+        )
