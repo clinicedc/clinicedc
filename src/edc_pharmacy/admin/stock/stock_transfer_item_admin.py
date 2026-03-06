@@ -5,9 +5,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
+from rangefilter.filters import DateRangeFilterBuilder
+
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
-from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import StockTransferItem
@@ -53,6 +54,8 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     list_per_page = 20
 
     autocomplete_fields = ("stock",)
+
+    actions = ("delete_selected",)
 
     fieldsets = (
         (
@@ -192,3 +195,19 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 title="Go to stock transfer confirmation item",
             )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    # def has_delete_permission(self, request, obj=None):
+    #     """Hack to block delete if the stock instance has been
+    #     transferred to a location other than CENTRAL.
+    #
+    #     Block as if the user does not have permissions to
+    #     delete. An additional message shows why.
+    #
+    #     User requires explicit permission to delete this model
+    #     (which is not the default for any role).
+    #     """
+    #     return (
+    #         super().has_delete_permission(request, obj)
+    #         if may_delete_stock_transfer_item(self, request, obj)
+    #         else False
+    #     )
