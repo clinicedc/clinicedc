@@ -33,12 +33,13 @@ def may_delete_allocation(modeladmin, request, obj=None) -> bool:
     ):
         if stock_transfer_item:
             msg = _(
-                "%s for stock %s can't be deleted because the stock item has already "
-                "been transferred to another location. See stock transfer %s."
+                "Record can't be deleted because the stock %s has already "
+                "been transferred to another location. See stock transfer %s. "
+                "(%s)"
             ) % (
-                obj._meta.object_name,
                 obj.stock.code,
                 stock_transfer_item.stock_transfer.transfer_identifier,
+                obj._meta.object_name,
             )
         else:
             msg = _(
