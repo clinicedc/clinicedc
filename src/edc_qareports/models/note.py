@@ -1,15 +1,20 @@
+from clinicedc_constants import NULL_STRING
+from django.db import models
 from django.db.models import UniqueConstraint
+
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords, default_permissions
+from edc_visit_schedule.model_mixins import VisitCodeFieldsModelMixin
 
 from ..model_mixins import NoteModelMixin
 
 
 class Note(NonUniqueSubjectIdentifierFieldMixin, NoteModelMixin):
-    """A model class to capture user / dm notes linked to a data query
-    report, such as, unmanaged views.
+    """A model class to capture user / dm notes linked to a data
+    query report, such as, unmanaged views.
 
-    Unique constraint is on subject_identifier and the report model.
+    Unique constraint is on subject_identifier, visit code,
+    visit_code_sequence, and the report model.
 
     See also, NoteModelAdminMixin
     """
@@ -24,7 +29,12 @@ class Note(NonUniqueSubjectIdentifierFieldMixin, NoteModelMixin):
         verbose_name_plural = "Notes"
         constraints = (
             UniqueConstraint(
-                fields=["report_model", "subject_identifier"],
+                fields=[
+                    "report_model",
+                    "subject_identifier",
+                    "visit_code",
+                    "visit_code_sequence",
+                ],
                 name="%(app_label)s_%(class)s_report_model_subj_uniq",
             ),
         )

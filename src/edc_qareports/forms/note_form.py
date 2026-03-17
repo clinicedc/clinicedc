@@ -24,9 +24,14 @@ class NoteForm(
     class Meta:
         model = Note
         fields = "__all__"
-        help_text = {"subject_identifier": "(read-only)", "name": "(read-only)"}  # noqa: RUF012
+        help_text = {  # noqa: RUF012
+            "subject_identifier": "(read-only)",
+            "visit_code": "(read-only)",
+            "visit_code_sequence": "(read-only)",
+        }
         widgets = {  # noqa: RUF012
             "report_model": forms.TextInput(attrs={"readonly": "readonly"}),
             "subject_identifier": forms.TextInput(attrs={"readonly": "readonly"}),
-            "name": forms.TextInput(attrs={"readonly": "readonly"}),
+            "visit_code": forms.TextInput(attrs={"readonly": "readonly"}),
+            "visit_code_sequence": forms.TextInput(attrs={"readonly": "readonly"}),
         }

@@ -1,3 +1,4 @@
+from clinicedc_constants import NULL_STRING
 from django.contrib.sites.models import Site
 from django.db import models
 from django.db.models import DO_NOTHING, Index
@@ -11,6 +12,10 @@ class QaReportModelMixin(models.Model):
     report_model = models.CharField(max_length=50)
 
     subject_identifier = models.CharField(max_length=25)
+
+    visit_code = models.CharField(max_length=25, default=NULL_STRING)
+
+    visit_code_sequence = models.IntegerField(null=True)
 
     site = models.ForeignKey(Site, on_delete=DO_NOTHING)
 
