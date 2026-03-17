@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext as _
+
 from edc_utils import truncate_string
 
 from ..models import QaReportLog
@@ -60,15 +61,18 @@ class QaReportModelAdminMixin:
             list_filter.insert(0, self.note_status_list_filter)
         return tuple(list_filter)
 
-    def get_note_model_obj_or_raise(self, obj=None):
+    def get_note_model_obj(self, obj=None):
         return self.note_model_cls.objects.get(
-            report_model=obj._meta.label_lower, subject_identifier=obj.subject_identifier
+            report_model=obj._meta.label_lower,
+            subject_identifier=obj.subject_identifier,
+            visit_code=obj.visit_code,
+            visit_code_sequence=obj.visit_code_sequence or 0,
         )
 
     @admin.display(description="Status")
     def status(self, obj) -> str:
         try:
-            note_model_obj = self.get_note_model_obj_or_raise(obj)
+            note_model_obj = self.get_note_model_obj(obj)
         except ObjectDoesNotExist:
             status = NEW
         else:
@@ -86,7 +90,7 @@ class QaReportModelAdminMixin:
         next_url_name = f"{report_app_label}_admin:{next_url_name}"
 
         try:
-            note_model_obj = self.get_note_model_obj_or_raise(obj)
+            note_model_obj = self.get_note_model_obj(obj)
         except ObjectDoesNotExist:
             note_model_obj = None
             url = reverse(f"{note_app_label}_admin:{note_url_name}_add")
@@ -101,7 +105,10 @@ class QaReportModelAdminMixin:
         url = (
             f"{url}?next={next_url_name},subject_identifier,q"
             f"&subject_identifier={obj.subject_identifier}"
-            f"&report_model={self.model._meta.label_lower}&q={obj.subject_identifier}"
+            f"&report_model={self.model._meta.label_lower}"
+            f"&visit_code={getattr(obj, 'visit_code', '') or ''} "
+            f"&visit_code_sequence={getattr(obj, 'visit_code_sequence', 0) or 0} "
+            f"&q={obj.subject_identifier}"
         )
         label = self.get_notes_label(note_model_obj)
         context = dict(title=title, url=url, label=label)

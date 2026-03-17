@@ -1,3 +1,4 @@
+from clinicedc_constants import NULL_STRING
 from django.apps import apps as django_apps
 from django.db import models
 from django.utils import timezone
@@ -19,10 +20,15 @@ class NoteModelMixin(SiteModelMixin, BaseUuidModel):
 
     report_datetime = models.DateTimeField(default=timezone.now)
 
-    note = models.TextField(
-        default="",
+    visit_code = models.CharField(max_length=25, default=NULL_STRING, blank=True)
+
+    visit_code_sequence = models.IntegerField(
+        verbose_name="Sequence",
+        default=0,
         blank=True,
     )
+
+    note = models.TextField(default=NULL_STRING, blank=True)
 
     status = models.CharField(max_length=25, choices=NOTE_STATUSES, default="", blank=False)
 
