@@ -156,9 +156,12 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
                 queryset = queryset.order_by(*ordering)
         return queryset
 
+    def get_site_ids_for_user(self):
+        return sites.get_site_ids_for_user(request=self.request)
+
     def get_queryset_filter_options(self, request, *args, **kwargs) -> tuple[Q, dict]:  # noqa: ARG002
         """Returns filtering applied to every queryset"""
-        options = dict(site_id__in=sites.get_site_ids_for_user(request=self.request))
+        options = dict(site_id__in=self.get_site_ids_for_user())
         if self.has_view_only_my_listboard_perms:
             options.update(user_created=self.request.user.username)
         return Q(), options

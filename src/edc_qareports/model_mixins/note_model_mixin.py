@@ -28,6 +28,8 @@ class NoteModelMixin(SiteModelMixin, BaseUuidModel):
         blank=True,
     )
 
+    label = models.CharField(max_length=150, null=True, blank=True)
+
     note = models.TextField(default=NULL_STRING, blank=True)
 
     status = models.CharField(max_length=25, choices=NOTE_STATUSES, default="", blank=False)

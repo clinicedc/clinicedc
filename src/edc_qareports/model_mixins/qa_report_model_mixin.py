@@ -17,6 +17,8 @@ class QaReportModelMixin(models.Model):
 
     visit_code_sequence = models.IntegerField(null=True)
 
+    label = models.CharField(max_length=150, null=True)  # noqa: DJ001
+
     site = models.ForeignKey(Site, on_delete=DO_NOTHING)
 
     created = models.DateTimeField(default=timezone.now)

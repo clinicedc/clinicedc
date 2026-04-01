@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 
 class ModelAdminDashboardMixin:
     subject_dashboard_url_name = "subject_dashboard_url"
+    subject_review_dashboard_url_name = "subject_review_listboard_url"
     subject_listboard_url_name = "subject_listboard_url"
     screening_listboard_url_name = "screening_listboard_url"
     show_dashboard_in_list_display_pos = None
@@ -33,6 +34,24 @@ class ModelAdminDashboardMixin:
         context = dict(title=_("Go to subject's dashboard"), url=url, label=label)
         return render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)
 
+    @admin.display(description=_("Subject review"))
+    def subject_review_dashboard(self, obj=None, label=None) -> str:
+        url = self.get_subject_dashboard_url(obj=obj)
+        if not url:
+            url = reverse(
+                self.get_subject_review_dashboard_url_name(obj=obj),
+                kwargs=self.get_subject_review_dashboard_url_kwargs(obj),
+            )
+        context = dict(
+            title=_("Go to subject's review dashboard"),
+            url=url,
+            label=label,
+            subject_identifier=obj.subject_identifier,
+            visit_code=obj.visit_code,
+            visit_code_sequence=obj.visit_code_sequence,
+        )
+        return render_to_string("edc_review_dashboard/dashboard_button.html", context=context)
+
     def get_screening_listboard_url_name(self) -> str:
         return url_names.get(self.screening_listboard_url_name)
 
@@ -46,6 +65,15 @@ class ModelAdminDashboardMixin:
         return url_names.get(self.subject_dashboard_url_name)
 
     def get_subject_dashboard_url_kwargs(self, obj) -> dict:
+        return dict(subject_identifier=obj.subject_identifier)
+
+    def get_subject_review_dashboard_url(self, obj=None) -> str | None:  # noqa: ARG002
+        return None
+
+    def get_subject_review_dashboard_url_name(self, obj=None) -> str:  # noqa: ARG002
+        return url_names.get(self.subject_review_dashboard_url_name)
+
+    def get_subject_review_dashboard_url_kwargs(self, obj) -> dict:
         return dict(subject_identifier=obj.subject_identifier)
 
     def get_post_url_on_delete_name(self, *args) -> str:  # noqa: ARG002
