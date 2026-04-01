@@ -2,15 +2,20 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from django.contrib.auth.models import User
+from django.core.handlers.wsgi import WSGIRequest
+from django.db.models import Q
 from django.db.models.aggregates import Count
 
 from edc_appointment.view_mixins import AppointmentViewMixin
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
+from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin
 from edc_listboard.views import ListboardView
 from edc_metadata.view_mixins import MetadataViewMixin
 from edc_navbar.view_mixin import NavbarViewMixin
+from edc_sites.site import sites
 from edc_subject_dashboard.view_mixins import (
     RegisteredSubjectViewMixin,
     SubjectVisitViewMixin,
@@ -80,3 +85,11 @@ class SubjectReviewListboardView(
                 .annotate(visit_count=Count("subject_identifier"))
             )
         return queryset
+
+    def get_site_ids_for_user(self):
+        if (
+            self.request
+            and self.request.user.userprofile.roles.filter(name=DATA_MANAGER_ROLE).exists()
+        ):
+            return [s.id for s in self.request.user.userprofile.sites.all()]
+        return sites.get_site_ids_for_user(request=self.request)

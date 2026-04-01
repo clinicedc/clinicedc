@@ -56,6 +56,7 @@ class NoteModelAdminMixin(
                     "visit_code",
                     "visit_code_sequence",
                     "report_model",
+                    "label",
                 )
             },
         ),
@@ -82,7 +83,7 @@ class NoteModelAdminMixin(
         "user_modified",
     )
 
-    search_fields = ("subject_identifier", "report_model")
+    search_fields = ("subject_identifier", "report_model", "note")
 
     @admin.display(description="Report", ordering="report_model")
     def report(self, obj=None):
@@ -105,6 +106,7 @@ class NoteModelAdminMixin(
                         visit_code=obj.visit_code or "",
                         visit_code_sequence=obj.visit_code_sequence or 0,
                         report_model=obj.report_model,
+                        label=obj.label,
                     )
                 except ObjectDoesNotExist:
                     return format_html(

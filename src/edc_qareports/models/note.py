@@ -34,6 +34,7 @@ class Note(NonUniqueSubjectIdentifierFieldMixin, NoteModelMixin):
                     "subject_identifier",
                     "visit_code",
                     "visit_code_sequence",
+                    "label",
                 ],
                 name="%(app_label)s_%(class)s_report_model_subj_uniq",
             ),

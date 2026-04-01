@@ -1,0 +1,8 @@
+{% load i18n %}
+<div>
+    {%  if visit_code %}
+        <a style="white-space: nowrap;background-color:#0b58a2" class="button" title="{{ title |default:"Go to subject's review dashboard"}}" href="{{ url }}#{{ subject_identifier }}-{{ visit_code }}-{{ visit_code_sequence|default:'0' }}" {{ disabled|default:'' }} >{{ label|default:"Dashboard" }}</a>
+    {% else %}
+        <a style="white-space: nowrap;background-color:#0b58a2" class="button" title="{{ title |default:"Go to subject's review dashboard"}}" href="{{ url }}#{{ subject_identifier }}" {{ disabled|default:'' }} >{{ label|default:"Dashboard" }}</a>
+    {% endif %}
+</div>

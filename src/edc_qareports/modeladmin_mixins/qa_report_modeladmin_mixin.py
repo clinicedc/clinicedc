@@ -67,6 +67,7 @@ class QaReportModelAdminMixin:
             subject_identifier=obj.subject_identifier,
             visit_code=obj.visit_code,
             visit_code_sequence=obj.visit_code_sequence or 0,
+            label=obj.label,
         )
 
     @admin.display(description="Status")
@@ -106,8 +107,9 @@ class QaReportModelAdminMixin:
             f"{url}?next={next_url_name},subject_identifier,q"
             f"&subject_identifier={obj.subject_identifier}"
             f"&report_model={self.model._meta.label_lower}"
-            f"&visit_code={getattr(obj, 'visit_code', '') or ''} "
-            f"&visit_code_sequence={getattr(obj, 'visit_code_sequence', 0) or 0} "
+            f"&visit_code={getattr(obj, 'visit_code', '') or ''}"
+            f"&visit_code_sequence={getattr(obj, 'visit_code_sequence', 0) or 0}"
+            f"&label={getattr(obj, 'label', '') or ''}"
             f"&q={obj.subject_identifier}"
         )
         label = self.get_notes_label(note_model_obj)
