@@ -157,7 +157,7 @@ class TestQA(TestCase):
             label="No F1 when F2 is YES",
             dbtable="clinicedc_tests_crfthree",
             label_lower="clinicedc_tests.crfthree",
-            where="f1 is null and f2='Yes'",
+            where="(f1 is null or f1='') and f2='Yes'",
             subjectvisit_dbtable="edc_visit_tracking_subjectvisit",
         )
         try:
