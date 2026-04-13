@@ -109,9 +109,13 @@ class CrfCreator(SourceModelMetadataMixin):
                         opts.update(**self.query_options)
                         try:
                             metadata_obj = self.metadata_model_cls.objects.create(**opts)
-                        except IntegrityError as e:
-                            msg = f"Integrity error creating. Tried with {opts}. Got {e}."
-                            raise CreatesMetadataError(msg) from e
+                        # except IntegrityError as e:
+                        #     msg = f"Integrity error creating. Tried with {opts}. Got {e}."
+                        #     raise CreatesMetadataError(msg) from e
+                        except IntegrityError:
+                            metadata_obj = self.metadata_model_cls.objects.get(
+                                **self.query_options
+                            )
             else:
                 if not registered:
                     metadata_obj.delete()
