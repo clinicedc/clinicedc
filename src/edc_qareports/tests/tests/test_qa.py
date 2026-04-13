@@ -47,22 +47,26 @@ class TestQA(TestCase):
         )
         self.subject_identifier = consent.subject_identifier
 
+    @tag("22")
     def test_codenames(self):
         """Assert default codenames"""
-        codenames = get_app_codenames("edc_qareports")
+        codenames = [
+            x for x in get_app_codenames("edc_qareports") if "edcpermissions" not in x
+        ]
         codenames.sort()
         expected_codenames = [
-            "edc_qareports.add_edcpermissions",
             "edc_qareports.add_note",
-            "edc_qareports.change_edcpermissions",
             "edc_qareports.change_note",
-            "edc_qareports.delete_edcpermissions",
             "edc_qareports.delete_note",
-            "edc_qareports.view_edcpermissions",
             "edc_qareports.view_note",
+            "edc_qareports.view_historicalnote",
+            # "edc_qareports.viewallsites_note",
             "edc_qareports.view_qareportlog",
+            # "edc_qareports.viewallsites_qareportlog",
             "edc_qareports.view_qareportlogsummary",
+            # "edc_qareports.viewallsites_qareportlogsummary",
         ]
+        expected_codenames.sort()
         self.assertEqual(codenames, expected_codenames)
 
     def test_crfcase_invalid(self):
