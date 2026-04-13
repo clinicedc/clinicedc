@@ -71,14 +71,14 @@ class TestExport(TestCase):
         m = ModelToDataframe(queryset=CrfFour.objects.all())
         self.assertEqual(len(m.dataframe.index), 4)
 
+    @tag("22")
     def test_columns(self):
         model = "clinicedc_tests.crffour"
 
         fields = [f.attname for f in django_apps.get_model(model)._meta.get_fields()]
         fields.sort()
 
-        # class drops system columns by default
-        m = ModelToDataframe(model=model)
+        m = ModelToDataframe(model=model, drop_sys_columns=True)
         for f in SYSTEM_COLUMNS:
             self.assertNotIn(f, m.dataframe.columns)
 
