@@ -264,6 +264,7 @@ lint = [
 test = [
     "clinicedc-tests>=1.0.1",
     "coverage>=7.6.0",
+    "django-webtest>=1.9.14",
 ]
 notebook = [
     "dj-notebook>=0.7.0",
