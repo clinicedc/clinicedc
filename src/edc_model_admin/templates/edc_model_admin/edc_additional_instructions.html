@@ -1,10 +1,13 @@
 {% load i18n %}
 
 {% if additional_instructions %}
-    <H5>{% translate  'Additional Instructions' %}:</H5><p>{{ additional_instructions }}</p>
+    <H5>{% translate  'Additional Instructions' %}:</H5>{{ additional_instructions }}
+    <p></p>
+    <HR>
 {% endif %}
 
 {% if notification_instructions %}
-    <H5>{% translate  'Notifications' %}:</H5><p>{{ notification_instructions }}</p>
+    <H5>{% translate  'Notifications' %}:</H5>{{ notification_instructions }}
+    <p></p>
     <HR>
 {% endif %}
