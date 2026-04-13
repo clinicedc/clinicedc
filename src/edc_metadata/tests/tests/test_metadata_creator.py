@@ -107,14 +107,20 @@ class TestCreatesMetadata(TestMetadataMixin, TestCase):
         self.assertIsNotNone(crf, f"Crf not found for {crf_model}")
 
         # Simulate the race condition: patch the queryset's get()
-        # to raise ObjectDoesNotExist (as if the record doesn't exist yet),
-        # while the record actually exists in the database. When create()
-        # is then called, it will hit the unique constraint.
+        # to raise ObjectDoesNotExist on the first call only (as if the
+        # record doesn't exist yet), while the record actually exists in
+        # the database. When create() is then called, it will hit the
+        # unique constraint. The second get() call (the recovery path)
+        # should succeed normally.
         original_get = CrfMetadata.objects.get
+        call_count = 0
 
-        def fake_get(**kwargs):
-            """Always raise ObjectDoesNotExist to simulate a race."""
-            raise ObjectDoesNotExist()
+        def fake_get(*args, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise ObjectDoesNotExist()
+            return original_get(**kwargs)
 
         creator = CrfCreator(
             crf=crf,
