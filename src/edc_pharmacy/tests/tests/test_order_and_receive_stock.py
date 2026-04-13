@@ -15,15 +15,10 @@ from django.contrib.sites.models import Site
 from django.db.models import Sum
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
-from edc_consent import site_consents
-from edc_facility.import_holidays import import_holidays
-from edc_randomization.constants import ACTIVE, PLACEBO
-from edc_randomization.models import RandomizationList
-from edc_sites.site import sites
-from edc_sites.utils import add_or_update_django_sites
-from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from sequences import get_next_value
 
+from edc_consent import site_consents
+from edc_facility.import_holidays import import_holidays
 from edc_pharmacy.analytics import get_next_scheduled_visit_for_subjects_df
 from edc_pharmacy.exceptions import RepackRequestError
 from edc_pharmacy.models import (
@@ -55,6 +50,11 @@ from edc_pharmacy.utils import (
     get_instock_and_nostock_data,
     process_repack_request,
 )
+from edc_randomization.constants import ACTIVE, PLACEBO
+from edc_randomization.models import RandomizationList
+from edc_sites.site import sites
+from edc_sites.utils import add_or_update_django_sites
+from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
 
@@ -173,6 +173,7 @@ class TestOrderReceive(TestCase):
         self.assertEqual(OrderItem.objects.all().count(), 20)
         self.assertEqual(order.item_count, 20)
 
+    @tag("20")
     def test_receive_ordered_items(self):
         container_units, _ = ContainerUnits.objects.get_or_create(
             name="tablet", plural_name="tablets"
@@ -237,6 +238,7 @@ class TestOrderReceive(TestCase):
             2000,
         )
 
+    @tag("20")
     def test_receive_ordered_items2(self):
         """Test receive where order product unit (e.g. Tablet) is not
         the same as received product unit (Bottle of 100 tablets).
@@ -374,6 +376,7 @@ class TestOrderReceive(TestCase):
         receive.save()
         return receive
 
+    @tag("20")
     def test_delete_receive_item(self):
         # confirm deleting stock, resave received items recreates
         self.order_and_receive()
@@ -430,6 +433,7 @@ class TestOrderReceive(TestCase):
         )
         return container_128
 
+    @tag("20")
     def test_repack(self):
         """Test repackage two bottles of 50000 into bottles of 128."""
         # create order of 50000 for each arm
