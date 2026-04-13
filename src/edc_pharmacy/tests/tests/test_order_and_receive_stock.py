@@ -127,20 +127,21 @@ class TestOrderReceive(TestCase):
 
     def make_order(self, container, qty: int | None = None):
         qty = qty or 100
-        # product_active, product_placebo = self.make_products()
         order = Order.objects.create(order_datetime=timezone.now(), item_count=20)
         for _ in range(0, 10):
             OrderItem.objects.create(
                 order=order,
                 product=self.product_active,
-                qty=qty,
+                item_qty_ordered=qty,
+                container_unit_qty=container.unit_qty_default,
                 container=container,
             )
         for _ in range(10, 20):
             OrderItem.objects.create(
                 order=order,
                 product=self.product_placebo,
-                qty=qty,
+                item_qty_ordered=qty,
+                container_unit_qty=container.unit_qty_default,
                 container=container,
             )
         order.refresh_from_db()
@@ -161,8 +162,10 @@ class TestOrderReceive(TestCase):
         )
         container_type, _ = ContainerType.objects.get_or_create(name="tablet")
         container = Container.objects.create(
+            name="tablet",
+            display_name="Tablet",
             container_type=container_type,
-            qty=1,
+            unit_qty_default=1,
             units=container_units,
             may_order_as=True,
         )
@@ -176,8 +179,10 @@ class TestOrderReceive(TestCase):
         )
         container_type, _ = ContainerType.objects.get_or_create(name="tablet")
         container = Container.objects.create(
+            name="tablet",
+            display_name="Tablet",
             container_type=container_type,
-            qty=1,
+            unit_qty_default=1,
             units=container_units,
             may_order_as=True,
             may_receive_as=True,
@@ -186,17 +191,18 @@ class TestOrderReceive(TestCase):
         receive = Receive.objects.create(order=order, location=self.location)
         order_items = order.orderitem_set.all()
         sums = OrderItem.objects.filter(order=order).aggregate(
-            unit_qty=Sum("unit_qty"),
+            unit_qty_pending=Sum("unit_qty_pending"),
             unit_qty_received=Sum("unit_qty_received"),
         )
-        self.assertEqual(sums["unit_qty"], 2000)
+        self.assertEqual(sums["unit_qty_pending"], 2000)
         self.assertEqual(sums["unit_qty_received"], None)
 
         for order_item in order_items:
             obj = ReceiveItem.objects.create(
                 receive=receive,
                 order_item=order_item,
-                qty=100,
+                item_qty_received=100,
+                container_unit_qty=container.unit_qty_default,
                 container=container,
                 lot=(
                     self.lot_active
@@ -205,14 +211,14 @@ class TestOrderReceive(TestCase):
                 ),
             )
             # assert container qty received
-            self.assertEqual(obj.unit_qty, 100)
+            self.assertEqual(obj.unit_qty_received, 100)
 
         # assert updates order_item.qty_received
         sums = OrderItem.objects.filter(order=order).aggregate(
-            unit_qty=Sum("unit_qty"),
+            unit_qty_pending=Sum("unit_qty_pending"),
             unit_qty_received=Sum("unit_qty_received"),
         )
-        self.assertEqual(sums["unit_qty"], 0)
+        self.assertEqual(sums["unit_qty_pending"], 0)
         self.assertEqual(sums["unit_qty_received"], 2000)
 
         # assert updates order_item.status
@@ -244,18 +250,22 @@ class TestOrderReceive(TestCase):
         )
         container_type, _ = ContainerType.objects.get_or_create(name="tablet")
         container_2000 = Container.objects.create(
+            name="tablet",
+            display_name="Tablet",
             container_type=container_type,
-            qty=1,
+            unit_qty_default=1,
             units=container_units,
             may_order_as=True,
         )
         order = self.make_order(container_2000)
 
-        # receive 20 bottles or 100
+        # receive 20 bottles of 100
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container_20 = Container.objects.create(
+            name="bottle of 100",
+            display_name="Bottle of 100",
             container_type=container_type,
-            qty=100,
+            unit_qty_default=100,
             units=container_units,
             may_receive_as=True,
         )
@@ -266,7 +276,8 @@ class TestOrderReceive(TestCase):
             ReceiveItem.objects.create(
                 receive=receive,
                 order_item=order_item,
-                qty=1,
+                item_qty_received=1,
+                container_unit_qty=container_20.unit_qty_default,
                 container=container_20,
                 lot=(
                     self.lot_active
@@ -277,9 +288,10 @@ class TestOrderReceive(TestCase):
 
         # assert updates order_item.qty_received
         sums = OrderItem.objects.filter(order=order).aggregate(
-            unit_qty=Sum("unit_qty"), unit_qty_received=Sum("unit_qty_received")
+            unit_qty_pending=Sum("unit_qty_pending"),
+            unit_qty_received=Sum("unit_qty_received"),
         )
-        self.assertEqual(sums["unit_qty"], 0)
+        self.assertEqual(sums["unit_qty_pending"], 0)
         self.assertEqual(sums["unit_qty_received"], 2000)
 
         # assert updates order_item.status
@@ -305,14 +317,15 @@ class TestOrderReceive(TestCase):
         )
 
     def order_and_receive(self):
-        # product_active, product_placebo = self.make_products()
         container_units, _ = ContainerUnits.objects.get_or_create(
             name="tablet", plural_name="tablets"
         )
         container_type, _ = ContainerType.objects.get_or_create(name="tablet")
         container = Container.objects.create(
+            name="tablet",
+            display_name="Tablet",
             container_type=container_type,
-            qty=1,
+            unit_qty_default=1,
             units=container_units,
             may_order_as=True,
         )
@@ -320,21 +333,25 @@ class TestOrderReceive(TestCase):
         OrderItem.objects.create(
             order=order,
             product=self.product_active,
-            qty=50000,
+            item_qty_ordered=50000,
+            container_unit_qty=container.unit_qty_default,
             container=container,
         )
         OrderItem.objects.create(
             order=order,
             product=self.product_placebo,
-            qty=50000,
+            item_qty_ordered=50000,
+            container_unit_qty=container.unit_qty_default,
             container=container,
         )
         order.refresh_from_db()
 
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container_bulk = Container.objects.create(
+            name="bottle of 5000",
+            display_name="Bottle of 5000",
             container_type=container_type,
-            qty=5000,
+            unit_qty_default=5000,
             units=container_units,
             may_receive_as=True,
         )
@@ -345,7 +362,8 @@ class TestOrderReceive(TestCase):
             ReceiveItem.objects.create(
                 receive=receive,
                 order_item=order_item,
-                qty=10,
+                item_qty_received=10,
+                container_unit_qty=container_bulk.unit_qty_default,
                 container=container_bulk,
                 lot=(
                     self.lot_active
@@ -366,7 +384,11 @@ class TestOrderReceive(TestCase):
         # receiveitem.count()
         self.assertEqual(
             Stock.objects.all().count(),
-            int(ReceiveItem.objects.values("qty").aggregate(qty=Sum("qty")).get("qty")),
+            int(
+                ReceiveItem.objects.values("item_qty_received")
+                .aggregate(item_qty_received=Sum("item_qty_received"))
+                .get("item_qty_received")
+            ),
         )
 
         # confirm deleting stock & received items
@@ -377,18 +399,34 @@ class TestOrderReceive(TestCase):
             self.assertEqual(0, order_item.unit_qty_received)
 
     def get_container_5000(self) -> Container:
-        ContainerUnits.objects.get_or_create(name="tablet", plural_name="tablets")
+        container_units, _ = ContainerUnits.objects.get_or_create(
+            name="tablet", plural_name="tablets"
+        )
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container_5000, _ = Container.objects.get_or_create(
-            qty=5000, container_type=container_type
+            name="bottle of 5000",
+            defaults=dict(
+                display_name="Bottle of 5000",
+                unit_qty_default=5000,
+                container_type=container_type,
+                units=container_units,
+            ),
         )
         return container_5000
 
     def get_container_128(self) -> Container:
-        ContainerUnits.objects.get_or_create(name="tablet", plural_name="tablets")
+        container_units, _ = ContainerUnits.objects.get_or_create(
+            name="tablet", plural_name="tablets"
+        )
         container_type, _ = ContainerType.objects.get_or_create(name="bottle")
         container_128, _ = Container.objects.get_or_create(
-            qty=128, container_type=container_type
+            name="bottle of 128",
+            defaults=dict(
+                display_name="Bottle of 128",
+                unit_qty_default=128,
+                container_type=container_type,
+                units=container_units,
+            ),
         )
         return container_128
 
