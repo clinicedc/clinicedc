@@ -261,6 +261,10 @@ docs = [
 lint = [
     "ruff>=0.13.2",
 ]
+test = [
+    "clinicedc-tests>=1.0.1",
+    "coverage>=7.6.0",
+]
 notebook = [
     "dj-notebook>=0.7.0",
     "great-tables>=0.18.0",
