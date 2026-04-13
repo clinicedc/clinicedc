@@ -1,14 +1,16 @@
 from datetime import datetime
+from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import time_machine
 from dateutil.relativedelta import relativedelta
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 
 from edc_appointment.constants import IN_PROGRESS_APPT, MISSED_APPT
 from edc_appointment.creators import create_unscheduled_appointment
 from edc_appointment.tests.utils import create_related_visit
-from edc_metadata.metadata import CreatesMetadataError
+from edc_metadata.metadata import CreatesMetadataError, CrfCreator
 from edc_metadata.metadata_updater import MetadataUpdater
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
@@ -78,3 +80,58 @@ class TestCreatesMetadata(TestMetadataMixin, TestCase):
         obj = SubjectVisit.objects.get(appointment=self.appointment, reason=SCHEDULED)
         obj.reason = "ERIK"
         self.assertRaises(CreatesMetadataError, obj.save)
+
+    @tag("metadata", "race_condition")
+    def test_crf_creator_handles_integrity_error_on_race_condition(self):
+        """Assert CrfCreator recovers when a concurrent request
+        creates the metadata record between get() and create(),
+        simulating a race condition.
+
+        See also: IntegrityError on edc_metadata_crfmetadata_subject_iden_visit_uniq.
+        """
+        subject_visit = SubjectVisit.objects.get(appointment=self.appointment)
+        # pick an existing metadata record
+        existing = CrfMetadata.objects.filter(
+            subject_identifier=subject_visit.subject_identifier,
+            visit_code=self.appointment.visit_code,
+        ).first()
+        self.assertIsNotNone(existing)
+        crf_model = existing.model
+
+        # get the Crf definition from the visit schedule for this model
+        crf = None
+        for c in subject_visit.visit.crfs.forms:
+            if c.model == crf_model:
+                crf = c
+                break
+        self.assertIsNotNone(crf, f"Crf not found for {crf_model}")
+
+        # Simulate the race condition: patch the queryset's get()
+        # to raise ObjectDoesNotExist on the first call only (as if the
+        # record doesn't exist yet), while the record actually exists in
+        # the database. When create() is then called, it will hit the
+        # unique constraint. The second get() call (the recovery path)
+        # should succeed normally.
+        original_get = CrfMetadata.objects.get
+        call_count = 0
+
+        def fake_get(*args, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                raise ObjectDoesNotExist()
+            return original_get(**kwargs)
+
+        creator = CrfCreator(
+            crf=crf,
+            update_keyed=True,
+            related_visit=subject_visit,
+        )
+
+        with patch.object(type(CrfMetadata.objects), "get", side_effect=fake_get):
+            # This should NOT raise CreatesMetadataError.
+            # Instead it should recover and return the existing record.
+            metadata_obj = creator.create()
+
+        self.assertIsNotNone(metadata_obj)
+        self.assertEqual(metadata_obj.model, crf_model)
