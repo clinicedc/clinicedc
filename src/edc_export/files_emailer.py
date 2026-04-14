@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from django.core.exceptions import ValidationError
 from django.core.mail.message import EmailMessage
 from django.utils import timezone
+
 from edc_notification.utils import get_email_contacts
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 

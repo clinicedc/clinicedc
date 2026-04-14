@@ -8,7 +8,7 @@ get uv
 
 .. code-block:: bash
 
-    curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    curl -LsSf https://astral.sh/uv/install.sh | sh
 
 log into you shell and ...
 

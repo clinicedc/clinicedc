@@ -28,7 +28,7 @@ class RequisitionListboardView(BaseListboardView):
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         unverified_requisition_count = (
-            self.get_queryset().filter(clinic_verified__isnull=True).count()
+            self.get_queryset().filter(Q(clinic_verified__isnull=True) | Q(clinic_verified="")).count()
         )
         if unverified_requisition_count:
             verb = "is" if unverified_requisition_count == 1 else "are"

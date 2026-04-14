@@ -35,7 +35,7 @@ class CrfSubquery:
     def __post_init__(self):
         # default where statement if not provided and have fld_name.
         if self.where is None and self.fld_name:
-            self.where = f"crf.{self.fld_name} is null"
+            self.where = f"(crf.{self.fld_name} is null or crf.{self.fld_name}='')"
         if not self.label_lower:
             raise CrfSubqueryError("label_lower is required")
         if not self.subjectvisit_dbtable:

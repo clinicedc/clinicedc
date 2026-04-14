@@ -8,6 +8,7 @@ from django.core.exceptions import (
     ObjectDoesNotExist,
 )
 from django.db import connection
+from django.db.models import Q
 from django.db.models.signals import post_delete, post_save, pre_save
 
 from .site_action_items import site_action_items
@@ -22,8 +23,8 @@ def fix_null_historical_action_identifier(app_label, models):
                 raise ValueError(f"Invalid table name when building sql statement. Got {tbl}")
             tbl = re.match("([a-z_]+)_historical([a-z]+)", tbl).group()
             sql = (
-                f"update {tbl} set action_identifier=id "  # nosec B608
-                "where action_identifier is null"  # nosec B608
+                f"update {tbl} set action_identifier=id "  # nosec B608  # noqa: S608
+                "where (action_identifier is null or action_identifier='')"
             )
             cursor.execute(sql)
 
@@ -38,12 +39,12 @@ def fix_null_action_item_fk(apps, app_label, models):
 
     for model in models:
         model_cls = apps.get_model(app_label, model)
-        model_cls.action_name = [
+        model_cls.action_name = next(
             action.name
             for action in site_action_items.registry.values()
             if action.get_reference_model()
             and action.get_reference_model().split(".")[1].lower() == model.lower()
-        ][0]
+        )
         if model_cls.action_name:
             for obj in model_cls.objects.all():
                 sys.stdout.write(f"fixing {model_cls.action_name} action_item for {obj}.\n")
@@ -56,7 +57,7 @@ def fix_null_action_item_fk(apps, app_label, models):
                         qs = action_item_cls.objects.filter(
                             action_identifier=obj.action_identifier
                         ).order_by("created")
-                        raise MultipleObjectsReturned(f"{e} {qs}.")
+                        raise MultipleObjectsReturned(f"{e} {qs}.") from e
                     else:
                         obj.save_base(update_fields=["action_item_id"])
                 else:
@@ -69,11 +70,11 @@ def fix_null_action_item_fk(apps, app_label, models):
 def fix_null_action_items(apps):
     action_item_cls = apps.get_model("edc_action_item", "ActionItem")
     try:
-        action_items = action_item_cls.objects.filter(
-            parent_action_identifier__isnull=False, parent_action_item__isnull=True
+        action_items = action_item_cls.objects.filter(parent_action_item__isnull=True).exclude(
+            Q(parent_action_identifier__isnull=True) | Q(parent_action_identifier="")
         )
     except FieldError as e:
-        print(e)
+        sys.stdout.write(e)
     else:
         for action_item in action_items:
             if not action_item.parent_action_item and action_item.parent_action_identifier:
@@ -94,10 +95,10 @@ def fix_null_action_items(apps):
                 )
     try:
         action_items = action_item_cls.objects.filter(
-            related_action_identifier__isnull=False, related_action_item__isnull=True
-        )
+            related_action_item__isnull=True
+        ).exclude(related_action_identifier__in=["", None])
     except FieldError as e:
-        print(e)
+        sys.stdout.write(str(e))
     else:
         for action_item in action_items:
             if not action_item.related_action_item and action_item.related_action_identifier:
@@ -136,14 +137,14 @@ def fix_null_related_action_items(apps):  # noqa
                 try:
                     reference_obj = action_item.reference_obj
                 except ObjectDoesNotExist:
-                    print("No reference object", action_item)
+                    sys.stdout.write(f"No reference object. action_item={action_item}")
                 else:
                     try:
                         related_reference_obj = getattr(
                             reference_obj, action_cls.related_reference_fk_attr
                         )
                     except ObjectDoesNotExist:
-                        print("related_reference_obj does not exist")
+                        sys.stdout.write("related_reference_obj does not exist")
                         if action_item.parent_action_item:
                             related_action_item = action_item.parent_action_item
                         elif reference_obj.parent_action_item:
@@ -163,7 +164,7 @@ def fix_null_related_action_items(apps):  # noqa
                 ).count()
                 > 0
             ):
-                print("Some related action identifiers are still `none`")
+                sys.stdout.write("Some related action identifiers are still `none`")
 
     # verify sequence
     for related_action_item in related_action_items:
@@ -249,7 +250,7 @@ def fix_null_related_action_items2(delete_orphans=None):
         where related_action_item_id is NULL
         and reference_model = 'ambition_ae.aefollowup';
     """
-    from django.apps import apps as django_apps
+    from django.apps import apps as django_apps  # noqa: PLC0415
 
     # post_save.disconnect(dispatch_uid="serialize_on_save")
     # pre_save.disconnect(dispatch_uid="requires_consent_on_pre_save")
@@ -260,19 +261,17 @@ def fix_null_related_action_items2(delete_orphans=None):
                 related_action_item__isnull=True, action_type__name=action_cls.name
             ):
                 try:
-                    action_item.reference_obj
+                    action_item.reference_obj  # noqa: B018
                 except ObjectDoesNotExist as e:
                     if delete_orphans:
-                        print(f"Deleting orphaned action item {action_item}.")
+                        sys.stdout.write(f"Deleting orphaned action item {action_item}.")
                         action_item.delete()
                     else:
-                        print(f"Skipping {action_item}. Got {e}")
+                        sys.stdout.write(f"Skipping {action_item}. Got {e}")
                 else:
-                    print(
-                        action_item,
-                        action_cls.related_reference_fk_attr,
-                        action_item.reference_obj,
-                    )
+                    sys.stdout.write(action_item)
+                    sys.stdout.write(action_cls.related_reference_fk_attr)
+                    sys.stdout.write(action_item.reference_obj)
                     action_item.related_action_item = getattr(
                         action_item.reference_obj, action_cls.related_reference_fk_attr
                     ).action_item

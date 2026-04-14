@@ -21,7 +21,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..constants import ALREADY_CONFIRMED, CENTRAL_LOCATION, INVALID
-from ..models import ConfirmationAtLocation, Location, Stock, StockTransfer
+from ..models import ConfirmationAtLocation, Location, StockTransfer
 from ..utils import confirm_stock_at_location
 
 

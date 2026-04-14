@@ -3,8 +3,9 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils import timezone
-from edc_model.models import BaseUuidModel, HistoricalRecords
 from sequences import get_next_value
+
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ...exceptions import RepackRequestError
 from .container import Container

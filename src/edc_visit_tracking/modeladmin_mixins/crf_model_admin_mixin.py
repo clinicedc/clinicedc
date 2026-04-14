@@ -5,10 +5,12 @@ from uuid import UUID
 
 from clinicedc_constants import UUID_PATTERN
 from django.contrib import admin
+
 from edc_consent.fieldsets import REQUIRES_CONSENT_FIELDS
 
 if TYPE_CHECKING:
     from django.core.handlers.wsgi import WSGIRequest
+
     from edc_crf.model_mixins import CrfModelMixin
 
     from ..model_mixins import VisitModelMixin

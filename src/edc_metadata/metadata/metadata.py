@@ -96,22 +96,23 @@ class CrfCreator(SourceModelMetadataMixin):
                 metadata_obj = self.metadata_model_cls.objects.get(**self.query_options)
             except ObjectDoesNotExist:
                 if registered:
-                    with transaction.atomic():
-                        opts = dict(
-                            entry_status=(REQUIRED if self.crf.required else NOT_REQUIRED),
-                            show_order=self.crf.show_order,
-                            site=self.related_visit.site,
-                            due_datetime=self.due_datetime,
-                            fill_datetime=self.fill_datetime,
-                            document_user=self.document_user,
-                            document_name=self.document_name,
-                        )
-                        opts.update(**self.query_options)
-                        try:
+                    opts = dict(
+                        entry_status=(REQUIRED if self.crf.required else NOT_REQUIRED),
+                        show_order=self.crf.show_order,
+                        site=self.related_visit.site,
+                        due_datetime=self.due_datetime,
+                        fill_datetime=self.fill_datetime,
+                        document_user=self.document_user,
+                        document_name=self.document_name,
+                    )
+                    opts.update(**self.query_options)
+                    try:
+                        with transaction.atomic():
                             metadata_obj = self.metadata_model_cls.objects.create(**opts)
-                        except IntegrityError as e:
-                            msg = f"Integrity error creating. Tried with {opts}. Got {e}."
-                            raise CreatesMetadataError(msg) from e
+                    except IntegrityError:
+                        metadata_obj = self.metadata_model_cls.objects.get(
+                            **self.query_options
+                        )
             else:
                 if not registered:
                     metadata_obj.delete()

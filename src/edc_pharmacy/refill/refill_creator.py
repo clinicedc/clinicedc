@@ -27,12 +27,13 @@ if TYPE_CHECKING:
 class RefillCreator:
     def __init__(
         self,
-        refill_identifier: str = None,
-        subject_identifier: str = None,
-        refill_start_datetime: datetime = None,
-        refill_end_datetime: datetime = None,
-        formulation: Formulation = None,
-        dosage_guideline: DosageGuideline = None,
+        *,
+        subject_identifier: str | None = None,
+        refill_identifier: str | None = None,
+        refill_start_datetime: datetime | None = None,
+        refill_end_datetime: datetime | None = None,
+        formulation: Formulation | None = None,
+        dosage_guideline: DosageGuideline | None = None,
         make_active: bool | None = None,
         force_active: bool | None = None,
         roundup_divisible_by: int | None = None,
@@ -126,8 +127,10 @@ class RefillCreator:
         )
         try:
             rx = get_rx_model_cls().objects.get(**opts)
-        except ObjectDoesNotExist:
-            raise PrescriptionError(f"Subject does not have a prescription. Got {opts}.")
+        except ObjectDoesNotExist as e:
+            raise PrescriptionError(
+                f"Subject does not have a prescription. Got {opts}."
+            ) from e
         else:
             if self.refill_start_datetime.date() < rx.rx_date:
                 rx_date = rx.rx_date.strftime(convert_php_dateformat(settings.DATE_FORMAT))

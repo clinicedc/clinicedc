@@ -2,9 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from django.contrib.auth.models import User
-from django.core.handlers.wsgi import WSGIRequest
-from django.db.models import Q
 from django.db.models.aggregates import Count
 
 from edc_appointment.view_mixins import AppointmentViewMixin

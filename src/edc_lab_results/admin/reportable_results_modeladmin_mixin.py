@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
+
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 
 

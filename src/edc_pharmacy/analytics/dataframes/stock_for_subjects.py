@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 from django_pandas.io import read_frame
+
 from edc_visit_schedule.models import SubjectScheduleHistory
 
 from ...models import Stock, StorageBinItem

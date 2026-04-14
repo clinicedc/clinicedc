@@ -13,7 +13,7 @@ def get_codenames(
     view_only_models = view_only_models or []
     exclude_models = exclude_models or []
     for app_config in django_apps.get_app_configs():
-        if app_config.name in ["edc_pharmacy"]:
+        if app_config.name == "edc_pharmacy":
             for model_cls in app_config.get_models():
                 label_lower = model_cls._meta.label_lower
                 app_name, model_name = label_lower.split(".")
@@ -22,6 +22,10 @@ def get_codenames(
                 if label_lower in view_only_models:
                     codenames.append(f"{app_name}.view_{model_name}")
                 else:
-                    for prefix in ["view_", "add_", "change_", "delete_"]:
-                        codenames.append(f"{app_name}.{prefix}{model_name}")
+                    codenames.extend(
+                        [
+                            f"{app_name}.{prefix}{model_name}"
+                            for prefix in ["view_", "add_", "change_", "delete_"]
+                        ]
+                    )
     return codenames

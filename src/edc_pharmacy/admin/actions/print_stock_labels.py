@@ -16,7 +16,7 @@ def print_stock_labels(modeladmin, request, queryset):
         static_files_path="edc_pharmacy/label_templates",
     )
     for obj in queryset:
-        for i in range(1, obj.qty):
+        for _ in range(1, obj.qty):
             stock_identifier = uuid4().hex
             context = dict(
                 protocol=ResearchProtocolConfig().protocol,
@@ -27,10 +27,6 @@ def print_stock_labels(modeladmin, request, queryset):
                 medication_strength=obj.product.formulation.strength,
                 medication_units=obj.product.formulation.units,
             )
-            # keys = [k for k in context]
-            # for fld in obj._meta.get_fields():
-            #     if fld.name not in keys and fld.name != "assignment":
-            #         context.update({fld.name: getattr(obj, fld.name)})
             zpl_data.append(
                 str(label.render_as_zpl_data(copies=1, context=context, encoding=False))
                 .strip("\n")

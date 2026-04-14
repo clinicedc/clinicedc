@@ -11,7 +11,7 @@ def get_random_code(model_cls, length: int, tries: int | None = None) -> str:
         random_code = str(
             "".join(
                 [
-                    random.choice("ABCDEFGHJKMNPQRTUVWXYZ2346789")  # nosec B311
+                    random.choice("ABCDEFGHJKMNPQRTUVWXYZ2346789")  # noqa: S311
                     for _ in range(0, length)
                 ]
             )

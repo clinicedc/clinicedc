@@ -135,7 +135,7 @@ class ScreeningEligibility:
             self.eligible = self.eligible_value_default  # probably TBD
         for fldattr, fc in self.get_required_fields().items():
             if fldattr not in missing_data and fc and fc.value:
-                msg = fc.msg if fc.msg else fldattr.title().replace("_", " ")
+                msg = fc.msg or fldattr.title().replace("_", " ")
                 is_callable = False
                 try:
                     value = fc.value(getattr(self, fldattr))

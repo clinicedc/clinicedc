@@ -3,6 +3,7 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Count, F, Q
 from django.utils.translation import gettext as _
+
 from edc_constants.choices import YES_NO, YES_NO_NA
 
 from ..models import Medication, Rx

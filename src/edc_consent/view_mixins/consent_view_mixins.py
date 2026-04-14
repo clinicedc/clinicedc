@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from django.contrib import messages
 from django.contrib.messages import ERROR
+
 from edc_sites import site_sites
 
 from .. import site_consents

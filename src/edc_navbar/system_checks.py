@@ -1,8 +1,8 @@
 from django.apps import apps as django_apps
 from django.core.checks import CheckMessage, Error
 from django.urls import NoReverseMatch
-from edc_dashboard.url_names import InvalidDashboardUrlName
 
+from edc_dashboard.url_names import InvalidDashboardUrlName
 from edc_navbar import site_navbars
 
 

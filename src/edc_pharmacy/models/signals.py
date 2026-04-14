@@ -123,7 +123,11 @@ def receive_on_post_save(sender, instance, raw, created, update_fields, **kwargs
 
 @receiver(post_save, sender=ReceiveItem, dispatch_uid="receive_item_on_post_save")
 def receive_item_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
-    if not raw and update_fields in (["added_to_stock"], ["container_unit_qty"]):
+    if not raw and (
+        created
+        or not update_fields
+        or update_fields in (["added_to_stock"], ["container_unit_qty"])
+    ):
         # update receive item_count after receive_item
         receive_items = ReceiveItem.objects.filter(receive=instance.receive)
         instance.receive.item_count = receive_items.count()
@@ -135,8 +139,14 @@ def receive_item_on_post_save(sender, instance, raw, created, update_fields, **k
                 unit_qty=Sum("unit_qty_received")
             )["unit_qty"]
         ) or Decimal("0.0")
+        instance.order_item.unit_qty_pending = (
+            instance.order_item.unit_qty_ordered
+            - instance.order_item.unit_qty_received
+        )
 
-        instance.order_item.save(update_fields=["unit_qty_received"])
+        instance.order_item.save(
+            update_fields=["unit_qty_received", "unit_qty_pending"]
+        )
 
         update_orderitem_status(order_item=instance.order_item)
 

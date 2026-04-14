@@ -12,6 +12,7 @@ from django.core.exceptions import FieldError
 from django.db.models import QuerySet
 from django_crypto_fields.utils import get_encrypted_fields, has_encrypted_fields
 from django_pandas.io import read_frame
+
 from edc_sites.utils import get_site_model_cls
 
 from .constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
@@ -229,7 +230,7 @@ class ModelToDataframe:
                 df_m2m.groupby("id")[m2m_field_name]
                 .apply(",".join)
                 .reset_index()
-                .rename(columns={m2m_field_name: m2m_field_name.split("__")[0]})
+                .rename(columns={m2m_field_name: m2m_field_name.split("__", maxsplit=1)[0]})
             )
             dataframe = dataframe.merge(df_m2m, on="id", how="left").reset_index(drop=True)
         return dataframe

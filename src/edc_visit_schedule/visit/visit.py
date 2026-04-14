@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.utils import timezone
+
 from edc_facility.utils import get_default_facility_name, get_facility
 from edc_utils.date import to_local
 
@@ -19,6 +20,7 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from dateutil.relativedelta import relativedelta
+
     from edc_facility.facility import Facility
 
     from .requisition import Requisition

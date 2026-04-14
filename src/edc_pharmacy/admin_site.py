@@ -1,4 +1,5 @@
 from django.contrib.admin import AdminSite as DjangoAdminSite
+
 from edc_model_admin.admin_site import EdcAdminSite
 
 from .apps import AppConfig
