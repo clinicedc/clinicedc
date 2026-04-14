@@ -124,14 +124,4 @@ def get_subject_visit(
 
     df["followup_days"] = (df.visit_datetime - df.baseline_datetime).dt.days
 
-    # get next visitcode and next visit datetime, if there is one
-    # df_next = get_appointment_df()
-    # df_next = (
-    #     df_next[df.appt_status == NEW_APPT]
-    #     .groupby("subject_identifier")
-    #     .agg({"visit_code": "min", "visit_datetime": "min"})
-    # )
-
-    df = df.sort_values(by=["subject_identifier", "visit_code"])
-    df = df.reset_index(drop=True)
-    return df
+    return df.sort_values(by=["subject_identifier", "visit_code"]).reset_index(drop=True)
