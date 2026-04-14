@@ -15,6 +15,7 @@ from clinicedc_tests.action_items import (
 from clinicedc_tests.models import FormFour, FormOne, FormThree, FormTwo, FormZero
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from django.test import TestCase, override_settings, tag
 
 from edc_action_item.get_action_type import get_action_type
@@ -263,7 +264,8 @@ class TestAction(TestCaseMixin, TestCase):
         self.assertEqual(ActionItem.objects.filter(action_type=action_type).count(), 5)
         self.assertEqual(
             ActionItem.objects.filter(
-                action_type=action_type, action_identifier__isnull=True
+                Q(action_identifier__isnull=True) | Q(action_identifier=""),
+                action_type=action_type,
             ).count(),
             0,
         )
