@@ -96,7 +96,7 @@ def get_subject_visit(
     convert_visit_code_to_float(df)
 
     df_baseline_visit = df.copy()
-    df_baseline_visit = df_baseline_visit[(df_baseline_visit["visit_code"] == 1000.0)]
+    df_baseline_visit = df_baseline_visit[(df_baseline_visit["visit_code"] == 1000.0)]  # noqa: PLR2004
     df_baseline_visit = df_baseline_visit.rename(
         columns={"visit_datetime": "baseline_datetime"}
     )
@@ -117,7 +117,7 @@ def get_subject_visit(
         }
     )
     df_last["endline_visit_code_str"] = (
-        df_last["endline_visit_code"].astype("int64").apply(lambda x: str(x))
+        df_last["endline_visit_code"].astype("int64").apply(str)
     )
     df_last = df_last.reset_index()
     df = df.merge(df_last, on="subject_identifier", how="left")

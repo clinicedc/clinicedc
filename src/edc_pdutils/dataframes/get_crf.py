@@ -61,15 +61,13 @@ def get_crf(
     df_subject_visit = get_subject_visit(
         subject_visit_model, subject_identifiers=subject_identifiers
     )
-    df = pd.merge(
-        df_subject_visit,
-        df,
-        on="subject_visit_id",
-        how="right",
-        suffixes=("", "_subject_visit"),
+    df = (
+        df_subject_visit.merge(
+            df, on="subject_visit_id", how="right", suffixes=("", "_subject_visit")
+        )
+        .drop(columns=[col for col in df.columns if col.endswith("_subject_visit")])
+        .reset_index(drop=True)
     )
-    df = df.drop(columns=[col for col in df.columns if col.endswith("_subject_visit")])
-    df = df.reset_index(drop=True)
 
     df["subject_visit_id_original"] = df["subject_visit_id"]
     df["subject_visit_id"] = df["subject_visit_id"].astype(str)
@@ -123,9 +121,7 @@ def get_crf(
     ]
 
     # convert values to ...
-    # df = convert_numerics_from_model(df, model_cls)
     df = convert_numbers_to_nullable_dtype(df)
     df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
     df = convert_timedelta_from_model(df, model_cls)
-    df = df.replace("", pd.NA).fillna(pd.NA).reset_index(drop=True)
-    return df
+    return df.replace("", pd.NA).fillna(pd.NA).reset_index(drop=True)

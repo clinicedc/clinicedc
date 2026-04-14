@@ -57,7 +57,7 @@ class TestAdminMixin(TestCase):
         "edc_notification.mailing_list_manager.MailingListManager.unsubscribe",
         return_value=200,
     )
-    def test_notification_instructions(self, mock_create, mock_subscribe, mock_unsubscribe):
+    def test_notification_instructions(self, mock_create, mock_subscribe, mock_unsubscribe):  # noqa: ARG002
         rf = RequestFactory()
         request = rf.get("/")
         request.user = self.user
@@ -87,7 +87,7 @@ class TestAdminMixin(TestCase):
         "edc_notification.mailing_list_manager.MailingListManager.unsubscribe",
         return_value=200,
     )
-    def test_add_change_instructions(self, mock_create, mock_subscribe, mock_unsubscribe):
+    def test_add_change_instructions(self, mock_create, mock_subscribe, mock_unsubscribe):  # noqa: ARG002
         rf = RequestFactory()
         request = rf.get("/")
         request.user = self.user

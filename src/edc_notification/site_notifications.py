@@ -6,11 +6,12 @@ from json.decoder import JSONDecodeError
 from typing import TYPE_CHECKING, Any
 
 from django.apps import apps as django_apps
+from django.apps.registry import Apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.utils.module_loading import import_module, module_has_submodule
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError as RequestsConnectionError
 
 from .mailing_list_manager import MailingListManager
 from .utils import get_email_enabled
@@ -25,15 +26,15 @@ if TYPE_CHECKING:
 style = color_style()
 
 
-class AlreadyRegistered(Exception):
+class AlreadyRegistered(Exception):  # noqa: N818
     pass
 
 
-class RegistryNotLoaded(Exception):
+class RegistryNotLoaded(Exception):  # noqa: N818
     pass
 
 
-class NotificationNotRegistered(Exception):
+class NotificationNotRegistered(Exception):  # noqa: N818
     pass
 
 
@@ -55,7 +56,7 @@ class SiteNotifications:
             )
         return self._registry
 
-    def get(self, name) -> type[Notification]:
+    def get(self, name: str) -> type[ActionItemNotification] | type[Notification] | None:
         """Returns a Notification by name."""
         if not self.loaded:
             raise RegistryNotLoaded(self)
@@ -63,7 +64,7 @@ class SiteNotifications:
             raise NotificationNotRegistered(f"Notification not registered. Got '{name}'.")
         return self._registry.get(name)
 
-    def register(self, notification_cls: type[Notification] = None):
+    def register(self, notification_cls: type[Notification]):
         """Registers a Notification class unique by name."""
         self.loaded = True
         display_names = [n.display_name for n in self.registry.values()]
@@ -103,7 +104,10 @@ class SiteNotifications:
         return notified
 
     def update_notification_list(
-        self, apps: django_apps = None, schema_editor=None, verbose=False
+        self,
+        apps: Apps = None,
+        schema_editor=None,  # noqa: ARG002
+        verbose=False,
     ):
         """Updates the notification model to ensure all registered
         notifications classes are listed.
@@ -145,7 +149,7 @@ class SiteNotifications:
                     obj.save()
 
     @staticmethod
-    def delete_unregistered_notifications(apps: django_apps = None):
+    def delete_unregistered_notifications(apps: Apps = None):
         """Delete orphaned notification model instances."""
         notification_model_cls = (apps or django_apps).get_model(
             "edc_notification.notification"
@@ -165,14 +169,19 @@ class SiteNotifications:
             sys.stdout.write(style.MIGRATE_HEADING("Creating mailing lists:\n"))
             for name, notification_cls in self.registry.items():
                 notification = notification_cls()
+                address: str = (
+                    notification.email_to[0]
+                    if isinstance(notification.email_to, (tuple, list))
+                    else str(notification.email_to)
+                )
                 manager = MailingListManager(
-                    address=notification.email_to,
+                    address=address,
                     name=notification.name,
                     display_name=notification.display_name,
                 )
                 try:
                     response = manager.create()
-                except ConnectionError as e:
+                except RequestsConnectionError as e:
                     sys.stdout.write(
                         style.ERROR(f"  * Failed to create mailing list {name}. Got {e}\n")
                     )
@@ -190,7 +199,7 @@ class SiteNotifications:
         return responses
 
     @staticmethod
-    def autodiscover(module_name: str = None, verbose: bool | None = False):
+    def autodiscover(module_name: str | None = None, verbose: bool | None = False):
         """Autodiscovers classes in the notifications.py file of any
         INSTALLED_APP.
         """

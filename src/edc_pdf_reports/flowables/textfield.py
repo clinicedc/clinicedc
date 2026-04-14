@@ -39,5 +39,5 @@ class TextFieldFlowable(Flowable):
         options.update(self.extra_options)
         self.canv.acroForm.textfield(**options)
 
-    def split(self, availWidth, availHeight):
+    def split(self, availWidth, availHeight):  # noqa: ARG002, N803
         return [self]

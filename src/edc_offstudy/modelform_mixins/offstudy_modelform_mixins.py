@@ -23,7 +23,7 @@ class OffstudyModelFormMixin:
         try:
             off_all_schedules_or_raise(subject_identifier=self.get_subject_identifier())
         except OffScheduleError as e:
-            raise forms.ValidationError(e)
+            raise forms.ValidationError(str(e)) from e
 
     def offstudy_datetime_after_all_offschedule_datetimes(self):
         """Raises a ValidationError if any offschedule datetime is after

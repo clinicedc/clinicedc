@@ -1,4 +1,4 @@
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html, format_html_join
 
 from .site_notifications import site_notifications
 
@@ -17,23 +17,26 @@ class NotificationModelAdminMixin:
         notification_instructions = None
         if notifications:
             notifications = [notification.display_name for notification in notifications]
-            tooltip1 = mark_safe(", ".join(notifications))  # nosec B308 B703
+            tooltip1 = format_html_join(", ", "{}", ((n,) for n in notifications))
             my_notifications = [
                 n.display_name
                 for n in request.user.userprofile.email_notifications.filter(
                     display_name__in=notifications
                 )
             ]
-            tooltip2 = mark_safe(", ".join(my_notifications))  # nosec B308 B703
+            tooltip2 = format_html_join(", ", "{}", ((n,) for n in my_notifications))
             word = "notification is" if len(notifications) == 1 else "notifications are"
-            notification_instructions = (
-                f'<a href="#" title="{tooltip1}">{len(notifications)} '
-                f"{word}</a> enabled for this form. "
-                f'You are <a href="#" title="{tooltip2}">subscribed '
-                f"to {len(my_notifications)}</a>. "
-                f"See your user profile for more details."
+            # noinspection PyDeprecation
+            return format_html(
+                '<a href="#" title="{}">{} {}</a> enabled for this form. '
+                'You are <a href="#" title="{}">subscribed to {}</a>. '
+                "See your user profile for more details.",
+                tooltip1,
+                len(notifications),
+                word,
+                tooltip2,
+                len(my_notifications),
             )
-            return mark_safe(notification_instructions)  # nosec B308 B703
         return notification_instructions
 
     def get_add_instructions(self, extra_context, request=None):

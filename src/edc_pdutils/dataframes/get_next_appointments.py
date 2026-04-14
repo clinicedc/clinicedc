@@ -10,9 +10,9 @@ def get_next_appointments(**kwargs):
         df[df.next_appt_datetime>=pd.to_datetime("today")]
 
     """
-    df = get_appointments(**kwargs)
-    df = (
-        df.groupby(
+    return (
+        get_appointments(**kwargs)
+        .groupby(
             by=[
                 "subject_identifier",
                 "site_id",
@@ -23,6 +23,4 @@ def get_next_appointments(**kwargs):
         .size()
         .to_frame()
         .reset_index()
-    )
-    df = df[["subject_identifier", "site_id", "next_visit_code", "next_appt_datetime"]]
-    return df
+    )[["subject_identifier", "site_id", "next_visit_code", "next_appt_datetime"]]

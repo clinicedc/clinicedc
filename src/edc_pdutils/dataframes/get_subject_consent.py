@@ -52,6 +52,4 @@ def get_subject_consent(
     else:
         df["age_in_years"] = np.nan
 
-    df = df.sort_values(by="subject_identifier")
-    df = df.reset_index(drop=True)
-    return df
+    return df.sort_values(by="subject_identifier").reset_index(drop=True)

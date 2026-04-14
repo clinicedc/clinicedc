@@ -206,6 +206,7 @@ class TestNotification(TestCase):
         @register()
         class G3EventNotification(GradedEventNotification):
             name = "g3_event"
+            display_name = "G3 Event"
             grade = 3
             model = "edc_notification.ae"
 
@@ -351,6 +352,7 @@ class TestNotification(TestCase):
     def test_model_notification_str(self):
         class DeathNotification(ModelNotification):
             name = "death"
+            display_name = "Death One"
             model = "edc_notification.death"
 
         repr(DeathNotification())
@@ -363,6 +365,7 @@ class TestNotification(TestCase):
         @register()
         class DeathNotification(ModelNotification):
             name = "death"
+            display_name = "Death One"
             model = "edc_notification.death"
             model_operations = (CREATE,)
 
@@ -379,6 +382,7 @@ class TestNotification(TestCase):
         @register()
         class DeathNotification(ModelNotification):
             name = "death"
+            display_name = "Death One"
             model = "edc_notification.death"
             update_fields = ("cause",)
 
@@ -409,6 +413,7 @@ class TestNotification(TestCase):
         @register()
         class DeathNotification(ModelNotification):
             name = "death"
+            display_name = "Death One"
             model = "edc_notification.death"
             update_fields = ("report_datetime",)
 
@@ -440,6 +445,7 @@ class TestNotification(TestCase):
         @register()
         class DeathNotification(ModelNotification):
             name = "death"
+            display_name = "Death One"
             model = "edc_notification.death"
             update_fields = ("report_datetime",)
             model_operations = (UPDATE,)
@@ -473,6 +479,7 @@ class TestNotification(TestCase):
         @register()
         class DeathNotification(ModelNotification):
             name = "death"
+            display_name = "Death One"
             model = "edc_notification.death"
             update_fields = ("report_datetime",)
 
@@ -500,6 +507,7 @@ class TestNotification(TestCase):
         @register()
         class DeathNotification(UpdatedModelNotification):
             name = "death"
+            display_name = "Death (Report)"
             model = "edc_notification.death"
             update_fields = ("report_datetime",)
 
@@ -534,6 +542,7 @@ class TestNotification(TestCase):
         @register()
         class DeathNotification(NewModelNotification):
             name = "death"
+            display_name = "Death (Report)"
             model = "edc_notification.death"
 
         @register()
@@ -559,6 +568,7 @@ class TestNotification(TestCase):
         @register()
         class DeathNotification(UpdatedModelNotification):
             name = "death"
+            display_name = "Death (Report)"
             model = "edc_notification.death"
             update_fields = ("report_datetime",)
 
@@ -599,6 +609,7 @@ class TestNotification(TestCase):
         @register()
         class G3EventNotification(GradedEventNotification):
             name = "g3_event"
+            display_name = "Grade3 Event"
             grade = 3
             model = "edc_notification.ae"
 

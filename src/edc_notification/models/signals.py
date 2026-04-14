@@ -39,7 +39,7 @@ def manage_mailists_on_userprofile_m2m_changed(action, instance, pk_set, sender,
     selections in the UserProfile model.
     """
     try:
-        instance.email_notifications
+        instance.email_notifications  # noqa: B018
     except AttributeError:
         pass
     else:

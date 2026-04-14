@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import contextlib
+from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -12,8 +15,10 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_sites.site import SiteNotRegistered, sites
 
 from ..site_notifications import site_notifications
-from ..stubs import NotificationModelStub
 from ..utils import get_email_contacts, get_email_enabled
+
+if TYPE_CHECKING:
+    from ..stubs import NotificationModelStub
 
 
 class NotificationError(Exception):
@@ -27,13 +32,13 @@ class Notification:
     """A generic class to generate a notification on a condition"""
 
     # app_name: str = None
-    name: str | None = None
-    display_name: str | None = None
+    name: str
+    display_name: str
 
     sms_client = Client
 
     email_from: str = get_email_contacts("data_manager")
-    email_to: list[str] | None = None  # usually a mailing list address
+    email_to: tuple[str, ...] | None = None  # usually a mailing list address
     email_message_cls = EmailMessage
 
     email_body_template: str = (
@@ -77,7 +82,7 @@ class Notification:
         self.email_to = self.email_to or self.default_email_to
         self.test_message: bool = False
         if not LIVE_SYSTEM:
-            self.email_to = [f"test.{email}" for email in self.email_to]
+            self.email_to = tuple(f"test.{email}" for email in self.email_to or ())
             self.test_message = True
 
     def __repr__(self) -> str:
@@ -90,8 +95,8 @@ class Notification:
         return f"{self.name}: {self.display_name}"
 
     @property
-    def default_email_to(self) -> list[str]:
-        return [f"{self.name}.{settings.APP_NAME}@mg.clinicedc.org"]
+    def default_email_to(self) -> tuple[str, ...]:
+        return (f"{self.name}.{settings.APP_NAME}@mg.clinicedc.org",)
 
     def notify(
         self,
@@ -157,9 +162,7 @@ class Notification:
 
         See also: `site_notifications.update_notification_list`
         """
-        if not self._notification_enabled:
-            self._notification_enabled = self.notification_model.enabled
-        return self._notification_enabled
+        return self.notification_model.enabled
 
     @property
     def notification_model(self) -> NotificationModelStub:

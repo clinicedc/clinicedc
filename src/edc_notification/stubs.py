@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Protocol
+from typing import Protocol
 
 
 class BaseNotificationStub(Protocol):
@@ -7,24 +7,22 @@ class BaseNotificationStub(Protocol):
     email_body_template: str
     email_footer_template: str
     email_from: list[str]
-    # email_message_cls = Type[EmailMessage]
     email_subject_template: str
     email_test_body_line: str
     email_to: list[str] | None
     name: str | None
-    # sms_client: Type[Client]
     sms_template: str
     sms_test_line: str
 
     @property
-    def default_email_to(self) -> List[str]: ...  # noqa
+    def default_email_to(self) -> list[str]: ...
 
     def notify(
         self,
-        force_notify: bool = None,
-        use_email: bool = None,
-        use_sms: bool = None,
-        email_body_template: str = None,
+        force_notify: bool | None = None,
+        use_email: bool | None = None,
+        use_sms: bool | None = None,
+        email_body_template: str | None = None,
         **kwargs,
     ) -> bool: ...
 

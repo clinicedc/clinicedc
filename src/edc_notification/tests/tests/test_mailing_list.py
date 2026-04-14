@@ -22,7 +22,7 @@ class G3EventNotification(GradedEventNotification):
     display_name = "Test Grade3 Event"
     grade = 3
     model = "edc_notification.ae"
-    email_to = ["somemailinglist@example.com"]
+    email_to = ("somemailinglist@example.com",)
 
 
 @tag("notification")
@@ -53,8 +53,8 @@ class TestMailingList(TestCase):
     @override_settings(MAILGUN_API_KEY="123456", MAILGUN_API_URL="http://localhost")
     @patch("requests.post")
     @patch("requests.put")
-    def test_(self, mock_put, mock_post):
-        mail = MailingListManager()
+    def test_(self, mock_put, mock_post):  # noqa: ARG002
+        mail = MailingListManager(address="test@sample.org", name="test", display_name="Test")
         mail.enabled = True
 
         self.assertEqual("http://localhost", mail.api_url)
@@ -63,7 +63,8 @@ class TestMailingList(TestCase):
 
     @override_settings(MAILGUN_API_KEY=None, MAILGUN_API_URL=None)
     def test_api(self):
-        mail = MailingListManager()
+        mail = MailingListManager(address="test@sample.org", name="test", display_name="Test")
+        mail.enabled = True
         mail.enabled = True
 
         self.assertRaises(EmailNotEnabledError, getattr, mail, "api_url")
@@ -71,7 +72,7 @@ class TestMailingList(TestCase):
 
     @override_settings(MAILGUN_API_KEY="123456", MAILGUN_API_URL="mock://localhost")
     @patch("requests.post")
-    def test_subscribe(self, mock_post):
+    def test_subscribe(self, mock_post):  # noqa: ARG002
         manager = MailingListManager(
             address=self.notification_cls.email_to[0],
             display_name=self.notification_cls.display_name,
@@ -95,7 +96,7 @@ class TestMailingList(TestCase):
 
     @override_settings(MAILGUN_API_KEY="123456", MAILGUN_API_URL="mock://localhost")
     @patch("requests.put")
-    def test_unsubscribe(self, mock_put):
+    def test_unsubscribe(self, mock_put):  # noqa: ARG002
         manager = MailingListManager(
             address=self.notification_cls.email_to[0],
             display_name=self.notification_cls.display_name,
@@ -112,7 +113,7 @@ class TestMailingList(TestCase):
 
     @override_settings(MAILGUN_API_KEY="123456", MAILGUN_API_URL="mock://localhost")
     @patch("requests.post")
-    def test_create(self, mock_put):
+    def test_create(self, mock_put):  # noqa: ARG002
         manager = MailingListManager(
             address=self.notification_cls.email_to[0],
             display_name=self.notification_cls.display_name,
@@ -131,7 +132,7 @@ class TestMailingList(TestCase):
 
     @override_settings(MAILGUN_API_KEY="123456", MAILGUN_API_URL="mock://localhost")
     @patch("requests.delete")
-    def test_delete_member(self, mock_delete):
+    def test_delete_member(self, mock_delete):  # noqa: ARG002
         manager = MailingListManager(
             address=self.notification_cls.email_to[0],
             display_name=self.notification_cls.display_name,
@@ -147,7 +148,7 @@ class TestMailingList(TestCase):
 
     @override_settings(MAILGUN_API_KEY="123456", MAILGUN_API_URL="mock://localhost")
     @patch("requests.delete")
-    def test_delete(self, mock_delete):
+    def test_delete(self, mock_delete):  # noqa: ARG002
         manager = MailingListManager(
             address=self.notification_cls.email_to[0],
             display_name=self.notification_cls.display_name,
@@ -170,6 +171,6 @@ class TestMailingList(TestCase):
     @patch("requests.post")
     @patch("requests.put")
     @patch("requests.delete")
-    def test_create_mailing_lists(self, *args):
+    def test_create_mailing_lists(self, *args):  # noqa: ARG002
         responses = site_notifications.create_mailing_lists()
         self.assertIn("g3_event", responses)

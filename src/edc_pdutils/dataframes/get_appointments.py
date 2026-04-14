@@ -61,9 +61,6 @@ def get_appointments(
         df["appt_datetime"] = df["appt_datetime"].dt.tz_localize(None)
     if normalize:
         df["appt_datetime"] = df["appt_datetime"].dt.normalize()
-    df_next["next_visit_code_str"] = (
-        df_next["next_visit_code"].astype("int64").apply(lambda x: str(x))
-    )
+    df_next["next_visit_code_str"] = df_next["next_visit_code"].astype("int64").apply(str)
     df_next = df_next.reset_index()
-    df = df.merge(df_next, on="subject_identifier", how="left")
-    return df
+    return df.merge(df_next, on="subject_identifier", how="left").reset_index(drop=True)

@@ -61,15 +61,19 @@ class ModelNotification(Notification):
     def __str__(self) -> str:
         return f"{self.name}: {self.display_name} ({self.model})"
 
-    def notify_on_condition(self, instance: BaseUuidHistoryModelStub = None, **kwargs) -> bool:
+    def notify_on_condition(
+        self, instance: BaseUuidHistoryModelStub | None = None, **kwargs
+    ) -> bool:
         """Returns True if the condition in one of the C(r)UD methods is met."""
-        if instance._meta.label_lower == self.model:
-            return (
+        return (
+            bool(
                 self.is_create(instance, **kwargs)
                 or self.is_update(instance, **kwargs)
                 or self.is_delete(instance, **kwargs)
             )
-        return False
+            if instance._meta.label_lower == self.model
+            else False
+        )
 
     def is_create(self, instance, **kwargs):
         """Returns True if we are watching for a CREATE model operation, this is a
@@ -82,7 +86,7 @@ class ModelNotification(Notification):
             and self.notify_on_create_condition(instance, **kwargs)
         )
 
-    def notify_on_create_condition(self, instance, **kwargs):
+    def notify_on_create_condition(self, instance, **kwargs):  # noqa: ARG002
         """Returns a dictionary or None of {field: value, ...}
         for field values in `create_fields`.
         """
@@ -97,7 +101,7 @@ class ModelNotification(Notification):
                     created_fields.update({field: value})
         return created_fields or None
 
-    def field_value_condition_on_create(self, field, current_value) -> bool:
+    def field_value_condition_on_create(self, field, current_value) -> bool:  # noqa: ARG002
         """Returns True or False.
 
         Override for a more complex evaluation.
@@ -115,7 +119,7 @@ class ModelNotification(Notification):
             and self.notify_on_update_condition(instance, **kwargs)
         )
 
-    def notify_on_update_condition(self, instance, **kwargs):
+    def notify_on_update_condition(self, instance, **kwargs):  # noqa: ARG002
         """Returns a dictionary or None of {field: [previous_value, current_value], ...}
         for field values in `update_fields` that have changed.
         """
@@ -130,14 +134,14 @@ class ModelNotification(Notification):
                     changed_fields.update({field: values})
         return changed_fields or None
 
-    def field_value_condition_on_update(self, field, previous_value, current_value) -> bool:
+    def field_value_condition_on_update(self, field, previous_value, current_value) -> bool:  # noqa: ARG002
         """Returns True if the value has changed.
 
         Override for a more complex evaluation.
         """
         return previous_value != current_value
 
-    def is_delete(self, instance, **kwargs):
+    def is_delete(self, instance, **kwargs):  # noqa: ARG002
         history_type = instance.history.all().order_by("-history_date")[0].history_type
         return history_type in self.model_operations and history_type == DELETE
 
@@ -151,7 +155,7 @@ class ModelNotification(Notification):
         """Returns the `history_type` of the most recent historical instance"""
         return instance.history.all().order_by("-history_date")[0].history_type
 
-    def get_model_operation_as_text(self, instance=None, test_message=None, **kwargs):
+    def get_model_operation_as_text(self, instance=None, test_message=None, **kwargs):  # noqa: ARG002
         opts = {
             CREATE: "",
             UPDATE: "UPDATE* ",

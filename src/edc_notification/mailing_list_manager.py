@@ -34,7 +34,7 @@ class MailingListManager:
     api_url_attr = "MAILGUN_API_URL"
     api_key_attr = "MAILGUN_API_KEY"
 
-    def __init__(self, address: str = None, name: str = None, display_name: str = None):
+    def __init__(self, *, address: str, name: str, display_name: str):
         self._api_key: str | None = None
         self._api_url: str | None = None
         self.address = address  # mailing list address
@@ -51,8 +51,8 @@ class MailingListManager:
             )
             try:
                 self._api_url = getattr(settings, self.api_url_attr)
-            except AttributeError:
-                raise EmailNotEnabledError(error_msg, code="api_url_attribute_error")
+            except AttributeError as e:
+                raise EmailNotEnabledError(error_msg, code="api_url_attribute_error") from e
             else:
                 if not self._api_url:
                     raise EmailNotEnabledError(error_msg, code="api_url_is_none")
@@ -67,8 +67,8 @@ class MailingListManager:
             )
             try:
                 self._api_key = getattr(settings, self.api_key_attr)
-            except AttributeError:
-                raise EmailNotEnabledError(error_msg, code="api_key_attribute_error")
+            except AttributeError as e:
+                raise EmailNotEnabledError(error_msg, code="api_key_attribute_error") from e
             else:
                 if not self._api_key:
                     raise EmailNotEnabledError(error_msg, code="api_key_is_none")

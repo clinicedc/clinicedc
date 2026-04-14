@@ -35,8 +35,6 @@ def get_eos(
     df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
 
     df["site_id"] = df["site"].map({obj.domain: obj.id for obj in Site.objects.all()})
-    df = df.drop(columns=["site"])
-
-    df.sort_values(by=["subject_identifier"])
-    df = df.reset_index(drop=True)
-    return df
+    return (
+        df.drop(columns=["site"]).sort_values(by=["subject_identifier"]).reset_index(drop=True)
+    )

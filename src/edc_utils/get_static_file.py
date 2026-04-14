@@ -32,4 +32,4 @@ def get_static_file(app_label: str, filename: str) -> str:
             f"STATIC_URL ({settings.STATIC_URL}). "
             f"Got {app_label}/{filename}."
         )
-    return path
+    return str(path)

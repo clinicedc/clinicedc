@@ -21,4 +21,4 @@ class OffstudyNonCrfModelFormMixin:
                     report_datetime=self.report_datetime,
                 )
             except OffstudyError as e:
-                raise forms.ValidationError(e)
+                raise forms.ValidationError(str(e)) from e
