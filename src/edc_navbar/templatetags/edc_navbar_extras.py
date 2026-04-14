@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+
 from django import template
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
@@ -14,10 +16,8 @@ def render_navbar(context) -> dict:
     auth_user_change_url = None
     user = getattr(context["request"], "user", None)
     user_id = getattr(user, "id", None)
-    try:
+    with contextlib.suppress(NoReverseMatch):
         auth_user_change_url = reverse("edc_auth_admin:auth_user_change", args=(user_id,))
-    except NoReverseMatch:
-        pass
     return dict(
         auth_user_change_url=auth_user_change_url,
         default_navbar=context.get("default_navbar"),

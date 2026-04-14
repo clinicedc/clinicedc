@@ -70,7 +70,7 @@ class InlineModelFormMixin:
                 f"Field does not exist on model class. See {self.__class__.__name__}. "
                 f"Got {inline_model}.{field}."
             )
-        return [f for f in model_cls._meta.get_fields() if f.name == field][0]
+        return next(f for f in model_cls._meta.get_fields() if f.name == field)
 
     def field_cls_is_date_or_raise(self, field: str, inline_model) -> Any:
         """Raises if field class on model is not a date.

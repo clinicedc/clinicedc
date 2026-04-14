@@ -9,7 +9,7 @@ from django.contrib.messages import MessageFailure
 from django.core.exceptions import FieldError
 from django.forms.models import modelform_defines_fields, modelform_factory
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
+from django.utils.translation.trans_null import gettext as _
 
 from edc_sites.modelform_mixins import SiteModelFormMixin
 
@@ -63,20 +63,20 @@ class ModelAdminBypassDefaultFormClsMixin:
         declared on this ModelAdmin class.
         """
         if self.custom_form_codename and request.user.has_perm(self.custom_form_codename):
-            try:
+            try:  # noqa: SIM105
                 messages.add_message(
                     request,
                     messages.WARNING,
                     format_html(
                         "{html}",
-                        html=mark_safe(
+                        html=(
                             "<B>WARNING: All validation checks for this form have been "
                             "disabled. </B><BR>Your user account includes the special "
                             f"permission `{self.custom_form_codename}`. <BR>Saving changes "
                             "to this form without validation may lead to serious data "
                             "integrity errors. <BR><B>If you did not expect this, contact "
                             "your data manager immediately and do not continue.</B>"
-                        ),  # nosec B703, B308
+                        ),
                     ),
                 )
             except MessageFailure:
@@ -140,6 +140,6 @@ class ModelAdminBypassDefaultFormClsMixin:
             return modelform_factory(self.model, **defaults)
         except FieldError as e:
             raise FieldError(
-                "%s. Check fields/fieldsets/exclude attributes of class %s."
+                _("%s. Check fields/fieldsets/exclude attributes of class %s.")
                 % (e, self.__class__.__name__)
-            )
+            ) from e

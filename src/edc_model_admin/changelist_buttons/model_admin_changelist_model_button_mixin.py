@@ -23,27 +23,24 @@ class ChangelistButtonModelAdminMixin(ModelAdminChangelistButtonMixin):
     ):
         if disabled:
             changelist_model_button = self.disabled_button(add_label or change_label)
+        elif reverse_args:
+            changelist_model_button = self.change_model_button(
+                app_label,
+                model_name,
+                reverse_args,
+                namespace=namespace,
+                label=change_label,
+                title=title,
+            )
         else:
-            app_label = app_label
-            model_name = model_name
-            if reverse_args:
-                changelist_model_button = self.change_model_button(
-                    app_label,
-                    model_name,
-                    reverse_args,
-                    namespace=namespace,
-                    label=change_label,
-                    title=title,
-                )
-            else:
-                changelist_model_button = self.add_model_button(
-                    app_label,
-                    model_name,
-                    label=add_label,
-                    querystring=add_querystring,
-                    namespace=namespace,
-                    title=title,
-                )
+            changelist_model_button = self.add_model_button(
+                app_label,
+                model_name,
+                label=add_label,
+                querystring=add_querystring,
+                namespace=namespace,
+                title=title,
+            )
         return changelist_model_button
 
     def change_model_button(

@@ -9,12 +9,12 @@ class InlineHideOriginalObjectNameMixin:
 
     inline_hide_object_original_name = True
 
-    def get_formset(self, request, obj=None, **kwargs):
+    def get_formset(self, request, obj=None, **kwargs):  # noqa: ARG002
         formset = super().get_formset(request, obj=None, **kwargs)
         formset.insert_before_fieldset = self.insert_before_fieldset
         return formset
 
-    def add_view(self, request, form_url: str = "", extra_context: dict = None):
+    def add_view(self, request, form_url: str = "", extra_context: dict | None = None):
         extra_context = extra_context or {}
         extra_context.update(
             inline_hide_object_original_name=self.inline_hide_object_original_name

@@ -10,5 +10,5 @@ class PermissionsCodenameError(Exception):
     pass
 
 
-class AlreadyRegistered(Exception):
+class AlreadyRegistered(Exception):  # noqa: N818
     pass

@@ -25,11 +25,11 @@ class HistoricalModelAdminMixin:
             return to_local(obj.history_date)
         return None
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request):  # noqa: ARG002
         return False
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj=None):  # noqa: ARG002
         return False
 
-    def has_delete_permission(self, request, obj=None):
+    def has_delete_permission(self, request, obj=None):  # noqa: ARG002
         return False

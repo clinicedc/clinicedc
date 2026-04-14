@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import re
 from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING
@@ -24,7 +25,6 @@ if TYPE_CHECKING:
 
 
 dh_pattern = r"^(([0-9]{1,3}d)?((2[0-3]|[01]?[0-9])h)?)$"
-# hm_pattern = r"^(([0-9]{1,2}h)?([0-9]{1,2}m)?)$"
 hm_pattern = r"^(([0-9]{1,2}h)?([0-5]?[0-9]m)?)$"
 ymd_pattern = (
     r"^([0-9]{1,3}y([0-1]?[0-2]m)?([0-9]m)?)$|^([0-1]?"
@@ -32,11 +32,11 @@ ymd_pattern = (
 )
 
 
-class InvalidFormat(Exception):
+class InvalidFormat(Exception):  # noqa: N818
     pass
 
 
-class InvalidFieldName(Exception):
+class InvalidFieldName(Exception):  # noqa: N818
     pass
 
 
@@ -45,12 +45,13 @@ def get_report_datetime_field_name():
 
 
 def estimated_date_from_ago(
-    cleaned_data: dict = None,
-    instance: Model = None,
-    ago_field: str = None,
-    reference_field: str = None,
+    *,
+    cleaned_data: dict | None = None,
+    ago_field: str | None = None,
+    reference_field: str | None = None,
+    instance: Model | None = None,
     future: bool | None = None,
-) -> date:
+) -> date | None:
     """Wrapper function for `duration_to_date` typically called in
     modelform.clean() and model.save().
 
@@ -60,7 +61,7 @@ def estimated_date_from_ago(
     """
 
     estimated_date = None
-    data = instance or cleaned_data
+    data = instance or cleaned_data or {}
     reference_field = reference_field or REPORT_DATETIME_FIELD_NAME
     raise_on_invalid_field_name(data, ago_field)
     raise_on_invalid_field_name(data, reference_field)
@@ -68,18 +69,16 @@ def estimated_date_from_ago(
         ago_str = data.get(ago_field)
         reference_date = data.get(reference_field)
     except AttributeError:
-        ago_str = getattr(data, ago_field, None)
-        reference_date = getattr(data, reference_field, None)
-    try:
+        ago_str: str | None = getattr(data, ago_field or "", None)
+        reference_date: datetime | None = getattr(data, reference_field or "", None)
+    with contextlib.suppress(AttributeError):
         reference_date = reference_date.date()
-    except AttributeError:
-        pass
     if ago_str and reference_date:
         try:
             estimated_date = duration_to_date(ago_str, reference_date, future=future)
         except InvalidFormat as e:
             if cleaned_data:
-                raise forms.ValidationError({ago_field: str(e)})
+                raise forms.ValidationError({ago_field: str(e)}) from e
             raise
     return estimated_date
 
@@ -122,17 +121,17 @@ def duration_to_date(
     return reference_date - delta
 
 
-def raise_on_invalid_field_name(data: dict | models.Model, attrname: str) -> None:
+def raise_on_invalid_field_name(data: dict | models.Model, attrname: str | None) -> None:
     if attrname is not None:
         try:
             data[attrname]
         except KeyError as e:
-            raise InvalidFieldName(f"{e} Got {data}")
+            raise InvalidFieldName(f"{e} Got {data}") from e
         except TypeError:
             try:
                 getattr(data, attrname)
             except AttributeError as e:
-                raise InvalidFieldName(f"{e} Got {data}")
+                raise InvalidFieldName(f"{e} Got {data}") from e
     else:
         raise InvalidFieldName(f"Field name cannot be None. Got {data}")
 
@@ -149,15 +148,15 @@ def model_exists_or_raise(
         opts = {"subject_visit": subject_visit}
     try:
         obj = model_cls.objects.get(**opts)
-    except ObjectDoesNotExist:
-        raise ObjectDoesNotExist(f"{model_cls._meta.verbose_name} does not exist.")
+    except ObjectDoesNotExist as e:
+        raise ObjectDoesNotExist(f"{model_cls._meta.verbose_name} does not exist.") from e
     return obj
 
 
 def is_inline_model(instance):
     """See also, edc-crf inline model mixin."""
     try:
-        instance._meta.crf_inline_parent
+        instance._meta.crf_inline_parent  # noqa: B018
     except AttributeError:
         return False
     return True
@@ -190,7 +189,7 @@ def timedelta_from_duration_dh_field(
             duration_timedelta = duration_dh_to_timedelta(duration_text=duration_dh_str)
         except InvalidFormat as e:
             if is_form_data:
-                raise forms.ValidationError({duration_dh_field: str(e)})
+                raise forms.ValidationError({duration_dh_field: str(e)}) from e
             raise
     return duration_timedelta
 
@@ -247,7 +246,7 @@ def duration_hm_to_timedelta(duration_text: str | CharField) -> timedelta:
     return timedelta(hours=hours, minutes=minutes)
 
 
-def get_history_url(obj, admin_site: str = None) -> str:
+def get_history_url(obj, admin_site: str | None = None) -> str:
     admin_site = admin_site or obj.admin_url_name.split(":")[0]
     app, model = obj._meta.app_label, obj._meta.model_name
     return reverse(f"{admin_site}:{app}_{model}_history", args=[str(obj.pk)])

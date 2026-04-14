@@ -12,7 +12,7 @@ def edc_navbar_checks(app_configs, **kwargs) -> list[CheckMessage]:
     for navbar in site_navbars.registry.values():
         for navbar_item in navbar.navbar_items:
             try:
-                app_label, codename = navbar_item.codename.split(".")
+                app_label, _ = navbar_item.codename.split(".")
             except ValueError:
                 errors.append(
                     Error(

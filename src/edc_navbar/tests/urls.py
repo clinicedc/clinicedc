@@ -20,8 +20,7 @@ for app_name in [
     "edc_dashboard",
     "edc_export",
 ]:
-    for p in paths_for_urlpatterns(app_name):
-        urlpatterns.append(p)
+    urlpatterns.extend([p for p in paths_for_urlpatterns(app_name)])
 
 urlpatterns += [
     path("i18n/", include("django.conf.urls.i18n")),
