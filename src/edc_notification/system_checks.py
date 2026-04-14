@@ -22,8 +22,11 @@ def edc_notification_check(app_configs, **kwargs):
             users = get_user_model().objects.filter(
                 (
                     Q(first_name__isnull=True)
+                    | Q(first_name="")
                     | Q(last_name__isnull=True)
+                    | Q(last_name="")
                     | Q(email__isnull=True)
+                    | Q(email="")
                 ),
                 is_active=True,
                 is_staff=True,
