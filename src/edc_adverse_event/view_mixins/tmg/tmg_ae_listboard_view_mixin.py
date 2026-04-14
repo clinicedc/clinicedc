@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 from clinicedc_constants import CLOSED, NEW, OPEN
 from django.db.models import Min
 from django.utils import timezone
+
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_export.constants import CANCELLED
 from edc_listboard.view_mixins import ListboardFilterViewMixin, SearchFormViewMixin

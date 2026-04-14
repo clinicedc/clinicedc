@@ -22,7 +22,7 @@ class StorageBinProxyAdmin(StorageBinAdmin):
         context = dict(url=url, label=f"Items ({items})", title="Go to bin items")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
-    def get_view_only_site_ids_for_user(self, request) -> list[int]:
+    def get_view_only_site_ids_for_user(self, request) -> list[int]:  # noqa: ARG002
         return [s.id for s in Site.objects.all()]
 
     def get_queryset(self, request):

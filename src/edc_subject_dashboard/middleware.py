@@ -14,7 +14,7 @@ class DashboardMiddleware(EdcTemplateMiddlewareMixin):
         self.check_for_required_request_attrs(request)
         return self.get_response(request)
 
-    def process_view(self, request, *args):
+    def process_view(self, request, *args):  # noqa: ARG002
         """Adds/Updates references to templates."""
         request.url_name_data.update(**dashboard_urls)
         template_data = getattr(settings, "SUBJECT_DASHBOARD_BASE_TEMPLATES", {})

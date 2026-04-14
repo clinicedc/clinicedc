@@ -30,7 +30,7 @@ def bulk_create_stock_request_items(
     df_nostock = pd.DataFrame(nostock_as_dict)
     now = timezone.now()
     data = []
-    for i, row in df_nostock[df_nostock.stock_qty == 0].iterrows():
+    for _, row in df_nostock[df_nostock.stock_qty == 0].iterrows():
         registered_subject = registered_subject_model_cls.objects.get(
             id=row["registered_subject_id"]
         )

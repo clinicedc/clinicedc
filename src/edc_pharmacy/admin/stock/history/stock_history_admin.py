@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from edc_model.admin import HistoricalModelAdminMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 

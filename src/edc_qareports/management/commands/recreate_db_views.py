@@ -13,7 +13,7 @@ class Command(BaseCommand):
         "as definer."
     )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         for model_cls in django_apps.get_models():
             if issubclass(model_cls, (QaReportModelMixin,)):
                 sys.stdout.write(f"{model_cls._meta.db_table}\n")

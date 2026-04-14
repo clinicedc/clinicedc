@@ -15,7 +15,7 @@ class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
     navbar_selected_item = "consent"
 
     def __init__(self, *args, **kwargs):
-        super(HomeView, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         kwargs.update(

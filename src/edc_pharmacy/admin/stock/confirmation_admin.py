@@ -2,9 +2,8 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields import audit_fieldset_tuple
-from edc_model_admin.history import SimpleHistoryAdmin
-from edc_utils.date import to_local
 
+from edc_model_admin.history import SimpleHistoryAdmin
 from edc_pharmacy.admin.model_admin_mixin import ModelAdminMixin
 from edc_pharmacy.admin.remove_fields_for_blinded_users import (
     remove_fields_for_blinded_users,
@@ -12,6 +11,7 @@ from edc_pharmacy.admin.remove_fields_for_blinded_users import (
 from edc_pharmacy.admin_site import edc_pharmacy_admin
 from edc_pharmacy.forms import ConfirmationForm
 from edc_pharmacy.models import Confirmation
+from edc_utils.date import to_local
 
 
 @admin.register(Confirmation, site=edc_pharmacy_admin)

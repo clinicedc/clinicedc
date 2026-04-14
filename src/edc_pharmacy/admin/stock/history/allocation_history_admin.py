@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
+
 from edc_model.admin import HistoricalModelAdminMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 

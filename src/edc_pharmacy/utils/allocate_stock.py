@@ -18,8 +18,8 @@ def allocate_stock(
     stock_request: StockRequest,
     allocation_data: dict[str, str],
     allocated_by: str,
-    user_created: str = None,
-    created: datetime = None,
+    user_created: str | None = None,
+    created: datetime | None = None,
 ) -> tuple[list[int], list[str]]:
     """Link stock instances to subjects.
 

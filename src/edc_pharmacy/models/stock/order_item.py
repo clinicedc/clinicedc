@@ -3,8 +3,9 @@ from decimal import Decimal
 from clinicedc_constants import NEW
 from django.core.validators import MinValueValidator
 from django.db import models
-from edc_model.models import BaseUuidModel, HistoricalRecords
 from sequences import get_next_value
+
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ...choices import ORDER_CHOICES
 from ...exceptions import InvalidContainer, OrderItemError

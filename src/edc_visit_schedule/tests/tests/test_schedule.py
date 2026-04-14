@@ -454,7 +454,5 @@ class TestScheduleWithVisits(TestCase):
                 rupper=relativedelta(days=6),
             )
             self.schedule.add_visit(visit=visit)
-        index = 0
-        for k, v in self.schedule.visits.timepoint_dates(dt=dt).items():
+        for index, k, v in enumerate(self.schedule.visits.timepoint_dates(dt=dt).items()):
             self.assertEqual(v - dt, timedelta(index * (index + 1)), msg=k)
-            index += 1

@@ -4,9 +4,10 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import PROTECT
 from django.utils import timezone
+from sequences import get_next_value
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
-from sequences import get_next_value
 
 from .container import Container
 from .location import Location

@@ -19,9 +19,10 @@ def create_next_refill(instance: Any, related_visit_model_attr: str) -> Any | No
         raise RefillCreatorError("Expected an instance of StudyMedicationCrfModelMixin")
 
     appointment = getattr(instance, related_visit_model_attr).appointment
-    if next_appointment := appointment.next:
-        if next_next_appointment := next_appointment.next:
-            refill_end_datetime = next_next_appointment.appt_datetime
+    if (next_appointment := appointment.next) and (
+        next_next_appointment := next_appointment.next
+    ):
+        refill_end_datetime = next_next_appointment.appt_datetime
 
     if refill_end_datetime:
         refill_creator = RefillCreator(

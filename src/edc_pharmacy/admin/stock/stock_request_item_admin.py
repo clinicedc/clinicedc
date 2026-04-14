@@ -210,7 +210,7 @@ class StockRequestItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         context = dict(url=url, label=f"{obj.allocation.stock.code}", title="Go to stock")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
-    def get_readonly_fields(self, request, obj=None):
+    def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         if obj:
             return tuple({*self.readonly_fields, "stock_request"})
         return self.readonly_fields

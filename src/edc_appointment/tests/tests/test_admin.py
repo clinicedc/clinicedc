@@ -12,6 +12,11 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 from django.test import override_settings, tag
 from django.urls import reverse
 from django_webtest import WebTest
+
+from edc_appointment.admin import AppointmentAdmin
+from edc_appointment.auth_objects import codenames
+from edc_appointment.constants import NEW_APPT
+from edc_appointment.utils import get_appointment_model_cls
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
 from edc_auth.models import Role
@@ -25,11 +30,6 @@ from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
-
-from edc_appointment.admin import AppointmentAdmin
-from edc_appointment.auth_objects import codenames
-from edc_appointment.constants import NEW_APPT
-from edc_appointment.utils import get_appointment_model_cls
 
 
 def get_url_name():

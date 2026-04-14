@@ -90,6 +90,6 @@ class PasswordSetter:
                 ),
                 body=body,
                 from_email="noreply@clinicedc.org",
-                to=[self.alternate_email if self.alternate_email else user.email],
+                to=[self.alternate_email or user.email],
             )
             email.send()

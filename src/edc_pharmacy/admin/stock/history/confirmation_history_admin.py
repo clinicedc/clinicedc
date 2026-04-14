@@ -1,8 +1,9 @@
 from django.contrib import admin
+from rangefilter.filters import DateRangeFilterBuilder
+
 from edc_model.admin import HistoricalModelAdminMixin
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils import to_local
-from rangefilter.filters import DateRangeFilterBuilder
 
 from ....admin_site import edc_pharmacy_history_admin
 from ....models import Confirmation

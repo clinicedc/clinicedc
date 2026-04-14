@@ -1,5 +1,6 @@
 from clinicedc_constants import CANCEL
 from django import forms
+
 from edc_registration.models import RegisteredSubject
 
 from ...models import Allocation, StockRequest
@@ -54,7 +55,8 @@ class StockRequestForm(forms.ModelForm):
             raise forms.ValidationError(
                 {
                     "containers_per_subject": (
-                        f"May not exceed {cleaned_data.get('container').max_items_per_subject}. "
+                        "May not exceed "
+                        f"{cleaned_data.get('container').max_items_per_subject}. "
                         "See 'max per subject' for this container"
                     )
                 }

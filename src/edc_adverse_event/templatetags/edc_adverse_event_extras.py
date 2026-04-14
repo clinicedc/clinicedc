@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+
 from edc_action_item.utils import get_reference_obj
 from edc_auth.constants import TMG_ROLE
 from edc_model_admin.utils import add_to_messages_once
@@ -30,6 +31,7 @@ from ..view_utils import TmgButton
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
+
     from edc_action_item.models import ActionItem
     from edc_model.models import BaseUuidModel
 

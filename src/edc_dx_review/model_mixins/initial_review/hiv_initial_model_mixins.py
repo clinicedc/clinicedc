@@ -1,6 +1,7 @@
 from clinicedc_constants import COPIES_PER_MILLILITER, NOT_APPLICABLE, YES
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from edc_constants.choices import YES_NO, YES_NO_NA, YES_NO_PENDING_NA
 from edc_lab.choices import VL_QUANTIFIER_NA
 from edc_model import estimated_date_from_ago

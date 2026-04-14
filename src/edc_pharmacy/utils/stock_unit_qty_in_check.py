@@ -1,3 +1,5 @@
+import sys
+
 from edc_pharmacy.models import Stock
 
 
@@ -13,5 +15,8 @@ def stock_unit_qty_in_check():
         from_stock_count = Stock.objects.filter(from_stock__code=obj.code).count() * 128
 
         if not stock_unit_qty_in >= stock_unit_qty_out:
-            print(stock_code, stock_unit_qty_in, stock_unit_qty_out, from_stock_count)
-            print(f"**Error stock_code={stock_code}")
+            sys.stdout.write(stock_code)
+            sys.stdout.write(stock_unit_qty_in)
+            sys.stdout.write(stock_unit_qty_out)
+            sys.stdout.write(from_stock_count)
+            sys.stdout.write(f"**Error stock_code={stock_code}")

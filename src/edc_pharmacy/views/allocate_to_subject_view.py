@@ -315,24 +315,8 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         stock_request = StockRequest.objects.get(id=kwargs.get("stock_request"))
         assignment = self.get_assignment(assignment_id)
 
-        if url := self.redirect_on_all_allocated_for_assignment(stock_request, assignment):
-            return HttpResponseRedirect(url)
-        if url := self.redirect_on_has_duplicates(stock_codes, stock_request, assignment):
-            return HttpResponseRedirect(url)
-        if url := self.redirect_on_invalid_stock_codes(stock_codes, stock_request, assignment):
-            return HttpResponseRedirect(url)
-        if url := self.redirect_on_unconfirmed_stock_codes(
-            stock_codes, stock_request, assignment
-        ):
-            return HttpResponseRedirect(url)
-        if url := self.redirect_on_has_multiple_container_types(
-            stock_codes, stock_request, assignment
-        ):
-            return HttpResponseRedirect(url)
-        if url := self.redirect_on_incorrect_stock_for_assignment(
-            stock_codes, stock_request, assignment
-        ):
-            return HttpResponseRedirect(url)
+        if response := self.check_for_redirect_on_post(stock_codes, stock_request, assignment):
+            return response
 
         if stock_codes and subject_identifiers and assignment:
             allocation_data = dict(zip(stock_codes, subject_identifiers, strict=False))
@@ -373,3 +357,27 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             },
         )
         return HttpResponseRedirect(url)
+
+    def check_for_redirect_on_post(
+        self, stock_codes=None, stock_request=None, assignment=None
+    ) -> HttpResponseRedirect | None:
+        response = None
+        if url := self.redirect_on_all_allocated_for_assignment(stock_request, assignment):
+            response = HttpResponseRedirect(url)
+        if url := self.redirect_on_has_duplicates(stock_codes, stock_request, assignment):
+            response = HttpResponseRedirect(url)
+        if url := self.redirect_on_invalid_stock_codes(stock_codes, stock_request, assignment):
+            response = HttpResponseRedirect(url)
+        if url := self.redirect_on_unconfirmed_stock_codes(
+            stock_codes, stock_request, assignment
+        ):
+            response = HttpResponseRedirect(url)
+        if url := self.redirect_on_has_multiple_container_types(
+            stock_codes, stock_request, assignment
+        ):
+            response = HttpResponseRedirect(url)
+        if url := self.redirect_on_incorrect_stock_for_assignment(
+            stock_codes, stock_request, assignment
+        ):
+            response = HttpResponseRedirect(url)
+        return response

@@ -3,7 +3,6 @@ from __future__ import annotations
 from django.conf import settings
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
-from edc_notification.modeladmin_mixins import NotificationModelAdminMixin
 
 from edc_model_admin.mixins import (
     ModelAdminFormAutoNumberMixin,
@@ -14,6 +13,7 @@ from edc_model_admin.mixins import (
     ModelAdminReplaceLabelTextMixin,
     TemplatesModelAdminMixin,
 )
+from edc_notification.modeladmin_mixins import NotificationModelAdminMixin
 
 from .model_admin_dashboard_mixin import ModelAdminDashboardMixin
 

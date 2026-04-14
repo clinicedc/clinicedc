@@ -64,7 +64,7 @@ class Formulation(BaseUuidModel):
             self.imp_description = ""
         else:
             self.imp_description = (
-                self.imp_description if self.imp_description else self.description
+                self.imp_description or self.description
             )
         super().save(*args, **kwargs)
 

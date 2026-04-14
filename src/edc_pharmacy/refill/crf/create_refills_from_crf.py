@@ -15,7 +15,7 @@ def calculate_days_to_next_refill(refill) -> int:
 
 def create_refills_from_crf(instance: Any, related_visit_model_attr: str) -> RxRefill:
     subject_visit = getattr(instance, related_visit_model_attr)
-    rx_refill = create_refill(
+    return create_refill(
         refill_identifier=instance.refill_identifier,
         subject_identifier=subject_visit.subject_identifier,
         dosage_guideline=instance.dosage_guideline,
@@ -25,4 +25,3 @@ def create_refills_from_crf(instance: Any, related_visit_model_attr: str) -> RxR
         roundup_divisible_by=instance.roundup_divisible_by,
         weight_in_kgs=getattr(instance, "weight_in_kgs", None),
     )
-    return rx_refill

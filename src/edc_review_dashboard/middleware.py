@@ -15,7 +15,7 @@ class DashboardMiddleware(EdcTemplateMiddlewareMixin):
         self.check_for_required_request_attrs(request)
         return self.get_response(request)
 
-    def process_view(self, request, *args) -> None:
+    def process_view(self, request, *args) -> None:  # noqa: ARG002
         template_data = dashboard_templates
         with contextlib.suppress(AttributeError):
             template_data.update(settings.REVIEW_DASHBOARD_BASE_TEMPLATES)

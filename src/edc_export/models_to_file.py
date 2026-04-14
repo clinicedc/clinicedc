@@ -88,7 +88,7 @@ class ModelsToFile:
 
         if export_folder and not export_folder.exists():
             raise ModelsToFileError(f"Export folder does not exist. Got {export_folder}.")
-        self.export_folder: Path = export_folder if export_folder else Path(mkdtemp())
+        self.export_folder: Path = export_folder or Path(mkdtemp())
         formatted_date: str = timezone.now().strftime("%Y%m%d%H%M%S")
         self.sub_folder = (
             f"{self.user.username}_{'csv' if export_format == CSV else 'stata'}_"
