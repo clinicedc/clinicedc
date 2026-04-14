@@ -11,7 +11,7 @@ from ..utils import process_repack_request
 
 @shared_task
 def process_repack_request_queryset(
-    repack_request_pks: list[UUID], username: str = None
+    repack_request_pks: list[UUID], username: str | None = None
 ) -> None:
     if not celery_is_active():
         repack_request_pks = repack_request_pks[:1]

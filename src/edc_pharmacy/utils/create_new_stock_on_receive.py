@@ -3,7 +3,7 @@ from uuid import UUID
 from django.apps import apps as django_apps
 
 
-def create_new_stock_on_receive(receive_item_pk: UUID = None):
+def create_new_stock_on_receive(receive_item_pk: UUID | None = None):
     receive_item_model_cls = django_apps.get_model("edc_pharmacy.receiveitem")
     stock_model_cls = django_apps.get_model("edc_pharmacy.stock")
     receive_item = receive_item_model_cls.objects.get(pk=receive_item_pk)

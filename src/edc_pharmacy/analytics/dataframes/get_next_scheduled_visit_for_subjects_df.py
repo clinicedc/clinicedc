@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import pandas as pd
 from django.db.models import Q
 from django_pandas.io import read_frame
+
 from edc_appointment.analytics import get_appointment_df
 from edc_appointment.constants import NEW_APPT
 from edc_registration import get_registered_subject_model_cls

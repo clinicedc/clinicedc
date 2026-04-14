@@ -9,9 +9,7 @@ from django.db.models import DecimalField, ExpressionWrapper, F
 from django_pandas.io import read_frame
 
 
-def in_stock_for_subjects_df(
-    container_name: str = None, product_name: str = None
-) -> pd.DataFrame:
+def in_stock_for_subjects_df(*, container_name: str, product_name: str) -> pd.DataFrame:
     """Returns a dataframe of stock allocated to a subject_identifier.
 
     Filter by site_id to keep those rows already at a study site.
@@ -66,9 +64,8 @@ def in_stock_for_subjects_df(
     df_location = read_frame(location_cls.objects.all(), verbose=False)
     df_location = df_location.merge(df_sites[["name", "site_id"]], on="name", how="left")
     df_location = df_location.rename(columns={"id": "location"})
-    df = df.merge(df_location[["location", "site_id"]], how="left", on="location")
-
-    # sort
-    df = df.sort_values(by=["subject_identifier", "stock_identifier"])
-    df = df.reset_index(drop=True)
-    return df
+    return (
+        df.merge(df_location[["location", "site_id"]], how="left", on="location")
+        .sort_values(by=["subject_identifier", "stock_identifier"])
+        .reset_index(drop=True)
+    )

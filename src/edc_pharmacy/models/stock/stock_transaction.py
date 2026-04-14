@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.utils import timezone
+
 from edc_list_data.model_mixins import BaseListModelMixin, ListModelMixin
 from edc_model.models import BaseUuidModel
 

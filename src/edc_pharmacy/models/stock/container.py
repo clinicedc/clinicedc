@@ -3,6 +3,7 @@ from decimal import Decimal
 from clinicedc_constants import NULL_STRING
 from django.core.validators import MinValueValidator
 from django.db import models
+
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from .container_type import ContainerType

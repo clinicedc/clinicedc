@@ -4,6 +4,8 @@ from ...models import Container
 
 
 class ContainerForm(forms.ModelForm):
+    default_max_items_per_subject = 6
+
     def clean(self):
         cleaned_data = super().clean()
         if cleaned_data.get("max_items_per_subject") and not cleaned_data.get(
@@ -18,7 +20,7 @@ class ContainerForm(forms.ModelForm):
             raise forms.ValidationError({"max_items_per_subject": "This field is required"})
         if (
             cleaned_data.get("max_items_per_subject")
-            and cleaned_data.get("max_items_per_subject") > 6
+            and cleaned_data.get("max_items_per_subject") > self.default_max_items_per_subject
             and cleaned_data.get("may_request_as")
         ):
             raise forms.ValidationError({"max_items_per_subject": "May not exceed 6"})

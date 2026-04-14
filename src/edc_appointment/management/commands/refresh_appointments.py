@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
-from edc_registration.models import RegisteredSubject
 from tqdm import tqdm
 
 from edc_appointment.utils import refresh_appointments
+from edc_registration.models import RegisteredSubject
 
 
 class Command(BaseCommand):

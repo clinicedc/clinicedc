@@ -11,6 +11,7 @@ from django.urls.base import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.views.generic.base import TemplateView
+
 from edc_dashboard.view_mixins import EdcViewMixin
 
 from ..constants import CSV

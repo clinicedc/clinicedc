@@ -133,7 +133,10 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         try:
             obj.confirmationatlocationitem  # noqa: B018
         except ObjectDoesNotExist:
-            return f"{obj.stock.location.display_name} > {obj.stock_transfer.to_location.display_name}"
+            return (
+                f"{obj.stock.location.display_name} > "
+                f"{obj.stock_transfer.to_location.display_name}"
+            )
         else:
             return obj.stock.location.display_name
 
@@ -195,19 +198,3 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 title="Go to stock transfer confirmation item",
             )
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
-
-    # def has_delete_permission(self, request, obj=None):
-    #     """Hack to block delete if the stock instance has been
-    #     transferred to a location other than CENTRAL.
-    #
-    #     Block as if the user does not have permissions to
-    #     delete. An additional message shows why.
-    #
-    #     User requires explicit permission to delete this model
-    #     (which is not the default for any role).
-    #     """
-    #     return (
-    #         super().has_delete_permission(request, obj)
-    #         if may_delete_stock_transfer_item(self, request, obj)
-    #         else False
-    #     )

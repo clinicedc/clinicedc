@@ -3,10 +3,10 @@ import contextlib
 from django.contrib import admin
 from django_audit_fields import audit_fieldset_tuple
 
-from ..actions import print_labels, print_stock_report_action
 from ...admin_site import edc_pharmacy_admin
 from ...auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE
 from ...models import StockProxy
+from ..actions import print_labels, print_stock_report_action
 from ..list_filters import (
     ConfirmedAtLocationFilter,
     DispensedFilter,

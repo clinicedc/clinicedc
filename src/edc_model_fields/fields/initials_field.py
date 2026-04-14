@@ -38,4 +38,4 @@ class InitialsField(CharField):
             },
         }
         defaults.update(kwargs)
-        return super(InitialsField, self).formfield(**defaults)
+        return super().formfield(**defaults)

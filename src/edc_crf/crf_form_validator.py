@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from django.core.exceptions import ValidationError
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
+
 from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
 from edc_appointment.utils import allow_extended_window_period
 from edc_form_validators import INVALID_ERROR, FormValidator

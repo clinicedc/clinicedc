@@ -4,6 +4,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django import forms
+
 from edc_form_validators import FormValidator, FormValidatorMixin
 
 from ...models import RepackRequest
@@ -103,7 +104,9 @@ class RepackRequestForm(FormValidatorMixin, forms.ModelForm):
             ):
                 raise forms.ValidationError(
                     {
-                        "item_qty_repack": "Cannot be less than the number of containers processed"
+                        "item_qty_repack": (
+                            "Cannot be less than the number of containers processed"
+                        )
                     }
                 )
 
@@ -117,7 +120,8 @@ class RepackRequestForm(FormValidatorMixin, forms.ModelForm):
                     {
                         "item_qty_repack": (
                             "Insufficient unit quantity to repack from this stock item. "
-                            f"Need {needed_qty} units but have only {on_hand_qty} units on hand"
+                            f"Need {needed_qty} units but have only "
+                            f"{on_hand_qty} units on hand"
                         )
                     }
                 )

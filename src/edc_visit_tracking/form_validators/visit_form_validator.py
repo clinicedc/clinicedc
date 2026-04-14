@@ -9,6 +9,7 @@ from clinicedc_constants import OTHER
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
+
 from edc_appointment.constants import MISSED_APPT
 from edc_appointment.form_validator_mixins import WindowPeriodFormValidatorMixin
 from edc_appointment.form_validators import validate_appt_datetime_unique
@@ -123,7 +124,7 @@ class VisitFormValidator(WindowPeriodFormValidatorMixin, FormValidator):
         """Returns appt datetime in local timezone"""
         return self.appointment.appt_datetime.astimezone(ZoneInfo(settings.TIME_ZONE))
 
-    def validate_visit_datetime_in_window_period(self, *args) -> None:
+    def validate_visit_datetime_in_window_period(self, *args) -> None:  # noqa: ARG002
         """Asserts the report_datetime is within the visits lower and
         upper boundaries of the visit_schedule.schdule.visit.
 

@@ -28,7 +28,7 @@ class NoteModelMixin(SiteModelMixin, BaseUuidModel):
         blank=True,
     )
 
-    label = models.CharField(max_length=150, null=True, blank=True)
+    label = models.CharField(max_length=150, default=NULL_STRING, blank=True)
 
     note = models.TextField(default=NULL_STRING, blank=True)
 

@@ -1,7 +1,6 @@
 from django.urls import path
 
 from .admin_site import edc_pharmacy_admin
-from .constants import CENTRAL_LOCATION
 from .views import (
     AddToStorageBinView,
     AllocateToSubjectView,
@@ -147,4 +146,3 @@ urlpatterns = [
     # path("admin/history/", edc_pharmacy_history_admin.urls),
     path("", HomeView.as_view(), name="home_url"),
 ]
-1

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from reportlab.graphics.barcode.widgets import BarcodeCode128
 from reportlab.graphics.shapes import Drawing, Group, String
 from reportlab.pdfbase.pdfmetrics import stringWidth
+
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from ..utils import format_qty
 from .draw_label_watermark import draw_label_watermark

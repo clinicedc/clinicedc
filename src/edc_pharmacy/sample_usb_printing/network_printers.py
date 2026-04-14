@@ -1,4 +1,5 @@
 import socket
+import sys
 
 
 def get_local_ip():
@@ -25,7 +26,7 @@ def scan_network(ip_range):
                 open_printers.append(ip)
             sock.close()
         except Exception as e:
-            print(f"Error scanning {ip}: {e}")
+            sys.stdout.write(f"Error scanning {ip}: {e}")
     return open_printers
 
 
@@ -40,11 +41,11 @@ def main():
     ip_range = get_ip_range(local_ip)
     printers = scan_network(ip_range)
     if printers:
-        print("Found network printers at the following IP addresses:")
+        sys.stdout.write("Found network printers at the following IP addresses:")
         for printer in printers:
-            print(printer)
+            sys.stdout.write(printer)
     else:
-        print("No network printers found.")
+        sys.stdout.write("No network printers found.")
 
 
 if __name__ == "__main__":
