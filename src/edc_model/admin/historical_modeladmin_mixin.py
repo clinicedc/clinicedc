@@ -31,5 +31,5 @@ class HistoricalModelAdminMixin:
     def has_change_permission(self, request, obj=None):  # noqa: ARG002
         return False
 
-    def has_delete_permission(self, qrequest, obj=None):  # noqa: ARG002
+    def has_delete_permission(self, request, obj=None):  # noqa: ARG002
         return False
