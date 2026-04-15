@@ -22,7 +22,7 @@ condimentum ac mauris tempus, dignissim luctus eros.
 
 
 class MyReport(Report):
-    def get_report_story(self, **kwargs):
+    def get_report_story(self, **kwargs):  # noqa: ARG002
         story = []
         data = [[Paragraph(dummy_text, self.styles["line_data_large"])]]
 

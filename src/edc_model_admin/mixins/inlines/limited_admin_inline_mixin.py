@@ -50,5 +50,5 @@ class LimitedAdminInlineMixin:
 
         return formset
 
-    def get_filters(self, obj):
+    def get_filters(self, obj):  # noqa: ARG002
         return getattr(self, "filters", ())

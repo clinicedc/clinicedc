@@ -25,7 +25,7 @@ class ModelAdminModelRedirectMixin(BaseModelAdminRedirectMixin):
             value = None
         return value
 
-    def redirect_url(self, request, obj, post_url_continue=None, namespace=None):
+    def redirect_url(self, request, obj, post_url_continue=None, namespace=None):  # noqa: ARG002
         namespace = namespace or self.redirect_namespace
         return "{}?q={}".format(
             reverse(
@@ -34,7 +34,7 @@ class ModelAdminModelRedirectMixin(BaseModelAdminRedirectMixin):
             self.search_value(obj) or "",
         )
 
-    def redirect_url_on_delete(self, request, obj_display, obj_id, namespace=None):
+    def redirect_url_on_delete(self, request, obj_display, obj_id, namespace=None):  # noqa: ARG002
         namespace = namespace or self.redirect_namespace
         return reverse(
             f"{namespace}:{self.redirect_app_label}_{self.redirect_model_name}_changelist"

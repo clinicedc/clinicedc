@@ -24,7 +24,7 @@ class ModelAdminRedirectAllToChangelistMixin:
     change_search_field_name = None  # e.g. `screening_identifier` from model
     add_search_field_name = None
 
-    def get_changelist_url(self, request):
+    def get_changelist_url(self, request):  # noqa: ARG002
         return self.changelist_url
 
     def redirect_url(self, request, obj, post_url_continue=None) -> str | None:
@@ -36,7 +36,7 @@ class ModelAdminRedirectAllToChangelistMixin:
         try:
             url = reverse(self.get_changelist_url(request))
         except NoReverseMatch as e:
-            raise ModelAdminRedirectAllToChangelistMixinError(e)
+            raise ModelAdminRedirectAllToChangelistMixinError(e) from e
         value = get_value_from_lookup_string(self.change_search_field_name, obj=obj)
         if obj and value:
             url = f"{url}?q={value}"
@@ -45,7 +45,7 @@ class ModelAdminRedirectAllToChangelistMixin:
     def get_post_full_url_on_delete(self, request):
         return self.get_changelist_url(request)
 
-    def post_url_on_delete_querystring_kwargs(self, request, obj) -> dict:
+    def post_url_on_delete_querystring_kwargs(self, request, obj) -> dict:  # noqa: ARG002
         q = get_value_from_lookup_string(self.change_search_field_name, obj=obj)
         return dict(q=q)
 

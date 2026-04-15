@@ -96,7 +96,7 @@ def get_subject_visit(
     convert_visit_code_to_float(df)
 
     df_baseline_visit = df.copy()
-    df_baseline_visit = df_baseline_visit[(df_baseline_visit["visit_code"] == 1000.0)]
+    df_baseline_visit = df_baseline_visit[(df_baseline_visit["visit_code"] == 1000.0)]  # noqa: PLR2004
     df_baseline_visit = df_baseline_visit.rename(
         columns={"visit_datetime": "baseline_datetime"}
     )
@@ -117,21 +117,11 @@ def get_subject_visit(
         }
     )
     df_last["endline_visit_code_str"] = (
-        df_last["endline_visit_code"].astype("int64").apply(lambda x: str(x))
+        df_last["endline_visit_code"].astype("int64").apply(str)
     )
     df_last = df_last.reset_index()
     df = df.merge(df_last, on="subject_identifier", how="left")
 
     df["followup_days"] = (df.visit_datetime - df.baseline_datetime).dt.days
 
-    # get next visitcode and next visit datetime, if there is one
-    # df_next = get_appointment_df()
-    # df_next = (
-    #     df_next[df.appt_status == NEW_APPT]
-    #     .groupby("subject_identifier")
-    #     .agg({"visit_code": "min", "visit_datetime": "min"})
-    # )
-
-    df = df.sort_values(by=["subject_identifier", "visit_code"])
-    df = df.reset_index(drop=True)
-    return df
+    return df.sort_values(by=["subject_identifier", "visit_code"]).reset_index(drop=True)

@@ -18,7 +18,7 @@ class NumberedCanvas(canvas.Canvas):
         super().__init__(*args, **kwargs)
         self._saved_page_states = []
 
-    def showPage(self):
+    def showPage(self):  # noqa: N802
         self._saved_page_states.append(dict(self.__dict__))
         self._startPage()
 
@@ -39,9 +39,7 @@ class NumberedCanvas(canvas.Canvas):
         width, _ = self.pagsize
         self.setFont("Helvetica", 6)
         self.drawCentredString(
-            width / 2,
-            self.footer_row_height,
-            "Page %d of %d" % (self.getPageNumber(), page_count),
+            width / 2, self.footer_row_height, f"Page {self.getPageNumber()} of {page_count}"
         )
 
     def draw_watermark(self):

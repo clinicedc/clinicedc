@@ -31,11 +31,11 @@ def get_next_url(request, next_attr=None, warn_to_console=None):
             url = reverse(next_url, kwargs=kwargs)
         except NoReverseMatch as e:
             if warn_to_console:
-                warn(f"{e}. Got {next_value}.")
+                warn(f"{e}. Got {next_value}.", stacklevel=2)
     return url
 
 
-def get_value_from_lookup_string(search_field_name: str = None, obj=None, request=None):
+def get_value_from_lookup_string(search_field_name: str, obj=None, request=None):
     value = None
     for field in search_field_name.split(LOOKUP_SEP):
         if request:
@@ -52,9 +52,7 @@ def get_value_from_lookup_string(search_field_name: str = None, obj=None, reques
     return value
 
 
-def add_to_messages_once(
-    request: WSGIRequest = None, level: int = None, message: str = None
-) -> None:
+def add_to_messages_once(request: WSGIRequest, level: int, message: str) -> None:
     if not [msg_obj for msg_obj in get_messages(request) if msg_obj.message == message]:
         messages.add_message(
             request=request,

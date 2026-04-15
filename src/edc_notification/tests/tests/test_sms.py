@@ -17,12 +17,12 @@ from ..models import AE
 
 class TwilioTestClient:
     # noinspection PyUnusedLocal
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs):  # noqa: ARG002
         self.messages = TwillioTestClientMessages()
 
 
 class TwillioTestClientMessages:
-    created: list = []
+    created: list = []  # noqa: RUF012
 
     sid = "test-sid"
 

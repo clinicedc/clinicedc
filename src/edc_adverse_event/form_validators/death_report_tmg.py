@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from datetime import date
 
 from clinicedc_constants import CLOSED, NO, OTHER
@@ -28,10 +29,8 @@ class DeathReportTmgFormValidator(
         except ObjectDoesNotExist as e:
             self.raise_validation_error("Death report not found.", INVALID_ERROR, exc=e)
         death_date = getattr(obj, obj.death_date_field)
-        try:
+        with contextlib.suppress(AttributeError):
             death_date = death_date.date()
-        except AttributeError:
-            pass
         return death_date
 
     def clean(self):
@@ -65,6 +64,8 @@ class DeathReportTmgFormValidator(
             NO, field="cause_of_death_agreed", field_required="narrative", inverse=False
         )
 
+        self.validate_before_report_status()
+
         self.required_if(
             CLOSED, field="report_status", field_required="report_closed_datetime"
         )
@@ -76,3 +77,9 @@ class DeathReportTmgFormValidator(
                 inclusive=True,
                 msg="Must be on or after the report date above.",
             )
+
+    def validate_before_report_status(self):
+        """Hook to insert custom validation before validatiNG
+        report_closed_datetime
+        """
+        pass

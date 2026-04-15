@@ -9,7 +9,7 @@ class TabularInlineMixin(ModelAdminAuditFieldsMixin, admin.TabularInline):
 
     template = "edc_model_admin/admin/tabular.html"
 
-    def get_formset(self, request, obj=None, **kwargs):
+    def get_formset(self, request, obj=None, **kwargs):  # noqa: ARG002
         formset = super().get_formset(request, obj=None, **kwargs)
         formset.insert_before_fieldset = self.insert_before_fieldset
         return formset

@@ -86,7 +86,7 @@ class Report:
     def report_filename(self) -> str:
         return self.filename
 
-    def get_report_story(self, **kwargs):
+    def get_report_story(self, **kwargs):  # noqa: ARG002
         """Entry point, returns a list of flowables to be passed to build.
 
         For example, where ``pdf_report`` is an instance of this class:

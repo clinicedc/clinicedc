@@ -6,7 +6,6 @@ from .row import RowDefinition, RowDefinitions, RowStatisticsWithGender
 
 
 class Table:
-
     title_column = "Characteristics"
     label_column = "Statistic"
     default_sublabel = "n"
@@ -91,14 +90,14 @@ class Table:
                 self.table_df = pd.DataFrame(columns=columns)
             rows.append([rd.title, rd.label] + row_stats.values_list() + [self.title])
             if rd.drop and not df_numerator.empty:
-                df_denominator.drop(df_numerator.index, inplace=True)
+                df_denominator = df_denominator.drop(df_numerator.index)
         if self.row_definitions.reverse_rows:
             rows.reverse()
         for index, values_list in enumerate(rows):
             self.table_df.loc[index] = values_list
         if not self.include_zero_counts:
-            self.table_df.drop(
-                self.table_df[self.table_df[COUNT_COLUMN] == 0].index, inplace=True
+            self.table_df = self.table_df.drop(
+                index=self.table_df[self.table_df[COUNT_COLUMN] == 0].index
             )
         self.reorder_df()
 

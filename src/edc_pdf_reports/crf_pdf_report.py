@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os
+from pathlib import Path
 from textwrap import fill
 from typing import TYPE_CHECKING
 
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 
 
-class NotAllowed(Exception):
+class NotAllowedError(Exception):
     pass
 
 
@@ -111,7 +111,7 @@ class CrfPdfReport(Report):
     def __str__(self):
         return self.model_obj
 
-    def get_subject_identifier(self, **kwargs) -> str:
+    def get_subject_identifier(self, **kwargs) -> str:  # noqa: ARG002
         try:
             subject_identifier = self.model_obj.related_visit.subject_identifier
         except AttributeError:
@@ -121,11 +121,10 @@ class CrfPdfReport(Report):
     @property
     def report_filename(self) -> str:
         timestamp = to_local(self.model_obj.report_datetime).strftime("%Y%m%d")
-        report_filename = (
+        return (
             f"{slugify(self.model_obj._meta.verbose_name.lower())}-{self.subject_identifier}-"
             f"{timestamp}.pdf"
         )
-        return report_filename
 
     @classmethod
     def get_generic_report_filename(cls) -> str:
@@ -139,9 +138,8 @@ class CrfPdfReport(Report):
     def get_verbose_name(cls) -> str:
         return cls.get_model_cls()._meta.verbose_name
 
-    def get_report_story(self, **kwargs):
-        story = []
-        return story
+    def get_report_story(self, **kwargs):  # noqa: ARG002
+        return []
 
     def on_first_page(self, canvas, doc):
         super().on_first_page(canvas, doc)
@@ -175,10 +173,10 @@ class CrfPdfReport(Report):
             canvas.setFontSize(8)
             canvas.drawRightString(width - 35, height - 35, self.title)
 
-    def draw_demographics(self, story, **kwargs):
+    def draw_demographics(self, story, **kwargs):  # noqa: ARG002
         try:
             assignment = fill(self.assignment, width=80)
-        except NotAllowed:
+        except NotAllowedError:
             assignment = "*****************"
         rows = [
             ["Subject:", self.subject_identifier],
@@ -250,7 +248,7 @@ class CrfPdfReport(Report):
     def logo(self):
         if not self._logo:
             path = get_static_file(self.logo_data["app_label"], self.logo_data["filename"])
-            if os.path.isfile(path):
+            if Path(path).is_file():
                 self._logo = ImageReader(path)
         return self._logo
 
@@ -299,7 +297,7 @@ class CrfPdfReport(Report):
                 not self.unblinded
                 or not self.user.groups.filter(name=RANDO_UNBLINDED).exists()
             ):
-                raise NotAllowed(
+                raise NotAllowedError(
                     "User does not have permissions to access randomization list. "
                     f"Got {self.user}"
                 )

@@ -4,7 +4,7 @@ from reportlab.platypus import Flowable
 
 
 class TextboxFlowable(Flowable):
-    def __init__(self, name, width=200, height=60, value="", borderStyle="solid"):
+    def __init__(self, name, width=200, height=60, value="", borderStyle="solid"):  # noqa: N803
         Flowable.__init__(self)
         self.name = name
         self.width = width
@@ -40,5 +40,5 @@ class TextboxFlowable(Flowable):
             fieldFlags="multiline",  # Enable multiline for the textbox
         )
 
-    def split(self, availWidth, availHeight):
+    def split(self, availWidth, availHeight):  # noqa: ARG002, N803
         return [self]

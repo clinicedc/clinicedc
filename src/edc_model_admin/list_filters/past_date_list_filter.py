@@ -25,7 +25,7 @@ class PastDateListFilter(SimpleListFilter):
     parameter_name = None
     field_name = None
 
-    def lookups(self, request, model_admin) -> tuple:
+    def lookups(self, request, model_admin) -> tuple:  # noqa: ARG002
         return (
             (TODAY, _("Today")),
             (YESTERDAY, _("Yesterday")),
@@ -43,7 +43,7 @@ class PastDateListFilter(SimpleListFilter):
     def extra_queryset_options(self) -> dict:
         return {}
 
-    def queryset(self, request, queryset) -> QuerySet | None:
+    def queryset(self, request, queryset) -> QuerySet | None:  # noqa: ARG002
         morning = timezone.now().replace(second=0, hour=0, minute=0)
         monday = morning + relativedelta(weekday=MO(-1))
         night = timezone.now().replace(second=59, hour=23, minute=59)

@@ -45,7 +45,9 @@ class PdfIntermediateView(EdcViewMixin, EdcProtocolViewMixin, TemplateView):
         request.session[self.session_key] = json.dumps([str(pk) for pk in self.model_pks])
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, app_label: str = None, model_name: str = None, **kwargs):
+    def get_context_data(
+        self, app_label: str | None = None, model_name: str | None = None, **kwargs
+    ):
         model_cls = django_apps.get_model(app_label, model_name)
         kwargs.update(
             object_count=len(self.model_pks),

@@ -100,9 +100,9 @@ class TestExport(TestCase):
 
     def test_values(self):
         model = "clinicedc_tests.crffour"
-        m = ModelToDataframe(model=model)
-        df = m.dataframe
-        df.sort_values(by=["subject_identifier", "visit_code"], inplace=True)
+        df = ModelToDataframe(model=model).dataframe.sort_values(
+            by=["subject_identifier", "visit_code"]
+        )
         for i, crf in enumerate(
             CrfFour.objects.all().order_by(
                 "subject_visit__subject_identifier", "subject_visit__visit_code"

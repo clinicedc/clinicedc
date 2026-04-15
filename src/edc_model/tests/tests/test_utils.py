@@ -194,9 +194,8 @@ class TestUtils(TestCase):
             "-2d3h",
         ]
         for invalid_str in invalid_duration_strings:
-            with self.subTest(string=invalid_str):
-                with self.assertRaises(InvalidFormat):
-                    duration_dh_to_timedelta(invalid_str)
+            with self.subTest(string=invalid_str), self.assertRaises(InvalidFormat):
+                duration_dh_to_timedelta(invalid_str)
 
     def test_timedelta_from_duration_dh_field_with_valid_str_ok(self):
         test_cases = [
@@ -324,8 +323,10 @@ class TestUtils(TestCase):
     def test_timedelta_from_duration_dh_field_with_invalid_filed_name_raises(self):
         obj = ModelWithDHDurationValidators.objects.create(duration_dh="2d")
         for invalid_field_name in ["non_existent_field", "", None]:
-            with self.subTest(invalid_field_name=invalid_field_name):
-                with self.assertRaises(InvalidFieldName):
-                    timedelta_from_duration_dh_field(
-                        data=obj, duration_dh_field=invalid_field_name
-                    )
+            with (
+                self.subTest(invalid_field_name=invalid_field_name),
+                self.assertRaises(InvalidFieldName),
+            ):
+                timedelta_from_duration_dh_field(
+                    data=obj, duration_dh_field=invalid_field_name
+                )

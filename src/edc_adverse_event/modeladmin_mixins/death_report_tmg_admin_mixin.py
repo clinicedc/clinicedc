@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from clinicedc_constants import OTHER
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
@@ -28,6 +30,13 @@ class DeathReportTmgModelAdminMixin(
                     "cause_of_death_other",
                     "cause_of_death_agreed",
                     "narrative",
+                )
+            },
+        ),
+        (
+            "Report status",
+            {
+                "fields": (
                     "report_status",
                     "report_closed_datetime",
                 )
@@ -49,7 +58,7 @@ class DeathReportTmgModelAdminMixin(
         "death_report__action_identifier",
     )
 
-    def get_list_display(self, request) -> tuple[str]:
+    def get_list_display(self, request) -> tuple[str, ...] | tuple[Any, str]:
         list_display = super().get_list_display(request)
         custom_fields = (
             "subject_identifier",
@@ -60,9 +69,9 @@ class DeathReportTmgModelAdminMixin(
             "status",
             "report_closed_datetime",
         )
-        return custom_fields + tuple(f for f in list_display if f not in custom_fields)
+        return *custom_fields, *[f for f in list_display if f not in custom_fields]
 
-    def get_list_filter(self, request) -> tuple[str]:
+    def get_list_filter(self, request) -> tuple[str, ...] | tuple[Any, str]:
         list_filter = super().get_list_filter(request)
         custom_fields = (
             "report_datetime",
@@ -70,12 +79,12 @@ class DeathReportTmgModelAdminMixin(
             "cause_of_death_agreed",
             "cause_of_death",
         )
-        return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
+        return *custom_fields, *[f for f in list_filter if f not in custom_fields]
 
-    def get_readonly_fields(self, request, obj=None) -> tuple[str]:
+    def get_readonly_fields(self, request, obj=None) -> tuple[str, ...] | tuple[Any, str]:
         fields = super().get_readonly_fields(request, obj)
         if obj:
-            fields = fields + ("death_report",)
+            fields = *fields, "death_report"
         return fields
 
     @staticmethod

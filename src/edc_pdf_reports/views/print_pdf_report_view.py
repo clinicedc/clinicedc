@@ -23,7 +23,7 @@ class PrintPdfReportView(ContextMixin, View):
 
     session_key = "model_pks"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):  # noqa: ARG002
         kwargs = self.get_context_data(**kwargs)
         return self.render_to_response(**kwargs)
 
@@ -42,9 +42,10 @@ class PrintPdfReportView(ContextMixin, View):
                 self.request,
                 format_html(
                     _(
-                        f"PDF report was not created because of an error. Got {e}. "
+                        "PDF report was not created because of an error. Got {}. "
                         "Please try again."
-                    ),
+                    )
+                    % str(e),
                     fail_silently=True,
                 ),
             )
