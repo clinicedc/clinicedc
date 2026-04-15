@@ -3,8 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 
+from edc_adverse_event.utils import get_ae_model
 from edc_view_utils import ModelButton
 
 if TYPE_CHECKING:
@@ -92,8 +94,16 @@ class TmgButton(ModelButton):
         return _(super().label)
 
     @property
-    def extra_kwargs(self) -> dict[str, str | int]:
+    def extra_kwargs(self) -> dict[str, str | int | None]:
         opts = {}
+        try:
+            death_report = (
+                get_ae_model("deathreport")
+                .objects.get(subject_identifier=self.action_item.subject_identifier)
+                .id
+            )
+        except ObjectDoesNotExist:
+            death_report = None
         if self.action_item.parent_action_item:
             parent_action_item = getattr(self.action_item, "parent_action_item", None)
             if parent_action_item:
@@ -109,5 +119,6 @@ class TmgButton(ModelButton):
                 ae_initial=str(self.action_item.parent_action_item.reference_obj.id),
                 action_identifier=self.action_item.action_identifier,
                 action_item=str(self.action_item.id),
+                death_report=death_report,
             )
         return opts

@@ -66,6 +66,7 @@ class BaseListModelMixin(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ("display_index", "display_name")
         indexes = (models.Index(fields=["display_index", "display_name"]),)
         default_permissions = ("add", "change", "delete", "view", "export", "import")
 

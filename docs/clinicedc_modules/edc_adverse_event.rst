@@ -1,6 +1,12 @@
 edc-adverse-event
 =================
 
+.. toctree::
+   :maxdepth: 1
+
+   tmg_death_report_workflow
+
+
 Create an AE application
 ++++++++++++++++++++++++
 

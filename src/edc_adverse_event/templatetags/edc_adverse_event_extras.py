@@ -111,11 +111,11 @@ def format_ae_followup_description(context, ae_followup, wrap_length):
         context["sae_reason"] = ""
     context["relevant_history"] = format_html(
         "{}",
-        mark_safe(wrapx(escape_braces(ae_followup.relevant_history), wrap_length)),  # nosec B703, B308
+        wrapx(escape_braces(ae_followup.relevant_history), wrap_length),
     )
     context["ae_description"] = format_html(
         "{}",
-        mark_safe(wrapx(escape_braces(ae_followup.ae_initial.ae_description), wrap_length)),  # nosec B703, B308
+        wrapx(escape_braces(ae_followup.ae_initial.ae_description), wrap_length),
     )
     return context
 
@@ -130,18 +130,18 @@ def format_ae_susar_description(context, ae_susar, wrap_length):
     context["ae_initial"] = ae_susar.ae_initial
     context["sae_reason"] = format_html(
         "{}",
-        mark_safe(
+        (
             "<BR>".join(
                 wrap(
                     escape_braces(ae_susar.ae_initial.sae_reason.name),
                     wrap_length or 35,
                 )
             )
-        ),  # nosec B703, B308
+        ),
     )
     context["ae_description"] = format_html(
         "{}",
-        mark_safe(wrapx(escape_braces(ae_susar.ae_initial.ae_description), wrap_length)),  # nosec B703, B308
+        wrapx(escape_braces(ae_susar.ae_initial.ae_description), wrap_length),
     )
     return context
 
@@ -205,7 +205,7 @@ def ae_tmg_action_item_queryset(subject_identifier: str, *status) -> QuerySet[Ac
 
 
 @register.simple_tag
-def death_report_tmg_action_item(subject_identifier: str) -> ActionItem:
+def death_report_tmg_action_item(subject_identifier: str) -> ActionItem | None:
     try:
         obj = django_apps.get_model("edc_action_item.actionitem").objects.get(
             subject_identifier=subject_identifier,
@@ -217,7 +217,7 @@ def death_report_tmg_action_item(subject_identifier: str) -> ActionItem:
 
 
 @register.simple_tag
-def death_report_tmg_second_action_item(subject_identifier: str) -> ActionItem:
+def death_report_tmg_second_action_item(subject_identifier: str) -> ActionItem | None:
     try:
         obj = django_apps.get_model("edc_action_item.actionitem").objects.get(
             subject_identifier=subject_identifier,
