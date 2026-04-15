@@ -1,6 +1,7 @@
 {% extends edc_listboard_template %}
 
 {% load edc_dashboard_extras %}
+{% load edc_adverse_event_extras %}
 {% load tz %}
 {% load static %}
 {% load l10n %}
@@ -57,16 +58,17 @@
                 <BR></small>
         {% endfor %}
     <td>
+        {% has_ae_perm "change_deathreport" as can_change_death_report %}
         <a title="View Death Report"
            href="{% if SITE_ID != result.object.site.id %}#{% else %}{{ result.href }}{% endif %}"
            role="button"
-           class="btn btn-sm btn-{% if  perms.ambition_ae.change_deathreport %}success{% else %}info{% endif %}"
+           class="btn btn-sm btn-{% if can_change_death_report %}success{% else %}info{% endif %}"
            {% if SITE_ID != result.object.site.id %}disabled{% endif %}>
-            {% if  perms.ambition_ae.change_deathreport %}
+            {% if can_change_death_report %}
                 <i class="fas fa-pencil-alt fa-fw"></i>
             {% else %}
                 <i class="fas fa-eye fa-fw"></i>
-            {% endif %}&nbsp;<tt>{{ result.object.identifier }}</tt></span>
+            {% endif %}&nbsp;<tt>{{ result.object.identifier }}</tt>
         </a>
         <small>
             <BR>Died: {{ result.object.death_datetime|date:"SHORT_DATE_FORMAT" }}
