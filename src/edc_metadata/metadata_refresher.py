@@ -24,10 +24,11 @@ class MetadataRefresher:
     metadata rules or manual changes to data.
     """
 
-    def __init__(self, verbose: bool | None = None):
+    def __init__(self, verbose: bool | None = None, fresh_create: bool = False):
         self._source_models = []
         self._admin_models = []
         self.verbose = verbose
+        self.fresh_create = fresh_create
 
     def run(self) -> None:
         self._message("Updating metadata ...     \n")
@@ -150,7 +151,7 @@ class MetadataRefresher:
             f"   - {model_count} post-consent models found for {total} visits ... \n"
         )
         for related_visit in tqdm(related_visits, total=total):
-            related_visit.metadata_create()
+            related_visit.metadata_create(fresh_create=self.fresh_create)
         self._message("    Done.\n")
 
     def validate_metadata_for_all(self):
