@@ -314,7 +314,8 @@ def reset_visit_code_sequence_or_pass(
 
         with transaction.atomic():
             # set appt and related visit visit_code_sequences to the
-            # negative of the current value
+            # negative of the current value (temporary, to avoid unique
+            # constraint violations while renumbering)
             for obj in get_appointment_model_cls().objects.filter(
                 visit_code_sequence__gt=0, **opts
             ):
@@ -323,7 +324,8 @@ def reset_visit_code_sequence_or_pass(
                 if getattr(obj, "related_visit", None):
                     obj.related_visit.visit_code_sequence = obj.visit_code_sequence
                     obj.related_visit.save_base(update_fields=["visit_code_sequence"])
-                    obj.related_visit.metadata_create()
+                # do NOT call metadata_create() here — visit_code_sequence is
+                # temporarily negative and would create corrupt metadata records
 
             # reset sequence order by appt_datetime
             for index, obj in enumerate(
