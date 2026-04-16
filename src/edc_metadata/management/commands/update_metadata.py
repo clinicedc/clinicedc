@@ -13,7 +13,7 @@ class Command(BaseCommand):
     help = "Update metadata and re-run metadatarules"
 
     def handle(self, *args, **options) -> None:  # noqa: ARG002
-        metadata_refresher = MetadataRefresher(verbose=True)
+        metadata_refresher = MetadataRefresher(verbose=True, fresh_create=True)
         sys.stdout.write("Deleting all CrfMetadata...     \r")
         CrfMetadata.objects.all().delete()
         sys.stdout.write("Deleting all CrfMetadata...done.                    \n")
