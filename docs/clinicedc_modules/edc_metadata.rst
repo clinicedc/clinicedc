@@ -465,6 +465,98 @@ Rule Group Order
 
     **IMPORTANT**: RuleGroups are evaluated in the order they are registered and the rules within each rule group are evaluated in the order they are declared on the RuleGroup.
 
+Rule evaluation internals
+-------------------------
+
+Understanding how rules are evaluated internally helps when diagnosing unexpected
+``entry_status`` values or writing new rules.
+
+**Evaluation chain**
+
+When rules are triggered (by a visit or CRF ``post_save`` signal), the chain is:
+
+1. ``MetadataRuleEvaluator`` (``metadata_rules/metadata_rule_evaluator.py``) — the entry
+   point. Looks up all registered ``RuleGroups`` for the visit model's ``app_label`` and
+   calls ``evaluate_rules()`` on each in registration order.
+
+2. ``CrfRuleGroup.evaluate_rules()`` (``metadata_rules/crf/crf_rule_group.py``) — iterates
+   through each rule on the group. For each rule it:
+
+   a. **Skips** the rule entirely if the ``source_model`` is not the visit model itself and
+      is not in the set of CRFs scheduled for this visit (including PRNs and, for unscheduled
+      visits, ``crfs_unscheduled`` + ``crfs_prn``).
+   b. Calls ``rule.run(related_visit)`` to evaluate the predicate and determine
+      ``entry_status``.
+   c. For each ``target_model``, skips the update if the target is not in the visit's CRFs.
+   d. Calls ``MetadataUpdater.get_and_update()`` to apply the result.
+
+3. ``MetadataUpdater`` (``metadata_updater.py``) — retrieves the metadata record via
+   ``MetadataHandler``, then updates ``entry_status`` (and timestamp fields) if it differs
+   from the current value. If the source model instance already exists (is ``KEYED``), the
+   ``entry_status`` is forced to ``KEYED`` regardless of the rule result.
+
+4. ``MetadataHandler`` (``metadata_handler.py``) — fetches the metadata record. If it does
+   not exist, it creates it by finding the CRF in ``visit.all_crfs`` and calling
+   ``Creator.create_crf()``. Creation is skipped for missed visits.
+
+**Source model scoping**
+
+A ``RuleGroup``'s ``source_model`` determines when the group runs:
+
+* If ``source_model`` is the visit model (e.g. ``SubjectVisit``), the rules run on every
+  visit save.
+* If ``source_model`` is a CRF (e.g. ``SignsAndSymptoms``), the rules only run when that
+  CRF is in the current visit's CRF list. This means the same ``RuleGroup`` may silently
+  skip at visits where that CRF is not scheduled.
+
+**KEYED records are never changed by rules**
+
+If the target CRF has already been submitted (``entry_status == KEYED``), no rule can
+change its ``entry_status``. ``MetadataUpdater.get_and_update()`` detects this and
+forces ``entry_status`` to ``KEYED``, overriding the rule result.
+
+**Singleton CRFs — ``PersistantSingletonMixin``**
+
+For CRF models that should be entered exactly once across the entire schedule (singletons),
+the ``PersistantSingletonMixin`` (``metadata_rules/persistant_singleton_mixin.py``) can be
+included in your ``Predicates`` class. Its ``persistant_singleton_required()`` method:
+
+* Returns ``True`` (REQUIRED) only for the **last attended scheduled visit** where the
+  singleton has not yet been submitted, and only if the visit code is not in the
+  ``exclude_visit_codes`` list.
+* Calls ``set_other_crf_metadata_not_required()`` to set all other timepoints for that
+  singleton to ``NOT_REQUIRED``, keeping the "required" marker at the last attended visit
+  as the subject progresses through the schedule.
+* Once submitted, sets all non-``KEYED`` instances to ``NOT_REQUIRED``.
+
+For singletons, a separate ``post_save`` signal
+(``metadata_update_previous_timepoints_for_singleton_on_post_save`` in ``signals.py``)
+walks back through all previous appointments and re-runs metadata rules with
+``allow_create=False`` whenever a singleton CRF is saved.
+
+**Key classes summary**
+
+.. list-table::
+   :header-rows: 1
+
+   * - Class / file
+     - Role
+   * - ``metadata_rules/metadata_rule_evaluator.py`` — ``MetadataRuleEvaluator``
+     - Entry point; iterates registered rule groups for the visit model's app label
+   * - ``metadata_rules/crf/crf_rule_group.py`` — ``CrfRuleGroup``
+     - Scopes rules to the visit's CRF list; calls ``MetadataUpdater`` per target model
+   * - ``metadata_rules/rule.py`` — ``Rule``
+     - Runs the predicate via ``RuleEvaluator`` and returns ``{target_model: entry_status}``
+   * - ``metadata_rules/rule_evaluator.py`` — ``RuleEvaluator``
+     - Evaluates the predicate (``P``, ``PF``, or callable) and returns the consequence
+       or alternative
+   * - ``metadata_updater.py`` — ``MetadataUpdater``
+     - Fetches metadata via ``MetadataHandler`` and applies the new ``entry_status``
+   * - ``metadata_handler.py`` — ``MetadataHandler``
+     - Gets or creates the metadata record; creation uses ``Creator.create_crf()``
+   * - ``metadata_rules/persistant_singleton_mixin.py`` — ``PersistantSingletonMixin``
+     - Predicate helper for singleton CRFs; keeps ``REQUIRED`` at the last attended visit
+
 Updating metadata
 -----------------
 
@@ -520,3 +612,75 @@ In the ``signals`` file:
 **crf or requisition model ``post_delete``:**
 
 * the metadata instance for the crf/requisition is reset to the default ``entry_status`` and then all rules are run.
+
+Metadata creation and regeneration internals
+--------------------------------------------
+
+Metadata records are created, updated, and deleted through several coordinated mechanisms.
+Understanding these is useful when diagnosing performance issues or writing data migrations.
+
+**Normal flow (signal-driven)**
+
+When a ``visit`` model is saved, ``metadata_create_on_post_save()`` in ``signals.py`` calls
+``instance.metadata_create()`` on the visit. This is provided by ``CreatesMetadataModelMixin``
+(``model_mixins/creates/creates_metadata_model_mixin.py``) and delegates to
+``Metadata.prepare()`` in ``metadata/metadata.py``.
+
+``Metadata.prepare()`` runs in two steps:
+
+1. ``Destroyer.delete()`` — deletes all ``REQUIRED`` and ``NOT_REQUIRED`` metadata for the visit
+   (``KEYED`` records are left intact).
+2. ``Creator.create()`` — iterates through all CRFs and requisitions in the visit schedule and
+   calls ``CrfCreator`` or ``RequisitionCreator`` for each, which uses ``get_or_create`` with
+   ``IntegrityError`` handling for race conditions.
+
+When a CRF or requisition is saved, ``metadata_update_on_post_save()`` updates the single
+corresponding metadata record's ``entry_status`` to ``KEYED`` and re-runs metadata rules.
+
+When a CRF or requisition is deleted, ``metadata_reset_on_post_delete()`` resets the
+``entry_status`` back to its default and re-runs metadata rules.
+
+**Bulk regeneration (management command)**
+
+The ``update_metadata`` management command (``management/commands/update_metadata.py``) is used
+after code changes or data migrations to rebuild all metadata from scratch:
+
+.. code-block:: bash
+
+    python manage.py update_metadata
+
+It works as follows:
+
+1. Deletes **all** ``CrfMetadata`` and ``RequisitionMetadata`` records.
+2. Instantiates ``MetadataRefresher`` (``metadata_refresher.py``) and calls ``.run()``.
+3. ``MetadataRefresher.create_or_update_metadata_for_all()`` iterates through every visit
+   model instance and calls ``metadata_create()`` on each, recreating metadata per the
+   current visit schedule.
+4. After creation, ``MetadataRefresher`` removes orphaned metadata records — those whose
+   ``model`` is no longer listed in the visit schedule or registered in admin — via
+   ``verifying_crf_metadata_with_visit_schedule_and_admin()`` and its requisition equivalent.
+5. Finally, ``MetadataRefresher.run_metadata_rules()`` iterates through all source model
+   instances and re-runs all metadata rules.
+
+**Key classes and files**
+
+.. list-table::
+   :header-rows: 1
+
+   * - Class / file
+     - Purpose
+   * - ``metadata/metadata.py`` — ``Metadata``
+     - Orchestrates ``Destroyer`` + ``Creator`` for a single visit
+   * - ``metadata/metadata.py`` — ``Creator``
+     - Creates ``CrfMetadata`` / ``RequisitionMetadata`` for all forms in a visit
+   * - ``metadata/metadata.py`` — ``CrfCreator``
+     - ``get_or_create`` for a single ``CrfMetadata`` record
+   * - ``metadata/metadata.py`` — ``Destroyer``
+     - Deletes non-``KEYED`` metadata for a visit before recreation
+   * - ``metadata_refresher.py`` — ``MetadataRefresher``
+     - Bulk rebuild across all visits; removes orphaned records
+   * - ``model_mixins/creates/creates_metadata_model_mixin.py`` — ``CreatesMetadataModelMixin``
+     - Mixin on the visit model; entry point for signal-driven creation
+   * - ``update_metadata_on_schedule_change.py`` — ``UpdateMetadataOnScheduleChange``
+     - Bulk-updates ``schedule_name`` / ``visit_schedule_name`` on existing records when
+       schedule configuration changes
