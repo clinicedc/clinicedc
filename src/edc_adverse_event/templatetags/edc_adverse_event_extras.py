@@ -190,7 +190,7 @@ def death_report_queryset(subject_identifier: str) -> QuerySet[DeathReportTmgSec
 
 @register.simple_tag
 def ae_followup_queryset(ae_initial: AeInitialModel = None) -> QuerySet[AeFollowupModel]:
-    if ae_initial:
+    if ae_initial and isinstance(ae_initial, get_ae_model("aeinitial")):
         return get_ae_model("aefollowup").objects.filter(ae_initial=ae_initial)
     return get_ae_model("aefollowup").objects.none()
 
