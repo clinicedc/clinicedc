@@ -190,7 +190,7 @@ def death_report_queryset(subject_identifier: str) -> QuerySet[DeathReportTmgSec
 
 @register.simple_tag
 def ae_followup_queryset(ae_initial: AeInitialModel = None) -> QuerySet[AeFollowupModel]:
-    if ae_initial:
+    if ae_initial and isinstance(ae_initial, get_ae_model("aeinitial")):
         return get_ae_model("aefollowup").objects.filter(ae_initial=ae_initial)
     return get_ae_model("aefollowup").objects.none()
 
@@ -285,6 +285,17 @@ def render_tmg_panel(
             panel_label=panel_label,
         )
     return {}
+
+
+@register.simple_tag(takes_context=True)
+def has_ae_perm(context, codename: str) -> bool:
+    """Return True if user has ``<ae_app_label>.<codename>``.
+
+    The AE app label is resolved dynamically so downstream apps
+    (effect_ae, meta_ae, ...) don't need to patch this template.
+    """
+    user = context["request"].user
+    return user.has_perm(f"{get_adverse_event_app_label()}.{codename}")
 
 
 @register.simple_tag(takes_context=True)
