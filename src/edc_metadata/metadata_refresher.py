@@ -24,10 +24,11 @@ class MetadataRefresher:
     metadata rules or manual changes to data.
     """
 
-    def __init__(self, verbose: bool | None = None):
+    def __init__(self, verbose: bool | None = None, fresh_create: bool = False):
         self._source_models = []
         self._admin_models = []
         self.verbose = verbose
+        self.fresh_create = fresh_create
 
     def run(self) -> None:
         self._message("Updating metadata ...     \n")
@@ -60,7 +61,9 @@ class MetadataRefresher:
     @staticmethod
     def run_metadata_rules(source_model_cls: Any, total: int) -> None:
         """Updates rules for all instances of this source model"""
-        for instance in tqdm(source_model_cls.objects.all(), total=total):
+        for instance in tqdm(
+            source_model_cls.objects.all().select_related("appointment", "site"), total=total
+        ):
             if django_apps.get_app_config("edc_metadata").metadata_rules_enabled:
                 instance.run_metadata_rules()
 
@@ -140,13 +143,15 @@ class MetadataRefresher:
         self._message("- Updating metadata for all post consent models...     \n")
         models = dict(sorted(site_visit_schedules.all_post_consent_models.items()))
         model_count = len(list(models))
-        related_visits = get_related_visit_model_cls().objects.all()
+        related_visits = get_related_visit_model_cls().objects.all().select_related(
+            "appointment", "site"
+        )
         total = related_visits.count()
         self._message(
             f"   - {model_count} post-consent models found for {total} visits ... \n"
         )
         for related_visit in tqdm(related_visits, total=total):
-            related_visit.metadata_create()
+            related_visit.metadata_create(fresh_create=self.fresh_create)
         self._message("    Done.\n")
 
     def validate_metadata_for_all(self):

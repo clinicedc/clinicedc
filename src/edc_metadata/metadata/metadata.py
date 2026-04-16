@@ -36,19 +36,27 @@ class DeleteMetadataError(Exception):
     pass
 
 
+_admin_registered_models_cache: set[Any] | None = None
+
+
 def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
     """Returns True if model cls is registered in Admin.
 
+    The set of registered models is built once and cached for the
+    lifetime of the process — admin registrations do not change at runtime.
+
     See also settings.EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN
     """
-    registered = False
+    global _admin_registered_models_cache
     if not verify_model_cls_registered_with_admin():
-        registered = True
-    else:
-        for admin_site in all_sites:
-            if model_cls in admin_site._registry:
-                registered = True
-    return registered
+        return True
+    if _admin_registered_models_cache is None:
+        # Note: if tests register/unregister admin classes between test cases,
+        # reset this cache with `_admin_registered_models_cache = None` in setUp/tearDown.
+        _admin_registered_models_cache = {
+            cls for admin_site in all_sites for cls in admin_site._registry
+        }
+    return model_cls in _admin_registered_models_cache
 
 
 class CrfCreator(SourceModelMetadataMixin):
@@ -59,11 +67,13 @@ class CrfCreator(SourceModelMetadataMixin):
         related_visit: RelatedVisitModel,
         update_keyed: bool,
         crf: Crf | Requisition,
+        fresh_create: bool = False,
     ) -> None:
         super().__init__(source_model=crf.model, related_visit=related_visit)
         self._metadata_obj = None
         self.update_keyed = update_keyed
         self.crf = crf
+        self.fresh_create = fresh_create
 
     @property
     def metadata_model_cls(
@@ -92,31 +102,34 @@ class CrfCreator(SourceModelMetadataMixin):
         if not self._metadata_obj:
             metadata_obj = None
             registered = model_cls_registered_with_admin_site(self.source_model_cls)
-            try:
-                metadata_obj = self.metadata_model_cls.objects.get(**self.query_options)
-            except ObjectDoesNotExist:
-                if registered:
-                    opts = dict(
-                        entry_status=(REQUIRED if self.crf.required else NOT_REQUIRED),
-                        show_order=self.crf.show_order,
-                        site=self.related_visit.site,
-                        due_datetime=self.due_datetime,
-                        fill_datetime=self.fill_datetime,
-                        document_user=self.document_user,
-                        document_name=self.document_name,
+            if not self.fresh_create:
+                # normal path: check if record already exists
+                try:
+                    metadata_obj = self.metadata_model_cls.objects.get(**self.query_options)
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    if not registered:
+                        metadata_obj.delete()
+                        metadata_obj = None
+            if metadata_obj is None and registered:
+                opts = dict(
+                    entry_status=(REQUIRED if self.crf.required else NOT_REQUIRED),
+                    show_order=self.crf.show_order,
+                    site=self.related_visit.site,
+                    due_datetime=self.due_datetime,
+                    fill_datetime=self.fill_datetime,
+                    document_user=self.document_user,
+                    document_name=self.document_name,
+                )
+                opts.update(**self.query_options)
+                try:
+                    with transaction.atomic():
+                        metadata_obj = self.metadata_model_cls.objects.create(**opts)
+                except IntegrityError:
+                    metadata_obj = self.metadata_model_cls.objects.get(
+                        **self.query_options
                     )
-                    opts.update(**self.query_options)
-                    try:
-                        with transaction.atomic():
-                            metadata_obj = self.metadata_model_cls.objects.create(**opts)
-                    except IntegrityError:
-                        metadata_obj = self.metadata_model_cls.objects.get(
-                            **self.query_options
-                        )
-            else:
-                if not registered:
-                    metadata_obj.delete()
-                    metadata_obj = None
             if metadata_obj:
                 metadata_obj = self.update_entry_status_to_default_or_keyed(metadata_obj)
             self._metadata_obj = metadata_obj
@@ -143,16 +156,13 @@ class CrfCreator(SourceModelMetadataMixin):
         if metadata_obj.entry_status != KEYED and self.source_model_obj_exists:
             metadata_obj.entry_status = KEYED
             metadata_obj.save(update_fields=["entry_status"])
-            metadata_obj.refresh_from_db()
         elif metadata_obj.entry_status in [REQUIRED, NOT_REQUIRED]:
             if self.crf.required and metadata_obj.entry_status == NOT_REQUIRED:
                 metadata_obj.entry_status = REQUIRED
                 metadata_obj.save(update_fields=["entry_status"])
-                metadata_obj.refresh_from_db()
             elif (not self.crf.required) and (metadata_obj.entry_status == REQUIRED):
                 metadata_obj.entry_status = NOT_REQUIRED
                 metadata_obj.save(update_fields=["entry_status"])
-                metadata_obj.refresh_from_db()
         return metadata_obj
 
 
@@ -164,11 +174,13 @@ class RequisitionCreator(CrfCreator):
         requisition: Requisition,
         update_keyed: bool,
         related_visit: RelatedVisitModel,
+        fresh_create: bool = False,
     ) -> None:
         super().__init__(
             crf=requisition,
             update_keyed=update_keyed,
             related_visit=related_visit,
+            fresh_create=fresh_create,
         )
         self.panel_name: str = f"{self.requisition.model}.{self.requisition.panel.name}"
 
@@ -253,27 +265,29 @@ class Creator:
             )
         return RequisitionCollection(*requisitions, name="requisitions")
 
-    def create(self) -> None:
+    def create(self, fresh_create: bool = False) -> None:
         """Creates metadata for all CRFs and requisitions for
         the scheduled or unscheduled visit instance.
         """
         for crf in self.crfs:
-            self.create_crf(crf)
+            self.create_crf(crf, fresh_create=fresh_create)
         for requisition in self.requisitions:
-            self.create_requisition(requisition)
+            self.create_requisition(requisition, fresh_create=fresh_create)
 
-    def create_crf(self, crf) -> CrfMetadata:
+    def create_crf(self, crf, fresh_create: bool = False) -> CrfMetadata:
         return self.crf_creator_cls(
             crf=crf,
             update_keyed=self.update_keyed,
             related_visit=self.related_visit,
+            fresh_create=fresh_create,
         ).create()
 
-    def create_requisition(self, requisition) -> RequisitionMetadata:
+    def create_requisition(self, requisition, fresh_create: bool = False) -> RequisitionMetadata:
         return self.requisition_creator_cls(
             requisition=requisition,
             update_keyed=self.update_keyed,
             related_visit=self.related_visit,
+            fresh_create=fresh_create,
         ).create()
 
 
@@ -326,19 +340,24 @@ class Metadata:
         self.creator = self.creator_cls(related_visit=related_visit, update_keyed=update_keyed)
         self.destroyer = self.destroyer_cls(related_visit=related_visit)
 
-    def prepare(self) -> bool:
+    def prepare(self, fresh_create: bool = False) -> bool:
         """Creates and deletes, or just deletes, metadata, depending
         on the related_visit `reason`.
+
+        Set fresh_create=True when all metadata has already been deleted
+        externally (e.g. during a full regeneration). This skips the
+        Destroyer queries that would otherwise find nothing to delete.
         """
         metadata_exists = False
         if self.reason in self.related_visit.visit_schedule.delete_metadata_on_reasons:
             self.destroyer.delete()
         elif self.reason in self.related_visit.visit_schedule.create_metadata_on_reasons:
-            if self.reason == MISSED_VISIT:
-                self.destroyer.delete(entry_status_not_in=[KEYED])
-            else:
-                self.destroyer.delete(entry_status_not_in=[KEYED, NOT_REQUIRED])
-            self.creator.create()
+            if not fresh_create:
+                if self.reason == MISSED_VISIT:
+                    self.destroyer.delete(entry_status_not_in=[KEYED])
+                else:
+                    self.destroyer.delete(entry_status_not_in=[KEYED, NOT_REQUIRED])
+            self.creator.create(fresh_create=fresh_create)
             metadata_exists = True
         else:
             raise CreatesMetadataError(
