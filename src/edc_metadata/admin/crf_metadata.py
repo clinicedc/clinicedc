@@ -22,3 +22,5 @@ class CrfMetadataAdmin(MetadataModelAdminMixin):
     changelist_url = "edc_metadata_admin:edc_metadata_crfmetadata_changelist"
     change_list_title = "CRF collection status"
     change_form_title = "CRF collection status"
+    include_audit_fields_in_list_filter = False
+    include_audit_fields_in_list_display = False

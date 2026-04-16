@@ -89,4 +89,20 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
                 fields=["fill_datetime"],
                 name="%(app_label)s_%(class)s_a5idx",
             ),
+            models.Index(
+                fields=["site", "subject_identifier", "visit_code", "visit_code_sequence", "show_order"],
+                name="%(app_label)s_%(class)s_a6idx",
+            ),
+            models.Index(
+                fields=["visit_code"],
+                name="%(app_label)s_%(class)s_a7idx",
+            ),
+            models.Index(
+                fields=["schedule_name"],
+                name="%(app_label)s_%(class)s_a8idx",
+            ),
+            models.Index(
+                fields=["document_name"],
+                name="%(app_label)s_%(class)s_a9idx",
+            ),
         )
