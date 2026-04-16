@@ -9,6 +9,8 @@ from .modeladmin_mixins import MetadataModelAdminMixin
 class RequisitionMetadataAdmin(MetadataModelAdminMixin):
     change_list_title = "Requisition collection status"
     change_form_title = "Requisition collection status"
+    include_audit_fields_in_list_filter = False
+    include_audit_fields_in_list_display = False
 
     @staticmethod
     def panel(obj=None):

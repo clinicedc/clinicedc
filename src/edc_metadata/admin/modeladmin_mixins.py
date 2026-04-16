@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from django.contrib import admin
-from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import OuterRef, Subquery
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
@@ -13,7 +13,6 @@ from rangefilter.filters import DateRangeFilterBuilder
 from edc_appointment.utils import get_appointment_model_cls
 from edc_dashboard.url_names import url_names
 from edc_metadata import KEYED, REQUIRED
-from edc_metadata.admin.list_filters import CreatedListFilter
 from edc_model_admin.mixins import (
     ModelAdminInstitutionMixin,
     ModelAdminNextUrlRedirectMixin,
@@ -41,11 +40,12 @@ class MetadataModelAdminMixin(
         "Links to items from sites other than the current may not work as expected."
     )
     change_form_title = "CRF collection status"
-    ordering = ["subject_identifier", "visit_code", "visit_code_sequence", "show_order"]
+    ordering = ("subject_identifier", "visit_code", "visit_code_sequence")
 
     view_on_site = True
     show_history_label = False
     list_per_page = 20
+    show_full_result_count = False
 
     change_search_field_name = "subject_identifier"
 
@@ -91,13 +91,7 @@ class MetadataModelAdminMixin(
         audit_fieldset_tuple,
     )
 
-    search_fields = (
-        "subject_identifier",
-        "model",
-        "document_name",
-        "document_user",
-        "id",
-    )
+    search_fields = ("subject_identifier", "model", "document_name")
     list_display = (
         "subject_identifier",
         "dashboard",
@@ -106,25 +100,18 @@ class MetadataModelAdminMixin(
         "seq",
         "status",
         "due",
-        "keyed",
         "document_user",
         "created",
-        "hostname_created",
     )
     list_filter = (
         ("due_datetime", DateRangeFilterBuilder()),
-        ("fill_datetime", DateRangeFilterBuilder()),
         "entry_status",
         "visit_code",
         "visit_code_sequence",
         "schedule_name",
-        "visit_schedule_name",
         "document_name",
-        "document_user",
-        CreatedListFilter,
-        "user_created",
-        "hostname_created",
         "site",
+        ("created", DateRangeFilterBuilder()),
     )
     readonly_fields = (
         "subject_identifier",
@@ -136,6 +123,19 @@ class MetadataModelAdminMixin(
         "document_name",
         "document_user",
     )
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        appointment_model_cls = get_appointment_model_cls()
+        appointment_subquery = appointment_model_cls.objects.filter(
+            schedule_name=OuterRef("schedule_name"),
+            site=OuterRef("site"),
+            subject_identifier=OuterRef("subject_identifier"),
+            visit_code=OuterRef("visit_code"),
+            visit_code_sequence=OuterRef("visit_code_sequence"),
+            visit_schedule_name=OuterRef("visit_schedule_name"),
+        ).values("id")[:1]
+        return qs.annotate(_appointment_id=Subquery(appointment_subquery))
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
         return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]
@@ -156,19 +156,9 @@ class MetadataModelAdminMixin(
     def get_subject_dashboard_url(self, obj=None) -> str | None:
         opts = {}
         if obj:
-            try:
-                appointment = get_appointment_model_cls().objects.get(
-                    schedule_name=obj.schedule_name,
-                    site=obj.site,
-                    subject_identifier=obj.subject_identifier,
-                    visit_code=obj.visit_code,
-                    visit_code_sequence=obj.visit_code_sequence,
-                    visit_schedule_name=obj.visit_schedule_name,
-                )
-            except ObjectDoesNotExist:
-                pass
-            else:
-                opts = dict(appointment=str(appointment.id))
+            appointment_id = getattr(obj, "_appointment_id", None)
+            if appointment_id:
+                opts = dict(appointment=str(appointment_id))
         return reverse(
             url_names.get(self.subject_dashboard_url_name),
             kwargs=dict(subject_identifier=obj.subject_identifier, **opts),
@@ -182,19 +172,9 @@ class MetadataModelAdminMixin(
     def get_subject_review_dashboard_url(self, obj=None) -> str | None:
         opts = {}
         if obj:
-            try:
-                appointment = get_appointment_model_cls().objects.get(
-                    schedule_name=obj.schedule_name,
-                    site=obj.site,
-                    subject_identifier=obj.subject_identifier,
-                    visit_code=obj.visit_code,
-                    visit_code_sequence=obj.visit_code_sequence,
-                    visit_schedule_name=obj.visit_schedule_name,
-                )
-            except ObjectDoesNotExist:
-                pass
-            else:
-                opts = dict(appointment=str(appointment.id))
+            appointment_id = getattr(obj, "_appointment_id", None)
+            if appointment_id:
+                opts = dict(appointment=str(appointment_id))
         return reverse(
             url_names.get(self.subject_review_dashboard_url_name),
             kwargs=dict(subject_identifier=obj.subject_identifier, **opts),
