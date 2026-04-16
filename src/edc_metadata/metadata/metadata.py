@@ -174,11 +174,13 @@ class RequisitionCreator(CrfCreator):
         requisition: Requisition,
         update_keyed: bool,
         related_visit: RelatedVisitModel,
+        fresh_create: bool = False,
     ) -> None:
         super().__init__(
             crf=requisition,
             update_keyed=update_keyed,
             related_visit=related_visit,
+            fresh_create=fresh_create,
         )
         self.panel_name: str = f"{self.requisition.model}.{self.requisition.panel.name}"
 
