@@ -36,19 +36,27 @@ class DeleteMetadataError(Exception):
     pass
 
 
+_admin_registered_models_cache: set[Any] | None = None
+
+
 def model_cls_registered_with_admin_site(model_cls: Any) -> bool:
     """Returns True if model cls is registered in Admin.
 
+    The set of registered models is built once and cached for the
+    lifetime of the process — admin registrations do not change at runtime.
+
     See also settings.EDC_METADATA_VERIFY_MODELS_REGISTERED_WITH_ADMIN
     """
-    registered = False
+    global _admin_registered_models_cache
     if not verify_model_cls_registered_with_admin():
-        registered = True
-    else:
-        for admin_site in all_sites:
-            if model_cls in admin_site._registry:
-                registered = True
-    return registered
+        return True
+    if _admin_registered_models_cache is None:
+        # Note: if tests register/unregister admin classes between test cases,
+        # reset this cache with `_admin_registered_models_cache = None` in setUp/tearDown.
+        _admin_registered_models_cache = {
+            cls for admin_site in all_sites for cls in admin_site._registry
+        }
+    return model_cls in _admin_registered_models_cache
 
 
 class CrfCreator(SourceModelMetadataMixin):
@@ -143,16 +151,13 @@ class CrfCreator(SourceModelMetadataMixin):
         if metadata_obj.entry_status != KEYED and self.source_model_obj_exists:
             metadata_obj.entry_status = KEYED
             metadata_obj.save(update_fields=["entry_status"])
-            metadata_obj.refresh_from_db()
         elif metadata_obj.entry_status in [REQUIRED, NOT_REQUIRED]:
             if self.crf.required and metadata_obj.entry_status == NOT_REQUIRED:
                 metadata_obj.entry_status = REQUIRED
                 metadata_obj.save(update_fields=["entry_status"])
-                metadata_obj.refresh_from_db()
             elif (not self.crf.required) and (metadata_obj.entry_status == REQUIRED):
                 metadata_obj.entry_status = NOT_REQUIRED
                 metadata_obj.save(update_fields=["entry_status"])
-                metadata_obj.refresh_from_db()
         return metadata_obj
 
 

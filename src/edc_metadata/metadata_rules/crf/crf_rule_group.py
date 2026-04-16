@@ -55,13 +55,13 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
     ) -> tuple[dict[str, dict[str, dict]], dict[str, CrfMetadata]]:
         rule_results = {}
         metadata_objects = {}
+        crfs_for_visit_models = [c.model for c in cls.crfs_for_visit(related_visit)]
         for rule in cls._meta.options.get("rules"):
             # skip if source model is not in visit.crfs (including PRNs)
             if (
                 rule.source_model
                 and rule.source_model != related_visit._meta.label_lower
-                and rule.source_model
-                not in [c.model for c in cls.crfs_for_visit(related_visit)]
+                and rule.source_model not in crfs_for_visit_models
             ):
                 continue
             for target_model in rule.target_models:
@@ -81,7 +81,7 @@ class CrfRuleGroup(RuleGroup, metaclass=RuleGroupMetaclass):
                     if not entry_status:
                         raise RuleGroupError("Cannot be None. Got `entry_status`.")
                     # only do something if target model is in visit.crfs (including PRNs)
-                    if target_model in [c.model for c in cls.crfs_for_visit(related_visit)]:
+                    if target_model in crfs_for_visit_models:
                         metadata_updater = cls.metadata_updater_cls(
                             related_visit=related_visit,
                             source_model=target_model,

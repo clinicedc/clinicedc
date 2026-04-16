@@ -57,7 +57,7 @@ class SourceModelMetadataMixin:
     @property
     def source_model_obj_exists(self) -> bool:
         """Returns True if the source model instance exists."""
-        return self.source_model_cls.objects.filter(**self.source_model_options).exists()
+        return self.source_model_obj is not None
 
     @property
     def due_datetime(self) -> datetime | None:
