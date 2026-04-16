@@ -66,7 +66,8 @@ class MetadataUpdater(SourceModelMetadataMixin):
                     "document_user",
                 ]
             )
-            metadata_obj.refresh_from_db()
+            # post_save signals do not fire when update_fields is provided,
+            # so the in-memory entry_status reflects what was saved.
             if metadata_obj.entry_status != entry_status:
                 raise MetadataUpdaterError(
                     "Expected entry status does not match `entry_status` on "
