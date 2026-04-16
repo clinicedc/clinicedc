@@ -288,6 +288,17 @@ def render_tmg_panel(
 
 
 @register.simple_tag(takes_context=True)
+def has_ae_perm(context, codename: str) -> bool:
+    """Return True if user has ``<ae_app_label>.<codename>``.
+
+    The AE app label is resolved dynamically so downstream apps
+    (effect_ae, meta_ae, ...) don't need to patch this template.
+    """
+    user = context["request"].user
+    return user.has_perm(f"{get_adverse_event_app_label()}.{codename}")
+
+
+@register.simple_tag(takes_context=True)
 def has_perms_for_tmg_role(context):
     has_perms = False
     try:
