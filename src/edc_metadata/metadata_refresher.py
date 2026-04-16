@@ -150,7 +150,7 @@ class MetadataRefresher:
             f"   - {model_count} post-consent models found for {total} visits ... \n"
         )
         for related_visit in tqdm(related_visits, total=total):
-            related_visit.metadata_create()
+            related_visit.metadata_create(fresh_create=True)
         self._message("    Done.\n")
 
     def validate_metadata_for_all(self):

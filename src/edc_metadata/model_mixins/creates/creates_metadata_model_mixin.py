@@ -31,10 +31,16 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
     metadata_destroyer_cls: type[Destroyer] = Destroyer
     metadata_rule_evaluator_cls: type[MetadataRuleEvaluator] = MetadataRuleEvaluator
 
-    def metadata_create(self) -> None:
-        """Creates metadata, called by post_save signal."""
+    def metadata_create(self, fresh_create: bool = False) -> None:
+        """Creates metadata, called by post_save signal.
+
+        Set fresh_create=True when all metadata has already been deleted
+        (e.g. during a full regeneration via update_metadata). This skips
+        the per-CRF SELECT and per-visit DELETE queries that would otherwise
+        always find nothing.
+        """
         metadata = self.metadata_cls(related_visit=self, update_keyed=True)
-        metadata.prepare()
+        metadata.prepare(fresh_create=fresh_create)
 
     def run_metadata_rules(self, allow_create: bool | None = None) -> None:
         """Runs all the metadata rules.
