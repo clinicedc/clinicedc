@@ -520,3 +520,75 @@ In the ``signals`` file:
 **crf or requisition model ``post_delete``:**
 
 * the metadata instance for the crf/requisition is reset to the default ``entry_status`` and then all rules are run.
+
+Metadata creation and regeneration internals
+--------------------------------------------
+
+Metadata records are created, updated, and deleted through several coordinated mechanisms.
+Understanding these is useful when diagnosing performance issues or writing data migrations.
+
+**Normal flow (signal-driven)**
+
+When a ``visit`` model is saved, ``metadata_create_on_post_save()`` in ``signals.py`` calls
+``instance.metadata_create()`` on the visit. This is provided by ``CreatesMetadataModelMixin``
+(``model_mixins/creates/creates_metadata_model_mixin.py``) and delegates to
+``Metadata.prepare()`` in ``metadata/metadata.py``.
+
+``Metadata.prepare()`` runs in two steps:
+
+1. ``Destroyer.delete()`` — deletes all ``REQUIRED`` and ``NOT_REQUIRED`` metadata for the visit
+   (``KEYED`` records are left intact).
+2. ``Creator.create()`` — iterates through all CRFs and requisitions in the visit schedule and
+   calls ``CrfCreator`` or ``RequisitionCreator`` for each, which uses ``get_or_create`` with
+   ``IntegrityError`` handling for race conditions.
+
+When a CRF or requisition is saved, ``metadata_update_on_post_save()`` updates the single
+corresponding metadata record's ``entry_status`` to ``KEYED`` and re-runs metadata rules.
+
+When a CRF or requisition is deleted, ``metadata_reset_on_post_delete()`` resets the
+``entry_status`` back to its default and re-runs metadata rules.
+
+**Bulk regeneration (management command)**
+
+The ``update_metadata`` management command (``management/commands/update_metadata.py``) is used
+after code changes or data migrations to rebuild all metadata from scratch:
+
+.. code-block:: bash
+
+    python manage.py update_metadata
+
+It works as follows:
+
+1. Deletes **all** ``CrfMetadata`` and ``RequisitionMetadata`` records.
+2. Instantiates ``MetadataRefresher`` (``metadata_refresher.py``) and calls ``.run()``.
+3. ``MetadataRefresher.create_or_update_metadata_for_all()`` iterates through every visit
+   model instance and calls ``metadata_create()`` on each, recreating metadata per the
+   current visit schedule.
+4. After creation, ``MetadataRefresher`` removes orphaned metadata records — those whose
+   ``model`` is no longer listed in the visit schedule or registered in admin — via
+   ``verifying_crf_metadata_with_visit_schedule_and_admin()`` and its requisition equivalent.
+5. Finally, ``MetadataRefresher.run_metadata_rules()`` iterates through all source model
+   instances and re-runs all metadata rules.
+
+**Key classes and files**
+
+.. list-table::
+   :header-rows: 1
+
+   * - Class / file
+     - Purpose
+   * - ``metadata/metadata.py`` — ``Metadata``
+     - Orchestrates ``Destroyer`` + ``Creator`` for a single visit
+   * - ``metadata/metadata.py`` — ``Creator``
+     - Creates ``CrfMetadata`` / ``RequisitionMetadata`` for all forms in a visit
+   * - ``metadata/metadata.py`` — ``CrfCreator``
+     - ``get_or_create`` for a single ``CrfMetadata`` record
+   * - ``metadata/metadata.py`` — ``Destroyer``
+     - Deletes non-``KEYED`` metadata for a visit before recreation
+   * - ``metadata_refresher.py`` — ``MetadataRefresher``
+     - Bulk rebuild across all visits; removes orphaned records
+   * - ``model_mixins/creates/creates_metadata_model_mixin.py`` — ``CreatesMetadataModelMixin``
+     - Mixin on the visit model; entry point for signal-driven creation
+   * - ``update_metadata_on_schedule_change.py`` — ``UpdateMetadataOnScheduleChange``
+     - Bulk-updates ``schedule_name`` / ``visit_schedule_name`` on existing records when
+       schedule configuration changes
