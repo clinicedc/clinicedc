@@ -118,6 +118,7 @@ class Visit:
         requisitions_unscheduled: RequisitionCollection | None = None,
         rlower_late: relativedelta = None,
         rupper_late: relativedelta = None,
+        schedule_on_holidays: bool | None = None,
         add_window_gap_to_lower: bool | None = None,
         max_window_gap_to_lower: int | None = None,
         allow_unscheduled: bool | None = None,
@@ -126,6 +127,23 @@ class Visit:
         base_timepoint: int | float | Decimal | None = None,
         grouping=None,
     ):
+        """Define a visit in a schedule.
+
+        :param code: Unique visit code (e.g. "1000", "DAY01"). Must match
+            ``code_regex``.
+        :param timepoint: Decimal/ordinal position of the visit in the
+            schedule.
+        :param rbase: ``relativedelta`` from the schedule anchor to this
+            visit's target datetime.
+        :param rlower: Lower window delta (applied before ``timepoint_datetime``).
+        :param rupper: Upper window delta (applied after ``timepoint_datetime``).
+        :param schedule_on_holidays: If True, ``AppointmentCreator`` will
+            NOT move this visit's ``appt_datetime`` past holidays via the
+            facility calendar. Use this for visits with a narrow (e.g.
+            same-day) window period where the clinical protocol requires
+            the appointment to stay on the scheduled day regardless of
+            clinic closure. Defaults to ``False`` (bump past holidays).
+        """
         self.next = None
         if isinstance(base_timepoint, (float,)):
             base_timepoint = Decimal(str(base_timepoint))
@@ -163,6 +181,7 @@ class Visit:
         self.rupper_late = self.rupper if rupper_late is None else rupper_late
         self.add_window_gap_to_lower = add_window_gap_to_lower
         self.max_window_gap_to_lower = max_window_gap_to_lower
+        self.schedule_on_holidays = bool(schedule_on_holidays)
         self.grouping = grouping
         if not code or isinstance(code, int) or not re.match(self.code_regex, code):
             raise VisitCodeError(f"Invalid visit code. Got '{code}'")
