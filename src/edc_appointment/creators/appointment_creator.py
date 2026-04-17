@@ -169,7 +169,7 @@ class AppointmentCreator:
                     **self.options, **extra_opts
                 )
         except IntegrityError as e:
-            raise IntegrityError(f"{errmsg} Got {e}.")
+            raise IntegrityError(f"{errmsg} Got {e}.") from e
         else:
             if appointment.visit_code_sequence > 0:
                 appointment = reset_visit_code_sequence_or_pass(
@@ -210,6 +210,7 @@ class AppointmentCreator:
                     forward_delta=self.visit.rupper,
                     reverse_delta=self.visit.rlower,
                     taken_datetimes=self.taken_datetimes,
+                    schedule_on_holidays=self.visit.schedule_on_holidays,
                     site=self.site,
                 )
             except FacilityError as e:
@@ -222,7 +223,7 @@ class AppointmentCreator:
         return arw.datetime
 
     @property
-    def appointment_model_cls(self) -> Appointment:
+    def appointment_model_cls(self) -> type[Appointment]:
         """Returns the appointment model class."""
         return django_apps.get_model(self.appointment_model)
 
