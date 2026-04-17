@@ -7,6 +7,7 @@ from edc_dashboard.utils import select_edc_template
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 
 from ..admin_site import edc_auth_admin
+from ..constants import ACCOUNT_MANAGER_ROLE
 from ..forms import UserChangeForm
 from ..send_new_credentials_to_user import send_new_credentials_to_user
 from .list_filters import CountriesListFilter, SitesListFilter
@@ -15,6 +16,7 @@ from .user_profile_admin import UserProfileInline
 admin.site.unregister(User)
 
 
+@admin.action(permissions=["change"], description="Email new credentials to user")
 def send_new_credentials_to_user_action(modeladmin, request, queryset):
     if request.user.has_perm("auth.change_user"):
         for obj in queryset:
@@ -26,13 +28,41 @@ def send_new_credentials_to_user_action(modeladmin, request, queryset):
 send_new_credentials_to_user_action.short_description = "Reset password and email to user"
 
 
+@admin.action(permissions=["change"], description="Flag selected accounts as inactive")
+def flag_accounts_as_inactive(modeladmin, request, queryset):
+    qs = queryset.filter(is_active=True).exclude(userprofile__roles__name=ACCOUNT_MANAGER_ROLE)
+    total = qs.count()
+    for obj in qs:
+        obj.is_staff = False
+        obj.is_active = False
+        obj.save()
+    messages.success(request, f"Updated {total} accounts")
+
+
+@admin.action(permissions=["change"], description="Flag selected accounts as active")
+def flag_accounts_as_active(modeladmin, request, queryset):
+    qs = queryset.filter(is_active=False).exclude(
+        userprofile__roles__name=ACCOUNT_MANAGER_ROLE
+    )
+    total = qs.count()
+    for obj in qs:
+        obj.is_staff = True
+        obj.is_active = True
+        obj.save()
+    messages.success(request, f"Updated {total} accounts")
+
+
 @admin.register(User, site=edc_auth_admin)
 class UserAdmin(TemplatesModelAdminMixin, BaseUserAdmin):
     show_object_tools: bool = True
 
     form = UserChangeForm
     inlines = (UserProfileInline,)
-    actions = (send_new_credentials_to_user_action,)
+    actions = (
+        send_new_credentials_to_user_action,
+        flag_accounts_as_inactive,
+        flag_accounts_as_active,
+    )
 
     list_display = (
         "username",
