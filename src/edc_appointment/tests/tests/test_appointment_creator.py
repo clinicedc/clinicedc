@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from unittest import mock
 from zoneinfo import ZoneInfo
 
 import time_machine
@@ -16,6 +17,7 @@ from edc_appointment.creators import AppointmentCreator
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
+from edc_facility.facility import Facility
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_visit_schedule.schedule import Schedule
@@ -111,6 +113,7 @@ class AppointmentCreatorTestCase(TestCase):
         )
 
 
+@tag("appointment")
 class TestAppointmentCreator(AppointmentCreatorTestCase):
     @classmethod
     def setUpClass(cls):
@@ -212,6 +215,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
         traveller.stop()
 
 
+@tag("appointment")
 class TestAppointmentCreator2(AppointmentCreatorTestCase):
     @override_settings(
         HOLIDAY_FILE=settings.BASE_DIR / "tests" / "no_holidays.csv",
@@ -273,5 +277,94 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             .order_by("timepoint", "visit_code_sequence")[0]
             .appt_datetime.date(),
             appt_datetime.date(),
+        )
+        traveller.stop()
+
+
+class TestAppointmentCreatorScheduleOnHolidays(AppointmentCreatorTestCase):
+    """Assert Visit.schedule_on_holidays is forwarded to Facility.available_arr."""
+
+    @classmethod
+    def setUpClass(cls):
+        import_holidays()
+        return super().setUpClass()
+
+    def _build_visit(self, schedule_on_holidays):
+        return Visit(
+            code="1000",
+            timepoint=0,
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="7-day-clinic",
+            schedule_on_holidays=schedule_on_holidays,
+        )
+
+    def test_visit_flag_default_is_false(self):
+        """Regression: unspecified schedule_on_holidays defaults to False."""
+        visit = Visit(
+            code="1000",
+            timepoint=0,
+            rbase=relativedelta(days=0),
+            rlower=relativedelta(days=0),
+            rupper=relativedelta(days=6),
+            facility_name="7-day-clinic",
+        )
+        self.assertFalse(visit.schedule_on_holidays)
+
+    def test_visit_flag_stored_true(self):
+        self.assertTrue(self._build_visit(schedule_on_holidays=True).schedule_on_holidays)
+
+    def test_visit_flag_stored_false(self):
+        self.assertFalse(self._build_visit(schedule_on_holidays=False).schedule_on_holidays)
+
+    def test_flag_forwarded_to_facility_true(self):
+        """AppointmentCreator forwards schedule_on_holidays=True to Facility.available_arr."""
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
+        subject_consent = self.put_on_schedule(timezone.now())
+        visit = self._build_visit(schedule_on_holidays=True)
+        with mock.patch.object(
+            Facility, "available_arr", autospec=True, wraps=Facility.available_arr
+        ) as spy:
+            AppointmentCreator(
+                subject_identifier=subject_consent.subject_identifier,
+                visit_schedule_name=self.visit_schedule.name,
+                schedule_name=self.schedule.name,
+                visit=visit,
+                timepoint_datetime=timezone.now(),
+            ).appointment
+        flags_seen = [c.kwargs.get("schedule_on_holidays") for c in spy.call_args_list]
+        self.assertIn(
+            True,
+            flags_seen,
+            msg=f"Expected at least one available_arr call with schedule_on_holidays=True. "
+            f"Got call flags: {flags_seen}",
+        )
+        traveller.stop()
+
+    def test_flag_forwarded_to_facility_false(self):
+        """AppointmentCreator forwards schedule_on_holidays=False to Facility.available_arr."""
+        traveller = time_machine.travel(self.study_open_datetime)
+        traveller.start()
+        subject_consent = self.put_on_schedule(timezone.now())
+        visit = self._build_visit(schedule_on_holidays=False)
+        with mock.patch.object(
+            Facility, "available_arr", autospec=True, wraps=Facility.available_arr
+        ) as spy:
+            AppointmentCreator(
+                subject_identifier=subject_consent.subject_identifier,
+                visit_schedule_name=self.visit_schedule.name,
+                schedule_name=self.schedule.name,
+                visit=visit,
+                timepoint_datetime=timezone.now(),
+            ).appointment
+        flags_seen = [c.kwargs.get("schedule_on_holidays") for c in spy.call_args_list]
+        self.assertTrue(spy.called)
+        self.assertNotIn(
+            True,
+            flags_seen,
+            msg=f"Expected no available_arr call with schedule_on_holidays=True. "
+            f"Got call flags: {flags_seen}",
         )
         traveller.stop()

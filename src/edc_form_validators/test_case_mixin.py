@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from django.forms import ValidationError
@@ -27,10 +28,8 @@ class FormValidatorTestCaseMixin:
             model=model_cls or self.form_validator_model_cls,
             instance=instance,
         )
-        try:
+        with contextlib.suppress(ValidationError):
             form_validator.validate()
-        except ValidationError:
-            pass
         return form_validator
 
     def assertFormValidatorNoError(  # noqa
