@@ -3,9 +3,13 @@ from __future__ import annotations
 from django import forms
 from django.contrib import admin
 
+from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
+from edc_export.admin import ExportMixinModelAdminMixin
+
 from ..admin_site import edc_metadata_admin
 from ..models import CrfMetadata
 from .modeladmin_mixins import MetadataModelAdminMixin
+from .resources import CrfMetadataResource
 
 
 class CrfMetadataForm(forms.ModelForm):
@@ -16,8 +20,10 @@ class CrfMetadataForm(forms.ModelForm):
 
 
 @admin.register(CrfMetadata, site=edc_metadata_admin)
-class CrfMetadataAdmin(MetadataModelAdminMixin):
+class CrfMetadataAdmin(ExportMixinModelAdminMixin, MetadataModelAdminMixin):
     form = CrfMetadataForm
+    resource_classes = [CrfMetadataResource]
+    export_roles = (DATA_MANAGER_ROLE,)
     ordering = ()
     changelist_url = "edc_metadata_admin:edc_metadata_crfmetadata_changelist"
     change_list_title = "CRF collection status"
