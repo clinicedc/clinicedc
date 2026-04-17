@@ -1,12 +1,18 @@
 from django.contrib import admin
 
+from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
+from edc_export.admin import ExportMixinModelAdminMixin
+
 from ..admin_site import edc_metadata_admin
 from ..models import RequisitionMetadata
 from .modeladmin_mixins import MetadataModelAdminMixin
+from .resources import RequisitionMetadataResource
 
 
 @admin.register(RequisitionMetadata, site=edc_metadata_admin)
-class RequisitionMetadataAdmin(MetadataModelAdminMixin):
+class RequisitionMetadataAdmin(ExportMixinModelAdminMixin, MetadataModelAdminMixin):
+    resource_classes = [RequisitionMetadataResource]
+    export_roles = (DATA_MANAGER_ROLE,)
     change_list_title = "Requisition collection status"
     change_form_title = "Requisition collection status"
     include_audit_fields_in_list_filter = False
