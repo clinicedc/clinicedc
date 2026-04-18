@@ -7,7 +7,7 @@ from edc_action_item.managers import (
     ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionModelMixin
-from edc_constants.choices import YES_NO
+from clinicedc_constants.choices import YES_NO
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import ReportStatusModelMixin
 from edc_model.validators import datetime_not_future

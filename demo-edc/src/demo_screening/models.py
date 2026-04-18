@@ -3,7 +3,7 @@ from demo_consent.consents import consent_v1, consent_v2
 from django.contrib.sites.models import Site
 from django.db import models
 
-from edc_constants.choices import YES_NO, YES_NO_NA, YES_NO_NOT_EVALUATED
+from clinicedc_constants.choices import YES_NO, YES_NO_NA, YES_NO_NOT_EVALUATED
 from edc_model.models import BaseUuidModel
 from edc_screening.model_mixins import EligibilityModelMixin, ScreeningModelMixin
 from edc_screening.screening_eligibility import ScreeningEligibility

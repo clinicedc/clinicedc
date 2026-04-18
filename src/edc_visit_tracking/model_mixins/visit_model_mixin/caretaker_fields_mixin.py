@@ -1,7 +1,7 @@
 from clinicedc_constants import YES
 from django.db import models
 
-from edc_constants.choices import YES_NO
+from clinicedc_constants.choices import YES_NO
 
 
 class CaretakerFieldsMixin(models.Model):

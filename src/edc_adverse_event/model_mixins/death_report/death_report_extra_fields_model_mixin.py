@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_constants.choices import YES_NO
+from clinicedc_constants.choices import YES_NO
 from edc_model.models import OtherCharField
 
 from ...choices import CONTACT, DEATH_LOCATIONS, INFORMANT

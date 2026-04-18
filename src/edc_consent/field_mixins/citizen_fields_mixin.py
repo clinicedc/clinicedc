@@ -1,7 +1,7 @@
 from clinicedc_constants import NOT_APPLICABLE
 from django.db import models
 
-from edc_constants.choices import YES_NO, YES_NO_NA
+from clinicedc_constants.choices import YES_NO, YES_NO_NA
 
 
 class CitizenFieldsMixin(models.Model):

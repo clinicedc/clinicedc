@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext as _
 
-from edc_constants.choices import YES_NO
+from clinicedc_constants.choices import YES_NO
 
 
 class SampleCollectionFieldsMixin(models.Model):
