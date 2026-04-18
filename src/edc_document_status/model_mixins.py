@@ -3,7 +3,7 @@ from typing import Any
 from clinicedc_constants import COMPLETE
 from django.db import models
 
-from edc_constants.choices import DOCUMENT_STATUS
+from clinicedc_constants.choices import DOCUMENT_STATUS
 
 
 class DocumentStatusModelMixin(models.Model):

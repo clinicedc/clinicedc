@@ -12,7 +12,7 @@ from django.db import models
 from django.utils import timezone
 from django_crypto_fields.fields import EncryptedCharField
 
-from edc_constants.choices import GENDER, YES_NO, YES_NO_NA
+from clinicedc_constants.choices import GENDER, YES_NO, YES_NO_NA
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.model_mixins import SiteModelMixin

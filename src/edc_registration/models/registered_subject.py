@@ -13,7 +13,7 @@ from django_crypto_fields.fields import (
     LastnameField,
 )
 
-from edc_constants.choices import GENDER
+from clinicedc_constants.choices import GENDER
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_model_fields.fields import IdentityTypeField, IsDateEstimatedField
