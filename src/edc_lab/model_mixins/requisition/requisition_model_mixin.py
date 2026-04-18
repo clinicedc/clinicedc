@@ -5,7 +5,7 @@ from django.db.models import UniqueConstraint
 from django.utils import timezone
 
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
-from edc_constants.choices import YES_NO
+from clinicedc_constants.choices import YES_NO
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins.updates import UpdatesRequisitionMetadataModelMixin
 from edc_model.models import HistoricalRecords, InitialsField, OtherCharField

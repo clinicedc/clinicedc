@@ -9,7 +9,7 @@ from django.db.models import PROTECT
 from django.utils.translation import gettext_lazy as _
 
 from edc_appointment.utils import validate_date_is_on_clinic_day
-from edc_constants.choices import YES_NO
+from clinicedc_constants.choices import YES_NO
 from edc_facility.utils import get_health_facility_model
 
 __all__ = ["NextAppointmentCrfModelMixin"]

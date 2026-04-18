@@ -2,7 +2,7 @@ from clinicedc_constants import EQ, FASTING, MILLIGRAMS_PER_DECILITER, MILLIMOLE
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from edc_constants.choices import FASTING_CHOICES, YES_NO
+from clinicedc_constants.choices import FASTING_CHOICES, YES_NO
 from edc_glucose.constants import GLUCOSE_HIGH_READING
 from edc_lab.choices import RESULT_QUANTIFIER
 from edc_reportable.units import MILLIMOLES_PER_LITER_DISPLAY

@@ -1,6 +1,6 @@
 from django.db import models
 
-from edc_constants.choices import YES_NO
+from clinicedc_constants.choices import YES_NO
 
 from ..models import DiastolicPressureField, SystolicPressureField
 from ..utils import calculate_avg_bp

@@ -14,7 +14,7 @@ class IdentityFieldsMixin(CryptoMixin, models.Model):
     Note: specify identifier_type CHOICES on the form.
     For example:
 
-        from edc_constants.choices import IDENTITY_TYPE
+        from clinicedc_constants.choices import IDENTITY_TYPE
 
         identity_type = forms.CharField(
             label='What type of identity number is this?',

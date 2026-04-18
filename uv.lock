@@ -539,7 +539,7 @@ wheels = [
 
 [[package]]
 name = "clinicedc"
-version = "2.9.3"
+version = "2.9.4"
 source = { editable = "." }
 dependencies = [
     { name = "argon2-cffi" },
@@ -631,7 +631,7 @@ requires-dist = [
     { name = "clinicedc-constants", editable = "../clinicedc-constants" },
     { name = "clinicedc-utils", editable = "../clinicedc-utils" },
     { name = "cryptography", specifier = ">=45.0.7" },
-    { name = "django", specifier = ">=5.2.10" },
+    { name = "django", specifier = ">=5.2.13" },
     { name = "django-admin-rangefilter", specifier = ">=0.13.3" },
     { name = "django-audit-fields", specifier = ">=2.0.6" },
     { name = "django-crypto-fields", specifier = ">=1.2.0" },
@@ -702,7 +702,7 @@ test = [
 
 [[package]]
 name = "clinicedc-constants"
-version = "1.3.1"
+version = "1.4.0"
 source = { editable = "../clinicedc-constants" }
 
 [[package]]

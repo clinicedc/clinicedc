@@ -5,7 +5,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import PROTECT
 
-from edc_constants.choices import YES_NO
+from clinicedc_constants.choices import YES_NO
 
 
 class StudyMedicationRefillModelMixin(models.Model):
