@@ -6,13 +6,15 @@ After=network.target
 
 [Service]
 Type=simple
-User=celery
-Group=celery
-EnvironmentFile=/etc/celery/celery.conf
-WorkingDirectory=/home/celery/working
+User=live
+Group=live
+EnvironmentFile=/etc/conf.d/celerybeat.live.conf
+WorkingDirectory=/home/live/edc
 ExecStart=/bin/sh -c '${CELERY_BIN} beat  \
   -A ${CELERY_APP} --pidfile=${CELERYBEAT_PID_FILE} \
   --logfile=${CELERYBEAT_LOG_FILE} --loglevel=${CELERYD_LOG_LEVEL}'
+Restart=always
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target

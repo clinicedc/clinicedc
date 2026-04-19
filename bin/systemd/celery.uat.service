@@ -1,13 +1,13 @@
 [Unit]
-Description=Celery Service
+Description=Celery Service (UAT)
 After=network.target
 
 [Service]
 Type=forking
-User=celery
-Group=celery
-EnvironmentFile=/etc/conf.d/celery.live.conf
-WorkingDirectory=/home/live/app/
+User=uat
+Group=uat
+EnvironmentFile=/etc/conf.d/celery.uat.conf
+WorkingDirectory=/home/uat/edc
 ExecStart=/bin/sh -c '${CELERY_BIN} -A ${CELERY_APP} multi start ${CELERYD_NODES} --pidfile=${CELERYD_PID_FILE} --logfile=${CELERYD_LOG_FILE} --loglevel=INFO ${CELERYD_OPTS}'
 Restart=always
 

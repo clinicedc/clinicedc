@@ -76,7 +76,7 @@ def raise_if_prohibited_from_export_pii_group(username: str, groups: Iterable) -
                 "groups": format_html(
                     "This user is not allowed to export PII data. You may not add "
                     "this user to the <U>{text}</U> group.",
-                    text="EXPORT_PII",
+                    text=EXPORT_PII,
                 )
             }
         )
@@ -126,6 +126,70 @@ def update_data_request_history(request, models_to_file: ModelsToFile):
     )
 
 
+def record_cli_export_audit(
+    user: User | AbstractBaseUser,
+    models_to_file: ModelsToFile,
+    *,
+    decrypt: bool,
+    export_format: str | int,
+    site_ids: list[int] | None = None,
+    countries: list[str] | None = None,
+    trial_prefix: str | None = None,
+    include_historical: bool = False,
+    export_path: Path | str | None = None,
+) -> tuple:
+    """Record a CLI-initiated export to DataRequest / DataRequestHistory.
+
+    Web-initiated exports record history via `update_data_request_history`.
+    CLI exports have no `request` object, so the management command calls
+    this helper to leave an equivalent audit trail: who ran the export,
+    what models, with what filters, decrypted or not, where it landed.
+
+    The `site` FK is left null; `SiteModelMixin.get_site_on_create` will
+    assign from `settings.SITE_ID` at save-time, matching how other
+    CLI-created rows behave.
+
+    Returns the (data_request, data_request_history) instances (primarily
+    for tests).
+    """
+    summary = sorted(str(x) for x in (models_to_file.exported_filenames or []))
+    data_request_model_cls = django_apps.get_model("edc_export.datarequest")
+    data_request_history_model_cls = django_apps.get_model("edc_export.datarequesthistory")
+
+    description_lines = [
+        "Initiated via `export_models` management command.",
+        f"export_format={export_format}",
+        f"decrypt={bool(decrypt)}",
+        f"include_historical={bool(include_historical)}",
+    ]
+    if trial_prefix:
+        description_lines.append(f"trial_prefix={trial_prefix}")
+    if site_ids:
+        description_lines.append(f"site_ids={','.join(str(s) for s in site_ids)}")
+    if countries:
+        description_lines.append(f"countries={','.join(countries)}")
+    if export_path is not None:
+        description_lines.append(f"export_path={export_path}")
+
+    data_request = data_request_model_cls.objects.create(
+        name=f"CLI export {timezone.now().strftime('%Y%m%d%H%M')}",
+        description="\n".join(description_lines),
+        decrypt=bool(decrypt),
+        export_format=str(export_format),
+        models="\n".join(models_to_file.models or []),
+        user_created=user.username,
+    )
+    data_request_history = data_request_history_model_cls.objects.create(
+        data_request=data_request,
+        exported_datetime=timezone.now(),
+        summary="\n".join(summary),
+        user_created=user.username,
+        user_modified=user.username,
+        archive_filename=models_to_file.archive_filename or "",
+    )
+    return data_request, data_request_history
+
+
 def get_export_user() -> User | AbstractBaseUser:
     username = input("Username:")
     passwd = getpass.getpass("Password for " + username + ":")
@@ -143,12 +207,18 @@ def get_export_user() -> User | AbstractBaseUser:
 def validate_user_perms_or_raise(user: User, decrypt: bool | None) -> None:
     if not user.groups.filter(name=EXPORT).exists():
         raise CommandError("You are not authorized to export data.")
-    if decrypt and not user.groups.filter(name="EXPORT_PII").exists():
+    if decrypt and not user.groups.filter(name=EXPORT_PII).exists():
         raise CommandError("You are not authorized to export sensitive data.")
 
 
 def get_default_models_for_export(trial_prefix: str) -> list[str]:
-    apps = [
+    """Return default model list for a trial identified by `trial_prefix`.
+
+    Raises CommandError if no installed apps match the trial_prefix —
+    likely a typo, otherwise the caller would silently get only the six
+    generic framework models below and think they exported the trial.
+    """
+    expected_apps = [
         f"{trial_prefix}_consent",
         f"{trial_prefix}_lists",
         f"{trial_prefix}_subject",
@@ -166,8 +236,10 @@ def get_default_models_for_export(trial_prefix: str) -> list[str]:
     ]
 
     # prepare a list of model names in label lower format
+    matched: list[str] = []
     for app_config in django_apps.get_app_configs():
-        if app_config.name.startswith(trial_prefix) and app_config.name in apps:
+        if app_config.name.startswith(trial_prefix) and app_config.name in expected_apps:
+            matched.append(app_config.name)
             model_names.extend(
                 [
                     model_cls._meta.label_lower
@@ -176,6 +248,12 @@ def get_default_models_for_export(trial_prefix: str) -> list[str]:
                     and not model_cls._meta.proxy
                 ]
             )
+
+    if not matched:
+        raise CommandError(
+            f"Unknown trial_prefix `{trial_prefix}`. No installed app matched. "
+            f"Expected at least one of: {', '.join(expected_apps)}."
+        )
     return model_names
 
 
@@ -183,12 +261,35 @@ def get_model_names_for_export(
     app_labels: list[str] | None,
     model_names: list[str] | None,
 ) -> list[str]:
-    """Returns a unique list of label_lower"""
-    model_names = model_names or []
-    if app_labels:
-        for app_label in app_labels:
-            app_config = django_apps.get_app_config(app_label)
-            model_names.extend([cls._meta.label_lower for cls in app_config.get_models()])
+    """Return a unique list of label_lower.
+
+    Both app_labels and model_names are validated. Collects all errors
+    and raises a single CommandError listing every unknown label/name
+    so the operator can fix them all in one pass rather than one per
+    re-run.
+    """
+    app_labels = list(app_labels or [])
+    model_names = list(model_names or [])
+    errors: list[str] = []
+
+    for app_label in app_labels:
+        try:
+            django_apps.get_app_config(app_label)
+        except LookupError:
+            errors.append(f"unknown app_label `{app_label}`")
+
+    for model_name in model_names:
+        try:
+            django_apps.get_model(model_name)
+        except (LookupError, ValueError):
+            errors.append(f"unknown model `{model_name}`")
+
+    if errors:
+        raise CommandError("Invalid --app / --model input: " + "; ".join(errors) + ".")
+
+    for app_label in app_labels:
+        app_config = django_apps.get_app_config(app_label)
+        model_names.extend([cls._meta.label_lower for cls in app_config.get_models()])
     return list(set(model_names))
 
 
@@ -196,16 +297,31 @@ def get_site_ids_for_export(
     site_ids: list[int] | None,
     countries: list[str] | None,
 ) -> list[int]:
-    """Returns a list of site ids"""
+    """Return a list of site ids based on explicit `site_ids` or `countries`.
+
+    `site_ids` and `countries` are mutually exclusive. The caller must
+    pass exactly one (non-empty). An empty result from both inputs is
+    treated as a programming error here; the management command is
+    expected to reject "neither specified" before calling this function.
+    """
+    site_ids = list(site_ids or [])
+    countries = list(countries or [])
+
     if countries and site_ids:
         raise CommandError("Invalid. Specify `site_ids` or `countries`, not both.")
-    for site_id in site_ids or []:
-        try:
-            obj = django_apps.get_model("sites.site").objects.get(id=int(site_id))
-        except ObjectDoesNotExist as e:
-            raise CommandError(f"Invalid site_id. Got `{site_id}`.") from e
-        else:
-            site_ids.append(obj.id)
-    for country in countries or []:
-        site_ids.extend(list(site_sites.get_by_country(country)))
-    return site_ids
+
+    if site_ids:
+        site_model_cls = django_apps.get_model("sites.site")
+        validated: list[int] = []
+        for site_id in site_ids:
+            try:
+                obj = site_model_cls.objects.get(id=int(site_id))
+            except ObjectDoesNotExist as e:
+                raise CommandError(f"Invalid site_id. Got `{site_id}`.") from e
+            validated.append(obj.id)
+        return validated
+
+    resolved: list[int] = []
+    for country in countries:
+        resolved.extend(list(site_sites.get_by_country(country)))
+    return resolved

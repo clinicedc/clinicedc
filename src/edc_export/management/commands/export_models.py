@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import grp
+import os
+import pwd
 import sys
 from pathlib import Path
 
@@ -13,6 +16,7 @@ from edc_export.utils import (
     get_export_user,
     get_model_names_for_export,
     get_site_ids_for_export,
+    record_cli_export_audit,
     validate_user_perms_or_raise,
 )
 from edc_sites.site import sites as site_sites
@@ -20,6 +24,69 @@ from edc_sites.site import sites as site_sites
 ALL_COUNTRIES = "all"
 
 style = color_style()
+
+
+def _split_csv(value: str | None) -> list[str]:
+    """Split a comma-separated CLI value, stripping whitespace and
+    dropping empty tokens. Handles trailing commas and stray spaces.
+    """
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def _validate_export_path_or_raise(path: Path, decrypt: bool) -> list[str]:
+    """Validate the export directory. Returns a list of warnings
+    (non-fatal). Raises CommandError on any hard-error condition.
+
+    Hard errors:
+      - path does not exist, is not a directory, or is not writable
+      - with decrypt, directory is world-readable (o+r)
+
+    Warnings:
+      - with decrypt, directory is group-readable and the group is
+        not "private" (has members besides the owner)
+    """
+    if not path.exists():
+        raise CommandError(f"Path does not exist. Got `{path}`.")
+    if not path.is_dir():
+        raise CommandError(f"Path is not a directory. Got `{path}`.")
+    if not os.access(path, os.W_OK):
+        raise CommandError(f"Path is not writable. Got `{path}`.")
+
+    warnings: list[str] = []
+    if decrypt:
+        st = path.stat()
+        mode = st.st_mode
+        if mode & 0o004:
+            raise CommandError(
+                "Refusing to write decrypted data to a world-readable "
+                f"directory. Got `{path}` (mode {oct(mode & 0o777)}). "
+                "Remove world-read (chmod o-r) and retry."
+            )
+        if mode & 0o040:
+            # group-readable; warn only if group is non-private
+            try:
+                group_info = grp.getgrgid(st.st_gid)
+                owner_name = pwd.getpwuid(st.st_uid).pw_name
+                primary_members = {
+                    p.pw_name for p in pwd.getpwall() if p.pw_gid == st.st_gid
+                }
+                all_members = set(group_info.gr_mem) | primary_members
+                if not all_members <= {owner_name}:
+                    warnings.append(
+                        f"Export directory `{path}` is group-readable by "
+                        f"group `{group_info.gr_name}` which has members "
+                        f"beyond the owner `{owner_name}`. Decrypted data "
+                        "will be readable by those users."
+                    )
+            except KeyError:
+                # unknown uid/gid — can't verify; warn conservatively
+                warnings.append(
+                    f"Export directory `{path}` is group-readable and "
+                    "group membership could not be verified."
+                )
+    return warnings
 
 
 class Command(BaseCommand):
@@ -125,7 +192,7 @@ class Command(BaseCommand):
             help="only export data for site id. Separate by comma if more than one.",
         )
 
-    def handle(self, *args, **options):  # noqa: ARG002
+    def handle(self, *args, **options):  # noqa: ARG002, C901, PLR0912
         user = get_export_user()
         validate_user_perms_or_raise(user, options["decrypt"])
 
@@ -137,40 +204,48 @@ class Command(BaseCommand):
             else int(self.options["stata_dta_version"] or STATA_14)
         )
 
-        if not self.options["path"] or not Path(self.options["path"]).expanduser().exists():
-            raise CommandError(f"Path does not exist. Got `{self.options['path']}`")
+        if not self.options["path"]:
+            raise CommandError("Path is required. Use --path to specify the export directory.")
         export_path = Path(self.options["path"]).expanduser().resolve()
+        warnings = _validate_export_path_or_raise(export_path, decrypt=bool(self.decrypt))
 
         use_simple_filename = self.options["use_simple_filename"]
 
         sys.stdout.write("Export models.\n")
         sys.stdout.write(f"* export base path: {export_path}\n")
+        for warning in warnings:
+            sys.stderr.write(style.WARNING(f"WARNING: {warning}\n"))
+
+        app_labels = _split_csv(self.options["app_labels"])
+        cli_model_names = _split_csv(self.options["model_names"])
 
         if self.options["trial_prefix"]:
+            if app_labels or cli_model_names:
+                raise CommandError(
+                    "`--trial-prefix` is mutually exclusive with `--app` and `--model`."
+                )
             model_names = get_default_models_for_export(self.options["trial_prefix"])
         else:
-            app_labels = []
-            if self.options["app_labels"]:
-                app_labels = self.options["app_labels"].split(",")
+            if app_labels:
                 sys.stdout.write(
                     f"* preparing to export models from apps: {', '.join(app_labels)}\n"
                 )
-            model_names = []
-            if self.options["model_names"]:
-                model_names = self.options["model_names"].split(",")
-                sys.stdout.write(f"* preparing to export models: {', '.join(model_names)}\n")
-            if not app_labels and not model_names:
+            if cli_model_names:
+                sys.stdout.write(
+                    f"* preparing to export models: {', '.join(cli_model_names)}\n"
+                )
+            if not app_labels and not cli_model_names:
                 raise CommandError(
                     "Nothing to do. No models to export. "
                     "Specify `app_labels` or `model_names`."
                 )
             model_names = get_model_names_for_export(
                 app_labels=app_labels,
-                model_names=model_names,
+                model_names=cli_model_names,
             )
 
-        if self.options["skip_model_names"]:
-            skip_model_names = self.options["skip_model_names"].split(",")
+        skip_model_names = _split_csv(self.options["skip_model_names"])
+        if skip_model_names:
             sys.stdout.write(f"* skipping models: {', '.join(skip_model_names)}\n")
             model_names = [m for m in model_names if m not in skip_model_names]
 
@@ -180,7 +255,18 @@ class Command(BaseCommand):
         # build list of site ids
         site_ids = self.options["site_ids"] or []
         if site_ids:
-            site_ids = [int(x) for x in self.options["site_ids"].split(",")]
+            try:
+                site_ids = [int(x.strip()) for x in site_ids.split(",") if x.strip()]
+            except ValueError as e:
+                raise CommandError(
+                    f"Invalid --site value. Expected comma-separated integers. "
+                    f"Got `{self.options['site_ids']}`."
+                ) from e
+        if not site_ids and not self.countries:
+            raise CommandError(
+                "Nothing to do. Specify either `--site` or `--country`. "
+                "Use `--country all` to export data for all countries."
+            )
         site_ids = get_site_ids_for_export(site_ids=site_ids, countries=self.countries)
 
         # does user have perms to export these sites?
@@ -204,6 +290,29 @@ class Command(BaseCommand):
             use_simple_filename=use_simple_filename,
             export_folder=export_path,
         )
+
+        # audit log
+        try:
+            data_request, _ = record_cli_export_audit(
+                user=user,
+                models_to_file=models_to_file,
+                decrypt=bool(self.decrypt),
+                export_format=export_format,
+                site_ids=site_ids,
+                countries=self.countries,
+                trial_prefix=self.options.get("trial_prefix") or None,
+                include_historical=bool(self.options.get("include_historical")),
+                export_path=export_path,
+            )
+            sys.stdout.write(f"* audit: recorded as `{data_request.name}`\n")
+        except Exception as e:
+            # audit failure must never break a completed export; surface it.
+            sys.stderr.write(
+                style.WARNING(
+                    f"WARNING: failed to record export audit log: {e!r}\n"
+                )
+            )
+
         sys.stdout.write(
             style.SUCCESS(f"\nDone.\nExported to {models_to_file.archive_filename}\n")
         )
@@ -211,10 +320,15 @@ class Command(BaseCommand):
     @property
     def countries(self):
         if not self._countries:
-            if not self.options["countries"] or self.options["countries"] == ALL_COUNTRIES:
+            raw = self.options["countries"]
+            if not raw:
+                # --country not specified; caller decides whether that's
+                # valid (paired with --site) or an error.
+                self._countries = []
+            elif raw == ALL_COUNTRIES:
                 self._countries = site_sites.countries
             else:
-                self._countries = self.options["countries"].lower().split(",")
+                self._countries = raw.lower().split(",")
                 for country in self._countries:
                     if country not in site_sites.countries:
                         raise CommandError(f"Invalid country. Got {country}.")
