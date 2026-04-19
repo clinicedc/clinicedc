@@ -148,7 +148,13 @@ def validate_user_perms_or_raise(user: User, decrypt: bool | None) -> None:
 
 
 def get_default_models_for_export(trial_prefix: str) -> list[str]:
-    apps = [
+    """Return default model list for a trial identified by `trial_prefix`.
+
+    Raises CommandError if no installed apps match the trial_prefix —
+    likely a typo, otherwise the caller would silently get only the six
+    generic framework models below and think they exported the trial.
+    """
+    expected_apps = [
         f"{trial_prefix}_consent",
         f"{trial_prefix}_lists",
         f"{trial_prefix}_subject",
@@ -166,8 +172,10 @@ def get_default_models_for_export(trial_prefix: str) -> list[str]:
     ]
 
     # prepare a list of model names in label lower format
+    matched: list[str] = []
     for app_config in django_apps.get_app_configs():
-        if app_config.name.startswith(trial_prefix) and app_config.name in apps:
+        if app_config.name.startswith(trial_prefix) and app_config.name in expected_apps:
+            matched.append(app_config.name)
             model_names.extend(
                 [
                     model_cls._meta.label_lower
@@ -176,6 +184,12 @@ def get_default_models_for_export(trial_prefix: str) -> list[str]:
                     and not model_cls._meta.proxy
                 ]
             )
+
+    if not matched:
+        raise CommandError(
+            f"Unknown trial_prefix `{trial_prefix}`. No installed app matched. "
+            f"Expected at least one of: {', '.join(expected_apps)}."
+        )
     return model_names
 
 
@@ -183,12 +197,35 @@ def get_model_names_for_export(
     app_labels: list[str] | None,
     model_names: list[str] | None,
 ) -> list[str]:
-    """Returns a unique list of label_lower"""
-    model_names = model_names or []
-    if app_labels:
-        for app_label in app_labels:
-            app_config = django_apps.get_app_config(app_label)
-            model_names.extend([cls._meta.label_lower for cls in app_config.get_models()])
+    """Return a unique list of label_lower.
+
+    Both app_labels and model_names are validated. Collects all errors
+    and raises a single CommandError listing every unknown label/name
+    so the operator can fix them all in one pass rather than one per
+    re-run.
+    """
+    app_labels = list(app_labels or [])
+    model_names = list(model_names or [])
+    errors: list[str] = []
+
+    for app_label in app_labels:
+        try:
+            django_apps.get_app_config(app_label)
+        except LookupError:
+            errors.append(f"unknown app_label `{app_label}`")
+
+    for model_name in model_names:
+        try:
+            django_apps.get_model(model_name)
+        except (LookupError, ValueError):
+            errors.append(f"unknown model `{model_name}`")
+
+    if errors:
+        raise CommandError("Invalid --app / --model input: " + "; ".join(errors) + ".")
+
+    for app_label in app_labels:
+        app_config = django_apps.get_app_config(app_label)
+        model_names.extend([cls._meta.label_lower for cls in app_config.get_models()])
     return list(set(model_names))
 
 
