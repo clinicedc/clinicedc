@@ -22,6 +22,11 @@ from edc_model_admin.mixins import (
 )
 from edc_sites.admin import SiteModelAdminMixin
 
+from .list_filters import (
+    ScheduleNameListFilter,
+    VisitCodeListFilter,
+)
+
 
 class MetadataModelAdminMixin(
     SiteModelAdminMixin,
@@ -106,10 +111,13 @@ class MetadataModelAdminMixin(
     list_filter = (
         ("due_datetime", DateRangeFilterBuilder()),
         "entry_status",
-        "visit_code",
+        VisitCodeListFilter,
         "visit_code_sequence",
-        "schedule_name",
-        "document_name",
+        ScheduleNameListFilter,
+        # document_name intentionally dropped from the shared mixin.
+        # Each concrete admin (CRF/Requisition) adds its own via
+        # get_list_filter() so the option list is sourced from only the
+        # relevant form collections.
         "site",
         ("created", DateRangeFilterBuilder()),
     )
