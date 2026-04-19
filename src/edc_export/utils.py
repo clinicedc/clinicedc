@@ -126,6 +126,70 @@ def update_data_request_history(request, models_to_file: ModelsToFile):
     )
 
 
+def record_cli_export_audit(
+    user: User | AbstractBaseUser,
+    models_to_file: ModelsToFile,
+    *,
+    decrypt: bool,
+    export_format: str | int,
+    site_ids: list[int] | None = None,
+    countries: list[str] | None = None,
+    trial_prefix: str | None = None,
+    include_historical: bool = False,
+    export_path: Path | str | None = None,
+) -> tuple:
+    """Record a CLI-initiated export to DataRequest / DataRequestHistory.
+
+    Web-initiated exports record history via `update_data_request_history`.
+    CLI exports have no `request` object, so the management command calls
+    this helper to leave an equivalent audit trail: who ran the export,
+    what models, with what filters, decrypted or not, where it landed.
+
+    The `site` FK is left null; `SiteModelMixin.get_site_on_create` will
+    assign from `settings.SITE_ID` at save-time, matching how other
+    CLI-created rows behave.
+
+    Returns the (data_request, data_request_history) instances (primarily
+    for tests).
+    """
+    summary = sorted(str(x) for x in (models_to_file.exported_filenames or []))
+    data_request_model_cls = django_apps.get_model("edc_export.datarequest")
+    data_request_history_model_cls = django_apps.get_model("edc_export.datarequesthistory")
+
+    description_lines = [
+        "Initiated via `export_models` management command.",
+        f"export_format={export_format}",
+        f"decrypt={bool(decrypt)}",
+        f"include_historical={bool(include_historical)}",
+    ]
+    if trial_prefix:
+        description_lines.append(f"trial_prefix={trial_prefix}")
+    if site_ids:
+        description_lines.append(f"site_ids={','.join(str(s) for s in site_ids)}")
+    if countries:
+        description_lines.append(f"countries={','.join(countries)}")
+    if export_path is not None:
+        description_lines.append(f"export_path={export_path}")
+
+    data_request = data_request_model_cls.objects.create(
+        name=f"CLI export {timezone.now().strftime('%Y%m%d%H%M')}",
+        description="\n".join(description_lines),
+        decrypt=bool(decrypt),
+        export_format=str(export_format),
+        models="\n".join(models_to_file.models or []),
+        user_created=user.username,
+    )
+    data_request_history = data_request_history_model_cls.objects.create(
+        data_request=data_request,
+        exported_datetime=timezone.now(),
+        summary="\n".join(summary),
+        user_created=user.username,
+        user_modified=user.username,
+        archive_filename=models_to_file.archive_filename or "",
+    )
+    return data_request, data_request_history
+
+
 def get_export_user() -> User | AbstractBaseUser:
     username = input("Username:")
     passwd = getpass.getpass("Password for " + username + ":")
