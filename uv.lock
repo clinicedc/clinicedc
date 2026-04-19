@@ -783,7 +783,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "clinicedc-tests", specifier = ">=1.0.1" },
+    { name = "clinicedc-tests", specifier = ">=1.2.1" },
     { name = "django-webtest", specifier = ">=1.9.14" },
     { name = "ruff", specifier = ">=0.14.9" },
 ]
