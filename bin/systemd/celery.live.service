@@ -4,10 +4,10 @@ After=network.target
 
 [Service]
 Type=forking
-User=celery
-Group=celery
+User=live
+Group=live
 EnvironmentFile=/etc/conf.d/celery.live.conf
-WorkingDirectory=/home/live/app/
+WorkingDirectory=/home/live/edc
 ExecStart=/bin/sh -c '${CELERY_BIN} -A ${CELERY_APP} multi start ${CELERYD_NODES} --pidfile=${CELERYD_PID_FILE} --logfile=${CELERYD_LOG_FILE} --loglevel=INFO ${CELERYD_OPTS}'
 Restart=always
 
