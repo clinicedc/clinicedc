@@ -16,6 +16,7 @@ from edc_export.utils import (
     get_export_user,
     get_model_names_for_export,
     get_site_ids_for_export,
+    record_cli_export_audit,
     validate_user_perms_or_raise,
 )
 from edc_sites.site import sites as site_sites
@@ -289,6 +290,29 @@ class Command(BaseCommand):
             use_simple_filename=use_simple_filename,
             export_folder=export_path,
         )
+
+        # audit log
+        try:
+            data_request, _ = record_cli_export_audit(
+                user=user,
+                models_to_file=models_to_file,
+                decrypt=bool(self.decrypt),
+                export_format=export_format,
+                site_ids=site_ids,
+                countries=self.countries,
+                trial_prefix=self.options.get("trial_prefix") or None,
+                include_historical=bool(self.options.get("include_historical")),
+                export_path=export_path,
+            )
+            sys.stdout.write(f"* audit: recorded as `{data_request.name}`\n")
+        except Exception as e:
+            # audit failure must never break a completed export; surface it.
+            sys.stderr.write(
+                style.WARNING(
+                    f"WARNING: failed to record export audit log: {e!r}\n"
+                )
+            )
+
         sys.stdout.write(
             style.SUCCESS(f"\nDone.\nExported to {models_to_file.archive_filename}\n")
         )
