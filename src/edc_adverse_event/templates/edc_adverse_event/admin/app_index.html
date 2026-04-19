@@ -3,5 +3,5 @@
 {% load edc_dashboard_extras edc_admin_modify edc_navbar_extras %}
 
 {% block branding %}
-  {% show_navbar_for_admin_templates_b3 %} <a href="{% url "edc_adverse_event:home_url" %}">{{ opts.app_config.verbose_name|capfirst }}</a>
+  {% show_navbar_for_admin_templates %} <a href="{% url "edc_adverse_event:home_url" %}">{{ opts.app_config.verbose_name|capfirst }}</a>
 {% endblock %}

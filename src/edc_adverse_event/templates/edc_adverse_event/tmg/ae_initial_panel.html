@@ -8,6 +8,6 @@
   &nbsp;{{ action_item.display_name|cut:"Submit" }} {{ action_item.identifier|default:"New" }}
 </div>
 {% if action_item.reference_obj %}
-  <div class="list-group-item"><b>{% trans "Created" %}:</b> {{ action_item.reference_obj.user_created|default:"---" }}&nbsp;{{ action_item.reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
-  <div class="list-group-item"><b>{% trans "Last modified" %}:</b> {{ action_item.reference_obj.user_modified|default:"---" }}&nbsp;{{ action_item.reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+  <div class="list-group-item"><b>{% translate "Created" %}:</b> {{ action_item.reference_obj.user_created|default:"---" }}&nbsp;{{ action_item.reference_obj.created|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
+  <div class="list-group-item"><b>{% translate "Last modified" %}:</b> {{ action_item.reference_obj.user_modified|default:"---" }}&nbsp;{{ action_item.reference_obj.modified|date:"SHORT_DATETIME_FORMAT"|default:"---" }}</div>
 {% endif %}

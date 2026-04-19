@@ -179,10 +179,3 @@ def yes_no_coloring(value) -> dict:
 @register.inclusion_tag("edc_model_admin/navbar_for_admin_templates.html", takes_context=True)
 def show_navbar_for_admin_templates(context):
     return context
-
-
-@register.inclusion_tag(
-    "edc_model_admin/navbar_for_admin_templates_b3.html", takes_context=True
-)
-def show_navbar_for_admin_templates_b3(context):
-    return context
