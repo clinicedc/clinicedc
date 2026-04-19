@@ -180,7 +180,18 @@ class Command(BaseCommand):
         # build list of site ids
         site_ids = self.options["site_ids"] or []
         if site_ids:
-            site_ids = [int(x) for x in self.options["site_ids"].split(",")]
+            try:
+                site_ids = [int(x.strip()) for x in site_ids.split(",") if x.strip()]
+            except ValueError as e:
+                raise CommandError(
+                    f"Invalid --site value. Expected comma-separated integers. "
+                    f"Got `{self.options['site_ids']}`."
+                ) from e
+        if not site_ids and not self.countries:
+            raise CommandError(
+                "Nothing to do. Specify either `--site` or `--country`. "
+                "Use `--country all` to export data for all countries."
+            )
         site_ids = get_site_ids_for_export(site_ids=site_ids, countries=self.countries)
 
         # does user have perms to export these sites?
@@ -211,10 +222,15 @@ class Command(BaseCommand):
     @property
     def countries(self):
         if not self._countries:
-            if not self.options["countries"] or self.options["countries"] == ALL_COUNTRIES:
+            raw = self.options["countries"]
+            if not raw:
+                # --country not specified; caller decides whether that's
+                # valid (paired with --site) or an error.
+                self._countries = []
+            elif raw == ALL_COUNTRIES:
                 self._countries = site_sites.countries
             else:
-                self._countries = self.options["countries"].lower().split(",")
+                self._countries = raw.lower().split(",")
                 for country in self._countries:
                     if country not in site_sites.countries:
                         raise CommandError(f"Invalid country. Got {country}.")

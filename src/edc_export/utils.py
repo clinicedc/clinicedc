@@ -196,16 +196,31 @@ def get_site_ids_for_export(
     site_ids: list[int] | None,
     countries: list[str] | None,
 ) -> list[int]:
-    """Returns a list of site ids"""
+    """Return a list of site ids based on explicit `site_ids` or `countries`.
+
+    `site_ids` and `countries` are mutually exclusive. The caller must
+    pass exactly one (non-empty). An empty result from both inputs is
+    treated as a programming error here; the management command is
+    expected to reject "neither specified" before calling this function.
+    """
+    site_ids = list(site_ids or [])
+    countries = list(countries or [])
+
     if countries and site_ids:
         raise CommandError("Invalid. Specify `site_ids` or `countries`, not both.")
-    for site_id in site_ids or []:
-        try:
-            obj = django_apps.get_model("sites.site").objects.get(id=int(site_id))
-        except ObjectDoesNotExist as e:
-            raise CommandError(f"Invalid site_id. Got `{site_id}`.") from e
-        else:
-            site_ids.append(obj.id)
-    for country in countries or []:
-        site_ids.extend(list(site_sites.get_by_country(country)))
-    return site_ids
+
+    if site_ids:
+        site_model_cls = django_apps.get_model("sites.site")
+        validated: list[int] = []
+        for site_id in site_ids:
+            try:
+                obj = site_model_cls.objects.get(id=int(site_id))
+            except ObjectDoesNotExist as e:
+                raise CommandError(f"Invalid site_id. Got `{site_id}`.") from e
+            validated.append(obj.id)
+        return validated
+
+    resolved: list[int] = []
+    for country in countries:
+        resolved.extend(list(site_sites.get_by_country(country)))
+    return resolved
