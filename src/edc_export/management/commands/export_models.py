@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import grp
+import os
+import pwd
 import sys
 from pathlib import Path
 
@@ -20,6 +23,69 @@ from edc_sites.site import sites as site_sites
 ALL_COUNTRIES = "all"
 
 style = color_style()
+
+
+def _split_csv(value: str | None) -> list[str]:
+    """Split a comma-separated CLI value, stripping whitespace and
+    dropping empty tokens. Handles trailing commas and stray spaces.
+    """
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
+def _validate_export_path_or_raise(path: Path, decrypt: bool) -> list[str]:
+    """Validate the export directory. Returns a list of warnings
+    (non-fatal). Raises CommandError on any hard-error condition.
+
+    Hard errors:
+      - path does not exist, is not a directory, or is not writable
+      - with decrypt, directory is world-readable (o+r)
+
+    Warnings:
+      - with decrypt, directory is group-readable and the group is
+        not "private" (has members besides the owner)
+    """
+    if not path.exists():
+        raise CommandError(f"Path does not exist. Got `{path}`.")
+    if not path.is_dir():
+        raise CommandError(f"Path is not a directory. Got `{path}`.")
+    if not os.access(path, os.W_OK):
+        raise CommandError(f"Path is not writable. Got `{path}`.")
+
+    warnings: list[str] = []
+    if decrypt:
+        st = path.stat()
+        mode = st.st_mode
+        if mode & 0o004:
+            raise CommandError(
+                "Refusing to write decrypted data to a world-readable "
+                f"directory. Got `{path}` (mode {oct(mode & 0o777)}). "
+                "Remove world-read (chmod o-r) and retry."
+            )
+        if mode & 0o040:
+            # group-readable; warn only if group is non-private
+            try:
+                group_info = grp.getgrgid(st.st_gid)
+                owner_name = pwd.getpwuid(st.st_uid).pw_name
+                primary_members = {
+                    p.pw_name for p in pwd.getpwall() if p.pw_gid == st.st_gid
+                }
+                all_members = set(group_info.gr_mem) | primary_members
+                if not all_members <= {owner_name}:
+                    warnings.append(
+                        f"Export directory `{path}` is group-readable by "
+                        f"group `{group_info.gr_name}` which has members "
+                        f"beyond the owner `{owner_name}`. Decrypted data "
+                        "will be readable by those users."
+                    )
+            except KeyError:
+                # unknown uid/gid — can't verify; warn conservatively
+                warnings.append(
+                    f"Export directory `{path}` is group-readable and "
+                    "group membership could not be verified."
+                )
+    return warnings
 
 
 class Command(BaseCommand):
@@ -125,7 +191,7 @@ class Command(BaseCommand):
             help="only export data for site id. Separate by comma if more than one.",
         )
 
-    def handle(self, *args, **options):  # noqa: ARG002
+    def handle(self, *args, **options):  # noqa: ARG002, C901, PLR0912
         user = get_export_user()
         validate_user_perms_or_raise(user, options["decrypt"])
 
@@ -137,40 +203,48 @@ class Command(BaseCommand):
             else int(self.options["stata_dta_version"] or STATA_14)
         )
 
-        if not self.options["path"] or not Path(self.options["path"]).expanduser().exists():
-            raise CommandError(f"Path does not exist. Got `{self.options['path']}`")
+        if not self.options["path"]:
+            raise CommandError("Path is required. Use --path to specify the export directory.")
         export_path = Path(self.options["path"]).expanduser().resolve()
+        warnings = _validate_export_path_or_raise(export_path, decrypt=bool(self.decrypt))
 
         use_simple_filename = self.options["use_simple_filename"]
 
         sys.stdout.write("Export models.\n")
         sys.stdout.write(f"* export base path: {export_path}\n")
+        for warning in warnings:
+            sys.stderr.write(style.WARNING(f"WARNING: {warning}\n"))
+
+        app_labels = _split_csv(self.options["app_labels"])
+        cli_model_names = _split_csv(self.options["model_names"])
 
         if self.options["trial_prefix"]:
+            if app_labels or cli_model_names:
+                raise CommandError(
+                    "`--trial-prefix` is mutually exclusive with `--app` and `--model`."
+                )
             model_names = get_default_models_for_export(self.options["trial_prefix"])
         else:
-            app_labels = []
-            if self.options["app_labels"]:
-                app_labels = self.options["app_labels"].split(",")
+            if app_labels:
                 sys.stdout.write(
                     f"* preparing to export models from apps: {', '.join(app_labels)}\n"
                 )
-            model_names = []
-            if self.options["model_names"]:
-                model_names = self.options["model_names"].split(",")
-                sys.stdout.write(f"* preparing to export models: {', '.join(model_names)}\n")
-            if not app_labels and not model_names:
+            if cli_model_names:
+                sys.stdout.write(
+                    f"* preparing to export models: {', '.join(cli_model_names)}\n"
+                )
+            if not app_labels and not cli_model_names:
                 raise CommandError(
                     "Nothing to do. No models to export. "
                     "Specify `app_labels` or `model_names`."
                 )
             model_names = get_model_names_for_export(
                 app_labels=app_labels,
-                model_names=model_names,
+                model_names=cli_model_names,
             )
 
-        if self.options["skip_model_names"]:
-            skip_model_names = self.options["skip_model_names"].split(",")
+        skip_model_names = _split_csv(self.options["skip_model_names"])
+        if skip_model_names:
             sys.stdout.write(f"* skipping models: {', '.join(skip_model_names)}\n")
             model_names = [m for m in model_names if m not in skip_model_names]
 
