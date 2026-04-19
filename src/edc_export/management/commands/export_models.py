@@ -252,13 +252,20 @@ class Command(BaseCommand):
             model_names = [m for m in model_names if "historical" not in m]
 
         # build list of site ids
-        site_ids_raw = _split_csv(self.options["site_ids"])
-        try:
-            site_ids = [int(x) for x in site_ids_raw]
-        except ValueError as e:
+        site_ids = self.options["site_ids"] or []
+        if site_ids:
+            try:
+                site_ids = [int(x.strip()) for x in site_ids.split(",") if x.strip()]
+            except ValueError as e:
+                raise CommandError(
+                    f"Invalid --site value. Expected comma-separated integers. "
+                    f"Got `{self.options['site_ids']}`."
+                ) from e
+        if not site_ids and not self.countries:
             raise CommandError(
-                f"Invalid --site value, must be integers. Got `{self.options['site_ids']}`."
-            ) from e
+                "Nothing to do. Specify either `--site` or `--country`. "
+                "Use `--country all` to export data for all countries."
+            )
         site_ids = get_site_ids_for_export(site_ids=site_ids, countries=self.countries)
 
         # does user have perms to export these sites?
@@ -289,13 +296,15 @@ class Command(BaseCommand):
     @property
     def countries(self):
         if not self._countries:
-            raw = (self.options["countries"] or "").strip().lower()
+            raw = self.options["countries"]
             if not raw:
+                # --country not specified; caller decides whether that's
+                # valid (paired with --site) or an error.
                 self._countries = []
             elif raw == ALL_COUNTRIES:
-                self._countries = list(site_sites.countries)
+                self._countries = site_sites.countries
             else:
-                self._countries = [c.lower() for c in _split_csv(raw)]
+                self._countries = raw.lower().split(",")
                 for country in self._countries:
                     if country not in site_sites.countries:
                         raise CommandError(f"Invalid country. Got {country}.")
