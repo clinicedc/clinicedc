@@ -76,7 +76,7 @@ def raise_if_prohibited_from_export_pii_group(username: str, groups: Iterable) -
                 "groups": format_html(
                     "This user is not allowed to export PII data. You may not add "
                     "this user to the <U>{text}</U> group.",
-                    text="EXPORT_PII",
+                    text=EXPORT_PII,
                 )
             }
         )
@@ -143,7 +143,7 @@ def get_export_user() -> User | AbstractBaseUser:
 def validate_user_perms_or_raise(user: User, decrypt: bool | None) -> None:
     if not user.groups.filter(name=EXPORT).exists():
         raise CommandError("You are not authorized to export data.")
-    if decrypt and not user.groups.filter(name="EXPORT_PII").exists():
+    if decrypt and not user.groups.filter(name=EXPORT_PII).exists():
         raise CommandError("You are not authorized to export sensitive data.")
 
 
