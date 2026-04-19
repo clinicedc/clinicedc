@@ -18,9 +18,9 @@
                   {% if perms.edc_data_manager.add_dataquery %}<a href="{% url 'edc_data_manager_admin:edc_data_manager_dataquery_add' %}?registered_subject={{ registered_subject_pk }}&sender={{ request.user.id }}&visit_schedule={{ visit_schedule_pk|default:'' }}&visit_code_sequence={{ appointment.visit_code_sequence }}" role="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Add new data query">Query</a>{% endif %}
                   {% block top_bar_buttons_extra %}{% endblock top_bar_buttons_extra %}
                   {% block schedule_button %}
-                    {% if related_visit %}{% render_subject_schedule_button subject_dashboard_url subject_identifier %}<a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.id|stringformat:"s" %}#{{ subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}" role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% trans "Go to subject review" %}"><i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>{% trans "Review" %}</a>{% else %}<a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier %}" role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% trans "Go to subject review" %}"><i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>{% trans "Review" %}</a>{% endif %}
+                    {% if related_visit %}{% render_subject_schedule_button subject_dashboard_url subject_identifier %}<a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier appointment=appointment.id|stringformat:"s" %}#{{ subject_identifier }}-{{ appointment.visit_code }}-{{ appointment.visit_code_sequence }}" role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% translate "Go to subject review" %}"><i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>{% translate "Review" %}</a>{% else %}<a href="{% url subject_review_listboard_url|default:'subject_review_listboard_url_cannot_be_none' subject_identifier=subject_identifier %}" role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% translate "Go to subject review" %}"><i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i>{% translate "Review" %}</a>{% endif %}
                   {% endblock schedule_button %}
-                  <a {% block close_url %}href="{% url subject_listboard_url|default:'subject_listboard_url_cannot_be_none' %}?q={{ subject_identifier }}"{% endblock close_url %} role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% trans "Back to Subjects" %}"><i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i> {% trans "Subjects" %}</a>
+                  <a {% block close_url %}href="{% url subject_listboard_url|default:'subject_listboard_url_cannot_be_none' %}?q={{ subject_identifier }}"{% endblock close_url %} role="button" class="btn btn-sm btn-primary" data-toggle="tooltip" title="{% translate "Back to Subjects" %}"><i class="fa-solid fa-reply fa-1x fa-fw" aria-hidden="true"></i> {% translate "Subjects" %}</a>
                 </div>
               </span>
             </h6>
@@ -34,11 +34,11 @@
         <div class="panel-group col-md-9" id="accordion_schedule">
           {% if not visit_schedules %}
             <div class="alert alert-warning">
-              <i class="far fa-hand-paper fa-lg fa-fw"></i> {% trans "Subject is not enrolled to any schedules" %}.
+              <i class="far fa-hand-paper fa-lg fa-fw"></i> {% translate "Subject is not enrolled to any schedules" %}.
             </div>
             <div class="panel panel-default">
               <div class="panel-heading">
-                <h6 class="panel-title"><i class="far fa-calendar fa-lg fa-fw"></i><a href="#">{% trans "Schedules" %}</a></h6>
+                <h6 class="panel-title"><i class="far fa-calendar fa-lg fa-fw"></i><a href="#">{% translate "Schedules" %}</a></h6>
               </div>
             </div>
           {% endif %}

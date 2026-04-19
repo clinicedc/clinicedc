@@ -30,7 +30,7 @@
 
 {% block breadcrumbs %}{% endblock %}
 
-{% block branding %}{% show_navbar_for_admin_templates_b3 %}&nbsp;{% if app_url %}<a href="{{ app_url }}">{{ opts.app_config.verbose_name|capfirst }}</A>{% else %}{{ opts.app_config.verbose_name|capfirst }}{% endif %}&nbsp;&rsaquo;&nbsp;<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name|capfirst|truncatechars:25 }}</A>&nbsp;&rsaquo;&nbsp;{% if add %}Add{% else %}Change{% endif %}{% endblock %}
+{% block branding %}{% show_navbar_for_admin_templates %}&nbsp;{% if app_url %}<a href="{{ app_url }}">{{ opts.app_config.verbose_name|capfirst }}</A>{% else %}{{ opts.app_config.verbose_name|capfirst }}{% endif %}&nbsp;&rsaquo;&nbsp;<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name|capfirst|truncatechars:25 }}</A>&nbsp;&rsaquo;&nbsp;{% if add %}Add{% else %}Change{% endif %}{% endblock %}
 
 {% block welcome-msg %}{% endblock %}
 
