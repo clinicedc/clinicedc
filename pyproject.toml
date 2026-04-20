@@ -251,6 +251,7 @@ ignore_directives = ["toctree"]
 
 dev = [
     "clinicedc-tests>=1.2.2",
+    "django-webtest>=1.9.14",
 ]
 
 docs = [
