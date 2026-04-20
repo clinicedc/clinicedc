@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django_audit_fields import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
+from django_audit_fields import audit_fieldset_tuple, ModelAdminAuditFieldsMixin
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from rangefilter.filters import DateRangeFilterBuilder
 
@@ -21,6 +21,10 @@ from edc_model_admin.mixins import (
     TemplatesModelAdminMixin,
 )
 from edc_sites.admin import SiteModelAdminMixin
+from .list_filters import (
+    ScheduleNameListFilter,
+    VisitCodeListFilter,
+)
 
 
 class MetadataModelAdminMixin(
@@ -106,12 +110,14 @@ class MetadataModelAdminMixin(
     list_filter = (
         ("due_datetime", DateRangeFilterBuilder()),
         "entry_status",
-        "visit_code",
+        VisitCodeListFilter,
         "visit_code_sequence",
-        "schedule_name",
-        "document_name",
+        ScheduleNameListFilter,
+        # document_name intentionally dropped from the shared mixin.
+        # Each concrete admin (CRF/Requisition) adds its own via
+        # get_list_filter() so the option list is sourced from only the
+        # relevant form collections.
         "site",
-        ("created", DateRangeFilterBuilder()),
     )
     readonly_fields = (
         "subject_identifier",
