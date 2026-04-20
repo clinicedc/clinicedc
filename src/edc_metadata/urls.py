@@ -15,6 +15,9 @@ class HomeRedirectView(RedirectView):
     outstanding (REQUIRED) records first; sending them to the admin
     index forced an extra click and an unfiltered scan. The filter can
     be cleared from the sidebar like any other admin filter.
+
+    Defaults to CRF metadata. See also the `change_list_note` on the
+    modeladmin classes.
     """
 
     permanent = False

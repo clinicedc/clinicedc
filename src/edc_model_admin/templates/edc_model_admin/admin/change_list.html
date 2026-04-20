@@ -36,4 +36,7 @@
 
 {% block pagination %}{{ block.super }}{% if change_list_help %}<p style="width:80%">{{ change_list_help }}</p>{% endif %}{% endblock %}
 
-{% block content %}{{ block.super }}{% revision_row %}{% endblock content %}
+{% block content %}
+    {% if change_list_note %}<h5><span style="color:orange;">Note:</span></h5><p style="width:80%">{{ change_list_note }}</p>{% endif %}
+    {{ block.super }}{% revision_row %}
+{% endblock content %}
