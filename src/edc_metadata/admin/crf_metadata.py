@@ -8,6 +8,7 @@ from edc_export.admin import ExportMixinModelAdminMixin
 
 from ..admin_site import edc_metadata_admin
 from ..models import CrfMetadata
+from .list_filters import CrfDocumentNameListFilter, VisitScheduleNameListFilter
 from .modeladmin_mixins import MetadataModelAdminMixin
 from .resources import CrfMetadataResource
 
@@ -30,3 +31,9 @@ class CrfMetadataAdmin(ExportMixinModelAdminMixin, MetadataModelAdminMixin):
     change_form_title = "CRF collection status"
     include_audit_fields_in_list_filter = False
     include_audit_fields_in_list_display = False
+
+    def get_list_filter(self, request) -> tuple[str, ...]:
+        list_filter = list(super().get_list_filter(request))
+        list_filter.append(CrfDocumentNameListFilter)
+        list_filter.append(VisitScheduleNameListFilter)
+        return tuple(list_filter)

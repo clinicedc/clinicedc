@@ -5,6 +5,10 @@ from edc_export.admin import ExportMixinModelAdminMixin
 
 from ..admin_site import edc_metadata_admin
 from ..models import RequisitionMetadata
+from .list_filters import (
+    RequisitionDocumentNameListFilter,
+    VisitScheduleNameListFilter,
+)
 from .modeladmin_mixins import MetadataModelAdminMixin
 from .resources import RequisitionMetadataResource
 
@@ -35,4 +39,6 @@ class RequisitionMetadataAdmin(ExportMixinModelAdminMixin, MetadataModelAdminMix
     def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = list(super().get_list_filter(request))
         list_filter.insert(1, "panel_name")
+        list_filter.append(RequisitionDocumentNameListFilter)
+        list_filter.append(VisitScheduleNameListFilter)
         return tuple(list_filter)
