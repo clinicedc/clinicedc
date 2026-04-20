@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 
 from django.contrib import admin
@@ -27,12 +28,17 @@ class ModelAdminDashboardMixin:
     def dashboard(self, obj=None, label=None) -> str:
         url = self.get_subject_dashboard_url(obj=obj)
         if not url:
-            url = reverse(
-                self.get_subject_dashboard_url_name(obj=obj),
-                kwargs=self.get_subject_dashboard_url_kwargs(obj),
-            )
-        context = dict(title=_("Go to subject's dashboard"), url=url, label=label)
-        return render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)
+            with contextlib.suppress(NoReverseMatch):
+                url = reverse(
+                    self.get_subject_dashboard_url_name(obj=obj),
+                    kwargs=self.get_subject_dashboard_url_kwargs(obj),
+                )
+            context = dict(title=_("Go to subject's dashboard"), url=url, label=label)
+        return (
+            render_to_string("edc_subject_dashboard/dashboard_button.html", context=context)
+            if url
+            else ""
+        )
 
     @admin.display(description=_("Subject review"))
     def subject_review_dashboard(self, obj=None, label=None) -> str:
@@ -90,8 +96,8 @@ class ModelAdminDashboardMixin:
     def get_list_display(self, request) -> tuple[str, ...]:
         list_display = super().get_list_display(request)
         if (
-            self.show_dashboard_in_list_display_pos is not None
-            and self.dashboard not in list_display
+                self.show_dashboard_in_list_display_pos is not None
+                and self.dashboard not in list_display
         ):
             list_display = list(list_display)
             list_display.insert(self.show_dashboard_in_list_display_pos, self.dashboard)

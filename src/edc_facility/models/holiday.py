@@ -29,10 +29,10 @@ class Holiday(models.Model):
     class Meta:
         verbose_name = _("Holiday")
         verbose_name_plural = _("Holidays")
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["country", "local_date"],
                 name="%(app_label)s_%(class)s_country_uniq",
-            )
-        ]
+            ),
+        )
         indexes = (Index(fields=["name", "country", "local_date"]),)
