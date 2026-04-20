@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "3.1.0"
+version = "3.1.1"
 description = "A clinical trials data management framework built on Django"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -248,11 +248,11 @@ exclude_lines = [
 ignore_directives = ["toctree"]
 
 [dependency-groups]
+
 dev = [
     "clinicedc-tests>=1.2.2",
-    "django-webtest>=1.9.14",
-    "ruff>=0.14.9",
 ]
+
 docs = [
     "furo>=2025.7.19",
     "sphinx>=8.2.3",
@@ -263,11 +263,7 @@ docs = [
 lint = [
     "ruff>=0.13.2",
 ]
-test = [
-    "clinicedc-tests>=1.0.1",
-    "coverage>=7.6.0",
-    "django-webtest>=1.9.14",
-]
+
 notebook = [
     "dj-notebook>=0.7.0",
     "great-tables>=0.18.0",
@@ -287,7 +283,3 @@ clinicedc = { workspace = true }
 clinicedc-tests = { path = "../clinicedc-tests", editable = true }
 clinicedc-utils = { path = "../clinicedc-utils", editable = true }
 clinicedc-constants = { path = "../clinicedc-constants", editable = true }
-# django-audit-fields = { path = "../django-audit-fields", editable = true }
-# django-crypto-fields = { path = "../django-crypto-fields", editable = true }
-# django-revision = { path = "../django-revision", editable = true }
-# edc-test-settings = { path = "../edc-test-settings", editable = true }
