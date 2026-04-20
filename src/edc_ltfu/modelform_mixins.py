@@ -1,9 +1,9 @@
-from clinicedc_constants import LTFU, NO, YES
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
+from clinicedc_constants import LTFU, NO, YES
 from edc_form_validators import FormValidator
 from edc_utils.text import convert_php_dateformat
 from edc_visit_tracking.constants import MISSED_VISIT
@@ -16,8 +16,8 @@ class LossToFollowupFormValidator(FormValidator):
         self.required_if(YES, field="phone", field_required="phone_attempts")
         self.required_if(YES, field="home_visit", field_required="home_visit_detail")
         if (
-            self.cleaned_data.get("phone_attempts") == 0
-            and self.cleaned_data.get("home_visit") == NO
+                self.cleaned_data.get("phone_attempts") == 0
+                and self.cleaned_data.get("home_visit") == NO
         ):
             raise forms.ValidationError(
                 "No contact attempted. An attempt must be made to contact "
@@ -60,7 +60,7 @@ class RequiresLtfuFormValidatorMixin:
     def validate_ltfu(self):
         if self.ltfu_model and (self.cleaned_data.get("subject_identifier") or self.instance):
             subject_identifier = (
-                self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
+                    self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
             )
 
             try:
@@ -69,9 +69,9 @@ class RequiresLtfuFormValidatorMixin:
                 )
             except ObjectDoesNotExist as e:
                 if (
-                    self.cleaned_data.get(self.offschedule_reason_field)
-                    and self.cleaned_data.get(self.offschedule_reason_field).name
-                    == self.ltfu_reason
+                        self.cleaned_data.get(self.offschedule_reason_field)
+                        and self.cleaned_data.get(self.offschedule_reason_field).name
+                        == self.ltfu_reason
                 ):
                     msg = (
                         "Patient is lost to followup, please complete "
@@ -81,9 +81,9 @@ class RequiresLtfuFormValidatorMixin:
                     raise forms.ValidationError({self.offschedule_reason_field: msg}) from e
             else:
                 if self.cleaned_data.get(self.ltfu_date_field) and (
-                    ltfu.ltfu_date != self.cleaned_data.get(self.ltfu_date_field)
+                        ltfu.last_seen_datetime != self.cleaned_data.get(self.ltfu_date_field)
                 ):
-                    expected = ltfu.ltfu_date.strftime(
+                    expected = ltfu.last_seen_datetime.strftime(
                         convert_php_dateformat(settings.SHORT_DATE_FORMAT)
                     )
                     got = self.cleaned_data.get(self.ltfu_date_field).strftime(
