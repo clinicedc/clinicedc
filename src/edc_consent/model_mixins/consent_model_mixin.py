@@ -1,19 +1,18 @@
 from uuid import uuid4
 
-from clinicedc_constants import OPEN
 from django.db import models
 from django.db.models import UniqueConstraint
 from django_crypto_fields.fields import EncryptedTextField
 
+from clinicedc_constants import NULL_STRING, OPEN
 from edc_data_manager.get_data_queries import get_data_queries
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.managers import CurrentSiteManager
 from edc_utils import age, formatted_age
-
+from .consent_version_model_mixin import ConsentVersionModelMixin
 from ..field_mixins import VerificationFieldsMixin
 from ..managers import ConsentObjectsManager
-from .consent_version_model_mixin import ConsentVersionModelMixin
 
 
 class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, models.Model):
@@ -35,7 +34,7 @@ class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, model
             "label_lower of this model class. Will be different if "
             "instance has been added/edited via a proxy model"
         ),
-        null=True,
+        default=NULL_STRING,
         editable=False,
     )
 
@@ -49,7 +48,7 @@ class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, model
     sid = models.CharField(
         verbose_name="SID",
         max_length=15,
-        null=True,
+        default=NULL_STRING,
         blank=True,
         editable=False,
         help_text="Used for randomization against a prepared rando-list.",
@@ -60,7 +59,7 @@ class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, model
     dm_comment = models.CharField(
         verbose_name="Data Management comment",
         max_length=150,
-        null=True,
+        default=NULL_STRING,
         editable=False,
         help_text="see also edc.data manager.",
     )
@@ -113,7 +112,7 @@ class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, model
         abstract = True
         verbose_name = "Subject Consent"
         verbose_name_plural = "Subject Consents"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=["first_name", "dob", "initials", "version"],
                 name="%(app_label)s_%(class)s_first_uniq",
@@ -136,4 +135,4 @@ class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, model
                 ],
                 name="%(app_label)s_%(class)s_version_uniq",
             ),
-        ]
+        )

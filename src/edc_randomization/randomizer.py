@@ -4,15 +4,15 @@ import contextlib
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import Any, TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
+from clinicedc_constants import NULL_STRING
 from edc_registration.utils import get_registered_subject_model_cls
-
 from .constants import (
     DEFAULT_ASSIGNMENT_DESCRIPTION_MAP,
     DEFAULT_ASSIGNMENT_MAP,
@@ -31,7 +31,6 @@ from .utils import get_randomization_list_path
 
 if TYPE_CHECKING:
     from edc_registration.models import RegisteredSubject
-
 
 __all__ = ["Randomizer"]
 
@@ -91,15 +90,15 @@ class Randomizer:
     apps = None  # if not using django_apps
 
     def __init__(
-        self,
-        identifier: str | None = None,
-        subject_identifier: str | None = None,
-        identifier_attr: str | None = None,
-        identifier_object_name: str | None = None,
-        report_datetime: datetime | None = None,
-        site: Any | None = None,
-        user: str | None = None,
-        **kwargs,  # noqa: ARG002
+            self,
+            identifier: str | None = None,
+            subject_identifier: str | None = None,
+            identifier_attr: str | None = None,
+            identifier_object_name: str | None = None,
+            report_datetime: datetime | None = None,
+            site: Any | None = None,
+            user: str | None = None,
+            **kwargs,  # noqa: ARG002
     ):
         self._model_obj = None
         self._registration_obj = None
@@ -253,7 +252,7 @@ class Randomizer:
         Compares with the assignment map.
         """
         if sorted(list(self.assignment_map.keys())) != sorted(
-            list(self.assignment_description_map.keys())
+                list(self.assignment_description_map.keys())
         ):
             raise InvalidAssignmentDescriptionMap(
                 f"Invalid assignment description. See randomizer {self.name}. "
@@ -267,7 +266,7 @@ class Randomizer:
         Called by `registration_obj`.
         """
         return self.get_registration_model_cls().objects.get(
-            (Q(sid__isnull=True) | Q(sid="")), **self.identifier_opts
+            (Q(sid__isnull=True) | Q(sid=NULL_STRING)), **self.identifier_opts
         )
 
     @property

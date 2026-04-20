@@ -1,6 +1,6 @@
 from django.contrib.sites.models import Site
 from django.db import models
-from django.db.models import PROTECT, Index, UniqueConstraint
+from django.db.models import Index, PROTECT, UniqueConstraint
 
 from edc_model.models import BaseUuidModel
 
@@ -42,7 +42,7 @@ class Issue(BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Issue"
         verbose_name_plural = "Issues"
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=[
                     "subject_identifier",
@@ -55,8 +55,8 @@ class Issue(BaseUuidModel):
                     "field_name",
                 ],
                 name="unique_label_lower_subject_identifier_etc",
-            )
-        ]
+            ),
+        )
         indexes = (
             *BaseUuidModel.Meta.indexes,
             Index(fields=["label_lower", "field_name", "panel_name", "short_message"]),
