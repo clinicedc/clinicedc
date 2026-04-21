@@ -47,27 +47,29 @@
 {% endblock %}
 
 {% block field_sets %}
-{% for fieldset in adminform %}
-{% for inline_admin_formset in inline_admin_formsets %}
-{% if inline_admin_formset.formset.insert_before_fieldset and inline_admin_formset.formset.insert_before_fieldset == fieldset.name %}
-{% include inline_admin_formset.opts.template %}
-{% endif  %}
-{% endfor %}
-{% include "admin/includes/fieldset.html" %}
-{% endfor %}
+    {% for fieldset in adminform %}
+        {% for inline_admin_formset in inline_admin_formsets %}
+            {% if inline_admin_formset.formset.insert_before_fieldset and inline_admin_formset.formset.insert_before_fieldset == fieldset.name %}
+                {% include inline_admin_formset.opts.template %}
+            {% endif  %}
+        {% endfor %}
+        {% include "admin/includes/fieldset.html" %}
+    {% endfor %}
 {% endblock %}
 
 {% block inline_field_sets %}
-<!--begin inline_field_sets -->
-{% for inline_admin_formset in inline_admin_formsets %}
-{% if not inline_admin_formset.formset.insert_before_fieldset %}{% include inline_admin_formset.opts.template %}{% endif  %}
-{% endfor %}
-<!--end inline_field_sets -->
+    <!--begin inline_field_sets -->
+    {% for inline_admin_formset in inline_admin_formsets %}
+        {% if not inline_admin_formset.formset.insert_before_fieldset %}{% include inline_admin_formset.opts.template %}{% endif  %}
+    {% endfor %}
+    <!--end inline_field_sets -->
 {% endblock %}
 
-{% block submit_buttons_top %}{% edc_submit_row cancel_url cancel_url_kwargs cancel_url_querystring_data show_delete %}{% endblock %}
+{% block submit_buttons_top %}
+    {% edc_submit_row cancel_url cancel_url_kwargs cancel_url_querystring_data show_delete %}
+{% endblock %}
 
 {% block submit_buttons_bottom %}
-{% edc_submit_row cancel_url cancel_url_kwargs cancel_url_querystring_data show_delete %}
-{% revision_row %}
+    {% edc_submit_row cancel_url cancel_url_kwargs cancel_url_querystring_data show_delete %}
+    {% revision_row %}
 {% endblock submit_buttons_bottom %}
