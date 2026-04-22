@@ -1,20 +1,19 @@
 from __future__ import annotations
 
+from django_audit_fields.admin import audit_fieldset_tuple
+
 from clinicedc_constants import NOT_APPLICABLE, OTHER
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
-from django_audit_fields.admin import audit_fieldset_tuple
-
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils.text import convert_php_dateformat
-
+from .modeladmin_mixins import NonAeInitialModelAdminMixin
 from ..forms import AeTmgForm
 from ..models import AeClassification
 from ..utils import get_adverse_event_app_label, get_ae_model
-from .modeladmin_mixins import NonAeInitialModelAdminMixin
 
 
 class AeTmgModelAdminMixin(
@@ -95,8 +94,8 @@ class AeTmgModelAdminMixin(
         custom_fields = ("report_datetime", "report_status")
         return custom_fields + tuple(f for f in list_filter if f not in custom_fields)
 
-    @staticmethod
-    def status(obj=None):
+    @admin.display(description="status", ordering="report_status")
+    def status(self, obj=None):
         return obj.report_status.title()
 
     @admin.display(description="AE TMG date")
@@ -148,13 +147,6 @@ class AeTmgModelAdminMixin(
                 ).id,
             )
         return initial
-
-    # @admin.display(description="AE INITIAL", ordering="ae_initial__action_identifier")
-    # def ae_initial_changelist(self, obj=None):
-    #     url = reverse("edc_pharmacy_admin:edc_pharmacy_stockproxy_changelist")
-    #     url = f"{url}?q={obj.stock.code}"
-    #     context = dict(url=url, label=f"{obj.stock.code}", title="Go to stock")
-    #     return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
 
     class Media:
         css = {"all": ("edc_adverse_event/css/extras.css",)}  # noqa: RUF012
