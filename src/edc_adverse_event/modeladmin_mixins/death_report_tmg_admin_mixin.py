@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from clinicedc_constants import OTHER
-from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
 
+from clinicedc_constants import OTHER
+from django.contrib import admin
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-
 from ..utils import get_ae_model
 
 
@@ -87,19 +86,18 @@ class DeathReportTmgModelAdminMixin(
             fields = *fields, "death_report"
         return fields
 
-    @staticmethod
-    def status(obj=None):
+    @admin.display(description="Status", ordering="report_status")
+    def status(self, obj=None):
         return obj.report_status.title()
 
+    @admin.display(description="Cause (TMG Opinion)", ordering="cause_of_death__display_name")
     def cause(self, obj=None):
         if obj.cause_of_death.name == OTHER:
             return f"Other: {obj.cause_of_death_other}"
         return obj.cause_of_death
 
-    cause.short_description = "Cause (TMG Opinion)"
-
-    @staticmethod
-    def agreed(obj=None):
+    @admin.display(description="Agreed", ordering="cause_of_death_agreed")
+    def agreed(self, obj=None):
         return obj.cause_of_death_agreed
 
     @property
