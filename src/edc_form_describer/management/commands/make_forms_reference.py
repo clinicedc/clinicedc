@@ -22,10 +22,10 @@ def update_forms_reference(
     visit_schedule_name: str,
     title: str | None = None,
     filename: str | None = None,
-    doc_folder: str | None = None,
+    doc_folder: str | Path | None = None,
 ):
     module = import_module(app_label)
-    default_doc_folder = Path(settings.BASE_DIR / "docs")
+    default_doc_folder = Path(settings.BASE_DIR) / "docs"
     filename = filename or f"forms_reference_{app_label}.md"
     admin_site = getattr(module.admin_site, admin_site_name)
     visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
@@ -33,9 +33,8 @@ def update_forms_reference(
     sys.stdout.write(
         style.MIGRATE_HEADING(f"Refreshing CRF reference document for {app_label}\n")
     )
-    doc_folder = doc_folder or default_doc_folder
-    if doc_folder == default_doc_folder and not default_doc_folder.exists():
-        doc_folder.mkdir(parents=False, exist_ok=False)
+    doc_folder = Path(doc_folder).expanduser() if doc_folder else default_doc_folder
+    doc_folder.mkdir(parents=True, exist_ok=True)
 
     forms = FormsReference(
         visit_schedules=[visit_schedule],
