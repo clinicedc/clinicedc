@@ -129,15 +129,19 @@ class FormDescriber:
         """Appends all form features to a list `lines`."""
         number = 0.0
         self.markdown.append(f"{self.level} {self.verbose_name}")
-        docstring = self.model_cls.__doc__.strip()
-        if docstring.lower().startswith(self.model_cls._meta.label_lower.split(".")[1]):
+        docstring = (self.model_cls.__doc__ or "").strip()
+        model_name_lower = self.model_cls._meta.label_lower.split(".")[1]
+        if not docstring or docstring.lower().startswith(model_name_lower):
             self.markdown.append("*[missing model class docstring]*\n")
         else:
             self.markdown.append(f"{docstring}\n")
-        self.markdown.append(f"*Instructions*: {self.admin_cls.instructions}\n")
-        if self.admin_cls.additional_instructions:
+        instructions = getattr(self.admin_cls, "instructions", "")
+        if instructions:
+            self.markdown.append(f"*Instructions*: {instructions}\n")
+        additional_instructions = getattr(self.admin_cls, "additional_instructions", "")
+        if additional_instructions:
             self.markdown.append(
-                f"*Additional instructions*: {self.admin_cls.additional_instructions}\n"
+                f"*Additional instructions*: {additional_instructions}\n"
             )
 
         for fieldset_name, fieldset in self.fieldsets:
@@ -161,14 +165,12 @@ class FormDescriber:
     def add_hidden_fields(self):
         self.markdown.append("\n**Hidden fields:**")
         self.add_field(fname="report_datetime")
-        base_fields = DEFAULT_BASE_FIELDS
-        base_fields.append("revision")
-        base_fields.sort()
+        base_fields = sorted([*DEFAULT_BASE_FIELDS, "revision"])
         for fname in base_fields:
             self.add_field(fname=fname)
 
     def add_field(self, fname: str | None = None, number: float | None = None) -> None:
-        number = number or "@"
+        number = "@" if number is None else number
         field_cls = self.models_fields.get(fname)
         if not field_cls:
             raise FormDescriberError(f"Unknown field {fname}")
@@ -202,8 +204,13 @@ class FormDescriber:
                 self.markdown.append("- responses: *free text*")
         elif field_cls.get_internal_type() == "ManyToManyField":
             self.markdown.append("- responses: *Select all that apply*")
-            for obj in field_cls.related_model.objects.all().order_by("display_index"):
-                self.markdown.append(f"  - `{obj.name}`: *{obj.display_name}*")
+            qs = field_cls.related_model.objects.all()
+            if any(f.name == "display_index" for f in field_cls.related_model._meta.get_fields()):
+                qs = qs.order_by("display_index")
+            for obj in qs:
+                name = getattr(obj, "name", str(obj))
+                display_name = getattr(obj, "display_name", name)
+                self.markdown.append(f"  - `{name}`: *{display_name}*")
 
     @staticmethod
     def get_next_number(number: float | None = None, fname: str | None = None) -> float:
