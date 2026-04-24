@@ -3,18 +3,15 @@ from __future__ import annotations
 import contextlib
 import re
 import string
-import sys
+import warnings
 from math import floor
 
-from django.core.management.color import color_style
 from django.utils import timezone
 
 from edc_fieldsets.fieldsets import Fieldsets
 from edc_model.constants import DEFAULT_BASE_FIELDS
 
 from .markdown_writer import MarkdownWriter
-
-style = color_style()
 
 
 class FormDescriberError(Exception):
@@ -54,7 +51,6 @@ class FormDescriber:
         anchor_prefix=None,
         add_timestamp=None,
     ):
-        self._anchors = []
         self.markdown: list[str] = []
         add_timestamp = True if add_timestamp is None else add_timestamp
         self.anchor_prefix = anchor_prefix or self.anchor_prefix
@@ -90,8 +86,9 @@ class FormDescriber:
         # include custom fieldsets from admin if visit_code
         self.fieldsets = self.admin_cls.fieldsets
         if not self.fieldsets:
-            sys.stdout.write(
-                style.ERROR(f"Warning: {admin_cls} has no fieldsets, skipping.\n")
+            warnings.warn(
+                f"{admin_cls} has no fieldsets, skipping.",
+                stacklevel=2,
             )
         else:
             try:

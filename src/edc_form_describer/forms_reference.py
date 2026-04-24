@@ -28,7 +28,7 @@ class FormsReference:
     ):
         self.toc = []
         self.title = title or "Forms Reference"
-        self._anchors = []
+        self._anchors: set[str] = set()
         self._markdown = []
         self.visit_schedules = visit_schedules
         self.admin_site = admin_site
@@ -71,7 +71,7 @@ class FormsReference:
         anchor_orig = anchor
         while True:
             if anchor not in self._anchors:
-                self._anchors.append(anchor)
+                self._anchors.add(anchor)
                 break
             index += 1
             anchor = anchor_orig + f"-{index}"
@@ -107,15 +107,17 @@ class FormsReference:
                                 f'{index + 1}. <a href="#{anchor}">{describer.verbose_name}</a>'
                             )
                             markdown.extend(describer.markdown)
-                    markdown.append(f"{self.h4} Requisitions\n")
-                    markdown.extend(
-                        [f"* {panel_name}\n" for panel_name in documents.get("requisitions")]
-                    )
+                    requisitions = documents.get("requisitions") or []
+                    if requisitions:
+                        markdown.append(f"{self.h4} Requisitions\n")
+                        markdown.extend(
+                            [f"* {panel_name}\n" for panel_name in requisitions]
+                        )
             markdown = self.insert_toc(toc, markdown)
             markdown.insert(0, f"{self.h1} {self.title}")
             markdown.append(
-                f"\n\n* Version v{version(settings.APP_NAME)} "
-                f"* Rendered on {self.timestamp}*\n"
+                f"\n\n*Version v{version(settings.APP_NAME)}* "
+                f"*Rendered on {self.timestamp}*\n"
             )
             self._markdown = markdown
         return self._markdown
