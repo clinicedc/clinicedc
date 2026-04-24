@@ -20,7 +20,7 @@ style = color_style()
 def update_forms_reference(
     app_label: str,
     admin_site_name: str,
-    visit_schedule_name: str,
+    visit_schedule_name: str | None = None,
     title: str | None = None,
     filename: str | None = None,
     doc_folder: str | Path | None = None,
@@ -31,7 +31,10 @@ def update_forms_reference(
     default_doc_folder = Path(settings.BASE_DIR) / "docs"
     filename = filename or f"forms_reference_{app_label}.md"
     admin_site = getattr(module.admin_site, admin_site_name)
-    visit_schedule = site_visit_schedules.get_visit_schedule(visit_schedule_name)
+    if visit_schedule_name:
+        visit_schedules = [site_visit_schedules.get_visit_schedule(visit_schedule_name)]
+    else:
+        visit_schedules = None
     title = title or _("%(title_app)s Forms Reference") % dict(title_app=app_label.upper())
     stdout.write(
         style.MIGRATE_HEADING(f"Refreshing CRF reference document for {app_label}\n")
@@ -40,7 +43,7 @@ def update_forms_reference(
     doc_folder.mkdir(parents=True, exist_ok=True)
 
     forms = FormsReference(
-        visit_schedules=[visit_schedule],
+        visit_schedules=visit_schedules,
         admin_site=admin_site,
         title=f"{title} v{version(settings.APP_NAME)}",
         add_per_form_timestamp=False,
@@ -72,8 +75,12 @@ class Command(BaseCommand):
         parser.add_argument(
             "--visit-schedule",
             dest="visit_schedule_name",
-            required=True,
-            help="Registered visit-schedule name.",
+            default=None,
+            help=(
+                "Registered visit-schedule name. Omit to render all forms "
+                "registered on the admin site in a single flat section "
+                "(e.g. for AE modules with no visit schedule)."
+            ),
         )
         parser.add_argument(
             "--title",
