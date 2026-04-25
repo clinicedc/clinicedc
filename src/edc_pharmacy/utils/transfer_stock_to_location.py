@@ -9,17 +9,16 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
 from django.utils import timezone
 
-from ..constants import CENTRAL_LOCATION
+from ..constants import CENTRAL_LOCATION, TXN_TRANSFER_DISPATCHED
 from ..exceptions import StockTransferError
+from ..transaction_log import apply_transaction
 from ..utils import is_dispensed
 
 if TYPE_CHECKING:
     from ..models import (
-        ConfirmationAtLocationItem,
         Stock,
         StockTransfer,
         StockTransferItem,
-        StorageBinItem,
     )
 
 
@@ -29,12 +28,6 @@ def transfer_stock_to_location(
     stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
     stock_transfer_item_model_cls: type[StockTransferItem] = django_apps.get_model(
         "edc_pharmacy.stocktransferitem"
-    )
-    storage_bin_item_model_cls: type[StorageBinItem] = django_apps.get_model(
-        "edc_pharmacy.storagebinitem"
-    )
-    confirmation_at_location_item_model_cls: type[ConfirmationAtLocationItem] = (
-        django_apps.get_model("edc_pharmacy.confirmationatlocationitem")
     )
     transferred, dispensed_codes, skipped_codes, invalid_codes = (
         [],
@@ -77,31 +70,19 @@ def transfer_stock_to_location(
                     dispensed_codes.append(stock_code)
                 else:
                     with transaction.atomic():
-                        # get or create stock_transfer_item and relate
-                        # to this stock transfer
-                        stock_transfer_item_model_cls.objects.create(
+                        stock_transfer_item = stock_transfer_item_model_cls.objects.create(
                             stock=stock_obj,
                             stock_transfer=stock_transfer,
                             user_created=request.user.username,
                             created=timezone.now(),
                         )
-
-                        # remove stock from the storage bin, if stored at
-                        # a site bin
-                        storage_bin_item_model_cls.objects.filter(stock=stock_obj).delete()
-                        stock_obj.stored_at_location = False
-
-                        # delete confirmation (you can still see it in history)
-                        confirmation_at_location_item_model_cls.objects.filter(
-                            stock=stock_obj
-                        ).delete()
-
-                        # change location of stock
-                        stock_obj.location = stock_transfer.to_location
-
-                        # save
-                        stock_obj.save()
-
+                        apply_transaction(
+                            stock_obj,
+                            TXN_TRANSFER_DISPATCHED,
+                            request.user,
+                            new_location_id=stock_transfer.to_location.id,
+                            stock_transfer_item=stock_transfer_item,
+                        )
                         transferred.append(stock_code)
 
                         if len(stock_codes) != (
@@ -111,7 +92,6 @@ def transfer_stock_to_location(
                             + len(skipped_codes)
                             + len(invalid_codes)
                         ):
-                            # show diff codes
                             codes = (
                                 transferred + dispensed_codes + skipped_codes + invalid_codes
                             )

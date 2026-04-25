@@ -4,10 +4,12 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
 from django.db.models import QuerySet
-from django.utils import timezone
+
+from ..constants import TXN_DISPENSED
+from ..exceptions import InvalidTransitionError
+from ..transaction_log import apply_transaction
 
 if TYPE_CHECKING:
     from ..models import Dispense, DispenseItem, Location, Stock
@@ -55,15 +57,13 @@ def dispense(
         )
         for stock in stock_model_cls.objects.filter(code__in=stock_codes):
             try:
-                dispense_item_model_cls.objects.get(stock=stock)
-            except ObjectDoesNotExist:
-                dispense_item_model_cls.objects.create(
+                apply_transaction(
+                    stock,
+                    TXN_DISPENSED,
+                    request.user,
                     dispense=dispense_obj,
-                    stock=stock,
-                    user_created=request.user.username,
-                    created=timezone.now(),
                 )
-            else:
+            except InvalidTransitionError:
                 messages.add_message(
                     request,
                     messages.ERROR,

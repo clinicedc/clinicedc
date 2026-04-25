@@ -99,6 +99,7 @@ class ConfirmStockFromInstanceView(
             dct.get("fk_attr"),
             confirmed_by=request.user.username,
             user_created=request.user.username,
+            actor=request.user,
         )
         msg = [
             f"Confirmed {len(confirmed)} stock records. ",

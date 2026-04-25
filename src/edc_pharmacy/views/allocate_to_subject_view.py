@@ -327,6 +327,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     allocated_by=request.user.username,
                     user_created=request.user.username,
                     created=timezone.now(),
+                    actor=request.user,
                 )
             except AllocationError as e:
                 messages.add_message(request, messages.ERROR, str(e))

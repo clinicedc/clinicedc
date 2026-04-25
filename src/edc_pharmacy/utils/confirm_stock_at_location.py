@@ -6,17 +6,17 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
-from django.db import transaction
 from django.utils import timezone
 
-from ..exceptions import ConfirmAtLocationError
+from ..constants import TXN_TRANSFER_RECEIVED
+from ..exceptions import ConfirmAtLocationError, InvalidTransitionError
+from ..transaction_log import apply_transaction
 
 if TYPE_CHECKING:
     from uuid import UUID
 
     from ..models import (
         ConfirmationAtLocation,
-        ConfirmationAtLocationItem,
         Location,
         Stock,
         StockTransfer,
@@ -30,12 +30,10 @@ def confirm_stock_at_location(
     location: UUID,
     request: WSGIRequest | None = None,
 ) -> tuple[list[str], list[str], list[str]]:
-    """Confirm stock instances given a list of stock codes
-    and a request/receive pk.
+    """Confirm stock instances given a list of stock codes and a stock transfer.
 
     Called from ConfirmStock view.
-
-    See also: confirm_stock_action
+    Each code is processed independently (per-scan atomicity).
     """
     confirmed_by = request.user.username
     stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
@@ -45,16 +43,12 @@ def confirm_stock_at_location(
     confirm_at_location_model_cls: type[ConfirmationAtLocation] = django_apps.get_model(
         "edc_pharmacy.confirmationatlocation"
     )
-    confirmation_at_location_item_model_cls: type[ConfirmationAtLocationItem] = (
-        django_apps.get_model("edc_pharmacy.confirmationatlocationitem")
-    )
     location_model_cls: type[Location] = django_apps.get_model("edc_pharmacy.location")
 
-    location = location_model_cls.objects.get(pk=location)
-
+    location_obj = location_model_cls.objects.get(pk=location)
     confirm_at_location, _ = confirm_at_location_model_cls.objects.get_or_create(
         stock_transfer=stock_transfer,
-        location=location,
+        location=location_obj,
     )
 
     confirmed_codes, already_confirmed_codes, invalid_codes = [], [], []
@@ -70,13 +64,13 @@ def confirm_stock_at_location(
         )
         if obj.code in valid_codes
     ]
-    with transaction.atomic():
-        for stock_code in [c for c in valid_codes if c not in already_confirmed_codes]:
-            try:
-                stock_transfer_item = stock_transfer_item_model_cls.objects.get(
-                    stock__code=stock_code, stock_transfer=stock_transfer
-                )
-            except ObjectDoesNotExist:
+    for stock_code in [c for c in valid_codes if c not in already_confirmed_codes]:
+        try:
+            stock_transfer_item = stock_transfer_item_model_cls.objects.get(
+                stock__code=stock_code, stock_transfer=stock_transfer
+            )
+        except ObjectDoesNotExist:
+            if request:
                 messages.add_message(
                     request,
                     messages.ERROR,
@@ -85,25 +79,25 @@ def confirm_stock_at_location(
                         f"{stock_transfer.transfer_identifier}."
                     ),
                 )
-                invalid_codes.append(stock_code)
-            else:
-                obj = confirmation_at_location_item_model_cls(
+            invalid_codes.append(stock_code)
+        else:
+            try:
+                apply_transaction(
+                    stock_transfer_item.stock,
+                    TXN_TRANSFER_RECEIVED,
+                    request.user,
+                    site_location_id=location_obj.pk,
                     confirm_at_location=confirm_at_location,
-                    stock=stock_transfer_item.stock,
-                    code=stock_code,
                     stock_transfer_item=stock_transfer_item,
                     confirmed_datetime=timezone.now(),
                     confirmed_by=confirmed_by,
-                    user_created=confirmed_by,
-                    created=timezone.now(),
                 )
-                try:
-                    obj.save()
-                except ConfirmAtLocationError as e:
+            except (InvalidTransitionError, ConfirmAtLocationError) as e:
+                if request:
                     messages.add_message(request, messages.ERROR, str(e))
-                    invalid_codes.append(stock_code)
-                else:
-                    confirmed_codes.append(stock_code)
+                invalid_codes.append(stock_code)
+            else:
+                confirmed_codes.append(stock_code)
     return confirmed_codes, already_confirmed_codes, invalid_codes
 
 

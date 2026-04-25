@@ -134,6 +134,7 @@ class ConfirmStockFromQuerySetView(
                 None,
                 confirmed_by=request.user.username,
                 user_created=request.user.username,
+                actor=request.user,
             )
             if confirmed_codes:
                 messages.add_message(
