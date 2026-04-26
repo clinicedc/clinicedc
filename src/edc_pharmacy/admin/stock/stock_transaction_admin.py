@@ -83,6 +83,7 @@ class StockTransactionAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                     "stock_transfer_item",
                     "dispense_item",
                     "stock_adjustment",
+                    "return_item",
                     "reverses",
                 ),
             },
@@ -146,6 +147,7 @@ class StockTransactionAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock_transfer_item",
         "dispense_item",
         "stock_adjustment",
+        "return_item",
         "reverses",
         "state_after",
     )

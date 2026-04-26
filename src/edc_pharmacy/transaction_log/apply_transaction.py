@@ -216,6 +216,7 @@ def _write_ledger_row(
         stock_transfer_item=kwargs.get("stock_transfer_item"),
         dispense_item=kwargs.get("dispense_item"),
         stock_adjustment=kwargs.get("stock_adjustment"),
+        return_item=kwargs.get("return_item"),
         state_after=state_after,
     )
 

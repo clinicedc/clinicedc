@@ -126,6 +126,10 @@ class StockTransferError(Exception):
     pass
 
 
+class ReturnError(Exception):
+    pass
+
+
 class AssignmentError(Exception):
     pass
 
