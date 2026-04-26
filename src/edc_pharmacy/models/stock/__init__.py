@@ -16,6 +16,8 @@ from .product import Product
 from .receive import Receive
 from .receive_item import ReceiveItem
 from .repack_request import RepackRequest
+from .return_item import ReturnItem
+from .return_request import ReturnRequest
 from .stock import Stock
 from .stock_adjustment import StockAdjustment
 from .stock_proxy import StockProxy

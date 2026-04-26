@@ -20,6 +20,8 @@ from .product_admin import ProductAdmin
 from .receive_admin import ReceiveAdmin
 from .receive_item_admin import ReceiveItemAdmin
 from .repack_request_admin import RequestRepackAdmin
+from .return_item_admin import ReturnItemAdmin
+from .return_request_admin import ReturnRequestAdmin
 from .stock_adjustment_admin import StockAdjustmentAdmin
 from .stock_admin import StockAdmin
 from .stock_transaction_admin import StockTransactionAdmin

@@ -92,7 +92,9 @@ class StockTransaction(BaseUuidModel):
         null=True,
         related_name="+",
     )
-    # return_item FK added when ReturnItem model is introduced.
+    return_item = models.ForeignKey(
+        "edc_pharmacy.ReturnItem", on_delete=models.SET_NULL, null=True, related_name="+"
+    )
 
     # Reversal support — V1 schema, V2 machinery.
     # At most one active reversal per original row (enforced in application layer for MySQL).
