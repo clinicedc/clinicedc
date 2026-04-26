@@ -153,10 +153,10 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(
         description="Allocation",
-        ordering="stock__allocation__registered_subject__subject_identifier",
+        ordering="stock__current_allocation__registered_subject__subject_identifier",
     )
     def allocation_changelist(self, obj):
-        subject_identifier = obj.stock.allocation.registered_subject.subject_identifier
+        subject_identifier = obj.stock.current_allocation.registered_subject.subject_identifier
         url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
         url = f"{url}?q={subject_identifier}"
         context = dict(url=url, label=subject_identifier, title="Go to allocation")

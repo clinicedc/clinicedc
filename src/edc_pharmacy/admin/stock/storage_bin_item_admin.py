@@ -55,7 +55,7 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
     search_fields = (
         "id",
         "item_identifier",
-        "stock__allocation__registered_subject__subject_identifier",
+        "stock__current_allocation__registered_subject__subject_identifier",
         "stock__code",
         "storage_bin__bin_identifier",
         "storage_bin__name",
@@ -103,11 +103,11 @@ class StorageBinItemAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdm
 
     @admin.display(
         description="Subject #",
-        # ordering="stock__allocation__registered_subject__subject_identifier",
+        # ordering="stock__current_allocation__registered_subject__subject_identifier",
     )
     def subject(self, obj):
         try:
-            return obj.stock.allocation.registered_subject.subject_identifier
+            return obj.stock.current_allocation.registered_subject.subject_identifier
         except AttributeError:
             return None
 

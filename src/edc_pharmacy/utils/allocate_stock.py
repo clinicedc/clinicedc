@@ -48,7 +48,7 @@ def allocate_stock(
         )
         stock_request_item = stock_request.stockrequestitem_set.filter(
             registered_subject=rs_obj,
-            allocation__isnull=True,
+            current_allocation__isnull=True,
         ).first()
         if not stock_request_item:
             skipped.append(f"{subject_identifier}: N/A")
@@ -58,7 +58,7 @@ def allocate_stock(
                 code=code,
                 confirmation__isnull=False,
                 container__may_request_as=True,
-                allocation__isnull=True,
+                current_allocation__isnull=True,
             )
         except ObjectDoesNotExist:
             skipped.append(f"{subject_identifier}: {code}")

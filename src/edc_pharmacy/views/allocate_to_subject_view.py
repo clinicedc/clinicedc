@@ -224,11 +224,11 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     ) -> str | None:
         if (
             stock_codes
-            and Stock.objects.filter(code__in=stock_codes, allocation__isnull=False).exists()
+            and Stock.objects.filter(code__in=stock_codes, current_allocation__isnull=False).exists()
         ):
             allocated_stock_codes = []
             for stock in Stock.objects.filter(code__in=stock_codes):
-                if stock.allocation:
+                if stock.current_allocation:
                     allocated_stock_codes.append(stock.code)  # noqa: PERF401
             messages.add_message(
                 self.request,

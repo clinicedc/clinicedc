@@ -22,18 +22,18 @@ def get_stock_for_location_df(location: Location) -> pd.DataFrame:
             "unit_qty_in",
             "unit_qty_out",
             "confirmation",
-            "allocation__registered_subject__subject_identifier",
+            "current_allocation__registered_subject__subject_identifier",
             "stocktransferitem",
             "confirmationatlocationitem",
             "dispenseitem",
             "location__name",
         )
         .filter(location=location, qty=1)
-        .annotate(count=Count("allocation__registered_subject__subject_identifier"))
+        .annotate(count=Count("current_allocation__registered_subject__subject_identifier"))
     )
     df_stock = read_frame(qs_stock).rename(
         columns={
-            "allocation__registered_subject__subject_identifier": "subject_identifier",
+            "current_allocation__registered_subject__subject_identifier": "subject_identifier",
             "location__name": "location",
             "count": "stock_qty",
         }

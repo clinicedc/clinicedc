@@ -95,10 +95,9 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
     rows: list[StockTransaction] = []
     actor = _resolve_actor(stock.user_modified or stock.user_created, actor_cache)
 
-    # Resolve allocation — stock.allocation may be None for dispensed stocks
-    # (nulled by fix_historical_stock_state), but Allocation.code == stock.code
-    # so the record is still recoverable.
-    allocation = getattr(stock, "allocation", None) or Allocation.objects.filter(
+    # Resolve allocation — stock.current_allocation is None for dispensed/ended stocks,
+    # but Allocation.code == stock.code so the record is still recoverable.
+    allocation = stock.current_allocation or Allocation.objects.filter(
         code=stock.code
     ).first()
 
@@ -263,7 +262,7 @@ class Command(BaseCommand):
         stock_code: str | None = options["stock_code"]
 
         qs = Stock.objects.filter(invalid_state=False).select_related(
-            "allocation",
+            "current_allocation",
         ).prefetch_related(
             "stocktransferitem_set__stock_transfer",
             "confirmationatlocationitem",

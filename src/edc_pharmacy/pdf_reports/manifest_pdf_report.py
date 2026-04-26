@@ -44,7 +44,7 @@ class ManifestReport(Report):
     @property
     def queryset(self):
         return self.stock_transfer.stocktransferitem_set.all().order_by(
-            "stock__allocation__registered_subject__subject_identifier"
+            "stock__current_allocation__registered_subject__subject_identifier"
         )
 
     def get_report_story(self, document_template: SimpleDocTemplate = None, **kwargs):  # noqa: ARG002
@@ -169,7 +169,7 @@ class ManifestReport(Report):
                 stock_transfer_item.stock.code, barHeight=5 * mm, barWidth=0.7, gap=1.7
             )
             subject_identifier = (
-                stock_transfer_item.stock.allocation.registered_subject.subject_identifier
+                stock_transfer_item.stock.current_allocation.registered_subject.subject_identifier
             )
             formulation = stock_transfer_item.stock.product.formulation
             description = f"{formulation.imp_description} "

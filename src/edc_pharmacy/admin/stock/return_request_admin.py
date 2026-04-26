@@ -65,7 +65,7 @@ class ReturnRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "id",
         "return_identifier",
         "returnitem__stock__code",
-        "returnitem__stock__allocation__registered_subject__subject_identifier",
+        "returnitem__stock__current_allocation__registered_subject__subject_identifier",
     )
 
     def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:

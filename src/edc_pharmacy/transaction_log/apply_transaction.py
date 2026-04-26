@@ -4,6 +4,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from django.db import transaction
+from django.utils import timezone
 
 from ..exceptions import InvalidTransitionError
 from .compute_delta import compute_delta
@@ -21,7 +22,7 @@ def _snapshot(stock: Stock) -> CurrentState:
     from ..models.stock.confirmation_at_location_item import ConfirmationAtLocationItem
     from ..models.stock.storage_bin_item import StorageBinItem
 
-    allocation = getattr(stock, "allocation", None)
+    allocation = stock.current_allocation
     has_active_allocation = allocation is not None
     active_allocation_subject = (
         allocation.registered_subject.subject_identifier if has_active_allocation else ""
@@ -103,26 +104,30 @@ def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:
 
         # Allocation lifecycle.
         if delta.allocation_action == "create":
-            # TODO(allocation-refactor): after Migration B, create an Allocation
-            # with started_datetime and set stock.current_allocation.
-            # Pre-B: create Allocation and set stock.allocation (OneToOne).
             allocation = kwargs.get("allocation") or Allocation.objects.create(
                 registered_subject=kwargs["registered_subject"],
                 stock_request_item=kwargs["stock_request_item"],
                 allocated_by=kwargs.get("allocated_by", ""),
                 code=stock.code,
+                stock=stock,
             )
-            stock.allocation = allocation
-            update_fields.append("allocation")
+            stock.current_allocation = allocation
+            update_fields.append("current_allocation")
             created_objects["to_allocation"] = allocation
 
         elif delta.allocation_action == "end":
-            # TODO(allocation-refactor): after Migration B, set ended_datetime
-            # and ended_reason on the active Allocation record instead of nulling it.
-            # Pre-B: null the OneToOne FK (history is lost until B is deployed).
-            created_objects["from_allocation"] = stock.allocation
-            stock.allocation = None
-            update_fields.append("allocation")
+            ending_allocation = stock.current_allocation
+            if ending_allocation is not None:
+                ending_allocation.ended_datetime = kwargs.get(
+                    "ended_datetime", timezone.now()
+                )
+                ending_allocation.ended_reason = kwargs.get("ended_reason", "")
+                ending_allocation.save(
+                    update_fields=["ended_datetime", "ended_reason"]
+                )
+            created_objects["from_allocation"] = ending_allocation
+            stock.current_allocation = None
+            update_fields.append("current_allocation")
 
         # Save all Stock changes in one write.
         if update_fields:
@@ -210,7 +215,7 @@ def _write_ledger_row(
         from_location_id=kwargs.get("_from_location_id"),
         to_location_id=stock.location_id,
         from_allocation=kwargs.get("from_allocation"),
-        to_allocation=kwargs.get("to_allocation") or getattr(stock, "allocation", None),
+        to_allocation=kwargs.get("to_allocation") or stock.current_allocation,
         receive_item=kwargs.get("receive_item"),
         repack_request=kwargs.get("repack_request"),
         stock_transfer_item=kwargs.get("stock_transfer_item"),

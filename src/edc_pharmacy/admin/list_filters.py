@@ -67,19 +67,19 @@ class AllocationListFilter(SimpleListFilter):
             if self.value() == YES:
                 qs = queryset.filter(
                     from_stock__isnull=False,
-                    allocation__isnull=False,
+                    current_allocation__isnull=False,
                     container__may_request_as=True,
                 )
             elif self.value() == NO:
                 qs = queryset.filter(
                     from_stock__isnull=False,
-                    allocation__isnull=True,
+                    current_allocation__isnull=True,
                     container__may_request_as=True,
                 )
             elif self.value() == NOT_APPLICABLE:
                 qs = queryset.filter(
                     from_stock__isnull=True,
-                    allocation__isnull=True,
+                    current_allocation__isnull=True,
                     container__may_request_as=False,
                 )
         return qs
@@ -117,7 +117,7 @@ class StockItemTransferredListFilter(SimpleListFilter):
         if self.value():
             if self.value() == YES:
                 qs = queryset.filter(
-                    allocation__stock__in_transit=True,
+                    allocation__stock__in_transit=True,  # StockRequestItem → Allocation → Stock
                 )
             elif self.value() == NO:
                 qs = queryset.filter(
@@ -164,15 +164,15 @@ class TransferredListFilter(SimpleListFilter):
             if self.value() == YES:
                 qs = queryset.filter(
                     container__may_request_as=True,
-                    allocation__stock_request_item__stock_request__location=F("location"),
+                    current_allocation__stock_request_item__stock_request__location=F("location"),
                 )
             elif self.value() == NO:
                 qs = queryset.filter(
-                    ~Q(allocation__stock_request_item__stock_request__location=F("location")),
+                    ~Q(current_allocation__stock_request_item__stock_request__location=F("location")),
                     container__may_request_as=True,
                 )
             elif self.value() == NOT_APPLICABLE:
-                qs = queryset.filter(allocation__isnull=True, container__may_request_as=False)
+                qs = queryset.filter(current_allocation__isnull=True, container__may_request_as=False)
         return qs
 
 
@@ -264,7 +264,7 @@ class TransferredFilter(SimpleListFilter):
             opts = dict(
                 from_stock__isnull=False,
                 confirmation__isnull=False,
-                allocation__isnull=False,
+                current_allocation__isnull=False,
             )
             if self.value() == YES:
                 qs = queryset.filter(stocktransferitem__isnull=False, **opts)
@@ -286,7 +286,7 @@ class ConfirmedAtLocationFilter(SimpleListFilter):
             opts = dict(
                 from_stock__isnull=False,
                 confirmation__isnull=False,
-                allocation__isnull=False,
+                current_allocation__isnull=False,
                 stocktransferitem__isnull=False,
             )
             if self.value() == YES:
@@ -310,7 +310,7 @@ class StoredAtSiteFilter(SimpleListFilter):
                 qs = queryset.filter(
                     from_stock__isnull=False,
                     confirmation__isnull=False,
-                    allocation__isnull=False,
+                    current_allocation__isnull=False,
                     stocktransferitem__isnull=False,
                     confirmationatlocationitem__isnull=False,
                     storagebinitem__isnull=False,
@@ -320,7 +320,7 @@ class StoredAtSiteFilter(SimpleListFilter):
                 qs = queryset.filter(
                     from_stock__isnull=False,
                     confirmation__isnull=False,
-                    allocation__isnull=False,
+                    current_allocation__isnull=False,
                     stocktransferitem__isnull=False,
                     confirmationatlocationitem__isnull=False,
                     storagebinitem__isnull=True,
@@ -330,7 +330,7 @@ class StoredAtSiteFilter(SimpleListFilter):
                 qs = queryset.filter(
                     from_stock__isnull=False,
                     confirmation__isnull=False,
-                    allocation__isnull=False,
+                    current_allocation__isnull=False,
                     stocktransferitem__isnull=False,
                     confirmationatlocationitem__isnull=False,
                     storagebinitem__isnull=True,
@@ -352,7 +352,7 @@ class DispensedFilter(SimpleListFilter):
             opts = dict(
                 from_stock__isnull=False,
                 confirmation__isnull=False,
-                allocation__isnull=False,
+                current_allocation__isnull=False,
                 stocktransferitem__isnull=False,
                 confirmationatlocationitem__isnull=False,
             )
@@ -376,7 +376,7 @@ class ReturnedFilter(SimpleListFilter):
             opts = dict(
                 from_stock__isnull=False,
                 confirmation__isnull=False,
-                allocation__isnull=False,
+                current_allocation__isnull=False,
                 stocktransferitem__isnull=False,
                 confirmationatlocationitem__isnull=False,
                 dispenseitem__isnull=True,

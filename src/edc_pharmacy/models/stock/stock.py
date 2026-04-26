@@ -40,7 +40,7 @@ GUARDED_FIELDS = frozenset({
     "expired",
     "voided",
     "subject_identifier",
-    "allocation_id",
+    "current_allocation_id",
 })
 
 
@@ -93,12 +93,13 @@ class Stock(BaseUuidModel):
 
     confirmed_by = models.CharField(max_length=150, default="", blank=True)
 
-    allocation = models.OneToOneField(
+    current_allocation = models.ForeignKey(
         Allocation,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text="Subject allocation. TODO(allocation-refactor): replace with current_allocation FK.",
+        related_name="+",
+        help_text="Active allocation for this stock item (NULL if unallocated or dispensed).",
     )
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
@@ -233,8 +234,8 @@ class Stock(BaseUuidModel):
 
     def update_transferred(self) -> bool:
         return (
-            self.allocation
-            and self.allocation.stock_request_item.stock_request.location == self.location
+            self.current_allocation
+            and self.current_allocation.stock_request_item.stock_request.location == self.location
             and self.container.may_request_as
         )
 
@@ -246,13 +247,13 @@ class Stock(BaseUuidModel):
             stock = self
         if stock.product.assignment != stock.lot.assignment:
             raise AssignmentError("Lot number assignment does not match product assignment!")
-        if self.allocation and self.allocation.assignment != stock.lot.assignment:
+        if self.current_allocation and self.current_allocation.assignment != stock.lot.assignment:
             raise AllocationError(
                 f"Allocation assignment does not match lot assignment! Got {self.code}."
             )
 
     def update_status(self):
-        if self.allocation:
+        if self.current_allocation:
             self.status = ALLOCATED
         elif self.qty_out == self.qty_in:
             self.status = ZERO_ITEM
