@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from celery.states import PENDING
-from clinicedc_constants import CANCEL, COMPLETE, NEW, NULL_STRING
+from clinicedc_constants import CANCEL, COMPLETE, NEW
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ProtectedError, Sum
 from django.db.models.signals import post_delete, post_save, pre_delete
@@ -23,9 +23,6 @@ from ..utils import (
 )
 from .stock import (
     Allocation,
-    Confirmation,
-    ConfirmationAtLocationItem,
-    DispenseItem,
     OrderItem,
     Receive,
     ReceiveItem,
@@ -35,7 +32,6 @@ from .stock import (
     StockRequest,
     StockRequestItem,
     StockTransferItem,
-    StorageBinItem,
 )
 
 if TYPE_CHECKING:
@@ -69,13 +65,6 @@ def update_orderitem_status(order_item: OrderItem):
     order_item.save(update_fields=["status"])
     order_item.refresh_from_db()
 
-
-@receiver(post_save, sender=Confirmation, dispatch_uid="confirmation_on_post_save")
-def confirmation_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
-    """Update confirmed"""
-    if not raw and not update_fields:
-        instance.stock.confirmed = True
-        instance.stock.save(update_fields=["confirmed"])
 
 
 @receiver(post_save, sender=Stock, dispatch_uid="stock_on_post_save")
@@ -203,79 +192,6 @@ def repack_request_on_post_save(
             instance.save(update_fields=["task_id"])
 
 
-@receiver(
-    post_save,
-    sender=Allocation,
-    dispatch_uid="allocation_on_post_save",
-)
-def allocation_on_post_save(sender, instance, raw, created, update_fields, **kwargs) -> None:
-    stock = Stock.objects.get(code=instance.code)
-    stock.subject_identifier = instance.registered_subject.subject_identifier
-    stock.save(update_fields=["subject_identifier"])
-
-
-@receiver(
-    post_save,
-    sender=StockTransferItem,
-    dispatch_uid="stock_transfer_item_on_post_save",
-)
-def stock_transfer_item_on_post_save(
-    sender, instance, raw, created, update_fields, **kwargs
-) -> None:
-    if not raw and not update_fields:
-        instance.stock.in_transit = True
-        instance.stock.save(update_fields=["in_transit"])
-
-
-@receiver(
-    post_save,
-    sender=ConfirmationAtLocationItem,
-    dispatch_uid="confirm_at_location_item_on_post_save",
-)
-def confirm_at_location_item_on_post_save(
-    sender, instance, raw, created, update_fields, **kwargs
-) -> None:
-    if not raw and not update_fields:
-        instance.stock.confirmed_at_location = True
-        instance.stock.save(update_fields=["confirmed_at_location"])
-
-
-@receiver(
-    post_save,
-    sender=StorageBinItem,
-    dispatch_uid="storage_bin_item_on_post_save",
-)
-def storage_bin_item_on_post_save(
-    sender, instance, raw, created, update_fields, **kwargs
-) -> None:
-    if not raw and not update_fields:
-        instance.stock.stored_at_location = True
-        instance.stock.save(update_fields=["stored_at_location"])
-
-
-@receiver(
-    post_save,
-    sender=DispenseItem,
-    dispatch_uid="dispense_item_on_post_save",
-)
-def dispense_item_on_post_save(
-    sender, instance, raw, created, update_fields, **kwargs
-) -> None:
-    if not raw and not update_fields:
-        instance.stock.dispensed = True
-        instance.stock.qty_out = 1
-        instance.stock.unit_qty_out = instance.stock.container_unit_qty * 1
-        instance.stock.save(update_fields=["dispensed", "qty_out", "unit_qty_out"])
-        StorageBinItem.objects.filter(stock=instance.stock).delete()
-
-
-@receiver(post_delete, sender=Confirmation, dispatch_uid="confirmation_on_post_delete")
-def confirmation_on_post_delete(ender, instance, using, **kwargs):
-    """Update confirmed"""
-    instance.stock.confirmed = False
-    instance.stock.save(update_fields=["confirmed"])
-
-
 @receiver(post_delete, sender=ReceiveItem, dispatch_uid="receive_item_on_post_delete")
 def receive_item_on_post_delete(sender, instance, using, **kwargs) -> None:
     instance.order_item.unit_qty_received = (
@@ -310,60 +226,6 @@ def allocation_pre_delete(sender, instance, using, **kwargs) -> None:
                 % (instance._meta.object_name, obj.stock_transfer.transfer_identifier),
                 {instance},
             )
-
-
-@receiver(
-    post_delete,
-    sender=Allocation,
-    dispatch_uid="allocation_post_delete",
-)
-def allocation_post_delete(sender, instance, using, **kwargs) -> None:
-    if stock := getattr(instance, "stock", None):
-        stock.subject_identifier = NULL_STRING
-        stock.allocation = None
-        stock.save(update_fields=["subject_identifier", "allocation"])
-
-
-@receiver(
-    post_delete,
-    sender=StockTransferItem,
-    dispatch_uid="stock_transfer_item_post_delete",
-)
-def stock_transfer_item_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.stock.in_transit = False
-    instance.stock.save(update_fields=["in_transit"])
-
-
-@receiver(
-    post_delete,
-    sender=ConfirmationAtLocationItem,
-    dispatch_uid="confirm_at_location_item_post_delete",
-)
-def confirm_at_location_item_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.stock.confirmed_at_location = False
-    instance.stock.save(update_fields=["confirmed_at_location"])
-
-
-@receiver(
-    post_delete,
-    sender=StorageBinItem,
-    dispatch_uid="storage_bin_item_post_delete",
-)
-def storage_bin_item_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.stock.stored_at_location = False
-    instance.stock.save(update_fields=["stored_at_location"])
-
-
-@receiver(
-    post_delete,
-    sender=DispenseItem,
-    dispatch_uid="dispense_item_on_post_delete",
-)
-def dispense_item_on_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.stock.dispensed = False
-    instance.stock.qty_out = 0
-    instance.stock.unit_qty_out = 0
-    instance.stock.save(update_fields=["dispensed", "qty_out", "unit_qty_out"])
 
 
 @receiver(

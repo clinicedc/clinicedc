@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 from decimal import Decimal
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -14,6 +13,7 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 from ...choices import STOCK_STATUS
 from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
 from ...exceptions import AllocationError, AssignmentError, StockError
+from ...transaction_log._sentinel import is_apply_delta_active
 from ...utils import get_random_code
 from .allocation import Allocation
 from .container import Container
@@ -23,6 +23,25 @@ from .managers import StockManager
 from .product import Product
 from .receive_item import ReceiveItem
 from .repack_request import RepackRequest
+
+# Fields that may only be mutated via apply_transaction / _apply_delta.
+# Any save() that changes one of these without the sentinel active raises StockError.
+GUARDED_FIELDS = frozenset({
+    "confirmed",
+    "confirmed_at_location",
+    "in_transit",
+    "stored_at_location",
+    "dispensed",
+    "destroyed",
+    "return_requested",
+    "quarantined",
+    "damaged",
+    "lost",
+    "expired",
+    "voided",
+    "subject_identifier",
+    "allocation_id",
+})
 
 
 class Stock(BaseUuidModel):
@@ -79,7 +98,7 @@ class Stock(BaseUuidModel):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text="Subject allocation",
+        help_text="Subject allocation. TODO(allocation-refactor): replace with current_allocation FK.",
     )
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
@@ -148,20 +167,34 @@ class Stock(BaseUuidModel):
 
     description = models.CharField(max_length=100, default="", blank=True)
 
-    in_transit = models.BooleanField(default=False, help_text="See stocktransferitem.")
+    in_transit = models.BooleanField(default=False)
 
-    confirmed_at_location = models.BooleanField(
-        default=False, help_text="See confirmeatlocationitem."
-    )
+    confirmed_at_location = models.BooleanField(default=False)
 
-    stored_at_location = models.BooleanField(default=False, help_text="See storagebinitem.")
+    stored_at_location = models.BooleanField(default=False)
 
-    dispensed = models.BooleanField(default=False, help_text="See dispenseitem.")
+    dispensed = models.BooleanField(default=False)
 
     destroyed = models.BooleanField(default=False)
 
+    # New flags added for returns workflow.
+    return_requested = models.BooleanField(default=False)
+    quarantined = models.BooleanField(default=False)
+    damaged = models.BooleanField(default=False)
+    lost = models.BooleanField(default=False)
+    expired = models.BooleanField(default=False)
+    voided = models.BooleanField(default=False)
+
     subject_identifier = models.CharField(
         max_length=50, default="", blank=True, editable=False
+    )
+
+    # Temporary flag: marks stocks whose cached columns are in an irreconcilable
+    # state due to pre-refactor data corruption. Excluded from bootstrap and
+    # ledger checks. Drop after the transition is stable.
+    invalid_state = models.BooleanField(
+        default=False,
+        help_text="Pre-refactor data corruption; excluded from ledger bootstrap/checks.",
     )
 
     objects = StockManager()
@@ -177,51 +210,26 @@ class Stock(BaseUuidModel):
             self.stock_identifier = f"{next_id:010d}"
             self.code = get_random_code(self.__class__, 6, 10000)
             self.product = self.get_receive_item().order_item.product
-        # if not self.description:
-        #     self.description = f"{self.product.name} - {self.container.name}"
         self.verify_assignment_or_raise()
         self.verify_assignment_or_raise(self.from_stock)
         self.update_status()
-
-        # in_transit
-        if "in_transit" not in kwargs.get("update_fields", []):
-            with contextlib.suppress(Stock.DoesNotExist):
-                original_instance = Stock.objects.get(pk=self.pk)
-                if self.in_transit != original_instance.in_transit:
-                    raise StockError(
-                        "Invalid attempt to change field. The value of field `in_transit` "
-                        "is only set in the post-save/delete signals of model "
-                        "StockTransferItem."
-                    )
-
-        # received / confirmed at location
-
-        # stored_at_location
-        if "stored_at_location" not in kwargs.get("update_fields", []):
-            with contextlib.suppress(Stock.DoesNotExist):
-                original_instance = Stock.objects.get(pk=self.pk)
-                if self.stored_at_location != original_instance.stored_at_location:
-                    raise StockError(
-                        "Invalid attempt to change field. The value of field "
-                        "`stored_at_location` is only set in the post-save/delete "
-                        "signals of model StorageBinItem."
-                    )
-
-        # dispensed
-        if "dispensed" not in kwargs.get("update_fields", []):
-            with contextlib.suppress(Stock.DoesNotExist):
-                original_instance = Stock.objects.get(pk=self.pk)
-                if self.dispensed != original_instance.dispensed:
-                    raise StockError(
-                        "Invalid attempt to change field. The value of field `dispensed` "
-                        "is only set in the post-save/delete signals of model DispenseItem."
-                    )
-
-        # destroyed
-
-        # do this in the post-save signal?
-        # self.unit_qty_in = Decimal(self.qty_in) * Decimal(self.container_unit_qty)
+        self._check_guarded_fields_or_raise()
         super().save(*args, **kwargs)
+
+    def _check_guarded_fields_or_raise(self) -> None:
+        """Raise if a guarded field changed without apply_transaction being active."""
+        if is_apply_delta_active() or not self.pk:
+            return
+        try:
+            original = Stock.objects.get(pk=self.pk)
+        except Stock.DoesNotExist:
+            return
+        changed = [f for f in GUARDED_FIELDS if getattr(self, f) != getattr(original, f)]
+        if changed:
+            raise StockError(
+                f"Mutating {changed} on Stock requires apply_transaction. "
+                "Do not write guarded fields directly."
+            )
 
     def update_transferred(self) -> bool:
         return (

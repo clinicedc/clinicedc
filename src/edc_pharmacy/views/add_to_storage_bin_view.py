@@ -1,6 +1,6 @@
 from __future__ import annotations  # noqa: I001
 
-from datetime import datetime
+from typing import TYPE_CHECKING
 
 import inflect
 from django.conf import settings
@@ -9,7 +9,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -18,9 +17,13 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
-from ..constants import CENTRAL_LOCATION
-from ..exceptions import StorageBinError
+from ..constants import CENTRAL_LOCATION, TXN_STORED
+from ..exceptions import InvalidTransitionError, StorageBinError
 from ..models import Stock, StorageBin, StorageBinItem
+from ..transaction_log import apply_transaction
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractUser
 
 p = inflect.engine()
 
@@ -28,8 +31,7 @@ p = inflect.engine()
 def update_bin(
     storage_bin: StorageBin,
     stock_codes: list[str],
-    user_created: str | None = None,
-    created: datetime | None = None,
+    actor: AbstractUser | None = None,
 ) -> tuple[list[str], list[str]]:
     codes_created = []
     codes_not_created = []
@@ -56,21 +58,19 @@ def update_bin(
         try:
             stock_obj = Stock.objects.get(**opts)
         except ObjectDoesNotExist:
-            stock_obj = None
             codes_not_created.append(code)
-        if stock_obj:
+        else:
             try:
-                StorageBinItem.objects.get(stock=stock_obj)
-            except ObjectDoesNotExist:
-                StorageBinItem.objects.create(
-                    stock=stock_obj,
+                apply_transaction(
+                    stock_obj,
+                    TXN_STORED,
+                    actor,
                     storage_bin=storage_bin,
-                    user_created=user_created,
-                    created=created,
                 )
-                codes_created.append(code)
-            else:
+            except InvalidTransitionError:
                 codes_not_created.append(code)
+            else:
+                codes_created.append(code)
     return codes_created, codes_not_created
 
 
@@ -205,8 +205,7 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
                 codes_created, codes_not_created = update_bin(
                     storage_bin,
                     stock_codes,
-                    user_created=request.user.username,
-                    created=timezone.now(),
+                    actor=request.user,
                 )
             except StorageBinError as e:
                 messages.add_message(request, messages.ERROR, str(e))

@@ -21,7 +21,7 @@ from .stock_adjustment import StockAdjustment
 from .stock_proxy import StockProxy
 from .stock_request import StockRequest
 from .stock_request_item import StockRequestItem
-from .stock_transaction import StockTransaction, StockTransactionType
+from .stock_transaction import StockTransaction
 from .stock_transfer import StockTransfer
 from .stock_transfer_item import StockTransferItem
 from .storage_bin import StorageBin

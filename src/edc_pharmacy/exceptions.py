@@ -140,3 +140,7 @@ class StorageBinError(Exception):
 
 class ConfirmAtLocationError(Exception):
     pass
+
+
+class InvalidTransitionError(Exception):
+    pass

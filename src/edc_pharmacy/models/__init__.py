@@ -15,8 +15,6 @@ from .reports import StockAvailability
 from .scan_duplicates import ScanDuplicates
 from .signals import (
     create_or_update_refills_on_post_save,
-    dispense_item_on_post_delete,
-    dispense_item_on_post_save,
     order_item_on_post_save,
     receive_item_on_post_delete,
     receive_item_on_post_save,
@@ -52,7 +50,6 @@ from .stock import (
     StockRequest,
     StockRequestItem,
     StockTransaction,
-    StockTransactionType,
     StockTransfer,
     StockTransferItem,
     StorageBin,
