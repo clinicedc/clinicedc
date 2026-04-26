@@ -96,15 +96,13 @@ def dispatch_return(
 
     dispatched, skipped = [], []
     for code in stock_codes:
-        try:
-            stock = stock_model_cls.objects.get(
-                code=code,
-                invalid_state=False,
-                location=return_request.from_location,
-            )
-        except stock_model_cls.DoesNotExist:
-            skipped.append(code)
+        skip_reason = _why_dispatch_skip(
+            code, return_request.from_location, stock_model_cls
+        )
+        if skip_reason:
+            skipped.append(f"{code}: {skip_reason}")
             continue
+        stock = stock_model_cls.objects.get(code=code)
         try:
             with transaction.atomic():
                 # Auto-request if not already flagged — the view dispatches in
@@ -127,10 +125,42 @@ def dispatch_return(
                     reason=reason,
                 )
         except InvalidTransitionError as e:
-            skipped.append(f"{code} ({e})")
+            skipped.append(f"{code}: {e}")
             continue
         dispatched.append(code)
     return dispatched, skipped
+
+
+def _why_dispatch_skip(
+    code: str,
+    from_location,
+    stock_model_cls,
+) -> str | None:
+    """Return a human-readable reason why this code cannot be dispatched,
+    or None if it looks dispatchable."""
+    try:
+        stock = stock_model_cls.objects.get(code=code)
+    except stock_model_cls.DoesNotExist:
+        return "code not found"
+
+    if stock.invalid_state:
+        return "stock has an invalid state and cannot be processed"
+    if stock.dispensed:
+        return "already dispensed"
+    if stock.in_transit:
+        return "already in transit"
+    if stock.destroyed:
+        return "stock is destroyed"
+    if stock.quarantined:
+        return "stock is quarantined"
+    if stock.location != from_location:
+        return (
+            f"stock is at '{stock.location}', "
+            f"not '{from_location}'"
+        )
+    if not stock.stored_at_location:
+        return "not stored in a bin at the site"
+    return None
 
 
 # ---------------------------------------------------------------------------
