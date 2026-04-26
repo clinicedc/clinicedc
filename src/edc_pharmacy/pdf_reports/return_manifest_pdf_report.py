@@ -157,6 +157,7 @@ class ReturnManifestReport(Report):
             [
                 Paragraph("", header_style),
                 Paragraph("#", header_style),
+                Paragraph(_("Subject"), header_style),
                 Paragraph(_("Code"), header_style),
                 Paragraph(_("Barcode"), header_style),
                 Paragraph(_("Formulation"), header_style),
@@ -176,10 +177,17 @@ class ReturnManifestReport(Report):
             cell_style_xsmall = ParagraphStyle(
                 name="cell_xsmall", alignment=TA_CENTER, fontSize=6, leading=8
             )
+            try:
+                subject_identifier = (
+                    stock.current_allocation.registered_subject.subject_identifier
+                )
+            except AttributeError:
+                subject_identifier = "-"
             data.append(
                 [
                     CheckboxFlowable(name=f"checkbox_{index}"),
                     Paragraph(str(index + 1), cell_style),
+                    Paragraph(subject_identifier, cell_style),
                     Paragraph(
                         f"{stock.code[:3]}-{stock.code[3:]}",
                         cell_style,
@@ -192,7 +200,7 @@ class ReturnManifestReport(Report):
 
         table = Table(
             data,
-            colWidths=(0.5 * cm, 1 * cm, None, None, None, None),
+            colWidths=(0.5 * cm, 1 * cm, None, None, None, None, None),
         )
         table.setStyle(
             TableStyle(
