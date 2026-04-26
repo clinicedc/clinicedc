@@ -177,12 +177,9 @@ class ReturnManifestReport(Report):
             cell_style_xsmall = ParagraphStyle(
                 name="cell_xsmall", alignment=TA_CENTER, fontSize=6, leading=8
             )
-            try:
-                subject_identifier = (
-                    stock.current_allocation.registered_subject.subject_identifier
-                )
-            except AttributeError:
-                subject_identifier = "-"
+            subject_identifier = (
+                stock.current_allocation.registered_subject.subject_identifier
+            )
             data.append(
                 [
                     CheckboxFlowable(name=f"checkbox_{index}"),
