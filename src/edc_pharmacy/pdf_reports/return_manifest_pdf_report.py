@@ -177,9 +177,9 @@ class ReturnManifestReport(Report):
             cell_style_xsmall = ParagraphStyle(
                 name="cell_xsmall", alignment=TA_CENTER, fontSize=6, leading=8
             )
-            # current_allocation is None post-dispatch (allocation is ended
-            # as part of TXN_RETURN_DISPATCHED). Fall back to the most recent
-            # historical allocation from the allocations FK history.
+            # current_allocation is set while the stock is in transit or held
+            # at central awaiting disposition. If the manifest is printed after
+            # disposition, fall back to the most recent historical allocation.
             allocation = stock.current_allocation or (
                 stock.allocations
                 .select_related("registered_subject")

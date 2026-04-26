@@ -415,3 +415,62 @@ class TestReturn(TestCase):
                 to_location=self.location_central,
                 item_count=1,
             )
+
+    def test_allocation_held_until_disposition(self):
+        """Allocation is NOT ended at dispatch or receipt — only at disposition.
+
+        Stock remains allocated to the subject throughout the return journey.
+        The allocation ends only when central sets a final disposition.
+        """
+        from edc_pharmacy.models import Allocation
+        from edc_pharmacy.transaction_log._sentinel import apply_delta_context
+
+        stock = Stock.objects.first()
+
+        # Create a minimal allocation bypassing Allocation.save() guards
+        # (stock_request_item, registered_subject not needed for this test).
+        # Pre-assign pk so bulk_create works on MySQL (no RETURNING support).
+        # Assignment must match stock.lot.assignment to pass verify_assignment_or_raise().
+        import uuid as _uuid
+        alloc_pk = _uuid.uuid4()
+        Allocation.objects.bulk_create([
+            Allocation(
+                id=alloc_pk,
+                stock=stock,
+                code=stock.code,
+                allocated_by="testactor",
+                allocation_identifier="test_alloc_001",
+                started_datetime=timezone.now(),
+                assignment=stock.lot.assignment,
+            )
+        ])
+        allocation = Allocation.objects.get(pk=alloc_pk)
+        with apply_delta_context():
+            stock.current_allocation = allocation
+            stock.save(update_fields=["current_allocation"])
+
+        return_request = ReturnRequest.objects.create(
+            from_location=self.location_site,
+            to_location=self.location_central,
+            item_count=1,
+        )
+
+        # After dispatch: allocation still active.
+        dispatch_return(return_request, [stock.code], self.actor)
+        stock.refresh_from_db()
+        self.assertIsNotNone(stock.current_allocation)
+        self.assertEqual(stock.current_allocation.pk, allocation.pk)
+
+        # After receipt: allocation still active.
+        receive_return(return_request, [stock.code], self.actor)
+        stock.refresh_from_db()
+        self.assertIsNotNone(stock.current_allocation)
+        self.assertEqual(stock.current_allocation.pk, allocation.pk)
+
+        # After disposition (destroyed): allocation is ended.
+        disposition_return([stock.code], self.actor, disposition="destroyed")
+        stock.refresh_from_db()
+        self.assertIsNone(stock.current_allocation)
+        allocation.refresh_from_db()
+        self.assertIsNotNone(allocation.ended_datetime)
+        self.assertEqual(allocation.ended_reason, "destroyed")

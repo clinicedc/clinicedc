@@ -25,7 +25,9 @@ def _snapshot(stock: Stock) -> CurrentState:
     allocation = stock.current_allocation
     has_active_allocation = allocation is not None
     active_allocation_subject = (
-        allocation.registered_subject.subject_identifier if has_active_allocation else ""
+        (allocation.registered_subject.subject_identifier
+         if allocation.registered_subject_id else "")
+        if has_active_allocation else ""
     )
     try:
         stock.storagebinitem  # noqa: B018
@@ -118,13 +120,17 @@ def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:
         elif delta.allocation_action == "end":
             ending_allocation = stock.current_allocation
             if ending_allocation is not None:
-                ending_allocation.ended_datetime = kwargs.get(
-                    "ended_datetime", timezone.now()
+                ended_datetime = kwargs.get("ended_datetime", timezone.now())
+                ended_reason = delta.allocation_end_reason or kwargs.get("ended_reason", "")
+                # Use update() rather than save() to avoid running Allocation.save()
+                # logic (e.g. registered_subject.subject_identifier lookup) when only
+                # stamping the end time and reason.
+                Allocation.objects.filter(pk=ending_allocation.pk).update(
+                    ended_datetime=ended_datetime,
+                    ended_reason=ended_reason,
                 )
-                ending_allocation.ended_reason = kwargs.get("ended_reason", "")
-                ending_allocation.save(
-                    update_fields=["ended_datetime", "ended_reason"]
-                )
+                ending_allocation.ended_datetime = ended_datetime
+                ending_allocation.ended_reason = ended_reason
             created_objects["from_allocation"] = ending_allocation
             stock.current_allocation = None
             update_fields.append("current_allocation")

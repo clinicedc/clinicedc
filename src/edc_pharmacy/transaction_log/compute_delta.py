@@ -209,19 +209,17 @@ def _compute_return_dispatched(current: CurrentState, *, central_location_id: in
         fail.append("not stored at location")
     if fail:
         return StateDelta(preconditions_failed=tuple(fail))
-    stock_fields = {
-        "return_requested": False,
-        "in_transit": True,
-        "stored_at_location": False,
-        "confirmed_at_location": False,
-    }
-    if current.has_active_allocation:
-        stock_fields["subject_identifier"] = ""
+    # Allocation is NOT ended here — stock remains allocated to the subject
+    # while in transit and while held at central awaiting disposition.
+    # The allocation ends only at final disposition (repooled/quarantined/destroyed).
     return StateDelta(
-        stock_fields=stock_fields,
+        stock_fields={
+            "return_requested": False,
+            "in_transit": True,
+            "stored_at_location": False,
+            "confirmed_at_location": False,
+        },
         storage_bin_item="delete",
-        allocation_action="end" if current.has_active_allocation else "unchanged",
-        allocation_end_reason="returned" if current.has_active_allocation else None,
         new_location_id=central_location_id,
     )
 
@@ -238,7 +236,11 @@ def _compute_return_received(current: CurrentState, *, central_location_id: int,
 def _compute_return_disposition_repooled(current: CurrentState, **_) -> StateDelta:
     if current.in_transit:
         return StateDelta(preconditions_failed=("still in transit",))
-    return StateDelta(stock_fields={"quarantined": False})
+    return StateDelta(
+        stock_fields={"quarantined": False, "subject_identifier": ""},
+        allocation_action="end" if current.has_active_allocation else "unchanged",
+        allocation_end_reason="repooled" if current.has_active_allocation else None,
+    )
 
 
 def _compute_return_disposition_quarantined(current: CurrentState, **_) -> StateDelta:
@@ -247,7 +249,11 @@ def _compute_return_disposition_quarantined(current: CurrentState, **_) -> State
         fail.append("still in transit")
     if fail:
         return StateDelta(preconditions_failed=tuple(fail))
-    return StateDelta(stock_fields={"quarantined": True})
+    return StateDelta(
+        stock_fields={"quarantined": True, "subject_identifier": ""},
+        allocation_action="end" if current.has_active_allocation else "unchanged",
+        allocation_end_reason="quarantined" if current.has_active_allocation else None,
+    )
 
 
 def _compute_return_disposition_destroyed(current: CurrentState, **_) -> StateDelta:
@@ -255,7 +261,11 @@ def _compute_return_disposition_destroyed(current: CurrentState, **_) -> StateDe
         return StateDelta(preconditions_failed=("already destroyed",))
     if current.in_transit:
         return StateDelta(preconditions_failed=("still in transit",))
-    return StateDelta(stock_fields={"destroyed": True, "quarantined": False})
+    return StateDelta(
+        stock_fields={"destroyed": True, "quarantined": False, "subject_identifier": ""},
+        allocation_action="end" if current.has_active_allocation else "unchanged",
+        allocation_end_reason="destroyed" if current.has_active_allocation else None,
+    )
 
 
 def _compute_adjusted(current: CurrentState, *, unit_qty_delta: Decimal, **_) -> StateDelta:
