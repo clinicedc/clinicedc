@@ -9,6 +9,7 @@ from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import ReturnRequest, ReturnItem
+from ..actions import print_return_manifest_action
 from ..model_admin_mixin import ModelAdminMixin
 
 
@@ -23,6 +24,7 @@ class ReturnRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     ordering = ("-return_identifier",)
 
     autocomplete_fields = ("from_location", "to_location")
+    actions = (print_return_manifest_action,)
 
     fieldsets = (
         (
@@ -53,6 +55,7 @@ class ReturnRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "n_expected",
         "return_item_changelist",
         "stock_changelist",
+        "manifest_link",
     )
 
     list_filter = (
@@ -113,4 +116,12 @@ class ReturnRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_changelist")
         url = f"{url}?q={obj.id}"
         context = dict(url=url, label="Stock", title="Go to stock")
+        return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
+
+    @admin.display(description="Manifest")
+    def manifest_link(self, obj):
+        if not ReturnItem.objects.filter(return_request=obj).exists():
+            return "-"
+        url = reverse("edc_pharmacy:return_manifest_url", kwargs={"return_request": obj.pk})
+        context = dict(url=url, label="PDF", title="Print return manifest")
         return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
