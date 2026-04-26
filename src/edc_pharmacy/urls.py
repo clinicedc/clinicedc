@@ -12,6 +12,9 @@ from .views import (
     MoveToStorageBinView,
     PrepareAndReviewStockRequestView,
     PrintLabelsView,
+    ReturnDispositionView,
+    ReturnReceiveView,
+    ReturnRequestView,
     TransferStockView,
     get_stock_transfers_view,
     print_stock_transfer_manifest_view,
@@ -142,6 +145,38 @@ urlpatterns = [
         DispenseView.as_view(),
         name="dispense_url",
     ),
+    # ── Return workflow ────────────────────────────────────────────────────
+    path(
+        "return-request/<uuid:return_request>/",
+        ReturnRequestView.as_view(),
+        name="return_request_url",
+    ),
+    path(
+        "return-request/",
+        ReturnRequestView.as_view(),
+        name="return_request_url",
+    ),
+    path(
+        "return-receive/<uuid:return_request>/",
+        ReturnReceiveView.as_view(),
+        name="return_receive_url",
+    ),
+    path(
+        "return-receive/",
+        ReturnReceiveView.as_view(),
+        name="return_receive_url",
+    ),
+    path(
+        "return-disposition/<uuid:return_request>/",
+        ReturnDispositionView.as_view(),
+        name="return_disposition_url",
+    ),
+    path(
+        "return-disposition/",
+        ReturnDispositionView.as_view(),
+        name="return_disposition_url",
+    ),
+    # ───────────────────────────────────────────────────────────────────────
     path("admin/", edc_pharmacy_admin.urls),
     # path("admin/history/", edc_pharmacy_history_admin.urls),
     path("", HomeView.as_view(), name="home_url"),

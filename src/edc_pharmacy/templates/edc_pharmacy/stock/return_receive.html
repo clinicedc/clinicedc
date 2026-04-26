@@ -1,0 +1,115 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+            <div style="padding:10px">
+                <a href="{% url "edc_pharmacy_admin:index" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{{ changelist_url }}">Return Requests</a>
+                {% if return_request %}&rsaquo; {{ return_request.return_identifier }}{% endif %}
+            </div>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+
+            {% if not return_request %}
+            {# ─── Phase 1: Select a return request to receive ─────────── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">Receive Returned Stock</div>
+                <div class="panel-body">
+                    {% if pending_receipts %}
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>From</th>
+                                <th>Date</th>
+                                <th>Items in Transit</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rr in pending_receipts %}
+                            <tr>
+                                <td>{{ rr.return_identifier }}</td>
+                                <td>{{ rr.from_location.display_name }}</td>
+                                <td>{{ rr.return_datetime|date:"d-M-Y" }}</td>
+                                <td>
+                                    {{ rr.returnitem_set.all|length }}
+                                </td>
+                                <td>
+                                    <a href="{% url "edc_pharmacy:return_receive_url" return_request=rr.pk %}"
+                                       class="btn btn-xs btn-default">Receive</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No returns currently in transit.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% else %}
+            {# ─── Phase 2: Confirm receipt of items ───────────────────── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Receive: {{ return_request.return_identifier }}
+                    &mdash; {{ return_request.from_location.display_name }}
+                    &rarr; {{ return_request.to_location.display_name }}
+                </div>
+                <div class="panel-body">
+                    <p>
+                        Received: <strong>{{ received_count }}</strong> /
+                        In transit: <strong>{{ pending_count }}</strong>
+                        {% if pending_count > 0 %}
+                            &mdash; <span class="text-warning">{{ pending_count }} remaining</span>
+                        {% else %}
+                            &mdash; <span class="text-success">All received</span>
+                        {% endif %}
+                    </p>
+
+                    {% if pending_count > 0 %}
+                    <form class="form-horizontal" method="post"
+                          onSubmit="document.getElementById('submit_receive').disabled=true;">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {% for i in item_count %}
+                                <label class="control-label col-sm-3" for="codes_{{ forloop.counter }}">
+                                    {{ forloop.counter }}.
+                                </label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" name="codes"
+                                           id="codes_{{ forloop.counter }}"
+                                           placeholder="stock code {{ forloop.counter }}"
+                                           pattern="[A-Z0-9]{6}"
+                                           {% if forloop.first %}autofocus{% endif %}>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-primary"
+                                    id="submit_receive">Confirm Receipt</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <p class="text-success">All items received.</p>
+                    {% endif %}
+
+                    <button class="btn btn-default" style="margin-top:10px"
+                            onclick="window.location.href='{{ changelist_url }}'">Done</button>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+{% endblock main %}
