@@ -276,6 +276,14 @@ class Command(BaseCommand):
         already_have_txn = set(
             StockTransaction.objects.values_list("stock_id", flat=True).distinct()
         )
+        # Stocks that already have TXN_RECEIVED specifically — used to
+        # detect the case where a stock has other transactions but is missing
+        # its RECEIVED row (created via live apply_transaction before bootstrap ran).
+        already_have_received = set(
+            StockTransaction.objects.filter(transaction_type=TXN_RECEIVED)
+            .values_list("stock_id", flat=True)
+            .distinct()
+        )
 
         total = created_count = no_events = error_count = 0
         already_bootstrapped: list[str] = []
@@ -285,6 +293,38 @@ class Command(BaseCommand):
         for stock in tqdm(qs.iterator(chunk_size=500), total=stock_count, unit="stock"):
             total += 1
             if stock.pk in already_have_txn:
+                # Stock has some transactions — but check whether TXN_RECEIVED is
+                # missing. This can happen when live apply_transaction calls (e.g.
+                # TXN_STORED) ran before bootstrap, creating partial ledger entries
+                # that caused bootstrap to skip the stock entirely on a previous run.
+                if stock.confirmed and stock.pk not in already_have_received:
+                    dt = stock.confirmed_datetime or stock.stock_datetime
+                    actor = _resolve_actor(
+                        stock.user_modified or stock.user_created, actor_cache
+                    )
+                    row = _txn(
+                        stock,
+                        TXN_RECEIVED,
+                        dt,
+                        actor=actor,
+                        qty_delta=Decimal("1"),
+                        unit_qty_delta=stock.container_unit_qty or Decimal("0"),
+                    )
+                    if not dry_run:
+                        try:
+                            with transaction.atomic():
+                                StockTransaction.objects.bulk_create([row])
+                            created_count += 1
+                        except Exception as e:
+                            error_count += 1
+                            self.stderr.write(
+                                self.style.ERROR(f"  {stock.code} (backfill RECEIVED): {e}")
+                            )
+                    else:
+                        self.stdout.write(
+                            f"  {stock.code}: {TXN_RECEIVED} @ {dt} [backfill]"
+                        )
+                        created_count += 1
                 already_bootstrapped.append(stock.code)
                 continue
 
