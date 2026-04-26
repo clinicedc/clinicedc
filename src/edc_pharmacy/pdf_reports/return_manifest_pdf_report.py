@@ -177,8 +177,18 @@ class ReturnManifestReport(Report):
             cell_style_xsmall = ParagraphStyle(
                 name="cell_xsmall", alignment=TA_CENTER, fontSize=6, leading=8
             )
+            # current_allocation is None post-dispatch (allocation is ended
+            # as part of TXN_RETURN_DISPATCHED). Fall back to the most recent
+            # historical allocation from the allocations FK history.
+            allocation = stock.current_allocation or (
+                stock.allocations
+                .select_related("registered_subject")
+                .order_by("-started_datetime")
+                .first()
+            )
             subject_identifier = (
-                stock.current_allocation.registered_subject.subject_identifier
+                allocation.registered_subject.subject_identifier
+                if allocation else "-"
             )
             data.append(
                 [
