@@ -17,6 +17,7 @@ from .views import (
     ReturnRequestView,
     TransferStockView,
     get_stock_transfers_view,
+    print_return_manifest_view,
     print_stock_transfer_manifest_view,
     print_stock_view,
 )
@@ -108,6 +109,11 @@ urlpatterns = [
         "manifest/<uuid:stock_transfer>/",
         print_stock_transfer_manifest_view,
         name="generate_manifest",
+    ),
+    path(
+        "return-manifest/<uuid:return_request>/",
+        print_return_manifest_view,
+        name="return_manifest_url",
     ),
     path("stock_report/<uuid:session_uuid>/", print_stock_view, name="stock_report"),
     path(

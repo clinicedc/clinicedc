@@ -19,6 +19,7 @@ from .print_labels import (
 )
 from .print_stock_labels import print_stock_labels
 from .print_stock_report import print_stock_report_action
+from .print_return_manifest import print_return_manifest_action
 from .print_transfer_stock_manifest import print_transfer_stock_manifest_action
 from .process_repack_request import process_repack_request_action
 from .storage_bin import add_to_storage_bin_action
