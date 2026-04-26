@@ -70,7 +70,7 @@ class StorageBinAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
         "bin_identifier",
         "name",
         "storagebinitem__stock__code",
-        "storagebinitem__stock__allocation__registered_subject__subject_identifier",
+        "storagebinitem__stock__current_allocation__registered_subject__subject_identifier",
     )
 
     list_filter = (

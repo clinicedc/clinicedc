@@ -64,6 +64,38 @@ class Allocation(BaseUuidModel):
         editable=False,
     )
 
+    # OneToOne → FK refactor fields.
+    # stock was previously the reverse accessor of Stock.allocation (OneToOneField).
+    # Now it is an explicit forward FK; Stock.current_allocation is the cache pointer.
+    stock = models.ForeignKey(
+        "edc_pharmacy.stock",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="allocations",
+        help_text="Stock item allocated to this subject.",
+    )
+
+    started_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the allocation became active (defaults to allocation_datetime).",
+    )
+
+    ended_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="When the allocation ended (NULL = still active).",
+    )
+
+    ended_reason = models.CharField(
+        max_length=50,
+        default="",
+        blank=True,
+        help_text="Why the allocation ended (dispensed, returned, reallocated, …).",
+    )
+
     objects = Manager()
 
     history = HistoricalRecords()
@@ -77,8 +109,9 @@ class Allocation(BaseUuidModel):
         if not self.stock_request_item:
             raise AllocationError("Stock request item may not be null")
         self.subject_identifier = self.registered_subject.subject_identifier
-        # self.code = self.stock.code
         self.assignment = self.get_assignment()
+        if not self.started_datetime:
+            self.started_datetime = self.allocation_datetime or timezone.now()
         super().save(*args, **kwargs)
 
     def get_assignment(self) -> Assignment:

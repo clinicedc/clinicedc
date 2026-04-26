@@ -66,7 +66,7 @@ class ConfirmationAtLocationAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "stock_transfer__pk",
         "confirmationatlocationitem__code",
         (
-            "confirmationatlocationitem__stock_transfer_item__stock__allocation__registered_subject__subject_identifier"
+            "confirmationatlocationitem__stock_transfer_item__stock__current_allocation__registered_subject__subject_identifier"
         ),
     )
 

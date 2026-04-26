@@ -36,7 +36,7 @@ class StockTransferItem(BaseUuidModel):
         on_delete=models.PROTECT,
         null=True,
         blank=False,
-        limit_choices_to={"allocation__isnull": False},
+        limit_choices_to={"current_allocation__isnull": False},
     )
 
     code = models.CharField(

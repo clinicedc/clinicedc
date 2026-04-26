@@ -196,7 +196,7 @@ def _compare(stock: Stock, expected: dict) -> dict[str, dict]:
             mismatches[field] = {"expected": exp, "actual": actual}
 
     # Allocation.
-    actual_alloc = stock.allocation_id is not None
+    actual_alloc = stock.current_allocation_id is not None
     if actual_alloc != expected["has_allocation"]:
         mismatches["has_allocation"] = {
             "expected": expected["has_allocation"],
@@ -257,7 +257,7 @@ class Command(BaseCommand):
                 "transactions",
                 queryset=StockTransaction.objects.order_by("transaction_datetime"),
             )
-        ).select_related("allocation")
+        ).select_related("current_allocation")
 
         if stock_code:
             qs = qs.filter(code=stock_code)
