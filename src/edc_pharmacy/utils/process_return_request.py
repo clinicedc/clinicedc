@@ -31,7 +31,7 @@ from ..constants import (
     TXN_RETURN_RECEIVED,
     TXN_RETURN_REQUESTED,
 )
-from ..exceptions import ReturnError
+from ..exceptions import InvalidTransitionError, ReturnError
 from ..transaction_log import apply_transaction
 
 if TYPE_CHECKING:
@@ -100,26 +100,35 @@ def dispatch_return(
             stock = stock_model_cls.objects.get(
                 code=code,
                 invalid_state=False,
-                return_requested=True,
                 location=return_request.from_location,
             )
         except stock_model_cls.DoesNotExist:
             skipped.append(code)
             continue
-        with transaction.atomic():
-            return_item = return_item_model_cls.objects.create(
-                stock=stock,
-                return_request=return_request,
-                user_created=actor.username,
-            )
-            apply_transaction(
-                stock,
-                TXN_RETURN_DISPATCHED,
-                actor,
-                central_location_id=central_location.id,
-                return_item=return_item,
-                reason=reason,
-            )
+        try:
+            with transaction.atomic():
+                # Auto-request if not already flagged — the view dispatches in
+                # one step, so TXN_RETURN_REQUESTED and TXN_RETURN_DISPATCHED
+                # are collapsed into a single scan action.
+                if not stock.return_requested:
+                    apply_transaction(stock, TXN_RETURN_REQUESTED, actor, reason=reason)
+                    stock.refresh_from_db()
+                return_item = return_item_model_cls.objects.create(
+                    stock=stock,
+                    return_request=return_request,
+                    user_created=actor.username,
+                )
+                apply_transaction(
+                    stock,
+                    TXN_RETURN_DISPATCHED,
+                    actor,
+                    central_location_id=central_location.id,
+                    return_item=return_item,
+                    reason=reason,
+                )
+        except InvalidTransitionError as e:
+            skipped.append(f"{code} ({e})")
+            continue
         dispatched.append(code)
     return dispatched, skipped
 

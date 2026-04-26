@@ -241,10 +241,32 @@ class TestReturn(TestCase):
         self.assertEqual(stock.location, self.location_central)
         self.assertTrue(ReturnItem.objects.filter(stock=stock).exists())
 
-    def test_return_dispatched_requires_return_requested(self):
-        """dispatch_return skips stock that is not return_requested."""
+    def test_return_dispatched_auto_requests(self):
+        """dispatch_return auto-applies TXN_RETURN_REQUESTED when not already set.
+
+        The view scans codes in a single step, so pre-calling
+        request_stock_return() is not required.
+        """
         stock = Stock.objects.first()
-        # Do NOT call TXN_RETURN_REQUESTED first.
+        # Do NOT pre-call TXN_RETURN_REQUESTED — dispatch handles it.
+        return_request = ReturnRequest.objects.create(
+            from_location=self.location_site,
+            to_location=self.location_central,
+            item_count=1,
+        )
+        dispatched, skipped = dispatch_return(return_request, [stock.code], self.actor)
+        self.assertEqual(dispatched, [stock.code])
+        self.assertEqual(skipped, [])
+        stock.refresh_from_db()
+        self.assertTrue(stock.in_transit)
+
+    def test_return_dispatched_skips_stock_not_stored_at_location(self):
+        """dispatch_return skips stock that is not in a bin at the site."""
+        stock = Stock.objects.first()
+        # Force stored_at_location=False via update() to bypass the guarded-field
+        # check in save() — this is deliberate test setup, not production code.
+        Stock.objects.filter(pk=stock.pk).update(stored_at_location=False)
+        stock.refresh_from_db()
         return_request = ReturnRequest.objects.create(
             from_location=self.location_site,
             to_location=self.location_central,
@@ -252,12 +274,12 @@ class TestReturn(TestCase):
         )
         dispatched, skipped = dispatch_return(return_request, [stock.code], self.actor)
         self.assertEqual(dispatched, [])
-        self.assertEqual(skipped, [stock.code])
+        self.assertEqual(len(skipped), 1)
+        self.assertIn(stock.code, skipped[0])
 
     def test_return_received(self):
         """TXN_RETURN_RECEIVED clears in_transit at central."""
         stock = Stock.objects.first()
-        apply_transaction(stock, TXN_RETURN_REQUESTED, self.actor)
         return_request = ReturnRequest.objects.create(
             from_location=self.location_site,
             to_location=self.location_central,
