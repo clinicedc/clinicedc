@@ -789,28 +789,33 @@ existing code working.
 
 Run these commands in order when deploying with all PRs merged into develop.
 
+`fix_historical_stock_state` must run **before** `bootstrap_stock_transactions`
+because it creates `TXN_REPACK_CONSUMED` rows (with a `repack_request` FK) for
+repacked bulk stock.  Bootstrap then detects those stocks as already having
+transactions and only backfills the missing `TXN_RECEIVED` row.  Running
+`fix_historical_stock_state` a **second time** after bootstrap applies the
+`repack_consumed_qty_delta` fix (patch `qty_delta=0 → -1` for containers whose
+`qty_out=1`); the command is fully idempotent for both runs.
+
 ```bash
-# 1. Run all migrations (0139–0145 plus any others)
+# 1. Run all migrations
 uv run --dev manage.py migrate
 
-# 2. Fix known pre-refactor stock inconsistencies before bootstrapping:
-#    - in_transit stuck True (old signal never cleared it)
-#    - allocation not nulled after dispense
-#    - invalid qty_delta=0 on bootstrapped TXN_RECEIVED rows
+# 2. Fix known pre-refactor Stock column inconsistencies and create
+#    TXN_REPACK_CONSUMED rows for repacked bulk stock (must run before bootstrap).
 uv run --dev manage.py fix_historical_stock_state
 
-# 3. Mark the three irreconcilable pre-refactor stocks as invalid_state=True
-#    so bootstrap and ledger-check skip them.
-#    (UGNXMR, 4992XB, 94UQKG — dispensed with no DispenseItem and no allocation)
-uv run --dev manage.py shell -c \
-  "from edc_pharmacy.models import Stock; Stock.objects.filter(code__in=['UGNXMR','4992XB','94UQKG']).update(invalid_state=True)"
-
-# 4. Back-fill StockTransaction rows for all pre-refactor stock.
+# 3. Back-fill StockTransaction rows for all pre-refactor stock.
 #    Idempotent — safe to re-run. Shows a tqdm progress bar.
 uv run --dev manage.py bootstrap_stock_transactions
 
+# 4. Second pass — patches TXN_REPACK_CONSUMED qty_delta on containers
+#    whose qty_out=1 (set by old repack workflow). All other fixes are
+#    idempotent no-ops at this point.
+uv run --dev manage.py fix_historical_stock_state
+
 # 5. Verify ledger replay matches Stock cache columns.
-#    Expected result: N OK, 0 discrepancies, small number of no-transactions, 3 skipped.
+#    Expected result: N OK, 0 discrepancies, small number with no transactions.
 uv run --dev manage.py check_stock_ledger
 ```
 

@@ -184,15 +184,30 @@ class Command(BaseCommand):
         from ...models.stock.repack_request import RepackRequest
 
         # Find repack requests that have no corresponding TXN_REPACK_CONSUMED row.
-        already_logged = set(
+        # Two sources of existing rows:
+        # 1. Rows created by this command (have repack_request FK set).
+        # 2. Rows created by bootstrap_stock_transactions (no FK; linked via stock).
+        # Both must be excluded to stay idempotent when this command is re-run
+        # after bootstrap.
+        already_logged_by_fk = set(
             StockTransaction.objects.filter(
                 transaction_type=TXN_REPACK_CONSUMED,
             )
             .exclude(repack_request=None)
             .values_list("repack_request_id", flat=True)
         )
-        pending = RepackRequest.objects.exclude(pk__in=already_logged).select_related(
-            "from_stock"
+        already_logged_by_stock = set(
+            StockTransaction.objects.filter(
+                transaction_type=TXN_REPACK_CONSUMED,
+                repack_request=None,
+            )
+            .values_list("stock_id", flat=True)
+        )
+        pending = (
+            RepackRequest.objects
+            .exclude(pk__in=already_logged_by_fk)
+            .exclude(from_stock_id__in=already_logged_by_stock)
+            .select_related("from_stock")
         )
 
         count = pending.count()
