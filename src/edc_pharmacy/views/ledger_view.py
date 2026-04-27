@@ -8,6 +8,8 @@ deeper filtering/export.
 
 from __future__ import annotations
 
+from decimal import Decimal
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -36,6 +38,8 @@ class LedgerView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateVi
         q = self.request.GET.get("q", "").strip()
         transactions = []
         truncated = False
+        qty_total = Decimal("0")
+        unit_qty_total = Decimal("0")
 
         if q:
             qs = StockTransaction.objects.filter(
@@ -57,18 +61,14 @@ class LedgerView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateVi
 
             # Build row dicts and accumulate totals.
             # Priority: to_allocation → from_allocation → stock.subject_identifier.
-            from decimal import Decimal as _D
-            transactions = []
-            qty_total = _D("0")
-            unit_qty_total = _D("0")
             for txn in qs[:MAX_ROWS]:
                 alloc = txn.to_allocation or txn.from_allocation
                 if alloc and alloc.subject_identifier:
                     subject_identifier = alloc.subject_identifier
                 else:
                     subject_identifier = txn.stock.subject_identifier or ""
-                qty_total += txn.qty_delta or _D("0")
-                unit_qty_total += txn.unit_qty_delta or _D("0")
+                qty_total += txn.qty_delta or Decimal("0")
+                unit_qty_total += txn.unit_qty_delta or Decimal("0")
                 transactions.append({"txn": txn, "subject_identifier": subject_identifier})
 
         # Build the admin changelist URL, optionally pre-filtered.
