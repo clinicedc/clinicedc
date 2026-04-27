@@ -41,6 +41,7 @@
                             <tr>
                                 <th>Transaction</th>
                                 <th>Stock #</th>
+                                <th>Subject</th>
                                 <th>Type</th>
                                 <th>Date</th>
                                 <th>Actor</th>
@@ -63,6 +64,15 @@
                                     <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stock_changelist" %}?q={{ txn.stock.code }}">
                                         <code>{{ txn.stock.code }}</code>
                                     </a>
+                                </td>
+                                <td style="white-space:nowrap;">
+                                    {% if txn._subject_identifier %}
+                                        <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ txn._subject_identifier }}">
+                                            {{ txn._subject_identifier }}
+                                        </a>
+                                    {% else %}
+                                        —
+                                    {% endif %}
                                 </td>
                                 <td>{{ txn.get_transaction_type_display|default:txn.transaction_type }}</td>
                                 <td style="white-space:nowrap;">{{ txn.transaction_datetime|date:"d-M-Y" }}</td>
