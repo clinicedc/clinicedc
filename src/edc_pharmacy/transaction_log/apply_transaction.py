@@ -211,6 +211,7 @@ def _write_ledger_row(
         "unit_qty_out": str(stock.unit_qty_out),
     }
 
+    username = actor.username if actor else ""
     return StockTransaction.objects.create(
         stock=stock,
         transaction_type=txn_type,
@@ -229,6 +230,8 @@ def _write_ledger_row(
         stock_adjustment=kwargs.get("stock_adjustment"),
         return_item=kwargs.get("return_item"),
         state_after=state_after,
+        user_created=username,
+        user_modified=username,
     )
 
 
