@@ -99,14 +99,15 @@
                         <div class="col-sm-12">
                             <button type="submit" class="btn btn-primary"
                                     id="submit_disposition">Apply Disposition</button>
+                            <a class="btn btn-default" style="margin-left:6px;"
+                               href="{% url "edc_pharmacy:return_central_url" %}">Done</a>
                         </div>
                     </form>
                     {% else %}
                     <p class="text-success">All items have been dispositioned.</p>
+                    <a class="btn btn-default"
+                       href="{% url "edc_pharmacy:return_central_url" %}">Done</a>
                     {% endif %}
-
-                    <a class="btn btn-default" style="margin-top:10px"
-                       href="{% url "edc_pharmacy:return_disposition_url" %}">Done</a>
                 </div>
             </div>
             {% endif %}
