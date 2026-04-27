@@ -3,6 +3,7 @@ from django.urls import path
 from .admin_site import edc_pharmacy_admin
 from .views import (
     AddToStorageBinView,
+    BulkStockReportView,
     AllocateToSubjectView,
     CeleryTaskStatusView,
     ConfirmaAtLocationView,
@@ -205,6 +206,11 @@ urlpatterns = [
         "return-disposition/",
         ReturnDispositionView.as_view(),
         name="return_disposition_url",
+    ),
+    path(
+        "bulk-stock-report/",
+        BulkStockReportView.as_view(),
+        name="bulk_stock_report_url",
     ),
     # ───────────────────────────────────────────────────────────────────────
     path("admin/", edc_pharmacy_admin.urls),

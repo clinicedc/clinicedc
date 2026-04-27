@@ -23,6 +23,7 @@
         <div class="list-group">
             <a id="home_list_group_stock" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stock_changelist' %}" class="list-group-item">Stock</a>
             <a id="home_list_group_stock_transactions" href="{% url 'edc_pharmacy:ledger_url' %}" class="list-group-item">Stock transaction ledger</a>
+            <a id="home_list_group_bulk_stock_report" href="{% url 'edc_pharmacy:bulk_stock_report_url' %}" class="list-group-item">Bulk container report</a>
             <a id="home_list_group_allocation" href="{% url 'edc_pharmacy_admin:edc_pharmacy_allocation_changelist' %}" class="list-group-item">Allocations</a>
             <a id="home_list_group_stockavailability" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockavailability_changelist' %}?has_codes=No" class="list-group-item">Stock availability</a>
             <a id="home_list_group_allocation" href="{% url 'edc_pylabels_admin:index' %}" class="list-group-item">Label Configurations</a>
