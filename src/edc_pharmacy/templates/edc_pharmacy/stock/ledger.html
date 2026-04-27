@@ -53,7 +53,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for txn in transactions %}
+                            {% for row in transactions %}
+                            {% with txn=row.txn %}
                             <tr>
                                 <td>
                                     <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stocktransaction_change" txn.pk %}">
@@ -66,9 +67,9 @@
                                     </a>
                                 </td>
                                 <td style="white-space:nowrap;">
-                                    {% if txn._subject_identifier %}
-                                        <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ txn._subject_identifier }}">
-                                            {{ txn._subject_identifier }}
+                                    {% if row.subject_identifier %}
+                                        <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ row.subject_identifier }}">
+                                            {{ row.subject_identifier }}
                                         </a>
                                     {% else %}
                                         —
@@ -83,6 +84,7 @@
                                 <td>{{ txn.unit_qty_delta }}</td>
                                 <td>{{ txn.reason|default:"—" }}</td>
                             </tr>
+                            {% endwith %}
                             {% endfor %}
                         </tbody>
                     </table>
