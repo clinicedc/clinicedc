@@ -52,23 +52,24 @@ class ReturnDispositionView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             cancel__in=["", "N/A"],
         ).distinct().order_by("-return_datetime")
 
-        pending_count = 0
+        pending_items = []
         if return_request:
-            pending_count = return_request.returnitem_set.filter(
-                stock__in_transit=False,
-                stock__dispensed=False,
-                stock__quarantined=False,
-                stock__destroyed=False,
-            ).count()
-            items_to_scan = min(pending_count, 12)
-        else:
-            items_to_scan = 0
+            pending_items = list(
+                return_request.returnitem_set.filter(
+                    stock__in_transit=False,
+                    stock__dispensed=False,
+                    stock__quarantined=False,
+                    stock__destroyed=False,
+                ).select_related(
+                    "stock__product__formulation",
+                    "stock__current_allocation__registered_subject",
+                )
+            )
 
         kwargs.update(
             return_request=return_request,
             pending_disposition=pending_disposition,
-            pending_count=pending_count,
-            item_count=list(range(1, items_to_scan + 1)),
+            pending_items=pending_items,
             disposition_choices=DISPOSITION_CHOICES,
         )
         return super().get_context_data(**kwargs)
@@ -89,38 +90,47 @@ class ReturnDispositionView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         if not return_request:
             return HttpResponseRedirect(reverse("edc_pharmacy:return_disposition_url"))
 
-        disposition = request.POST.get("disposition", "").strip()
-        stock_codes = [c.strip().upper() for c in request.POST.getlist("codes") if c.strip()]
+        # Each pending ReturnItem posts its disposition as disposition_<pk>.
+        pending_items = return_request.returnitem_set.filter(
+            stock__in_transit=False,
+            stock__dispensed=False,
+            stock__quarantined=False,
+            stock__destroyed=False,
+        ).select_related("stock")
 
-        if not disposition:
-            messages.add_message(request, messages.ERROR, "Please select a disposition.")
-            return HttpResponseRedirect(
-                reverse(
-                    "edc_pharmacy:return_disposition_url",
-                    kwargs={"return_request": return_request.pk},
-                )
-            )
-
-        if stock_codes:
+        processed, skipped, missing = [], [], []
+        for item in pending_items:
+            disposition = request.POST.get(f"disposition_{item.pk}", "").strip()
+            if not disposition:
+                missing.append(item.stock.code)
+                continue
             try:
-                processed, skipped = disposition_return(
-                    stock_codes, request.user, disposition=disposition
+                done, skip = disposition_return(
+                    [item.stock.code], request.user, disposition=disposition
                 )
+                processed.extend(done)
+                skipped.extend(skip)
             except ReturnError as e:
                 messages.add_message(request, messages.ERROR, str(e))
-            else:
-                if processed:
-                    messages.add_message(
-                        request,
-                        messages.SUCCESS,
-                        f"Applied '{disposition}' to {len(processed)} item(s).",
-                    )
-                if skipped:
-                    messages.add_message(
-                        request,
-                        messages.WARNING,
-                        f"Skipped {len(skipped)} item(s): {', '.join(skipped)}",
-                    )
+
+        if processed:
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                f"Dispositioned {len(processed)} item(s).",
+            )
+        if skipped:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                f"Skipped {len(skipped)} item(s): {', '.join(skipped)}",
+            )
+        if missing:
+            messages.add_message(
+                request,
+                messages.WARNING,
+                f"No disposition selected for {len(missing)} item(s): {', '.join(missing)}",
+            )
 
         pending_count = return_request.returnitem_set.filter(
             stock__in_transit=False,

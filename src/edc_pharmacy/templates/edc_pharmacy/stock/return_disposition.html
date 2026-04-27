@@ -50,58 +50,54 @@
             </div>
 
             {% else %}
-            {# ─── Phase 2: Set disposition on received items ──────────── #}
+            {# ─── Phase 2: Set per-item disposition ───────────────────── #}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     Disposition: {{ return_request.return_identifier }}
                     &mdash; {{ return_request.from_location.display_name }}
                 </div>
                 <div class="panel-body">
-                    <p>
-                        Pending disposition: <strong>{{ pending_count }}</strong>
-                        {% if pending_count == 0 %}
-                            &mdash; <span class="text-success">Complete</span>
-                        {% endif %}
-                    </p>
-
-                    {% if pending_count > 0 %}
-                    <form class="form-horizontal" method="post"
+                    {% if pending_items %}
+                    <form method="post"
                           onSubmit="document.getElementById('submit_disposition').disabled=true;">
                         {% csrf_token %}
-                        <div class="form-group">
-                            <label class="control-label col-sm-4">Disposition</label>
-                            <div class="col-sm-8">
-                                {% for value, label in disposition_choices %}
-                                <div class="radio">
-                                    <label>
-                                        <input type="radio" name="disposition" value="{{ value }}"
-                                               {% if forloop.first %}checked{% endif %}>
-                                        {{ label }}
-                                    </label>
-                                </div>
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Code</th>
+                                    <th>Subject</th>
+                                    <th>Formulation</th>
+                                    <th>Disposition</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in pending_items %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><code>{{ item.stock.code }}</code></td>
+                                    <td>
+                                        {% if item.stock.current_allocation %}
+                                            {{ item.stock.current_allocation.registered_subject.subject_identifier }}
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td>{{ item.stock.product.formulation.imp_description }}</td>
+                                    <td>
+                                        <select class="form-control input-sm"
+                                                name="disposition_{{ item.pk }}" required>
+                                            {% for value, label in disposition_choices %}
+                                            <option value="{{ value }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
                                 {% endfor %}
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            {% for i in item_count %}
-                                <label class="control-label col-sm-3" for="codes_{{ forloop.counter }}">
-                                    {{ forloop.counter }}.
-                                </label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" name="codes"
-                                           id="codes_{{ forloop.counter }}"
-                                           placeholder="stock code {{ forloop.counter }}"
-                                           pattern="[A-Z0-9]{6}"
-                                           {% if forloop.first %}autofocus{% endif %}>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <div class="col-sm-12">
-                            <button type="submit" class="btn btn-primary"
-                                    id="submit_disposition">Apply Disposition</button>
-                            <a class="btn btn-default" style="margin-left:6px;"
-                               href="{% url "edc_pharmacy:return_central_url" %}">Done</a>
-                        </div>
+                            </tbody>
+                        </table>
+                        <button type="submit" class="btn btn-primary"
+                                id="submit_disposition">Apply Disposition</button>
+                        <a class="btn btn-default" style="margin-left:6px;"
+                           href="{% url "edc_pharmacy:return_central_url" %}">Done</a>
                     </form>
                     {% else %}
                     <p class="text-success">All items have been dispositioned.</p>
