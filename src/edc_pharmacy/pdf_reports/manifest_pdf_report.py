@@ -47,7 +47,7 @@ class ManifestReport(Report):
             "stock__current_allocation__registered_subject",
             "stock__product__formulation",
         ).prefetch_related(
-            "stock__allocation_set",
+            "stock__allocations",
         ).order_by(
             "stock__current_allocation__registered_subject__subject_identifier"
         )
@@ -186,7 +186,7 @@ class ManifestReport(Report):
                 # written to the Stock row.  Recover from the most recent
                 # Allocation row (prefetched above).
                 past_alloc = sorted(
-                    stock.allocation_set.all(),
+                    stock.allocations.all(),
                     key=lambda a: a.allocation_datetime,
                     reverse=True,
                 )
