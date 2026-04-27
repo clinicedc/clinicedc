@@ -227,7 +227,7 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
         # Prefer the user who processed the repack over the generic stock actor.
         # RepackRequest.user_modified is set by process_repack_request().
         repack_actor = actor
-        rr = stock.repackrequest_set.order_by("-modified").first()
+        rr = stock.repack_requests.order_by("-modified").first()
         if rr is not None:
             rr_username = getattr(rr, "user_modified", None) or getattr(rr, "user_created", None)
             if rr_username:
