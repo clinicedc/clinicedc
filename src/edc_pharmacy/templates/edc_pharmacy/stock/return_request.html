@@ -101,6 +101,36 @@
                 </div>
             </div>
 
+            <div class="panel panel-default">
+                <div class="panel-heading">Recent Completed Return Requests</div>
+                <div class="panel-body">
+                    {% if completed_returns %}
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>From</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rr in completed_returns %}
+                            <tr>
+                                <td>{{ rr.return_identifier }}</td>
+                                <td>{{ rr.from_location.display_name }}</td>
+                                <td>{{ rr.return_datetime|date:"d-M-Y" }}</td>
+                                <td>{{ rr.dispatched_item_count }} / {{ rr.item_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No completed return requests.</p>
+                    {% endif %}
+                </div>
+            </div>
+
             {% else %}
             {# ─── Phase 2: Dispatch items on an existing ReturnRequest ──── #}
             <div class="panel panel-default">

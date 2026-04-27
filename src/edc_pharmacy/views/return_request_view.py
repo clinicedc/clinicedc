@@ -54,6 +54,14 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             .filter(dispatched_item_count__lt=F("item_count"))
             .order_by("-return_datetime")
         )
+        completed_returns = (
+            ReturnRequest.objects.filter(
+                from_location__site=self.request.site,
+            )
+            .annotate(dispatched_item_count=Count("returnitem"))
+            .filter(dispatched_item_count__gte=F("item_count"))
+            .order_by("-return_datetime")[:5]
+        )
 
         dispatched_count = 0
         remaining_count = 0
@@ -90,6 +98,7 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             central_location=central_location,
             from_locations=from_locations,
             current_site_location=current_site_location,
+            completed_returns=completed_returns,
         )
         return super().get_context_data(**kwargs)
 
