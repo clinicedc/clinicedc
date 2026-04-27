@@ -112,6 +112,19 @@
                         {% endif %}
                     </p>
 
+                    {# ── Update expected count (always visible) ── #}
+                    <form class="form-inline" method="post" style="margin-bottom:12px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_item_count" value="1">
+                        <div class="form-group">
+                            <label for="item_count_update" style="margin-right:6px;">Update expected count:</label>
+                            <input type="number" class="form-control input-sm" id="item_count_update"
+                                   name="item_count" min="{{ dispatched_count|default:1 }}" max="500"
+                                   value="{{ return_request.item_count }}" style="width:80px;">
+                        </div>
+                        <button type="submit" class="btn btn-default btn-sm" style="margin-left:6px;">Update</button>
+                    </form>
+
                     {% if remaining_count > 0 %}
                     <form class="form-horizontal" method="post"
                           onSubmit="document.getElementById('submit_dispatch').disabled=true;">
@@ -133,27 +146,15 @@
                         <div class="col-sm-12">
                             <button type="submit" class="btn btn-primary"
                                     id="submit_dispatch">Dispatch</button>
+                            <a class="btn btn-default" style="margin-left:6px;"
+                               href="{% url "edc_pharmacy:return_request_url" %}">Done</a>
                         </div>
                     </form>
                     {% else %}
                     <p class="text-success">All items dispatched.</p>
-                    {% endif %}
-
-                    <hr>
-                    <form class="form-inline" method="post" style="margin-top:6px;">
-                        {% csrf_token %}
-                        <input type="hidden" name="update_item_count" value="1">
-                        <div class="form-group">
-                            <label for="item_count_update" style="margin-right:6px;">Update expected count:</label>
-                            <input type="number" class="form-control input-sm" id="item_count_update"
-                                   name="item_count" min="{{ dispatched_count|default:1 }}" max="500"
-                                   value="{{ return_request.item_count }}" style="width:80px;">
-                        </div>
-                        <button type="submit" class="btn btn-default btn-sm" style="margin-left:6px;">Update</button>
-                    </form>
-
-                    <a class="btn btn-default" style="margin-top:10px"
+                    <a class="btn btn-default"
                        href="{% url "edc_pharmacy:return_request_url" %}">Done</a>
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
