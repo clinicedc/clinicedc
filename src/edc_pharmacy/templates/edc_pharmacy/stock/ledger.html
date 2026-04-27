@@ -1,0 +1,100 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+            <div style="padding:10px">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                Stock Transaction Ledger
+            </div>
+
+            {# ─── Search form ─────────────────────────────────────────── #}
+            <form method="get" class="form-inline" style="margin-bottom:16px;">
+                <div class="input-group" style="max-width:480px;width:100%;">
+                    <input type="text" name="q" value="{{ q }}"
+                           class="form-control"
+                           placeholder="Stock code or subject identifier"
+                           autofocus autocomplete="off">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </span>
+                </div>
+            </form>
+
+            {# ─── Results ─────────────────────────────────────────────── #}
+            {% if q %}
+                {% if transactions %}
+                    {% if truncated %}
+                    <p class="text-warning small">
+                        Showing first {{ max_rows }} of many results.
+                        <a href="{{ admin_url }}">View all in admin &rsaquo;</a>
+                    </p>
+                    {% else %}
+                    <p class="text-muted small">{{ transactions|length }} transaction{{ transactions|length|pluralize }} found.</p>
+                    {% endif %}
+
+                    <table class="table table-condensed table-hover">
+                        <thead>
+                            <tr>
+                                <th>Transaction</th>
+                                <th>Stock #</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Actor</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Qty &Delta;</th>
+                                <th>Unit Qty &Delta;</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for txn in transactions %}
+                            <tr>
+                                <td>
+                                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stocktransaction_change" txn.pk %}">
+                                        {{ txn.pk|stringformat:"s"|slice:":8" }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stock_changelist" %}?q={{ txn.stock.code }}">
+                                        <code>{{ txn.stock.code }}</code>
+                                    </a>
+                                </td>
+                                <td>{{ txn.get_transaction_type_display|default:txn.transaction_type }}</td>
+                                <td style="white-space:nowrap;">{{ txn.transaction_datetime|date:"d-M-Y" }}</td>
+                                <td>{{ txn.actor.username|default:"—" }}</td>
+                                <td>{{ txn.from_location.display_name|default:"—" }}</td>
+                                <td>{{ txn.to_location.display_name|default:"—" }}</td>
+                                <td>{{ txn.qty_delta }}</td>
+                                <td>{{ txn.unit_qty_delta }}</td>
+                                <td>{{ txn.reason|default:"—" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <p style="margin-top:8px;">
+                        <a href="{{ admin_url }}">View in admin (export, filter, sort) &rsaquo;</a>
+                    </p>
+
+                {% else %}
+                    <p class="text-muted">No transactions found for <strong>{{ q }}</strong>.</p>
+                    <p>
+                        <a href="{{ admin_url }}">Search in admin &rsaquo;</a>
+                    </p>
+                {% endif %}
+            {% else %}
+                <p class="text-muted">Enter a stock code or subject identifier to search the ledger.</p>
+                <p>
+                    <a href="{{ admin_url }}">Browse full ledger in admin &rsaquo;</a>
+                </p>
+            {% endif %}
+
+        </div>
+        <div class="col-sm-1"></div>
+    </div>
+{% endblock main %}

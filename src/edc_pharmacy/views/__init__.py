@@ -12,7 +12,9 @@ from .print_labels_view import PrintLabelsView
 from .print_stock_transfer_manifest_view import print_stock_transfer_manifest_view
 from .print_stock_view import print_stock_view
 from .print_return_manifest_view import print_return_manifest_view
+from .ledger_view import LedgerView
 from .return_central_view import ReturnCentralView
+from .stock_adjustment_view import StockAdjustmentView
 from .return_disposition_view import ReturnDispositionView
 from .return_receive_view import ReturnReceiveView
 from .return_request_view import ReturnRequestView

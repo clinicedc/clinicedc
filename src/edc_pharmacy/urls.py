@@ -9,6 +9,7 @@ from .views import (
     ConfirmStockFromQuerySetView,
     DispenseView,
     HomeView,
+    LedgerView,
     MoveToStorageBinView,
     PrepareAndReviewStockRequestView,
     PrintLabelsView,
@@ -16,6 +17,7 @@ from .views import (
     ReturnDispositionView,
     ReturnReceiveView,
     ReturnRequestView,
+    StockAdjustmentView,
     TransferStockView,
     get_stock_transfers_view,
     print_return_manifest_view,
@@ -167,6 +169,16 @@ urlpatterns = [
         "return-central/",
         ReturnCentralView.as_view(),
         name="return_central_url",
+    ),
+    path(
+        "stock-adjustments/",
+        StockAdjustmentView.as_view(),
+        name="stock_adjustments_url",
+    ),
+    path(
+        "ledger/",
+        LedgerView.as_view(),
+        name="ledger_url",
     ),
     path(
         "return-receive/<uuid:return_request>/",

@@ -1,0 +1,182 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+            <div style="padding:10px">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                Stock Adjustments
+            </div>
+
+            {# ─── Panel 1: Status Adjustment ──────────────────────────── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">Status Adjustment</div>
+                <div class="panel-body">
+                    <form method="post" id="status_form"
+                          onsubmit="document.getElementById('submit_status').disabled=true;">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="status">
+
+                        {# Scan input #}
+                        <div class="form-group">
+                            <label>Scan stock code</label>
+                            <div class="input-group" style="max-width:280px;">
+                                <input type="text" id="scan_input" class="form-control input-sm"
+                                       placeholder="Scan or type code" autofocus
+                                       autocomplete="off" autocorrect="off"
+                                       autocapitalize="characters" spellcheck="false">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-default btn-sm"
+                                            onclick="addCode()">Add</button>
+                                </span>
+                            </div>
+                        </div>
+
+                        {# Accumulated code badges #}
+                        <div style="margin-bottom:4px;">
+                            <span id="codes_counter" class="text-muted small">0 codes scanned</span>
+                        </div>
+                        <div id="codes_display" style="margin-bottom:8px;min-height:28px;">
+                            <span class="text-muted small" id="no_codes_msg">No codes scanned yet.</span>
+                        </div>
+                        <div id="hidden_codes_container"></div>
+
+                        {# Adjustment type #}
+                        <div class="form-group" style="max-width:320px;">
+                            <label>Adjustment type</label>
+                            <select name="adjustment_type" class="form-control input-sm" required>
+                                {% for value, label in status_adjustment_types.items %}
+                                <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        {# Reason #}
+                        <div class="form-group" style="max-width:480px;">
+                            <label>Reason <span class="text-danger">*</span></label>
+                            <input type="text" name="reason" class="form-control input-sm"
+                                   placeholder="Enter reason" required>
+                        </div>
+
+                        <button type="submit" id="submit_status"
+                                class="btn btn-primary">Apply Adjustment</button>
+                        <a class="btn btn-default" style="margin-left:6px;"
+                           href="{% url "edc_pharmacy:home_url" %}">Done</a>
+                    </form>
+                </div>
+            </div>
+
+            {# ─── Panel 2: Quantity Adjustment ────────────────────────── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">Quantity Adjustment</div>
+                <div class="panel-body">
+                    <p class="text-muted small">
+                        Use a positive value to increase the unit quantity, negative to decrease.
+                    </p>
+                    <form method="post"
+                          onsubmit="document.getElementById('submit_qty').disabled=true;">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="qty">
+
+                        <div class="form-group" style="max-width:280px;">
+                            <label>Stock code</label>
+                            <input type="text" name="code" class="form-control input-sm"
+                                   placeholder="Scan or type code"
+                                   autocomplete="off" autocorrect="off"
+                                   autocapitalize="characters" spellcheck="false"
+                                   required>
+                        </div>
+
+                        <div class="form-group" style="max-width:180px;">
+                            <label>Unit qty delta</label>
+                            <input type="number" name="unit_qty_delta"
+                                   class="form-control input-sm"
+                                   step="1" placeholder="e.g. -10 or +5" required>
+                        </div>
+
+                        <div class="form-group" style="max-width:480px;">
+                            <label>Reason <span class="text-danger">*</span></label>
+                            <input type="text" name="reason" class="form-control input-sm"
+                                   placeholder="Enter reason" required>
+                        </div>
+
+                        <button type="submit" id="submit_qty"
+                                class="btn btn-primary">Apply Adjustment</button>
+                        <a class="btn btn-default" style="margin-left:6px;"
+                           href="{% url "edc_pharmacy:home_url" %}">Done</a>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+
+    <script>
+        var scannedCodes = [];
+
+        function addCode() {
+            var input = document.getElementById('scan_input');
+            var code = input.value.trim().toUpperCase();
+            if (!code) return;
+            if (scannedCodes.indexOf(code) !== -1) {
+                input.value = '';
+                input.focus();
+                return;
+            }
+            scannedCodes.push(code);
+            renderCodes();
+            input.value = '';
+            input.focus();
+        }
+
+        function removeCode(code) {
+            scannedCodes = scannedCodes.filter(function(c) { return c !== code; });
+            renderCodes();
+            document.getElementById('scan_input').focus();
+        }
+
+        function renderCodes() {
+            var display = document.getElementById('codes_display');
+            var container = document.getElementById('hidden_codes_container');
+            var noMsg = document.getElementById('no_codes_msg');
+            var counter = document.getElementById('codes_counter');
+            var n = scannedCodes.length;
+            counter.textContent = n === 0 ? '0 codes scanned'
+                : n === 1 ? '1 code scanned'
+                : n + ' codes scanned';
+            display.innerHTML = '';
+            container.innerHTML = '';
+            if (n === 0) {
+                display.appendChild(noMsg);
+                return;
+            }
+            scannedCodes.forEach(function(code) {
+                // Badge with remove button
+                var badge = document.createElement('span');
+                badge.style.cssText = 'display:inline-block;background:#e2e3e5;border-radius:3px;' +
+                    'padding:2px 6px;margin:2px;font-size:0.85em;font-family:monospace;';
+                badge.innerHTML = code + ' <a href="#" style="color:#721c24;text-decoration:none;" ' +
+                    'onclick="removeCode(\'' + code + '\');return false;">&times;</a>';
+                display.appendChild(badge);
+                // Hidden input
+                var hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'codes';
+                hidden.value = code;
+                container.appendChild(hidden);
+            });
+        }
+
+        // Allow Enter key to add a code
+        document.getElementById('scan_input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addCode();
+            }
+        });
+    </script>
+{% endblock main %}
