@@ -72,7 +72,7 @@ class ConfirmationAtLocationItemAdmin(
         "confirm_at_location__pk",
         "stock_transfer_item__stock__code",
         "stock_transfer_item__stock__pk",
-        "stock_transfer_item__stock__allocation__registered_subject__subject_identifier",
+        "stock_transfer_item__stock__current_allocation__registered_subject__subject_identifier",
     )
 
     @admin.display(

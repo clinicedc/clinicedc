@@ -28,7 +28,7 @@ class ConfirmedAtLocationFilter(SimpleListFilter):
             opts = dict(
                 stock__from_stock__isnull=False,
                 stock__confirmation__isnull=False,
-                stock__allocation__isnull=False,
+                stock__current_allocation__isnull=False,
             )
             if self.value() == YES:
                 qs = queryset.filter(
@@ -95,7 +95,7 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "transfer_item_identifier",
         "stock_transfer__id",
         "stock__code",
-        "stock__allocation__registered_subject__subject_identifier",
+        "stock__current_allocation__registered_subject__subject_identifier",
     )
 
     readonly_fields = (
