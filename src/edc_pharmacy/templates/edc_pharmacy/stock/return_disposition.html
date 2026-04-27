@@ -37,7 +37,7 @@
                                 <td>{{ rr.returnitem_set.all|length }}</td>
                                 <td>
                                     <a href="{% url "edc_pharmacy:return_disposition_url" return_request=rr.pk %}"
-                                       class="btn btn-xs btn-default">Disposition</a>
+                                       class="btn btn-xs btn-primary">Disposition</a>
                                 </td>
                             </tr>
                             {% endfor %}
