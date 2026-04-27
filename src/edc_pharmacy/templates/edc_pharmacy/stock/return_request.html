@@ -7,7 +7,7 @@
         <div class="col-sm-2"></div>
         <div class="col-sm-8">
             <div style="padding:10px">
-                <a href="{% url "edc_pharmacy_admin:index" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
                 <a href="{% url "edc_pharmacy:return_request_url" %}">Return Requests</a>
                 {% if return_request %}&rsaquo; {{ return_request.return_identifier }}{% endif %}
             </div>
