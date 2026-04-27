@@ -43,6 +43,15 @@ Five classes of inconsistency are corrected:
    those rows.  Items that have already been through a transfer are untouched
    because ``apply_transaction`` already corrected their location.
 
+8. **Bootstrapped TXN_RECEIVED / TXN_ALLOCATED / TXN_REPACK_* with wrong
+   from/to location** — bootstrap captured ``stock.location`` which was wrong
+   at the time (e.g. the old transfer-dispatch signal had already overwritten
+   it to a site before bootstrap ran).  All of these transaction types must
+   have central as both from and to location.  Fix: patch from_location and
+   to_location to central on all bootstrapped rows of these types.  This is a
+   no-op on the first pass (no bootstrap rows yet) and effective on the second
+   pass.
+
 This command is idempotent.  Re-running it is safe.
 
 Exit codes
@@ -58,7 +67,14 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from ...constants import CENTRAL_LOCATION, TXN_REPACK_CONSUMED, TXN_RECEIVED, ZERO_ITEM
+from ...constants import (
+    CENTRAL_LOCATION,
+    TXN_ALLOCATED,
+    TXN_REPACK_CONSUMED,
+    TXN_REPACK_PRODUCED,
+    TXN_RECEIVED,
+    ZERO_ITEM,
+)
 from ...models import Stock, StockTransaction
 from ...models.stock.location import Location
 
@@ -90,6 +106,7 @@ class Command(BaseCommand):
         errors += self._mark_invalid_stocks(dry_run)
         errors += self._fix_bulk_stock_location(dry_run)
         errors += self._fix_repack_child_location(dry_run)
+        errors += self._fix_bootstrapped_txn_locations(dry_run)
 
         if errors:
             raise SystemExit(1)
@@ -439,6 +456,64 @@ class Command(BaseCommand):
             try:
                 with transaction.atomic():
                     updated = qs.update(location=central_location)
+                self.stdout.write(self.style.SUCCESS(f"  Updated {updated} rows."))
+            except Exception as exc:
+                self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))
+                return 1
+        return 0
+
+    # ------------------------------------------------------------------
+    # Fix 10: bootstrapped transactions with wrong from/to location
+    # ------------------------------------------------------------------
+
+    def _fix_bootstrapped_txn_locations(self, dry_run: bool) -> int:
+        """Correct from_location / to_location on bootstrapped transactions
+        that must always be at central.
+
+        - TXN_RECEIVED: all stock arrives at central, so both locations = central.
+        - TXN_ALLOCATED: allocation only happens at central.
+        - TXN_REPACK_PRODUCED / TXN_REPACK_CONSUMED: repack is a central-only
+          operation.
+
+        Bootstrap captured wrong locations for these types when stock.location
+        was already wrong (e.g. the old transfer-dispatch signal had already
+        overwritten it to a site before bootstrap ran).
+
+        This fix is a no-op on the first pass (no bootstrapped rows yet) and
+        effective on the second pass after bootstrap has created the rows.
+        """
+        try:
+            central_location = Location.objects.get(name=CENTRAL_LOCATION)
+        except Location.DoesNotExist:
+            self.stderr.write(
+                self.style.ERROR("[bootstrapped_txn_locations] Central location not found.")
+            )
+            return 1
+
+        central_only_types = [
+            TXN_RECEIVED,
+            TXN_ALLOCATED,
+            TXN_REPACK_PRODUCED,
+            TXN_REPACK_CONSUMED,
+        ]
+        qs = StockTransaction.objects.filter(
+            transaction_type__in=central_only_types,
+            state_after={"bootstrapped": True},
+        ).exclude(from_location=central_location, to_location=central_location)
+
+        count = qs.count()
+        self.stdout.write(
+            f"[bootstrapped_txn_locations] {count} bootstrapped transactions "
+            f"with wrong from/to location "
+            f"({'dry-run' if dry_run else 'will update'})"
+        )
+        if count and not dry_run:
+            try:
+                with transaction.atomic():
+                    updated = qs.update(
+                        from_location=central_location,
+                        to_location=central_location,
+                    )
                 self.stdout.write(self.style.SUCCESS(f"  Updated {updated} rows."))
             except Exception as exc:
                 self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))
