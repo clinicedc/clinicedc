@@ -58,10 +58,10 @@
                 </div>
             </div>
 
-            {% if pending_returns %}
             <div class="panel panel-default">
                 <div class="panel-heading">Open Return Requests</div>
                 <div class="panel-body">
+                    {% if pending_returns %}
                     <table class="table table-condensed">
                         <thead>
                             <tr>
@@ -87,9 +87,11 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    {% else %}
+                    <p class="text-muted">No open return requests.</p>
+                    {% endif %}
                 </div>
             </div>
-            {% endif %}
 
             {% else %}
             {# ─── Phase 2: Dispatch items on an existing ReturnRequest ──── #}
