@@ -73,6 +73,7 @@ def _txn(
         unit_qty_delta: Decimal = Decimal("0"),
         **fk_kwargs,
 ) -> StockTransaction:
+    username = actor.username if actor else ""
     return StockTransaction(
         stock=stock,
         transaction_type=txn_type,
@@ -86,6 +87,8 @@ def _txn(
         from_location_id=from_location_id or stock.location_id,
         to_location_id=to_location_id or stock.location_id,
         state_after=_BOOTSTRAPPED,
+        user_created=username,
+        user_modified=username,
         **fk_kwargs,
     )
 
@@ -221,12 +224,20 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
                             .aggregate(total=Sum("unit_qty_in"))["total"]
                         ) or Decimal("0")
     if consumed_unit_qty > 0:
+        # Prefer the user who processed the repack over the generic stock actor.
+        # RepackRequest.user_modified is set by process_repack_request().
+        repack_actor = actor
+        rr = stock.repackrequest_set.order_by("-modified").first()
+        if rr is not None:
+            rr_username = getattr(rr, "user_modified", None) or getattr(rr, "user_created", None)
+            if rr_username:
+                repack_actor = _resolve_actor(rr_username, actor_cache) or actor
         rows.append(
             _txn(
                 stock,
                 TXN_REPACK_CONSUMED,
                 stock.stock_datetime,
-                actor=actor,
+                actor=repack_actor,
                 unit_qty_delta=-consumed_unit_qty,
             )
         )
