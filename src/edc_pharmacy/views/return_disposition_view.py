@@ -70,9 +70,6 @@ class ReturnDispositionView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
             pending_count=pending_count,
             item_count=list(range(1, items_to_scan + 1)),
             disposition_choices=DISPOSITION_CHOICES,
-            changelist_url=reverse(
-                "edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist"
-            ),
         )
         return super().get_context_data(**kwargs)
 
@@ -138,6 +135,9 @@ class ReturnDispositionView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     kwargs={"return_request": return_request.pk},
                 )
             )
-        return HttpResponseRedirect(
-            reverse("edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist")
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            f"All items dispositioned for {return_request.return_identifier}.",
         )
+        return HttpResponseRedirect(reverse("edc_pharmacy:return_central_url"))
