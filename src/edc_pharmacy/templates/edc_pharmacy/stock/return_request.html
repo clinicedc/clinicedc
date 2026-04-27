@@ -128,6 +128,10 @@
                     {% else %}
                     <p class="text-muted">No completed return requests.</p>
                     {% endif %}
+                    {% if completed_returns %}
+                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist" %}"
+                       class="text-muted small">more &hellip;</a>
+                    {% endif %}
                 </div>
             </div>
 
