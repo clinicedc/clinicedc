@@ -44,8 +44,13 @@ class StockAdjustmentView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
     navbar_selected_item = "pharmacy"
 
     def get_context_data(self, **kwargs):
+        last_code = self.request.GET.get("last_code", "").strip().upper()
+        ledger_base = reverse("edc_pharmacy:ledger_url")
+        last_ledger_url = f"{ledger_base}?q={last_code}" if last_code else ""
         kwargs.update(
             status_adjustment_types=STATUS_ADJUSTMENT_TYPES,
+            last_code=last_code,
+            last_ledger_url=last_ledger_url,
         )
         return super().get_context_data(**kwargs)
 
@@ -152,4 +157,6 @@ class StockAdjustmentView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
         except InvalidTransitionError as e:
             messages.error(request, str(e))
 
-        return HttpResponseRedirect(reverse("edc_pharmacy:stock_adjustments_url"))
+        return HttpResponseRedirect(
+            reverse("edc_pharmacy:stock_adjustments_url") + f"?last_code={code}#qty-adjustment"
+        )

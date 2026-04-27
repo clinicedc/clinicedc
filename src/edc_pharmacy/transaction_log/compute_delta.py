@@ -271,6 +271,15 @@ def _compute_return_disposition_destroyed(current: CurrentState, **_) -> StateDe
 
 
 def _compute_adjusted(current: CurrentState, *, unit_qty_delta: Decimal, **_) -> StateDelta:
+    if unit_qty_delta < 0:
+        available = current.unit_qty_in - current.unit_qty_out
+        if abs(unit_qty_delta) > available:
+            return StateDelta(
+                preconditions_failed=(
+                    f"adjustment of {unit_qty_delta} exceeds available units "
+                    f"({available} remaining)",
+                )
+            )
     return StateDelta(unit_qty_delta=unit_qty_delta)
 
 

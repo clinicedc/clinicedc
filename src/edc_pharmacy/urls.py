@@ -3,6 +3,7 @@ from django.urls import path
 from .admin_site import edc_pharmacy_admin
 from .views import (
     AddToStorageBinView,
+    BulkStockReportView,
     AllocateToSubjectView,
     CeleryTaskStatusView,
     ConfirmaAtLocationView,
@@ -18,6 +19,7 @@ from .views import (
     ReturnReceiveView,
     ReturnRequestView,
     StockAdjustmentView,
+    StockTransferHomeView,
     TransferStockView,
     get_stock_transfers_view,
     print_return_manifest_view,
@@ -87,6 +89,11 @@ urlpatterns = [
         "allocate/<uuid:stock_request>/",
         AllocateToSubjectView.as_view(),
         name="allocate_url",
+    ),
+    path(
+        "stock-transfer/",
+        StockTransferHomeView.as_view(),
+        name="stock_transfer_home_url",
     ),
     path(
         "transfer-stock/<uuid:stock_transfer>/",
@@ -199,6 +206,11 @@ urlpatterns = [
         "return-disposition/",
         ReturnDispositionView.as_view(),
         name="return_disposition_url",
+    ),
+    path(
+        "bulk-stock-report/",
+        BulkStockReportView.as_view(),
+        name="bulk_stock_report_url",
     ),
     # ───────────────────────────────────────────────────────────────────────
     path("admin/", edc_pharmacy_admin.urls),

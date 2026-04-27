@@ -8,6 +8,8 @@ deeper filtering/export.
 
 from __future__ import annotations
 
+from decimal import Decimal
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -36,6 +38,8 @@ class LedgerView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateVi
         q = self.request.GET.get("q", "").strip()
         transactions = []
         truncated = False
+        qty_total = Decimal("0")
+        unit_qty_total = Decimal("0")
 
         if q:
             qs = StockTransaction.objects.filter(
@@ -48,13 +52,24 @@ class LedgerView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateVi
                 "actor",
                 "from_location",
                 "to_location",
-                "from_allocation__registered_subject",
-                "to_allocation__registered_subject",
+                "from_allocation",
+                "to_allocation",
             ).order_by("-transaction_datetime").distinct()
 
             total = qs.count()
             truncated = total > MAX_ROWS
-            transactions = list(qs[:MAX_ROWS])
+
+            # Build row dicts and accumulate totals.
+            # Priority: to_allocation → from_allocation → stock.subject_identifier.
+            for txn in qs[:MAX_ROWS]:
+                alloc = txn.to_allocation or txn.from_allocation
+                if alloc and alloc.subject_identifier:
+                    subject_identifier = alloc.subject_identifier
+                else:
+                    subject_identifier = txn.stock.subject_identifier or ""
+                qty_total += txn.qty_delta or Decimal("0")
+                unit_qty_total += txn.unit_qty_delta or Decimal("0")
+                transactions.append({"txn": txn, "subject_identifier": subject_identifier})
 
         # Build the admin changelist URL, optionally pre-filtered.
         admin_url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransaction_changelist")
@@ -67,5 +82,7 @@ class LedgerView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateVi
             truncated=truncated,
             max_rows=MAX_ROWS,
             admin_url=admin_url,
+            qty_total=qty_total,
+            unit_qty_total=unit_qty_total,
         )
         return super().get_context_data(**kwargs)

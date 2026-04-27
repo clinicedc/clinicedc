@@ -67,12 +67,16 @@ def _txn(
         dt,
         *,
         actor=None,
+        username: str = "",
         from_location_id=None,
         to_location_id=None,
         qty_delta: Decimal = Decimal("0"),
         unit_qty_delta: Decimal = Decimal("0"),
         **fk_kwargs,
 ) -> StockTransaction:
+    # Use the explicit username string when provided (even if actor is None
+    # because the User account no longer exists in the DB).
+    effective_username = username or (actor.username if actor else "")
     return StockTransaction(
         stock=stock,
         transaction_type=txn_type,
@@ -86,6 +90,8 @@ def _txn(
         from_location_id=from_location_id or stock.location_id,
         to_location_id=to_location_id or stock.location_id,
         state_after=_BOOTSTRAPPED,
+        user_created=effective_username,
+        user_modified=effective_username,
         **fk_kwargs,
     )
 
@@ -93,7 +99,15 @@ def _txn(
 def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
     """Return unsaved StockTransaction instances for a single stock."""
     rows: list[StockTransaction] = []
-    actor = _resolve_actor(stock.user_modified or stock.user_created, actor_cache)
+
+    # raw_username is the string stored on the model — kept even when the User
+    # account no longer exists so that user_created/user_modified are populated.
+    raw_username = stock.user_modified or stock.user_created or ""
+    actor = _resolve_actor(raw_username, actor_cache)
+
+    def t(txn_type, dt, *, actor=actor, username=raw_username, **kw):
+        """Shorthand: call _txn with stock, raw_username and defaults bound."""
+        return _txn(stock, txn_type, dt, actor=actor, username=username, **kw)
 
     # Resolve allocation — stock.current_allocation is None for dispensed/ended stocks,
     # but Allocation.code == stock.code so the record is still recoverable.
@@ -104,59 +118,38 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
     # RECEIVED — qty_in=+1, unit_qty_in=+container_unit_qty.
     if stock.confirmed:
         dt = stock.confirmed_datetime or stock.stock_datetime
-        rows.append(
-            _txn(
-                stock,
-                TXN_RECEIVED,
-                dt,
-                actor=actor,
-                qty_delta=Decimal("1"),
-                unit_qty_delta=stock.container_unit_qty or Decimal("0"),
-            )
-        )
+        rows.append(t(
+            TXN_RECEIVED, dt,
+            qty_delta=Decimal("1"),
+            unit_qty_delta=stock.container_unit_qty or Decimal("0"),
+        ))
 
     # ALLOCATED
     if allocation is not None:
-        rows.append(
-            _txn(
-                stock,
-                TXN_ALLOCATED,
-                allocation.allocation_datetime,
-                actor=actor,
-                to_allocation=allocation,
-            )
-        )
+        rows.append(t(TXN_ALLOCATED, allocation.allocation_datetime, to_allocation=allocation))
 
     # TRANSFER_DISPATCHED — one row per transfer (stock may have been transferred
     # more than once, e.g. central → site → central → site).
     for sti in stock.stocktransferitem_set.all():
-        rows.append(
-            _txn(
-                stock,
-                TXN_TRANSFER_DISPATCHED,
-                sti.transfer_item_datetime,
-                actor=actor,
-                from_location_id=sti.stock_transfer.from_location_id,
-                to_location_id=sti.stock_transfer.to_location_id,
-                stock_transfer_item=sti,
-                to_allocation=allocation,
-            )
-        )
+        rows.append(t(
+            TXN_TRANSFER_DISPATCHED,
+            sti.transfer_item_datetime,
+            from_location_id=sti.stock_transfer.from_location_id,
+            to_location_id=sti.stock_transfer.to_location_id,
+            stock_transfer_item=sti,
+            to_allocation=allocation,
+        ))
 
     # TRANSFER_RECEIVED
     try:
         cali: ConfirmationAtLocationItem = stock.confirmationatlocationitem
-        rows.append(
-            _txn(
-                stock,
-                TXN_TRANSFER_RECEIVED,
-                cali.confirmed_datetime or cali.transfer_confirmation_item_datetime,
-                actor=actor,
-                to_location_id=cali.confirm_at_location.location_id,
-                stock_transfer_item=cali.stock_transfer_item,
-                to_allocation=allocation,
-            )
-        )
+        rows.append(t(
+            TXN_TRANSFER_RECEIVED,
+            cali.confirmed_datetime or cali.transfer_confirmation_item_datetime,
+            to_location_id=cali.confirm_at_location.location_id,
+            stock_transfer_item=cali.stock_transfer_item,
+            to_allocation=allocation,
+        ))
     except ConfirmationAtLocationItem.DoesNotExist:
         pass
 
@@ -178,58 +171,61 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
     if stored_dt is None and stock.stored_at_location:
         stored_dt = stock.stock_datetime
     if stored_dt is not None:
-        rows.append(_txn(stock, TXN_STORED, stored_dt, actor=actor, to_allocation=allocation))
+        rows.append(t(TXN_STORED, stored_dt, to_allocation=allocation))
 
     # DISPENSED — also covers historical stocks where DispenseItem was deleted.
     has_dispense_item = False
     try:
         di: DispenseItem = stock.dispenseitem
         has_dispense_item = True
-        rows.append(
-            _txn(
-                stock,
-                TXN_DISPENSED,
-                di.dispense_item_datetime,
-                actor=actor,
-                qty_delta=Decimal("-1"),
-                unit_qty_delta=-(stock.container_unit_qty or Decimal("0")),
-                dispense_item=di,
-                from_allocation=allocation,
-            )
-        )
+        rows.append(t(
+            TXN_DISPENSED,
+            di.dispense_item_datetime,
+            qty_delta=Decimal("-1"),
+            unit_qty_delta=-(stock.container_unit_qty or Decimal("0")),
+            dispense_item=di,
+            from_allocation=allocation,
+        ))
     except DispenseItem.DoesNotExist:
         pass
     if stock.dispensed and not has_dispense_item:
-        rows.append(
-            _txn(
-                stock,
-                TXN_DISPENSED,
-                stock.stock_datetime,
-                actor=actor,
-                qty_delta=Decimal("-1"),
-                unit_qty_delta=-(stock.container_unit_qty or Decimal("0")),
-                from_allocation=allocation,
-            )
-        )
+        rows.append(t(
+            TXN_DISPENSED,
+            stock.stock_datetime,
+            qty_delta=Decimal("-1"),
+            unit_qty_delta=-(stock.container_unit_qty or Decimal("0")),
+            from_allocation=allocation,
+        ))
 
     # REPACK_CONSUMED — sum unit_qty_in across child stocks via the RepackRequest
     # bridge (repack_request__from_stock=stock).  This is more reliable than
     # filtering on Stock.from_stock directly: that FK may be NULL on older records
     # where the field was added after the repack was processed.
     consumed_unit_qty = (
-                            Stock.objects.filter(repack_request__from_stock=stock)
-                            .aggregate(total=Sum("unit_qty_in"))["total"]
-                        ) or Decimal("0")
+        Stock.objects.filter(repack_request__from_stock=stock)
+        .aggregate(total=Sum("unit_qty_in"))["total"]
+    ) or Decimal("0")
     if consumed_unit_qty > 0:
-        rows.append(
-            _txn(
-                stock,
-                TXN_REPACK_CONSUMED,
-                stock.stock_datetime,
-                actor=actor,
-                unit_qty_delta=-consumed_unit_qty,
+        # Prefer the user who processed the repack over the generic stock actor.
+        # RepackRequest.user_modified is set by process_repack_request().
+        rr = stock.repack_requests.order_by("-modified").first()
+        rr_raw = ""
+        rr_actor = actor
+        repack_dt = stock.stock_datetime
+        if rr is not None:
+            rr_raw = (
+                getattr(rr, "user_modified", "") or getattr(rr, "user_created", "") or ""
             )
-        )
+            if rr_raw:
+                rr_actor = _resolve_actor(rr_raw, actor_cache) or actor
+            repack_dt = rr.repack_datetime or stock.stock_datetime
+        rows.append(t(
+            TXN_REPACK_CONSUMED,
+            repack_dt,
+            actor=rr_actor,
+            username=rr_raw or raw_username,
+            unit_qty_delta=-consumed_unit_qty,
+        ))
 
     # Sort by datetime so the ledger reads chronologically.
     rows.sort(key=lambda r: r.transaction_datetime)
@@ -299,14 +295,14 @@ class Command(BaseCommand):
                 # that caused bootstrap to skip the stock entirely on a previous run.
                 if stock.confirmed and stock.pk not in already_have_received:
                     dt = stock.confirmed_datetime or stock.stock_datetime
-                    actor = _resolve_actor(
-                        stock.user_modified or stock.user_created, actor_cache
-                    )
+                    raw_username = stock.user_modified or stock.user_created or ""
+                    actor = _resolve_actor(raw_username, actor_cache)
                     row = _txn(
                         stock,
                         TXN_RECEIVED,
                         dt,
                         actor=actor,
+                        username=raw_username,
                         qty_delta=Decimal("1"),
                         unit_qty_delta=stock.container_unit_qty or Decimal("0"),
                     )

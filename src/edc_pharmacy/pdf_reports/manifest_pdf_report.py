@@ -43,7 +43,12 @@ class ManifestReport(Report):
 
     @property
     def queryset(self):
-        return self.stock_transfer.stocktransferitem_set.all().order_by(
+        return self.stock_transfer.stocktransferitem_set.select_related(
+            "stock__current_allocation__registered_subject",
+            "stock__product__formulation",
+        ).prefetch_related(
+            "stock__allocations",
+        ).order_by(
             "stock__current_allocation__registered_subject__subject_identifier"
         )
 
@@ -168,9 +173,24 @@ class ManifestReport(Report):
             barcode = code128.Code128(
                 stock_transfer_item.stock.code, barHeight=5 * mm, barWidth=0.7, gap=1.7
             )
-            subject_identifier = (
-                stock_transfer_item.stock.current_allocation.registered_subject.subject_identifier
-            )
+            stock = stock_transfer_item.stock
+            alloc = stock.current_allocation
+            if alloc:
+                subject_identifier = alloc.registered_subject.subject_identifier
+            elif stock.subject_identifier:
+                # Preserved on dispense via _compute_dispensed (intentional).
+                subject_identifier = stock.subject_identifier
+            else:
+                # Bootstrapped items: allocation record still exists but
+                # current_allocation is None and subject_identifier was never
+                # written to the Stock row.  Recover from the most recent
+                # Allocation row (prefetched above).
+                past_alloc = sorted(
+                    stock.allocations.all(),
+                    key=lambda a: a.allocation_datetime,
+                    reverse=True,
+                )
+                subject_identifier = past_alloc[0].subject_identifier if past_alloc else "—"
             formulation = stock_transfer_item.stock.product.formulation
             description = f"{formulation.imp_description} "
             style = ParagraphStyle(

@@ -1,64 +1,145 @@
 {% extends edc_base_template %}
-
 {% load static %}
 
 {% block main %}
     {{ block.super }}
     <div class="container">
-        <div class="col-sm-4"></div>
-        <div class="col-sm-4">
-            <div style="padding:10px">
-                <a href="{% url "edc_pharmacy_admin:index" %}">Edc Pharmacy</a> >
-                <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stocktransfer_changelist" %}">Stock Transfer</a> >
-                <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stocktransfer_changelist" %}?q={{ stock_transfer.transfer_identifier }}">{{ stock_transfer.transfer_identifier }}</a>
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:stock_transfer_home_url" %}">Transfer stock to site</a> &rsaquo;
+                {{ stock_transfer.transfer_identifier }}
             </div>
+
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    {% if from_location and to_location %}Transfer stock from {{ from_location.display_name }} to
-                        {{ to_location.display_name }}{% else %}Transfer stock to site{% endif %}</div>
+                    <strong>Scan items to transfer</strong>
+                    &mdash;
+                    {{ stock_transfer.from_location.display_name }}
+                    &nbsp;&rsaquo;&rsaquo;&nbsp;
+                    {{ stock_transfer.to_location.display_name }}
+                </div>
                 <div class="panel-body">
-                    <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;">
+
+                    {# ── Progress ─────────────────────────────────── #}
+                    <p class="text-muted small" style="margin-bottom:10px;">
+                        Transfer <strong>{{ stock_transfer.transfer_identifier }}</strong>:
+                        <strong>{{ transferred_count }}</strong> of
+                        <strong>{{ stock_transfer.item_count }}</strong> scanned
+                        {% if transferred_count < stock_transfer.item_count %}
+                            &mdash; <strong>{{ remaining_count }}</strong> remaining
+                        {% else %}
+                            &mdash; <span class="label label-success">Complete</span>
+                        {% endif %}
+                    </p>
+
+                    {# ── Scan input ────────────────────────────────── #}
+                    <div class="input-group" style="max-width:360px; margin-bottom:10px;">
+                        <input type="text" id="scan-input"
+                               class="form-control"
+                               placeholder="Scan stock code"
+                               autocomplete="off" autofocus
+                               pattern="[A-Z0-9]+"
+                               onkeydown="if(event.key==='Enter'){event.preventDefault();addCode();}">
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" onclick="addCode()">Add</button>
+                        </span>
+                    </div>
+
+                    {# ── Pending codes list ────────────────────────── #}
+                    <div id="code-list-container" style="margin-bottom:12px; display:none;">
+                        <p class="text-muted small">
+                            <span id="code-counter" class="badge">0</span>
+                            code(s) pending — will be transferred on submit
+                        </p>
+                        <ul id="code-list" class="list-unstyled" style="column-count:3; margin-bottom:6px;"></ul>
+                    </div>
+
+                    {# ── Submit form ───────────────────────────────── #}
+                    <form id="transfer-form" method="post" action="">
                         {% csrf_token %}
-                        <div class="form-group">
-                            {% if stock_transfer %}
-                                {% for i in item_count %}
-                                    <label class="control-label col-sm-3" for="codes">{{ forloop.counter }}.</label>
-                                    <div class="col-sm-9">
-                                        <input type="text" class="form-control" id="codes" name="codes" placeholder="stock # {{ i }} " value="" pattern="[A-Z0-9]{6}" required autofocus>
-                                    </div>
-                                {% endfor %}
-                                <input type="hidden" class="form-control" id="stock_transfer" name="stock_transfer" value="{{ stock_transfer.id }}">
-
-                            {% else %}
-
-                                <div class="col-sm-12">
-                                    <label class="control-label" for="from_location">From</label>
-                                    <select class="form-control" id="from_location" name="from_location" required autofocus>
-                                        <option value="" selected> -----</option>
-                                        {% for from_location in from_locations %}
-                                            <option value="{{ from_location.id }}">{{ from_location.display_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <label class="control-label" for="to_location">To</label>
-                                    <select class="form-control" id="to_location" name="to_location" required>
-                                        <option value="" selected> -----</option>
-                                        {% for to_location in to_locations %}
-                                            <option value="{{ to_location.id }}">{{ to_location.site.id }}. {{ to_location.display_name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    <label class="control-label" for="stock_count">Number of stock items</label>
-                                    <input type="text" class="form-control" id="stock_count" name="stock_count" placeholder="" value="" pattern="[0-9]{1,4}" required>
-                                </div>
-                            {% endif %}
-                            <div class="col-sm-12">
-                                <button type="submit" class="btn btn-default" name="submit" id="submit">Submit</button>
-                            </div>
-                        </div>
+                        <div id="hidden-codes"></div>
+                        <button type="submit" id="submit-btn" class="btn btn-primary" disabled>
+                            Transfer <span id="submit-counter">0</span> item(s)
+                        </button>
+                        <a href="{% url "edc_pharmacy:stock_transfer_home_url" %}"
+                           class="btn btn-default" style="margin-left:8px;">
+                            Done
+                        </a>
                     </form>
-                    <button class="btn btn-default" name="done" id="done" onclick="window.location.href='{{ source_changelist_url }}'">Done</button>
+
                 </div>
             </div>
+
+            {# ── Django messages ───────────────────────────────────── #}
+            {% if messages %}
+            <div style="margin-top:10px;">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:"info" }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
         </div>
-        <div class="col-sm-4"></div>
+        <div class="col-sm-2"></div>
     </div>
+
+    <script>
+    (function () {
+        var codes = [];
+
+        window.addCode = function () {
+            var inp = document.getElementById('scan-input');
+            var raw = inp.value.trim().toUpperCase();
+            inp.value = '';
+            inp.focus();
+            if (!raw) return;
+            if (codes.indexOf(raw) !== -1) {
+                alert('Code ' + raw + ' already in list.');
+                return;
+            }
+            codes.push(raw);
+            render();
+        };
+
+        window.removeCode = function (code) {
+            codes = codes.filter(function (c) { return c !== code; });
+            render();
+        };
+
+        function render() {
+            var list = document.getElementById('code-list');
+            var hidden = document.getElementById('hidden-codes');
+            var counter = document.getElementById('code-counter');
+            var submitCounter = document.getElementById('submit-counter');
+            var submitBtn = document.getElementById('submit-btn');
+            var container = document.getElementById('code-list-container');
+
+            list.innerHTML = '';
+            hidden.innerHTML = '';
+
+            codes.forEach(function (c) {
+                var li = document.createElement('li');
+                li.innerHTML = '<code>' + c + '</code> '
+                    + '<a href="#" onclick="removeCode(\'' + c + '\'); return false;"'
+                    + ' style="color:#c00; font-size:0.85em;">&times;</a>';
+                list.appendChild(li);
+
+                var inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'codes';
+                inp.value = c;
+                hidden.appendChild(inp);
+            });
+
+            var n = codes.length;
+            counter.textContent = n;
+            submitCounter.textContent = n;
+            submitBtn.disabled = (n === 0);
+            container.style.display = (n > 0) ? 'block' : 'none';
+        }
+    })();
+    </script>
 {% endblock main %}

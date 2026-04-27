@@ -1,4 +1,5 @@
 from .add_to_storage_bin_view import AddToStorageBinView
+from .bulk_stock_report_view import BulkStockReportView
 from .allocate_to_subject_view import AllocateToSubjectView
 from .celery_task_status_view import CeleryTaskStatusView
 from .confirm_at_location_view import ConfirmaAtLocationView
@@ -18,4 +19,5 @@ from .stock_adjustment_view import StockAdjustmentView
 from .return_disposition_view import ReturnDispositionView
 from .return_receive_view import ReturnReceiveView
 from .return_request_view import ReturnRequestView
+from .stock_transfer_home_view import StockTransferHomeView
 from .transfer_stock_view import TransferStockView

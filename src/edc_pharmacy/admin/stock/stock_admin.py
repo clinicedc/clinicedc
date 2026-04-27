@@ -304,7 +304,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         txn = obj.transactions.order_by("-transaction_datetime").first()
         if txn:
             local_dt = to_local(txn.transaction_datetime)
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransaction_changelist")
+            url = reverse("edc_pharmacy:ledger_url")
             url = f"{url}?q={obj.code}"
             return format_html(
                 '<a href="{}">{}</a><br><small style="color:#6c757d">{}</small>',

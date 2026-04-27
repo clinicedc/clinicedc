@@ -45,7 +45,7 @@ def transfer_stock_to_location(
         opts = dict(
             code=stock_code,
             confirmation__isnull=False,
-            allocation__registered_subject__isnull=False,
+            current_allocation__registered_subject__isnull=False,
             location=stock_transfer.from_location,
         )
         try:
@@ -55,11 +55,11 @@ def transfer_stock_to_location(
         else:
             if stock_transfer.to_location.name == CENTRAL_LOCATION:
                 opts.update(
-                    allocation__registered_subject__site=stock_transfer.from_location.site,
+                    current_allocation__registered_subject__site=stock_transfer.from_location.site,
                 )
             else:
                 opts.update(
-                    allocation__registered_subject__site=stock_transfer.to_location.site
+                    current_allocation__registered_subject__site=stock_transfer.to_location.site
                 )
             try:
                 stock_obj = stock_model_cls.objects.get(**opts)

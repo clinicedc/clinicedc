@@ -1,11 +1,31 @@
 {% extends edc_base_template %}
 {% load static %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    <script>
+        $(document).ready(function() {
+            $('#ledger_table').DataTable({
+                order: [[4, 'desc']],
+                pageLength: 25,
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block main %}
     {{ block.super }}
     <div class="container">
-        <div class="col-sm-1"></div>
-        <div class="col-sm-10">
+        <div class="col-sm-12">
             <div style="padding:10px">
                 <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
                 Stock Transaction Ledger
@@ -36,11 +56,12 @@
                     <p class="text-muted small">{{ transactions|length }} transaction{{ transactions|length|pluralize }} found.</p>
                     {% endif %}
 
-                    <table class="table table-condensed table-hover">
+                    <table id="ledger_table" class="table table-condensed table-hover">
                         <thead>
                             <tr>
                                 <th>Transaction</th>
                                 <th>Stock #</th>
+                                <th>Subject</th>
                                 <th>Type</th>
                                 <th>Date</th>
                                 <th>Actor</th>
@@ -52,7 +73,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for txn in transactions %}
+                            {% for row in transactions %}
+                            {% with txn=row.txn %}
                             <tr>
                                 <td>
                                     <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stocktransaction_change" txn.pk %}">
@@ -64,8 +86,17 @@
                                         <code>{{ txn.stock.code }}</code>
                                     </a>
                                 </td>
+                                <td style="white-space:nowrap;">
+                                    {% if row.subject_identifier %}
+                                        <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ row.subject_identifier }}">
+                                            {{ row.subject_identifier }}
+                                        </a>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
                                 <td>{{ txn.get_transaction_type_display|default:txn.transaction_type }}</td>
-                                <td style="white-space:nowrap;">{{ txn.transaction_datetime|date:"d-M-Y" }}</td>
+                                <td style="white-space:nowrap;" data-order="{{ txn.transaction_datetime|date:"Y-m-d H:i:s" }}">{{ txn.transaction_datetime|date:"d-M-Y H:i" }}</td>
                                 <td>{{ txn.actor.username|default:"—" }}</td>
                                 <td>{{ txn.from_location.display_name|default:"—" }}</td>
                                 <td>{{ txn.to_location.display_name|default:"—" }}</td>
@@ -73,12 +104,23 @@
                                 <td>{{ txn.unit_qty_delta }}</td>
                                 <td>{{ txn.reason|default:"—" }}</td>
                             </tr>
+                            {% endwith %}
                             {% endfor %}
                         </tbody>
+                        <tfoot>
+                            <tr style="font-weight:bold; border-top:2px solid #ddd;">
+                                <td colspan="8" style="text-align:right;">Total</td>
+                                <td>{{ qty_total }}</td>
+                                <td>{{ unit_qty_total }}</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     </table>
 
                     <p style="margin-top:8px;">
                         <a href="{{ admin_url }}">View in admin (export, filter, sort) &rsaquo;</a>
+                        &nbsp;&nbsp;
+                        <a href="{% url "edc_pharmacy:stock_adjustments_url" %}">Stock adjustments &rsaquo;</a>
                     </p>
 
                 {% else %}
@@ -95,6 +137,5 @@
             {% endif %}
 
         </div>
-        <div class="col-sm-1"></div>
     </div>
 {% endblock main %}
