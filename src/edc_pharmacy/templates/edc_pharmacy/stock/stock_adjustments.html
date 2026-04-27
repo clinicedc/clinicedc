@@ -36,6 +36,9 @@
                         </div>
 
                         {# Accumulated code badges #}
+                        <div style="margin-bottom:4px;">
+                            <span id="codes_counter" class="text-muted small">0 codes scanned</span>
+                        </div>
                         <div id="codes_display" style="margin-bottom:8px;min-height:28px;">
                             <span class="text-muted small" id="no_codes_msg">No codes scanned yet.</span>
                         </div>
@@ -140,9 +143,14 @@
             var display = document.getElementById('codes_display');
             var container = document.getElementById('hidden_codes_container');
             var noMsg = document.getElementById('no_codes_msg');
+            var counter = document.getElementById('codes_counter');
+            var n = scannedCodes.length;
+            counter.textContent = n === 0 ? '0 codes scanned'
+                : n === 1 ? '1 code scanned'
+                : n + ' codes scanned';
             display.innerHTML = '';
             container.innerHTML = '';
-            if (scannedCodes.length === 0) {
+            if (n === 0) {
                 display.appendChild(noMsg);
                 return;
             }
