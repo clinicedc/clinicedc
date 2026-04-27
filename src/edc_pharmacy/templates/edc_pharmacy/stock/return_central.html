@@ -83,6 +83,41 @@
                 </div>
             </div>
 
+            {# ─── Panel 3: Recent Dispositions ────────────────────────── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">Recent Dispositions</div>
+                <div class="panel-body">
+                    {% if recent_dispositions %}
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>From</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rr in recent_dispositions %}
+                            <tr>
+                                <td>{{ rr.return_identifier }}</td>
+                                <td>{{ rr.from_location.display_name }}</td>
+                                <td>{{ rr.return_datetime|date:"d-M-Y" }}</td>
+                                <td>{{ rr.returnitem_set.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if recent_dispositions %}
+                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist" %}"
+                       class="small">more &hellip;</a>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-muted">No dispositions yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
         </div>
         <div class="col-sm-2"></div>
     </div>

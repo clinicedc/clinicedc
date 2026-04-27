@@ -51,8 +51,17 @@ class ReturnCentralView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             .distinct()
             .order_by("-return_datetime")
         )
+        # Recently completed dispositions: have items, not still pending.
+        recent_dispositions = (
+            ReturnRequest.objects.filter(returnitem__isnull=False)
+            .exclude(pk__in=pending_disposition.values("pk"))
+            .exclude(returnitem__stock__in_transit=True)
+            .distinct()
+            .order_by("-return_datetime")[:5]
+        )
         kwargs.update(
             pending_receipts=pending_receipts,
             pending_disposition=pending_disposition,
+            recent_dispositions=recent_dispositions,
         )
         return super().get_context_data(**kwargs)
