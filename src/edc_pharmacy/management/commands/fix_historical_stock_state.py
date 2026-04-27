@@ -31,6 +31,18 @@ Five classes of inconsistency are corrected:
    TXN_REPACK_CONSUMED with ``qty_delta=0``.  Fix: set ``qty_delta=-1`` on
    those rows.
 
+6. **Bulk stock at non-central location** — bulk containers (from_stock=None,
+   repack_request=None) can only ever be at central.  Fix: set location to
+   central for any that have drifted.
+
+7. **Repacked child stock at wrong location** — child bottles created by
+   ``process_repack_request`` inherit ``from_stock.location``.  Since repack
+   can only happen at central, any child that has not yet been transferred
+   (in_transit=False, confirmed_at_location=False, stored_at_location=False,
+   dispensed=False) must be at central.  Fix: update location to central for
+   those rows.  Items that have already been through a transfer are untouched
+   because ``apply_transaction`` already corrected their location.
+
 This command is idempotent.  Re-running it is safe.
 
 Exit codes
@@ -46,8 +58,9 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from ...constants import TXN_REPACK_CONSUMED, TXN_RECEIVED, ZERO_ITEM
+from ...constants import CENTRAL_LOCATION, TXN_REPACK_CONSUMED, TXN_RECEIVED, ZERO_ITEM
 from ...models import Stock, StockTransaction
+from ...models.stock.location import Location
 
 
 class Command(BaseCommand):
@@ -75,6 +88,8 @@ class Command(BaseCommand):
         errors += self._fix_repack_consumed(dry_run)
         errors += self._fix_repack_consumed_qty_delta(dry_run)
         errors += self._mark_invalid_stocks(dry_run)
+        errors += self._fix_bulk_stock_location(dry_run)
+        errors += self._fix_repack_child_location(dry_run)
 
         if errors:
             raise SystemExit(1)
@@ -343,6 +358,88 @@ class Command(BaseCommand):
                 with transaction.atomic():
                     updated = qs.update(invalid_state=True)
                 self.stdout.write(self.style.SUCCESS(f"  Flagged {updated} rows."))
+            except Exception as exc:
+                self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))
+                return 1
+        return 0
+
+    # ------------------------------------------------------------------
+    # Fix 8: bulk stock (from_stock=None) at non-central location
+    # ------------------------------------------------------------------
+
+    def _fix_bulk_stock_location(self, dry_run: bool) -> int:
+        """Bulk stock can never be at a site — always at central.
+
+        Stock items received directly (from_stock=None, repack_request=None)
+        are bulk containers held at central.  If any ended up with a non-central
+        location (due to data migration issues or signal bugs), correct them.
+        """
+        try:
+            central_location = Location.objects.get(name=CENTRAL_LOCATION)
+        except Location.DoesNotExist:
+            self.stderr.write(self.style.ERROR("[bulk_location] Central location not found."))
+            return 1
+
+        qs = Stock.objects.filter(
+            from_stock__isnull=True,
+            repack_request__isnull=True,
+        ).exclude(location=central_location)
+
+        count = qs.count()
+        self.stdout.write(
+            f"[bulk_location] {count} bulk stocks with non-central location "
+            f"({'dry-run' if dry_run else 'will update'})"
+        )
+        if count and not dry_run:
+            try:
+                with transaction.atomic():
+                    updated = qs.update(location=central_location)
+                self.stdout.write(self.style.SUCCESS(f"  Updated {updated} rows."))
+            except Exception as exc:
+                self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))
+                return 1
+        return 0
+
+    # ------------------------------------------------------------------
+    # Fix 9: repacked child stock still at central with wrong location
+    # ------------------------------------------------------------------
+
+    def _fix_repack_child_location(self, dry_run: bool) -> int:
+        """Repacked children not yet transferred must be at central.
+
+        Child stock items (repack_request not null) are created at central
+        and only leave via a stock transfer.  Items that have not yet been
+        transferred (in_transit=False, confirmed_at_location=False,
+        stored_at_location=False, dispensed=False) must have the central
+        location.  Items that have been through a transfer already had their
+        location updated by apply_transaction and are left unchanged.
+        """
+        try:
+            central_location = Location.objects.get(name=CENTRAL_LOCATION)
+        except Location.DoesNotExist:
+            self.stderr.write(
+                self.style.ERROR("[repack_child_location] Central location not found.")
+            )
+            return 1
+
+        qs = Stock.objects.filter(
+            repack_request__isnull=False,
+            in_transit=False,
+            confirmed_at_location=False,
+            stored_at_location=False,
+            dispensed=False,
+        ).exclude(location=central_location)
+
+        count = qs.count()
+        self.stdout.write(
+            f"[repack_child_location] {count} repacked child stocks with wrong location "
+            f"({'dry-run' if dry_run else 'will update'})"
+        )
+        if count and not dry_run:
+            try:
+                with transaction.atomic():
+                    updated = qs.update(location=central_location)
+                self.stdout.write(self.style.SUCCESS(f"  Updated {updated} rows."))
             except Exception as exc:
                 self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))
                 return 1
