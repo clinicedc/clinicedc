@@ -144,7 +144,36 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
                 )
             )
 
-        # --- Phase 2: dispatch stock codes on an existing ReturnRequest ---
+        # --- Phase 2a: update the expected item count ---
+        if request.POST.get("update_item_count"):
+            try:
+                new_count = int(request.POST.get("item_count", 0))
+                dispatched_count = return_request.returnitem_set.count()
+                if new_count < dispatched_count:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        f"Cannot set count to {new_count}: "
+                        f"{dispatched_count} item(s) already dispatched.",
+                    )
+                else:
+                    return_request.item_count = new_count
+                    return_request.save(update_fields=["item_count"])
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        f"Expected count updated to {new_count}.",
+                    )
+            except (ValueError, TypeError):
+                messages.add_message(request, messages.ERROR, "Invalid item count.")
+            return HttpResponseRedirect(
+                reverse(
+                    "edc_pharmacy:return_request_url",
+                    kwargs={"return_request": return_request.pk},
+                )
+            )
+
+        # --- Phase 2b: dispatch stock codes on an existing ReturnRequest ---
         stock_codes = [c.strip().upper() for c in request.POST.getlist("codes") if c.strip()]
         if stock_codes:
             try:
