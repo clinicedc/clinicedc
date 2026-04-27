@@ -173,7 +173,9 @@ class ManifestReport(Report):
             )
             alloc = stock_transfer_item.stock.current_allocation
             subject_identifier = (
-                alloc.registered_subject.subject_identifier if alloc else "—"
+                alloc.registered_subject.subject_identifier
+                if alloc
+                else stock_transfer_item.stock.subject_identifier or "—"
             )
             formulation = stock_transfer_item.stock.product.formulation
             description = f"{formulation.imp_description} "
