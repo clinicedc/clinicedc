@@ -107,7 +107,29 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
     def post(self, request, *args, **kwargs):  # noqa: ARG002
         return_request = self._get_return_request()
 
-        # --- Phase 1: create a new ReturnRequest and flag codes ---
+        # --- Phase 1a: delete an empty ReturnRequest ---
+        if not return_request and request.POST.get("delete_pk"):
+            try:
+                rr = ReturnRequest.objects.get(pk=request.POST["delete_pk"])
+                if rr.returnitem_set.exists():
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        f"Cannot delete {rr.return_identifier}: items already dispatched.",
+                    )
+                else:
+                    identifier = rr.return_identifier
+                    rr.delete()
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        f"Return request {identifier} deleted.",
+                    )
+            except ReturnRequest.DoesNotExist:
+                messages.add_message(request, messages.ERROR, "Return request not found.")
+            return HttpResponseRedirect(reverse("edc_pharmacy:return_request_url"))
+
+        # --- Phase 1b: create a new ReturnRequest and flag codes ---
         if not return_request:
             from_location_id = request.POST.get("from_location_id")
             item_count = request.POST.get("item_count")

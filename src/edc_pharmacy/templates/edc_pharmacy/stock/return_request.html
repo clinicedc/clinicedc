@@ -82,6 +82,14 @@
                                 <td>
                                     <a href="{% url "edc_pharmacy:return_request_url" return_request=rr.pk %}"
                                        class="btn btn-xs btn-primary">Edit</a>
+                                    {% if rr.dispatched_item_count == 0 %}
+                                    <form method="post" style="display:inline;"
+                                          onsubmit="return confirm('Delete {{ rr.return_identifier }}?');">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="delete_pk" value="{{ rr.pk }}">
+                                        <button type="submit" class="btn btn-xs btn-danger">Delete</button>
+                                    </form>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
