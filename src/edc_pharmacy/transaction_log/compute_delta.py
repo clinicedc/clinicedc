@@ -196,6 +196,8 @@ def _compute_return_requested(current: CurrentState, **_) -> StateDelta:
         fail.append("return already requested")
     if current.in_transit:
         fail.append("in transit")
+    if not current.stored_at_location:
+        fail.append("not stored at location")
     if fail:
         return StateDelta(preconditions_failed=tuple(fail))
     return StateDelta(stock_fields={"return_requested": True})
