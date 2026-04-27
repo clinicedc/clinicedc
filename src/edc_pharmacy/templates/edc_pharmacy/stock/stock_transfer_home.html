@@ -1,0 +1,87 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-1"></div>
+        <div class="col-sm-10">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                Transfer stock to site
+            </div>
+
+            <div style="margin-bottom:12px;">
+                <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stocktransfer_add" %}"
+                   class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> New transfer
+                </a>
+                <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stocktransfer_changelist" %}"
+                   class="btn btn-default btn-sm" style="margin-left:6px;">
+                    Admin &rsaquo;
+                </a>
+            </div>
+
+            {% if transfers %}
+            <table class="table table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>Transfer #</th>
+                        <th>Date</th>
+                        <th>Route</th>
+                        <th style="text-align:center;">Planned</th>
+                        <th style="text-align:center;">Scanned</th>
+                        <th style="text-align:center;">Remaining</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in transfers %}
+                    {% with t=row.obj %}
+                    <tr>
+                        <td>
+                            <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stocktransfer_change" t.pk %}">
+                                {{ t.transfer_identifier }}
+                            </a>
+                        </td>
+                        <td style="white-space:nowrap;">{{ t.transfer_datetime|date:"d-M-Y" }}</td>
+                        <td style="white-space:nowrap;">
+                            {{ t.from_location.display_name }}
+                            &nbsp;&rsaquo;&rsaquo;&nbsp;
+                            {{ t.to_location.display_name }}
+                        </td>
+                        <td style="text-align:center;">{{ t.item_count }}</td>
+                        <td style="text-align:center;">{{ row.scanned_count }}</td>
+                        <td style="text-align:center;">
+                            {% if row.complete %}
+                                <span class="label label-success">Done</span>
+                            {% else %}
+                                <span class="label label-warning">{{ row.remaining }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not row.complete %}
+                                <a href="{% url "edc_pharmacy:transfer_stock_url" stock_transfer=t.pk %}"
+                                   class="btn btn-primary btn-xs">
+                                    <i class="fas fa-barcode"></i> Scan
+                                </a>
+                            {% endif %}
+                            <a href="{% url "edc_pharmacy:generate_manifest" stock_transfer=t.pk %}"
+                               class="btn btn-default btn-xs" target="_blank" style="margin-left:4px;">
+                                Manifest
+                            </a>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p class="text-muted">No stock transfers found.</p>
+            {% endif %}
+
+        </div>
+        <div class="col-sm-1"></div>
+    </div>
+{% endblock main %}

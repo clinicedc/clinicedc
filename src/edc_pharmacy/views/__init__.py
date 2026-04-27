@@ -18,4 +18,5 @@ from .stock_adjustment_view import StockAdjustmentView
 from .return_disposition_view import ReturnDispositionView
 from .return_receive_view import ReturnReceiveView
 from .return_request_view import ReturnRequestView
+from .stock_transfer_home_view import StockTransferHomeView
 from .transfer_stock_view import TransferStockView

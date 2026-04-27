@@ -43,7 +43,10 @@ class ManifestReport(Report):
 
     @property
     def queryset(self):
-        return self.stock_transfer.stocktransferitem_set.all().order_by(
+        return self.stock_transfer.stocktransferitem_set.select_related(
+            "stock__current_allocation__registered_subject",
+            "stock__product__formulation",
+        ).order_by(
             "stock__current_allocation__registered_subject__subject_identifier"
         )
 
@@ -168,8 +171,9 @@ class ManifestReport(Report):
             barcode = code128.Code128(
                 stock_transfer_item.stock.code, barHeight=5 * mm, barWidth=0.7, gap=1.7
             )
+            alloc = stock_transfer_item.stock.current_allocation
             subject_identifier = (
-                stock_transfer_item.stock.current_allocation.registered_subject.subject_identifier
+                alloc.registered_subject.subject_identifier if alloc else "—"
             )
             formulation = stock_transfer_item.stock.product.formulation
             description = f"{formulation.imp_description} "

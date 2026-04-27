@@ -18,6 +18,7 @@ from .views import (
     ReturnReceiveView,
     ReturnRequestView,
     StockAdjustmentView,
+    StockTransferHomeView,
     TransferStockView,
     get_stock_transfers_view,
     print_return_manifest_view,
@@ -87,6 +88,11 @@ urlpatterns = [
         "allocate/<uuid:stock_request>/",
         AllocateToSubjectView.as_view(),
         name="allocate_url",
+    ),
+    path(
+        "stock-transfer/",
+        StockTransferHomeView.as_view(),
+        name="stock_transfer_home_url",
     ),
     path(
         "transfer-stock/<uuid:stock_transfer>/",
