@@ -70,7 +70,7 @@
             </div>
 
             {# ─── Panel 2: Quantity Adjustment ────────────────────────── #}
-            <div class="panel panel-default">
+            <div id="qty-adjustment" class="panel panel-default">
                 <div class="panel-heading">Quantity Adjustment</div>
                 <div class="panel-body">
                     <p class="text-muted small">
@@ -83,10 +83,12 @@
 
                         <div class="form-group" style="max-width:280px;">
                             <label>Stock code</label>
-                            <input type="text" name="code" class="form-control input-sm"
+                            <input type="text" name="code" id="qty_code_input"
+                                   class="form-control input-sm"
                                    placeholder="Scan or type code"
                                    autocomplete="off" autocorrect="off"
                                    autocapitalize="characters" spellcheck="false"
+                                   value="{{ last_code }}"
                                    required>
                         </div>
 
@@ -107,6 +109,14 @@
                                 class="btn btn-primary">Apply Adjustment</button>
                         <a class="btn btn-default" style="margin-left:6px;"
                            href="{% url "edc_pharmacy:home_url" %}">Done</a>
+
+                        <div style="margin-top:10px;">
+                            <a id="qty_ledger_link"
+                               href="{% if last_ledger_url %}{{ last_ledger_url }}{% else %}#{% endif %}"
+                               style="font-size:0.9em;{% if not last_ledger_url %}display:none;{% endif %}">
+                                Last adjustment (<code id="qty_ledger_code">{{ last_code }}</code>): view in ledger &rsaquo;
+                            </a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -170,6 +180,31 @@
                 container.appendChild(hidden);
             });
         }
+
+        // Quantity Adjustment — live ledger link
+        (function() {
+            var ledgerBase = "{% url 'edc_pharmacy:ledger_url' %}";
+            var codeInput = document.getElementById('qty_code_input');
+            var link = document.getElementById('qty_ledger_link');
+            var codeLabel = document.getElementById('qty_ledger_code');
+            if (codeInput && link) {
+                function updateLink() {
+                    var code = codeInput.value.trim();
+                    if (code) {
+                        link.href = ledgerBase + '?q=' + encodeURIComponent(code);
+                        link.style.display = '';
+                        if (codeLabel) codeLabel.textContent = code;
+                    } else {
+                        link.href = '#';
+                        link.style.display = 'none';
+                    }
+                }
+                codeInput.addEventListener('input', updateLink);
+                codeInput.addEventListener('change', updateLink);
+                // Fire once on load in case the field is pre-filled (post-redirect)
+                updateLink();
+            }
+        })();
 
         // Allow Enter key to add a code
         document.getElementById('scan_input').addEventListener('keydown', function(e) {

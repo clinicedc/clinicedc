@@ -22,10 +22,11 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..models import Stock
+from .auths_view_mixin import AuthsViewMixin
 
 
 @method_decorator(login_required, name="dispatch")
-class BulkStockReportView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
+class BulkStockReportView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
     """Unit-qty in/out/balance report for bulk (non-dispensing) containers."""
 
     template_name = "edc_pharmacy/stock/bulk_stock_report.html"

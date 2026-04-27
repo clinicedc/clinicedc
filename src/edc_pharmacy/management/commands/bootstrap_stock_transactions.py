@@ -211,15 +211,17 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
         rr = stock.repack_requests.order_by("-modified").first()
         rr_raw = ""
         rr_actor = actor
+        repack_dt = stock.stock_datetime
         if rr is not None:
             rr_raw = (
                 getattr(rr, "user_modified", "") or getattr(rr, "user_created", "") or ""
             )
             if rr_raw:
                 rr_actor = _resolve_actor(rr_raw, actor_cache) or actor
+            repack_dt = rr.repack_datetime or stock.stock_datetime
         rows.append(t(
             TXN_REPACK_CONSUMED,
-            stock.stock_datetime,
+            repack_dt,
             actor=rr_actor,
             username=rr_raw or raw_username,
             unit_qty_delta=-consumed_unit_qty,
