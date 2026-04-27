@@ -18,6 +18,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count, F
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -44,10 +45,15 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
 
     def get_context_data(self, **kwargs):
         return_request = self._get_return_request()
-        pending_returns = ReturnRequest.objects.filter(
-            from_location__site=self.request.site,
-            cancel__in=["", "N/A"],
-        ).order_by("-return_datetime")
+        pending_returns = (
+            ReturnRequest.objects.filter(
+                from_location__site=self.request.site,
+                cancel__in=["", "N/A"],
+            )
+            .annotate(dispatched_item_count=Count("returnitem"))
+            .filter(dispatched_item_count__lt=F("item_count"))
+            .order_by("-return_datetime")
+        )
 
         dispatched_count = 0
         remaining_count = 0
