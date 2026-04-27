@@ -8,7 +8,7 @@
         <div class="col-sm-8">
             <div style="padding:10px">
                 <a href="{% url "edc_pharmacy_admin:index" %}">Edc Pharmacy</a> &rsaquo;
-                <a href="{{ changelist_url }}">Return Requests</a>
+                <a href="{% url "edc_pharmacy:return_request_url" %}">Return Requests</a>
                 {% if return_request %}&rsaquo; {{ return_request.return_identifier }}{% endif %}
             </div>
 
@@ -26,7 +26,10 @@
                                 <select class="form-control" id="from_location_id" name="from_location_id" required autofocus>
                                     <option value="">---------</option>
                                     {% for loc in from_locations %}
-                                        <option value="{{ loc.id }}">{{ loc.display_name }}</option>
+                                        <option value="{{ loc.id }}"
+                                            {% if current_site_location and loc.id == current_site_location.id %}selected{% endif %}>
+                                            {{ loc.display_name }}
+                                        </option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -134,8 +137,8 @@
                     <p class="text-success">All items dispatched.</p>
                     {% endif %}
 
-                    <button class="btn btn-default" style="margin-top:10px"
-                            onclick="window.location.href='{{ changelist_url }}'">Done</button>
+                    <a class="btn btn-default" style="margin-top:10px"
+                       href="{% url "edc_pharmacy:return_request_url" %}">Done</a>
                 </div>
             </div>
             {% endif %}

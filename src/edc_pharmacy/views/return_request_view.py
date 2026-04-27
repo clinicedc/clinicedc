@@ -68,6 +68,12 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
         from_locations = Location.objects.filter(
             site__in=self.request.user.userprofile.sites.all()
         )
+        # Pre-select the location that matches the current request site so
+        # the pharmacist doesn't have to choose from the dropdown each time.
+        try:
+            current_site_location = Location.objects.get(site=self.request.site)
+        except (Location.DoesNotExist, Location.MultipleObjectsReturned):
+            current_site_location = None
 
         kwargs.update(
             return_request=return_request,
@@ -77,6 +83,7 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             item_count=list(range(1, items_to_scan + 1)),
             central_location=central_location,
             from_locations=from_locations,
+            current_site_location=current_site_location,
         )
         return super().get_context_data(**kwargs)
 
