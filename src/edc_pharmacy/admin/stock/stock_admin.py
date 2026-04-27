@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_audit_fields.admin import audit_fieldset_tuple
+from edc_utils.date import to_local
 from rangefilter.filters import DateRangeFilterBuilder
 
 from edc_model_admin.history import SimpleHistoryAdmin
@@ -30,6 +31,7 @@ from ..list_filters import (
     HasReceiveNumFilter,
     HasRepackNumFilter,
     ProductAssignmentListFilter,
+    StageListFilter,
     TransferredFilter,
 )
 from ..model_admin_mixin import ModelAdminMixin
@@ -49,10 +51,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     show_history_label = True
     autocomplete_fields = ("container",)
 
-    change_list_note = (
-        "C=Confirmed, A=Allocated, T=Transferred to location, "
-        "CL=Confirmed at location, D=Dispensed"
-    )
+    change_list_note = None
 
     actions = (
         print_labels,
@@ -119,11 +118,8 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "formatted_code",
         "from_stock_changelist",
         "formulation",
-        "formatted_confirmed",
-        "formatted_allocation",
-        "formatted_transferred",
-        "formatted_confirmed_at_location",
-        "formatted_dispensed",
+        "lifecycle_stage",
+        "last_transaction",
         "location",
         "formatted_stored_at_location",
         "verified_assignment",
@@ -144,6 +140,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
     list_filter = (
         "location",
+        StageListFilter,
         "container__container_type",
         "container",
         ConfirmedListFilter,
@@ -206,6 +203,10 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "unit_qty_out",
     )
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.prefetch_related("transactions")
+
     def get_list_display(self, request):
         fields = super().get_list_display(request)
         return remove_fields_for_blinded_users(request, fields)
@@ -249,6 +250,69 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         except AllocationError:
             return mark_safe('<div style="color:red;">Allocation<BR>ERROR!</div>')
         return obj.lot.assignment
+
+    @staticmethod
+    def _stage_badge(label, color, bg):
+        return format_html(
+            '<span style="background:{};color:{};padding:2px 7px;border-radius:3px;'
+            'font-size:0.82em;white-space:nowrap;font-weight:600">{}</span>',
+            bg,
+            color,
+            label,
+        )
+
+    @admin.display(description="Stage")
+    def lifecycle_stage(self, obj):
+        b = self._stage_badge
+        # Terminal / removal states
+        if getattr(obj, "voided", False):
+            return b("Voided", "#383d41", "#e2e3e5")
+        if getattr(obj, "expired", False):
+            return b("Expired", "#383d41", "#e2e3e5")
+        if getattr(obj, "destroyed", False):
+            return b("Destroyed", "#721c24", "#f8d7da")
+        if getattr(obj, "lost", False):
+            return b("Lost", "#721c24", "#f8d7da")
+        if getattr(obj, "damaged", False):
+            return b("Damaged", "#721c24", "#f8d7da")
+        if obj.dispensed:
+            return b("Dispensed", "#155724", "#d4edda")
+        if getattr(obj, "quarantined", False):
+            return b("Quarantined", "#856404", "#fff3cd")
+        # Return journey
+        if getattr(obj, "return_requested", False) and obj.in_transit:
+            return b("Returning", "#856404", "#fff3cd")
+        if getattr(obj, "return_requested", False):
+            return b("Return Requested", "#856404", "#fff3cd")
+        # Transfer to site
+        if obj.in_transit:
+            return b("In Transit", "#856404", "#fff3cd")
+        # At location
+        if obj.stored_at_location:
+            return b("In Bin", "#155724", "#d4edda")
+        if obj.confirmed_at_location:
+            return b("At Location", "#0c5460", "#d1ecf1")
+        # At central
+        if obj.current_allocation_id:
+            return b("Allocated", "#004085", "#cce5ff")
+        if obj.confirmed:
+            return b("Received", "#383d41", "#e2e3e5")
+        return b("Unconfirmed", "#818182", "#f8f9fa")
+
+    @admin.display(description="Last Transaction")
+    def last_transaction(self, obj):
+        txn = obj.transactions.order_by("-transaction_datetime").first()
+        if txn:
+            local_dt = to_local(txn.transaction_datetime)
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_stocktransaction_changelist")
+            url = f"{url}?q={obj.code}"
+            return format_html(
+                '<a href="{}">{}</a><br><small style="color:#6c757d">{}</small>',
+                url,
+                txn.transaction_type,
+                local_dt.strftime("%d-%b-%Y"),
+            )
+        return "—"
 
     @admin.display(description="Lot #", ordering="lot__lot_no")
     def formatted_lot(self, obj):

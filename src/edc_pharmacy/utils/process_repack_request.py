@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import timezone
 
-from ..constants import TXN_REPACK_CONSUMED, TXN_REPACK_PRODUCED
+from ..constants import CENTRAL_LOCATION, TXN_REPACK_CONSUMED, TXN_REPACK_PRODUCED
 from ..exceptions import RepackError
 from ..transaction_log import apply_transaction
 
@@ -51,6 +51,11 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
     from_stock = repack_request.from_stock
     total_consumed = Decimal("0")
 
+    # Repack can only happen at central — always assign the central location
+    # explicitly rather than inheriting from the parent stock.
+    location_model_cls = django_apps.get_model("edc_pharmacy.location")
+    central_location = location_model_cls.objects.get(name=CENTRAL_LOCATION)
+
     with transaction.atomic():
         for _ in range(int(item_qty_to_process)):
             available = (
@@ -70,7 +75,7 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
                 from_stock=from_stock,
                 container=repack_request.container,
                 container_unit_qty=repack_request.container_unit_qty,
-                location=from_stock.location,
+                location=central_location,
                 repack_request=repack_request,
                 lot=from_stock.lot,
                 user_created=username,
