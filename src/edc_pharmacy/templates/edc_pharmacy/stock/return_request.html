@@ -112,6 +112,7 @@
                                 <th>From</th>
                                 <th>Date</th>
                                 <th>Items</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -121,6 +122,12 @@
                                 <td>{{ rr.from_location.display_name }}</td>
                                 <td>{{ rr.return_datetime|date:"d-M-Y" }}</td>
                                 <td>{{ rr.dispatched_item_count }} / {{ rr.item_count }}</td>
+                                <td>
+                                    <a href="{% url "edc_pharmacy:return_manifest_url" return_request=rr.pk %}"
+                                       class="btn btn-xs btn-default" target="_blank">
+                                        <i class="fas fa-file-pdf"></i> Manifest
+                                    </a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
