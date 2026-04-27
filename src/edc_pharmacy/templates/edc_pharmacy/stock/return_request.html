@@ -50,7 +50,7 @@
                         <div class="form-group">
                             <div class="col-sm-offset-4 col-sm-8">
                                 <button type="submit" class="btn btn-primary" id="submit_new">
-                                    Create Return Request
+                                    Create
                                 </button>
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                                 <td>{{ rr.received_item_count }} / {{ rr.item_count }}</td>
                                 <td>
                                     <a href="{% url "edc_pharmacy:return_request_url" return_request=rr.pk %}"
-                                       class="btn btn-xs btn-default">Dispatch</a>
+                                       class="btn btn-xs btn-primary">Edit</a>
                                 </td>
                             </tr>
                             {% endfor %}
