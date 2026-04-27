@@ -797,12 +797,24 @@ transactions and only backfills the missing `TXN_RECEIVED` row.  Running
 `repack_consumed_qty_delta` fix (patch `qty_delta=0 → -1` for containers whose
 `qty_out=1`); the command is fully idempotent for both runs.
 
+Fixes applied on the **first pass** (before bootstrap):
+- in_transit stuck True
+- allocation FK not nulled after dispense
+- stored_at_location stuck True after dispense
+- bootstrapped TXN_RECEIVED qty deltas (no-op before bootstrap, applies after)
+- missing TXN_REPACK_CONSUMED rows
+- TXN_REPACK_CONSUMED qty_delta=0 (no-op before bootstrap; patches after)
+- invalid_state flag for irreconcilable dispensed stocks
+- **bulk stock location** — bulk containers (from_stock=None) corrected to central
+- **repack child location** — repacked children not yet transferred corrected to central
+
 ```bash
 # 1. Run all migrations
 uv run --dev manage.py migrate
 
-# 2. Fix known pre-refactor Stock column inconsistencies and create
-#    TXN_REPACK_CONSUMED rows for repacked bulk stock (must run before bootstrap).
+# 2. Fix known pre-refactor Stock column inconsistencies, create
+#    TXN_REPACK_CONSUMED rows, and enforce central location for bulk
+#    stock and repacked children (must run before bootstrap).
 uv run --dev manage.py fix_historical_stock_state
 
 # 3. Back-fill StockTransaction rows for all pre-refactor stock.
