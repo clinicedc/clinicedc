@@ -108,10 +108,6 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    {% if recent_dispositions %}
-                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist" %}"
-                       class="small">more &hellip;</a>
-                    {% endif %}
                     {% else %}
                     <p class="text-muted">No dispositions yet.</p>
                     {% endif %}
