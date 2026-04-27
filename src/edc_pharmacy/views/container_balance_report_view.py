@@ -1,0 +1,147 @@
+"""Container balance report.
+
+Summarises unit_qty_in / unit_qty_out / balance from Stock, grouped first
+by ContainerType then by Container.  Useful for a quick audit of how many
+units have been received vs consumed across every container format.
+"""
+
+from __future__ import annotations
+
+from collections import defaultdict
+from decimal import Decimal
+
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Sum
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
+
+from edc_dashboard.view_mixins import EdcViewMixin
+from edc_navbar import NavbarViewMixin
+from edc_protocol.view_mixins import EdcProtocolViewMixin
+
+from ..models import Stock
+from ..models.medication import Assignment
+from .auths_view_mixin import AuthsViewMixin
+
+
+@method_decorator(login_required, name="dispatch")
+class ContainerBalanceReportView(
+    AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+):
+    """Unit-qty in/out/balance report grouped by container type then container."""
+
+    template_name = "edc_pharmacy/stock/container_balance_report.html"
+    navbar_name = settings.APP_NAME
+    navbar_selected_item = "pharmacy"
+
+    def get_context_data(self, **kwargs):
+        from ..auth_objects import PHARMACIST_ROLE
+
+        roles = [obj.name for obj in self.request.user.userprofile.roles.all()]
+        show_assignment = PHARMACIST_ROLE in roles
+
+        # Build assignment lookup: id → display_name (decrypted in Python)
+        assignment_map: dict = {}
+        if show_assignment:
+            assignment_map = {
+                str(a.pk): str(a) for a in Assignment.objects.all()
+            }
+
+        values_fields = [
+            "container__container_type__display_name",
+            "container__container_type__name",
+            "container__display_name",
+            "container__name",
+            "container_id",
+            "location__display_name",
+            "location__name",
+            "location_id",
+        ]
+        if show_assignment:
+            values_fields.append("lot__assignment_id")
+
+        order_fields = [
+            "container__container_type__display_name",
+            "container__display_name",
+            "location__display_name",
+        ]
+        if show_assignment:
+            order_fields.append("lot__assignment_id")
+
+        qs = (
+            Stock.objects.filter(invalid_state=False)
+            .values(*values_fields)
+            .annotate(
+                total_unit_qty_in=Sum("unit_qty_in"),
+                total_unit_qty_out=Sum("unit_qty_out"),
+                stock_count=Count("id"),
+            )
+            .order_by(*order_fields)
+        )
+
+        # Group rows by container type for template rendering
+        groups: dict[str, dict] = defaultdict(lambda: {
+            "rows": [],
+            "subtotal_in": Decimal("0"),
+            "subtotal_out": Decimal("0"),
+        })
+
+        grand_in = Decimal("0")
+        grand_out = Decimal("0")
+
+        for row in qs:
+            ct_label = (
+                row["container__container_type__display_name"]
+                or row["container__container_type__name"]
+                or "—"
+            )
+            container_label = row["container__display_name"] or row["container__name"] or "—"
+            location_label = row["location__display_name"] or row["location__name"] or "—"
+            unit_in = row["total_unit_qty_in"] or Decimal("0")
+            unit_out = row["total_unit_qty_out"] or Decimal("0")
+            balance = unit_in - unit_out
+
+            assignment_label = ""
+            if show_assignment:
+                assignment_id = str(row.get("lot__assignment_id") or "")
+                assignment_label = assignment_map.get(assignment_id, "—")
+
+            groups[ct_label]["rows"].append({
+                "container": container_label,
+                "location": location_label,
+                "assignment": assignment_label,
+                "stock_count": int(row["stock_count"] or 0),
+                "unit_qty_in": unit_in,
+                "unit_qty_out": unit_out,
+                "balance": balance,
+            })
+            groups[ct_label]["subtotal_in"] += unit_in
+            groups[ct_label]["subtotal_out"] += unit_out
+            grand_in += unit_in
+            grand_out += unit_out
+
+        # Convert to a sorted list for the template
+        group_list = [
+            {
+                "container_type": ct_label,
+                "rows": g["rows"],
+                "subtotal_in": g["subtotal_in"],
+                "subtotal_out": g["subtotal_out"],
+                "subtotal_balance": g["subtotal_in"] - g["subtotal_out"],
+            }
+            for ct_label, g in sorted(groups.items())
+        ]
+
+        totals = {
+            "unit_qty_in": grand_in,
+            "unit_qty_out": grand_out,
+            "balance": grand_in - grand_out,
+        }
+
+        return super().get_context_data(
+            groups=group_list,
+            totals=totals,
+            show_assignment=show_assignment,
+            **kwargs,
+        )
