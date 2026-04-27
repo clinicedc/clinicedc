@@ -203,7 +203,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        return qs.prefetch_related("stocktransaction_set")
+        return qs.prefetch_related("transactions")
 
     def get_list_display(self, request):
         fields = super().get_list_display(request)
@@ -299,7 +299,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Last Transaction")
     def last_transaction(self, obj):
-        txn = obj.stocktransaction_set.order_by("-transaction_datetime").first()
+        txn = obj.transactions.order_by("-transaction_datetime").first()
         if txn:
             local_dt = to_local(txn.transaction_datetime)
             return format_html(
