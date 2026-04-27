@@ -4,15 +4,18 @@ from django.urls import reverse
 from django_audit_fields.admin import audit_fieldset_tuple
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
+from import_export.admin import ExportMixin
 from rangefilter.filters import DateRangeFilterBuilder
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import StockTransaction
 from ..model_admin_mixin import ModelAdminMixin
+from .stock_transaction_resource import StockTransactionResource
 
 
 @admin.register(StockTransaction, site=edc_pharmacy_admin)
-class StockTransactionAdmin(ModelAdminMixin, SimpleHistoryAdmin):
+class StockTransactionAdmin(ExportMixin, ModelAdminMixin, SimpleHistoryAdmin):
+    resource_classes = [StockTransactionResource]
     change_list_title = "Pharmacy: Stock transaction ledger"
     change_form_title = "Pharmacy: Stock transaction"
     history_list_display = ()
