@@ -87,6 +87,14 @@
                             {% endwith %}
                             {% endfor %}
                         </tbody>
+                        <tfoot>
+                            <tr style="font-weight:bold; border-top:2px solid #ddd;">
+                                <td colspan="8" style="text-align:right;">Total</td>
+                                <td>{{ qty_total }}</td>
+                                <td>{{ unit_qty_total }}</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
                     </table>
 
                     <p style="margin-top:8px;">

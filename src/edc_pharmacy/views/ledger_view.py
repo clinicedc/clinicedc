@@ -55,15 +55,20 @@ class LedgerView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateVi
             total = qs.count()
             truncated = total > MAX_ROWS
 
-            # Build (txn, subject_identifier) pairs.
+            # Build row dicts and accumulate totals.
             # Priority: to_allocation → from_allocation → stock.subject_identifier.
+            from decimal import Decimal as _D
             transactions = []
+            qty_total = _D("0")
+            unit_qty_total = _D("0")
             for txn in qs[:MAX_ROWS]:
                 alloc = txn.to_allocation or txn.from_allocation
                 if alloc and alloc.subject_identifier:
                     subject_identifier = alloc.subject_identifier
                 else:
                     subject_identifier = txn.stock.subject_identifier or ""
+                qty_total += txn.qty_delta or _D("0")
+                unit_qty_total += txn.unit_qty_delta or _D("0")
                 transactions.append({"txn": txn, "subject_identifier": subject_identifier})
 
         # Build the admin changelist URL, optionally pre-filtered.
@@ -77,5 +82,7 @@ class LedgerView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateVi
             truncated=truncated,
             max_rows=MAX_ROWS,
             admin_url=admin_url,
+            qty_total=qty_total,
+            unit_qty_total=unit_qty_total,
         )
         return super().get_context_data(**kwargs)
