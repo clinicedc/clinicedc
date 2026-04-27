@@ -1,5 +1,7 @@
 from .add_to_storage_bin_view import AddToStorageBinView
 from .bulk_stock_report_view import BulkStockReportView
+from .container_balance_report_view import ContainerBalanceReportView
+from .site_stock_report_view import SiteStockReportView
 from .allocate_to_subject_view import AllocateToSubjectView
 from .celery_task_status_view import CeleryTaskStatusView
 from .confirm_at_location_view import ConfirmaAtLocationView

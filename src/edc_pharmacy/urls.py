@@ -4,6 +4,8 @@ from .admin_site import edc_pharmacy_admin
 from .views import (
     AddToStorageBinView,
     BulkStockReportView,
+    ContainerBalanceReportView,
+    SiteStockReportView,
     AllocateToSubjectView,
     CeleryTaskStatusView,
     ConfirmaAtLocationView,
@@ -211,6 +213,16 @@ urlpatterns = [
         "bulk-stock-report/",
         BulkStockReportView.as_view(),
         name="bulk_stock_report_url",
+    ),
+    path(
+        "container-balance-report/",
+        ContainerBalanceReportView.as_view(),
+        name="container_balance_report_url",
+    ),
+    path(
+        "site-stock-report/",
+        SiteStockReportView.as_view(),
+        name="site_stock_report_url",
     ),
     # ───────────────────────────────────────────────────────────────────────
     path("admin/", edc_pharmacy_admin.urls),
