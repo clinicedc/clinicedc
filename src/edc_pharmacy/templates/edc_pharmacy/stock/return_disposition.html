@@ -94,11 +94,26 @@
                                 {% endfor %}
                             </tbody>
                         </table>
+                        <div style="margin-bottom:8px;">
+                            <span class="text-muted small" style="margin-right:6px;">Set all to:</span>
+                            <button type="button" class="btn btn-xs btn-default"
+                                    onclick="setAllDispositions('repooled')">Repool all</button>
+                            <button type="button" class="btn btn-xs btn-default"
+                                    onclick="setAllDispositions('quarantined')">Quarantine all</button>
+                            <button type="button" class="btn btn-xs btn-danger"
+                                    onclick="setAllDispositions('destroyed')">Destroy all</button>
+                        </div>
                         <button type="submit" class="btn btn-primary"
                                 id="submit_disposition">Apply Disposition</button>
                         <a class="btn btn-default" style="margin-left:6px;"
                            href="{% url "edc_pharmacy:return_central_url" %}">Done</a>
                     </form>
+                    <script>
+                        function setAllDispositions(value) {
+                            document.querySelectorAll('select[name^="disposition_"]')
+                                .forEach(function(sel) { sel.value = value; });
+                        }
+                    </script>
                     {% else %}
                     <p class="text-success">All items have been dispositioned.</p>
                     <a class="btn btn-default"
