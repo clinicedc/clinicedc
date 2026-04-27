@@ -12,6 +12,7 @@ from .views import (
     MoveToStorageBinView,
     PrepareAndReviewStockRequestView,
     PrintLabelsView,
+    ReturnCentralView,
     ReturnDispositionView,
     ReturnReceiveView,
     ReturnRequestView,
@@ -161,6 +162,11 @@ urlpatterns = [
         "return-request/",
         ReturnRequestView.as_view(),
         name="return_request_url",
+    ),
+    path(
+        "return-central/",
+        ReturnCentralView.as_view(),
+        name="return_central_url",
     ),
     path(
         "return-receive/<uuid:return_request>/",

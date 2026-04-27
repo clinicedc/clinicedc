@@ -18,6 +18,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count, F
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -44,10 +45,23 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
 
     def get_context_data(self, **kwargs):
         return_request = self._get_return_request()
-        pending_returns = ReturnRequest.objects.filter(
-            from_location__site=self.request.site,
-            cancel__in=["", "N/A"],
-        ).order_by("-return_datetime")
+        pending_returns = (
+            ReturnRequest.objects.filter(
+                from_location__site=self.request.site,
+                cancel__in=["", "N/A"],
+            )
+            .annotate(dispatched_item_count=Count("returnitem"))
+            .filter(dispatched_item_count__lt=F("item_count"))
+            .order_by("-return_datetime")
+        )
+        completed_returns = (
+            ReturnRequest.objects.filter(
+                from_location__site=self.request.site,
+            )
+            .annotate(dispatched_item_count=Count("returnitem"))
+            .filter(dispatched_item_count__gte=F("item_count"))
+            .order_by("-return_datetime")[:5]
+        )
 
         dispatched_count = 0
         remaining_count = 0
@@ -68,6 +82,12 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
         from_locations = Location.objects.filter(
             site__in=self.request.user.userprofile.sites.all()
         )
+        # Pre-select the location that matches the current request site so
+        # the pharmacist doesn't have to choose from the dropdown each time.
+        try:
+            current_site_location = Location.objects.get(site=self.request.site)
+        except (Location.DoesNotExist, Location.MultipleObjectsReturned):
+            current_site_location = None
 
         kwargs.update(
             return_request=return_request,
@@ -77,9 +97,8 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             item_count=list(range(1, items_to_scan + 1)),
             central_location=central_location,
             from_locations=from_locations,
-            changelist_url=reverse(
-                "edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist"
-            ),
+            current_site_location=current_site_location,
+            completed_returns=completed_returns,
         )
         return super().get_context_data(**kwargs)
 
@@ -97,7 +116,29 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
     def post(self, request, *args, **kwargs):  # noqa: ARG002
         return_request = self._get_return_request()
 
-        # --- Phase 1: create a new ReturnRequest and flag codes ---
+        # --- Phase 1a: delete an empty ReturnRequest ---
+        if not return_request and request.POST.get("delete_pk"):
+            try:
+                rr = ReturnRequest.objects.get(pk=request.POST["delete_pk"])
+                if rr.returnitem_set.exists():
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        f"Cannot delete {rr.return_identifier}: items already dispatched.",
+                    )
+                else:
+                    identifier = rr.return_identifier
+                    rr.delete()
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        f"Return request {identifier} deleted.",
+                    )
+            except ReturnRequest.DoesNotExist:
+                messages.add_message(request, messages.ERROR, "Return request not found.")
+            return HttpResponseRedirect(reverse("edc_pharmacy:return_request_url"))
+
+        # --- Phase 1b: create a new ReturnRequest and flag codes ---
         if not return_request:
             from_location_id = request.POST.get("from_location_id")
             item_count = request.POST.get("item_count")
@@ -134,7 +175,36 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
                 )
             )
 
-        # --- Phase 2: dispatch stock codes on an existing ReturnRequest ---
+        # --- Phase 2a: update the expected item count ---
+        if request.POST.get("update_item_count"):
+            try:
+                new_count = int(request.POST.get("item_count", 0))
+                dispatched_count = return_request.returnitem_set.count()
+                if new_count < dispatched_count:
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        f"Cannot set count to {new_count}: "
+                        f"{dispatched_count} item(s) already dispatched.",
+                    )
+                else:
+                    return_request.item_count = new_count
+                    return_request.save(update_fields=["item_count"])
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        f"Expected count updated to {new_count}.",
+                    )
+            except (ValueError, TypeError):
+                messages.add_message(request, messages.ERROR, "Invalid item count.")
+            return HttpResponseRedirect(
+                reverse(
+                    "edc_pharmacy:return_request_url",
+                    kwargs={"return_request": return_request.pk},
+                )
+            )
+
+        # --- Phase 2b: dispatch stock codes on an existing ReturnRequest ---
         stock_codes = [c.strip().upper() for c in request.POST.getlist("codes") if c.strip()]
         if stock_codes:
             try:
@@ -158,13 +228,17 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
                     )
 
         dispatched_count = return_request.returnitem_set.count()
-        if dispatched_count < (return_request.item_count or 0):
-            return HttpResponseRedirect(
-                reverse(
-                    "edc_pharmacy:return_request_url",
-                    kwargs={"return_request": return_request.pk},
-                )
+        if dispatched_count >= (return_request.item_count or 0):
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                f"Return request {return_request.return_identifier} complete: "
+                f"{dispatched_count} item(s) dispatched to central.",
             )
+            return HttpResponseRedirect(reverse("edc_pharmacy:return_request_url"))
         return HttpResponseRedirect(
-            reverse("edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist")
+            reverse(
+                "edc_pharmacy:return_request_url",
+                kwargs={"return_request": return_request.pk},
+            )
         )

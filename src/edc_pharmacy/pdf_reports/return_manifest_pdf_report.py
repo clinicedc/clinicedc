@@ -177,8 +177,18 @@ class ReturnManifestReport(Report):
             cell_style_xsmall = ParagraphStyle(
                 name="cell_xsmall", alignment=TA_CENTER, fontSize=6, leading=8
             )
+            # current_allocation is set while the stock is in transit or held
+            # at central awaiting disposition. If the manifest is printed after
+            # disposition, fall back to the most recent historical allocation.
+            allocation = stock.current_allocation or (
+                stock.allocations
+                .select_related("registered_subject")
+                .order_by("-started_datetime")
+                .first()
+            )
             subject_identifier = (
-                stock.current_allocation.registered_subject.subject_identifier
+                allocation.registered_subject.subject_identifier
+                if allocation else "-"
             )
             data.append(
                 [

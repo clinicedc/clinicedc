@@ -118,11 +118,12 @@ def _replay(txns) -> dict:
             state["return_requested"] = True
 
         elif tt == TXN_RETURN_DISPATCHED:
+            # Allocation is intentionally NOT ended at dispatch — it is held
+            # until final disposition at central (repooled/quarantined/destroyed).
             state["in_transit"] = True
             state["stored_at_location"] = False
             state["confirmed_at_location"] = False
             state["return_requested"] = False
-            state["has_allocation"] = False
 
         elif tt == TXN_RETURN_RECEIVED:
             state["in_transit"] = False
@@ -130,13 +131,16 @@ def _replay(txns) -> dict:
 
         elif tt == TXN_RETURN_DISPOSITION_REPOOLED:
             state["quarantined"] = False
+            state["has_allocation"] = False
 
         elif tt == TXN_RETURN_DISPOSITION_QUARANTINED:
             state["quarantined"] = True
+            state["has_allocation"] = False
 
         elif tt == TXN_RETURN_DISPOSITION_DESTROYED:
             state["destroyed"] = True
             state["quarantined"] = False
+            state["has_allocation"] = False
 
         elif tt == TXN_DAMAGED:
             state["damaged"] = True

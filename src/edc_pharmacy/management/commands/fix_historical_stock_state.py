@@ -2,9 +2,9 @@
 with the StockTransaction ledger due to gaps in the pre-refactor signal
 handlers.
 
-Three classes of inconsistency are corrected:
+Five classes of inconsistency are corrected:
 
-1. **in_transit stuck True** — the old `stock_transfer_item_on_post_save`
+1. **in_transit stuck True** — the old ``stock_transfer_item_on_post_save``
    signal set ``in_transit=True`` when a transfer item was created but no
    corresponding signal ever cleared it when the stock was confirmed at the
    destination.  Fix: set ``in_transit=False`` for every Stock that has a
@@ -15,11 +15,21 @@ Three classes of inconsistency are corrected:
    set ``dispensed=True`` but never cleared the ``allocation`` FK.  Fix: null
    ``allocation_id`` for every Stock where ``dispensed=True``.
 
-3. **bootstrapped TXN_RECEIVED qty_delta=0** — the bootstrap command created
+3. **stored_at_location stuck True after dispense** — the old dispense signal
+   set ``dispensed=True`` but did not always clear ``stored_at_location``.
+   Fix: clear ``stored_at_location`` for every Stock where ``dispensed=True``.
+
+4. **bootstrapped TXN_RECEIVED qty_delta=0** — the bootstrap command created
    TXN_RECEIVED rows with zero qty deltas.  Because each Stock container
    represents exactly 1 unit of qty_in, the correct delta is +1 (and
    +container_unit_qty for unit_qty_in).  Fix: update those ledger rows in
    bulk.
+
+5. **TXN_REPACK_CONSUMED qty_delta=0 when stock.qty_out=1** — the old repack
+   workflow incremented ``Stock.qty_out`` to 1 when a container was fully
+   consumed, but the bootstrap/fix_repack_consumed path created
+   TXN_REPACK_CONSUMED with ``qty_delta=0``.  Fix: set ``qty_delta=-1`` on
+   those rows.
 
 This command is idempotent.  Re-running it is safe.
 
@@ -60,8 +70,10 @@ class Command(BaseCommand):
 
         errors += self._fix_in_transit(dry_run)
         errors += self._fix_allocation_after_dispense(dry_run)
+        errors += self._fix_stored_at_location_after_dispense(dry_run)
         errors += self._fix_bootstrapped_qty_deltas(dry_run)
         errors += self._fix_repack_consumed(dry_run)
+        errors += self._fix_repack_consumed_qty_delta(dry_run)
         errors += self._mark_invalid_stocks(dry_run)
 
         if errors:
@@ -172,15 +184,30 @@ class Command(BaseCommand):
         from ...models.stock.repack_request import RepackRequest
 
         # Find repack requests that have no corresponding TXN_REPACK_CONSUMED row.
-        already_logged = set(
+        # Two sources of existing rows:
+        # 1. Rows created by this command (have repack_request FK set).
+        # 2. Rows created by bootstrap_stock_transactions (no FK; linked via stock).
+        # Both must be excluded to stay idempotent when this command is re-run
+        # after bootstrap.
+        already_logged_by_fk = set(
             StockTransaction.objects.filter(
                 transaction_type=TXN_REPACK_CONSUMED,
             )
             .exclude(repack_request=None)
             .values_list("repack_request_id", flat=True)
         )
-        pending = RepackRequest.objects.exclude(pk__in=already_logged).select_related(
-            "from_stock"
+        already_logged_by_stock = set(
+            StockTransaction.objects.filter(
+                transaction_type=TXN_REPACK_CONSUMED,
+                repack_request=None,
+            )
+            .values_list("stock_id", flat=True)
+        )
+        pending = (
+            RepackRequest.objects
+            .exclude(pk__in=already_logged_by_fk)
+            .exclude(from_stock_id__in=already_logged_by_stock)
+            .select_related("from_stock")
         )
 
         count = pending.count()
@@ -230,7 +257,69 @@ class Command(BaseCommand):
         return 1 if errors else 0
 
     # ------------------------------------------------------------------
-    # Fix 5: mark irreconcilable stocks as invalid_state=True
+    # Fix 5: stored_at_location stuck True after dispense
+    # ------------------------------------------------------------------
+
+    def _fix_stored_at_location_after_dispense(self, dry_run: bool) -> int:
+        """Clear stored_at_location for dispensed stocks.
+
+        The old dispense_item_on_post_save signal set dispensed=True but did
+        not always clear stored_at_location.  The ledger replay arrives at
+        stored_at_location=False after TXN_DISPENSED; the Stock column should
+        match.
+        """
+        qs = Stock.objects.filter(dispensed=True, stored_at_location=True)
+        count = qs.count()
+        self.stdout.write(
+            f"[stored_at_location] {count} dispensed stocks with stored_at_location=True "
+            f"({'dry-run' if dry_run else 'will update'})"
+        )
+        if count and not dry_run:
+            try:
+                with transaction.atomic():
+                    updated = qs.update(stored_at_location=False)
+                self.stdout.write(self.style.SUCCESS(f"  Updated {updated} rows."))
+            except Exception as exc:
+                self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))
+                return 1
+        return 0
+
+    # ------------------------------------------------------------------
+    # Fix 6: TXN_REPACK_CONSUMED qty_delta=0 when stock.qty_out=1
+    # ------------------------------------------------------------------
+
+    def _fix_repack_consumed_qty_delta(self, dry_run: bool) -> int:
+        """Set qty_delta=-1 on bootstrapped TXN_REPACK_CONSUMED rows whose
+        source stock already has qty_out=1.
+
+        The old repack workflow incremented Stock.qty_out=1 when a container
+        was fully consumed.  The bootstrap/fix_repack_consumed path created
+        TXN_REPACK_CONSUMED with qty_delta=0, leaving a mismatch between the
+        ledger replay (qty_out=0) and the actual column (qty_out=1).
+        """
+        qs = StockTransaction.objects.filter(
+            transaction_type=TXN_REPACK_CONSUMED,
+            qty_delta=Decimal("0"),
+            stock__qty_out=Decimal("1"),
+        )
+        count = qs.count()
+        self.stdout.write(
+            f"[repack_consumed_qty] {count} TXN_REPACK_CONSUMED rows with qty_delta=0 "
+            f"but stock.qty_out=1 "
+            f"({'dry-run' if dry_run else 'will update'})"
+        )
+        if count and not dry_run:
+            try:
+                with transaction.atomic():
+                    updated = qs.update(qty_delta=Decimal("-1"))
+                self.stdout.write(self.style.SUCCESS(f"  Updated {updated} rows."))
+            except Exception as exc:
+                self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))
+                return 1
+        return 0
+
+    # ------------------------------------------------------------------
+    # Fix 7: mark irreconcilable stocks as invalid_state=True
     # ------------------------------------------------------------------
 
     def _mark_invalid_stocks(self, dry_run: bool) -> int:

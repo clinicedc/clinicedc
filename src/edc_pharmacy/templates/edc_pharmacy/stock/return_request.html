@@ -7,8 +7,8 @@
         <div class="col-sm-2"></div>
         <div class="col-sm-8">
             <div style="padding:10px">
-                <a href="{% url "edc_pharmacy_admin:index" %}">Edc Pharmacy</a> &rsaquo;
-                <a href="{{ changelist_url }}">Return Requests</a>
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:return_request_url" %}">Return Requests</a>
                 {% if return_request %}&rsaquo; {{ return_request.return_identifier }}{% endif %}
             </div>
 
@@ -26,7 +26,10 @@
                                 <select class="form-control" id="from_location_id" name="from_location_id" required autofocus>
                                     <option value="">---------</option>
                                     {% for loc in from_locations %}
-                                        <option value="{{ loc.id }}">{{ loc.display_name }}</option>
+                                        <option value="{{ loc.id }}"
+                                            {% if current_site_location and loc.id == current_site_location.id %}selected{% endif %}>
+                                            {{ loc.display_name }}
+                                        </option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -47,7 +50,7 @@
                         <div class="form-group">
                             <div class="col-sm-offset-4 col-sm-8">
                                 <button type="submit" class="btn btn-primary" id="submit_new">
-                                    Create Return Request
+                                    Create
                                 </button>
                             </div>
                         </div>
@@ -55,10 +58,10 @@
                 </div>
             </div>
 
-            {% if pending_returns %}
             <div class="panel panel-default">
                 <div class="panel-heading">Open Return Requests</div>
                 <div class="panel-body">
+                    {% if pending_returns %}
                     <table class="table table-condensed">
                         <thead>
                             <tr>
@@ -78,15 +81,66 @@
                                 <td>{{ rr.received_item_count }} / {{ rr.item_count }}</td>
                                 <td>
                                     <a href="{% url "edc_pharmacy:return_request_url" return_request=rr.pk %}"
-                                       class="btn btn-xs btn-default">Dispatch</a>
+                                       class="btn btn-xs btn-primary">Edit</a>
+                                    {% if rr.dispatched_item_count == 0 %}
+                                    <form method="post" style="display:inline;"
+                                          onsubmit="return confirm('Delete {{ rr.return_identifier }}?');">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="delete_pk" value="{{ rr.pk }}">
+                                        <button type="submit" class="btn btn-xs btn-danger">Delete</button>
+                                    </form>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+                    {% else %}
+                    <p class="text-muted">No open return requests.</p>
+                    {% endif %}
                 </div>
             </div>
-            {% endif %}
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Recent Return Requests</div>
+                <div class="panel-body">
+                    {% if completed_returns %}
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>From</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rr in completed_returns %}
+                            <tr>
+                                <td>{{ rr.return_identifier }}</td>
+                                <td>{{ rr.from_location.display_name }}</td>
+                                <td>{{ rr.return_datetime|date:"d-M-Y" }}</td>
+                                <td>{{ rr.dispatched_item_count }} / {{ rr.item_count }}</td>
+                                <td>
+                                    <a href="{% url "edc_pharmacy:return_manifest_url" return_request=rr.pk %}"
+                                       class="btn btn-xs btn-default" target="_blank">
+                                        <i class="fas fa-file-pdf"></i> Manifest
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No completed return requests.</p>
+                    {% endif %}
+                    {% if completed_returns %}
+                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist" %}"
+                       class="small">more &hellip;</a>
+                    {% endif %}
+                </div>
+            </div>
 
             {% else %}
             {# ─── Phase 2: Dispatch items on an existing ReturnRequest ──── #}
@@ -106,6 +160,19 @@
                             &mdash; <span class="text-success">Complete</span>
                         {% endif %}
                     </p>
+
+                    {# ── Update expected count (always visible) ── #}
+                    <form class="form-inline" method="post" style="margin-bottom:12px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_item_count" value="1">
+                        <div class="form-group">
+                            <label for="item_count_update" style="margin-right:6px;">Update expected count:</label>
+                            <input type="number" class="form-control input-sm" id="item_count_update"
+                                   name="item_count" min="{{ dispatched_count|default:1 }}" max="500"
+                                   value="{{ return_request.item_count }}" style="width:80px;">
+                        </div>
+                        <button type="submit" class="btn btn-default btn-sm" style="margin-left:6px;">Update</button>
+                    </form>
 
                     {% if remaining_count > 0 %}
                     <form class="form-horizontal" method="post"
@@ -128,14 +195,15 @@
                         <div class="col-sm-12">
                             <button type="submit" class="btn btn-primary"
                                     id="submit_dispatch">Dispatch</button>
+                            <a class="btn btn-default" style="margin-left:6px;"
+                               href="{% url "edc_pharmacy:return_request_url" %}">Done</a>
                         </div>
                     </form>
                     {% else %}
                     <p class="text-success">All items dispatched.</p>
+                    <a class="btn btn-default"
+                       href="{% url "edc_pharmacy:return_request_url" %}">Done</a>
                     {% endif %}
-
-                    <button class="btn btn-default" style="margin-top:10px"
-                            onclick="window.location.href='{{ changelist_url }}'">Done</button>
                 </div>
             </div>
             {% endif %}

@@ -59,9 +59,6 @@ class ReturnReceiveView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             received_count=received_count,
             pending_count=pending_count,
             item_count=list(range(1, items_to_scan + 1)),
-            changelist_url=reverse(
-                "edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist"
-            ),
         )
         return super().get_context_data(**kwargs)
 
@@ -113,6 +110,9 @@ class ReturnReceiveView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
                     kwargs={"return_request": return_request.pk},
                 )
             )
-        return HttpResponseRedirect(
-            reverse("edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist")
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            f"All items received for {return_request.return_identifier}.",
         )
+        return HttpResponseRedirect(reverse("edc_pharmacy:return_central_url"))
