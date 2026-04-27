@@ -283,11 +283,14 @@ def _compute_damaged(current: CurrentState, **_) -> StateDelta:
     stock_fields: dict = {"damaged": True}
     if current.stored_at_location:
         stock_fields["stored_at_location"] = False
+    remaining_units = current.unit_qty_in - current.unit_qty_out
     return StateDelta(
         stock_fields=stock_fields,
         allocation_action="end" if current.has_active_allocation else "unchanged",
         allocation_end_reason="damaged" if current.has_active_allocation else None,
         storage_bin_item="delete" if current.stored_at_location else "unchanged",
+        qty_delta=Decimal("-1"),
+        unit_qty_delta=-remaining_units,
     )
 
 
@@ -300,11 +303,14 @@ def _compute_lost(current: CurrentState, **_) -> StateDelta:
     stock_fields: dict = {"lost": True}
     if current.stored_at_location:
         stock_fields["stored_at_location"] = False
+    remaining_units = current.unit_qty_in - current.unit_qty_out
     return StateDelta(
         stock_fields=stock_fields,
         allocation_action="end" if current.has_active_allocation else "unchanged",
         allocation_end_reason="lost" if current.has_active_allocation else None,
         storage_bin_item="delete" if current.stored_at_location else "unchanged",
+        qty_delta=Decimal("-1"),
+        unit_qty_delta=-remaining_units,
     )
 
 
@@ -315,11 +321,14 @@ def _compute_expired(current: CurrentState, **_) -> StateDelta:
     stock_fields: dict = {"expired": True}
     if current.stored_at_location:
         stock_fields["stored_at_location"] = False
+    remaining_units = current.unit_qty_in - current.unit_qty_out
     return StateDelta(
         stock_fields=stock_fields,
         allocation_action="end" if current.has_active_allocation else "unchanged",
         allocation_end_reason="expired" if current.has_active_allocation else None,
         storage_bin_item="delete" if current.stored_at_location else "unchanged",
+        qty_delta=Decimal("-1"),
+        unit_qty_delta=-remaining_units,
     )
 
 
@@ -330,11 +339,14 @@ def _compute_voided(current: CurrentState, **_) -> StateDelta:
     stock_fields: dict = {"voided": True}
     if current.stored_at_location:
         stock_fields["stored_at_location"] = False
+    remaining_units = current.unit_qty_in - current.unit_qty_out
     return StateDelta(
         stock_fields=stock_fields,
         allocation_action="end" if current.has_active_allocation else "unchanged",
         allocation_end_reason="voided" if current.has_active_allocation else None,
         storage_bin_item="delete" if current.stored_at_location else "unchanged",
+        qty_delta=Decimal("-1"),
+        unit_qty_delta=-remaining_units,
     )
 
 
