@@ -31,6 +31,7 @@ from ..list_filters import (
     HasReceiveNumFilter,
     HasRepackNumFilter,
     ProductAssignmentListFilter,
+    StageListFilter,
     TransferredFilter,
 )
 from ..model_admin_mixin import ModelAdminMixin
@@ -139,6 +140,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     )
     list_filter = (
         "location",
+        StageListFilter,
         "container__container_type",
         "container",
         ConfirmedListFilter,
