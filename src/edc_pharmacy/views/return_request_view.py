@@ -77,9 +77,6 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             item_count=list(range(1, items_to_scan + 1)),
             central_location=central_location,
             from_locations=from_locations,
-            changelist_url=reverse(
-                "edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist"
-            ),
         )
         return super().get_context_data(**kwargs)
 
@@ -158,13 +155,17 @@ class ReturnRequestView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
                     )
 
         dispatched_count = return_request.returnitem_set.count()
-        if dispatched_count < (return_request.item_count or 0):
-            return HttpResponseRedirect(
-                reverse(
-                    "edc_pharmacy:return_request_url",
-                    kwargs={"return_request": return_request.pk},
-                )
+        if dispatched_count >= (return_request.item_count or 0):
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                f"Return request {return_request.return_identifier} complete: "
+                f"{dispatched_count} item(s) dispatched to central.",
             )
+            return HttpResponseRedirect(reverse("edc_pharmacy:return_request_url"))
         return HttpResponseRedirect(
-            reverse("edc_pharmacy_admin:edc_pharmacy_returnrequest_changelist")
+            reverse(
+                "edc_pharmacy:return_request_url",
+                kwargs={"return_request": return_request.pk},
+            )
         )
