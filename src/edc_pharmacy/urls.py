@@ -9,6 +9,7 @@ from .views import (
     ConfirmStockFromQuerySetView,
     DispenseView,
     HomeView,
+    LedgerView,
     MoveToStorageBinView,
     PrepareAndReviewStockRequestView,
     PrintLabelsView,
@@ -173,6 +174,11 @@ urlpatterns = [
         "stock-adjustments/",
         StockAdjustmentView.as_view(),
         name="stock_adjustments_url",
+    ),
+    path(
+        "ledger/",
+        LedgerView.as_view(),
+        name="ledger_url",
     ),
     path(
         "return-receive/<uuid:return_request>/",
