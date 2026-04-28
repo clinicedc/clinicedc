@@ -9,6 +9,10 @@ from .order_form import OrderForm, OrderFormSuper
 from .order_item_form import OrderItemForm
 from .product_form import ProductForm
 from .receive_form import ReceiveForm, ReceiveFormSuper
+from .order_edit_form import OrderEditForm
+from .supplier_add_form import SupplierAddForm
+from .receive_header_form import ReceiveHeaderForm
+from .receive_item_add_form import ReceiveItemAddForm
 from .receive_item_form import ReceiveItemForm
 from .repack_request_form import RepackRequestForm
 from .stock_form import StockForm

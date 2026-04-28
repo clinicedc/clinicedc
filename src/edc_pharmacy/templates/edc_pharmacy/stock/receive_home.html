@@ -1,0 +1,138 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    <script>
+        $(document).ready(function() {
+            $('#receive_home_table').DataTable({
+                order: [[1, 'desc']],
+                pageLength: 25,
+                columnDefs: [
+                    { orderable: false, targets: -1 },
+                ],
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                Receive
+            </div>
+
+            {# ── Pending items ── #}
+            {% if pending_rows %}
+            <div class="panel panel-warning">
+                <div class="panel-heading"><b>Pending items</b></div>
+                <div class="panel-body" style="padding:0;">
+                    <table class="table table-condensed table-hover" style="margin-bottom:0;">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Item #</th>
+                                <th>Product</th>
+                                <th>Container</th>
+                                <th style="text-align:right;">Units pending</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pr in pending_rows %}
+                            {% with oi=pr.order_item %}
+                            <tr>
+                                <td><code>{{ oi.order.order_identifier }}</code></td>
+                                <td><code>{{ oi.order_item_identifier }}</code></td>
+                                <td>{{ oi.product.name }}</td>
+                                <td>{{ oi.container }}</td>
+                                <td style="text-align:right;">
+                                    <span style="color:#c00;font-weight:bold;">{{ oi.unit_qty_pending }}</span>
+                                </td>
+                                <td>
+                                    {% if pr.has_receive %}
+                                        <a href="{% url "edc_pharmacy:receive_order_item_url" order=oi.order.pk order_item=oi.pk %}"
+                                           class="btn btn-primary btn-xs">Receive</a>
+                                    {% else %}
+                                        <a href="{% url "edc_pharmacy:receive_order_url" order=oi.order.pk %}"
+                                           class="btn btn-default btn-xs">Start receiving</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endwith %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {# ── Orders table ── #}
+            {% if rows %}
+            <table id="receive_home_table" class="table table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Supplier</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th style="text-align:right;">Items ordered</th>
+                        <th style="text-align:right;">Items received</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    {% with o=row.order r=row.receive %}
+                    <tr>
+                        <td><code>{{ o.order_identifier }}</code></td>
+                        <td data-order="{{ o.order_datetime|date:"Y-m-d" }}">
+                            {{ o.order_datetime|date:"d-M-Y" }}
+                        </td>
+                        <td>{{ o.supplier }}</td>
+                        <td>{{ o.title }}</td>
+                        <td>
+                            {% if o.status == "complete" %}
+                                <span class="label label-success">Complete</span>
+                            {% elif o.status == "partial" %}
+                                <span class="label label-warning">Partial</span>
+                            {% else %}
+                                <span class="label label-default">New</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align:right;">{{ o.item_count|default:"—" }}</td>
+                        <td style="text-align:right;">{{ row.receive_item_count }}</td>
+                        <td style="white-space:nowrap;">
+                            <a href="{% url "edc_pharmacy:receive_order_url" order=o.pk %}"
+                               class="btn btn-primary btn-xs">
+                                {% if r %}Manage{% else %}Start receiving{% endif %}
+                            </a>
+                            <a href="{% url "edc_pharmacy:receive_order_edit_url" order=o.pk %}"
+                               class="btn btn-default btn-xs">Edit</a>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p class="text-muted">No orders found.</p>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock main %}
