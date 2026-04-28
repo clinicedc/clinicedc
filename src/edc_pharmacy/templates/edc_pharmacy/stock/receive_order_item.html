@@ -11,6 +11,7 @@
                 <a href="{% url "edc_pharmacy:receive_home_url" %}">Receive</a> &rsaquo;
                 <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}">{{ order.order_identifier }}</a> &rsaquo;
                 {{ order_item.order_item_identifier }}
+                {% if receive_item %}&rsaquo; Edit {{ receive_item.receive_item_identifier }}{% endif %}
             </div>
 
             {# ── Order-item summary ── #}
@@ -96,12 +97,15 @@
             </div>
             {% endif %}
 
-            {# ── Add receive item form ── #}
-            {% if order_item.unit_qty_pending is None or order_item.unit_qty_pending > 0 %}
+            {# ── Add / edit receive item form ── #}
+            {% if receive_item or order_item.unit_qty_pending is None or order_item.unit_qty_pending > 0 %}
             <div class="panel panel-primary">
-                <div class="panel-heading"><b>Receive items</b></div>
+                <div class="panel-heading">
+                    <b>{% if receive_item %}Edit receive item <code>{{ receive_item.receive_item_identifier }}</code>{% else %}Receive items{% endif %}</b>
+                </div>
                 <div class="panel-body">
-                    <form method="post">
+                    <form method="post" id="receive-item-form"
+                          {% if receive_item %}data-initial-qty="{{ receive_item.item_qty_received }}"{% endif %}>
                         {% csrf_token %}
                         <div class="row">
 
@@ -115,7 +119,17 @@
                                         {% endif %}
                                     </label>
                                     {% if show_batch %}
-                                        {{ form.lot }}
+                                        <div class="input-group">
+                                            {{ form.lot }}
+                                            <span class="input-group-btn">
+                                                <button type="button" class="btn btn-success"
+                                                        data-toggle="modal"
+                                                        data-target="#lotModal"
+                                                        title="Add new batch">
+                                                    <i class="fa fa-plus"></i>
+                                                </button>
+                                            </span>
+                                        </div>
                                         {% if form.lot.errors %}
                                             <span class="help-block">{{ form.lot.errors|join:", " }}</span>
                                         {% endif %}
@@ -185,8 +199,209 @@
                         <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}#oi_{{ order_item.pk }}"
                            class="btn btn-default btn-sm">Cancel</a>
                     </form>
+
                 </div>
             </div>
+
+            {% if show_batch %}
+            {# ── Add Batch (Lot) modal ──────────────────────────────────── #}
+            <div class="modal fade" id="lotModal" tabindex="-1" role="dialog"
+                 aria-labelledby="lotModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="lotModalLabel">
+                                Add batch &mdash; {{ order_item.product.name }}
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <div id="lot-modal-errors" class="alert alert-danger" style="display:none;"></div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <label for="lot_lot_no">Batch # <span style="color:red;">*</span></label>
+                                        <input type="text" class="form-control" id="lot_lot_no" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="lot_expiration_date">Expiration date <span style="color:red;">*</span></label>
+                                        <input type="date" class="form-control" id="lot_expiration_date">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="lot_manufactured_date">Manufactured date</label>
+                                        <input type="date" class="form-control" id="lot_manufactured_date">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="lot_manufactured_by">Manufactured by</label>
+                                        <input type="text" class="form-control" id="lot_manufactured_by" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <label for="lot_reference">Reference</label>
+                                        <input type="text" class="form-control" id="lot_reference" maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-success" id="saveLotBtn">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function () {
+                    var lotAddUrl = "{% url 'edc_pharmacy:receive_lot_add_url' order_item=order_item.pk %}";
+                    var csrfToken = "{{ csrf_token }}";
+                    var saveBtn = document.getElementById("saveLotBtn");
+                    var errDiv = document.getElementById("lot-modal-errors");
+                    var lotSelect = document.getElementById("{{ form.lot.id_for_label }}");
+                    var fieldIds = [
+                        "lot_lot_no", "lot_expiration_date", "lot_manufactured_date",
+                        "lot_manufactured_by", "lot_reference",
+                    ];
+
+                    $("#lotModal").on("show.bs.modal", function () {
+                        errDiv.style.display = "none";
+                        errDiv.textContent = "";
+                    });
+
+                    saveBtn.addEventListener("click", function () {
+                        errDiv.style.display = "none";
+                        errDiv.textContent = "";
+
+                        var formData = new FormData();
+                        formData.append("csrfmiddlewaretoken", csrfToken);
+                        formData.append("lot_no",            document.getElementById("lot_lot_no").value.trim());
+                        formData.append("expiration_date",   document.getElementById("lot_expiration_date").value);
+                        formData.append("manufactured_date", document.getElementById("lot_manufactured_date").value);
+                        formData.append("manufactured_by",   document.getElementById("lot_manufactured_by").value.trim());
+                        formData.append("reference",         document.getElementById("lot_reference").value.trim());
+
+                        fetch(lotAddUrl, {
+                            method: "POST",
+                            headers: {"X-Requested-With": "XMLHttpRequest"},
+                            body: formData,
+                        })
+                        .then(function (r) {
+                            return r.json().then(function (data) {
+                                return {status: r.status, data: data};
+                            });
+                        })
+                        .then(function (result) {
+                            if (result.status === 200) {
+                                if (lotSelect) {
+                                    var option = new Option(
+                                        result.data.label, result.data.pk, true, true
+                                    );
+                                    lotSelect.appendChild(option);
+                                    lotSelect.value = result.data.pk;
+                                }
+                                fieldIds.forEach(function (id) {
+                                    document.getElementById(id).value = "";
+                                });
+                                $("#lotModal").modal("hide");
+                            } else {
+                                var msgs = [];
+                                var errors = result.data.errors || {};
+                                Object.keys(errors).forEach(function (field) {
+                                    msgs.push((field === "__all__" ? "" : field + ": ") + errors[field].join(", "));
+                                });
+                                errDiv.textContent = msgs.join(" | ") || "Could not add batch.";
+                                errDiv.style.display = "block";
+                            }
+                        })
+                        .catch(function () {
+                            errDiv.textContent = "An error occurred. Please try again.";
+                            errDiv.style.display = "block";
+                        });
+                    });
+                })();
+            </script>
+            {% endif %}
+
+            {% if receive_item %}
+            {# ── Reduce-qty confirmation modal ──────────────────────────── #}
+            <div class="modal fade" id="reduceQtyModal" tabindex="-1" role="dialog"
+                 aria-labelledby="reduceQtyModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="reduceQtyModalLabel">
+                                <i class="fa fa-exclamation-triangle text-warning"></i>
+                                Reduce quantity?
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <p id="reduceQtyMsg"></p>
+                            <p class="text-muted small">
+                                Confirmed stock is never deleted &mdash; only unconfirmed
+                                items are removed.
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                Cancel
+                            </button>
+                            <button type="button" class="btn btn-danger" id="reduceQtyConfirmBtn">
+                                <i class="fa fa-trash"></i> Yes, delete and save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function () {
+                    var form = document.getElementById("receive-item-form");
+                    if (!form) { return; }
+                    var initial = parseInt(form.dataset.initialQty, 10);
+                    if (isNaN(initial)) { return; }
+                    var qtyInput = document.getElementById("{{ form.item_qty_received.id_for_label }}");
+                    if (!qtyInput) { return; }
+                    var msgEl = document.getElementById("reduceQtyMsg");
+                    var confirmBtn = document.getElementById("reduceQtyConfirmBtn");
+                    var allowSubmit = false;
+
+                    form.addEventListener("submit", function (e) {
+                        if (allowSubmit) { return; }
+                        var current = parseInt(qtyInput.value, 10);
+                        if (isNaN(current) || current >= initial) { return; }
+                        e.preventDefault();
+                        var dropped = initial - current;
+                        msgEl.innerHTML = (
+                            "You are reducing <b>Containers received</b> from " +
+                            "<b>" + initial + "</b> to <b>" + current + "</b>.<br><br>" +
+                            "This will permanently delete <b>" + dropped +
+                            "</b> unconfirmed stock item" + (dropped === 1 ? "" : "s") +
+                            " for <code>{{ receive_item.receive_item_identifier }}</code>."
+                        );
+                        $("#reduceQtyModal").modal("show");
+                    });
+
+                    confirmBtn.addEventListener("click", function () {
+                        allowSubmit = true;
+                        $("#reduceQtyModal").modal("hide");
+                        form.submit();
+                    });
+                })();
+            </script>
+            {% endif %}
+
             {% else %}
             <div class="alert alert-success">
                 This order item has been fully received.

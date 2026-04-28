@@ -6,9 +6,8 @@
         <div class="list-group">
             {% if perms.edc_pharmacy %}
                 <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
-                <a id="home_list_group_order" href="{% url 'edc_pharmacy_admin:edc_pharmacy_order_changelist' %}" class="list-group-item"><b>Orders</b></a>
+                <a id="home_list_group_order" href="{% url 'edc_pharmacy:order_home_url' %}" class="list-group-item"><b>Orders:</b> Manage orders and order items</a>
                 <a id="home_list_group_receive_home" href="{% url 'edc_pharmacy:receive_home_url' %}" class="list-group-item"><b>Receive:</b> Record and confirm received stock</a>
-                <a id="home_list_group_receive_ordered" href="{% url 'edc_pharmacy_admin:edc_pharmacy_orderitem_changelist' %}" class="list-group-item"><B>Receive ordered items</B></a>
                 <a id="home_list_group_receive" href="{% url 'edc_pharmacy_admin:edc_pharmacy_receive_changelist' %}" class="list-group-item"><B>Receiving:</B> Label and confirm received stock</a>
                 <a id="home_list_group_repack" href="{% url 'edc_pharmacy_admin:edc_pharmacy_repackrequest_changelist' %}" class="list-group-item"><b>Repack:</b> Decant, label and confirm</a>
                 <a id="home_list_group_stockrequest" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist' %}" class="list-group-item"><B>Manage Requests:</B> Allocate stock to subjects</a>

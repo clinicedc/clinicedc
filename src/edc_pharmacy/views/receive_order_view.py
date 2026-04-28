@@ -15,6 +15,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import ProtectedError
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -48,15 +49,28 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
 
     def _build_rows(self, order, receive):
         """Build per-order-item context rows."""
+        # Pre-compute confirmed-stock status per ReceiveItem in one query
+        confirmed_set = set(
+            Stock.objects.filter(
+                receive_item__order_item__order=order, confirmed=True
+            ).values_list("receive_item_id", flat=True)
+        )
         rows = []
         for oi in OrderItem.objects.filter(order=order).select_related(
             "product", "container"
         ):
-            receive_items = (
+            ris = list(
                 ReceiveItem.objects.filter(order_item=oi)
                 .select_related("lot", "container")
                 .order_by("receive_item_datetime")
             )
+            receive_items = [
+                {
+                    "ri": ri,
+                    "can_edit_delete": ri.pk not in confirmed_set,
+                }
+                for ri in ris
+            ]
             rows.append(
                 {
                     "order_item": oi,
@@ -131,7 +145,40 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
             return self._handle_print_labels(request, order, receive)
         elif action == "confirm_stock":
             return self._handle_confirm_stock(request, order, receive)
+        elif action == "delete_receive_item":
+            return self._handle_delete_receive_item(request, order)
 
+        return HttpResponseRedirect(
+            reverse("edc_pharmacy:receive_order_url", kwargs={"order": order.pk})
+        )
+
+    def _handle_delete_receive_item(self, request, order):
+        """Delete a ReceiveItem and its (unconfirmed) Stock rows."""
+        receive_item_pk = request.POST.get("receive_item")
+        receive_item = get_object_or_404(
+            ReceiveItem, pk=receive_item_pk, order_item__order=order
+        )
+        if Stock.objects.filter(receive_item=receive_item, confirmed=True).exists():
+            messages.error(
+                request,
+                f"Cannot delete {receive_item.receive_item_identifier}: "
+                "stock has already been confirmed.",
+            )
+        else:
+            try:
+                identifier = receive_item.receive_item_identifier
+                # Cascade-clear unconfirmed Stock first (FK is on_delete=PROTECT)
+                Stock.objects.filter(
+                    receive_item=receive_item, confirmed=False
+                ).delete()
+                receive_item.delete()
+                messages.success(request, f"Receive item {identifier} deleted.")
+            except ProtectedError:
+                messages.error(
+                    request,
+                    f"Cannot delete {receive_item.receive_item_identifier}: "
+                    "stock is referenced elsewhere (e.g. an allocation or transfer).",
+                )
         return HttpResponseRedirect(
             reverse("edc_pharmacy:receive_order_url", kwargs={"order": order.pk})
         )

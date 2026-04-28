@@ -60,6 +60,9 @@
                     </table>
                     <a href="{% url "edc_pharmacy:receive_order_edit_url" order=order.pk %}"
                        class="btn btn-primary btn-sm" style="margin-top:6px;">Edit</a>
+                    &nbsp;
+                    <a href="{% url "edc_pharmacy:order_url" order=order.pk %}"
+                       class="btn btn-default btn-sm" style="margin-top:6px;">Go to ordering</a>
                 </div>
             </div>
 
@@ -162,9 +165,16 @@
                     {% endif %}
 
                 </div>
-            </div>
 
-            {# ── Order items ── #}
+                {# ── Items received against this order ── #}
+                <div class="panel-body" style="border-top:1px solid #e7e7e7;">
+                    <h4 style="margin-top:0;margin-bottom:12px;">
+                        Items
+                        <small class="text-muted">
+                            &nbsp;&mdash; received against this order
+                        </small>
+                    </h4>
+
             {% for row in rows %}
             {% with oi=row.order_item %}
             <div class="panel {% if oi.unit_qty_pending is not None and oi.unit_qty_pending == 0 %}panel-success{% elif row.receive_items %}panel-warning{% else %}panel-default{% endif %}"
@@ -221,10 +231,12 @@
                                 <th style="text-align:right;">Units</th>
                                 <th>Date</th>
                                 <th>Reference</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for ri in row.receive_items %}
+                            {% for entry in row.receive_items %}
+                            {% with ri=entry.ri %}
                             <tr>
                                 <td><code>{{ ri.receive_item_identifier }}</code></td>
                                 <td>{% if show_batch %}{{ ri.lot.lot_no }}{% else %}<span class="text-muted">******</span>{% endif %}</td>
@@ -233,7 +245,32 @@
                                 <td style="text-align:right;">{{ ri.unit_qty_received }}</td>
                                 <td style="white-space:nowrap;">{{ ri.receive_item_datetime|date:"d-M-Y" }}</td>
                                 <td>{{ ri.reference }}</td>
+                                <td style="white-space:nowrap;">
+                                    {% if entry.can_edit_delete %}
+                                    <a href="{% url "edc_pharmacy:receive_item_edit_url" order=order.pk order_item=oi.pk receive_item=ri.pk %}"
+                                       class="btn btn-primary btn-xs"
+                                       title="Edit receive item">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    <form method="post" class="js-delete-form"
+                                          style="display:inline;"
+                                          data-confirm-message="Delete receive item <code>{{ ri.receive_item_identifier }}</code>?<br><br>Any unconfirmed stock for this item will also be removed.">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete_receive_item">
+                                        <input type="hidden" name="receive_item" value="{{ ri.pk }}">
+                                        <button type="submit" class="btn btn-danger btn-xs"
+                                                title="Delete receive item">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-muted small" title="Stock has been confirmed">
+                                        <i class="fa fa-lock"></i>
+                                    </span>
+                                    {% endif %}
+                                </td>
                             </tr>
+                            {% endwith %}
                             {% endfor %}
                         </tbody>
                     </table>
@@ -252,6 +289,9 @@
             {% endwith %}
             {% endfor %}
 
+                </div>{# /panel-body items #}
+            </div>{# /panel Receive record #}
+
             <p style="margin-top:8px;">
                 <a href="{% url "edc_pharmacy:receive_home_url" %}" class="btn btn-default btn-sm">
                     &larr; All orders
@@ -262,4 +302,58 @@
 
         </div>
     </div>
+
+    {# ── Delete confirmation modal (shared across delete forms on this page) ── #}
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="confirmDeleteModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="confirmDeleteModalLabel">
+                        <i class="fa fa-exclamation-triangle text-warning"></i>
+                        Confirm delete
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmDeleteMsg"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="fa fa-trash"></i> Yes, delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var msgEl = document.getElementById("confirmDeleteMsg");
+            var confirmBtn = document.getElementById("confirmDeleteBtn");
+            var pendingForm = null;
+
+            document.querySelectorAll(".js-delete-form").forEach(function (form) {
+                form.addEventListener("submit", function (e) {
+                    if (form.dataset.confirmed === "1") { return; }
+                    e.preventDefault();
+                    msgEl.innerHTML = form.dataset.confirmMessage || "Delete this item?";
+                    pendingForm = form;
+                    $("#confirmDeleteModal").modal("show");
+                });
+            });
+
+            confirmBtn.addEventListener("click", function () {
+                if (!pendingForm) { return; }
+                pendingForm.dataset.confirmed = "1";
+                $("#confirmDeleteModal").modal("hide");
+                pendingForm.submit();
+            });
+        })();
+    </script>
 {% endblock main %}

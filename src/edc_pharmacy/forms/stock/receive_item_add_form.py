@@ -41,15 +41,24 @@ class ReceiveItemAddForm(forms.Form):
         initial="-",
     )
 
-    def __init__(self, *args, order_item=None, **kwargs):
+    def __init__(self, *args, order_item=None, instance=None, **kwargs):
         self.order_item = order_item
+        self.instance = instance  # ReceiveItem being edited (None for add)
         super().__init__(*args, **kwargs)
         if order_item:
             self.fields["lot"].queryset = Lot.objects.filter(
                 product=order_item.product
             ).order_by("-expiration_date")
-            self.fields["container"].initial = order_item.container
-            self.fields["container_unit_qty"].initial = order_item.container_unit_qty
+            if instance is None:
+                self.fields["container"].initial = order_item.container
+                self.fields["container_unit_qty"].initial = order_item.container_unit_qty
+        # Pre-fill from existing instance for edit mode
+        if instance is not None:
+            self.fields["lot"].initial = instance.lot
+            self.fields["container"].initial = instance.container
+            self.fields["container_unit_qty"].initial = instance.container_unit_qty
+            self.fields["item_qty_received"].initial = instance.item_qty_received
+            self.fields["reference"].initial = instance.reference
         # Apply form-control to every widget except checkboxes
         for field in self.fields.values():
             if not isinstance(field.widget, forms.CheckboxInput):
@@ -69,10 +78,12 @@ class ReceiveItemAddForm(forms.Form):
 
         if container_unit_qty and item_qty_received and self.order_item:
             unit_qty_this = container_unit_qty * item_qty_received
+            existing_qs = ReceiveItem.objects.filter(order_item=self.order_item)
+            # Exclude the row being edited so its old value isn't double-counted
+            if self.instance is not None and self.instance.pk:
+                existing_qs = existing_qs.exclude(pk=self.instance.pk)
             already_received = (
-                ReceiveItem.objects.filter(order_item=self.order_item).aggregate(
-                    total=Sum("unit_qty_received")
-                )["total"]
+                existing_qs.aggregate(total=Sum("unit_qty_received"))["total"]
                 or Decimal("0.0")
             )
             if unit_qty_this + already_received > self.order_item.unit_qty_ordered:

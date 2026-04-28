@@ -3,7 +3,12 @@ from django.urls import path
 from .admin_site import edc_pharmacy_admin
 from .views import (
     AddToStorageBinView,
+    OrderEditView,
+    OrderHomeView,
+    OrderItemEditView,
+    OrderView,
     ReceiveHomeView,
+    ReceiveLotAddView,
     ReceiveOrderEditView,
     ReceiveOrderItemView,
     ReceiveOrderView,
@@ -172,6 +177,37 @@ urlpatterns = [
         DispenseView.as_view(),
         name="dispense_url",
     ),
+    # ── Order management workflow ──────────────────────────────────────────
+    path(
+        "order/",
+        OrderHomeView.as_view(),
+        name="order_home_url",
+    ),
+    path(
+        "order/add/",
+        OrderEditView.as_view(),
+        name="order_add_url",
+    ),
+    path(
+        "order/<uuid:order>/",
+        OrderView.as_view(),
+        name="order_url",
+    ),
+    path(
+        "order/<uuid:order>/edit/",
+        OrderEditView.as_view(),
+        name="order_edit_url",
+    ),
+    path(
+        "order/<uuid:order>/items/add/",
+        OrderItemEditView.as_view(),
+        name="order_item_add_url",
+    ),
+    path(
+        "order/<uuid:order>/items/<uuid:order_item>/",
+        OrderItemEditView.as_view(),
+        name="order_item_edit_url",
+    ),
     # ── Receive workflow ───────────────────────────────────────────────────
     path(
         "receive/",
@@ -194,9 +230,19 @@ urlpatterns = [
         name="receive_order_item_url",
     ),
     path(
+        "receive/<uuid:order>/<uuid:order_item>/<uuid:receive_item>/edit/",
+        ReceiveOrderItemView.as_view(),
+        name="receive_item_edit_url",
+    ),
+    path(
         "receive/supplier/add/",
         ReceiveSupplierAddView.as_view(),
         name="receive_supplier_add_url",
+    ),
+    path(
+        "receive/lot/<uuid:order_item>/add/",
+        ReceiveLotAddView.as_view(),
+        name="receive_lot_add_url",
     ),
     path(
         "receive/supplier/<uuid:pk>/edit/",
