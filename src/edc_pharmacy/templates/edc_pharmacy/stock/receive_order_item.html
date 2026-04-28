@@ -1,0 +1,198 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-8">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:receive_home_url" %}">Receive</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}">{{ order.order_identifier }}</a> &rsaquo;
+                {{ order_item.order_item_identifier }}
+            </div>
+
+            {# ── Order-item summary ── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <b>{{ order_item.order_item_identifier }}</b>
+                    &mdash; {{ order_item.product.name }}
+                    &nbsp;
+                    {% if order_item.unit_qty_pending == 0 %}
+                        <span class="label label-success">Fully received</span>
+                    {% else %}
+                        <span class="label label-warning">Pending</span>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+                    <table class="table table-condensed" style="margin-bottom:0;">
+                        <tr>
+                            <th style="width:160px;">Container</th>
+                            <td>{{ order_item.container }}</td>
+                            <th style="width:160px;">Units / container</th>
+                            <td>{{ order_item.container_unit_qty }}</td>
+                        </tr>
+                        <tr>
+                            <th>Containers ordered</th>
+                            <td>{{ order_item.item_qty_ordered }}</td>
+                            <th>Units ordered</th>
+                            <td>{{ order_item.unit_qty_ordered }}</td>
+                        </tr>
+                        <tr>
+                            <th>Units received</th>
+                            <td>{{ order_item.unit_qty_received|default:"0" }}</td>
+                            <th>Units pending</th>
+                            <td>
+                                {% if order_item.unit_qty_pending %}
+                                    <span style="color:#c00;font-weight:bold;">{{ order_item.unit_qty_pending }}</span>
+                                {% else %}
+                                    <span style="color:#3c763d;">0</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            {# ── Existing receive items ── #}
+            {% if existing_items %}
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>Received so far</b></div>
+                <div class="panel-body" style="padding:0;">
+                    <table class="table table-condensed table-bordered" style="margin-bottom:0;">
+                        <thead>
+                            <tr>
+                                <th>Receive item #</th>
+                                <th>Batch</th>
+                                <th>Container</th>
+                                <th style="text-align:right;">Containers</th>
+                                <th style="text-align:right;">Units</th>
+                                <th>Date</th>
+                                <th>Reference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ri in existing_items %}
+                            <tr>
+                                <td><code>{{ ri.receive_item_identifier }}</code></td>
+                                <td>
+                                    {% if show_batch %}
+                                        {{ ri.lot.lot_no }}
+                                    {% else %}
+                                        <span class="text-muted">******</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ ri.container }}</td>
+                                <td style="text-align:right;">{{ ri.item_qty_received }}</td>
+                                <td style="text-align:right;">{{ ri.unit_qty_received }}</td>
+                                <td style="white-space:nowrap;">{{ ri.receive_item_datetime|date:"d-M-Y" }}</td>
+                                <td>{{ ri.reference }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {# ── Add receive item form ── #}
+            {% if order_item.unit_qty_pending > 0 %}
+            <div class="panel panel-primary">
+                <div class="panel-heading"><b>Receive items</b></div>
+                <div class="panel-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+
+                            <div class="col-sm-6">
+                                <div class="form-group{% if form.lot.errors %} has-error{% endif %}">
+                                    <label class="control-label" for="{{ form.lot.id_for_label }}">
+                                        {% if show_batch %}
+                                            {{ form.lot.label }} <span style="color:red;">*</span>
+                                        {% else %}
+                                            {{ form.lot.label }}
+                                        {% endif %}
+                                    </label>
+                                    {% if show_batch %}
+                                        {{ form.lot }}
+                                        {% if form.lot.errors %}
+                                            <span class="help-block">{{ form.lot.errors|join:", " }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <input type="text" class="form-control" value="******" disabled>
+                                        {{ form.lot.as_hidden }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="form-group{% if form.container.errors %} has-error{% endif %}">
+                                    <label class="control-label" for="{{ form.container.id_for_label }}">
+                                        {{ form.container.label }} <span style="color:red;">*</span>
+                                    </label>
+                                    {{ form.container }}
+                                    {% if form.container.errors %}
+                                        <span class="help-block">{{ form.container.errors|join:", " }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="form-group{% if form.container_unit_qty.errors %} has-error{% endif %}">
+                                    <label class="control-label" for="{{ form.container_unit_qty.id_for_label }}">
+                                        {{ form.container_unit_qty.label }} <span style="color:red;">*</span>
+                                    </label>
+                                    {{ form.container_unit_qty }}
+                                    {% if form.container_unit_qty.errors %}
+                                        <span class="help-block">{{ form.container_unit_qty.errors|join:", " }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="form-group{% if form.item_qty_received.errors %} has-error{% endif %}">
+                                    <label class="control-label" for="{{ form.item_qty_received.id_for_label }}">
+                                        {{ form.item_qty_received.label }} <span style="color:red;">*</span>
+                                    </label>
+                                    {{ form.item_qty_received }}
+                                    {% if form.item_qty_received.errors %}
+                                        <span class="help-block">{{ form.item_qty_received.errors|join:", " }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="form-group{% if form.reference.errors %} has-error{% endif %}">
+                                    <label class="control-label" for="{{ form.reference.id_for_label }}">
+                                        {{ form.reference.label }}
+                                    </label>
+                                    {{ form.reference }}
+                                    {% if form.reference.errors %}
+                                        <span class="help-block">{{ form.reference.errors|join:", " }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                        &nbsp;
+                        <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}#oi_{{ order_item.pk }}"
+                           class="btn btn-default btn-sm">Cancel</a>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-success">
+                This order item has been fully received.
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock main %}
