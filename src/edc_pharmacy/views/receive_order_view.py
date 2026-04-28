@@ -61,7 +61,10 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
                 {
                     "order_item": oi,
                     "receive_items": receive_items,
-                    "can_add": receive is not None and oi.unit_qty_pending > 0,
+                    # NULL means signal hasn't run yet — treat as pending
+                    "can_add": receive is not None and (
+                        oi.unit_qty_pending is None or oi.unit_qty_pending > 0
+                    ),
                 }
             )
         return rows
@@ -140,6 +143,10 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
             obj = form.save(commit=False)
             obj.order = order
             obj.supplier = order.supplier
+            # Carry the planned item count from the order on first creation.
+            # To change it, edit the order (which updates Order.item_count via signal).
+            if not obj.id:
+                obj.item_count = order.item_count
             # User supplies the date; server supplies the time
             receive_date = form.cleaned_data["receive_date"]
             now = timezone.localtime(timezone.now())

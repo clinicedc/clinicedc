@@ -26,8 +26,9 @@ class Order(BaseUuidModel):
 
     item_count = models.IntegerField(
         verbose_name="Item count",
-        null=True,
-        validators=[MinValueValidator(1)],
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text="Cached count of order items. Updated automatically by signal.",
     )
 
     title = models.CharField(

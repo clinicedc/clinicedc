@@ -56,9 +56,10 @@ def update_order_status(order: Order):
 
 
 def update_orderitem_status(order_item: OrderItem):
-    if order_item.unit_qty_received == Decimal("0.0"):
+    received = order_item.unit_qty_received or Decimal("0.0")
+    if received == Decimal("0.0"):
         order_item.status = NEW
-    elif order_item.unit_qty_received == order_item.unit_qty_ordered:
+    elif received == order_item.unit_qty_ordered:
         order_item.status = COMPLETE
     else:
         order_item.status = PARTIAL
@@ -102,6 +103,17 @@ def order_item_on_post_save(sender, instance, raw, created, update_fields, **kwa
         instance.refresh_from_db()
         update_orderitem_status(order_item=instance)
         update_order_status(order=instance.order)
+        # update cached item_count on the parent order
+        instance.order.item_count = OrderItem.objects.filter(order=instance.order).count()
+        instance.order.save(update_fields=["item_count"])
+
+
+@receiver(post_delete, sender=OrderItem, dispatch_uid="order_item_on_post_delete")
+def order_item_on_post_delete(sender, instance, using, **kwargs) -> None:
+    # Keep Order.item_count in sync when an order item is deleted.
+    instance.order.item_count = OrderItem.objects.filter(order=instance.order).count()
+    instance.order.save(update_fields=["item_count"])
+    update_order_status(order=instance.order)
 
 
 @receiver(post_save, sender=Receive, dispatch_uid="receive_on_post_save")
@@ -117,11 +129,6 @@ def receive_item_on_post_save(sender, instance, raw, created, update_fields, **k
         or not update_fields
         or update_fields in (["added_to_stock"], ["container_unit_qty"])
     ):
-        # update receive item_count after receive_item
-        receive_items = ReceiveItem.objects.filter(receive=instance.receive)
-        instance.receive.item_count = receive_items.count()
-        instance.receive.save(update_fields=["item_count"])
-
         # update order_item after receive_item
         instance.order_item.unit_qty_received = (
             instance.order_item.receiveitem_set.all().aggregate(
@@ -194,10 +201,20 @@ def repack_request_on_post_save(
 
 @receiver(post_delete, sender=ReceiveItem, dispatch_uid="receive_item_on_post_delete")
 def receive_item_on_post_delete(sender, instance, using, **kwargs) -> None:
-    instance.order_item.unit_qty_received = (
-        instance.order_item.unit_qty_received - instance.unit_qty_received
+    # Re-aggregate from remaining ReceiveItems rather than subtracting,
+    # so a stale cached value can never cause drift.
+    order_item = instance.order_item
+    order_item.unit_qty_received = (
+        order_item.receiveitem_set.all().aggregate(
+            unit_qty=Sum("unit_qty_received")
+        )["unit_qty"]
+    ) or Decimal("0.0")
+    order_item.unit_qty_pending = (
+        order_item.unit_qty_ordered - order_item.unit_qty_received
     )
-    instance.order_item.save()
+    order_item.save(update_fields=["unit_qty_received", "unit_qty_pending"])
+    update_orderitem_status(order_item=order_item)
+    update_order_status(order=order_item.order)
 
 
 @receiver(post_delete, sender=Stock, dispatch_uid="stock_on_post_delete")

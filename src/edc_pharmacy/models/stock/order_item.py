@@ -62,7 +62,7 @@ class OrderItem(BaseUuidModel):
 
     unit_qty_ordered = models.DecimalField(
         verbose_name="Unit quantity ordered",
-        null=True,
+        default=Decimal("0.0"),
         decimal_places=2,
         max_digits=10,
         validators=[MinValueValidator(Decimal("1.0"))],
@@ -71,7 +71,7 @@ class OrderItem(BaseUuidModel):
 
     unit_qty_pending = models.DecimalField(
         verbose_name="Unit quantity pending",
-        null=True,
+        default=Decimal("0.0"),
         decimal_places=2,
         max_digits=10,
         validators=[MinValueValidator(Decimal("0.0"))],
@@ -80,9 +80,9 @@ class OrderItem(BaseUuidModel):
 
     unit_qty_received = models.DecimalField(
         verbose_name="Unit quantity received",
+        default=Decimal("0.0"),
         decimal_places=2,
         max_digits=10,
-        null=True,
         validators=[MinValueValidator(Decimal("0.0"))],
         help_text="Updated automatically when units are received",
     )

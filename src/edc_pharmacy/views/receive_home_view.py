@@ -17,6 +17,8 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
+from django.db.models import Q
+
 from ..auth_objects import PHARMACIST_ROLE
 from ..models import Order, OrderItem, Receive, ReceiveItem
 from .auths_view_mixin import AuthsViewMixin
@@ -62,8 +64,11 @@ class ReceiveHomeView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtocol
         # whether a receive record exists yet.  The template chooses the right
         # button based on whether a receive record is present.
         orders_with_receive = set(receive_map.keys())
+        # NULL means the signal hasn't run yet — treat as pending
         pending_order_items = (
-            OrderItem.objects.filter(unit_qty_pending__gt=0)
+            OrderItem.objects.filter(
+                Q(unit_qty_pending__gt=0) | Q(unit_qty_pending__isnull=True)
+            )
             .select_related("order", "order__supplier", "product", "container")
             .order_by("order__order_datetime", "order_item_identifier")
         )

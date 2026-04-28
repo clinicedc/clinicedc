@@ -8,7 +8,7 @@ order_date is date-only; the server appends the current time on save.
 from django import forms
 from django.utils import timezone
 
-from ...models import Order, OrderItem
+from ...models import Order
 
 
 class OrderEditForm(forms.ModelForm):
@@ -20,7 +20,6 @@ class OrderEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["item_count"].required = True
         # Apply form-control to every widget except checkboxes
         for field in self.fields.values():
             if not isinstance(field.widget, forms.CheckboxInput):
@@ -44,29 +43,12 @@ class OrderEditForm(forms.ModelForm):
             raise forms.ValidationError("Order date may not be a future date.")
         return date
 
-    def clean_item_count(self):
-        item_count = self.cleaned_data.get("item_count")
-        if item_count is not None:
-            if item_count < 1:
-                raise forms.ValidationError(
-                    "Item count must be a positive integer greater than 0."
-                )
-            if self.instance and self.instance.pk:
-                current = OrderItem.objects.filter(order=self.instance).count()
-                if item_count < current:
-                    raise forms.ValidationError(
-                        f"Item count may not be less than the number of order items "
-                        f"already added ({current})."
-                    )
-        return item_count
-
     class Meta:
         model = Order
         fields = [
             "order_date",
             "supplier",
             "title",
-            "item_count",
             "sent",
             "comment",
         ]

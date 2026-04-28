@@ -19,7 +19,7 @@
                     <b>{{ order_item.order_item_identifier }}</b>
                     &mdash; {{ order_item.product.name }}
                     &nbsp;
-                    {% if order_item.unit_qty_pending == 0 %}
+                    {% if order_item.unit_qty_pending is not None and order_item.unit_qty_pending == 0 %}
                         <span class="label label-success">Fully received</span>
                     {% else %}
                         <span class="label label-warning">Pending</span>
@@ -97,7 +97,7 @@
             {% endif %}
 
             {# ── Add receive item form ── #}
-            {% if order_item.unit_qty_pending > 0 %}
+            {% if order_item.unit_qty_pending is None or order_item.unit_qty_pending > 0 %}
             <div class="panel panel-primary">
                 <div class="panel-heading"><b>Receive items</b></div>
                 <div class="panel-body">
