@@ -7,12 +7,10 @@ managed by django_audit_fields and are never edited by users in any context.
 Also excludes receive_identifier (auto-assigned).
 """
 
-import datetime
-
 from django import forms
 from django.utils import timezone
 
-from ...models import Receive, ReceiveItem
+from ...models import Receive
 
 
 class ReceiveHeaderForm(forms.ModelForm):
@@ -30,7 +28,6 @@ class ReceiveHeaderForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["item_count"].required = True
         self.fields["invoice_number"].required = True
         self.fields["invoice_date"].required = True
         self.fields["invoice_date"].input_formats = ["%Y-%m-%d"]
@@ -63,22 +60,6 @@ class ReceiveHeaderForm(forms.ModelForm):
             raise forms.ValidationError("Invoice date may not be a future date.")
         return date
 
-    def clean_item_count(self):
-        item_count = self.cleaned_data.get("item_count")
-        if item_count is None:
-            # field is required; Django's required check fires first, but guard here too
-            raise forms.ValidationError("This field is required.")
-        if item_count < 1:
-            raise forms.ValidationError("Item count must be a positive integer greater than 0.")
-        if self.instance and self.instance.pk:
-            received = ReceiveItem.objects.filter(receive=self.instance).count()
-            if item_count < received:
-                raise forms.ValidationError(
-                    f"Item count may not be less than the number of receive items "
-                    f"already recorded ({received})."
-                )
-        return item_count
-
     def clean(self):
         return super().clean()
 
@@ -87,7 +68,6 @@ class ReceiveHeaderForm(forms.ModelForm):
         fields = [
             "receive_date",
             "location",
-            "item_count",
             "invoice_number",
             "invoice_date",
             "comment",

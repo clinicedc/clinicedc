@@ -103,6 +103,17 @@ def order_item_on_post_save(sender, instance, raw, created, update_fields, **kwa
         instance.refresh_from_db()
         update_orderitem_status(order_item=instance)
         update_order_status(order=instance.order)
+        # update cached item_count on the parent order
+        instance.order.item_count = OrderItem.objects.filter(order=instance.order).count()
+        instance.order.save(update_fields=["item_count"])
+
+
+@receiver(post_delete, sender=OrderItem, dispatch_uid="order_item_on_post_delete")
+def order_item_on_post_delete(sender, instance, using, **kwargs) -> None:
+    # Keep Order.item_count in sync when an order item is deleted.
+    instance.order.item_count = OrderItem.objects.filter(order=instance.order).count()
+    instance.order.save(update_fields=["item_count"])
+    update_order_status(order=instance.order)
 
 
 @receiver(post_save, sender=Receive, dispatch_uid="receive_on_post_save")

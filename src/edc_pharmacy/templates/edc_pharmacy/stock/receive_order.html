@@ -167,13 +167,13 @@
             {# ── Order items ── #}
             {% for row in rows %}
             {% with oi=row.order_item %}
-            <div class="panel {% if oi.unit_qty_pending == 0 %}panel-success{% elif row.receive_items %}panel-warning{% else %}panel-default{% endif %}"
+            <div class="panel {% if oi.unit_qty_pending is not None and oi.unit_qty_pending == 0 %}panel-success{% elif row.receive_items %}panel-warning{% else %}panel-default{% endif %}"
                  id="oi_{{ oi.pk }}">
                 <div class="panel-heading">
                     <b>{{ oi.order_item_identifier }}</b>
                     &mdash; {{ oi.product.name }}
                     &nbsp;
-                    {% if oi.unit_qty_pending == 0 %}
+                    {% if oi.unit_qty_pending is not None and oi.unit_qty_pending == 0 %}
                         <span class="label label-success">Fully received</span>
                     {% elif row.receive_items %}
                         <span class="label label-warning">Partial</span>
