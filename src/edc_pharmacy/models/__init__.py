@@ -54,10 +54,17 @@ from .stock import (
     StockTransaction,
     StockTransfer,
     StockTransferItem,
+    COMPLETED,
+    IN_PROGRESS,
+    MATCHED,
+    MISSING,
+    UNEXPECTED,
     StorageBin,
     StorageBinItem,
     StorageBinItemProxy,
     StorageBinProxy,
+    StockTake,
+    StockTakeItem,
     Supplier,
 )
 from .storage import (

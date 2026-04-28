@@ -1,0 +1,181 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-10">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:stock_take_home_url" %}">Stock Take</a> &rsaquo;
+                Results
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <b>Stock Take Results</b> &mdash;
+                    Bin <code>{{ stock_take.storage_bin.bin_identifier }}</code>
+                    &middot; {{ stock_take.storage_bin.location.display_name|default:stock_take.storage_bin.location.name }}
+                    &middot; {{ stock_take.stock_take_datetime|date:"d-M-Y H:i" }}
+                </div>
+                <div class="panel-body">
+                    <div class="row" style="margin-bottom:10px;">
+                        <div class="col-sm-3 text-center">
+                            <div style="font-size:2em;font-weight:bold;">{{ stock_take.expected_count }}</div>
+                            <div class="text-muted small">Expected</div>
+                        </div>
+                        <div class="col-sm-3 text-center">
+                            <div style="font-size:2em;font-weight:bold;">{{ stock_take.scanned_count }}</div>
+                            <div class="text-muted small">Scanned</div>
+                        </div>
+                        <div class="col-sm-3 text-center">
+                            <div style="font-size:2em;font-weight:bold;color:{% if stock_take.missing_count %}#c00{% else %}#3c763d{% endif %};">
+                                {{ stock_take.missing_count }}
+                            </div>
+                            <div class="text-muted small">Missing</div>
+                        </div>
+                        <div class="col-sm-3 text-center">
+                            <div style="font-size:2em;font-weight:bold;color:{% if stock_take.unexpected_count %}#8a6d3b{% else %}#3c763d{% endif %};">
+                                {{ stock_take.unexpected_count }}
+                            </div>
+                            <div class="text-muted small">Unexpected</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# ── Missing ── #}
+            {% if missing %}
+            <div class="panel panel-danger">
+                <div class="panel-heading"><b>Missing</b> — registered in bin but not scanned ({{ missing|length }})</div>
+                <div class="panel-body" style="padding:0;">
+                    <table class="table table-condensed" style="margin-bottom:0;">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Product</th>
+                                <th>Container</th>
+                                <th>Ledger</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in missing %}
+                            <tr>
+                                <td>
+                                    {% if item.stock %}
+                                        <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stock_change" item.stock.pk %}">
+                                            <code>{{ item.code }}</code>
+                                        </a>
+                                    {% else %}
+                                        <code>{{ item.code }}</code>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.stock.product.name|default:"—" }}</td>
+                                <td>{{ item.stock.container|default:"—" }}</td>
+                                <td>
+                                    <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ item.code }}">Ledger</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {# ── Unexpected ── #}
+            {% if unexpected %}
+            <div class="panel panel-warning">
+                <div class="panel-heading"><b>Unexpected</b> — scanned but not registered in this bin ({{ unexpected|length }})</div>
+                <div class="panel-body" style="padding:0;">
+                    <table class="table table-condensed" style="margin-bottom:0;">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Product</th>
+                                <th>Current bin / location</th>
+                                <th>Ledger</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in unexpected %}
+                            <tr>
+                                <td>
+                                    {% if item.stock %}
+                                        <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stock_change" item.stock.pk %}">
+                                            <code>{{ item.code }}</code>
+                                        </a>
+                                    {% else %}
+                                        <code>{{ item.code }}</code>
+                                        <span class="text-muted small">(not in system)</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.stock.product.name|default:"—" }}</td>
+                                <td>
+                                    {% if item.stock %}
+                                        {{ item.stock.location.display_name|default:"—" }}
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ item.code }}">Ledger</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {# ── Matched ── #}
+            {% if matched %}
+            <div class="panel panel-success">
+                <div class="panel-heading"><b>Matched</b> — scanned and found in bin ({{ matched|length }})</div>
+                <div class="panel-body" style="padding:0;">
+                    <table class="table table-condensed" style="margin-bottom:0;">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Product</th>
+                                <th>Container</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in matched %}
+                            <tr>
+                                <td>
+                                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stock_change" item.stock.pk %}">
+                                        <code>{{ item.code }}</code>
+                                    </a>
+                                </td>
+                                <td>{{ item.stock.product.name|default:"—" }}</td>
+                                <td>{{ item.stock.container|default:"—" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if not missing and not unexpected %}
+            <div class="alert alert-success">
+                <strong>All clear.</strong> Every item in the bin was accounted for.
+            </div>
+            {% endif %}
+
+            <p style="margin-top:8px;">
+                <a href="{% url "edc_pharmacy:stock_take_scan_url" storage_bin=stock_take.storage_bin.pk %}"
+                   class="btn btn-default btn-sm">Redo stock take for this bin</a>
+                &nbsp;
+                <a href="{% url "edc_pharmacy:stock_take_home_url" %}"
+                   class="btn btn-default btn-sm">All bins</a>
+            </p>
+
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+{% endblock main %}

@@ -1,0 +1,74 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                Stock Take
+            </div>
+
+            {% if rows %}
+            <table class="table table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>Bin</th>
+                        <th>Location</th>
+                        <th>Container</th>
+                        <th style="text-align:right;">Items in bin</th>
+                        <th>Last stock take</th>
+                        <th>Last outcome</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    {% with b=row.bin lt=row.last_take %}
+                    <tr>
+                        <td><code>{{ b.bin_identifier }}</code>{% if b.name and b.name != b.bin_identifier %} ({{ b.name }}){% endif %}</td>
+                        <td>{{ b.location.display_name|default:b.location.name }}</td>
+                        <td>{{ b.container }}</td>
+                        <td style="text-align:right;">{{ b.item_count }}</td>
+                        <td style="white-space:nowrap;">
+                            {% if lt %}
+                                {{ lt.stock_take_datetime|date:"d-M-Y H:i" }}
+                            {% else %}
+                                <span class="text-muted">Never</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if lt %}
+                                <span class="label label-success">{{ lt.matched_count }} matched</span>
+                                {% if lt.missing_count %}
+                                    <span class="label label-danger">{{ lt.missing_count }} missing</span>
+                                {% endif %}
+                                {% if lt.unexpected_count %}
+                                    <span class="label label-warning">{{ lt.unexpected_count }} unexpected</span>
+                                {% endif %}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url "edc_pharmacy:stock_take_scan_url" storage_bin=b.pk %}"
+                               class="btn btn-primary btn-xs">Start stock take</a>
+                            {% if lt %}
+                                <a href="{% url "edc_pharmacy:stock_take_results_url" stock_take=lt.pk %}"
+                                   class="btn btn-default btn-xs">Last results</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p class="text-muted">No active storage bins found.</p>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock main %}

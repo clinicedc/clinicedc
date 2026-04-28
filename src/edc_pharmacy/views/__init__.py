@@ -2,6 +2,9 @@ from .add_to_storage_bin_view import AddToStorageBinView
 from .bulk_stock_report_view import BulkStockReportView
 from .container_balance_report_view import ContainerBalanceReportView
 from .site_stock_report_view import SiteStockReportView
+from .stock_take_home_view import StockTakeHomeView
+from .stock_take_results_view import StockTakeResultsView
+from .stock_take_scan_view import StockTakeScanView
 from .allocate_to_subject_view import AllocateToSubjectView
 from .celery_task_status_view import CeleryTaskStatusView
 from .confirm_at_location_view import ConfirmaAtLocationView
