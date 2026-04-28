@@ -1,10 +1,10 @@
-"""Validate and optionally correct unit_qty_pending and unit_qty_received
-on every OrderItem.
+"""Validate and optionally correct unit_qty_pending, unit_qty_received,
+and status on every OrderItem (and the parent Order status).
 
 The signal that keeps these columns in sync (receive_item_on_post_save)
 uses update_fields, so it is bypassed by any direct queryset update.
 Old records created before the signal existed may also have stale or
-NULL values.  This command recalculates both columns from first
+NULL values.  This command recalculates all derived columns from first
 principles using the ReceiveItem ledger.
 
 Calculation
@@ -12,6 +12,8 @@ Calculation
     unit_qty_received = SUM(receive_item.unit_qty_received)
                         for all ReceiveItems linked to the OrderItem
     unit_qty_pending  = unit_qty_ordered - unit_qty_received
+    status            = new | partial | complete  (via update_orderitem_status)
+    order.status      = new | partial | complete  (via update_order_status)
 
 Exit codes
 ----------
@@ -27,6 +29,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Sum
 
 from ...models import OrderItem, ReceiveItem
+from ...models.signals import update_order_status, update_orderitem_status
 
 
 class Command(BaseCommand):
@@ -117,13 +120,24 @@ class Command(BaseCommand):
 
         if fix:
             fixed = 0
+            orders_to_update = set()
             for d in discrepancies:
                 oi = d["order_item"]
                 oi.unit_qty_received = d["expected_received"]
                 oi.unit_qty_pending = d["expected_pending"]
                 oi.save(update_fields=["unit_qty_received", "unit_qty_pending"])
+                oi.refresh_from_db()
+                update_orderitem_status(order_item=oi)
+                orders_to_update.add(oi.order)
                 fixed += 1
+            for order in orders_to_update:
+                update_order_status(order=order)
             self.stdout.write(self.style.SUCCESS(f"\nCorrected {fixed} order item(s)."))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Updated status on {len(orders_to_update)} order(s)."
+                )
+            )
         else:
             self.stdout.write(
                 self.style.NOTICE(
