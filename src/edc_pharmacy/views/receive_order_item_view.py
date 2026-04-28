@@ -21,7 +21,7 @@ from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..auth_objects import PHARMACIST_ROLE
 from ..forms.stock import ReceiveItemAddForm
-from ..models import Order, OrderItem, Receive, ReceiveItem
+from ..models import Order, OrderItem, Receive, ReceiveItem, Stock
 from .auths_view_mixin import AuthsViewMixin
 
 
@@ -39,6 +39,14 @@ class ReceiveOrderItemView(
     def _get_order_item(self, order):
         return get_object_or_404(OrderItem, pk=self.kwargs["order_item"], order=order)
 
+    def _get_receive_item(self, order_item):
+        receive_item_pk = self.kwargs.get("receive_item")
+        if receive_item_pk:
+            return get_object_or_404(
+                ReceiveItem, pk=receive_item_pk, order_item=order_item
+            )
+        return None
+
     def _get_receive(self, order):
         try:
             return Receive.objects.get(order=order)
@@ -54,6 +62,7 @@ class ReceiveOrderItemView(
     def get_context_data(self, order=None, order_item=None, form=None, **kwargs):
         kwargs.pop("order", None)
         kwargs.pop("order_item", None)
+        kwargs.pop("receive_item", None)
         context = super().get_context_data(**kwargs)
 
         roles = context.get("roles", [])
@@ -67,6 +76,7 @@ class ReceiveOrderItemView(
 
         order = order or self._get_order()
         order_item = order_item or self._get_order_item(order)
+        receive_item = self._get_receive_item(order_item)
         receive = self._get_receive(order)
 
         existing_items = (
@@ -76,18 +86,25 @@ class ReceiveOrderItemView(
         )
 
         if form is None:
-            form = ReceiveItemAddForm(
-                order_item=order_item,
-                initial={
-                    "container": order_item.container,
-                    "container_unit_qty": order_item.container_unit_qty,
-                    "reference": "-",
-                },
-            )
+            if receive_item is not None:
+                form = ReceiveItemAddForm(
+                    order_item=order_item,
+                    instance=receive_item,
+                )
+            else:
+                form = ReceiveItemAddForm(
+                    order_item=order_item,
+                    initial={
+                        "container": order_item.container,
+                        "container_unit_qty": order_item.container_unit_qty,
+                        "reference": "-",
+                    },
+                )
 
         context.update(
             order=order,
             order_item=order_item,
+            receive_item=receive_item,
             receive=receive,
             existing_items=existing_items,
             form=form,
@@ -98,31 +115,63 @@ class ReceiveOrderItemView(
     def post(self, request, *args, **kwargs):
         order = self._get_order()
         order_item = self._get_order_item(order)
+        receive_item = self._get_receive_item(order_item)
         receive = self._get_receive(order)
 
         if not receive:
             messages.error(request, "Save the receive record before adding items.")
             return HttpResponseRedirect(self._order_url(order, order_item))
 
-        form = ReceiveItemAddForm(request.POST, order_item=order_item)
+        # Editing is locked once any associated Stock has been confirmed.
+        if receive_item is not None and Stock.objects.filter(
+            receive_item=receive_item, confirmed=True
+        ).exists():
+            messages.error(
+                request,
+                f"Cannot edit {receive_item.receive_item_identifier}: "
+                "stock has already been confirmed.",
+            )
+            return HttpResponseRedirect(self._order_url(order, order_item))
+
+        form = ReceiveItemAddForm(
+            request.POST, order_item=order_item, instance=receive_item
+        )
         if form.is_valid():
             cd = form.cleaned_data
-            ReceiveItem.objects.create(
-                receive=receive,
-                order_item=order_item,
-                lot=cd["lot"],
-                container=cd["container"],
-                container_unit_qty=cd["container_unit_qty"],
-                item_qty_received=cd["item_qty_received"],
-                reference=cd.get("reference") or "-",
-                user_created=request.user.username,
-                user_modified=request.user.username,
-            )
-            messages.success(
-                request,
-                f"Added {cd['item_qty_received']} × {cd['container']} "
-                f"(batch {cd['lot'].lot_no}).",
-            )
+            if receive_item is None:
+                ReceiveItem.objects.create(
+                    receive=receive,
+                    order_item=order_item,
+                    lot=cd["lot"],
+                    container=cd["container"],
+                    container_unit_qty=cd["container_unit_qty"],
+                    item_qty_received=cd["item_qty_received"],
+                    reference=cd.get("reference") or "-",
+                    user_created=request.user.username,
+                    user_modified=request.user.username,
+                )
+                messages.success(
+                    request,
+                    f"Added {cd['item_qty_received']} × {cd['container']} "
+                    f"(batch {cd['lot'].lot_no}).",
+                )
+            else:
+                # Edit: clear existing (unconfirmed) Stock so it can be re-created
+                # cleanly by the post_save signal with the new attributes / count.
+                Stock.objects.filter(
+                    receive_item=receive_item, confirmed=False
+                ).delete()
+                receive_item.lot = cd["lot"]
+                receive_item.container = cd["container"]
+                receive_item.container_unit_qty = cd["container_unit_qty"]
+                receive_item.item_qty_received = cd["item_qty_received"]
+                receive_item.reference = cd.get("reference") or "-"
+                receive_item.user_modified = request.user.username
+                receive_item.save()
+                messages.success(
+                    request,
+                    f"Updated {receive_item.receive_item_identifier}.",
+                )
             return HttpResponseRedirect(self._order_url(order, order_item))
 
         # Re-render with errors

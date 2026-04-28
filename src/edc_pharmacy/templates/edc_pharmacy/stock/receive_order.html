@@ -231,10 +231,12 @@
                                 <th style="text-align:right;">Units</th>
                                 <th>Date</th>
                                 <th>Reference</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for ri in row.receive_items %}
+                            {% for entry in row.receive_items %}
+                            {% with ri=entry.ri %}
                             <tr>
                                 <td><code>{{ ri.receive_item_identifier }}</code></td>
                                 <td>{% if show_batch %}{{ ri.lot.lot_no }}{% else %}<span class="text-muted">******</span>{% endif %}</td>
@@ -243,7 +245,31 @@
                                 <td style="text-align:right;">{{ ri.unit_qty_received }}</td>
                                 <td style="white-space:nowrap;">{{ ri.receive_item_datetime|date:"d-M-Y" }}</td>
                                 <td>{{ ri.reference }}</td>
+                                <td style="white-space:nowrap;">
+                                    {% if entry.can_edit_delete %}
+                                    <a href="{% url "edc_pharmacy:receive_item_edit_url" order=order.pk order_item=oi.pk receive_item=ri.pk %}"
+                                       class="btn btn-primary btn-xs"
+                                       title="Edit receive item">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    <form method="post" style="display:inline;"
+                                          onsubmit="return confirm('Delete receive item {{ ri.receive_item_identifier }}? Unconfirmed stock will also be removed.');">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete_receive_item">
+                                        <input type="hidden" name="receive_item" value="{{ ri.pk }}">
+                                        <button type="submit" class="btn btn-danger btn-xs"
+                                                title="Delete receive item">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-muted small" title="Stock has been confirmed">
+                                        <i class="fa fa-lock"></i>
+                                    </span>
+                                    {% endif %}
+                                </td>
                             </tr>
+                            {% endwith %}
                             {% endfor %}
                         </tbody>
                     </table>

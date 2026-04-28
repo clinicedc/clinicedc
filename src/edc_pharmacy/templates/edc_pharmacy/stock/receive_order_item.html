@@ -11,6 +11,7 @@
                 <a href="{% url "edc_pharmacy:receive_home_url" %}">Receive</a> &rsaquo;
                 <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}">{{ order.order_identifier }}</a> &rsaquo;
                 {{ order_item.order_item_identifier }}
+                {% if receive_item %}&rsaquo; Edit {{ receive_item.receive_item_identifier }}{% endif %}
             </div>
 
             {# ── Order-item summary ── #}
@@ -96,10 +97,12 @@
             </div>
             {% endif %}
 
-            {# ── Add receive item form ── #}
-            {% if order_item.unit_qty_pending is None or order_item.unit_qty_pending > 0 %}
+            {# ── Add / edit receive item form ── #}
+            {% if receive_item or order_item.unit_qty_pending is None or order_item.unit_qty_pending > 0 %}
             <div class="panel panel-primary">
-                <div class="panel-heading"><b>Receive items</b></div>
+                <div class="panel-heading">
+                    <b>{% if receive_item %}Edit receive item <code>{{ receive_item.receive_item_identifier }}</code>{% else %}Receive items{% endif %}</b>
+                </div>
                 <div class="panel-body">
                     <form method="post">
                         {% csrf_token %}

@@ -229,6 +229,11 @@ urlpatterns = [
         name="receive_order_item_url",
     ),
     path(
+        "receive/<uuid:order>/<uuid:order_item>/<uuid:receive_item>/edit/",
+        ReceiveOrderItemView.as_view(),
+        name="receive_item_edit_url",
+    ),
+    path(
         "receive/supplier/add/",
         ReceiveSupplierAddView.as_view(),
         name="receive_supplier_add_url",
