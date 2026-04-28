@@ -8,6 +8,7 @@ from .views import (
     OrderItemEditView,
     OrderView,
     ReceiveHomeView,
+    ReceiveLotAddView,
     ReceiveOrderEditView,
     ReceiveOrderItemView,
     ReceiveOrderView,
@@ -237,6 +238,11 @@ urlpatterns = [
         "receive/supplier/add/",
         ReceiveSupplierAddView.as_view(),
         name="receive_supplier_add_url",
+    ),
+    path(
+        "receive/lot/<uuid:order_item>/add/",
+        ReceiveLotAddView.as_view(),
+        name="receive_lot_add_url",
     ),
     path(
         "receive/supplier/<uuid:pk>/edit/",

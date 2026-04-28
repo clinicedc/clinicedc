@@ -4,6 +4,7 @@ from .order_home_view import OrderHomeView
 from .order_item_edit_view import OrderItemEditView
 from .order_view import OrderView
 from .receive_home_view import ReceiveHomeView
+from .receive_lot_add_view import ReceiveLotAddView
 from .receive_order_edit_view import ReceiveOrderEditView
 from .receive_order_item_view import ReceiveOrderItemView
 from .receive_order_view import ReceiveOrderView
