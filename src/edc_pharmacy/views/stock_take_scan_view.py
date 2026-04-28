@@ -44,6 +44,7 @@ class StockTakeScanView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
         return get_object_or_404(StorageBin, pk=self.kwargs["storage_bin"])
 
     def get_context_data(self, **kwargs):
+        kwargs.pop("storage_bin", None)  # remove UUID kwarg to avoid conflict
         storage_bin = self.get_storage_bin()
         expected_items = (
             StorageBinItem.objects.filter(storage_bin=storage_bin)
@@ -92,6 +93,7 @@ class StockTakeScanView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             missing_count=len(missing),
             unexpected_count=len(unexpected),
             status="completed",
+            site=storage_bin.location.site or request.site,
         )
 
         # Build StockTakeItem rows

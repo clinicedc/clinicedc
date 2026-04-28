@@ -53,18 +53,20 @@ class StockTake(SiteModelMixin, BaseUuidModel):
     )
 
     expected_count = models.PositiveIntegerField(
+        verbose_name="Expected",
         default=0,
         help_text="Number of items registered in the bin at the time of the stock take.",
     )
 
     scanned_count = models.PositiveIntegerField(
+        verbose_name="Scanned",
         default=0,
         help_text="Number of codes scanned during the stock take.",
     )
 
-    matched_count = models.PositiveIntegerField(default=0)
-    missing_count = models.PositiveIntegerField(default=0)
-    unexpected_count = models.PositiveIntegerField(default=0)
+    matched_count = models.PositiveIntegerField(verbose_name="Matched", default=0)
+    missing_count = models.PositiveIntegerField(verbose_name="Missing", default=0)
+    unexpected_count = models.PositiveIntegerField(verbose_name="Unexpected", default=0)
 
     note = models.TextField(default="", blank=True)
 

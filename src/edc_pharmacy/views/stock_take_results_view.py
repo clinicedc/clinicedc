@@ -24,6 +24,7 @@ class StockTakeResultsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, 
     navbar_selected_item = "pharmacy"
 
     def get_context_data(self, **kwargs):
+        kwargs.pop("stock_take", None)  # remove UUID kwarg to avoid conflict
         stock_take = get_object_or_404(StockTake, pk=self.kwargs["stock_take"])
         items = stock_take.items.select_related("stock").order_by("status", "code")
 

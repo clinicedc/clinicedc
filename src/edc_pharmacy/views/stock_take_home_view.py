@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Max, OuterRef, Prefetch, Subquery
+from django.db.models import Count, IntegerField, OuterRef, Subquery
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
@@ -28,19 +28,20 @@ class StockTakeHomeView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
     navbar_selected_item = "pharmacy"
 
     def get_context_data(self, **kwargs):
+        # Use a subquery for item_count so it matches exactly what the scan
+        # view queries (StorageBinItem.objects.filter(storage_bin=...)).
+        item_count_sq = (
+            StorageBinItem.objects.filter(storage_bin=OuterRef("pk"))
+            .values("storage_bin_id")
+            .annotate(c=Count("id"))
+            .values("c")
+        )
+
         bins = (
             StorageBin.objects.filter(in_use=True)
             .select_related("container", "location")
-            .annotate(item_count=Count("storagebinitem", distinct=True))
+            .annotate(item_count=Subquery(item_count_sq, output_field=IntegerField()))
             .order_by("location__display_name", "bin_identifier")
-        )
-
-        # Last stock take per bin
-        last_take_qs = (
-            StockTake.objects.filter(storage_bin=OuterRef("pk"))
-            .order_by("-stock_take_datetime")
-            .values("stock_take_datetime", "status",
-                    "matched_count", "missing_count", "unexpected_count")[:1]
         )
 
         rows = []

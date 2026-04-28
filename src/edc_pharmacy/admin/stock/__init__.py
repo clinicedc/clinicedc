@@ -30,6 +30,7 @@ from .stock_request_admin import StockRequestAdmin
 from .stock_request_item_admin import StockRequestItemAdmin
 from .stock_transfer_admin import StockTransferAdmin
 from .stock_transfer_item_admin import StockTransferItemAdmin
+from .stock_take_admin import StockTakeAdmin
 from .storage_bin_admin import StorageBinAdmin
 from .storage_bin_item_admin import StorageBinItemAdmin
 from .storage_bin_item_proxy_admin import StorageBinItemProxyAdmin

@@ -1,6 +1,27 @@
 {% extends edc_base_template %}
 {% load static %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    <script>
+        $(document).ready(function() {
+            $('#expected_items_table').DataTable({
+                order: [[0, 'asc']],
+                pageLength: 25,
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block main %}
     {{ block.super }}
     <div class="container">
@@ -69,8 +90,8 @@
             {% if expected_items %}
             <div class="panel panel-default">
                 <div class="panel-heading">Items registered in this bin</div>
-                <div class="panel-body" style="max-height:300px;overflow-y:auto;">
-                    <table class="table table-condensed" style="margin-bottom:0;">
+                <div class="panel-body">
+                    <table id="expected_items_table" class="table table-condensed" style="margin-bottom:0;">
                         <thead>
                             <tr>
                                 <th>Code</th>
