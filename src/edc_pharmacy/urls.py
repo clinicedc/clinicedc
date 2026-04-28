@@ -6,6 +6,9 @@ from .views import (
     BulkStockReportView,
     ContainerBalanceReportView,
     SiteStockReportView,
+    StockTakeHomeView,
+    StockTakeResultsView,
+    StockTakeScanView,
     AllocateToSubjectView,
     CeleryTaskStatusView,
     ConfirmaAtLocationView,
@@ -223,6 +226,21 @@ urlpatterns = [
         "site-stock-report/",
         SiteStockReportView.as_view(),
         name="site_stock_report_url",
+    ),
+    path(
+        "stock-take/",
+        StockTakeHomeView.as_view(),
+        name="stock_take_home_url",
+    ),
+    path(
+        "stock-take/<uuid:storage_bin>/",
+        StockTakeScanView.as_view(),
+        name="stock_take_scan_url",
+    ),
+    path(
+        "stock-take/results/<uuid:stock_take>/",
+        StockTakeResultsView.as_view(),
+        name="stock_take_results_url",
     ),
     # ───────────────────────────────────────────────────────────────────────
     path("admin/", edc_pharmacy_admin.urls),
