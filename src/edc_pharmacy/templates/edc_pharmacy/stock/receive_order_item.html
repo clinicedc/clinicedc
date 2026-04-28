@@ -190,37 +190,80 @@
                            class="btn btn-default btn-sm">Cancel</a>
                     </form>
 
-                    {% if receive_item %}
-                    <script>
-                        (function () {
-                            var form = document.getElementById("receive-item-form");
-                            if (!form) { return; }
-                            var initial = parseInt(form.dataset.initialQty, 10);
-                            if (isNaN(initial)) { return; }
-                            var qtyInput = document.getElementById("{{ form.item_qty_received.id_for_label }}");
-                            if (!qtyInput) { return; }
-                            form.addEventListener("submit", function (e) {
-                                var current = parseInt(qtyInput.value, 10);
-                                if (isNaN(current) || current >= initial) { return; }
-                                var dropped = initial - current;
-                                var msg = (
-                                    "You are reducing 'Containers received' from " + initial +
-                                    " to " + current + ".\n\n" +
-                                    "This will permanently delete " + dropped +
-                                    " unconfirmed stock item" + (dropped === 1 ? "" : "s") +
-                                    " for {{ receive_item.receive_item_identifier }}.\n\n" +
-                                    "Continue?"
-                                );
-                                if (!confirm(msg)) {
-                                    e.preventDefault();
-                                }
-                            });
-                        })();
-                    </script>
-                    {% endif %}
-
                 </div>
             </div>
+
+            {% if receive_item %}
+            {# ── Reduce-qty confirmation modal ──────────────────────────── #}
+            <div class="modal fade" id="reduceQtyModal" tabindex="-1" role="dialog"
+                 aria-labelledby="reduceQtyModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <h4 class="modal-title" id="reduceQtyModalLabel">
+                                <i class="fa fa-exclamation-triangle text-warning"></i>
+                                Reduce quantity?
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <p id="reduceQtyMsg"></p>
+                            <p class="text-muted small">
+                                Confirmed stock is never deleted &mdash; only unconfirmed
+                                items are removed.
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                                Cancel
+                            </button>
+                            <button type="button" class="btn btn-danger" id="reduceQtyConfirmBtn">
+                                <i class="fa fa-trash"></i> Yes, delete and save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function () {
+                    var form = document.getElementById("receive-item-form");
+                    if (!form) { return; }
+                    var initial = parseInt(form.dataset.initialQty, 10);
+                    if (isNaN(initial)) { return; }
+                    var qtyInput = document.getElementById("{{ form.item_qty_received.id_for_label }}");
+                    if (!qtyInput) { return; }
+                    var msgEl = document.getElementById("reduceQtyMsg");
+                    var confirmBtn = document.getElementById("reduceQtyConfirmBtn");
+                    var allowSubmit = false;
+
+                    form.addEventListener("submit", function (e) {
+                        if (allowSubmit) { return; }
+                        var current = parseInt(qtyInput.value, 10);
+                        if (isNaN(current) || current >= initial) { return; }
+                        e.preventDefault();
+                        var dropped = initial - current;
+                        msgEl.innerHTML = (
+                            "You are reducing <b>Containers received</b> from " +
+                            "<b>" + initial + "</b> to <b>" + current + "</b>.<br><br>" +
+                            "This will permanently delete <b>" + dropped +
+                            "</b> unconfirmed stock item" + (dropped === 1 ? "" : "s") +
+                            " for <code>{{ receive_item.receive_item_identifier }}</code>."
+                        );
+                        $("#reduceQtyModal").modal("show");
+                    });
+
+                    confirmBtn.addEventListener("click", function () {
+                        allowSubmit = true;
+                        $("#reduceQtyModal").modal("hide");
+                        form.submit();
+                    });
+                })();
+            </script>
+            {% endif %}
+
             {% else %}
             <div class="alert alert-success">
                 This order item has been fully received.
