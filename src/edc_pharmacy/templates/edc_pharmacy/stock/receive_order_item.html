@@ -104,7 +104,8 @@
                     <b>{% if receive_item %}Edit receive item <code>{{ receive_item.receive_item_identifier }}</code>{% else %}Receive items{% endif %}</b>
                 </div>
                 <div class="panel-body">
-                    <form method="post">
+                    <form method="post" id="receive-item-form"
+                          {% if receive_item %}data-initial-qty="{{ receive_item.item_qty_received }}"{% endif %}>
                         {% csrf_token %}
                         <div class="row">
 
@@ -188,6 +189,36 @@
                         <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}#oi_{{ order_item.pk }}"
                            class="btn btn-default btn-sm">Cancel</a>
                     </form>
+
+                    {% if receive_item %}
+                    <script>
+                        (function () {
+                            var form = document.getElementById("receive-item-form");
+                            if (!form) { return; }
+                            var initial = parseInt(form.dataset.initialQty, 10);
+                            if (isNaN(initial)) { return; }
+                            var qtyInput = document.getElementById("{{ form.item_qty_received.id_for_label }}");
+                            if (!qtyInput) { return; }
+                            form.addEventListener("submit", function (e) {
+                                var current = parseInt(qtyInput.value, 10);
+                                if (isNaN(current) || current >= initial) { return; }
+                                var dropped = initial - current;
+                                var msg = (
+                                    "You are reducing 'Containers received' from " + initial +
+                                    " to " + current + ".\n\n" +
+                                    "This will permanently delete " + dropped +
+                                    " unconfirmed stock item" + (dropped === 1 ? "" : "s") +
+                                    " for {{ receive_item.receive_item_identifier }}.\n\n" +
+                                    "Continue?"
+                                );
+                                if (!confirm(msg)) {
+                                    e.preventDefault();
+                                }
+                            });
+                        })();
+                    </script>
+                    {% endif %}
+
                 </div>
             </div>
             {% else %}
