@@ -156,18 +156,41 @@ class ReceiveOrderItemView(
                     f"(batch {cd['lot'].lot_no}).",
                 )
             else:
-                # Edit: clear existing (unconfirmed) Stock so it can be re-created
-                # cleanly by the post_save signal with the new attributes / count.
-                Stock.objects.filter(
-                    receive_item=receive_item, confirmed=False
-                ).delete()
+                # Edit: in-place sync. Edit is locked when any Stock for this
+                # ReceiveItem is confirmed (see the guard above), so all rows
+                # we touch here are unconfirmed and safe to mutate.
+                new_qty = cd["item_qty_received"]
                 receive_item.lot = cd["lot"]
                 receive_item.container = cd["container"]
                 receive_item.container_unit_qty = cd["container_unit_qty"]
-                receive_item.item_qty_received = cd["item_qty_received"]
+                receive_item.item_qty_received = new_qty
                 receive_item.reference = cd.get("reference") or "-"
                 receive_item.user_modified = request.user.username
+                # post_save signal tops up Stock rows when new_qty > old count,
+                # using the new ReceiveItem attributes.
                 receive_item.save()
+                # Sync attributes on pre-existing unconfirmed Stock rows so
+                # their lot/container/container_unit_qty/unit_qty_in match
+                # the edited ReceiveItem. Stock codes and IDs are preserved,
+                # so any printed labels stay valid.
+                Stock.objects.filter(
+                    receive_item=receive_item, confirmed=False
+                ).update(
+                    lot=cd["lot"],
+                    container=cd["container"],
+                    container_unit_qty=cd["container_unit_qty"],
+                    unit_qty_in=cd["container_unit_qty"],
+                )
+                # If item_qty_received decreased, drop the excess unconfirmed
+                # Stock — newest first so the oldest (which are most likely
+                # to have been printed already) stay.
+                unconfirmed = Stock.objects.filter(
+                    receive_item=receive_item, confirmed=False
+                ).order_by("-stock_datetime", "-stock_identifier")
+                excess = unconfirmed.count() - new_qty
+                if excess > 0:
+                    ids_to_drop = list(unconfirmed.values_list("pk", flat=True)[:excess])
+                    Stock.objects.filter(pk__in=ids_to_drop).delete()
                 messages.success(
                     request,
                     f"Updated {receive_item.receive_item_identifier}.",
