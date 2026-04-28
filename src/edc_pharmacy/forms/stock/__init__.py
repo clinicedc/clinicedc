@@ -7,6 +7,7 @@ from .location_form import LocationForm
 from .lot_form import LotForm
 from .order_form import OrderForm, OrderFormSuper
 from .order_item_form import OrderItemForm
+from .order_item_add_form import OrderItemAddForm
 from .product_form import ProductForm
 from .receive_form import ReceiveForm, ReceiveFormSuper
 from .order_edit_form import OrderEditForm

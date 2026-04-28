@@ -1,0 +1,164 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:order_home_url" %}">Orders</a> &rsaquo;
+                {{ order.order_identifier }}
+            </div>
+
+            {# ── Order summary ── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <b>Order <code>{{ order.order_identifier }}</code></b>
+                    &mdash; {{ order.title|default:"(untitled)" }}
+                    &nbsp;
+                    {% if order.status == "complete" %}
+                        <span class="label label-success">Complete</span>
+                    {% elif order.status == "partial" %}
+                        <span class="label label-warning">Partial</span>
+                    {% else %}
+                        <span class="label label-default">New</span>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+                    <table class="table table-condensed" style="margin-bottom:0;">
+                        <tr>
+                            <th style="width:140px;">Supplier</th>
+                            <td>{{ order.supplier|default:"—" }}</td>
+                            <th style="width:140px;">Order date</th>
+                            <td>{{ order.order_datetime|date:"d-M-Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Items ordered</th>
+                            <td>{{ order.item_count }}</td>
+                            <th>Created by</th>
+                            <td>{{ order.user_created|default:"—" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Sent</th>
+                            <td>
+                                {% if order.sent %}
+                                    <span class="label label-success">Yes</span>
+                                {% else %}
+                                    <span class="label label-danger">No</span>
+                                {% endif %}
+                            </td>
+                            <td colspan="2"></td>
+                        </tr>
+                        {% if order.comment %}
+                        <tr>
+                            <th>Comment</th>
+                            <td colspan="3">{{ order.comment }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                    <a href="{% url "edc_pharmacy:order_edit_url" order=order.pk %}"
+                       class="btn btn-primary btn-sm" style="margin-top:6px;">Edit</a>
+                    {% if has_receive %}
+                    &nbsp;
+                    <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}"
+                       class="btn btn-default btn-sm">Go to receiving</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# ── Order items ── #}
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <b>Order items</b>
+                    &nbsp;
+                    <a href="{% url "edc_pharmacy:order_item_add_url" order=order.pk %}"
+                       class="btn btn-success btn-xs pull-right">
+                        <i class="fa fa-plus"></i> Add item
+                    </a>
+                </div>
+                <div class="panel-body">
+                    {% if rows %}
+                    {% for row in rows %}
+                    {% with oi=row.order_item %}
+                    <div class="panel {% if oi.unit_qty_pending == 0 %}panel-success{% elif oi.unit_qty_received and oi.unit_qty_received > 0 %}panel-warning{% else %}panel-default{% endif %}">
+                        <div class="panel-heading">
+                            <b>{{ oi.order_item_identifier }}</b>
+                            &mdash; {{ oi.product.name }}
+                            &nbsp;
+                            {% if oi.unit_qty_pending == 0 %}
+                                <span class="label label-success">Fully received</span>
+                            {% elif oi.unit_qty_received and oi.unit_qty_received > 0 %}
+                                <span class="label label-warning">Partial</span>
+                            {% else %}
+                                <span class="label label-default">Pending</span>
+                            {% endif %}
+                        </div>
+                        <div class="panel-body">
+                            <table class="table table-condensed" style="margin-bottom:8px;">
+                                <tr>
+                                    <th style="width:140px;">Container</th>
+                                    <td>{{ oi.container }}</td>
+                                    <th style="width:140px;">Units/container</th>
+                                    <td>{{ oi.container_unit_qty }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Containers ordered</th>
+                                    <td>{{ oi.item_qty_ordered }}</td>
+                                    <th>Units ordered</th>
+                                    <td>{{ oi.unit_qty_ordered }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Units received</th>
+                                    <td>{{ oi.unit_qty_received|default:"0" }}</td>
+                                    <th>Units pending</th>
+                                    <td>
+                                        {% if oi.unit_qty_pending %}
+                                            <span style="color:#c00;font-weight:bold;">{{ oi.unit_qty_pending }}</span>
+                                        {% else %}
+                                            <span style="color:#3c763d;">0</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+                            <a href="{% url "edc_pharmacy:order_item_edit_url" order=order.pk order_item=oi.pk %}"
+                               class="btn btn-primary btn-sm">Edit</a>
+                            {% if row.can_delete %}
+                            &nbsp;
+                            <form method="post" style="display:inline;"
+                                  onsubmit="return confirm('Delete order item {{ oi.order_item_identifier }}?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_item">
+                                <input type="hidden" name="order_item" value="{{ oi.pk }}">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                            </form>
+                            {% else %}
+                            &nbsp;
+                            <span class="text-muted small">
+                                <i class="fa fa-lock"></i> Cannot delete &mdash; stock has been received
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted">
+                        No items on this order yet. Click <b>Add item</b> to add one.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <p style="margin-top:8px;">
+                <a href="{% url "edc_pharmacy:order_home_url" %}" class="btn btn-default btn-sm">
+                    &larr; All orders
+                </a>
+            </p>
+
+        </div>
+    </div>
+{% endblock main %}

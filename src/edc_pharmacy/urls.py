@@ -3,6 +3,10 @@ from django.urls import path
 from .admin_site import edc_pharmacy_admin
 from .views import (
     AddToStorageBinView,
+    OrderEditView,
+    OrderHomeView,
+    OrderItemEditView,
+    OrderView,
     ReceiveHomeView,
     ReceiveOrderEditView,
     ReceiveOrderItemView,
@@ -171,6 +175,37 @@ urlpatterns = [
         "dispense/",
         DispenseView.as_view(),
         name="dispense_url",
+    ),
+    # ── Order management workflow ──────────────────────────────────────────
+    path(
+        "order/",
+        OrderHomeView.as_view(),
+        name="order_home_url",
+    ),
+    path(
+        "order/add/",
+        OrderEditView.as_view(),
+        name="order_add_url",
+    ),
+    path(
+        "order/<uuid:order>/",
+        OrderView.as_view(),
+        name="order_url",
+    ),
+    path(
+        "order/<uuid:order>/edit/",
+        OrderEditView.as_view(),
+        name="order_edit_url",
+    ),
+    path(
+        "order/<uuid:order>/items/add/",
+        OrderItemEditView.as_view(),
+        name="order_item_add_url",
+    ),
+    path(
+        "order/<uuid:order>/items/<uuid:order_item>/",
+        OrderItemEditView.as_view(),
+        name="order_item_edit_url",
     ),
     # ── Receive workflow ───────────────────────────────────────────────────
     path(
