@@ -126,8 +126,9 @@
                                class="btn btn-primary btn-sm">Edit</a>
                             {% if row.can_delete %}
                             &nbsp;
-                            <form method="post" style="display:inline;"
-                                  onsubmit="return confirm('Delete order item {{ oi.order_item_identifier }}?');">
+                            <form method="post" class="js-delete-form"
+                                  style="display:inline;"
+                                  data-confirm-message="Delete order item <code>{{ oi.order_item_identifier }}</code>?">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="delete_item">
                                 <input type="hidden" name="order_item" value="{{ oi.pk }}">
@@ -161,4 +162,58 @@
 
         </div>
     </div>
+
+    {# ── Delete confirmation modal (shared across delete forms on this page) ── #}
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="confirmDeleteModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="confirmDeleteModalLabel">
+                        <i class="fa fa-exclamation-triangle text-warning"></i>
+                        Confirm delete
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmDeleteMsg"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="fa fa-trash"></i> Yes, delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var msgEl = document.getElementById("confirmDeleteMsg");
+            var confirmBtn = document.getElementById("confirmDeleteBtn");
+            var pendingForm = null;
+
+            document.querySelectorAll(".js-delete-form").forEach(function (form) {
+                form.addEventListener("submit", function (e) {
+                    if (form.dataset.confirmed === "1") { return; }
+                    e.preventDefault();
+                    msgEl.innerHTML = form.dataset.confirmMessage || "Delete this item?";
+                    pendingForm = form;
+                    $("#confirmDeleteModal").modal("show");
+                });
+            });
+
+            confirmBtn.addEventListener("click", function () {
+                if (!pendingForm) { return; }
+                pendingForm.dataset.confirmed = "1";
+                $("#confirmDeleteModal").modal("hide");
+                pendingForm.submit();
+            });
+        })();
+    </script>
 {% endblock main %}
