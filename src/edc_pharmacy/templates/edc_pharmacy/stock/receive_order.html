@@ -162,9 +162,16 @@
                     {% endif %}
 
                 </div>
-            </div>
 
-            {# ── Order items ── #}
+                {# ── Items received against this order ── #}
+                <div class="panel-body" style="border-top:1px solid #e7e7e7;">
+                    <h4 style="margin-top:0;margin-bottom:12px;">
+                        Items
+                        <small class="text-muted">
+                            &nbsp;&mdash; received against this order
+                        </small>
+                    </h4>
+
             {% for row in rows %}
             {% with oi=row.order_item %}
             <div class="panel {% if oi.unit_qty_pending is not None and oi.unit_qty_pending == 0 %}panel-success{% elif row.receive_items %}panel-warning{% else %}panel-default{% endif %}"
@@ -251,6 +258,9 @@
             </div>
             {% endwith %}
             {% endfor %}
+
+                </div>{# /panel-body items #}
+            </div>{# /panel Receive record #}
 
             <p style="margin-top:8px;">
                 <a href="{% url "edc_pharmacy:receive_home_url" %}" class="btn btn-default btn-sm">
