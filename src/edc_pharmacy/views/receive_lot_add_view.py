@@ -21,8 +21,7 @@ from ..models import OrderItem
 
 @method_decorator(login_required, name="dispatch")
 class ReceiveLotAddView(View):
-
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         order_item = get_object_or_404(OrderItem, pk=kwargs["order_item"])
         form = LotAddForm(request.POST)
         if form.is_valid():

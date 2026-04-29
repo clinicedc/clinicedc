@@ -52,7 +52,7 @@ class Command(BaseCommand):
             help="Limit to a single order (by order_identifier).",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         fix = options["fix"]
         order_filter = options["order"]
 
@@ -95,7 +95,9 @@ class Command(BaseCommand):
         self.stdout.write(f"Checked {checked} order item(s).")
 
         if not discrepancies:
-            self.stdout.write(self.style.SUCCESS("All order items are consistent. Nothing to do."))
+            self.stdout.write(
+                self.style.SUCCESS("All order items are consistent. Nothing to do.")
+            )
             return
 
         self.stdout.write(
@@ -114,8 +116,8 @@ class Command(BaseCommand):
             oi = d["order_item"]
             self.stdout.write(
                 f"  {oi.order.order_identifier:<15} {oi.order_item_identifier:<15} "
-                f"{str(d['current_received']):<14} {str(d['expected_received']):<14} "
-                f"{str(d['current_pending']):<14} {str(d['expected_pending']):<14}"
+                f"{d['current_received']!s:<14} {d['expected_received']!s:<14} "
+                f"{d['current_pending']!s:<14} {d['expected_pending']!s:<14}"
             )
 
         if fix:
@@ -134,14 +136,10 @@ class Command(BaseCommand):
                 update_order_status(order=order)
             self.stdout.write(self.style.SUCCESS(f"\nCorrected {fixed} order item(s)."))
             self.stdout.write(
-                self.style.SUCCESS(
-                    f"Updated status on {len(orders_to_update)} order(s)."
-                )
+                self.style.SUCCESS(f"Updated status on {len(orders_to_update)} order(s).")
             )
         else:
             self.stdout.write(
-                self.style.NOTICE(
-                    "\nRun with --fix to write corrections to the database."
-                )
+                self.style.NOTICE("\nRun with --fix to write corrections to the database.")
             )
             raise SystemExit(1)

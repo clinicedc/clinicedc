@@ -1,6 +1,7 @@
 import re
 
 from clinicedc_constants import UUID_PATTERN
+from clinicedc_constants.choices import GENDER
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 from django.db import models, transaction
@@ -13,7 +14,6 @@ from django_crypto_fields.fields import (
     LastnameField,
 )
 
-from clinicedc_constants.choices import GENDER
 from edc_identifier.model_mixins import UniqueSubjectIdentifierModelMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_model_fields.fields import IdentityTypeField, IsDateEstimatedField

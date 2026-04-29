@@ -4,10 +4,10 @@ from .compute_delta import compute_delta
 from .state_delta import CurrentState, StateDelta
 
 __all__ = [
+    "CurrentState",
+    "StateDelta",
     "apply_delta_context",
     "apply_transaction",
     "compute_delta",
-    "CurrentState",
     "is_apply_delta_active",
-    "StateDelta",
 ]

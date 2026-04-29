@@ -38,8 +38,8 @@ class LedgerView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateVi
         q = self.request.GET.get("q", "").strip()
         transactions = []
         truncated = False
-        qty_total = Decimal("0")
-        unit_qty_total = Decimal("0")
+        qty_total = Decimal(0)
+        unit_qty_total = Decimal(0)
 
         if q:
             qs = StockTransaction.objects.filter(
@@ -67,8 +67,8 @@ class LedgerView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateVi
                     subject_identifier = alloc.subject_identifier
                 else:
                     subject_identifier = txn.stock.subject_identifier or ""
-                qty_total += txn.qty_delta or Decimal("0")
-                unit_qty_total += txn.unit_qty_delta or Decimal("0")
+                qty_total += txn.qty_delta or Decimal(0)
+                unit_qty_total += txn.unit_qty_delta or Decimal(0)
                 transactions.append({"txn": txn, "subject_identifier": subject_identifier})
 
         # Build the admin changelist URL, optionally pre-filtered.

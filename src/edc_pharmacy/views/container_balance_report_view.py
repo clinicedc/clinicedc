@@ -20,6 +20,7 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
+from ..auth_objects import PHARMACIST_ROLE
 from ..models import Stock
 from ..models.medication import Assignment
 from .auths_view_mixin import AuthsViewMixin
@@ -36,7 +37,6 @@ class ContainerBalanceReportView(
     navbar_selected_item = "pharmacy"
 
     def get_context_data(self, **kwargs):
-        from ..auth_objects import PHARMACIST_ROLE
 
         roles = [obj.name for obj in self.request.user.userprofile.roles.all()]
         show_assignment = PHARMACIST_ROLE in roles
@@ -44,9 +44,7 @@ class ContainerBalanceReportView(
         # Build assignment lookup: id → display_name (decrypted in Python)
         assignment_map: dict = {}
         if show_assignment:
-            assignment_map = {
-                str(a.pk): str(a) for a in Assignment.objects.all()
-            }
+            assignment_map = {str(a.pk): str(a) for a in Assignment.objects.all()}
 
         values_fields = [
             "container__container_type__display_name",
@@ -81,14 +79,16 @@ class ContainerBalanceReportView(
         )
 
         # Group rows by container type for template rendering
-        groups: dict[str, dict] = defaultdict(lambda: {
-            "rows": [],
-            "subtotal_in": Decimal("0"),
-            "subtotal_out": Decimal("0"),
-        })
+        groups: dict[str, dict] = defaultdict(
+            lambda: {
+                "rows": [],
+                "subtotal_in": Decimal(0),
+                "subtotal_out": Decimal(0),
+            }
+        )
 
-        grand_in = Decimal("0")
-        grand_out = Decimal("0")
+        grand_in = Decimal(0)
+        grand_out = Decimal(0)
 
         for row in qs:
             ct_label = (
@@ -98,8 +98,8 @@ class ContainerBalanceReportView(
             )
             container_label = row["container__display_name"] or row["container__name"] or "—"
             location_label = row["location__display_name"] or row["location__name"] or "—"
-            unit_in = row["total_unit_qty_in"] or Decimal("0")
-            unit_out = row["total_unit_qty_out"] or Decimal("0")
+            unit_in = row["total_unit_qty_in"] or Decimal(0)
+            unit_out = row["total_unit_qty_out"] or Decimal(0)
             balance = unit_in - unit_out
 
             assignment_label = ""
@@ -107,15 +107,17 @@ class ContainerBalanceReportView(
                 assignment_id = str(row.get("lot__assignment_id") or "")
                 assignment_label = assignment_map.get(assignment_id, "—")
 
-            groups[ct_label]["rows"].append({
-                "container": container_label,
-                "location": location_label,
-                "assignment": assignment_label,
-                "stock_count": int(row["stock_count"] or 0),
-                "unit_qty_in": unit_in,
-                "unit_qty_out": unit_out,
-                "balance": balance,
-            })
+            groups[ct_label]["rows"].append(
+                {
+                    "container": container_label,
+                    "location": location_label,
+                    "assignment": assignment_label,
+                    "stock_count": int(row["stock_count"] or 0),
+                    "unit_qty_in": unit_in,
+                    "unit_qty_out": unit_out,
+                    "balance": balance,
+                }
+            )
             groups[ct_label]["subtotal_in"] += unit_in
             groups[ct_label]["subtotal_out"] += unit_out
             grand_in += unit_in

@@ -1,11 +1,11 @@
 from clinicedc_constants import NOT_APPLICABLE
+from clinicedc_constants.choices import YES_NO
 from django.conf import settings
 from django.db import models
 from django.db.models import UniqueConstraint
 from django.utils import timezone
 
 from edc_consent.model_mixins import RequiresConsentFieldsModelMixin
-from clinicedc_constants.choices import YES_NO
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins.updates import UpdatesRequisitionMetadataModelMixin
 from edc_model.models import HistoricalRecords, InitialsField, OtherCharField

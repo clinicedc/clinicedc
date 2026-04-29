@@ -42,9 +42,7 @@ class ReceiveOrderItemView(
     def _get_receive_item(self, order_item):
         receive_item_pk = self.kwargs.get("receive_item")
         if receive_item_pk:
-            return get_object_or_404(
-                ReceiveItem, pk=receive_item_pk, order_item=order_item
-            )
+            return get_object_or_404(ReceiveItem, pk=receive_item_pk, order_item=order_item)
         return None
 
     def _get_receive(self, order):
@@ -112,7 +110,7 @@ class ReceiveOrderItemView(
         )
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         order = self._get_order()
         order_item = self._get_order_item(order)
         receive_item = self._get_receive_item(order_item)
@@ -123,9 +121,10 @@ class ReceiveOrderItemView(
             return HttpResponseRedirect(self._order_url(order, order_item))
 
         # Editing is locked once any associated Stock has been confirmed.
-        if receive_item is not None and Stock.objects.filter(
-            receive_item=receive_item, confirmed=True
-        ).exists():
+        if (
+            receive_item is not None
+            and Stock.objects.filter(receive_item=receive_item, confirmed=True).exists()
+        ):
             messages.error(
                 request,
                 f"Cannot edit {receive_item.receive_item_identifier}: "
@@ -133,9 +132,7 @@ class ReceiveOrderItemView(
             )
             return HttpResponseRedirect(self._order_url(order, order_item))
 
-        form = ReceiveItemAddForm(
-            request.POST, order_item=order_item, instance=receive_item
-        )
+        form = ReceiveItemAddForm(request.POST, order_item=order_item, instance=receive_item)
         if form.is_valid():
             cd = form.cleaned_data
             if receive_item is None:
@@ -152,7 +149,7 @@ class ReceiveOrderItemView(
                 )
                 messages.success(
                     request,
-                    f"Added {cd['item_qty_received']} × {cd['container']} "
+                    f"Added {cd['item_qty_received']} × {cd['container']} "  # noqa: RUF001
                     f"(batch {cd['lot'].lot_no}).",
                 )
             else:
@@ -173,9 +170,7 @@ class ReceiveOrderItemView(
                 # their lot/container/container_unit_qty/unit_qty_in match
                 # the edited ReceiveItem. Stock codes and IDs are preserved,
                 # so any printed labels stay valid.
-                Stock.objects.filter(
-                    receive_item=receive_item, confirmed=False
-                ).update(
+                Stock.objects.filter(receive_item=receive_item, confirmed=False).update(
                     lot=cd["lot"],
                     container=cd["container"],
                     container_unit_qty=cd["container_unit_qty"],

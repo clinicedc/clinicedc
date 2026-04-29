@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from django.db import models
-
 from clinicedc_constants.choices import YES_NO, YES_NO_NA
+from django.db import models
 
 from ..calculate_missing import calculate_missing
 from ..get_summary import get_summary

@@ -1,19 +1,20 @@
 from __future__ import annotations
 
-from django_audit_fields.admin import audit_fieldset_tuple
-
 from clinicedc_constants import NOT_APPLICABLE, OTHER
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
+from django_audit_fields.admin import audit_fieldset_tuple
+
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
 from edc_utils.text import convert_php_dateformat
-from .modeladmin_mixins import NonAeInitialModelAdminMixin
+
 from ..forms import AeTmgForm
 from ..models import AeClassification
 from ..utils import get_adverse_event_app_label, get_ae_model
+from .modeladmin_mixins import NonAeInitialModelAdminMixin
 
 
 class AeTmgModelAdminMixin(

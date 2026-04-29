@@ -1,6 +1,6 @@
+from clinicedc_constants.choices import YES_NO
 from django.db import models
 
-from clinicedc_constants.choices import YES_NO
 from edc_glucose.model_mixins import Hba1cModelMixin as BaseHba1cModelMixin
 from edc_reportable.choices import REPORTABLE
 

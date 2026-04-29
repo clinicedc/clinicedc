@@ -1,18 +1,19 @@
 from uuid import uuid4
 
+from clinicedc_constants import NULL_STRING, OPEN
 from django.db import models
 from django.db.models import UniqueConstraint
 from django_crypto_fields.fields import EncryptedTextField
 
-from clinicedc_constants import NULL_STRING, OPEN
 from edc_data_manager.get_data_queries import get_data_queries
 from edc_model.validators import datetime_not_future
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_sites.managers import CurrentSiteManager
 from edc_utils import age, formatted_age
-from .consent_version_model_mixin import ConsentVersionModelMixin
+
 from ..field_mixins import VerificationFieldsMixin
 from ..managers import ConsentObjectsManager
+from .consent_version_model_mixin import ConsentVersionModelMixin
 
 
 class ConsentModelMixin(ConsentVersionModelMixin, VerificationFieldsMixin, models.Model):

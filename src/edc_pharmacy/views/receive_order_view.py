@@ -19,6 +19,7 @@ from django.db.models import ProtectedError
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
@@ -33,7 +34,9 @@ from .auths_view_mixin import AuthsViewMixin
 
 
 @method_decorator(login_required, name="dispatch")
-class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
+class ReceiveOrderView(
+    AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+):
     template_name = "edc_pharmacy/stock/receive_order.html"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"
@@ -41,13 +44,15 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
     def get_order(self):
         return get_object_or_404(Order, pk=self.kwargs["order"])
 
-    def get_receive(self, order):
+    @staticmethod
+    def get_receive(order):
         try:
             return Receive.objects.get(order=order)
         except Receive.DoesNotExist:
             return None
 
-    def _build_rows(self, order, receive):
+    @staticmethod
+    def _build_rows(order, receive):
         """Build per-order-item context rows."""
         # Pre-compute confirmed-stock status per ReceiveItem in one query
         confirmed_set = set(
@@ -56,9 +61,7 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
             ).values_list("receive_item_id", flat=True)
         )
         rows = []
-        for oi in OrderItem.objects.filter(order=order).select_related(
-            "product", "container"
-        ):
+        for oi in OrderItem.objects.filter(order=order).select_related("product", "container"):
             ris = list(
                 ReceiveItem.objects.filter(order_item=oi)
                 .select_related("lot", "container")
@@ -76,9 +79,8 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
                     "order_item": oi,
                     "receive_items": receive_items,
                     # NULL means signal hasn't run yet — treat as pending
-                    "can_add": receive is not None and (
-                        oi.unit_qty_pending is None or oi.unit_qty_pending > 0
-                    ),
+                    "can_add": receive is not None
+                    and (oi.unit_qty_pending is None or oi.unit_qty_pending > 0),
                 }
             )
         return rows
@@ -117,9 +119,7 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
         # edit_receive=True when: no receive yet (must fill form), or ?edit=1 in URL,
         # or the form was re-rendered after a failed POST.
         edit_receive = (
-            receive is None
-            or self.request.GET.get("edit") == "1"
-            or receive_form.errors
+            receive is None or self.request.GET.get("edit") == "1" or receive_form.errors
         )
 
         context.update(
@@ -134,25 +134,26 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
         )
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         order = self.get_order()
         receive = self.get_receive(order)
         action = request.POST.get("action")
 
         if action == "save_receive":
             return self._handle_save_receive(request, order, receive)
-        elif action == "print_labels":
+        if action == "print_labels":
             return self._handle_print_labels(request, order, receive)
-        elif action == "confirm_stock":
+        if action == "confirm_stock":
             return self._handle_confirm_stock(request, order, receive)
-        elif action == "delete_receive_item":
+        if action == "delete_receive_item":
             return self._handle_delete_receive_item(request, order)
 
         return HttpResponseRedirect(
             reverse("edc_pharmacy:receive_order_url", kwargs={"order": order.pk})
         )
 
-    def _handle_delete_receive_item(self, request, order):
+    @staticmethod
+    def _handle_delete_receive_item(request, order):
         """Delete a ReceiveItem and its (unconfirmed) Stock rows."""
         receive_item_pk = request.POST.get("receive_item")
         receive_item = get_object_or_404(
@@ -168,9 +169,7 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
             try:
                 identifier = receive_item.receive_item_identifier
                 # Cascade-clear unconfirmed Stock first (FK is on_delete=PROTECT)
-                Stock.objects.filter(
-                    receive_item=receive_item, confirmed=False
-                ).delete()
+                Stock.objects.filter(receive_item=receive_item, confirmed=False).delete()
                 receive_item.delete()
                 messages.success(request, f"Receive item {identifier} deleted.")
             except ProtectedError:
@@ -184,7 +183,6 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
         )
 
     def _handle_save_receive(self, request, order, receive):
-        from django.utils import timezone
         form = ReceiveHeaderForm(request.POST, instance=receive)
         if form.is_valid():
             obj = form.save(commit=False)
@@ -219,7 +217,8 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
         )
         return self.render_to_response(context)
 
-    def _handle_print_labels(self, request, order, receive):
+    @staticmethod
+    def _handle_print_labels(request, order, receive):
         if not receive:
             messages.error(request, "No receive record found.")
             return HttpResponseRedirect(
@@ -242,15 +241,14 @@ class ReceiveOrderView(AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtoco
             )
         )
 
-    def _handle_confirm_stock(self, request, order, receive):
+    @staticmethod
+    def _handle_confirm_stock(request, order, receive):
         if not receive:
             messages.error(request, "No receive record found.")
             return HttpResponseRedirect(
                 reverse("edc_pharmacy:receive_order_url", kwargs={"order": order.pk})
             )
-        stock_qs = Stock.objects.filter(
-            receive_item__receive=receive, confirmed=False
-        )
+        stock_qs = Stock.objects.filter(receive_item__receive=receive, confirmed=False)
         stock_codes = list(stock_qs.values_list("code", flat=True))
         if not stock_codes:
             messages.warning(request, "All stock items are already confirmed.")

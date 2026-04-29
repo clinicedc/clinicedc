@@ -5,7 +5,7 @@ from decimal import Decimal
 from django import forms
 from django.db.models import Sum
 
-from ...models import Container, Lot, ReceiveItem, Stock
+from ...models import Container, Lot, ReceiveItem
 
 
 class ReceiveItemAddForm(forms.Form):
@@ -72,9 +72,12 @@ class ReceiveItemAddForm(forms.Form):
         container_unit_qty = cleaned_data.get("container_unit_qty")
         item_qty_received = cleaned_data.get("item_qty_received")
 
-        if lot and self.order_item:
-            if lot.product.assignment != self.order_item.product.assignment:
-                self.add_error("lot", "Batch assignment does not match product assignment.")
+        if (
+            lot
+            and self.order_item
+            and lot.product.assignment != self.order_item.product.assignment
+        ):
+            self.add_error("lot", "Batch assignment does not match product assignment.")
 
         if container_unit_qty and item_qty_received and self.order_item:
             unit_qty_this = container_unit_qty * item_qty_received
@@ -82,10 +85,9 @@ class ReceiveItemAddForm(forms.Form):
             # Exclude the row being edited so its old value isn't double-counted
             if self.instance is not None and self.instance.pk:
                 existing_qs = existing_qs.exclude(pk=self.instance.pk)
-            already_received = (
-                existing_qs.aggregate(total=Sum("unit_qty_received"))["total"]
-                or Decimal("0.0")
-            )
+            already_received = existing_qs.aggregate(total=Sum("unit_qty_received"))[
+                "total"
+            ] or Decimal("0.0")
             if unit_qty_this + already_received > self.order_item.unit_qty_ordered:
                 self.add_error(
                     "item_qty_received",

@@ -25,10 +25,10 @@ from ..models import (
     MISSING,
     UNEXPECTED,
     Stock,
-    StorageBin,
-    StorageBinItem,
     StockTake,
     StockTakeItem,
+    StorageBin,
+    StorageBinItem,
 )
 
 
@@ -58,25 +58,22 @@ class StockTakeScanView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             **kwargs,
         )
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa:ARG002
         storage_bin = self.get_storage_bin()
-        scanned_codes = {
-            c.strip().upper()
-            for c in request.POST.getlist("codes")
-            if c.strip()
-        }
+        scanned_codes = {c.strip().upper() for c in request.POST.getlist("codes") if c.strip()}
 
         if not scanned_codes:
             messages.warning(request, "No codes scanned.")
             return HttpResponseRedirect(
-                reverse("edc_pharmacy:stock_take_scan_url",
-                        kwargs={"storage_bin": storage_bin.pk})
+                reverse(
+                    "edc_pharmacy:stock_take_scan_url", kwargs={"storage_bin": storage_bin.pk}
+                )
             )
 
         # Expected codes: all codes registered in this bin
-        expected_qs = StorageBinItem.objects.filter(
-            storage_bin=storage_bin
-        ).select_related("stock")
+        expected_qs = StorageBinItem.objects.filter(storage_bin=storage_bin).select_related(
+            "stock"
+        )
         expected_codes = {item.code: item.stock for item in expected_qs}
 
         matched = scanned_codes & expected_codes.keys()
@@ -97,23 +94,27 @@ class StockTakeScanView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
         )
 
         # Build StockTakeItem rows
-        items = []
-
-        for code in matched:
-            items.append(StockTakeItem(
+        items = [
+            StockTakeItem(
                 stock_take=stock_take,
                 stock=expected_codes[code],
                 code=code,
                 status=MATCHED,
-            ))
+            )
+            for code in matched
+        ]
 
-        for code in missing:
-            items.append(StockTakeItem(
-                stock_take=stock_take,
-                stock=expected_codes[code],
-                code=code,
-                status=MISSING,
-            ))
+        items.extend(
+            [
+                StockTakeItem(
+                    stock_take=stock_take,
+                    stock=expected_codes[code],
+                    code=code,
+                    status=MISSING,
+                )
+                for code in missing
+            ]
+        )
 
         for code in unexpected:
             # Try to find the stock in the system (may not be in this bin)
@@ -121,12 +122,14 @@ class StockTakeScanView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
                 stock = Stock.objects.get(code=code)
             except Stock.DoesNotExist:
                 stock = None
-            items.append(StockTakeItem(
-                stock_take=stock_take,
-                stock=stock,
-                code=code,
-                status=UNEXPECTED,
-            ))
+            items.append(
+                StockTakeItem(
+                    stock_take=stock_take,
+                    stock=stock,
+                    code=code,
+                    status=UNEXPECTED,
+                )
+            )
 
         StockTakeItem.objects.bulk_create(items)
 
@@ -136,6 +139,7 @@ class StockTakeScanView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             f"{len(missing)} missing, {len(unexpected)} unexpected.",
         )
         return HttpResponseRedirect(
-            reverse("edc_pharmacy:stock_take_results_url",
-                    kwargs={"stock_take": stock_take.pk})
+            reverse(
+                "edc_pharmacy:stock_take_results_url", kwargs={"stock_take": stock_take.pk}
+            )
         )

@@ -70,13 +70,12 @@ from django.db import transaction
 from ...constants import (
     CENTRAL_LOCATION,
     TXN_ALLOCATED,
+    TXN_RECEIVED,
     TXN_REPACK_CONSUMED,
     TXN_REPACK_PRODUCED,
-    TXN_RECEIVED,
     ZERO_ITEM,
 )
-from ...models import Stock, StockTransaction
-from ...models.stock.location import Location
+from ...models import Location, RepackRequest, Stock, StockTransaction
 
 
 class Command(BaseCommand):
@@ -93,7 +92,7 @@ class Command(BaseCommand):
             help="Report what would change without writing to the database.",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         dry_run: bool = options["dry_run"]
         errors = 0
 
@@ -129,8 +128,7 @@ class Command(BaseCommand):
 
         count = qs_cali.count() + qs_dispensed.count()
         self.stdout.write(
-            f"[in_transit] {count} stocks to fix "
-            f"({'dry-run' if dry_run else 'will update'})"
+            f"[in_transit] {count} stocks to fix ({'dry-run' if dry_run else 'will update'})"
         )
         if count and not dry_run:
             try:
@@ -173,7 +171,7 @@ class Command(BaseCommand):
         qs = StockTransaction.objects.filter(
             transaction_type=TXN_RECEIVED,
             state_after={"bootstrapped": True},
-            qty_delta=Decimal("0"),
+            qty_delta=Decimal(0),
         ).select_related("stock")
 
         count = qs.count()
@@ -188,17 +186,15 @@ class Command(BaseCommand):
         updated = 0
         # Process in chunks to avoid locking the whole table.
         for txn in qs.iterator(chunk_size=500):
-            unit_qty = txn.stock.container_unit_qty or Decimal("0")
+            unit_qty = txn.stock.container_unit_qty or Decimal(0)
             try:
                 StockTransaction.objects.filter(pk=txn.pk).update(
-                    qty_delta=Decimal("1"),
+                    qty_delta=Decimal(1),
                     unit_qty_delta=unit_qty,
                 )
                 updated += 1
             except Exception as exc:
-                self.stderr.write(
-                    self.style.ERROR(f"  ERROR on txn {txn.pk}: {exc}")
-                )
+                self.stderr.write(self.style.ERROR(f"  ERROR on txn {txn.pk}: {exc}"))
                 errors += 1
 
         self.stdout.write(
@@ -213,7 +209,6 @@ class Command(BaseCommand):
     # ------------------------------------------------------------------
 
     def _fix_repack_consumed(self, dry_run: bool) -> int:
-        from ...models.stock.repack_request import RepackRequest
 
         # Find repack requests that have no corresponding TXN_REPACK_CONSUMED row.
         # Two sources of existing rows:
@@ -232,12 +227,10 @@ class Command(BaseCommand):
             StockTransaction.objects.filter(
                 transaction_type=TXN_REPACK_CONSUMED,
                 repack_request=None,
-            )
-            .values_list("stock_id", flat=True)
+            ).values_list("stock_id", flat=True)
         )
         pending = (
-            RepackRequest.objects
-            .exclude(pk__in=already_logged_by_fk)
+            RepackRequest.objects.exclude(pk__in=already_logged_by_fk)
             .exclude(from_stock_id__in=already_logged_by_stock)
             .select_related("from_stock")
         )
@@ -253,27 +246,29 @@ class Command(BaseCommand):
         errors = 0
         created = 0
         for rr in pending.iterator(chunk_size=200):
-            unit_qty = rr.unit_qty_processed or Decimal("0")
+            unit_qty = rr.unit_qty_processed or Decimal(0)
             if unit_qty == 0:
                 continue
             try:
-                StockTransaction.objects.bulk_create([
-                    StockTransaction(
-                        stock=rr.from_stock,
-                        transaction_type=TXN_REPACK_CONSUMED,
-                        actor=None,
-                        reason="bootstrapped",
-                        transaction_datetime=rr.repack_datetime,
-                        created=rr.repack_datetime,
-                        modified=rr.repack_datetime,
-                        qty_delta=Decimal("0"),
-                        unit_qty_delta=-unit_qty,
-                        from_location_id=rr.from_stock.location_id,
-                        to_location_id=rr.from_stock.location_id,
-                        repack_request=rr,
-                        state_after={"bootstrapped": True},
-                    )
-                ])
+                StockTransaction.objects.bulk_create(
+                    [
+                        StockTransaction(
+                            stock=rr.from_stock,
+                            transaction_type=TXN_REPACK_CONSUMED,
+                            actor=None,
+                            reason="bootstrapped",
+                            transaction_datetime=rr.repack_datetime,
+                            created=rr.repack_datetime,
+                            modified=rr.repack_datetime,
+                            qty_delta=Decimal(0),
+                            unit_qty_delta=-unit_qty,
+                            from_location_id=rr.from_stock.location_id,
+                            to_location_id=rr.from_stock.location_id,
+                            repack_request=rr,
+                            state_after={"bootstrapped": True},
+                        )
+                    ]
+                )
                 created += 1
             except Exception as exc:
                 self.stderr.write(
@@ -331,8 +326,8 @@ class Command(BaseCommand):
         """
         qs = StockTransaction.objects.filter(
             transaction_type=TXN_REPACK_CONSUMED,
-            qty_delta=Decimal("0"),
-            stock__qty_out=Decimal("1"),
+            qty_delta=Decimal(0),
+            stock__qty_out=Decimal(1),
         )
         count = qs.count()
         self.stdout.write(
@@ -343,7 +338,7 @@ class Command(BaseCommand):
         if count and not dry_run:
             try:
                 with transaction.atomic():
-                    updated = qs.update(qty_delta=Decimal("-1"))
+                    updated = qs.update(qty_delta=Decimal(-1))
                 self.stdout.write(self.style.SUCCESS(f"  Updated {updated} rows."))
             except Exception as exc:
                 self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))

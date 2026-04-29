@@ -1,10 +1,9 @@
 from clinicedc_constants import NEW, NO, NOT_APPLICABLE, NULL_STRING, PARTIAL, RECEIVED, YES
+from clinicedc_constants.choices import YES_NO, YES_NO_NA
 from django.contrib.admin import SimpleListFilter
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Count, F, Q
 from django.utils.translation import gettext as _
-
-from clinicedc_constants.choices import YES_NO, YES_NO_NA
 
 from ..models import Medication, Rx
 from ..utils import blinded_user

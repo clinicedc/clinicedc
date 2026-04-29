@@ -1,7 +1,6 @@
 from clinicedc_constants import NOT_APPLICABLE
-from django.db import models
-
 from clinicedc_constants.choices import YES_NO_NA
+from django.db import models
 
 from .followup_review_model_mixin import FollowupReviewModelMixin
 

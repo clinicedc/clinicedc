@@ -1,8 +1,8 @@
 from clinicedc_constants import MICRO_IU_MILLILITER
+from clinicedc_constants.choices import YES_NO
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from clinicedc_constants.choices import YES_NO
 from edc_glucose.model_mixin_factories import fasting_model_mixin_factory
 from edc_reportable.units import MICRO_IU_MILLILITER_DISPLAY
 

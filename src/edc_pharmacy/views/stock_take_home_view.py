@@ -16,7 +16,7 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
-from ..models import StorageBin, StorageBinItem, StockTake
+from ..models import StockTake, StorageBin, StorageBinItem
 
 
 @method_decorator(login_required, name="dispatch")

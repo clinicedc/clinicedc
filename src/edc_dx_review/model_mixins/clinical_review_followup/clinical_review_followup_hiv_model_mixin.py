@@ -1,9 +1,9 @@
 from clinicedc_constants import NOT_APPLICABLE
+from clinicedc_constants.choices import YES_NO_NA
 from django.db import models
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from clinicedc_constants.choices import YES_NO_NA
 from edc_model import models as edc_models
 
 from ...utils import get_list_model_app

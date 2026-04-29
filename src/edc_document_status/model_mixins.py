@@ -1,9 +1,8 @@
 from typing import Any
 
 from clinicedc_constants import COMPLETE
-from django.db import models
-
 from clinicedc_constants.choices import DOCUMENT_STATUS
+from django.db import models
 
 
 class DocumentStatusModelMixin(models.Model):

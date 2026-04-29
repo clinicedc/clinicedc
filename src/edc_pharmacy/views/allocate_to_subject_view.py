@@ -224,7 +224,9 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     ) -> str | None:
         if (
             stock_codes
-            and Stock.objects.filter(code__in=stock_codes, current_allocation__isnull=False).exists()
+            and Stock.objects.filter(
+                code__in=stock_codes, current_allocation__isnull=False
+            ).exists()
         ):
             allocated_stock_codes = []
             for stock in Stock.objects.filter(code__in=stock_codes):
@@ -308,7 +310,9 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         return 0, 0
 
     def post(self, request, *args, **kwargs):  # noqa: ARG002
-        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
+        stock_codes: list[str] | None = (
+            request.POST.getlist("codes") if request.POST.get("codes") else None
+        )
         subject_identifiers = request.POST.get("subject_identifiers")
         assignment_id = request.POST.get("assignment")
         subject_identifiers = ast.literal_eval(subject_identifiers)

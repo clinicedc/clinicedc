@@ -46,17 +46,15 @@ class LotAddForm(forms.ModelForm):
         manuf = cleaned.get("manufactured_date")
         exp = cleaned.get("expiration_date")
         if manuf and exp and manuf > exp:
-            self.add_error(
-                "manufactured_date", "May not be after the expiration date."
-            )
+            self.add_error("manufactured_date", "May not be after the expiration date.")
         return cleaned
 
     class Meta:
         model = Lot
-        fields = [
+        fields = (
             "lot_no",
             "expiration_date",
             "manufactured_date",
             "manufactured_by",
             "reference",
-        ]
+        )

@@ -58,4 +58,4 @@ class StockTakeItem(BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Stock take item"
         verbose_name_plural = "Stock take items"
-        ordering = ["status", "code"]
+        ordering = ("status", "code")

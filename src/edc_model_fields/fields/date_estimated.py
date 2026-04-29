@@ -1,8 +1,7 @@
 from clinicedc_constants import NOT_APPLICABLE
+from clinicedc_constants.choices import DATE_ESTIMATED, DATE_ESTIMATED_NA
 from django.db.models.fields import CharField
 from django.utils.translation import gettext as _
-
-from clinicedc_constants.choices import DATE_ESTIMATED, DATE_ESTIMATED_NA
 
 
 class IsDateEstimatedField(CharField):
