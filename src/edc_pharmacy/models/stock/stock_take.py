@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import PROTECT
 from django.utils import timezone
+from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_sites.model_mixins import SiteModelMixin
@@ -74,20 +75,16 @@ class StockTake(SiteModelMixin, BaseUuidModel):
 
     def __str__(self):
         return (
-            f"{self.stock_take_identifier}: {self.storage_bin} "
-            f"({self.get_status_display()})"
+            f"{self.stock_take_identifier}: {self.storage_bin} ({self.get_status_display()})"
         )
 
     def save(self, *args, **kwargs):
         if not self.stock_take_identifier:
-            from sequences import get_next_value
-            self.stock_take_identifier = (
-                f"ST-{get_next_value(self._meta.label_lower):06d}"
-            )
+            self.stock_take_identifier = f"ST-{get_next_value(self._meta.label_lower):06d}"
         self.site = self.storage_bin.location.site
         super().save(*args, **kwargs)
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Stock take"
         verbose_name_plural = "Stock takes"
-        ordering = ["-stock_take_datetime"]
+        ordering = ("-stock_take_datetime",)

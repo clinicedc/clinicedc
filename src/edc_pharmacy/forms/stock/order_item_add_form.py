@@ -50,8 +50,7 @@ class OrderItemAddForm(forms.ModelForm):
             raise forms.ValidationError(
                 {
                     "container_unit_qty": (
-                        "May not exceed the container maximum "
-                        f"({container.unit_qty_max})."
+                        f"May not exceed the container maximum ({container.unit_qty_max})."
                     )
                 }
             )
@@ -68,8 +67,7 @@ class OrderItemAddForm(forms.ModelForm):
                 raise forms.ValidationError(
                     {
                         "item_qty_ordered": (
-                            "May not be less than the quantity already received "
-                            f"({received})."
+                            f"May not be less than the quantity already received ({received})."
                         )
                     }
                 )
@@ -77,9 +75,9 @@ class OrderItemAddForm(forms.ModelForm):
 
     class Meta:
         model = OrderItem
-        fields = [
+        fields = (
             "product",
             "container",
             "container_unit_qty",
             "item_qty_ordered",
-        ]
+        )

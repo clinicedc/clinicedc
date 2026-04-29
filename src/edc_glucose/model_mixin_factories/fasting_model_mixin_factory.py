@@ -1,7 +1,7 @@
 from clinicedc_constants import NOT_APPLICABLE
+from clinicedc_constants.choices import YES_NO_NA
 from django.db import models
 
-from clinicedc_constants.choices import YES_NO_NA
 from edc_model.utils import duration_hm_to_timedelta
 from edc_model.validators import hm_validator
 

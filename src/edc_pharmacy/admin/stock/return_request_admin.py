@@ -8,7 +8,7 @@ from edc_model_admin.history import SimpleHistoryAdmin
 from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
-from ...models import ReturnRequest, ReturnItem
+from ...models import ReturnItem, ReturnRequest
 from ..actions import print_return_manifest_action
 from ..model_admin_mixin import ModelAdminMixin
 

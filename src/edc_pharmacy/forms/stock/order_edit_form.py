@@ -33,9 +33,7 @@ class OrderEditForm(forms.ModelForm):
                 self.instance.order_datetime
             ).date()
         else:
-            self.initial.setdefault(
-                "order_date", timezone.localtime(timezone.now()).date()
-            )
+            self.initial.setdefault("order_date", timezone.localtime(timezone.now()).date())
 
     def clean_order_date(self):
         date = self.cleaned_data.get("order_date")
@@ -45,10 +43,10 @@ class OrderEditForm(forms.ModelForm):
 
     class Meta:
         model = Order
-        fields = [
+        fields = (
             "order_date",
             "supplier",
             "title",
             "sent",
             "comment",
-        ]
+        )

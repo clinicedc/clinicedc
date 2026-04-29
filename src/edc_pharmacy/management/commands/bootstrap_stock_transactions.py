@@ -20,7 +20,9 @@ event log.
 Note before running:
     uv --nodev --no-sources manage.py migrate
     uv --nodev --no-sources manage.py fix_historical_stock_state
-    uv --nodev --no-sources manage.py shell -c "from edc_pharmacy.models import StockTransaction; StockTransaction.objects.all().delete()"
+    uv --nodev --no-sources manage.py shell -c \
+        "from edc_pharmacy.models import StockTransaction; \
+        StockTransaction.objects.all().delete()"
     uv --nodev --no-sources manage.py bootstrap_stock_transactions
 `   uv --nodev --no-sources manage.py check_stock_ledger
 """
@@ -29,14 +31,21 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from tqdm import tqdm
-
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models import Sum
-from ...constants import (TXN_ALLOCATED, TXN_DISPENSED, TXN_RECEIVED, TXN_REPACK_CONSUMED,
-                          TXN_STORED, TXN_TRANSFER_DISPATCHED, TXN_TRANSFER_RECEIVED)
+from tqdm import tqdm
+
+from ...constants import (
+    TXN_ALLOCATED,
+    TXN_DISPENSED,
+    TXN_RECEIVED,
+    TXN_REPACK_CONSUMED,
+    TXN_STORED,
+    TXN_TRANSFER_DISPATCHED,
+    TXN_TRANSFER_RECEIVED,
+)
 from ...models import Stock, StockTransaction
 from ...models.stock import (
     Allocation,
@@ -53,26 +62,26 @@ def _resolve_actor(username: str | None, cache: dict) -> object:
     if not username:
         return None
     if username not in cache:
-        User = get_user_model()
+        user_cls = get_user_model()
         try:
-            cache[username] = User.objects.get(username=username)
-        except User.DoesNotExist:
+            cache[username] = user_cls.objects.get(username=username)
+        except user_cls.DoesNotExist:
             cache[username] = None
     return cache[username]
 
 
 def _txn(
-        stock: Stock,
-        txn_type: str,
-        dt,
-        *,
-        actor=None,
-        username: str = "",
-        from_location_id=None,
-        to_location_id=None,
-        qty_delta: Decimal = Decimal("0"),
-        unit_qty_delta: Decimal = Decimal("0"),
-        **fk_kwargs,
+    stock: Stock,
+    txn_type: str,
+    dt,
+    *,
+    actor=None,
+    username: str = "",
+    from_location_id=None,
+    to_location_id=None,
+    qty_delta: Decimal = Decimal(0),
+    unit_qty_delta: Decimal = Decimal(0),
+    **fk_kwargs,
 ) -> StockTransaction:
     # Use the explicit username string when provided (even if actor is None
     # because the User account no longer exists in the DB).
@@ -111,18 +120,19 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
 
     # Resolve allocation — stock.current_allocation is None for dispensed/ended stocks,
     # but Allocation.code == stock.code so the record is still recoverable.
-    allocation = stock.current_allocation or Allocation.objects.filter(
-        code=stock.code
-    ).first()
+    allocation = stock.current_allocation or Allocation.objects.filter(code=stock.code).first()
 
     # RECEIVED — qty_in=+1, unit_qty_in=+container_unit_qty.
     if stock.confirmed:
         dt = stock.confirmed_datetime or stock.stock_datetime
-        rows.append(t(
-            TXN_RECEIVED, dt,
-            qty_delta=Decimal("1"),
-            unit_qty_delta=stock.container_unit_qty or Decimal("0"),
-        ))
+        rows.append(
+            t(
+                TXN_RECEIVED,
+                dt,
+                qty_delta=Decimal(1),
+                unit_qty_delta=stock.container_unit_qty or Decimal(0),
+            )
+        )
 
     # ALLOCATED
     if allocation is not None:
@@ -131,25 +141,29 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
     # TRANSFER_DISPATCHED — one row per transfer (stock may have been transferred
     # more than once, e.g. central → site → central → site).
     for sti in stock.stocktransferitem_set.all():
-        rows.append(t(
-            TXN_TRANSFER_DISPATCHED,
-            sti.transfer_item_datetime,
-            from_location_id=sti.stock_transfer.from_location_id,
-            to_location_id=sti.stock_transfer.to_location_id,
-            stock_transfer_item=sti,
-            to_allocation=allocation,
-        ))
+        rows.append(  # noqa: PERF401
+            t(
+                TXN_TRANSFER_DISPATCHED,
+                sti.transfer_item_datetime,
+                from_location_id=sti.stock_transfer.from_location_id,
+                to_location_id=sti.stock_transfer.to_location_id,
+                stock_transfer_item=sti,
+                to_allocation=allocation,
+            )
+        )
 
     # TRANSFER_RECEIVED
     try:
         cali: ConfirmationAtLocationItem = stock.confirmationatlocationitem
-        rows.append(t(
-            TXN_TRANSFER_RECEIVED,
-            cali.confirmed_datetime or cali.transfer_confirmation_item_datetime,
-            to_location_id=cali.confirm_at_location.location_id,
-            stock_transfer_item=cali.stock_transfer_item,
-            to_allocation=allocation,
-        ))
+        rows.append(
+            t(
+                TXN_TRANSFER_RECEIVED,
+                cali.confirmed_datetime or cali.transfer_confirmation_item_datetime,
+                to_location_id=cali.confirm_at_location.location_id,
+                stock_transfer_item=cali.stock_transfer_item,
+                to_allocation=allocation,
+            )
+        )
     except ConfirmationAtLocationItem.DoesNotExist:
         pass
 
@@ -158,7 +172,6 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
     stored_dt = None
     try:
         sbi: StorageBinItem = stock.storagebinitem
-        stored_dt = sbi.item_datetime
     except StorageBinItem.DoesNotExist:
         # May have been stored then deleted (e.g. after dispensing).
         hist = (
@@ -168,6 +181,8 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
         )
         if hist:
             stored_dt = hist.item_datetime
+    else:
+        stored_dt = sbi.item_datetime
     if stored_dt is None and stock.stored_at_location:
         stored_dt = stock.stock_datetime
     if stored_dt is not None:
@@ -177,34 +192,41 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
     has_dispense_item = False
     try:
         di: DispenseItem = stock.dispenseitem
-        has_dispense_item = True
-        rows.append(t(
-            TXN_DISPENSED,
-            di.dispense_item_datetime,
-            qty_delta=Decimal("-1"),
-            unit_qty_delta=-(stock.container_unit_qty or Decimal("0")),
-            dispense_item=di,
-            from_allocation=allocation,
-        ))
     except DispenseItem.DoesNotExist:
         pass
+    else:
+        has_dispense_item = True
+        rows.append(
+            t(
+                TXN_DISPENSED,
+                di.dispense_item_datetime,
+                qty_delta=Decimal(-1),
+                unit_qty_delta=-(stock.container_unit_qty or Decimal(0)),
+                dispense_item=di,
+                from_allocation=allocation,
+            )
+        )
+
     if stock.dispensed and not has_dispense_item:
-        rows.append(t(
-            TXN_DISPENSED,
-            stock.stock_datetime,
-            qty_delta=Decimal("-1"),
-            unit_qty_delta=-(stock.container_unit_qty or Decimal("0")),
-            from_allocation=allocation,
-        ))
+        rows.append(
+            t(
+                TXN_DISPENSED,
+                stock.stock_datetime,
+                qty_delta=Decimal(-1),
+                unit_qty_delta=-(stock.container_unit_qty or Decimal(0)),
+                from_allocation=allocation,
+            )
+        )
 
     # REPACK_CONSUMED — sum unit_qty_in across child stocks via the RepackRequest
     # bridge (repack_request__from_stock=stock).  This is more reliable than
     # filtering on Stock.from_stock directly: that FK may be NULL on older records
     # where the field was added after the repack was processed.
     consumed_unit_qty = (
-        Stock.objects.filter(repack_request__from_stock=stock)
-        .aggregate(total=Sum("unit_qty_in"))["total"]
-    ) or Decimal("0")
+        Stock.objects.filter(repack_request__from_stock=stock).aggregate(
+            total=Sum("unit_qty_in")
+        )["total"]
+    ) or Decimal(0)
     if consumed_unit_qty > 0:
         # Prefer the user who processed the repack over the generic stock actor.
         # RepackRequest.user_modified is set by process_repack_request().
@@ -213,19 +235,19 @@ def _bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
         rr_actor = actor
         repack_dt = stock.stock_datetime
         if rr is not None:
-            rr_raw = (
-                getattr(rr, "user_modified", "") or getattr(rr, "user_created", "") or ""
-            )
+            rr_raw = getattr(rr, "user_modified", "") or getattr(rr, "user_created", "") or ""
             if rr_raw:
                 rr_actor = _resolve_actor(rr_raw, actor_cache) or actor
             repack_dt = rr.repack_datetime or stock.stock_datetime
-        rows.append(t(
-            TXN_REPACK_CONSUMED,
-            repack_dt,
-            actor=rr_actor,
-            username=rr_raw or raw_username,
-            unit_qty_delta=-consumed_unit_qty,
-        ))
+        rows.append(
+            t(
+                TXN_REPACK_CONSUMED,
+                repack_dt,
+                actor=rr_actor,
+                username=rr_raw or raw_username,
+                unit_qty_delta=-consumed_unit_qty,
+            )
+        )
 
     # Sort by datetime so the ledger reads chronologically.
     rows.sort(key=lambda r: r.transaction_datetime)
@@ -253,17 +275,21 @@ class Command(BaseCommand):
             help="Bootstrap a single stock code (useful for testing).",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         dry_run: bool = options["dry_run"]
         stock_code: str | None = options["stock_code"]
 
-        qs = Stock.objects.filter(invalid_state=False).select_related(
-            "current_allocation",
-        ).prefetch_related(
-            "stocktransferitem_set__stock_transfer",
-            "confirmationatlocationitem",
-            "storagebinitem",
-            "dispenseitem",
+        qs = (
+            Stock.objects.filter(invalid_state=False)
+            .select_related(
+                "current_allocation",
+            )
+            .prefetch_related(
+                "stocktransferitem_set__stock_transfer",
+                "confirmationatlocationitem",
+                "storagebinitem",
+                "dispenseitem",
+            )
         )
 
         if stock_code:
@@ -303,8 +329,8 @@ class Command(BaseCommand):
                         dt,
                         actor=actor,
                         username=raw_username,
-                        qty_delta=Decimal("1"),
-                        unit_qty_delta=stock.container_unit_qty or Decimal("0"),
+                        qty_delta=Decimal(1),
+                        unit_qty_delta=stock.container_unit_qty or Decimal(0),
                     )
                     if not dry_run:
                         try:
@@ -317,9 +343,7 @@ class Command(BaseCommand):
                                 self.style.ERROR(f"  {stock.code} (backfill RECEIVED): {e}")
                             )
                     else:
-                        self.stdout.write(
-                            f"  {stock.code}: {TXN_RECEIVED} @ {dt} [backfill]"
-                        )
+                        self.stdout.write(f"  {stock.code}: {TXN_RECEIVED} @ {dt} [backfill]")
                         created_count += 1
                 already_bootstrapped.append(stock.code)
                 continue

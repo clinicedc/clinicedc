@@ -24,7 +24,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 from django.core.management.base import BaseCommand
-from django.db.models import Prefetch, Sum
+from django.db.models import Prefetch
 
 from ...constants import (
     TXN_ALLOCATED,
@@ -73,10 +73,10 @@ def _replay(txns) -> dict:
         "quarantined": False,
         "has_allocation": False,
         "location_id": None,
-        "qty_in": Decimal("0"),
-        "qty_out": Decimal("0"),
-        "unit_qty_in": Decimal("0"),
-        "unit_qty_out": Decimal("0"),
+        "qty_in": Decimal(0),
+        "qty_out": Decimal(0),
+        "unit_qty_in": Decimal(0),
+        "unit_qty_out": Decimal(0),
     }
 
     for txn in txns:
@@ -208,21 +208,21 @@ def _compare(stock: Stock, expected: dict) -> dict[str, dict]:
         }
 
     # Location (only checked if the log recorded a location change).
-    if expected["location_id"] is not None:
-        if stock.location_id != expected["location_id"]:
-            mismatches["location_id"] = {
-                "expected": expected["location_id"],
-                "actual": stock.location_id,
-            }
+    if expected["location_id"] is not None and stock.location_id != expected["location_id"]:
+        mismatches["location_id"] = {
+            "expected": expected["location_id"],
+            "actual": stock.location_id,
+        }
 
     # Quantities (skip for bootstrapped-only ledgers where all deltas are 0).
     total_delta = sum(
-        abs(v) for k, v in expected.items()
+        abs(v)
+        for k, v in expected.items()
         if k in ("qty_in", "qty_out", "unit_qty_in", "unit_qty_out")
     )
     if total_delta > 0:
         for field in ("qty_in", "qty_out", "unit_qty_in", "unit_qty_out"):
-            actual_qty = getattr(stock, field) or Decimal("0")
+            actual_qty = getattr(stock, field) or Decimal(0)
             if actual_qty != expected[field]:
                 mismatches[field] = {
                     "expected": expected[field],
@@ -252,7 +252,7 @@ class Command(BaseCommand):
             help="Also print stocks that passed (verbose).",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options):  # noqa: ARG002
         stock_code: str | None = options["stock_code"]
         show_ok: bool = options["show_ok"]
 
@@ -306,7 +306,9 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.SUCCESS("No discrepancies found."))
 
-        invalid_note = f", {invalid_skipped} skipped (invalid_state)" if invalid_skipped else ""
+        invalid_note = (
+            f", {invalid_skipped} skipped (invalid_state)" if invalid_skipped else ""
+        )
         self.stdout.write(
             f"\nChecked {total} stocks: "
             f"{ok} OK, {discrepancy_count} with discrepancies, "

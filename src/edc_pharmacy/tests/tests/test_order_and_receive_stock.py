@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from secrets import choice
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
@@ -196,7 +197,7 @@ class TestOrderReceive(TestCase):
             unit_qty_received=Sum("unit_qty_received"),
         )
         self.assertEqual(sums["unit_qty_pending"], 2000)
-        self.assertEqual(sums["unit_qty_received"], None)
+        self.assertEqual(sums["unit_qty_received"], Decimal(0))
 
         for order_item in order_items:
             obj = ReceiveItem.objects.create(

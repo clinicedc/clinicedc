@@ -7,13 +7,13 @@ Lifecycle under test:
   TXN_RETURN_DISPOSITION_REPOOLED / _QUARANTINED / _DESTROYED
 """
 
+import uuid as _uuid
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
 from clinicedc_tests.action_items import register_actions
 from clinicedc_tests.consents import consent_v1
-from clinicedc_tests.helper import Helper
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
@@ -23,9 +23,18 @@ from django.utils import timezone
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_pharmacy.constants import CENTRAL_LOCATION
-from edc_pharmacy.exceptions import InvalidTransitionError
+from edc_pharmacy.constants import (
+    CENTRAL_LOCATION,
+    TXN_RETURN_DISPATCHED,
+    TXN_RETURN_DISPOSITION_DESTROYED,
+    TXN_RETURN_DISPOSITION_REPOOLED,
+    TXN_RETURN_RECEIVED,
+    TXN_RETURN_REQUESTED,
+    TXN_STORED,
+)
+from edc_pharmacy.exceptions import InvalidTransitionError, ReturnError
 from edc_pharmacy.models import (
+    Allocation,
     Assignment,
     Container,
     ContainerType,
@@ -44,20 +53,11 @@ from edc_pharmacy.models import (
     ReturnRequest,
     Route,
     Stock,
-    StorageBin,
     StockTransaction,
+    StorageBin,
     Units,
 )
-from edc_pharmacy.transaction_log import apply_transaction
-from edc_pharmacy.constants import (
-    TXN_RETURN_DISPATCHED,
-    TXN_RETURN_DISPOSITION_DESTROYED,
-    TXN_RETURN_DISPOSITION_QUARANTINED,
-    TXN_RETURN_DISPOSITION_REPOOLED,
-    TXN_RETURN_RECEIVED,
-    TXN_RETURN_REQUESTED,
-    TXN_STORED,
-)
+from edc_pharmacy.transaction_log import apply_delta_context, apply_transaction
 from edc_pharmacy.utils import (
     confirm_stock,
     dispatch_return,
@@ -79,7 +79,6 @@ User = get_user_model()
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 @override_settings(SITE_ID=10)
 class TestReturn(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -167,7 +166,9 @@ class TestReturn(TestCase):
 
         # Confirm all stock at central (sets confirmed=True, qty_in, unit_qty_in).
         codes = list(Stock.objects.values_list("code", flat=True))
-        confirm_stock(receive, codes, fk_attr="receive_item__receive", user_created="testactor")
+        confirm_stock(
+            receive, codes, fk_attr="receive_item__receive", user_created="testactor"
+        )
 
         self.stock_codes = list(Stock.objects.values_list("code", flat=True))
         self.storage_bin = StorageBin.objects.create(
@@ -179,13 +180,10 @@ class TestReturn(TestCase):
         for stock in Stock.objects.all():
             # Simulate in-transit arrival at site by overriding location directly
             # (bypassing guarded fields via apply_delta_context for location move).
-            from edc_pharmacy.transaction_log._sentinel import apply_delta_context
             with apply_delta_context():
                 stock.location = self.location_site
                 stock.save(update_fields=["location"])
-            apply_transaction(
-                stock, TXN_STORED, self.actor, storage_bin=self.storage_bin
-            )
+            apply_transaction(stock, TXN_STORED, self.actor, storage_bin=self.storage_bin)
 
     def _get_stock(self, code: str) -> Stock:
         return Stock.objects.get(code=code)
@@ -218,7 +216,9 @@ class TestReturn(TestCase):
             apply_transaction(stock, TXN_RETURN_REQUESTED, self.actor)
 
     def test_return_dispatched(self):
-        """TXN_RETURN_DISPATCHED clears return_requested, sets in_transit, creates ReturnItem."""
+        """TXN_RETURN_DISPATCHED clears return_requested,
+        sets in_transit, creates ReturnItem.
+        """
         stock = Stock.objects.first()
         apply_transaction(stock, TXN_RETURN_REQUESTED, self.actor)
         stock.refresh_from_db()
@@ -228,9 +228,7 @@ class TestReturn(TestCase):
             to_location=self.location_central,
             item_count=1,
         )
-        dispatched, skipped = dispatch_return(
-            return_request, [stock.code], self.actor
-        )
+        dispatched, skipped = dispatch_return(return_request, [stock.code], self.actor)
         self.assertEqual(dispatched, [stock.code])
         self.assertEqual(skipped, [])
 
@@ -308,7 +306,9 @@ class TestReturn(TestCase):
         dispatch_return(return_request, [stock.code], self.actor)
         receive_return(return_request, [stock.code], self.actor)
 
-        processed, skipped = disposition_return([stock.code], self.actor, disposition="repooled")
+        processed, skipped = disposition_return(
+            [stock.code], self.actor, disposition="repooled"
+        )
         self.assertEqual(processed, [stock.code])
         self.assertEqual(skipped, [])
 
@@ -332,9 +332,7 @@ class TestReturn(TestCase):
         dispatch_return(return_request, [stock.code], self.actor)
         receive_return(return_request, [stock.code], self.actor)
 
-        processed, skipped = disposition_return(
-            [stock.code], self.actor, disposition="quarantined"
-        )
+        processed, _ = disposition_return([stock.code], self.actor, disposition="quarantined")
         self.assertEqual(processed, [stock.code])
 
         stock.refresh_from_db()
@@ -352,9 +350,7 @@ class TestReturn(TestCase):
         dispatch_return(return_request, [stock.code], self.actor)
         receive_return(return_request, [stock.code], self.actor)
 
-        processed, skipped = disposition_return(
-            [stock.code], self.actor, disposition="destroyed"
-        )
+        processed, _ = disposition_return([stock.code], self.actor, disposition="destroyed")
         self.assertEqual(processed, [stock.code])
 
         stock.refresh_from_db()
@@ -386,7 +382,7 @@ class TestReturn(TestCase):
 
     def test_invalid_disposition(self):
         """disposition_return raises ReturnError for unknown disposition."""
-        from edc_pharmacy.exceptions import ReturnError
+
         with self.assertRaises(ReturnError):
             disposition_return(["FAKE"], self.actor, disposition="recycled")
 
@@ -408,7 +404,6 @@ class TestReturn(TestCase):
 
     def test_return_request_same_location_raises(self):
         """ReturnRequest raises ReturnError if from_location == to_location."""
-        from edc_pharmacy.exceptions import ReturnError
         with self.assertRaises(ReturnError):
             ReturnRequest.objects.create(
                 from_location=self.location_central,
@@ -422,8 +417,6 @@ class TestReturn(TestCase):
         Stock remains allocated to the subject throughout the return journey.
         The allocation ends only when central sets a final disposition.
         """
-        from edc_pharmacy.models import Allocation
-        from edc_pharmacy.transaction_log._sentinel import apply_delta_context
 
         stock = Stock.objects.first()
 
@@ -431,19 +424,20 @@ class TestReturn(TestCase):
         # (stock_request_item, registered_subject not needed for this test).
         # Pre-assign pk so bulk_create works on MySQL (no RETURNING support).
         # Assignment must match stock.lot.assignment to pass verify_assignment_or_raise().
-        import uuid as _uuid
         alloc_pk = _uuid.uuid4()
-        Allocation.objects.bulk_create([
-            Allocation(
-                id=alloc_pk,
-                stock=stock,
-                code=stock.code,
-                allocated_by="testactor",
-                allocation_identifier="test_alloc_001",
-                started_datetime=timezone.now(),
-                assignment=stock.lot.assignment,
-            )
-        ])
+        Allocation.objects.bulk_create(
+            [
+                Allocation(
+                    id=alloc_pk,
+                    stock=stock,
+                    code=stock.code,
+                    allocated_by="testactor",
+                    allocation_identifier="test_alloc_001",
+                    started_datetime=timezone.now(),
+                    assignment=stock.lot.assignment,
+                )
+            ]
+        )
         allocation = Allocation.objects.get(pk=alloc_pk)
         with apply_delta_context():
             stock.current_allocation = allocation

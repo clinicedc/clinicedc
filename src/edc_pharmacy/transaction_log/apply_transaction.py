@@ -3,42 +3,50 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import TYPE_CHECKING
 
+from django.apps import apps as django_apps
 from django.db import transaction
 from django.utils import timezone
 
 from ..exceptions import InvalidTransitionError
+from ._sentinel import apply_delta_context
 from .compute_delta import compute_delta
 from .state_delta import CurrentState, StateDelta
-from ._sentinel import apply_delta_context
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AbstractUser
 
-    from ..models.stock.stock import Stock
-    from ..models.stock.stock_transaction import StockTransaction
+    from ..models import Stock, StockTransaction
 
 
 def _snapshot(stock: Stock) -> CurrentState:
-    from ..models.stock.confirmation_at_location_item import ConfirmationAtLocationItem
-    from ..models.stock.storage_bin_item import StorageBinItem
 
+    confirmation_at_location_item_cls = django_apps.get_model(
+        "edc_pharmacy", "confirmationatlocationitem"
+    )
+    storage_bin_item_cls = django_apps.get_model("edc_pharmacy", "StorageBinItem")
     allocation = stock.current_allocation
     has_active_allocation = allocation is not None
     active_allocation_subject = (
-        (allocation.registered_subject.subject_identifier
-         if allocation.registered_subject_id else "")
-        if has_active_allocation else ""
+        (
+            allocation.registered_subject.subject_identifier
+            if allocation.registered_subject_id
+            else ""
+        )
+        if has_active_allocation
+        else ""
     )
     try:
         stock.storagebinitem  # noqa: B018
-        has_storage_bin_item = True
-    except StorageBinItem.DoesNotExist:
+    except storage_bin_item_cls.DoesNotExist:
         has_storage_bin_item = False
+    else:
+        has_storage_bin_item = True
     try:
         stock.confirmationatlocationitem  # noqa: B018
-        has_confirmation_at_location_item = True
-    except ConfirmationAtLocationItem.DoesNotExist:
+    except confirmation_at_location_item_cls.DoesNotExist:
         has_confirmation_at_location_item = False
+    else:
+        has_confirmation_at_location_item = True
     return CurrentState(
         stock_id=stock.pk,
         location_id=stock.location_id,
@@ -54,11 +62,11 @@ def _snapshot(stock: Stock) -> CurrentState:
         voided=stock.voided,
         return_requested=stock.return_requested,
         quarantined=stock.quarantined,
-        qty_in=stock.qty_in or Decimal("0"),
-        qty_out=stock.qty_out or Decimal("0"),
-        unit_qty_in=stock.unit_qty_in or Decimal("0"),
-        unit_qty_out=stock.unit_qty_out or Decimal("0"),
-        container_unit_qty=stock.container_unit_qty or Decimal("0"),
+        qty_in=stock.qty_in or Decimal(0),
+        qty_out=stock.qty_out or Decimal(0),
+        unit_qty_in=stock.unit_qty_in or Decimal(0),
+        unit_qty_out=stock.unit_qty_out or Decimal(0),
+        container_unit_qty=stock.container_unit_qty or Decimal(0),
         has_active_allocation=has_active_allocation,
         active_allocation_subject=active_allocation_subject,
         has_storage_bin_item=has_storage_bin_item,
@@ -67,14 +75,17 @@ def _snapshot(stock: Stock) -> CurrentState:
 
 
 def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:
-    from ..models.stock.allocation import Allocation
-    from ..models.stock.confirmation import Confirmation
-    from ..models.stock.confirmation_at_location_item import ConfirmationAtLocationItem
-    from ..models.stock.dispense_item import DispenseItem
-    from ..models.stock.storage_bin_item import StorageBinItem
 
     update_fields: list[str] = []
     created_objects: dict = {}
+
+    allocation_cls = django_apps.get_model("edc_pharmacy", "Allocation")
+    confirmation_cls = django_apps.get_model("edc_pharmacy", "confirmation")
+    confirmation_at_location_item_cls = django_apps.get_model(
+        "edc_pharmacy", "confirmationatlocationitem"
+    )
+    dispense_cls = django_apps.get_model("edc_pharmacy", "dispense")
+    storage_bin_item_cls = django_apps.get_model("edc_pharmacy", "StorageBinItem")
 
     with apply_delta_context():
         # Apply scalar Stock field updates.
@@ -106,7 +117,7 @@ def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:
 
         # Allocation lifecycle.
         if delta.allocation_action == "create":
-            allocation = kwargs.get("allocation") or Allocation.objects.create(
+            allocation = kwargs.get("allocation") or allocation_cls.objects.create(
                 registered_subject=kwargs["registered_subject"],
                 stock_request_item=kwargs["stock_request_item"],
                 allocated_by=kwargs.get("allocated_by", ""),
@@ -125,7 +136,7 @@ def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:
                 # Use update() rather than save() to avoid running Allocation.save()
                 # logic (e.g. registered_subject.subject_identifier lookup) when only
                 # stamping the end time and reason.
-                Allocation.objects.filter(pk=ending_allocation.pk).update(
+                allocation_cls.objects.filter(pk=ending_allocation.pk).update(
                     ended_datetime=ended_datetime,
                     ended_reason=ended_reason,
                 )
@@ -143,20 +154,20 @@ def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:
     # Child row lifecycle (outside apply_delta_context — these models are not guarded).
 
     if delta.storage_bin_item in ("delete", "replace"):
-        StorageBinItem.objects.filter(stock=stock).delete()
+        storage_bin_item_cls.objects.filter(stock=stock).delete()
 
     if delta.confirmation_at_location_item == "delete":
-        ConfirmationAtLocationItem.objects.filter(stock=stock).delete()
+        confirmation_at_location_item_cls.objects.filter(stock=stock).delete()
 
     if delta.confirmation == "create":
-        Confirmation.objects.create(
+        confirmation_cls.objects.create(
             stock=stock,
             confirmed_datetime=kwargs.get("confirmed_datetime"),
             confirmed_by=kwargs.get("confirmed_by", ""),
         )
 
     if delta.confirmation_at_location_item == "create":
-        ConfirmationAtLocationItem.objects.create(
+        confirmation_at_location_item_cls.objects.create(
             stock=stock,
             confirm_at_location=kwargs["confirm_at_location"],
             stock_transfer_item=kwargs["stock_transfer_item"],
@@ -165,13 +176,13 @@ def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:
         )
 
     if delta.storage_bin_item in ("create", "replace"):
-        StorageBinItem.objects.create(
+        storage_bin_item_cls.objects.create(
             stock=stock,
             storage_bin=kwargs["storage_bin"],
         )
 
     if delta.dispense_item == "create":
-        dispense_item = DispenseItem.objects.create(
+        dispense_item = dispense_cls.objects.create(
             stock=stock,
             dispense=kwargs["dispense"],
         )
@@ -189,8 +200,8 @@ def _write_ledger_row(
     reason: str = "",
     **kwargs,
 ) -> StockTransaction:
-    from ..models.stock.stock_transaction import StockTransaction
 
+    stock_transaction_cls = django_apps.get_model("edc_pharmacy", "StockTransaction")
     state_after = {
         "confirmed": stock.confirmed,
         "confirmed_at_location": stock.confirmed_at_location,
@@ -212,13 +223,13 @@ def _write_ledger_row(
     }
 
     username = actor.username if actor else ""
-    return StockTransaction.objects.create(
+    return stock_transaction_cls.objects.create(
         stock=stock,
         transaction_type=txn_type,
         actor=actor,
         reason=reason,
-        qty_delta=delta.qty_delta or Decimal("0"),
-        unit_qty_delta=delta.unit_qty_delta or Decimal("0"),
+        qty_delta=delta.qty_delta or Decimal(0),
+        unit_qty_delta=delta.unit_qty_delta or Decimal(0),
         from_location_id=kwargs.get("_from_location_id"),
         to_location_id=stock.location_id,
         from_allocation=kwargs.get("from_allocation"),
@@ -255,7 +266,7 @@ def apply_transaction(
 
     with transaction.atomic():
         created = _apply_delta(stock, delta, **kwargs)
-        txn = _write_ledger_row(
+        return _write_ledger_row(
             stock,
             txn_type,
             delta,
@@ -264,5 +275,3 @@ def apply_transaction(
             _from_location_id=from_location_id,
             **{**kwargs, **created},
         )
-
-    return txn

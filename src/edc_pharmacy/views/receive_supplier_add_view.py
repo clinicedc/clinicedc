@@ -25,13 +25,14 @@ class ReceiveSupplierAddView(TemplateView):
 
     template_name = "edc_pharmacy/stock/supplier_add_popup.html"
 
-    def _is_ajax(self, request):
+    @staticmethod
+    def _is_ajax(request):
         return request.headers.get("X-Requested-With") == "XMLHttpRequest"
 
     def get_context_data(self, form=None, **kwargs):
         return super().get_context_data(form=form or SupplierAddForm(), **kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         form = SupplierAddForm(request.POST)
         if form.is_valid():
             obj = form.save(commit=False)

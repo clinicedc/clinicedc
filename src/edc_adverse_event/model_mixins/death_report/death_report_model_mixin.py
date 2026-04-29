@@ -1,3 +1,4 @@
+from clinicedc_constants.choices import YES_NO
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.deletion import PROTECT
@@ -8,7 +9,6 @@ from edc_action_item.managers import (
     ActionIdentifierSiteManager,
 )
 from edc_action_item.models import ActionNoManagersModelMixin
-from clinicedc_constants.choices import YES_NO
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.models import HistoricalRecords
 from edc_model.validators import date_not_future, datetime_not_future

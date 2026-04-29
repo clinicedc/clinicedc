@@ -20,7 +20,7 @@ from ..models import Supplier
 
 @method_decorator(login_required, name="dispatch")
 class ReceiveSupplierEditView(View):
-    def get(self, request, pk, *args, **kwargs):
+    def get(self, request, pk, *args, **kwargs):  # noqa: ARG002
         supplier = get_object_or_404(Supplier, pk=pk)
         return JsonResponse(
             {
@@ -38,7 +38,7 @@ class ReceiveSupplierEditView(View):
             }
         )
 
-    def post(self, request, pk, *args, **kwargs):
+    def post(self, request, pk, *args, **kwargs):  # noqa: ARG002
         supplier = get_object_or_404(Supplier, pk=pk)
         form = SupplierAddForm(request.POST, instance=supplier)
         if form.is_valid():

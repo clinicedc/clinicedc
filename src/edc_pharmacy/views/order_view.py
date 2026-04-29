@@ -38,7 +38,8 @@ class OrderView(
     def get_order(self):
         return get_object_or_404(Order, pk=self.kwargs["order"])
 
-    def _build_rows(self, order):
+    @staticmethod
+    def _build_rows(order):
         zero = Decimal("0.0")
         order_items = (
             OrderItem.objects.filter(order=order)
@@ -57,9 +58,7 @@ class OrderView(
             rows.append(
                 {
                     "order_item": oi,
-                    "can_delete": (
-                        received == zero and oi.pk not in received_set
-                    ),
+                    "can_delete": (received == zero and oi.pk not in received_set),
                 }
             )
         return rows
@@ -73,7 +72,7 @@ class OrderView(
         context.update(order=order, rows=rows, has_receive=has_receive)
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         order = self.get_order()
         action = request.POST.get("action")
         if action == "delete_item":
@@ -82,7 +81,8 @@ class OrderView(
             reverse("edc_pharmacy:order_url", kwargs={"order": order.pk})
         )
 
-    def _handle_delete_item(self, request, order):
+    @staticmethod
+    def _handle_delete_item(request, order):
         order_item_pk = request.POST.get("order_item")
         order_item = get_object_or_404(OrderItem, pk=order_item_pk, order=order)
         if (order_item.unit_qty_received or Decimal("0.0")) > Decimal("0.0"):

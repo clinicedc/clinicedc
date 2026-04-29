@@ -87,12 +87,12 @@ class SiteStockReportView(
         # Group by location for template rendering
         groups: dict[str, dict] = defaultdict(lambda: {
             "rows": [],
-            "subtotal_in": Decimal("0"),
-            "subtotal_out": Decimal("0"),
+            "subtotal_in": Decimal(0),
+            "subtotal_out": Decimal(0),
         })
 
-        grand_in = Decimal("0")
-        grand_out = Decimal("0")
+        grand_in = Decimal(0)
+        grand_out = Decimal(0)
 
         for row in qs:
             location_label = row["location__display_name"] or row["location__name"] or "—"
@@ -102,8 +102,8 @@ class SiteStockReportView(
                 or "—"
             )
             container_label = row["container__display_name"] or row["container__name"] or "—"
-            unit_in = row["total_unit_qty_in"] or Decimal("0")
-            unit_out = row["total_unit_qty_out"] or Decimal("0")
+            unit_in = row["total_unit_qty_in"] or Decimal(0)
+            unit_out = row["total_unit_qty_out"] or Decimal(0)
             balance = unit_in - unit_out
 
             assignment_label = ""

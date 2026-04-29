@@ -48,7 +48,7 @@ class OrderItemEditView(
         context.update(order=order, order_item=order_item, form=form)
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         order = self.get_order()
         order_item = self.get_order_item(order)
         form = OrderItemAddForm(request.POST, instance=order_item, order=order)

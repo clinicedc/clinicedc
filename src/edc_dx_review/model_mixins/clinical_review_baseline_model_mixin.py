@@ -1,7 +1,7 @@
 from clinicedc_constants import YES
+from clinicedc_constants.choices import YES_NO
 from django.db import models
 
-from clinicedc_constants.choices import YES_NO
 from edc_crf.model_mixins import SingletonCrfModelMixin
 from edc_dx import raise_on_unknown_diagnosis_labels
 from edc_visit_schedule.utils import raise_if_not_baseline

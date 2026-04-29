@@ -2,10 +2,11 @@ from django.contrib import admin
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django_audit_fields.admin import audit_fieldset_tuple
-from edc_model_admin.history import SimpleHistoryAdmin
-from edc_utils.date import to_local
 from import_export.admin import ExportMixin
 from rangefilter.filters import DateRangeFilterBuilder
+
+from edc_model_admin.history import SimpleHistoryAdmin
+from edc_utils.date import to_local
 
 from ...admin_site import edc_pharmacy_admin
 from ...models import StockTransaction
@@ -15,7 +16,7 @@ from .stock_transaction_resource import StockTransactionResource
 
 @admin.register(StockTransaction, site=edc_pharmacy_admin)
 class StockTransactionAdmin(ExportMixin, ModelAdminMixin, SimpleHistoryAdmin):
-    resource_classes = [StockTransactionResource]
+    resource_classes = [StockTransactionResource]  # noqa: RUF012
     change_list_title = "Pharmacy: Stock transaction ledger"
     change_form_title = "Pharmacy: Stock transaction"
     history_list_display = ()
@@ -155,10 +156,10 @@ class StockTransactionAdmin(ExportMixin, ModelAdminMixin, SimpleHistoryAdmin):
         "state_after",
     )
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request):  # noqa: ARG002
         return False
 
-    def has_change_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj=None):  # noqa: ARG002
         return False
 
     @admin.display(description="Transaction", ordering="-transaction_datetime")

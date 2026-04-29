@@ -1,4 +1,4 @@
-"""Form for creating/editing a Receive header on the receive workflow page.
+"""Form for creating/editing a Receive header on the `receive` workflow page.
 
 Deliberately excludes AUDIT_MODEL_FIELDS (created, modified, user_created,
 user_modified, hostname_created, hostname_modified, device_created,
@@ -14,7 +14,7 @@ from ...models import Receive
 
 
 class ReceiveHeaderForm(forms.ModelForm):
-    """Receive header form for the receive workflow page.
+    """Receive header form for the `receive` workflow page.
 
     receive_date is a date-only field; the server appends the current time
     when saving. The date may not be in the future.
@@ -65,14 +65,14 @@ class ReceiveHeaderForm(forms.ModelForm):
 
     class Meta:
         model = Receive
-        fields = [
+        fields = (
             "receive_date",
             "location",
             "invoice_number",
             "invoice_date",
             "comment",
-        ]
-        widgets = {
+        )
+        widgets = {  # noqa: RUF012
             "invoice_date": forms.DateInput(
                 attrs={"type": "date"},
                 format="%Y-%m-%d",

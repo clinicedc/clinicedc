@@ -1,8 +1,8 @@
 from clinicedc_constants import NOT_APPLICABLE
+from clinicedc_constants.choices import YES_NO, YES_NO_NA
 from django.db import models
 from django.utils import timezone
 
-from clinicedc_constants.choices import YES_NO, YES_NO_NA
 from edc_model.validators import datetime_not_future
 from edc_model_fields.fields import OtherCharField
 

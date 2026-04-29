@@ -43,8 +43,8 @@ class StockTransaction(BaseUuidModel):
     reason = models.CharField(max_length=200, default="", blank=True)
 
     # Signed quantity deltas (0 if not applicable to this transaction type).
-    qty_delta = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal("0"))
-    unit_qty_delta = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal("0"))
+    qty_delta = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0))
+    unit_qty_delta = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0))
 
     # Location movement.
     from_location = models.ForeignKey(
@@ -114,7 +114,7 @@ class StockTransaction(BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Stock transaction"
         verbose_name_plural = "Stock transactions"
-        indexes = [
+        indexes = (
             models.Index(fields=["stock", "-transaction_datetime"]),
             models.Index(fields=["transaction_type", "-transaction_datetime"]),
-        ]
+        )

@@ -23,11 +23,11 @@ from .stock_adjustment import StockAdjustment
 from .stock_proxy import StockProxy
 from .stock_request import StockRequest
 from .stock_request_item import StockRequestItem
+from .stock_take import COMPLETED, IN_PROGRESS, StockTake
+from .stock_take_item import MATCHED, MISSING, UNEXPECTED, StockTakeItem
 from .stock_transaction import StockTransaction
 from .stock_transfer import StockTransfer
 from .stock_transfer_item import StockTransferItem
-from .stock_take import COMPLETED, IN_PROGRESS, StockTake
-from .stock_take_item import MATCHED, MISSING, UNEXPECTED, StockTakeItem
 from .storage_bin import StorageBin
 from .storage_bin_item import StorageBinItem
 from .storage_bin_item_proxy import StorageBinItemProxy

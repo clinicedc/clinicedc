@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from decimal import Decimal
-from typing import Callable
 
 from ..constants import (
     ALLOCATION_END_REASONS,
@@ -47,7 +47,9 @@ def _check_not_terminal(current: CurrentState) -> list[str]:
     return fails
 
 
-def _compute_received(current: CurrentState, *, confirmed_datetime=None, confirmed_by: str = "", **_) -> StateDelta:
+def _compute_received(
+    current: CurrentState, *, confirmed_datetime=None, confirmed_by: str = "", **_
+) -> StateDelta:
     if current.confirmed:
         return StateDelta(preconditions_failed=("already confirmed",))
     return StateDelta(
@@ -60,7 +62,9 @@ def _compute_received(current: CurrentState, *, confirmed_datetime=None, confirm
     )
 
 
-def _compute_repack_consumed(current: CurrentState, *, qty_delta: Decimal, unit_qty_delta: Decimal | None = None, **_) -> StateDelta:
+def _compute_repack_consumed(
+    current: CurrentState, *, qty_delta: Decimal, unit_qty_delta: Decimal | None = None, **_
+) -> StateDelta:
     fail = _check_not_terminal(current)
     if unit_qty_delta is not None and unit_qty_delta < 0:
         available = current.unit_qty_in - current.unit_qty_out
@@ -76,7 +80,9 @@ def _compute_repack_produced(current: CurrentState, **_) -> StateDelta:
     return StateDelta()
 
 
-def _compute_allocated(current: CurrentState, *, registered_subject, stock_request_item, **_) -> StateDelta:
+def _compute_allocated(
+    current: CurrentState, *, registered_subject, stock_request_item, **_
+) -> StateDelta:
     fail = _check_not_terminal(current)
     if current.has_active_allocation:
         fail.append("already allocated — end current allocation first")
@@ -106,7 +112,9 @@ def _compute_allocation_ended(current: CurrentState, *, reason: str, **_) -> Sta
     )
 
 
-def _compute_transfer_dispatched(current: CurrentState, *, new_location_id: int, **_) -> StateDelta:
+def _compute_transfer_dispatched(
+    current: CurrentState, *, new_location_id: int, **_
+) -> StateDelta:
     fail = _check_not_terminal(current)
     if current.in_transit:
         fail.append("already in transit")
@@ -120,12 +128,16 @@ def _compute_transfer_dispatched(current: CurrentState, *, new_location_id: int,
     return StateDelta(
         stock_fields=stock_fields,
         storage_bin_item="delete" if current.has_storage_bin_item else "unchanged",
-        confirmation_at_location_item="delete" if current.has_confirmation_at_location_item else "unchanged",
+        confirmation_at_location_item="delete"
+        if current.has_confirmation_at_location_item
+        else "unchanged",
         new_location_id=new_location_id,
     )
 
 
-def _compute_transfer_received(current: CurrentState, *, site_location_id: int, **_) -> StateDelta:
+def _compute_transfer_received(
+    current: CurrentState, *, site_location_id: int, **_
+) -> StateDelta:
     fail = []
     if not current.in_transit:
         fail.append("not in transit")
@@ -185,7 +197,7 @@ def _compute_dispensed(current: CurrentState, **_) -> StateDelta:
         storage_bin_item="delete",
         allocation_action="end",
         allocation_end_reason="dispensed",
-        qty_delta=Decimal("-1"),
+        qty_delta=Decimal(-1),
         unit_qty_delta=-current.container_unit_qty,
     )
 
@@ -203,7 +215,9 @@ def _compute_return_requested(current: CurrentState, **_) -> StateDelta:
     return StateDelta(stock_fields={"return_requested": True})
 
 
-def _compute_return_dispatched(current: CurrentState, *, central_location_id: int, **_) -> StateDelta:
+def _compute_return_dispatched(
+    current: CurrentState, *, central_location_id: int, **_
+) -> StateDelta:
     fail = _check_not_terminal(current)
     if not current.return_requested:
         fail.append("return not requested")
@@ -226,7 +240,9 @@ def _compute_return_dispatched(current: CurrentState, *, central_location_id: in
     )
 
 
-def _compute_return_received(current: CurrentState, *, central_location_id: int, **_) -> StateDelta:
+def _compute_return_received(
+    current: CurrentState, *, central_location_id: int, **_
+) -> StateDelta:
     if not current.in_transit:
         return StateDelta(preconditions_failed=("not in transit",))
     return StateDelta(
@@ -298,7 +314,7 @@ def _compute_damaged(current: CurrentState, **_) -> StateDelta:
         allocation_action="end" if current.has_active_allocation else "unchanged",
         allocation_end_reason="damaged" if current.has_active_allocation else None,
         storage_bin_item="delete" if current.stored_at_location else "unchanged",
-        qty_delta=Decimal("-1"),
+        qty_delta=Decimal(-1),
         unit_qty_delta=-remaining_units,
     )
 
@@ -318,7 +334,7 @@ def _compute_lost(current: CurrentState, **_) -> StateDelta:
         allocation_action="end" if current.has_active_allocation else "unchanged",
         allocation_end_reason="lost" if current.has_active_allocation else None,
         storage_bin_item="delete" if current.stored_at_location else "unchanged",
-        qty_delta=Decimal("-1"),
+        qty_delta=Decimal(-1),
         unit_qty_delta=-remaining_units,
     )
 
@@ -336,7 +352,7 @@ def _compute_expired(current: CurrentState, **_) -> StateDelta:
         allocation_action="end" if current.has_active_allocation else "unchanged",
         allocation_end_reason="expired" if current.has_active_allocation else None,
         storage_bin_item="delete" if current.stored_at_location else "unchanged",
-        qty_delta=Decimal("-1"),
+        qty_delta=Decimal(-1),
         unit_qty_delta=-remaining_units,
     )
 
@@ -354,7 +370,7 @@ def _compute_voided(current: CurrentState, **_) -> StateDelta:
         allocation_action="end" if current.has_active_allocation else "unchanged",
         allocation_end_reason="voided" if current.has_active_allocation else None,
         storage_bin_item="delete" if current.stored_at_location else "unchanged",
-        qty_delta=Decimal("-1"),
+        qty_delta=Decimal(-1),
         unit_qty_delta=-remaining_units,
     )
 

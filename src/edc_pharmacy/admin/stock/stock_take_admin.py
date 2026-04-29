@@ -24,24 +24,22 @@ class StockTakeItemInline(admin.TabularInline):
     @admin.display(description="Stock")
     def stock_link(self, obj):
         if obj.stock:
-            url = reverse(
-                "edc_pharmacy_admin:edc_pharmacy_stock_change", args=[obj.stock.pk]
-            )
+            url = reverse("edc_pharmacy_admin:edc_pharmacy_stock_change", args=[obj.stock.pk])
             return render_to_string(
                 "edc_pharmacy/stock/items_as_link.html",
                 context={"url": url, "label": obj.stock.code, "title": "Go to stock"},
             )
         return "—"
 
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request, obj=None):  # noqa: ARG002
         return False
 
 
 @admin.register(StockTake, site=edc_pharmacy_admin)
 class StockTakeAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
-
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
         return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]
+
     change_list_title = "Pharmacy: Stock Takes"
     change_form_title = "Pharmacy: Stock Take"
     history_list_display = ()
@@ -49,7 +47,7 @@ class StockTakeAdmin(SiteModelAdminMixin, ModelAdminMixin, SimpleHistoryAdmin):
     show_cancel = True
     list_per_page = 20
 
-    inlines = [StockTakeItemInline]
+    inlines = (StockTakeItemInline,)
 
     fieldsets = (
         (

@@ -44,6 +44,7 @@ if TYPE_CHECKING:
 # Step 1 — Request
 # ---------------------------------------------------------------------------
 
+
 def request_stock_return(
     stock_codes: list[str],
     actor: AbstractUser,
@@ -73,6 +74,7 @@ def request_stock_return(
 # Step 2 — Dispatch
 # ---------------------------------------------------------------------------
 
+
 def dispatch_return(
     return_request: ReturnRequest,
     stock_codes: list[str],
@@ -91,14 +93,12 @@ def dispatch_return(
 
     try:
         central_location = location_model_cls.objects.get(name=CENTRAL_LOCATION)
-    except location_model_cls.DoesNotExist:
-        raise ReturnError(f"Central location '{CENTRAL_LOCATION}' not found.")
+    except location_model_cls.DoesNotExist as e:
+        raise ReturnError(f"Central location '{CENTRAL_LOCATION}' not found.") from e
 
     dispatched, skipped = [], []
     for code in stock_codes:
-        skip_reason = _why_dispatch_skip(
-            code, return_request.from_location, stock_model_cls
-        )
+        skip_reason = _why_dispatch_skip(code, return_request.from_location, stock_model_cls)
         if skip_reason:
             skipped.append(f"{code}: {skip_reason}")
             continue
@@ -138,34 +138,33 @@ def _why_dispatch_skip(
 ) -> str | None:
     """Return a human-readable reason why this code cannot be dispatched,
     or None if it looks dispatchable."""
+    reason = None
     try:
         stock = stock_model_cls.objects.get(code=code)
     except stock_model_cls.DoesNotExist:
-        return "code not found"
-
-    if stock.invalid_state:
-        return "stock has an invalid state and cannot be processed"
-    if stock.dispensed:
-        return "already dispensed"
-    if stock.in_transit:
-        return "already in transit"
-    if stock.destroyed:
-        return "stock is destroyed"
-    if stock.quarantined:
-        return "stock is quarantined"
-    if stock.location != from_location:
-        return (
-            f"stock is at '{stock.location}', "
-            f"not '{from_location}'"
-        )
-    if not stock.stored_at_location:
-        return "not stored in a bin at the site"
-    return None
+        reason = "code not found"
+    else:
+        if stock.invalid_state:
+            reason = "stock has an invalid state and cannot be processed"
+        elif stock.dispensed:
+            reason = "already dispensed"
+        elif stock.in_transit:
+            reason = "already in transit"
+        elif stock.destroyed:
+            reason = "stock is destroyed"
+        elif stock.quarantined:
+            reason = "stock is quarantined"
+        elif stock.location != from_location:
+            reason = f"stock is at '{stock.location}', not '{from_location}'"
+        elif not stock.stored_at_location:
+            reason = "not stored in a bin at the site"
+    return reason
 
 
 # ---------------------------------------------------------------------------
 # Step 3 — Receive
 # ---------------------------------------------------------------------------
+
 
 def receive_return(
     return_request: ReturnRequest,
@@ -183,8 +182,8 @@ def receive_return(
 
     try:
         central_location = location_model_cls.objects.get(name=CENTRAL_LOCATION)
-    except location_model_cls.DoesNotExist:
-        raise ReturnError(f"Central location '{CENTRAL_LOCATION}' not found.")
+    except location_model_cls.DoesNotExist as e:
+        raise ReturnError(f"Central location '{CENTRAL_LOCATION}' not found.") from e
 
     received, skipped = [], []
     for code in stock_codes:
@@ -214,6 +213,7 @@ def receive_return(
 # Step 4 — Disposition
 # ---------------------------------------------------------------------------
 
+
 def disposition_return(
     stock_codes: list[str],
     actor: AbstractUser,
@@ -236,8 +236,7 @@ def disposition_return(
     txn_type = _disposition_map.get(disposition)
     if txn_type is None:
         raise ReturnError(
-            f"Invalid disposition {disposition!r}. "
-            f"Choose from: {', '.join(_disposition_map)}"
+            f"Invalid disposition {disposition!r}. Choose from: {', '.join(_disposition_map)}"
         )
 
     stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")

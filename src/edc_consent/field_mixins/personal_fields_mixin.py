@@ -1,3 +1,4 @@
+from clinicedc_constants.choices import GENDER_UNDETERMINED
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.html import format_html
@@ -5,7 +6,6 @@ from django.utils.translation import gettext as _
 from django_crypto_fields.fields import EncryptedCharField
 from django_crypto_fields.models import CryptoMixin
 
-from clinicedc_constants.choices import GENDER_UNDETERMINED
 from edc_model.models import NameFieldsModelMixin
 from edc_model_fields.fields import IsDateEstimatedField
 

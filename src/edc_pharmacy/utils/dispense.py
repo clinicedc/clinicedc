@@ -21,7 +21,7 @@ def dispense(
     rx,
     dispensed_by: str,
     request: WSGIRequest,
-) -> QuerySet[DispenseItem] | None:
+) -> QuerySet[DispenseItem]:
     stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
     dispense_model_cls: type[Dispense] = django_apps.get_model("edc_pharmacy.dispense")
     dispense_item_model_cls: type[DispenseItem] = django_apps.get_model(
@@ -30,7 +30,10 @@ def dispense(
 
     dispense_cancelled = False
     for stock in stock_model_cls.objects.filter(code__in=stock_codes):
-        if stock.current_allocation.registered_subject.subject_identifier != rx.subject_identifier:
+        if (
+            stock.current_allocation.registered_subject.subject_identifier
+            != rx.subject_identifier
+        ):
             messages.add_message(
                 request,
                 messages.ERROR,
@@ -45,7 +48,8 @@ def dispense(
                 (
                     "Stock location does not match subject's site. "
                     f"Stock item {stock.code} not at site "
-                    f"{stock.current_allocation.registered_subject.site.id}. Dispensing cancelled."
+                    f"{stock.current_allocation.registered_subject.site.id}. "
+                    "Dispensing cancelled."
                 ),
             )
             dispense_cancelled = True
@@ -71,7 +75,7 @@ def dispense(
                 )
 
         return dispense_item_model_cls.objects.filter(dispense=dispense_obj)
-    return None
+    return dispense_item_model_cls.objects.none()
 
 
 __all__ = ["dispense"]

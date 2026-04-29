@@ -13,7 +13,7 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 from ...choices import STOCK_STATUS
 from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
 from ...exceptions import AllocationError, AssignmentError, StockError
-from ...transaction_log._sentinel import is_apply_delta_active
+from ...transaction_log import is_apply_delta_active
 from ...utils import get_random_code
 from .allocation import Allocation
 from .container import Container
@@ -26,22 +26,24 @@ from .repack_request import RepackRequest
 
 # Fields that may only be mutated via apply_transaction / _apply_delta.
 # Any save() that changes one of these without the sentinel active raises StockError.
-GUARDED_FIELDS = frozenset({
-    "confirmed",
-    "confirmed_at_location",
-    "in_transit",
-    "stored_at_location",
-    "dispensed",
-    "destroyed",
-    "return_requested",
-    "quarantined",
-    "damaged",
-    "lost",
-    "expired",
-    "voided",
-    "subject_identifier",
-    "current_allocation_id",
-})
+GUARDED_FIELDS = frozenset(
+    {
+        "confirmed",
+        "confirmed_at_location",
+        "in_transit",
+        "stored_at_location",
+        "dispensed",
+        "destroyed",
+        "return_requested",
+        "quarantined",
+        "damaged",
+        "lost",
+        "expired",
+        "voided",
+        "subject_identifier",
+        "current_allocation_id",
+    }
+)
 
 
 class Stock(BaseUuidModel):
@@ -233,21 +235,23 @@ class Stock(BaseUuidModel):
             )
 
     def update_transferred(self) -> bool:
-        return (
+        return bool(
             self.current_allocation
-            and self.current_allocation.stock_request_item.stock_request.location == self.location
+            and self.current_allocation.stock_request_item.stock_request.location
+            == self.location
             and self.container.may_request_as
         )
 
-    def verify_assignment_or_raise(
-        self, stock: models.ForeignKey[Stock] | None = None
-    ) -> None:
+    def verify_assignment_or_raise(self, stock: models.ForeignKey[Stock] = None) -> None:
         """Verify that the LOT and PRODUCT assignments match."""
         if not stock:
             stock = self
         if stock.product.assignment != stock.lot.assignment:
             raise AssignmentError("Lot number assignment does not match product assignment!")
-        if self.current_allocation and self.current_allocation.assignment != stock.lot.assignment:
+        if (
+            self.current_allocation
+            and self.current_allocation.assignment != stock.lot.assignment
+        ):
             raise AllocationError(
                 f"Allocation assignment does not match lot assignment! Got {self.code}."
             )

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from decimal import Decimal
 from uuid import UUID
 
@@ -42,14 +43,12 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
 
     actor = None
     if username:
-        User = get_user_model()
-        try:
-            actor = User.objects.get(username=username)
-        except User.DoesNotExist:
-            pass
+        user_cls = get_user_model()
+        with contextlib.suppress(user_cls.DoesNotExist):
+            actor = user_cls.objects.get(username=username)
 
     from_stock = repack_request.from_stock
-    total_consumed = Decimal("0")
+    total_consumed = Decimal(0)
 
     # Repack can only happen at central — always assign the central location
     # explicitly rather than inheriting from the parent stock.
@@ -59,8 +58,8 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
     with transaction.atomic():
         for _ in range(int(item_qty_to_process)):
             available = (
-                (from_stock.unit_qty_in or Decimal("0"))
-                - (from_stock.unit_qty_out or Decimal("0"))
+                (from_stock.unit_qty_in or Decimal(0))
+                - (from_stock.unit_qty_out or Decimal(0))
                 - total_consumed
             )
             if available < repack_request.container_unit_qty:
@@ -91,7 +90,7 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
                 from_stock,
                 TXN_REPACK_CONSUMED,
                 actor,
-                qty_delta=Decimal("0"),
+                qty_delta=Decimal(0),
                 unit_qty_delta=-total_consumed,
                 repack_request=repack_request,
             )

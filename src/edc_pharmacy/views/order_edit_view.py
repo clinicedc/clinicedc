@@ -45,7 +45,7 @@ class OrderEditView(
         form = form or OrderEditForm(instance=order)
         return super().get_context_data(order=order, form=form, **kwargs)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):  # noqa: ARG002
         order = self.get_order()
         form = OrderEditForm(request.POST, instance=order)
         if form.is_valid():

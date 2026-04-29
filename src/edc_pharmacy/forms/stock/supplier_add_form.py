@@ -20,7 +20,7 @@ class SupplierAddForm(forms.ModelForm):
 
     class Meta:
         model = Supplier
-        fields = [
+        fields = (
             "name",
             "contact",
             "telephone",
@@ -31,4 +31,4 @@ class SupplierAddForm(forms.ModelForm):
             "postal_code",
             "state",
             "country",
-        ]
+        )

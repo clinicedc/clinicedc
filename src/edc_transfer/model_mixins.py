@@ -1,10 +1,10 @@
+from clinicedc_constants.choices import YES_NO, YES_NO_UNSURE
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django_crypto_fields.fields import EncryptedTextField
 
 from edc_action_item.models import ActionModelMixin
-from clinicedc_constants.choices import YES_NO, YES_NO_UNSURE
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model import models as edc_models
 from edc_sites.model_mixins import SiteModelMixin

@@ -22,10 +22,10 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
+from ..constants import TXN_ADJUSTED, TXN_DAMAGED, TXN_EXPIRED, TXN_LOST, TXN_VOIDED
 from ..exceptions import InvalidTransitionError
 from ..models import Stock
 from ..transaction_log import apply_transaction
-from ..constants import TXN_ADJUSTED, TXN_DAMAGED, TXN_EXPIRED, TXN_LOST, TXN_VOIDED
 
 STATUS_ADJUSTMENT_TYPES = {
     TXN_LOST: "Lost",
