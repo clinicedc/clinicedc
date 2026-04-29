@@ -86,6 +86,13 @@
                     <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}"
                        class="btn btn-default btn-sm" style="margin-top:6px;">Go to receiving</a>
                     {% endif %}
+                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_order_history" order.pk %}"
+                       class="btn btn-default btn-sm pull-right"
+                       target="_blank"
+                       style="margin-top:6px;"
+                       title="View audit trail">
+                        <i class="fa fa-history"></i> Audit trail
+                    </a>
                 </div>
             </div>
 
@@ -163,6 +170,12 @@
                                 <i class="fa fa-lock"></i> Cannot delete &mdash; stock has been received
                             </span>
                             {% endif %}
+                            <a href="{% url "edc_pharmacy_admin:edc_pharmacy_orderitem_history" oi.pk %}"
+                               class="btn btn-default btn-sm pull-right"
+                               target="_blank"
+                               title="View audit trail">
+                                <i class="fa fa-history"></i> Audit trail
+                            </a>
                         </div>
                     </div>
                     {% endwith %}
