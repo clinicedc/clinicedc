@@ -242,16 +242,23 @@ class OrderReport(Report):
             [
                 Paragraph(_("Item #"), header_style),
                 Paragraph(_("Product"), header_style),
+                Paragraph(_("Assignment"), header_style),
                 Paragraph(_("Quantity"), header_style),
                 Paragraph(_("Unit"), header_style),
             ]
         ]
         for oi in self.queryset:
             unit = oi.container.name if oi.container else "—"
+            assignment = (
+                str(oi.product.assignment)
+                if oi.product and oi.product.assignment
+                else "—"
+            )
             rows.append(
                 [
                     Paragraph(oi.order_item_identifier or "—", cell_left),
                     Paragraph(oi.product.name if oi.product else "—", cell_left),
+                    Paragraph(assignment, cell_left),
                     Paragraph(f"{oi.unit_qty_ordered:,}", cell_right),
                     Paragraph(unit, cell_left),
                 ]
@@ -259,7 +266,7 @@ class OrderReport(Report):
 
         table = Table(
             rows,
-            colWidths=(2.5 * cm, 9 * cm, 3 * cm, 3.5 * cm),
+            colWidths=(2.5 * cm, 6.5 * cm, 2.5 * cm, 3 * cm, 3.5 * cm),
             repeatRows=1,
         )
         table.setStyle(
