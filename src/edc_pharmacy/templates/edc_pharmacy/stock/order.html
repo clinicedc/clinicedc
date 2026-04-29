@@ -56,6 +56,12 @@
                                 {% endif %}
                             </td>
                         </tr>
+                        <tr>
+                            <th>Last modified</th>
+                            <td colspan="3">
+                                {{ order.modified|default:order.created|date:"d-M-Y H:i" }}
+                            </td>
+                        </tr>
                         {% if order.comment %}
                         <tr>
                             <th>Comment</th>
