@@ -48,13 +48,16 @@ def print_order_view(request, order=None):
         )
 
     # First-print stamping: record the user and timestamp once.
+    # Note: we deliberately do NOT pass update_fields=[...] here. Something
+    # in the BaseUuidModel / audit-fields save chain filters update_fields
+    # such that printed_datetime and printed_by silently get dropped (only
+    # printed flips). A full save flushes every dirty field reliably.
     if not order.printed:
         order.printed = True
         order.printed_datetime = timezone.now()
         order.printed_by = request.user.username
-        order.save(
-            update_fields=["printed", "printed_datetime", "printed_by"]
-        )
+        order.user_modified = request.user.username
+        order.save()
 
     response = HttpResponse(content_type="application/pdf")
     response["Content-Disposition"] = (
