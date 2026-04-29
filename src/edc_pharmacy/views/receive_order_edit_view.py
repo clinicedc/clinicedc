@@ -18,10 +18,13 @@ from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..forms.stock import OrderEditForm
 from ..models import Order
+from .auths_view_mixin import PharmacistRequiredMixin
 
 
 @method_decorator(login_required, name="dispatch")
-class ReceiveOrderEditView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView):
+class ReceiveOrderEditView(
+    PharmacistRequiredMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+):
     template_name = "edc_pharmacy/stock/receive_order_edit.html"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"

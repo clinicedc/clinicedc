@@ -20,12 +20,12 @@ from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..auth_objects import PHARMACIST_ROLE
 from ..models import Order, OrderItem, Receive, ReceiveItem
-from .auths_view_mixin import AuthsViewMixin
+from .auths_view_mixin import PharmacistRequiredMixin
 
 
 @method_decorator(login_required, name="dispatch")
 class ReceiveHomeView(
-    AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+    PharmacistRequiredMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
 ):
     template_name = "edc_pharmacy/stock/receive_home.html"
     navbar_name = settings.APP_NAME

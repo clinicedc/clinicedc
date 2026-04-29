@@ -17,10 +17,11 @@ from django.views.generic import View
 
 from ..forms.stock import LotAddForm
 from ..models import OrderItem
+from .auths_view_mixin import PharmacistRequiredMixin
 
 
 @method_decorator(login_required, name="dispatch")
-class ReceiveLotAddView(View):
+class ReceiveLotAddView(PharmacistRequiredMixin, View):
     def post(self, request, *args, **kwargs):  # noqa: ARG002
         order_item = get_object_or_404(OrderItem, pk=kwargs["order_item"])
         form = LotAddForm(request.POST)

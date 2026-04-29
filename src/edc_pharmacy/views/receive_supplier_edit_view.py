@@ -16,10 +16,11 @@ from django.views.generic import View
 
 from ..forms.stock import SupplierAddForm
 from ..models import Supplier
+from .auths_view_mixin import PharmacistRequiredMixin
 
 
 @method_decorator(login_required, name="dispatch")
-class ReceiveSupplierEditView(View):
+class ReceiveSupplierEditView(PharmacistRequiredMixin, View):
     def get(self, request, pk, *args, **kwargs):  # noqa: ARG002
         supplier = get_object_or_404(Supplier, pk=pk)
         return JsonResponse(

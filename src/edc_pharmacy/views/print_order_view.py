@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -22,12 +23,19 @@ from django.utils import timezone
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 
+from ..auth_objects import PHARMACIST_ROLE
 from ..models import Order
 from ..pdf_reports import NumberedCanvas, OrderReport
+from .auths_view_mixin import user_has_pharmacist_role
 
 
 @login_required
 def print_order_view(request, order=None):
+    if not user_has_pharmacist_role(request.user):
+        raise PermissionDenied(
+            f"The {PHARMACIST_ROLE} role is required to print a Purchase Order."
+        )
+
     order = get_object_or_404(Order, pk=order)
 
     if order.item_count == 0:
