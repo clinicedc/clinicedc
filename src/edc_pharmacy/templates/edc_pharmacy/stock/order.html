@@ -41,6 +41,12 @@
                             <td>{{ order.user_created|default:"—" }}</td>
                         </tr>
                         <tr>
+                            <th>Last modified</th>
+                            <td colspan="3">
+                                {{ order.modified|default:order.created|date:"d-M-Y H:i" }}
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Printed</th>
                             <td colspan="3">
                                 {% if order.printed %}
@@ -54,12 +60,6 @@
                                         &mdash; will be set when the PDF is printed
                                     </span>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Last modified</th>
-                            <td colspan="3">
-                                {{ order.modified|default:order.created|date:"d-M-Y H:i" }}
                             </td>
                         </tr>
                         {% if order.comment %}
