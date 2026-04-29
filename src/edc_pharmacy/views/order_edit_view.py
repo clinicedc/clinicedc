@@ -22,12 +22,12 @@ from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..forms.stock import OrderEditForm
 from ..models import Order
-from .auths_view_mixin import AuthsViewMixin
+from .auths_view_mixin import PharmacistRequiredMixin
 
 
 @method_decorator(login_required, name="dispatch")
 class OrderEditView(
-    AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+    PharmacistRequiredMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
 ):
     template_name = "edc_pharmacy/stock/order_edit.html"
     navbar_name = settings.APP_NAME

@@ -16,6 +16,7 @@ from .order_item_edit_view import OrderItemEditView
 from .order_view import OrderView
 from .prepare_and_review_stock_request_view import PrepareAndReviewStockRequestView
 from .print_labels_view import PrintLabelsView
+from .print_order_view import print_order_view
 from .print_return_manifest_view import print_return_manifest_view
 from .print_stock_transfer_manifest_view import print_stock_transfer_manifest_view
 from .print_stock_view import print_stock_view

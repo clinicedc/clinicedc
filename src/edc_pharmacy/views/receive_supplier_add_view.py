@@ -11,10 +11,11 @@ from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
 from ..forms.stock import SupplierAddForm
+from .auths_view_mixin import PharmacistRequiredMixin
 
 
 @method_decorator(login_required, name="dispatch")
-class ReceiveSupplierAddView(TemplateView):
+class ReceiveSupplierAddView(PharmacistRequiredMixin, TemplateView):
     """Handles both popup (legacy) and AJAX modal submissions.
 
     - AJAX POST  → returns JSON ``{"pk": "...", "name": "..."}`` on success,

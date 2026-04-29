@@ -22,12 +22,12 @@ from edc_protocol.view_mixins import EdcProtocolViewMixin
 from ..auth_objects import PHARMACIST_ROLE
 from ..forms.stock import ReceiveItemAddForm
 from ..models import Order, OrderItem, Receive, ReceiveItem, Stock
-from .auths_view_mixin import AuthsViewMixin
+from .auths_view_mixin import PharmacistRequiredMixin
 
 
 @method_decorator(login_required, name="dispatch")
 class ReceiveOrderItemView(
-    AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+    PharmacistRequiredMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
 ):
     template_name = "edc_pharmacy/stock/receive_order_item.html"
     navbar_name = settings.APP_NAME

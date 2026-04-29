@@ -16,12 +16,12 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..models import Order, Receive
-from .auths_view_mixin import AuthsViewMixin
+from .auths_view_mixin import PharmacistRequiredMixin
 
 
 @method_decorator(login_required, name="dispatch")
 class OrderHomeView(
-    AuthsViewMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
+    PharmacistRequiredMixin, EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, TemplateView
 ):
     template_name = "edc_pharmacy/stock/order_home.html"
     navbar_name = settings.APP_NAME
