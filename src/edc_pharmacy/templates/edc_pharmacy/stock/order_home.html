@@ -51,7 +51,7 @@
                         <th>Supplier</th>
                         <th>Title</th>
                         <th>Status</th>
-                        <th>Sent</th>
+                        <th>Printed</th>
                         <th style="text-align:right;">Items</th>
                         <th></th>
                     </tr>
@@ -76,16 +76,24 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if o.sent %}
-                                <span class="label label-success">Yes</span>
+                            {% if o.printed %}
+                                <span class="label label-success" title="{{ o.printed_by }} on {{ o.printed_datetime|date:"d-M-Y H:i" }}">Yes</span>
                             {% else %}
-                                <span class="label label-danger">No</span>
+                                <span class="label label-default">No</span>
                             {% endif %}
                         </td>
                         <td style="text-align:right;">{{ o.item_count }}</td>
                         <td style="white-space:nowrap;">
                             <a href="{% url "edc_pharmacy:order_url" order=o.pk %}"
                                class="btn btn-primary btn-xs">Manage</a>
+                            {% if o.item_count > 0 %}
+                            <a href="{% url "edc_pharmacy:print_order_url" order=o.pk %}"
+                               class="btn btn-default btn-xs"
+                               target="_blank"
+                               title="{% if o.printed %}Re-print PDF{% else %}Print PDF (will mark order as printed){% endif %}">
+                                <i class="fa fa-print"></i>
+                            </a>
+                            {% endif %}
                             {% if row.has_receive %}
                             <a href="{% url "edc_pharmacy:receive_order_url" order=o.pk %}"
                                class="btn btn-default btn-xs">Receive</a>

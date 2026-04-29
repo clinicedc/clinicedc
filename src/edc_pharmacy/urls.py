@@ -38,6 +38,7 @@ from .views import (
     StockTransferHomeView,
     TransferStockView,
     get_stock_transfers_view,
+    print_order_view,
     print_return_manifest_view,
     print_stock_transfer_manifest_view,
     print_stock_view,
@@ -207,6 +208,11 @@ urlpatterns = [
         "order/<uuid:order>/items/<uuid:order_item>/",
         OrderItemEditView.as_view(),
         name="order_item_edit_url",
+    ),
+    path(
+        "order/<uuid:order>/print/",
+        print_order_view,
+        name="print_order_url",
     ),
     # ── Receive workflow ───────────────────────────────────────────────────
     path(

@@ -41,15 +41,20 @@
                             <td>{{ order.user_created|default:"—" }}</td>
                         </tr>
                         <tr>
-                            <th>Sent</th>
-                            <td>
-                                {% if order.sent %}
+                            <th>Printed</th>
+                            <td colspan="3">
+                                {% if order.printed %}
                                     <span class="label label-success">Yes</span>
+                                    &mdash;
+                                    by <b>{{ order.printed_by|default:"—" }}</b>
+                                    on {{ order.printed_datetime|date:"d-M-Y H:i"|default:"—" }}
                                 {% else %}
-                                    <span class="label label-danger">No</span>
+                                    <span class="label label-default">No</span>
+                                    <span class="text-muted small">
+                                        &mdash; will be set when the PDF is printed
+                                    </span>
                                 {% endif %}
                             </td>
-                            <td colspan="2"></td>
                         </tr>
                         {% if order.comment %}
                         <tr>
@@ -60,6 +65,16 @@
                     </table>
                     <a href="{% url "edc_pharmacy:order_edit_url" order=order.pk %}"
                        class="btn btn-primary btn-sm" style="margin-top:6px;">Edit</a>
+                    {% if order.item_count > 0 %}
+                    &nbsp;
+                    <a href="{% url "edc_pharmacy:print_order_url" order=order.pk %}"
+                       class="btn {% if order.printed %}btn-default{% else %}btn-success{% endif %} btn-sm"
+                       target="_blank"
+                       style="margin-top:6px;">
+                        <i class="fa fa-print"></i>
+                        {% if order.printed %}Re-print PDF{% else %}Print PDF{% endif %}
+                    </a>
+                    {% endif %}
                     {% if has_receive %}
                     &nbsp;
                     <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}"

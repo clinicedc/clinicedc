@@ -47,7 +47,23 @@ class Order(BaseUuidModel):
     )
     comment = models.TextField(default="", blank=True)
 
-    sent = models.BooleanField(default=False)
+    printed = models.BooleanField(
+        default=False,
+        help_text="Set automatically when the PDF is first printed.",
+    )
+
+    printed_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Timestamp of the first PDF print.",
+    )
+
+    printed_by = models.CharField(
+        max_length=150,
+        default="",
+        blank=True,
+        help_text="Username that triggered the first PDF print.",
+    )
 
     status = models.CharField(
         max_length=25,

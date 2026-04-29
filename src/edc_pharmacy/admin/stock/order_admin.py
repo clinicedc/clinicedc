@@ -36,7 +36,10 @@ class OrderAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             {"fields": (["order_identifier", "order_datetime", "supplier", "title"])},
         ),
         ("Quantity", {"fields": (["item_count"])}),
-        ("Status", {"fields": (["sent", "status"])}),
+        (
+            "Status",
+            {"fields": (["printed", "printed_datetime", "printed_by", "status"])},
+        ),
         ("Section C: Comment / Notes", {"fields": ("comment",)}),
         audit_fieldset_tuple,
     )
@@ -53,10 +56,10 @@ class OrderAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "created",
         "modified",
     )
-    list_filter = ("sent", "status", "order_datetime")
+    list_filter = ("printed", "status", "order_datetime")
     radio_fields = {"status": admin.VERTICAL}  # noqa: RUF012
     search_fields = ("id", "order_identifier", "title")
-    readonly_fields = ("order_identifier", "sent")
+    readonly_fields = ("order_identifier", "printed", "printed_datetime", "printed_by")
 
     @admin.display(description="ORDER #", ordering="-order_identifier")
     def identifier(self, obj):

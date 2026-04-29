@@ -47,6 +47,5 @@ class OrderEditForm(forms.ModelForm):
             "order_date",
             "supplier",
             "title",
-            "sent",
             "comment",
         )

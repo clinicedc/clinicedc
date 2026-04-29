@@ -41,15 +41,17 @@
                             <td>{{ order.user_created|default:"—" }}</td>
                         </tr>
                         <tr>
-                            <th>Sent</th>
-                            <td>
-                                {% if order.sent %}
+                            <th>Printed</th>
+                            <td colspan="3">
+                                {% if order.printed %}
                                     <span class="label label-success">Yes</span>
+                                    &mdash;
+                                    by <b>{{ order.printed_by|default:"—" }}</b>
+                                    on {{ order.printed_datetime|date:"d-M-Y H:i"|default:"—" }}
                                 {% else %}
-                                    <span class="label label-danger">No</span>
+                                    <span class="label label-default">No</span>
                                 {% endif %}
                             </td>
-                            <td colspan="2"></td>
                         </tr>
                         {% if order.comment %}
                         <tr>
