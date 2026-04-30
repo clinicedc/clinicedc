@@ -1,0 +1,109 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    <script>
+        $(document).ready(function() {
+            $('#repack_home_table').DataTable({
+                order: [[0, 'desc']],
+                pageLength: 25,
+                columnDefs: [
+                    { orderable: false, targets: -1 },
+                ],
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                Repack
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <a href="{% url "edc_pharmacy:repack_add_url" %}"
+                   class="btn btn-primary btn-sm">
+                    <i class="fa fa-plus"></i> New repack request
+                </a>
+            </div>
+
+            {% if rows %}
+            <div class="table-responsive">
+            <table id="repack_home_table" class="table table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>Repack #</th>
+                        <th>Date</th>
+                        <th>Stock code</th>
+                        <th>Product</th>
+                        {% if show_assignment %}<th>Assignment</th>{% endif %}
+                        <th>Container</th>
+                        <th style="text-align:right;">Requested</th>
+                        <th style="text-align:right;">Processed</th>
+                        <th style="text-align:right;">Confirmed</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    {% with rr=row.rr %}
+                    <tr>
+                        <td><code>{{ rr.repack_identifier }}</code></td>
+                        <td data-order="{{ rr.repack_datetime|date:"Y-m-d" }}">
+                            {{ rr.repack_datetime|date:"d-M-Y" }}
+                        </td>
+                        <td><code>{{ rr.from_stock.code }}</code></td>
+                        <td>{{ rr.from_stock.product.name }}</td>
+                        {% if show_assignment %}
+                        <td>{{ rr.from_stock.product.assignment.display_name|default:"—" }}</td>
+                        {% endif %}
+                        <td>{{ rr.container }}</td>
+                        <td style="text-align:right;">{{ rr.item_qty_repack|default:"—" }}</td>
+                        <td style="text-align:right;">
+                            {% if rr.task_id and rr.item_qty_processed == 0 %}
+                                <span class="label label-info">Processing…</span>
+                            {% else %}
+                                {{ rr.item_qty_processed|default:"0" }}
+                            {% endif %}
+                        </td>
+                        <td style="text-align:right;">
+                            {% if row.confirmed_qty == rr.item_qty_repack and rr.item_qty_repack %}
+                                <span class="label label-success">{{ row.confirmed_qty }}</span>
+                            {% elif row.confirmed_qty > 0 %}
+                                <span class="label label-warning">{{ row.confirmed_qty }}</span>
+                            {% else %}
+                                <span class="label label-danger">{{ row.confirmed_qty }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space:nowrap;">
+                            <a href="{% url "edc_pharmacy:repack_url" repack_request=rr.pk %}"
+                               class="btn btn-primary btn-xs">Manage</a>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+                <p class="text-muted">No repack requests yet. Click <b>New repack request</b> to start.</p>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock main %}

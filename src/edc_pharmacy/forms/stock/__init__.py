@@ -15,10 +15,13 @@ from .receive_form import ReceiveForm, ReceiveFormSuper
 from .receive_header_form import ReceiveHeaderForm
 from .receive_item_add_form import ReceiveItemAddForm
 from .receive_item_form import ReceiveItemForm
+from .repack_edit_form import RepackEditForm
+from .stock_request_edit_form import StockRequestEditForm
 from .repack_request_form import RepackRequestForm
 from .stock_form import StockForm
 from .stock_request_form import StockRequestForm
 from .stock_request_item_form import StockRequestItemForm
+from .stock_transfer_edit_form import StockTransferEditForm
 from .stock_transfer_form import StockTransferForm
 from .storage_bin_form import StorageBinForm
 from .storage_bin_item_form import StorageBinItemForm

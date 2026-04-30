@@ -48,7 +48,7 @@ def allocate_stock(
         )
         stock_request_item = stock_request.stockrequestitem_set.filter(
             registered_subject=rs_obj,
-            current_allocation__isnull=True,
+            allocation__isnull=True,
         ).first()
         if not stock_request_item:
             skipped.append(f"{subject_identifier}: N/A")

@@ -53,13 +53,16 @@ def transfer_stock_to_location(
         except ObjectDoesNotExist:
             skipped_codes.append(stock_code)
         else:
+            # Gate 2: stock must be allocated via a request whose destination is the
+            # site being transferred to/from. Use StockRequestItem→StockRequest→location
+            # rather than registered_subject.site, which can diverge in multi-site DBs.
             if stock_transfer.to_location.name == CENTRAL_LOCATION:
                 opts.update(
-                    current_allocation__registered_subject__site=stock_transfer.from_location.site,
+                    current_allocation__stock_request_item__stock_request__location=stock_transfer.from_location,
                 )
             else:
                 opts.update(
-                    current_allocation__registered_subject__site=stock_transfer.to_location.site
+                    current_allocation__stock_request_item__stock_request__location=stock_transfer.to_location,
                 )
             try:
                 stock_obj = stock_model_cls.objects.get(**opts)

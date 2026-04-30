@@ -95,8 +95,10 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     @property
     def stock_request_changelist_url(self) -> str:
         if self.stock_request:
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
-            return f"{url}?q={self.stock_request.request_identifier}"
+            return reverse(
+                "edc_pharmacy:stock_request_url",
+                kwargs={"stock_request": self.stock_request.pk},
+            )
         return "/"
 
     @staticmethod

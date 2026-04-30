@@ -15,6 +15,12 @@ from .order_home_view import OrderHomeView
 from .order_item_edit_view import OrderItemEditView
 from .order_view import OrderView
 from .prepare_and_review_stock_request_view import PrepareAndReviewStockRequestView
+from .repack_edit_view import RepackEditView
+from .repack_home_view import RepackHomeView
+from .repack_view import RepackView
+from .stock_request_edit_view import StockRequestEditView
+from .stock_request_home_view import StockRequestHomeView
+from .stock_request_view import StockRequestView
 from .print_labels_view import PrintLabelsView
 from .print_order_view import print_order_view
 from .print_return_manifest_view import print_return_manifest_view
@@ -36,5 +42,6 @@ from .stock_adjustment_view import StockAdjustmentView
 from .stock_take_home_view import StockTakeHomeView
 from .stock_take_results_view import StockTakeResultsView
 from .stock_take_scan_view import StockTakeScanView
+from .stock_transfer_edit_view import StockTransferEditView
 from .stock_transfer_home_view import StockTransferHomeView
 from .transfer_stock_view import TransferStockView

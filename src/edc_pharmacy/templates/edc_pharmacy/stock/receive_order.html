@@ -65,6 +65,12 @@
                     &nbsp;
                     <a href="{% url "edc_pharmacy:order_url" order=order.pk %}"
                        class="btn btn-default btn-sm" style="margin-top:6px;">Go to ordering</a>
+                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_order_history" order.pk %}"
+                       class="btn btn-default btn-sm pull-right"
+                       style="margin-top:6px;"
+                       title="View audit trail">
+                        <i class="fa fa-history"></i> Audit trail
+                    </a>
                 </div>
             </div>
 
@@ -129,6 +135,11 @@
                         </button>
                     </form>
                     {% endif %}
+                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_receive_history" receive.pk %}"
+                       class="btn btn-default btn-sm pull-right"
+                       title="View audit trail">
+                        <i class="fa fa-history"></i> Audit trail
+                    </a>
 
                     {% else %}
                     {# ── Edit / create form ── #}
@@ -223,6 +234,7 @@
 
                     {# Existing receive items #}
                     {% if row.receive_items %}
+                    <div class="table-responsive">
                     <table class="table table-condensed table-bordered" style="margin-bottom:8px;">
                         <thead>
                             <tr>
@@ -270,21 +282,32 @@
                                         <i class="fa fa-lock"></i>
                                     </span>
                                     {% endif %}
+                                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_receiveitem_history" ri.pk %}"
+                                       class="btn btn-default btn-xs"
+                                       title="View audit trail">
+                                        <i class="fa fa-history"></i>
+                                    </a>
                                 </td>
                             </tr>
                             {% endwith %}
                             {% endfor %}
                         </tbody>
                     </table>
+                    </div>
                     {% endif %}
 
                     {# Receive button — navigates to dedicated receive-item page #}
-                    {% if row.can_add %}
                     <div style="border-top:1px solid #ddd;padding-top:10px;margin-top:4px;">
+                        {% if row.can_add %}
                         <a href="{% url "edc_pharmacy:receive_order_item_url" order=order.pk order_item=oi.pk %}"
                            class="btn btn-primary btn-sm">Receive</a>
+                        {% endif %}
+                        <a href="{% url "edc_pharmacy_admin:edc_pharmacy_orderitem_history" oi.pk %}"
+                           class="btn btn-default btn-sm pull-right"
+                           title="View audit trail">
+                            <i class="fa fa-history"></i> Audit trail
+                        </a>
                     </div>
-                    {% endif %}
 
                 </div>
             </div>

@@ -1,0 +1,47 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-7">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:stock_transfer_home_url" %}">Transfer stock to site</a> &rsaquo;
+                New transfer
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading"><b>New stock transfer</b></div>
+                <div class="panel-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="form-group{% if field.errors %} has-error{% endif %}" style="margin-bottom:14px;">
+                            <label class="control-label" for="{{ field.id_for_label }}">
+                                {{ field.label }}{% if field.field.required %} <span style="color:red;">*</span>{% endif %}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <span class="help-block">{{ field.help_text }}</span>
+                            {% endif %}
+                            {% if field.errors %}
+                                <span class="help-block">{{ field.errors|join:", " }}</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                        &nbsp;
+                        <a href="{% url "edc_pharmacy:stock_transfer_home_url" %}"
+                           class="btn btn-default btn-sm">Cancel</a>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock main %}

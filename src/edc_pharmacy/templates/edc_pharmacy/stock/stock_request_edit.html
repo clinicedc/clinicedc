@@ -1,0 +1,71 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:stock_request_home_url" %}">Stock requests</a> &rsaquo;
+                {% if instance %}{{ instance.request_identifier }}{% else %}New request{% endif %}
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <b>{% if instance %}Edit stock request {{ instance.request_identifier }}{% else %}New stock request{% endif %}</b>
+                </div>
+                <div class="panel-body">
+                    <div class="alert alert-info" style="font-size:13px;">
+                        <i class="fa fa-info-circle"></i>
+                        Select the site location, formulation, and container type for this request.
+                        The system will identify subjects with upcoming appointments
+                        who need stock allocated.
+                    </div>
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="form-group {% if field.errors %}has-error{% endif %}">
+                            <label class="control-label col-sm-3" for="{{ field.id_for_label }}">
+                                {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <div class="col-sm-7">
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <p class="help-block">{{ field.help_text }}</p>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <p class="help-block text-danger">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if form.non_field_errors %}
+                        <div class="form-group has-error">
+                            <div class="col-sm-offset-3 col-sm-7">
+                                {% for error in form.non_field_errors %}
+                                    <p class="help-block text-danger">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-7">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                                {% if instance %}
+                                <a href="{% url "edc_pharmacy:stock_request_url" stock_request=instance.pk %}"
+                                   class="btn btn-default">Cancel</a>
+                                {% else %}
+                                <a href="{% url "edc_pharmacy:stock_request_home_url" %}"
+                                   class="btn btn-default">Cancel</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock main %}

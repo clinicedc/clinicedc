@@ -212,7 +212,10 @@ class PrepareAndReviewStockRequestView(
                     f"{stock_request.request_identifier}"
                 ),
             )
-            url = f"{self.source_changelist_url}?q={stock_request.request_identifier}"
+            url = reverse(
+                "edc_pharmacy:stock_request_url",
+                kwargs={"stock_request": stock_request.pk},
+            )
         else:
             if session_uuid:
                 del request.session[session_uuid]
@@ -221,5 +224,8 @@ class PrepareAndReviewStockRequestView(
                 messages.INFO,
                 "Cancelled. No stock request items were created.",
             )
-            url = f"{self.source_changelist_url}"
+            url = reverse(
+                "edc_pharmacy:stock_request_url",
+                kwargs={"stock_request": stock_request.pk},
+            )
         return HttpResponseRedirect(url)

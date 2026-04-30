@@ -1,6 +1,30 @@
 {% extends edc_base_template %}
 {% load static %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function () {
+            {% if transfer_items %}
+            $('#scanned-tbl').DataTable({
+                order: [[5, 'desc']],
+                pageLength: 25,
+            });
+            {% endif %}
+        });
+    </script>
+{% endblock %}
+
 {% block main %}
     {{ block.super }}
     <div class="container">
@@ -28,23 +52,25 @@
                         Transfer <strong>{{ stock_transfer.transfer_identifier }}</strong>:
                         <strong>{{ transferred_count }}</strong> of
                         <strong>{{ stock_transfer.item_count }}</strong> scanned
-                        {% if transferred_count < stock_transfer.item_count %}
+                        {% if remaining_count > 0 %}
                             &mdash; <strong>{{ remaining_count }}</strong> remaining
                         {% else %}
                             &mdash; <span class="label label-success">Complete</span>
                         {% endif %}
                     </p>
 
-                    {# ── Scan input ────────────────────────────────── #}
+                    {# ── Scan input (disabled when complete) ──────── #}
                     <div class="input-group" style="max-width:360px; margin-bottom:10px;">
                         <input type="text" id="scan-input"
                                class="form-control"
                                placeholder="Scan stock code"
                                autocomplete="off" autofocus
                                pattern="[A-Z0-9]+"
+                               {% if remaining_count == 0 %}disabled{% endif %}
                                onkeydown="if(event.key==='Enter'){event.preventDefault();addCode();}">
                         <span class="input-group-btn">
-                            <button type="button" class="btn btn-default" onclick="addCode()">Add</button>
+                            <button type="button" class="btn btn-default" onclick="addCode()"
+                                    {% if remaining_count == 0 %}disabled{% endif %}>Add</button>
                         </span>
                     </div>
 
@@ -73,12 +99,39 @@
                 </div>
             </div>
 
-            {# ── Django messages ───────────────────────────────────── #}
-            {% if messages %}
-            <div style="margin-top:10px;">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags|default:"info" }}">{{ message }}</div>
-                {% endfor %}
+            {# ── Scanned items panel ───────────────────────────────── #}
+            {% if transfer_items %}
+            <div class="panel panel-default" style="margin-top:16px;">
+                <div class="panel-heading">
+                    <strong>Scanned items</strong>
+                    <span class="badge" style="margin-left:6px;">{{ transferred_count }}</span>
+                </div>
+                <div class="panel-body" style="padding:0;">
+                    <table id="scanned-tbl" class="table table-condensed table-hover" style="margin:0;">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Code</th>
+                                <th>Subject</th>
+                                <th>To location</th>
+                                <th>Scanned by</th>
+                                <th>Scanned</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in transfer_items %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td style="font-family:monospace;">{{ item.code }}</td>
+                                <td>{{ item.stock.current_allocation.registered_subject.subject_identifier|default:"—" }}</td>
+                                <td>{{ item.stock_transfer.to_location.display_name }}</td>
+                                <td>{{ item.user_created }}</td>
+                                <td style="white-space:nowrap;">{{ item.transfer_item_datetime|date:"d-M-Y H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {% endif %}
 
@@ -122,7 +175,7 @@
 
             codes.forEach(function (c) {
                 var li = document.createElement('li');
-                li.innerHTML = '<code>' + c + '</code> '
+                li.innerHTML = '<span style="background:#e8e8e8;color:#333;padding:1px 5px;border-radius:3px;font-family:monospace;">' + c + '</span> '
                     + '<a href="#" onclick="removeCode(\'' + c + '\'); return false;"'
                     + ' style="color:#c00; font-size:0.85em;">&times;</a>';
                 list.appendChild(li);
