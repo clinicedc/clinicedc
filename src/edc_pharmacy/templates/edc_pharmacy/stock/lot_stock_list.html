@@ -16,7 +16,7 @@
         $(document).ready(function () {
             {% if stocks %}
             $('#lot-stock-tbl').DataTable({
-                order: [[5, 'desc']],
+                order: [[6, 'desc']],
                 pageLength: 50,
             });
             {% endif %}
@@ -91,6 +91,7 @@
                                 <th style="text-align:right;">Units / cont.</th>
                                 <th>Order #</th>
                                 <th>Receive #</th>
+                                <th>From stock</th>
                                 <th>Created</th>
                                 <th>Status</th>
                             </tr>
@@ -116,6 +117,13 @@
                                         <code>{{ ri.receive.receive_identifier }}</code>
                                     {% else %}
                                         —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if s.from_stock %}
+                                        <code style="font-size:0.9em;">{{ s.from_stock.code }}</code>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
                                     {% endif %}
                                 </td>
                                 <td data-order="{{ s.stock_datetime|date:"Y-m-d H:i" }}"

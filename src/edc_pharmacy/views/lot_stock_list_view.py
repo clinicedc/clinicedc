@@ -40,6 +40,7 @@ class LotStockListView(
             .select_related(
                 "container",
                 "location",
+                "from_stock",
                 "receive_item__receive",
                 "receive_item__order_item__order",
             )
