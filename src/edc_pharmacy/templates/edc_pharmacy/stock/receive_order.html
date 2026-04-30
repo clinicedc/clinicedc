@@ -66,6 +66,12 @@
                         <i class="fas fa-angle-double-left"></i> Back to ordering
                     </a>
                     &nbsp;
+                    <a href="{% url "edc_pharmacy:receive_stock_list_url" order=order.pk %}"
+                       class="btn btn-default btn-sm" style="margin-top:6px;"
+                       title="View stock received against this order">
+                        <i class="fas fa-list"></i> Stock received
+                    </a>
+                    &nbsp;
                     <a href="{% url "edc_pharmacy:repack_home_url" %}"
                        class="btn btn-default btn-sm" style="margin-top:6px;"
                        title="Next step: repack">

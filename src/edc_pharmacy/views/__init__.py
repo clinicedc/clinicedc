@@ -32,6 +32,7 @@ from .receive_lot_add_view import ReceiveLotAddView
 from .receive_order_edit_view import ReceiveOrderEditView
 from .receive_order_item_view import ReceiveOrderItemView
 from .receive_order_view import ReceiveOrderView
+from .receive_stock_list_view import ReceiveStockListView
 from .receive_supplier_add_view import ReceiveSupplierAddView
 from .receive_supplier_edit_view import ReceiveSupplierEditView
 from .return_central_view import ReturnCentralView
