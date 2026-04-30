@@ -119,7 +119,8 @@
                         </tr>
                         {% endif %}
                     </table>
-                    <a href="?edit=1#receive-panel" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="{% url "edc_pharmacy:receive_edit_url" order=order.pk %}"
+                       class="btn btn-primary btn-sm">Edit</a>
                     {% if unconfirmed_count > 0 %}
                     &nbsp;
                     <form method="post" style="display:inline;">

@@ -26,6 +26,7 @@ from .print_order_view import print_order_view
 from .print_return_manifest_view import print_return_manifest_view
 from .print_stock_transfer_manifest_view import print_stock_transfer_manifest_view
 from .print_stock_view import print_stock_view
+from .receive_edit_view import ReceiveEditView
 from .receive_home_view import ReceiveHomeView
 from .receive_lot_add_view import ReceiveLotAddView
 from .receive_order_edit_view import ReceiveOrderEditView
