@@ -130,8 +130,8 @@
                     <form method="post" style="display:inline;">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="confirm_stock">
-                        <button type="submit" class="btn btn-success btn-sm">
-                            <i class="fas fa-check"></i> Confirm labelled stock
+                        <button type="submit" class="btn btn-warning btn-sm">
+                            Confirm labelled stock
                         </button>
                     </form>
                     {% endif %}
@@ -187,6 +187,30 @@
                             &nbsp;&mdash; received against this order
                         </small>
                     </h4>
+
+                    {% if receive and unconfirmed_count > 0 %}
+                    <div class="alert alert-warning" style="margin-bottom:12px;">
+                        <b>{{ unconfirmed_count }}</b> stock item{{ unconfirmed_count|pluralize }}
+                        need{{ unconfirmed_count|pluralize:"s," }} labelling and confirming.
+                        <div style="margin-top:8px;">
+                            <form method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="print_labels">
+                                <button type="submit" class="btn btn-default btn-sm">
+                                    <i class="fas fa-print"></i> Print labels ({{ unconfirmed_count }})
+                                </button>
+                            </form>
+                            &nbsp;
+                            <form method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="confirm_stock">
+                                <button type="submit" class="btn btn-warning btn-sm">
+                                    Confirm labelled stock
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
 
             {% for row in rows %}
             {% with oi=row.order_item %}
