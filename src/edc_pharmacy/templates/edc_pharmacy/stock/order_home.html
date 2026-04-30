@@ -67,19 +67,19 @@
                         <td>{{ o.supplier|default:"—" }}</td>
                         <td>{{ o.title|default:"—" }}</td>
                         <td>
-                            {% if o.status == "complete" %}
+                            {% if o.status == COMPLETE %}
                                 <span class="label label-success">Complete</span>
-                            {% elif o.status == "partial" %}
+                            {% elif o.status == PARTIAL %}
                                 <span class="label label-warning">Partial</span>
                             {% else %}
-                                <span class="label label-default">New</span>
+                                <span class="label label-warning">New</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if o.printed %}
                                 <span class="label label-success" title="{{ o.printed_by }} on {{ o.printed_datetime|date:"d-M-Y H:i" }}">Yes</span>
                             {% else %}
-                                <span class="label label-default">No</span>
+                                <span class="label label-danger">No</span>
                             {% endif %}
                         </td>
                         <td style="text-align:right;">{{ o.item_count }}</td>

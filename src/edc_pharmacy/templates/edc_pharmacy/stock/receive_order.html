@@ -15,15 +15,15 @@
             {# ── Order summary ── #}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <b>Order <code>{{ order.order_identifier }}</code></b>
+                    <b>Receive against order <code>{{ order.order_identifier }}</code></b>
                     &mdash; {{ order.title }}
                     &nbsp;
-                    {% if order.status == "complete" %}
+                    {% if order.status == COMPLETE %}
                         <span class="label label-success">Complete</span>
-                    {% elif order.status == "partial" %}
+                    {% elif order.status == PARTIAL %}
                         <span class="label label-warning">Partial</span>
                     {% else %}
-                        <span class="label label-default">New</span>
+                        <span class="label label-warning">New</span>
                     {% endif %}
                 </div>
                 <div class="panel-body">
@@ -60,25 +60,16 @@
                         </tr>
                         {% endif %}
                     </table>
-                    <a href="{% url "edc_pharmacy:receive_order_edit_url" order=order.pk %}"
-                       class="btn btn-primary btn-sm" style="margin-top:6px;">Edit</a>
-                    &nbsp;
                     <a href="{% url "edc_pharmacy:order_url" order=order.pk %}"
                        class="btn btn-default btn-sm" style="margin-top:6px;"
                        title="Previous step: ordering">
-                        <i class="fas fa-angle-double-left"></i> Go to ordering
+                        <i class="fas fa-angle-double-left"></i> Back to ordering
                     </a>
                     &nbsp;
                     <a href="{% url "edc_pharmacy:repack_home_url" %}"
                        class="btn btn-default btn-sm" style="margin-top:6px;"
                        title="Next step: repack">
                         Go to repack <i class="fas fa-angle-double-right"></i>
-                    </a>
-                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_order_history" order.pk %}"
-                       class="btn btn-default btn-sm pull-right"
-                       style="margin-top:6px;"
-                       title="View audit trail">
-                        <i class="fa fa-history"></i> Audit trail
                     </a>
                 </div>
             </div>
@@ -87,7 +78,7 @@
             <div class="panel {% if receive %}panel-info{% else %}panel-warning{% endif %}">
                 <div class="panel-heading">
                     {% if receive %}
-                        <b>Receive record <code>{{ receive.receive_identifier }}</code></b>
+                        <b>Receive <code>{{ receive.receive_identifier }}</code></b>
                         &mdash; {{ receive.receive_datetime|date:"d-M-Y" }} at {{ receive.receive_datetime|date:"H:i" }}
                         &nbsp;
                         {% if unconfirmed_count == 0 and confirmed_count > 0 %}
@@ -95,10 +86,10 @@
                         {% elif confirmed_count > 0 %}
                             <span class="label label-warning">{{ confirmed_count }} confirmed, {{ unconfirmed_count }} unconfirmed</span>
                         {% else %}
-                            <span class="label label-default">{{ unconfirmed_count }} unconfirmed</span>
+                            <span class="label label-warning">{{ unconfirmed_count }} unconfirmed</span>
                         {% endif %}
                     {% else %}
-                        <b>Start receiving</b> &mdash; Supplier: {{ order.supplier }}
+                        <b>New receiving record</b> &mdash; <span class="text-muted small">Complete the following to start receiving against this order</span>
                     {% endif %}
                 </div>
                 <div class="panel-body">
@@ -190,15 +181,13 @@
                 </div>
 
                 {# ── Order items (with receive progress) ── #}
+                {% if receive %}
                 <div class="panel-body" style="border-top:1px solid #e7e7e7;">
                     <h4 style="margin-top:0;margin-bottom:12px;">
-                        Order items
-                        <small class="text-muted">
-                            &nbsp;&mdash; receive progress for this order
-                        </small>
+                        Receive progress for this order
                     </h4>
 
-                    {% if receive and unconfirmed_count > 0 %}
+                    {% if unconfirmed_count > 0 %}
                     <div class="alert alert-warning" style="margin-bottom:12px;">
                         <b>{{ unconfirmed_count }}</b> stock item{{ unconfirmed_count|pluralize }}
                         need{{ unconfirmed_count|pluralize:"s," }} labelling and confirming.
@@ -221,13 +210,14 @@
                         </div>
                     </div>
                     {% endif %}
+                {% endif %}
 
             {% for row in rows %}
             {% with oi=row.order_item %}
-            <div class="panel {% if oi.unit_qty_pending is not None and oi.unit_qty_pending == 0 %}panel-success{% elif row.receive_items %}panel-warning{% else %}panel-default{% endif %}"
+            <div class="panel {% if oi.unit_qty_pending is not None and oi.unit_qty_pending == 0 %}panel-success{% elif row.receive_items %}panel-warning{% else %}panel-warning{% endif %}"
                  id="oi_{{ oi.pk }}">
                 <div class="panel-heading">
-                    <b>{{ oi.order_item_identifier }}</b>
+                    <b>Item {{ oi.order_item_identifier }}</b>
                     &mdash; {{ oi.product.name }}
                     &nbsp;
                     {% if oi.unit_qty_pending is not None and oi.unit_qty_pending == 0 %}
@@ -235,7 +225,7 @@
                     {% elif row.receive_items %}
                         <span class="label label-warning">Partial</span>
                     {% else %}
-                        <span class="label label-default">Pending</span>
+                        <span class="label label-warning">Pending</span>
                     {% endif %}
                 </div>
                 <div class="panel-body">
@@ -313,7 +303,7 @@
                                     </form>
                                     {% else %}
                                     <span class="text-muted small" title="Stock has been confirmed">
-                                        <i class="fa fa-lock"></i>
+                                        <i class="fa fa-lock text-success"></i>
                                     </span>
                                     {% endif %}
                                     <a href="{% url "edc_pharmacy_admin:edc_pharmacy_receiveitem_history" ri.pk %}"
@@ -334,13 +324,8 @@
                     <div style="border-top:1px solid #ddd;padding-top:10px;margin-top:4px;">
                         {% if row.can_add %}
                         <a href="{% url "edc_pharmacy:receive_order_item_url" order=order.pk order_item=oi.pk %}"
-                           class="btn btn-primary btn-sm">Receive</a>
+                           class="btn btn-warning btn-sm">Receive this item</a>
                         {% endif %}
-                        <a href="{% url "edc_pharmacy_admin:edc_pharmacy_orderitem_history" oi.pk %}"
-                           class="btn btn-default btn-sm pull-right"
-                           title="View audit trail">
-                            <i class="fa fa-history"></i> Audit trail
-                        </a>
                     </div>
 
                 </div>

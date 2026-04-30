@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from django import forms
+from django.urls import reverse
+from django.utils.html import format_html
 
 from ...models import OrderItem
 
@@ -11,14 +13,16 @@ class OrderItemForm(forms.ModelForm):
             self.cleaned_data.get("container")
             and self.cleaned_data.get("container").unit_qty_max is None
         ):
-            raise forms.ValidationError(
-                {
-                    "container": (
-                        "Invalid. Container maximum unit quantity has not been set. "
-                        "Please update the container before continuing."
-                    )
-                }
+            url = reverse(
+                "edc_pharmacy_admin:edc_pharmacy_container_change",
+                args=[self.cleaned_data.get("container").id],
             )
+            errmsg = format_html(
+                "Invalid. Container maximum unit quantity has not been set. "
+                'Please <A href="{url}">update the container</A> before continuing.',
+                url=url,
+            )
+            raise forms.ValidationError({"container": errmsg})
         if (
             self.cleaned_data.get("container")
             and self.cleaned_data.get("container_unit_qty") is not None

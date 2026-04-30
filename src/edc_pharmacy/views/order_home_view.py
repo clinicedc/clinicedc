@@ -6,6 +6,7 @@ their items, independent of the receive workflow.
 
 from __future__ import annotations
 
+from clinicedc_constants import COMPLETE, PARTIAL
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
@@ -39,4 +40,8 @@ class OrderHomeView(
             for order in orders
         ]
         context["rows"] = rows
+        context.update(
+            COMPLETE=COMPLETE,
+            PARTIAL=PARTIAL,
+        )
         return context

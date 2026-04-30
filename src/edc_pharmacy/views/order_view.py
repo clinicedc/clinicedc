@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+from clinicedc_constants import COMPLETE, PARTIAL
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -69,7 +70,13 @@ class OrderView(
         order = self.get_order()
         rows = self._build_rows(order)
         has_receive = Receive.objects.filter(order=order).exists()
-        context.update(order=order, rows=rows, has_receive=has_receive)
+        context.update(
+            order=order,
+            rows=rows,
+            has_receive=has_receive,
+            COMPLETE=COMPLETE,
+            PARTIAL=PARTIAL,
+        )
         return context
 
     def post(self, request, *args, **kwargs):  # noqa: ARG002

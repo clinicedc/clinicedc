@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from uuid import uuid4
 
+from clinicedc_constants import COMPLETE, IN_PROGRESS, PARTIAL
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -29,7 +30,7 @@ from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..auth_objects import PHARMACIST_ROLE
 from ..forms.stock import ReceiveHeaderForm
-from ..models import Order, OrderItem, Receive, ReceiveItem, Stock
+from ..models import COMPLETED, Order, OrderItem, Receive, ReceiveItem, Stock
 from .auths_view_mixin import PharmacistRequiredMixin
 
 
@@ -130,6 +131,8 @@ class ReceiveOrderView(
             unconfirmed_count=unconfirmed_count,
             show_batch=show_batch,
             edit_receive=edit_receive,
+            COMPLETE=COMPLETE,
+            PARTIAL=PARTIAL,
         )
         return context
 
