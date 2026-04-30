@@ -15,8 +15,8 @@
     <script>
         $(document).ready(function () {
             {% if stocks %}
-            $('#receive-stock-tbl').DataTable({
-                order: [[6, 'desc']],
+            $('#lot-stock-tbl').DataTable({
+                order: [[5, 'desc']],
                 pageLength: 50,
             });
             {% endif %}
@@ -31,19 +31,17 @@
 
             <div style="padding:10px;">
                 <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
-                <a href="{% url "edc_pharmacy:receive_home_url" %}">Receive</a> &rsaquo;
-                <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}">{{ order.order_identifier }}</a> &rsaquo;
-                Stock received
+                <a href="{% url "edc_pharmacy_admin:edc_pharmacy_lot_changelist" %}">Lots</a> &rsaquo;
+                {{ lot.lot_no }}
             </div>
 
+            {# ── Lot summary ── #}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <b>Stock received against order <code>{{ order.order_identifier }}</code></b>
-                    {% if receive %}
+                    <b>Stock from batch <code>{{ lot.lot_no }}</code></b>
+                    &mdash; {{ lot.product.name|default:"—" }}
                     &nbsp;
-                    <span class="text-muted small">
-                        ({{ receive.receive_identifier }})
-                    </span>
+                    <span class="label label-default">{{ lot.assignment|default:"—" }}</span>
                     &nbsp;
                     {% if unconfirmed_count == 0 and confirmed_count > 0 %}
                         <span class="label label-success">All confirmed</span>
@@ -52,53 +50,74 @@
                     {% else %}
                         <span class="label label-warning">{{ unconfirmed_count }} unconfirmed</span>
                     {% endif %}
-                    {% endif %}
                 </div>
                 <div class="panel-body">
+                    <table class="table table-condensed" style="margin-bottom:0;">
+                        <tr>
+                            <th style="width:160px;">Expiration date</th>
+                            <td>{{ lot.expiration_date|date:"d-M-Y"|default:"—" }}</td>
+                            <th style="width:160px;">Manufactured</th>
+                            <td>{{ lot.manufactured_date|date:"d-M-Y"|default:"—" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Manufactured by</th>
+                            <td>{{ lot.manufactured_by|default:"—" }}</td>
+                            <th>Reference</th>
+                            <td>{{ lot.reference|default:"—" }}</td>
+                        </tr>
+                    </table>
+                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_lot_change" lot.pk %}"
+                       class="btn btn-default btn-sm" style="margin-top:6px;">
+                        Edit batch (admin)
+                    </a>
+                </div>
+            </div>
 
+            {# ── Stock items derived from this batch ── #}
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <b>Stock items</b>
+                    &nbsp;
+                    <span class="badge">{{ stocks|length }}</span>
+                </div>
+                <div class="panel-body" style="padding:0;">
                     {% if stocks %}
                     <div class="table-responsive">
-                    <table id="receive-stock-tbl" class="table table-condensed table-hover" style="margin:0;">
+                    <table id="lot-stock-tbl" class="table table-condensed table-hover" style="margin:0;">
                         <thead>
                             <tr>
                                 <th>Code</th>
-                                <th>Product</th>
-                                <th>Assignment</th>
-                                <th>Batch</th>
                                 <th>Container</th>
                                 <th style="text-align:right;">Units / cont.</th>
+                                <th>Order #</th>
+                                <th>Receive #</th>
                                 <th>Created</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for s in stocks %}
+                            {% with ri=s.receive_item %}
                             <tr>
                                 <td style="font-family:monospace;">{{ s.code|default:"—" }}</td>
-                                <td>{{ s.product.name|default:"—" }}</td>
-                                <td>
-                                    {% if show_assignment %}
-                                        {{ s.product.assignment|default:"—" }}
-                                    {% else %}
-                                        <span class="text-muted">******</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if show_batch %}
-                                        {% if s.lot %}
-                                            <a href="{% url "edc_pharmacy:lot_stock_list_url" lot=s.lot.pk %}"
-                                               title="View all stock from this batch">
-                                                {{ s.lot.lot_no }}
-                                            </a>
-                                        {% else %}
-                                            —
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="text-muted">******</span>
-                                    {% endif %}
-                                </td>
                                 <td>{{ s.container|default:"—" }}</td>
                                 <td style="text-align:right;">{{ s.container_unit_qty }}</td>
+                                <td>
+                                    {% if ri and ri.order_item.order %}
+                                        <a href="{% url "edc_pharmacy:receive_order_url" order=ri.order_item.order.pk %}">
+                                            <code>{{ ri.order_item.order.order_identifier }}</code>
+                                        </a>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if ri and ri.receive %}
+                                        <code>{{ ri.receive.receive_identifier }}</code>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
                                 <td data-order="{{ s.stock_datetime|date:"Y-m-d H:i" }}"
                                     style="white-space:nowrap;">
                                     {{ s.stock_datetime|date:"d-M-Y H:i" }}
@@ -117,21 +136,16 @@
                                     {% endif %}
                                 </td>
                             </tr>
+                            {% endwith %}
                             {% endfor %}
                         </tbody>
                     </table>
                     </div>
                     {% else %}
-                    <p class="text-muted">No stock has been received against this order yet.</p>
+                    <div class="panel-body">
+                        <p class="text-muted">No stock items have been produced from this batch yet.</p>
+                    </div>
                     {% endif %}
-
-                    <p style="margin-top:12px;">
-                        <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}"
-                           class="btn btn-default btn-sm">
-                            <i class="fas fa-angle-double-left"></i> Back to receiving
-                        </a>
-                    </p>
-
                 </div>
             </div>
 

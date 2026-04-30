@@ -12,6 +12,7 @@ from .views import (
     DispenseView,
     HomeView,
     LedgerView,
+    LotStockListView,
     MoveToStorageBinView,
     OrderEditView,
     OrderHomeView,
@@ -258,6 +259,11 @@ urlpatterns = [
         "receive/<uuid:order>/stock/",
         ReceiveStockListView.as_view(),
         name="receive_stock_list_url",
+    ),
+    path(
+        "lot/<uuid:lot>/stock/",
+        LotStockListView.as_view(),
+        name="lot_stock_list_url",
     ),
     path(
         "receive/<uuid:order>/<uuid:order_item>/",

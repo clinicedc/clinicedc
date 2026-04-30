@@ -9,6 +9,7 @@ from .dispense_view import DispenseView
 from .get_stock_transfers_view import get_stock_transfers_view
 from .home_view import HomeView
 from .ledger_view import LedgerView
+from .lot_stock_list_view import LotStockListView
 from .move_to_storage_bin_view import MoveToStorageBinView
 from .order_edit_view import OrderEditView
 from .order_home_view import OrderHomeView
