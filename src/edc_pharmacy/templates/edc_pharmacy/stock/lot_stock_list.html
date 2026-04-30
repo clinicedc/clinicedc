@@ -87,11 +87,11 @@
                         <thead>
                             <tr>
                                 <th>Code</th>
+                                <th>From stock</th>
                                 <th>Container</th>
                                 <th style="text-align:right;">Units / cont.</th>
                                 <th>Order #</th>
                                 <th>Receive #</th>
-                                <th>From stock</th>
                                 <th>Created</th>
                                 <th>Status</th>
                             </tr>
@@ -101,6 +101,15 @@
                             {% with ri=s.receive_item %}
                             <tr>
                                 <td style="font-family:monospace;">{{ s.code|default:"—" }}</td>
+                                <td>
+                                    {% if s.from_stock %}
+                                        <code style="font-size:0.9em;">
+                                            {{ s.from_stock.code }}
+                                        </code>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ s.container|default:"—" }}</td>
                                 <td style="text-align:right;">{{ s.container_unit_qty }}</td>
                                 <td>
@@ -117,13 +126,6 @@
                                         <code>{{ ri.receive.receive_identifier }}</code>
                                     {% else %}
                                         —
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if s.from_stock %}
-                                        <code style="font-size:0.9em;">{{ s.from_stock.code }}</code>
-                                    {% else %}
-                                        <span class="text-muted">—</span>
                                     {% endif %}
                                 </td>
                                 <td data-order="{{ s.stock_datetime|date:"Y-m-d H:i" }}"
