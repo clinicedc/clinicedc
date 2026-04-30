@@ -26,15 +26,22 @@ from .views import (
     ReceiveOrderView,
     ReceiveSupplierAddView,
     ReceiveSupplierEditView,
+    RepackEditView,
+    RepackHomeView,
+    RepackView,
     ReturnCentralView,
     ReturnDispositionView,
     ReturnReceiveView,
     ReturnRequestView,
     SiteStockReportView,
     StockAdjustmentView,
+    StockRequestEditView,
+    StockRequestHomeView,
+    StockRequestView,
     StockTakeHomeView,
     StockTakeResultsView,
     StockTakeScanView,
+    StockTransferEditView,
     StockTransferHomeView,
     TransferStockView,
     get_stock_transfers_view,
@@ -111,6 +118,11 @@ urlpatterns = [
         "stock-transfer/",
         StockTransferHomeView.as_view(),
         name="stock_transfer_home_url",
+    ),
+    path(
+        "stock-transfer/add/",
+        StockTransferEditView.as_view(),
+        name="stock_transfer_add_url",
     ),
     path(
         "transfer-stock/<uuid:stock_transfer>/",
@@ -254,6 +266,48 @@ urlpatterns = [
         "receive/supplier/<uuid:pk>/edit/",
         ReceiveSupplierEditView.as_view(),
         name="receive_supplier_edit_url",
+    ),
+    # ── Stock request / allocation workflow ───────────────────────────────
+    path(
+        "stock-request/",
+        StockRequestHomeView.as_view(),
+        name="stock_request_home_url",
+    ),
+    path(
+        "stock-request/add/",
+        StockRequestEditView.as_view(),
+        name="stock_request_add_url",
+    ),
+    path(
+        "stock-request/<uuid:stock_request>/",
+        StockRequestView.as_view(),
+        name="stock_request_url",
+    ),
+    path(
+        "stock-request/<uuid:stock_request>/edit/",
+        StockRequestEditView.as_view(),
+        name="stock_request_edit_url",
+    ),
+    # ── Repack workflow ────────────────────────────────────────────────────
+    path(
+        "repack/",
+        RepackHomeView.as_view(),
+        name="repack_home_url",
+    ),
+    path(
+        "repack/add/",
+        RepackEditView.as_view(),
+        name="repack_add_url",
+    ),
+    path(
+        "repack/<uuid:repack_request>/",
+        RepackView.as_view(),
+        name="repack_url",
+    ),
+    path(
+        "repack/<uuid:repack_request>/edit/",
+        RepackEditView.as_view(),
+        name="repack_edit_url",
     ),
     # ── Return workflow ────────────────────────────────────────────────────
     path(

@@ -1,0 +1,217 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    <script>
+        $(document).ready(function() {
+            var tbl = document.getElementById('allocations_table');
+            var dateColIdx = tbl ? tbl.rows[0].cells.length - 1 : 3;
+            $('#allocations_table').DataTable({
+                order: [[dateColIdx, 'asc']],
+                pageLength: 25,
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:stock_request_home_url" %}">Stock requests</a> &rsaquo;
+                {{ stock_request.request_identifier }}
+            </div>
+
+            {# ── Stock request summary ── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <b>Stock request <code>{{ stock_request.request_identifier }}</code></b>
+                    &nbsp;
+                    {% if stock_request.cancel %}
+                        <span class="label label-danger">Cancelled</span>
+                    {% elif total == 0 %}
+                        <span class="label label-default">New</span>
+                    {% elif allocated == total %}
+                        <span class="label label-success">Fully allocated</span>
+                    {% elif allocated > 0 %}
+                        <span class="label label-warning">Partially allocated ({{ allocated }}/{{ total }})</span>
+                    {% else %}
+                        <span class="label label-info">Items created — awaiting allocation</span>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+                    <table class="table table-condensed" style="margin-bottom:8px;">
+                        <tr>
+                            <th style="width:200px;">Request date</th>
+                            <td>{{ stock_request.request_datetime|date:"d-M-Y" }}</td>
+                            <th style="width:200px;">Location</th>
+                            <td>{{ stock_request.location }}</td>
+                        </tr>
+                        <tr>
+                            <th>Formulation</th>
+                            <td>{{ stock_request.formulation }}</td>
+                            <th>Container</th>
+                            <td>{{ stock_request.container }}</td>
+                        </tr>
+                        <tr>
+                            <th>Containers per subject</th>
+                            <td>{{ stock_request.containers_per_subject }}</td>
+                            <th>Request items</th>
+                            <td>{{ total }}</td>
+                        </tr>
+                        <tr>
+                            <th>Start date</th>
+                            <td>{{ stock_request.start_datetime|date:"d-M-Y"|default:"—" }}</td>
+                            <th>Cutoff date</th>
+                            <td>{{ stock_request.cutoff_datetime|date:"d-M-Y"|default:"—" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Allocated</th>
+                            <td>{{ allocated }}</td>
+                            <th>Pending allocation</th>
+                            <td>{{ pending }}</td>
+                        </tr>
+                        {% if stock_request.subject_identifiers %}
+                        <tr>
+                            <th>Include only</th>
+                            <td colspan="3"><pre style="margin:0; font-size:12px;">{{ stock_request.subject_identifiers }}</pre></td>
+                        </tr>
+                        {% endif %}
+                        {% if stock_request.excluded_subject_identifiers %}
+                        <tr>
+                            <th>Excluded</th>
+                            <td colspan="3"><pre style="margin:0; font-size:12px;">{{ stock_request.excluded_subject_identifiers }}</pre></td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>Created by</th>
+                            <td>{{ stock_request.user_created|default:"—" }}</td>
+                            <th></th>
+                            <td></td>
+                        </tr>
+                    </table>
+
+                    {# ── Action buttons ── #}
+                    <div style="margin-top:6px;">
+                        {% if not stock_request.cancel %}
+                        {# Edit — always available while not cancelled #}
+                        <a href="{% url "edc_pharmacy:stock_request_edit_url" stock_request=stock_request.pk %}"
+                           class="btn btn-primary btn-sm">Edit</a>
+
+                        {# Prepare — only before items are created #}
+                        {% if total == 0 %}
+                        <a href="{% url "edc_pharmacy:review_stock_request_url" stock_request=stock_request.pk %}"
+                           class="btn btn-success btn-sm">
+                            <i class="fa fa-list"></i> Prepare items
+                        </a>
+                        {% endif %}
+
+                        {# Allocate — once items exist #}
+                        {% if total > 0 %}
+                            {% if pending > 0 %}
+                            <a href="{% url "edc_pharmacy:allocate_url" stock_request=stock_request.pk %}"
+                               class="btn btn-warning btn-sm">Allocate</a>
+                            {% else %}
+                            <span class="btn btn-success btn-sm disabled">Allocate</span>
+                            {% endif %}
+                        {% endif %}
+
+                        {# Cancel — only if no allocations #}
+                        {% if allocated == 0 %}
+                        <form method="post" style="display:inline;"
+                              onsubmit="return confirm('Cancel stock request {{ stock_request.request_identifier }}? This cannot be undone.');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="cancel">
+                            <button type="submit" class="btn btn-danger btn-sm pull-right">
+                                <i class="fa fa-times"></i> Cancel request
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        {% endif %}{# end not cancelled #}
+
+                        <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stockrequest_history" stock_request.pk %}"
+                           class="btn btn-default btn-sm pull-right"
+                           title="View audit trail">
+                            <i class="fa fa-history"></i> Audit trail
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {# ── Allocated stock ── #}
+            {% if allocations %}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <b>Allocated stock</b>
+                    <span class="pull-right text-muted">{{ allocations|length }} item{{ allocations|length|pluralize }}</span>
+                </div>
+                <div class="panel-body" style="padding:0;">
+                    <div class="table-responsive">
+                    <table id="allocations_table" class="table table-condensed table-hover" style="margin-bottom:0;">
+                        <thead>
+                            <tr>
+                                <th>Allocation #</th>
+                                <th>Stock code</th>
+                                <th>Subject</th>
+                                {% if show_assignment %}<th>Assignment</th>{% endif %}
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alloc in allocations %}
+                            <tr>
+                                <td><code>{{ alloc.allocation_identifier }}</code></td>
+                                <td><code>{{ alloc.code|default:"—" }}</code></td>
+                                <td>{{ alloc.subject_identifier }}</td>
+                                {% if show_assignment %}
+                                <td>{{ alloc.assignment.display_name|default:"—" }}</td>
+                                {% endif %}
+                                <td data-order="{{ alloc.allocation_datetime|date:"Y-m-d H:i" }}">
+                                    {{ alloc.allocation_datetime|date:"d-M-Y H:i" }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {# ── Instructions ── #}
+            {% if not stock_request.cancel %}
+            <div class="panel panel-info">
+                <div class="panel-heading"><b>Instructions</b></div>
+                <div class="panel-body" style="font-size:13px;">
+                    <ol style="margin-bottom:0; padding-left:18px;">
+                        <li>Click <b>Prepare items</b> — the system identifies subjects with upcoming appointments who need stock.</li>
+                        <li>Review the proposed items and click <b>Create items</b> to confirm.</li>
+                        <li>Click <b>Allocate</b> for each treatment assignment — scan stock barcodes to pair stock with subjects.</li>
+                    </ol>
+                </div>
+            </div>
+            {% endif %}
+
+            <p style="margin-top:8px;">
+                <a href="{% url "edc_pharmacy:stock_request_home_url" %}" class="btn btn-default btn-sm">
+                    &larr; All stock requests
+                </a>
+            </p>
+
+        </div>
+    </div>
+{% endblock main %}

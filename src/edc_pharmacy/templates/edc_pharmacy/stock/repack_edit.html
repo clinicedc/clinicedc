@@ -1,0 +1,76 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-8">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:repack_home_url" %}">Repack</a> &rsaquo;
+                {% if instance %}
+                    <a href="{% url "edc_pharmacy:repack_url" repack_request=instance.pk %}">{{ instance.repack_identifier }}</a> &rsaquo;
+                    Edit
+                {% else %}
+                    New repack request
+                {% endif %}
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {% if instance %}
+                        <b>Edit Repack Request <code>{{ instance.repack_identifier }}</code></b>
+                    {% else %}
+                        <b>New Repack Request</b>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+
+                    <div class="alert alert-info" style="font-size:13px;">
+                        <i class="fa fa-info-circle"></i>
+                        Scan or type the stock code of the <strong>bulk item</strong> to repack,
+                        select the target container, and enter the number of containers to produce.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            {% for field in form %}
+                            <div class="col-sm-6" style="margin-bottom:12px;">
+                                <div class="form-group{% if field.errors %} has-error{% endif %}">
+                                    <label class="control-label" for="{{ field.id_for_label }}">
+                                        {{ field.label }}
+                                        {% if field.field.required %}<span style="color:red;">*</span>{% endif %}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <span class="help-block">{{ field.help_text }}</span>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <span class="help-block">{{ field.errors|join:", " }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                        &nbsp;
+                        {% if instance %}
+                            <a href="{% url "edc_pharmacy:repack_url" repack_request=instance.pk %}"
+                               class="btn btn-default btn-sm">Cancel</a>
+                        {% else %}
+                            <a href="{% url "edc_pharmacy:repack_home_url" %}"
+                               class="btn btn-default btn-sm">Cancel</a>
+                        {% endif %}
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock main %}

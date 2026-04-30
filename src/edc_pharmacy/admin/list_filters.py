@@ -95,9 +95,9 @@ class StockItemAllocationListFilter(SimpleListFilter):
         qs = None
         if self.value():
             if self.value() == YES:
-                qs = queryset.filter(allocation__isnull=False)
+                qs = queryset.filter(current_allocation__isnull=False)
             elif self.value() == NO:
-                qs = queryset.filter(allocation__isnull=True)
+                qs = queryset.filter(current_allocation__isnull=True)
         return qs
 
 

@@ -31,12 +31,17 @@ class TransferStockView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
 
     def get_context_data(self, **kwargs):
         stock_transfer = StockTransfer.objects.get(pk=self.kwargs.get("stock_transfer"))
-        transferred_count = StockTransferItem.objects.filter(
+        transfer_items = StockTransferItem.objects.filter(
             stock_transfer=stock_transfer
-        ).count()
+        ).select_related(
+            "stock__current_allocation__registered_subject",
+            "stock_transfer__to_location",
+        ).order_by("transfer_item_datetime")
+        transferred_count = transfer_items.count()
         remaining_count = max(0, stock_transfer.item_count - transferred_count)
         kwargs.update(
             stock_transfer=stock_transfer,
+            transfer_items=transfer_items,
             transferred_count=transferred_count,
             remaining_count=remaining_count,
         )
