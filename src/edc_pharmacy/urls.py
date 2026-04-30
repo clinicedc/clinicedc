@@ -125,6 +125,11 @@ urlpatterns = [
         name="stock_transfer_add_url",
     ),
     path(
+        "stock-transfer/<uuid:stock_transfer>/edit/",
+        StockTransferEditView.as_view(),
+        name="stock_transfer_edit_url",
+    ),
+    path(
         "transfer-stock/<uuid:stock_transfer>/",
         TransferStockView.as_view(),
         name="transfer_stock_url",

@@ -97,6 +97,11 @@
                                     <i class="fas fa-barcode"></i> Scan
                                 </a>
                             {% endif %}
+                            <a href="{% url "edc_pharmacy:stock_transfer_edit_url" stock_transfer=t.pk %}"
+                               class="btn btn-default btn-xs" style="margin-left:4px;"
+                               title="Edit transfer header">
+                                <i class="fa fa-pencil"></i> Edit
+                            </a>
                             <a href="{% url "edc_pharmacy:generate_manifest" stock_transfer=t.pk %}"
                                class="btn btn-default btn-xs" style="margin-left:4px;" target="_blank">
                                 Manifest
