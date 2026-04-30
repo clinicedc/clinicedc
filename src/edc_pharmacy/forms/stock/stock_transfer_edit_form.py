@@ -28,6 +28,27 @@ class StockTransferEditForm(forms.ModelForm):
             and cleaned_data["from_location"] == cleaned_data["to_location"]
         ):
             raise forms.ValidationError("From and To locations cannot be the same.")
+        # Once items have been scanned/transferred, lock from/to locations
+        # and don't let item_count drop below the scanned count.
+        if self.instance and self.instance.pk:
+            scanned = self.instance.stocktransferitem_set.count()
+            if scanned > 0:
+                if cleaned_data.get("from_location") != self.instance.from_location:
+                    self.add_error(
+                        "from_location",
+                        "Cannot change once items have been transferred.",
+                    )
+                if cleaned_data.get("to_location") != self.instance.to_location:
+                    self.add_error(
+                        "to_location",
+                        "Cannot change once items have been transferred.",
+                    )
+                item_count = cleaned_data.get("item_count")
+                if item_count is not None and item_count < scanned:
+                    self.add_error(
+                        "item_count",
+                        f"May not be less than the number already scanned ({scanned}).",
+                    )
         return cleaned_data
 
     class Meta:
