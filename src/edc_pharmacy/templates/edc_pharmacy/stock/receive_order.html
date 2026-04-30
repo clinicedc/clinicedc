@@ -64,10 +64,16 @@
                        class="btn btn-primary btn-sm" style="margin-top:6px;">Edit</a>
                     &nbsp;
                     <a href="{% url "edc_pharmacy:order_url" order=order.pk %}"
-                       class="btn btn-default btn-sm" style="margin-top:6px;">Go to ordering</a>
+                       class="btn btn-default btn-sm" style="margin-top:6px;"
+                       title="Previous step: ordering">
+                        <i class="fas fa-angle-double-left"></i> Go to ordering
+                    </a>
                     &nbsp;
                     <a href="{% url "edc_pharmacy:repack_home_url" %}"
-                       class="btn btn-default btn-sm" style="margin-top:6px;">Go to repack</a>
+                       class="btn btn-default btn-sm" style="margin-top:6px;"
+                       title="Next step: repack">
+                        Go to repack <i class="fas fa-angle-double-right"></i>
+                    </a>
                     <a href="{% url "edc_pharmacy_admin:edc_pharmacy_order_history" order.pk %}"
                        class="btn btn-default btn-sm pull-right"
                        style="margin-top:6px;"
