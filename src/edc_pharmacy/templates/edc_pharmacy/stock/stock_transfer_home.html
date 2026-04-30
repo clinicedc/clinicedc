@@ -85,11 +85,11 @@
                                 <span class="label label-warning">{{ row.remaining }}</span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td style="white-space:nowrap;">
                             {% if row.complete %}
                                 <a href="{% url "edc_pharmacy:transfer_stock_url" stock_transfer=t.pk %}"
                                    class="btn btn-default btn-xs">
-                                    View
+                                    <i class="fas fa-barcode"></i> View
                                 </a>
                             {% else %}
                                 <a href="{% url "edc_pharmacy:transfer_stock_url" stock_transfer=t.pk %}"
@@ -100,11 +100,11 @@
                             <a href="{% url "edc_pharmacy:stock_transfer_edit_url" stock_transfer=t.pk %}"
                                class="btn btn-default btn-xs" style="margin-left:4px;"
                                title="Edit transfer header">
-                                <i class="fa fa-pencil"></i> Edit
+                                <i class="fas fa-pencil-alt"></i> Edit
                             </a>
                             <a href="{% url "edc_pharmacy:generate_manifest" stock_transfer=t.pk %}"
                                class="btn btn-default btn-xs" style="margin-left:4px;" target="_blank">
-                                Manifest
+                                <i class="fas fa-file-pdf"></i> Manifest
                             </a>
                         </td>
                     </tr>
