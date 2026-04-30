@@ -19,6 +19,7 @@ from .views import (
     OrderView,
     PrepareAndReviewStockRequestView,
     PrintLabelsView,
+    ReceiveEditView,
     ReceiveHomeView,
     ReceiveLotAddView,
     ReceiveOrderEditView,
@@ -246,6 +247,11 @@ urlpatterns = [
         "receive/<uuid:order>/edit/",
         ReceiveOrderEditView.as_view(),
         name="receive_order_edit_url",
+    ),
+    path(
+        "receive/<uuid:order>/header/edit/",
+        ReceiveEditView.as_view(),
+        name="receive_edit_url",
     ),
     path(
         "receive/<uuid:order>/<uuid:order_item>/",

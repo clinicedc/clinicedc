@@ -116,11 +116,10 @@ class ReceiveOrderView(
         confirmed_count = stock_qs.filter(confirmed=True).count() if stock_qs else 0
         unconfirmed_count = stock_qs.filter(confirmed=False).count() if stock_qs else 0
 
-        # edit_receive=True when: no receive yet (must fill form), or ?edit=1 in URL,
-        # or the form was re-rendered after a failed POST.
-        edit_receive = (
-            receive is None or self.request.GET.get("edit") == "1" or receive_form.errors
-        )
+        # edit_receive=True when: no receive yet (must fill the create form),
+        # or the create form was re-rendered after a failed POST.
+        # (Editing an existing Receive lives on its own page — receive_edit_url.)
+        edit_receive = receive is None or receive_form.errors
 
         context.update(
             order=order,
