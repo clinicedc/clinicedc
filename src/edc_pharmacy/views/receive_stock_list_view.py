@@ -33,13 +33,19 @@ class ReceiveStockListView(
         context = super().get_context_data(**kwargs)
         roles = context.get("roles", [])
         show_batch = PHARMACIST_ROLE in roles
+        show_assignment = PHARMACIST_ROLE in roles
 
         order = self._get_order()
         receive = self._get_receive(order)
         stocks = (
             Stock.objects.filter(receive_item__receive=receive)
             .select_related(
-                "product", "lot", "container", "location", "receive_item__order_item"
+                "product",
+                "product__assignment",
+                "lot",
+                "container",
+                "location",
+                "receive_item__order_item",
             )
             .order_by("-stock_datetime")
             if receive
@@ -52,6 +58,7 @@ class ReceiveStockListView(
             confirmed_count=stocks.filter(confirmed=True).count() if receive else 0,
             unconfirmed_count=stocks.filter(confirmed=False).count() if receive else 0,
             show_batch=show_batch,
+            show_assignment=show_assignment,
         )
         return context
 

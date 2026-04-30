@@ -16,7 +16,7 @@
         $(document).ready(function () {
             {% if stocks %}
             $('#receive-stock-tbl').DataTable({
-                order: [[5, 'desc']],
+                order: [[6, 'desc']],
                 pageLength: 50,
             });
             {% endif %}
@@ -63,6 +63,7 @@
                             <tr>
                                 <th>Code</th>
                                 <th>Product</th>
+                                <th>Assignment</th>
                                 <th>Batch</th>
                                 <th>Container</th>
                                 <th style="text-align:right;">Units / cont.</th>
@@ -75,6 +76,13 @@
                             <tr>
                                 <td style="font-family:monospace;">{{ s.code|default:"—" }}</td>
                                 <td>{{ s.product.name|default:"—" }}</td>
+                                <td>
+                                    {% if show_assignment %}
+                                        {{ s.product.assignment|default:"—" }}
+                                    {% else %}
+                                        <span class="text-muted">******</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if show_batch %}
                                         {{ s.lot.lot_no|default:"—" }}
