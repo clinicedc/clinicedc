@@ -28,7 +28,6 @@ from .stock import (
     ReceiveItem,
     RepackRequest,
     Stock,
-    StockAdjustment,
     StockRequest,
     StockRequestItem,
     StockTransferItem,
@@ -67,28 +66,10 @@ def update_orderitem_status(order_item: OrderItem):
     order_item.refresh_from_db()
 
 
-
 @receiver(post_save, sender=Stock, dispatch_uid="stock_on_post_save")
 def stock_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
     """Update unit qty and other columns"""
     pass
-
-
-@receiver(
-    post_save,
-    sender=StockAdjustment,
-    dispatch_uid="stock_adjustment_on_post_save",
-)
-def stock_adjustment_on_post_save(sender, instance, raw, created, update_fields, **kwargs):
-    """Update unit qty"""
-    if not raw and not update_fields:
-        instance.stock.unit_qty_in = instance.unit_qty_in_new
-        if instance.stock.unit_qty_out > instance.stock.unit_qty_in:
-            raise InsufficientStockError(
-                "Invalid adjustment. Expected a value greater than or equal to "
-                f"{instance.stock.unit_qty_out}. See {instance}."
-            )
-        instance.stock.save(update_fields=["unit_qty_in"])
 
 
 @receiver(post_save, sender=OrderItem, dispatch_uid="order_item_on_post_save")
@@ -136,13 +117,10 @@ def receive_item_on_post_save(sender, instance, raw, created, update_fields, **k
             )["unit_qty"]
         ) or Decimal("0.0")
         instance.order_item.unit_qty_pending = (
-            instance.order_item.unit_qty_ordered
-            - instance.order_item.unit_qty_received
+            instance.order_item.unit_qty_ordered - instance.order_item.unit_qty_received
         )
 
-        instance.order_item.save(
-            update_fields=["unit_qty_received", "unit_qty_pending"]
-        )
+        instance.order_item.save(update_fields=["unit_qty_received", "unit_qty_pending"])
 
         update_orderitem_status(order_item=instance.order_item)
 
@@ -205,13 +183,11 @@ def receive_item_on_post_delete(sender, instance, using, **kwargs) -> None:
     # so a stale cached value can never cause drift.
     order_item = instance.order_item
     order_item.unit_qty_received = (
-        order_item.receiveitem_set.all().aggregate(
-            unit_qty=Sum("unit_qty_received")
-        )["unit_qty"]
+        order_item.receiveitem_set.all().aggregate(unit_qty=Sum("unit_qty_received"))[
+            "unit_qty"
+        ]
     ) or Decimal("0.0")
-    order_item.unit_qty_pending = (
-        order_item.unit_qty_ordered - order_item.unit_qty_received
-    )
+    order_item.unit_qty_pending = order_item.unit_qty_ordered - order_item.unit_qty_received
     order_item.save(update_fields=["unit_qty_received", "unit_qty_pending"])
     update_orderitem_status(order_item=order_item)
     update_order_status(order=order_item.order)

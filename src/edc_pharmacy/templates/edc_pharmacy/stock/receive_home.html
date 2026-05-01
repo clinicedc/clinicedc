@@ -111,7 +111,7 @@
                             {% elif o.status == "partial" %}
                                 <span class="label label-warning">Partial</span>
                             {% else %}
-                                <span class="label label-default">New</span>
+                                <span class="label label-warning">New</span>
                             {% endif %}
                         </td>
                         <td style="text-align:right;">{{ o.item_count|default:"—" }}</td>

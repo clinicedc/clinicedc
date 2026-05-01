@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from django import forms
 from django.db.models import Sum
 
 from ...models import Container, Lot, ReceiveItem
+
+if TYPE_CHECKING:
+    from ...models import OrderItem
 
 
 class ReceiveItemAddForm(forms.Form):
@@ -17,8 +21,9 @@ class ReceiveItemAddForm(forms.Form):
 
     lot = forms.ModelChoiceField(
         queryset=Lot.objects.none(),
-        label="Batch",
-        empty_label="Select batch …",
+        label="Lot # / Batch",
+        empty_label="Select lot # / batch …",
+        help_text="Available lot #'s based on the order",
     )
     container = forms.ModelChoiceField(
         queryset=Container.objects.filter(may_receive_as=True),
@@ -41,19 +46,25 @@ class ReceiveItemAddForm(forms.Form):
         initial="-",
     )
 
-    def __init__(self, *args, order_item=None, instance=None, **kwargs):
+    def __init__(
+        self,
+        *args,
+        order_item: OrderItem = None,
+        instance: ReceiveItem | None = None,
+        **kwargs,
+    ):
         self.order_item = order_item
-        self.instance = instance  # ReceiveItem being edited (None for add)
+        self.instance = instance
         super().__init__(*args, **kwargs)
         if order_item:
             self.fields["lot"].queryset = Lot.objects.filter(
                 product=order_item.product
             ).order_by("-expiration_date")
-            if instance is None:
+            if not instance:
                 self.fields["container"].initial = order_item.container
                 self.fields["container_unit_qty"].initial = order_item.container_unit_qty
         # Pre-fill from existing instance for edit mode
-        if instance is not None:
+        if instance:
             self.fields["lot"].initial = instance.lot
             self.fields["container"].initial = instance.container
             self.fields["container_unit_qty"].initial = instance.container_unit_qty
@@ -77,13 +88,15 @@ class ReceiveItemAddForm(forms.Form):
             and self.order_item
             and lot.product.assignment != self.order_item.product.assignment
         ):
-            self.add_error("lot", "Batch assignment does not match product assignment.")
+            self.add_error(
+                "lot", "Assignment for this lot # / batch does not match the order."
+            )
 
         if container_unit_qty and item_qty_received and self.order_item:
             unit_qty_this = container_unit_qty * item_qty_received
             existing_qs = ReceiveItem.objects.filter(order_item=self.order_item)
             # Exclude the row being edited so its old value isn't double-counted
-            if self.instance is not None and self.instance.pk:
+            if self.instance and self.instance.pk:
                 existing_qs = existing_qs.exclude(pk=self.instance.pk)
             already_received = existing_qs.aggregate(total=Sum("unit_qty_received"))[
                 "total"

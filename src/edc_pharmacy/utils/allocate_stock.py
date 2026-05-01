@@ -56,7 +56,7 @@ def allocate_stock(
         with transaction.atomic():
             # Lock the stock row before checking current_allocation.
             try:
-                stock_obj:Stock = stock_model_cls.objects.select_for_update().get(
+                stock_obj: Stock = stock_model_cls.objects.select_for_update(of=("self",)).get(
                     code=code,
                     confirmation__isnull=False,
                     container__may_request_as=True,

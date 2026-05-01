@@ -13,6 +13,7 @@ from decimal import Decimal, InvalidOperation
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -85,16 +86,18 @@ class StockAdjustmentView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
 
         processed, skipped = [], []
         for code in codes:
-            try:
-                stock = Stock.objects.get(code=code)
-            except Stock.DoesNotExist:
-                skipped.append(f"{code} (not found)")
-                continue
-            try:
-                apply_transaction(stock, adjustment_type, request.user, reason=reason)
-                processed.append(code)
-            except InvalidTransitionError as e:
-                skipped.append(f"{code} ({e})")
+            with transaction.atomic():
+                try:
+                    stock = Stock.objects.select_for_update().get(code=code)
+                except Stock.DoesNotExist:
+                    skipped.append(f"{code} (not found)")
+                    continue
+                try:
+                    apply_transaction(stock, adjustment_type, request.user, reason=reason)
+                except InvalidTransitionError as e:
+                    skipped.append(f"{code} ({e})")
+                else:
+                    processed.append(code)
 
         label = STATUS_ADJUSTMENT_TYPES.get(adjustment_type, adjustment_type)
         if processed:
@@ -137,25 +140,28 @@ class StockAdjustmentView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
             messages.warning(request, "Delta is zero — nothing to adjust.")
             return HttpResponseRedirect(reverse("edc_pharmacy:stock_adjustments_url"))
 
-        try:
-            stock = Stock.objects.get(code=code)
-        except Stock.DoesNotExist:
-            messages.error(request, f"Stock code {code!r} not found.")
-            return HttpResponseRedirect(reverse("edc_pharmacy:stock_adjustments_url"))
+        with transaction.atomic():
+            try:
+                stock = Stock.objects.select_for_update().get(code=code)
+            except Stock.DoesNotExist:
+                messages.error(request, f"Stock code {code!r} not found.")
+                return HttpResponseRedirect(reverse("edc_pharmacy:stock_adjustments_url"))
 
-        try:
-            apply_transaction(
-                stock, TXN_ADJUSTED, request.user,
-                reason=reason,
-                unit_qty_delta=unit_qty_delta,
-            )
-            sign = "+" if unit_qty_delta > 0 else ""
-            messages.success(
-                request,
-                f"Quantity adjustment applied to {code}: {sign}{unit_qty_delta}",
-            )
-        except InvalidTransitionError as e:
-            messages.error(request, str(e))
+            try:
+                apply_transaction(
+                    stock,
+                    TXN_ADJUSTED,
+                    request.user,
+                    reason=reason,
+                    unit_qty_delta=unit_qty_delta,
+                )
+                sign = "+" if unit_qty_delta > 0 else ""
+                messages.success(
+                    request,
+                    f"Quantity adjustment applied to {code}: {sign}{unit_qty_delta}",
+                )
+            except InvalidTransitionError as e:
+                messages.error(request, str(e))
 
         return HttpResponseRedirect(
             reverse("edc_pharmacy:stock_adjustments_url") + f"?last_code={code}#qty-adjustment"

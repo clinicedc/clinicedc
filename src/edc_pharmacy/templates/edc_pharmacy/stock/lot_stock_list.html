@@ -54,16 +54,28 @@
                 <div class="panel-body">
                     <table class="table table-condensed" style="margin-bottom:0;">
                         <tr>
-                            <th style="width:160px;">Expiration date</th>
-                            <td>{{ lot.expiration_date|date:"d-M-Y"|default:"—" }}</td>
-                            <th style="width:160px;">Manufactured</th>
+                            <th>Manufactured by</th>
+                            <td>{{ lot.manufactured_by|default:"—" }}</td>
+                            <th style="width:160px;">Manufactured date</th>
                             <td>{{ lot.manufactured_date|date:"d-M-Y"|default:"—" }}</td>
                         </tr>
                         <tr>
-                            <th>Manufactured by</th>
-                            <td>{{ lot.manufactured_by|default:"—" }}</td>
                             <th>Reference</th>
                             <td>{{ lot.reference|default:"—" }}</td>
+                            <th>Comment</th>
+                            <td>{{ lot.comment|default:"—" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Country of origin</th>
+                            <td>{{ lot.country_of_origin|default:"—" }}</td>
+                            <th>Storage conditions</th>
+                            <td>{{ lot.storage_conditions|default:"—" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Processed until date</th>
+                            <td>{{ lot.processed_until_date }}</td>
+                            <th>Expiration date</th>
+                            <td>{{ lot.expiration_date }}</td>
                         </tr>
                     </table>
                     <a href="{% url "edc_pharmacy_admin:edc_pharmacy_lot_change" lot.pk %}"

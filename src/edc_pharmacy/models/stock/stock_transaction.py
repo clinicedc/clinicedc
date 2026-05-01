@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import models
+from django.db.models import UniqueConstraint
 from django.utils import timezone
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
@@ -85,12 +86,6 @@ class StockTransaction(BaseUuidModel):
     )
     dispense_item = models.ForeignKey(
         "edc_pharmacy.DispenseItem", on_delete=models.SET_NULL, null=True, related_name="+"
-    )
-    stock_adjustment = models.ForeignKey(
-        "edc_pharmacy.StockAdjustment",
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="+",
     )
     return_item = models.ForeignKey(
         "edc_pharmacy.ReturnItem", on_delete=models.SET_NULL, null=True, related_name="+"
