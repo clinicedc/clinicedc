@@ -79,11 +79,20 @@ User = get_user_model()
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 @override_settings(SITE_ID=10)
 class TestReturn(TestCase):
+    username = "aroy"
+
     @classmethod
     def setUpTestData(cls):
         import_holidays()
         sites._registry = {}
         sites.loaded = False
+        User.objects.create_user(
+            cls.username,
+            is_staff=True,
+            is_active=True,
+            is_superuser=True,
+            email="me@example.com",
+        )
         sites.register(*all_sites)
         add_or_update_django_sites()
         register_actions()
@@ -92,12 +101,13 @@ class TestReturn(TestCase):
         site_consents.registry = {}
         site_consents.loaded = False
         site_consents.register(consent_v1)
+        self.user = User.objects.get(username=self.username)
 
         visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
 
-        self.actor, _ = User.objects.get_or_create(username="testactor")
+        self.actor, _ = User.objects.get_or_create(username=self.username)
         self.location_central, _ = Location.objects.get_or_create(
             name=CENTRAL_LOCATION, defaults={"display_name": "Return Test Central"}
         )
@@ -167,7 +177,11 @@ class TestReturn(TestCase):
         # Confirm all stock at central (sets confirmed=True, qty_in, unit_qty_in).
         codes = list(Stock.objects.values_list("code", flat=True))
         confirm_stock(
-            receive, codes, fk_attr="receive_item__receive", user_created="testactor"
+            receive,
+            codes,
+            fk_attr="receive_item__receive",
+            user_created="aroy",
+            actor=self.user,
         )
 
         self.stock_codes = list(Stock.objects.values_list("code", flat=True))

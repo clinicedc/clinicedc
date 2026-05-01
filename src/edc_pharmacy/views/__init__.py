@@ -9,6 +9,7 @@ from .dispense_view import DispenseView
 from .get_stock_transfers_view import get_stock_transfers_view
 from .home_view import HomeView
 from .ledger_view import LedgerView
+from .lot_stock_list_view import LotStockListView
 from .move_to_storage_bin_view import MoveToStorageBinView
 from .order_edit_view import OrderEditView
 from .order_home_view import OrderHomeView
@@ -32,6 +33,7 @@ from .receive_lot_add_view import ReceiveLotAddView
 from .receive_order_edit_view import ReceiveOrderEditView
 from .receive_order_item_view import ReceiveOrderItemView
 from .receive_order_view import ReceiveOrderView
+from .receive_stock_list_view import ReceiveStockListView
 from .receive_supplier_add_view import ReceiveSupplierAddView
 from .receive_supplier_edit_view import ReceiveSupplierEditView
 from .return_central_view import ReturnCentralView

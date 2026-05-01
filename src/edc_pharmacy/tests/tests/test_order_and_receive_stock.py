@@ -12,6 +12,7 @@ from clinicedc_tests.helper import Helper
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
+from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.db.models import Sum
 from django.test import TestCase, override_settings, tag
@@ -65,6 +66,7 @@ utc_tz = ZoneInfo("UTC")
 @override_settings(SITE_ID=10)
 class TestOrderReceive(TestCase):
     helper_cls = Helper
+    username = "aroy"
 
     @classmethod
     def setUpTestData(cls):
@@ -72,6 +74,13 @@ class TestOrderReceive(TestCase):
         sites._registry = {}
         sites.loaded = False
         sites.register(*all_sites)
+        User.objects.create_user(
+            cls.username,
+            is_staff=True,
+            is_active=True,
+            is_superuser=True,
+            email="me@example.com",
+        )
         add_or_update_django_sites()
         register_actions()
 
@@ -85,6 +94,8 @@ class TestOrderReceive(TestCase):
         visit_schedule = get_visit_schedule(consent_v1)
         site_visit_schedules._registry = {}
         site_visit_schedules.register(visit_schedule)
+
+        self.user = User.objects.get(username=self.username)
 
         self.medication = Medication.objects.create(
             name="METFORMIN",
@@ -128,7 +139,11 @@ class TestOrderReceive(TestCase):
 
     def make_order(self, container, qty: int | None = None):
         qty = qty or 100
-        order = Order.objects.create(order_datetime=timezone.now(), item_count=20)
+        order = Order.objects.create(
+            order_datetime=timezone.now(),
+            item_count=20,
+            user_created=self.username,
+        )
         for _ in range(0, 10):
             OrderItem.objects.create(
                 order=order,
@@ -136,6 +151,7 @@ class TestOrderReceive(TestCase):
                 item_qty_ordered=qty,
                 container_unit_qty=container.unit_qty_default,
                 container=container,
+                user_created=self.username,
             )
         for _ in range(10, 20):
             OrderItem.objects.create(
@@ -144,6 +160,7 @@ class TestOrderReceive(TestCase):
                 item_qty_ordered=qty,
                 container_unit_qty=container.unit_qty_default,
                 container=container,
+                user_created=self.username,
             )
         order.refresh_from_db()
         return order
@@ -190,7 +207,11 @@ class TestOrderReceive(TestCase):
             may_receive_as=True,
         )
         order = self.make_order(container)
-        receive = Receive.objects.create(order=order, location=self.location)
+        receive = Receive.objects.create(
+            order=order,
+            location=self.location,
+            user_created=self.username,
+        )
         order_items = order.orderitem_set.all()
         sums = OrderItem.objects.filter(order=order).aggregate(
             unit_qty_pending=Sum("unit_qty_pending"),
@@ -211,6 +232,7 @@ class TestOrderReceive(TestCase):
                     if order_item.product.assignment.name == "active"
                     else self.lot_placebo
                 ),
+                user_created=self.username,
             )
             # assert container qty received
             self.assertEqual(obj.unit_qty_received, 100)
@@ -287,6 +309,7 @@ class TestOrderReceive(TestCase):
                     if order_item.product.assignment.name == "active"
                     else self.lot_placebo
                 ),
+                user_created=self.username,
             )
 
         # assert updates order_item.qty_received
@@ -339,6 +362,7 @@ class TestOrderReceive(TestCase):
             item_qty_ordered=50000,
             container_unit_qty=container.unit_qty_default,
             container=container,
+            user_created=self.username,
         )
         OrderItem.objects.create(
             order=order,
@@ -346,6 +370,7 @@ class TestOrderReceive(TestCase):
             item_qty_ordered=50000,
             container_unit_qty=container.unit_qty_default,
             container=container,
+            user_created=self.username,
         )
         order.refresh_from_db()
 
@@ -373,6 +398,7 @@ class TestOrderReceive(TestCase):
                     if order_item.product.assignment.name == "active"
                     else self.lot_placebo
                 ),
+                user_created=self.username,
             )
         receive.save()
         return receive
@@ -434,7 +460,7 @@ class TestOrderReceive(TestCase):
         )
         return container_128
 
-    @tag("20")
+    @tag("64")
     def test_repack(self):
         """Test repackage two bottles of 50000 into bottles of 128."""
         # create order of 50000 for each arm
@@ -468,6 +494,7 @@ class TestOrderReceive(TestCase):
                 from_stock=stock,
                 container=container_128,
                 item_qty_repack=39,
+                user_created=self.username,
             )
         self.assertIn("Unconfirmed stock item", str(cm.exception))
 
@@ -475,7 +502,11 @@ class TestOrderReceive(TestCase):
         self.assertEqual(Stock.objects.filter(confirmation__isnull=True).count(), 20)
         for stock in Stock.objects.filter(container=container_5000):
             confirm_stock(
-                receive, [stock.code], fk_attr="receive_item__receive", user_created="aroy"
+                receive,
+                [stock.code],
+                fk_attr="receive_item__receive",
+                user_created="aroy",
+                actor=self.user,
             )
         self.assertEqual(Stock.objects.filter(confirmation__isnull=False).count(), 20)
 
@@ -487,9 +518,10 @@ class TestOrderReceive(TestCase):
                 from_stock=stock,
                 container=container_128,
                 item_qty_repack=39,
+                user_created=self.username,
             )
             # process
-            process_repack_request(repack_request.pk, username=None)
+            process_repack_request(repack_request.pk, username="aroy")
 
         for repack_request in RepackRequest.objects.all():
             # assert unconfirmed stock instances (central)
@@ -504,7 +536,11 @@ class TestOrderReceive(TestCase):
                 obj.code for obj in repack_request.stock_set.filter(confirmation__isnull=True)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
-                repack_request, codes, fk_attr="repack_request", user_created="aroy"
+                repack_request,
+                codes,
+                fk_attr="repack_request",
+                user_created="aroy",
+                actor=self.user,
             )
 
             self.assertEqual(len(confirmed), 39)
@@ -518,7 +554,11 @@ class TestOrderReceive(TestCase):
                 for obj in repack_request.stock_set.filter(confirmation__isnull=False)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
-                repack_request, codes, fk_attr="repack_request", user_created="aroy"
+                repack_request,
+                codes,
+                fk_attr="repack_request",
+                user_created="aroy",
+                actor=self.user,
             )
 
             self.assertEqual(len(confirmed), 0)
@@ -531,7 +571,11 @@ class TestOrderReceive(TestCase):
                 obj.code for obj in repack_request.stock_set.filter(confirmation__isnull=False)
             ]
             confirmed, already_confirmed, invalid = confirm_stock(
-                repack_request, codes, fk_attr="repack_request", user_created="aroy"
+                repack_request,
+                codes,
+                fk_attr="repack_request",
+                user_created="aroy",
+                actor=self.user,
             )
 
             self.assertEqual(len(confirmed), 0)
@@ -598,7 +642,11 @@ class TestOrderReceive(TestCase):
         # confirm stock items
         for stock in Stock.objects.filter(container=container_5000):
             confirm_stock(
-                receive, [stock.code], fk_attr="receive_item__receive", user_created="aroy"
+                receive,
+                [stock.code],
+                fk_attr="receive_item__receive",
+                user_created="aroy",
+                actor=self.user,
             )
 
         # create a repack request from each container_5000, ask for 39 bottles of 128
@@ -608,9 +656,10 @@ class TestOrderReceive(TestCase):
                 from_stock=stock,
                 container=container_128,
                 item_qty_repack=39,
+                user_created=self.username,
             )
             # process
-            process_repack_request(repack_request.pk, username=None)
+            process_repack_request(repack_request.pk, username="aroy")
 
     @time_machine.travel(datetime(2025, 6, 15, 8, 00, tzinfo=utc_tz))
     @override_settings(
@@ -651,6 +700,7 @@ class TestOrderReceive(TestCase):
             formulation=Formulation.objects.all()[0],
             container=Container.objects.get(name="bottle of 128"),
             containers_per_subject=3,
+            user_created=self.username,
         )
 
         # user prepares stock request items (admin action against the stock request)
@@ -687,6 +737,7 @@ class TestOrderReceive(TestCase):
                 site_name=site.name,
                 allocated=True,
                 allocated_datetime=timezone.now(),
+                user_created=self.username,
             )
             if add_prescription:
                 create_prescription(

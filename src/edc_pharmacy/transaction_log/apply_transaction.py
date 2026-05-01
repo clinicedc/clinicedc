@@ -254,24 +254,36 @@ def apply_transaction(
     reason: str = "",
     **kwargs,
 ) -> StockTransaction:
-    from_location_id = stock.location_id
-    current = _snapshot(stock)
-    delta = compute_delta(txn_type, current, **kwargs)
-
-    if delta.preconditions_failed:
-        raise InvalidTransitionError(
-            f"{txn_type} refused on stock={stock.code}: "
-            f"{'; '.join(delta.preconditions_failed)}"
-        )
-
+    """..
+    Always acquires a row-level lock on `stock` regardless of whether the
+    caller has already locked it. Safe to call from within an outer
+    atomic() block — the re-fetch is a no-op if the lock is already held
+    by the current transaction.
+    """
+    stock_model_cls: Stock = django_apps.get_model("edc_pharmacy.stock")
     with transaction.atomic():
-        created = _apply_delta(stock, delta, **kwargs)
-        return _write_ledger_row(
-            stock,
-            txn_type,
-            delta,
-            actor,
-            reason=reason,
-            _from_location_id=from_location_id,
-            **{**kwargs, **created},
-        )
+        # Re-fetch with an exclusive row lock. No other transaction can
+        # read-for-update or modify this row until we commit.
+        stock = stock_model_cls.objects.select_for_update().get(pk=stock.pk)
+
+        from_location_id = stock.location_id
+        current = _snapshot(stock)
+        delta = compute_delta(txn_type, current, **kwargs)
+
+        if delta.preconditions_failed:
+            raise InvalidTransitionError(
+                f"{txn_type} refused on stock={stock.code}: "
+                f"{'; '.join(delta.preconditions_failed)}"
+            )
+
+        with transaction.atomic():
+            created = _apply_delta(stock, delta, **kwargs)
+            return _write_ledger_row(
+                stock,
+                txn_type,
+                delta,
+                actor,
+                reason=reason,
+                _from_location_id=from_location_id,
+                **{**kwargs, **created},
+            )

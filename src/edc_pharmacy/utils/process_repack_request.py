@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 from decimal import Decimal
 from uuid import UUID
 
@@ -16,7 +15,7 @@ from ..transaction_log import apply_transaction
 
 
 @shared_task
-def process_repack_request(repack_request_id: UUID | None = None, username: str | None = None):
+def process_repack_request(repack_request_id: UUID, username: str):
     """Repack bulk stock into patient bottles.
 
     Creates child Stock rows from the bulk ``from_stock`` and writes
@@ -41,13 +40,8 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
     )
     item_qty_to_process = repack_request.item_qty_repack - repack_request.item_qty_processed
 
-    actor = None
-    if username:
-        user_cls = get_user_model()
-        with contextlib.suppress(user_cls.DoesNotExist):
-            actor = user_cls.objects.get(username=username)
+    actor = get_user_model().objects.get(username=username)
 
-    from_stock = repack_request.from_stock
     total_consumed = Decimal(0)
 
     # Repack can only happen at central — always assign the central location
@@ -56,6 +50,10 @@ def process_repack_request(repack_request_id: UUID | None = None, username: str 
     central_location = location_model_cls.objects.get(name=CENTRAL_LOCATION)
 
     with transaction.atomic():
+        # Lock the bulk stock row for the entire repack loop.
+        from_stock = stock_model_cls.objects.select_for_update().get(
+            pk=repack_request.from_stock_id
+        )
         for _ in range(int(item_qty_to_process)):
             available = (
                 (from_stock.unit_qty_in or Decimal(0))

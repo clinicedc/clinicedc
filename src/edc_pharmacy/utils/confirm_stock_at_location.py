@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.handlers.wsgi import WSGIRequest
+from django.db import transaction
 from django.utils import timezone
 
 from ..constants import TXN_TRANSFER_RECEIVED
@@ -65,39 +66,40 @@ def confirm_stock_at_location(
         if obj.code in valid_codes
     ]
     for stock_code in [c for c in valid_codes if c not in already_confirmed_codes]:
-        try:
-            stock_transfer_item = stock_transfer_item_model_cls.objects.get(
-                stock__code=stock_code, stock_transfer=stock_transfer
-            )
-        except ObjectDoesNotExist:
-            if request:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    (
-                        f"{stock_code} not found in Stock Transfer "
-                        f"{stock_transfer.transfer_identifier}."
-                    ),
-                )
-            invalid_codes.append(stock_code)
-        else:
+        with transaction.atomic():
             try:
-                apply_transaction(
-                    stock_transfer_item.stock,
-                    TXN_TRANSFER_RECEIVED,
-                    request.user,
-                    site_location_id=location_obj.pk,
-                    confirm_at_location=confirm_at_location,
-                    stock_transfer_item=stock_transfer_item,
-                    confirmed_datetime=timezone.now(),
-                    confirmed_by=confirmed_by,
-                )
-            except (InvalidTransitionError, ConfirmAtLocationError) as e:
+                stock_transfer_item = stock_transfer_item_model_cls.objects.select_for_update(
+                    of=("self", "stock")
+                ).get(stock__code=stock_code, stock_transfer=stock_transfer)
+            except ObjectDoesNotExist:
                 if request:
-                    messages.add_message(request, messages.ERROR, str(e))
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        (
+                            f"{stock_code} not found in Stock Transfer "
+                            f"{stock_transfer.transfer_identifier}."
+                        ),
+                    )
                 invalid_codes.append(stock_code)
             else:
-                confirmed_codes.append(stock_code)
+                try:
+                    apply_transaction(
+                        stock_transfer_item.stock,
+                        TXN_TRANSFER_RECEIVED,
+                        request.user,
+                        site_location_id=location_obj.pk,
+                        confirm_at_location=confirm_at_location,
+                        stock_transfer_item=stock_transfer_item,
+                        confirmed_datetime=timezone.now(),
+                        confirmed_by=confirmed_by,
+                    )
+                except (InvalidTransitionError, ConfirmAtLocationError) as e:
+                    if request:
+                        messages.add_message(request, messages.ERROR, str(e))
+                    invalid_codes.append(stock_code)
+                else:
+                    confirmed_codes.append(stock_code)
     return confirmed_codes, already_confirmed_codes, invalid_codes
 
 
