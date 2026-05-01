@@ -22,7 +22,7 @@ class Lot(BaseUuidModel):
         help_text="A sequential unique identifier set by the EDC",
     )
 
-    lot_no = models.CharField(verbose_name="Batch", max_length=50, unique=True)
+    lot_no = models.CharField(verbose_name="Lot # / Batch", max_length=50, unique=True)
 
     product = models.ForeignKey(Product, on_delete=PROTECT, null=True, blank=False)
 

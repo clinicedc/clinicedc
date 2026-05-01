@@ -15,11 +15,7 @@ from ..transaction_log import apply_transaction
 from ..utils import is_dispensed
 
 if TYPE_CHECKING:
-    from ..models import (
-        Stock,
-        StockTransfer,
-        StockTransferItem,
-    )
+    from ..models import Stock, StockTransfer, StockTransferItem
 
 
 def transfer_stock_to_location(
@@ -56,11 +52,10 @@ def transfer_stock_to_location(
                     current_allocation__registered_subject__site=stock_transfer.to_location.site,  # noqa:E501
                 )
             try:
-                stock_obj = stock_model_cls.objects.select_for_update().get(**opts)
+                stock_obj = stock_model_cls.objects.select_for_update(of=("self",)).get(**opts)
             except ObjectDoesNotExist:
                 skipped_codes.append(stock_code)
             else:
-                # if is_dispensed(stock_code):
                 if stock_obj.dispensed:
                     dispensed_codes.append(stock_code)
                 else:

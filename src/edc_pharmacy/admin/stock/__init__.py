@@ -22,7 +22,6 @@ from .receive_item_admin import ReceiveItemAdmin
 from .repack_request_admin import RequestRepackAdmin
 from .return_item_admin import ReturnItemAdmin
 from .return_request_admin import ReturnRequestAdmin
-from .stock_adjustment_admin import StockAdjustmentAdmin
 from .stock_admin import StockAdmin
 from .stock_proxy_admin import StockProxyAdmin
 from .stock_request_admin import StockRequestAdmin

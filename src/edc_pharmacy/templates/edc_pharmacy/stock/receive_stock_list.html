@@ -63,6 +63,7 @@
                             <tr>
                                 <th>Code</th>
                                 <th>Product</th>
+                                <th>Receive</th>
                                 <th>Assignment</th>
                                 <th>Batch</th>
                                 <th>Container</th>
@@ -76,6 +77,7 @@
                             <tr>
                                 <td style="font-family:monospace;">{{ s.code|default:"—" }}</td>
                                 <td>{{ s.product.name|default:"—" }}</td>
+                                <td>R{{ s.receive_item.receive_item_identifier|default:"—" }}</td>
                                 <td>
                                     {% if show_assignment %}
                                         {{ s.product.assignment|default:"—" }}

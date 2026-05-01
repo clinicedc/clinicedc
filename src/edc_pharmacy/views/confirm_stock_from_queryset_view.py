@@ -16,7 +16,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..constants import ALREADY_CONFIRMED, INVALID
-from ..models import Stock
+from ..models import Order, Stock
 from ..utils import confirm_stock
 
 
@@ -178,6 +178,10 @@ class ConfirmStockFromQuerySetView(
                 )
                 url = reverse("edc_pharmacy:confirm_stock_from_queryset_url", kwargs=kwargs)
             else:
+                order = Order.objects.get(receive__id=self.session_data.get("source_pk"))
+                url = reverse(
+                    "edc_pharmacy:receive_order_url", kwargs={"order": str(order.id)}
+                )
                 self.request.session[self.kwargs.get("session_uuid")] = None
-                url = f"{self.source_changelist_url}?q="
+                # url = f"{self.source_changelist_url}?q="
         return HttpResponseRedirect(url)
