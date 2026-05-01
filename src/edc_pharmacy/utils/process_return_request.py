@@ -58,15 +58,17 @@ def request_stock_return(
     stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
     requested, skipped = [], []
     for code in stock_codes:
-        try:
-            stock = stock_model_cls.objects.get(code=code, invalid_state=False)
-        except stock_model_cls.DoesNotExist:
-            skipped.append(code)
-            continue
         with transaction.atomic():
+            try:
+                stock = stock_model_cls.objects.select_for_update().get(
+                    code=code, invalid_state=False
+                )
+            except stock_model_cls.DoesNotExist:
+                skipped.append(code)
+                continue
             txn = apply_transaction(stock, TXN_RETURN_REQUESTED, actor, reason=reason)
-        if txn:
-            requested.append(code)
+            if txn:
+                requested.append(code)
     return requested, skipped
 
 

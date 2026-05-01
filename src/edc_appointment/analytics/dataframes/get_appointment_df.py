@@ -13,12 +13,13 @@ def get_appointment_df(
     localize: bool | None = None,
     values: list[str] | None = None,
     site_id: int | None = None,
+    filter_opts: dict | None = None,
 ) -> pd.DataFrame:
     normalize = True if normalize is None else normalize
     localize = True if localize is None else localize
     appointment_model_cls = get_appointment_model_cls()
     appointment_type_model_cls = django_apps.get_model("edc_appointment.appointmenttype")
-    opts = {}
+    opts = filter_opts or {}
     if site_id:
         opts = {"site_id": site_id}
     if values:

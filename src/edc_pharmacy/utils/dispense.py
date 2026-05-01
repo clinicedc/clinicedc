@@ -61,12 +61,7 @@ def dispense(
         )
         for stock in stock_model_cls.objects.filter(code__in=stock_codes):
             try:
-                apply_transaction(
-                    stock,
-                    TXN_DISPENSED,
-                    request.user,
-                    dispense=dispense_obj,
-                )
+                apply_transaction(stock, TXN_DISPENSED, request.user, dispense=dispense_obj)
             except InvalidTransitionError:
                 messages.add_message(
                     request,

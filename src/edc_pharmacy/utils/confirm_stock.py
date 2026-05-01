@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
+from django.db import transaction
 from django.utils import timezone
 
 from ..constants import TXN_RECEIVED
@@ -35,23 +36,26 @@ def confirm_stock(
     invalid = []
     opts = {fk_attr: obj.id} if obj and fk_attr else {}
     for stock_code in stock_codes:
-        try:
-            stock = stock_model_cls.objects.get(code=stock_code, **opts)
-        except stock_model_cls.DoesNotExist:
-            invalid.append(stock_code)
-        else:
+        with transaction.atomic():
             try:
-                apply_transaction(
-                    stock,
-                    TXN_RECEIVED,
-                    actor,
-                    confirmed_datetime=timezone.now(),
-                    confirmed_by=confirmed_by or user_created or "",
+                stock = stock_model_cls.objects.select_for_update().get(
+                    code=stock_code, **opts
                 )
-            except InvalidTransitionError:
-                already_confirmed.append(stock_code)
+            except stock_model_cls.DoesNotExist:
+                invalid.append(stock_code)
             else:
-                confirmed.append(stock.code)
+                try:
+                    apply_transaction(
+                        stock,
+                        TXN_RECEIVED,
+                        actor,
+                        confirmed_datetime=timezone.now(),
+                        confirmed_by=confirmed_by or user_created or "",
+                    )
+                except InvalidTransitionError:
+                    already_confirmed.append(stock_code)
+                else:
+                    confirmed.append(stock.code)
     return confirmed, already_confirmed, invalid
 
 
