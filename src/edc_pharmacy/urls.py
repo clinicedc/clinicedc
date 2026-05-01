@@ -389,6 +389,11 @@ urlpatterns = [
         name="container_balance_report_url",
     ),
     path(
+        "site-stock-report/<int:location_id>/",
+        SiteStockReportView.as_view(),
+        name="site_stock_report_url",
+    ),
+    path(
         "site-stock-report/",
         SiteStockReportView.as_view(),
         name="site_stock_report_url",

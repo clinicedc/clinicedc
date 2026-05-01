@@ -24,7 +24,7 @@ from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..auth_objects import PHARMACIST_ROLE
 from ..constants import ZERO_ITEM
-from ..models import Stock
+from ..models import Location, Stock
 from ..models.medication import Assignment
 from .auths_view_mixin import AuthsViewMixin
 
@@ -39,7 +39,7 @@ class SiteStockReportView(
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, location_id=None, **kwargs):
         roles = [obj.name for obj in self.request.user.userprofile.roles.all()]
         show_assignment = PHARMACIST_ROLE in roles
 
@@ -68,15 +68,19 @@ class SiteStockReportView(
         if show_assignment:
             order_fields.append("lot__assignment_id")
 
+        location_name = None
+        opts = {"location__site__isnull": False}
+        if location_id:
+            location_name = Location.objects.get(pk=location_id)
+            opts = {"location__id": str(location_id)}
+
         qs = (
-            Stock.objects.filter(
-                invalid_state=False,
-                dispensed=False,
-                location__site__isnull=False,
-            )
+            Stock.objects.filter(invalid_state=False, **opts)
             .exclude(status=ZERO_ITEM)
             .values(*values_fields)
             .annotate(
+                total_qty_in=Sum("qty_in"),
+                total_qty_out=Sum("qty_out"),
                 total_unit_qty_in=Sum("unit_qty_in"),
                 total_unit_qty_out=Sum("unit_qty_out"),
                 stock_count=Count("id"),
@@ -85,49 +89,69 @@ class SiteStockReportView(
         )
 
         # Group by location for template rendering
-        groups: dict[str, dict] = defaultdict(lambda: {
-            "rows": [],
-            "subtotal_in": Decimal(0),
-            "subtotal_out": Decimal(0),
-        })
+        groups: dict[str, dict] = defaultdict(
+            lambda: {
+                "rows": [],
+                "subtotal_in": Decimal(0),
+                "subtotal_out": Decimal(0),
+            }
+        )
 
-        grand_in = Decimal(0)
-        grand_out = Decimal(0)
+        grand_qty_in = Decimal(0)
+        grand_qty_out = Decimal(0)
+        grand_unit_qty_in = Decimal(0)
+        grand_unit_qty_out = Decimal(0)
 
         for row in qs:
             location_label = row["location__display_name"] or row["location__name"] or "—"
+            location_id = row["location_id"]
             ct_label = (
                 row["container__container_type__display_name"]
                 or row["container__container_type__name"]
                 or "—"
             )
             container_label = row["container__display_name"] or row["container__name"] or "—"
-            unit_in = row["total_unit_qty_in"] or Decimal(0)
-            unit_out = row["total_unit_qty_out"] or Decimal(0)
-            balance = unit_in - unit_out
+            qty_in = row["total_qty_in"] or Decimal(0)
+            qty_out = row["total_qty_out"] or Decimal(0)
+            qty_balance = qty_in - qty_out
+            unit_qty_in = row["total_unit_qty_in"] or Decimal(0)
+            unit_qty_out = row["total_unit_qty_out"] or Decimal(0)
+            unit_qty_balance = unit_qty_in - unit_qty_out
 
             assignment_label = ""
             if show_assignment:
                 assignment_id = str(row.get("lot__assignment_id") or "")
                 assignment_label = assignment_map.get(assignment_id, "—")
 
-            groups[location_label]["rows"].append({
-                "container_type": ct_label,
-                "container": container_label,
-                "assignment": assignment_label,
-                "stock_count": int(row["stock_count"] or 0),
-                "unit_qty_in": unit_in,
-                "unit_qty_out": unit_out,
-                "balance": balance,
-            })
-            groups[location_label]["subtotal_in"] += unit_in
-            groups[location_label]["subtotal_out"] += unit_out
-            grand_in += unit_in
-            grand_out += unit_out
+            groups[location_label]["rows"].append(
+                {
+                    "location_id": location_id,
+                    "container_type": ct_label,
+                    "container": container_label,
+                    "assignment": assignment_label,
+                    "stock_count": int(row["stock_count"] or 0),
+                    "qty_in": qty_in,
+                    "qty_out": qty_out,
+                    "qty_balance": qty_balance,
+                    "unit_qty_in": unit_qty_in,
+                    "unit_qty_out": unit_qty_out,
+                    "unit_qty_balance": unit_qty_balance,
+                }
+            )
+
+            groups[location_label]["location_id"] = location_id
+
+            groups[location_label]["subtotal_in"] += unit_qty_in
+            groups[location_label]["subtotal_out"] += unit_qty_out
+            grand_qty_in += qty_in
+            grand_qty_out += qty_out
+            grand_unit_qty_in += unit_qty_in
+            grand_unit_qty_out += unit_qty_out
 
         group_list = [
             {
                 "location": loc_label,
+                "location_id": g["location_id"],
                 "rows": g["rows"],
                 "subtotal_in": g["subtotal_in"],
                 "subtotal_out": g["subtotal_out"],
@@ -137,14 +161,18 @@ class SiteStockReportView(
         ]
 
         totals = {
-            "unit_qty_in": grand_in,
-            "unit_qty_out": grand_out,
-            "balance": grand_in - grand_out,
+            "qty_in": grand_qty_in,
+            "qty_out": grand_qty_out,
+            "qty_balance": grand_qty_in - grand_qty_out,
+            "unit_qty_in": grand_unit_qty_in,
+            "unit_qty_out": grand_unit_qty_out,
+            "unit_qty_balance": grand_unit_qty_in - grand_unit_qty_out,
         }
 
         return super().get_context_data(
             groups=group_list,
             totals=totals,
             show_assignment=show_assignment,
+            location_name=location_name,
             **kwargs,
         )

@@ -14,10 +14,12 @@
 {% block document_ready %}
     <script>
         $(document).ready(function() {
-            var cntCol = {% if show_assignment %}4{% else %}3{% endif %};
-            var inCol  = {% if show_assignment %}5{% else %}4{% endif %};
-            var outCol = {% if show_assignment %}6{% else %}5{% endif %};
-            var balCol = {% if show_assignment %}7{% else %}6{% endif %};
+            var inCol  = {% if show_assignment %}4{% else %}3{% endif %};
+            var outCol = {% if show_assignment %}5{% else %}4{% endif %};
+            var balCol = {% if show_assignment %}6{% else %}5{% endif %};
+            var unitQtyInCol  = {% if show_assignment %}7{% else %}6{% endif %};
+            var unitQtyOutCol = {% if show_assignment %}8{% else %}7{% endif %};
+            var unitBalCol = {% if show_assignment %}9{% else %}8{% endif %};
 
             function sumCol(api, idx) {
                 return api.column(idx, {search: 'applied'}).data().reduce(function(acc, val) {
@@ -31,13 +33,18 @@
                 pageLength: 50,
                 footerCallback: function() {
                     var api = this.api();
-                    $(api.column(cntCol).footer()).text(sumCol(api, cntCol).toLocaleString());
                     var totalIn  = sumCol(api, inCol);
                     var totalOut = sumCol(api, outCol);
                     var balance  = totalIn - totalOut;
+                    var totalUnitIn  = sumCol(api, unitQtyInCol);
+                    var totalUnitOut = sumCol(api, unitQtyOutCol);
+                    var unitBalance  = totalUnitIn - totalUnitOut;
                     $(api.column(inCol).footer()).text(totalIn.toLocaleString());
                     $(api.column(outCol).footer()).text(totalOut.toLocaleString());
                     $(api.column(balCol).footer()).text(balance.toLocaleString());
+                    $(api.column(unitQtyInCol).footer()).text(totalUnitIn.toLocaleString());
+                    $(api.column(unitQtyOutCol).footer()).text(totalUnitOut.toLocaleString());
+                    $(api.column(unitBalCol).footer()).text(unitBalance.toLocaleString());
                 },
             });
         });
@@ -51,7 +58,12 @@
 
             <div style="padding:10px;">
                 <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
-                Site stock report
+                {% if location_name %}
+                    <a href="{% url "edc_pharmacy:site_stock_report_url" %}">Site stock report</a> &rsaquo;
+                    {{ location_name }}
+                {% else %}
+                    Site stock report
+                {% endif %}
             </div>
 
             {% if groups %}
@@ -59,33 +71,45 @@
                 <thead>
                     <tr>
                         <th>Location</th>
+                        {% if show_assignment %}<th>Assignment</th>{% endif %}
                         <th>Container Type</th>
                         <th>Container</th>
-                        {% if show_assignment %}<th>Assignment</th>{% endif %}
-                        <th style="text-align:right;">Stock items</th>
+                        <th style="text-align:right;">Qty in</th>
+                        <th style="text-align:right;">Qty out</th>
+                        <th style="text-align:right;">Qty Bal</th>
                         <th style="text-align:right;">Unit Qty In</th>
                         <th style="text-align:right;">Unit Qty Out</th>
-                        <th style="text-align:right;">Balance</th>
+                        <th style="text-align:right;">Unit Qty Bal</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for group in groups %}
                         {% for row in group.rows %}
                         <tr {% if row.balance < 0 %}style="color:#c00;"{% endif %}>
-                            <td style="white-space:nowrap;">{{ group.location }}</td>
+                            <td style="white-space:nowrap;"><a href="{% url "edc_pharmacy:site_stock_report_url" location_id=row.location_id %}">{{ group.location }}</a></td>
+                            {% if show_assignment %}<td>{{ row.assignment }}</td>{% endif %}
                             <td>{{ row.container_type }}</td>
                             <td>{{ row.container }}</td>
-                            {% if show_assignment %}<td>{{ row.assignment }}</td>{% endif %}
-                            <td style="text-align:right;">{{ row.stock_count }}</td>
+                            <td style="text-align:right;">{{ row.qty_in }}</td>
+                            <td style="text-align:right;">{{ row.qty_out }}</td>
+                            <td style="text-align:right;">
+                                {% if row.qty_balance == 0 %}
+                                    <span class="label label-success">0</span>
+                                {% elif row.qty_balance < 0 %}
+                                    <span class="label label-danger">{{ row.qty_balance }}</span>
+                                {% else %}
+                                    {{ row.qty_balance }}
+                                {% endif %}
+                            </td>
                             <td style="text-align:right;">{{ row.unit_qty_in }}</td>
                             <td style="text-align:right;">{{ row.unit_qty_out }}</td>
                             <td style="text-align:right;">
-                                {% if row.balance == 0 %}
+                                {% if row.unit_qty_balance == 0 %}
                                     <span class="label label-success">0</span>
-                                {% elif row.balance < 0 %}
-                                    <span class="label label-danger">{{ row.balance }}</span>
+                                {% elif row.unit_qty_balance < 0 %}
+                                    <span class="label label-danger">{{ row.unit_qty_balance }}</span>
                                 {% else %}
-                                    {{ row.balance }}
+                                    {{ row.unit_qty_balance }}
                                 {% endif %}
                             </td>
                         </tr>
@@ -98,6 +122,8 @@
                         <td></td>
                         <td style="text-align:right;">Total</td>
                         {% if show_assignment %}<td></td>{% endif %}
+                        <td style="text-align:right;"></td>
+                        <td style="text-align:right;"></td>
                         <td style="text-align:right;"></td>
                         <td style="text-align:right;"></td>
                         <td style="text-align:right;"></td>

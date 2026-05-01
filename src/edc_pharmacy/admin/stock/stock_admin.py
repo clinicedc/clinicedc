@@ -158,6 +158,8 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         HasReceiveNumFilter,
         HasRepackNumFilter,
         DecantedListFilter,
+        "status",
+        "invalid_state",
         "created",
         "modified",
     )
