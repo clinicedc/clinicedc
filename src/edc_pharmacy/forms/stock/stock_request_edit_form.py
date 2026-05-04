@@ -43,7 +43,7 @@ class StockRequestEditForm(forms.ModelForm):
             may_request_as=True
         ).order_by("name")
         for field in self.fields.values():
-            if not isinstance(field.widget, (forms.CheckboxInput, forms.Textarea)):
+            if not isinstance(field.widget, (forms.CheckboxInput, forms.CheckboxSelectMultiple, forms.Textarea)):
                 existing = field.widget.attrs.get("class", "")
                 if "form-control" not in existing:
                     field.widget.attrs["class"] = (existing + " form-control").strip()
@@ -131,6 +131,7 @@ class StockRequestEditForm(forms.ModelForm):
             "excluded_subject_identifiers",
         )
         widgets = {  # noqa: RUF012
+            "visit_schedules": forms.CheckboxSelectMultiple(),
             "subject_identifiers": forms.Textarea(attrs={"rows": 4}),
             "excluded_subject_identifiers": forms.Textarea(attrs={"rows": 4}),
         }
