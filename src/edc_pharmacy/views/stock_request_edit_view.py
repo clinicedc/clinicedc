@@ -66,6 +66,7 @@ class StockRequestEditView(
                 obj.user_created = request.user.username
             obj.user_modified = request.user.username
             obj.save()
+            form.save_m2m()
             verb = "created" if not instance else "updated"
             messages.success(request, f"Stock request {obj.request_identifier} {verb}.")
             return HttpResponseRedirect(
