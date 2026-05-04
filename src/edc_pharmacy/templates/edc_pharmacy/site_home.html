@@ -16,6 +16,7 @@
         </div>
         <div class="panel-heading"></div>
         <div class="list-group">
+            <a id="home_list_group_stock_take" href="{% url 'edc_pharmacy:stock_take_home_url' %}" class="list-group-item">Stock take</a>
             <a id="home_list_group_stock" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockproxy_changelist' %}" class="list-group-item">Stock</a>
             <a id="home_list_group_allocation" href="{% url 'edc_pharmacy_admin:edc_pharmacy_allocationproxy_changelist' %}" class="list-group-item">Allocations</a>
             <a id="home_list_group_stockavailability" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockavailability_changelist' %}" class="list-group-item">Stock availability</a>

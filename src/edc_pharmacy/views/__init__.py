@@ -42,6 +42,9 @@ from .return_receive_view import ReturnReceiveView
 from .return_request_view import ReturnRequestView
 from .site_stock_report_view import SiteStockReportView
 from .stock_adjustment_view import StockAdjustmentView
+from .print_bin_labels_view import print_bin_labels_view
+from .print_stock_take_discrepancy_report_view import print_stock_take_discrepancy_report_view
+from .stock_take_discrepancy_report_view import StockTakeDiscrepancyReportView
 from .stock_take_home_view import StockTakeHomeView
 from .stock_take_results_view import StockTakeResultsView
 from .stock_take_scan_view import StockTakeScanView

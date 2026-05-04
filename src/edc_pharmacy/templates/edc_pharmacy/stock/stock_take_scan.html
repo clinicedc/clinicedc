@@ -34,11 +34,19 @@
             </div>
 
             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <b>Stock Take</b> &mdash;
-                    Bin <code>{{ storage_bin.bin_identifier }}</code>
-                    &middot; {{ storage_bin.location.display_name|default:storage_bin.location.name }}
-                    &middot; {{ storage_bin.container }}
+                <div class="panel-heading" style="display:flex;align-items:center;justify-content:space-between;">
+                    <span>
+                        <b>Stock Take</b> &mdash;
+                        Bin <code>{{ storage_bin.bin_identifier }}</code>
+                        &middot; {{ storage_bin.location.display_name|default:storage_bin.location.name }}
+                        &middot; {{ storage_bin.container }}
+                    </span>
+                    {% if debug %}
+                    <a href="{% url "edc_pharmacy:print_bin_labels_url" storage_bin=storage_bin.pk %}"
+                       class="btn btn-default btn-xs">
+                        <i class="fa fa-print"></i> Print labels
+                    </a>
+                    {% endif %}
                 </div>
                 <div class="panel-body">
                     <p class="text-muted small">
