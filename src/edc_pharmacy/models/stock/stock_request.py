@@ -5,6 +5,7 @@ from sequences import get_next_value
 
 from edc_model.models import BaseUuidModel, HistoricalRecords
 from edc_registration.models import RegisteredSubject
+from edc_visit_schedule.models import VisitScheduleSummary
 
 from ...exceptions import InvalidContainer, StockRequestError
 from ..medication import Formulation
@@ -83,6 +84,13 @@ class StockRequest(BaseUuidModel):
         verbose_name="Item count",
         default=0,
         help_text="Matches the number of Request items.",
+    )
+
+    visit_schedules = models.ManyToManyField(
+        VisitScheduleSummary,
+        verbose_name="Include these visit schedules only",
+        blank=True,
+        help_text="If left blank, all visit schedules will be included.",
     )
 
     subject_identifiers = models.TextField(

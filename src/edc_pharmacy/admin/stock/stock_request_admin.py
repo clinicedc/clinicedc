@@ -98,11 +98,15 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             {"fields": ("item_count",)},
         ),
         (
-            "Section D: Customize this request",
+            "Section D: Visit schedules",
+            {"fields": ("visit_schedules",)},
+        ),
+        (
+            "Section E: Customize this request",
             {"fields": ("subject_identifiers", "excluded_subject_identifiers")},
         ),
         (
-            "Section E: Cancel this request",
+            "Section F: Cancel this request",
             {
                 "description": (
                     "A request may only be cancelled before stock is allocated by "
@@ -135,6 +139,8 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "start_datetime",
         "cutoff_datetime",
     )
+
+    filter_horizontal = ("visit_schedules",)
 
     search_fields = (
         "id",
@@ -172,7 +178,8 @@ class StockRequestAdmin(ModelAdminMixin, SimpleHistoryAdmin):
                 "container",
                 "containers_per_subject",
                 "item_count",
-                "subject_identifiers",
+                # "subject_identifiers",
+                # "visit_schedules",
                 # "excluded_subject_identifiers",
             )
         return fields
