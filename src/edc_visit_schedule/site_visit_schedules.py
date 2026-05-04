@@ -245,8 +245,7 @@ class SiteVisitSchedules:
             self._all_post_consent_models = models
         return self._all_post_consent_models
 
-    @staticmethod
-    def to_model(model_cls: VisitScheduleModel) -> None:
+    def to_model(self, model_cls: VisitScheduleModel) -> None:
         """Updates the VisitSchedule model with the current visit
         schedule, schedule and visits.
 
@@ -263,6 +262,9 @@ class SiteVisitSchedules:
         model_cls.objects.update(active=False)
         for visit_schedule in site_visit_schedules.visit_schedules.values():
             for schedule in visit_schedule.schedules.values():
+                self.update_visit_schedule_summary(
+                    visit_schedule_name=visit_schedule.name, schedule_name=schedule.name
+                )
                 for visit in schedule.visits.values():
                     opts = dict(
                         visit_schedule_name=visit_schedule.name,
@@ -285,6 +287,23 @@ class SiteVisitSchedules:
                         for fld, value in opts.items():
                             setattr(obj, fld, value)
                         obj.save()
+
+    @staticmethod
+    def update_visit_schedule_summary(visit_schedule_name: str, schedule_name: str) -> None:
+        model_cls = django_apps.get_model("edc_visit_schedule.VisitScheduleSummary")
+        try:
+            obj = model_cls.objects.get(
+                visit_schedule_name=visit_schedule_name, schedule_name=schedule_name
+            )
+        except ObjectDoesNotExist:
+            model_cls.objects.create(
+                visit_schedule_name=visit_schedule_name,
+                schedule_name=schedule_name,
+                label=f"{visit_schedule_name}.{schedule_name}",
+            )
+        else:
+            obj.label = f"{visit_schedule_name}.{schedule_name}"
+            obj.save()
 
     def autodiscover(self, module_name=None, apps=None, verbose=None) -> None:
         """Autodiscovers classes in the visit_schedules.py file of

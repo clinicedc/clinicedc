@@ -6,3 +6,4 @@ from .signals import (
 )
 from .subject_schedule_history import SubjectScheduleHistory
 from .visit_schedule import VisitSchedule
+from .visit_schedule_summary import VisitScheduleSummary

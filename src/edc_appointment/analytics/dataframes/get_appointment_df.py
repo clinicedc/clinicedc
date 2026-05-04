@@ -21,7 +21,7 @@ def get_appointment_df(
     appointment_type_model_cls = django_apps.get_model("edc_appointment.appointmenttype")
     opts = filter_opts or {}
     if site_id:
-        opts = {"site_id": site_id}
+        opts.update({"site_id": site_id})
     if values:
         df_appt = read_frame(
             appointment_model_cls.objects.values(*values).filter(**opts), verbose=False

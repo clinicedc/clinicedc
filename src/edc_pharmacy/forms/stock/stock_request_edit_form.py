@@ -92,7 +92,11 @@ class StockRequestEditForm(forms.ModelForm):
 
         container = cleaned_data.get("container")
         containers_per_subject = cleaned_data.get("containers_per_subject")
-        if container and containers_per_subject and containers_per_subject > container.max_items_per_subject:  # noqa: E501
+        if (
+            container
+            and containers_per_subject
+            and containers_per_subject > container.max_items_per_subject
+        ):  # noqa: E501
             self.add_error(
                 "containers_per_subject",
                 f"May not exceed {container.max_items_per_subject} for this container.",
@@ -122,6 +126,7 @@ class StockRequestEditForm(forms.ModelForm):
             "formulation",
             "container",
             "containers_per_subject",
+            "visit_schedules",
             "subject_identifiers",
             "excluded_subject_identifiers",
         )
