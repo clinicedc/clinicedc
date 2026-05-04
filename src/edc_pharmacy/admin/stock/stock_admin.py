@@ -92,7 +92,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
             {
                 "fields": (
                     "confirmed",
-                    "current_allocation",
+                    "allocation",
                     "in_transit",
                     "confirmed_at_location",
                     "stored_at_location",
@@ -173,15 +173,15 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "receive_item__receive__id",
         "receive_item__order_item__order__id",
         "repack_request__id",
-        "current_allocation__registered_subject__subject_identifier",
-        "current_allocation__stock_request_item__id",
-        "current_allocation__stock_request_item__stock_request__id",
-        "current_allocation__id",
+        "allocation__registered_subject__subject_identifier",
+        "allocation__stock_request_item__id",
+        "allocation__stock_request_item__stock_request__id",
+        "allocation__id",
         "stocktransferitem__stock_transfer__id",
         "dispenseitem__dispense__id",
     )
     readonly_fields = (
-        "current_allocation",
+        "allocation",
         "code",
         "confirmation",
         "confirmed",
@@ -295,7 +295,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         if obj.confirmed_at_location:
             return b("At Location", "#0c5460", "#d1ecf1")
         # At central
-        if obj.current_allocation_id:
+        if obj.allocation_id:
             return b("Allocated", "#004085", "#cce5ff")
         if obj.confirmed:
             return b("Received", "#383d41", "#e2e3e5")
@@ -350,7 +350,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="A", boolean=True)
     def formatted_allocation(self, obj):
-        return bool(get_related_or_none(obj, "current_allocation"))
+        return bool(get_related_or_none(obj, "allocation"))
 
     @admin.display(description="T", boolean=True)
     def formatted_transferred(self, obj):
@@ -463,15 +463,15 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(
         description="Allocation #",
-        ordering="-current_allocation__registered_subject__subject_identifier",
+        ordering="-allocation__registered_subject__subject_identifier",
     )
     def allocation_changelist(self, obj):
-        if obj and get_related_or_none(obj, "current_allocation"):
+        if obj and get_related_or_none(obj, "allocation"):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
             url = f"{url}?q={obj.code}"
             context = dict(
                 url=url,
-                label=obj.current_allocation.registered_subject.subject_identifier,
+                label=obj.allocation.registered_subject.subject_identifier,
                 title="Go to allocation",
             )
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)
@@ -479,12 +479,12 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(description="Request #")
     def stock_request_changelist(self, obj):
-        if obj and get_related_or_none(obj, "current_allocation"):
+        if obj and get_related_or_none(obj, "allocation"):
             url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
-            url = f"{url}?q={obj.current_allocation.stock_request_item.stock_request.id}"
+            url = f"{url}?q={obj.allocation.stock_request_item.stock_request.id}"
             context = dict(
                 url=url,
-                label=obj.current_allocation.stock_request_item.stock_request.request_identifier,
+                label=obj.allocation.stock_request_item.stock_request.request_identifier,
                 title="Go to stock request",
             )
             return render_to_string("edc_pharmacy/stock/items_as_link.html", context=context)

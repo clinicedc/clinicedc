@@ -44,12 +44,12 @@ class ManifestReport(Report):
     @property
     def queryset(self):
         return self.stock_transfer.stocktransferitem_set.select_related(
-            "stock__current_allocation__registered_subject",
+            "stock__allocation__registered_subject",
             "stock__product__formulation",
         ).prefetch_related(
             "stock__allocations",
         ).order_by(
-            "stock__current_allocation__registered_subject__subject_identifier"
+            "stock__allocation__registered_subject__subject_identifier"
         )
 
     def get_report_story(self, document_template: SimpleDocTemplate = None, **kwargs):  # noqa: ARG002
@@ -174,7 +174,7 @@ class ManifestReport(Report):
                 stock_transfer_item.stock.code, barHeight=5 * mm, barWidth=0.7, gap=1.7
             )
             stock = stock_transfer_item.stock
-            alloc = stock.current_allocation
+            alloc = stock.allocation
             if alloc:
                 subject_identifier = alloc.registered_subject.subject_identifier
             elif stock.subject_identifier:
@@ -182,7 +182,7 @@ class ManifestReport(Report):
                 subject_identifier = stock.subject_identifier
             else:
                 # Bootstrapped items: allocation record still exists but
-                # current_allocation is None and subject_identifier was never
+                # allocation is None and subject_identifier was never
                 # written to the Stock row.  Recover from the most recent
                 # Allocation row (prefetched above).
                 past_alloc = sorted(

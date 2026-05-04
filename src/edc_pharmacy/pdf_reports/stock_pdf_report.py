@@ -96,8 +96,8 @@ class StockReport(Report):
         for index, stock_obj in enumerate(self.queryset.all()):
             barcode = code128.Code128(stock_obj.code, barHeight=5 * mm, barWidth=0.7, gap=1.7)
             subject_identifier = (
-                stock_obj.current_allocation.registered_subject.subject_identifier
-                if get_related_or_none(stock_obj, "current_allocation")
+                stock_obj.allocation.registered_subject.subject_identifier
+                if get_related_or_none(stock_obj, "allocation")
                 else ""
             )
             formulation = stock_obj.product.formulation
@@ -200,7 +200,7 @@ class StockReport(Report):
     def get_catsbd(stock_obj: Stock) -> str:
         catsd = ""
         catsd += "C" if stock_obj.confirmed else "-"
-        catsd += "A" if get_related_or_none(stock_obj, "current_allocation") else "-"
+        catsd += "A" if get_related_or_none(stock_obj, "allocation") else "-"
         catsd += "T" if stock_obj.in_transit else "-"
         catsd += "S" if stock_obj.confirmed_at_location else "-"
         catsd += "B" if stock_obj.stored_at_location else "-"

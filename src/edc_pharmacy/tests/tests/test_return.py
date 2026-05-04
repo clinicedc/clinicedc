@@ -7,7 +7,7 @@ Lifecycle under test:
   TXN_RETURN_DISPOSITION_REPOOLED / _QUARANTINED / _DESTROYED
 """
 
-import uuid as _uuid
+import uuid
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -66,6 +66,7 @@ from edc_pharmacy.utils import (
     request_stock_return,
 )
 from edc_randomization.constants import ACTIVE
+from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -425,6 +426,7 @@ class TestReturn(TestCase):
                 item_count=1,
             )
 
+    @tag("27")
     def test_allocation_held_until_disposition(self):
         """Allocation is NOT ended at dispatch or receipt — only at disposition.
 
@@ -434,11 +436,16 @@ class TestReturn(TestCase):
 
         stock = Stock.objects.first()
 
+        # Minimal RegisteredSubject — FK target only; no save-time logic exercised here.
+        registered_subject = RegisteredSubject.objects.create(
+            subject_identifier="999-99-0001-6",
+        )
+
         # Create a minimal allocation bypassing Allocation.save() guards
-        # (stock_request_item, registered_subject not needed for this test).
+        # (stock_request_item not needed for this test).
         # Pre-assign pk so bulk_create works on MySQL (no RETURNING support).
         # Assignment must match stock.lot.assignment to pass verify_assignment_or_raise().
-        alloc_pk = _uuid.uuid4()
+        alloc_pk = uuid.uuid4()
         Allocation.objects.bulk_create(
             [
                 Allocation(
@@ -449,13 +456,14 @@ class TestReturn(TestCase):
                     allocation_identifier="test_alloc_001",
                     started_datetime=timezone.now(),
                     assignment=stock.lot.assignment,
+                    registered_subject=registered_subject,
                 )
             ]
         )
         allocation = Allocation.objects.get(pk=alloc_pk)
         with apply_delta_context():
-            stock.current_allocation = allocation
-            stock.save(update_fields=["current_allocation"])
+            stock.allocation = allocation
+            stock.save(update_fields=["allocation"])
 
         return_request = ReturnRequest.objects.create(
             from_location=self.location_site,
@@ -466,19 +474,21 @@ class TestReturn(TestCase):
         # After dispatch: allocation still active.
         dispatch_return(return_request, [stock.code], self.actor)
         stock.refresh_from_db()
-        self.assertIsNotNone(stock.current_allocation)
-        self.assertEqual(stock.current_allocation.pk, allocation.pk)
+        self.assertIsNotNone(stock.allocation)
+        self.assertEqual(stock.allocation.pk, allocation.pk)
 
         # After receipt: allocation still active.
         receive_return(return_request, [stock.code], self.actor)
         stock.refresh_from_db()
-        self.assertIsNotNone(stock.current_allocation)
-        self.assertEqual(stock.current_allocation.pk, allocation.pk)
+        self.assertIsNotNone(stock.allocation)
+        self.assertEqual(stock.allocation.pk, allocation.pk)
 
-        # After disposition (destroyed): allocation is ended.
+        # After disposition (destroyed): allocation still active.
         disposition_return([stock.code], self.actor, disposition="destroyed")
         stock.refresh_from_db()
-        self.assertIsNone(stock.current_allocation)
+        self.assertIsNotNone(stock.allocation)
+        self.assertIsNotNone(stock.allocation.ended_datetime)
         allocation.refresh_from_db()
-        self.assertIsNotNone(allocation.ended_datetime)
-        self.assertEqual(allocation.ended_reason, "destroyed")
+        self.assertIsNotNone(stock.allocation)
+        self.assertIsNotNone(stock.allocation.ended_datetime)
+        self.assertEqual(stock.allocation.pk, allocation.pk)

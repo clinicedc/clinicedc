@@ -79,7 +79,7 @@ class ConfirmationAtLocationItem(SiteModelMixin, BaseUuidModel):
         if not (
             (
                 self.confirm_at_location.location.site
-                == self.stock_transfer_item.stock.current_allocation.registered_subject.site
+                == self.stock_transfer_item.stock.allocation.registered_subject.site
             )
             or (self.confirm_at_location.location.name == CENTRAL_LOCATION)
         ):

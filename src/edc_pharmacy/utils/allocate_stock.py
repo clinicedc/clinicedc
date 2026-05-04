@@ -54,13 +54,13 @@ def allocate_stock(
             skipped.append(f"{subject_identifier}: N/A")
             continue
         with transaction.atomic():
-            # Lock the stock row before checking current_allocation.
+            # Lock the stock row before checking allocation.
             try:
                 stock_obj: Stock = stock_model_cls.objects.select_for_update(of=("self",)).get(
                     code=code,
                     confirmation__isnull=False,
                     container__may_request_as=True,
-                    current_allocation__isnull=True,
+                    allocation__isnull=True,
                 )
             except ObjectDoesNotExist:
                 skipped.append(f"{subject_identifier}: {code}")

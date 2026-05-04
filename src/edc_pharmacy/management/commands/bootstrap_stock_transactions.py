@@ -119,9 +119,9 @@ def bootstrap_one(stock: Stock, actor_cache: dict) -> list[StockTransaction]:
         """Shorthand: call _txn with stock, raw_username and defaults bound."""
         return _txn(stock, txn_type, dt, actor=actor, username=username, **kw)
 
-    # Resolve allocation — stock.current_allocation is None for dispensed/ended stocks,
+    # Resolve allocation — stock.allocation is None for dispensed/ended stocks,
     # but Allocation.code == stock.code so the record is still recoverable.
-    allocation = stock.current_allocation or Allocation.objects.filter(code=stock.code).first()
+    allocation = stock.allocation or Allocation.objects.filter(code=stock.code).first()
 
     # RECEIVED — qty_in=+1, unit_qty_in=+container_unit_qty.
     rows = bootstrap_received(rows, stock, t)
@@ -359,7 +359,7 @@ class Command(BaseCommand):
         qs = (
             Stock.objects.filter(invalid_state=False)
             .select_related(
-                "current_allocation",
+                "allocation",
             )
             .prefetch_related(
                 "stocktransferitem_set__stock_transfer",

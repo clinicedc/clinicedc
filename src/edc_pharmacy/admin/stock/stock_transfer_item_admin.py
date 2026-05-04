@@ -28,7 +28,7 @@ class ConfirmedAtLocationFilter(SimpleListFilter):
             opts = dict(
                 stock__from_stock__isnull=False,
                 stock__confirmation__isnull=False,
-                stock__current_allocation__isnull=False,
+                stock__allocation__isnull=False,
             )
             if self.value() == YES:
                 qs = queryset.filter(
@@ -95,7 +95,7 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "transfer_item_identifier",
         "stock_transfer__id",
         "stock__code",
-        "stock__current_allocation__registered_subject__subject_identifier",
+        "stock__allocation__registered_subject__subject_identifier",
     )
 
     readonly_fields = (
@@ -153,10 +153,10 @@ class StockTransferItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
 
     @admin.display(
         description="Allocation",
-        ordering="stock__current_allocation__registered_subject__subject_identifier",
+        ordering="stock__allocation__registered_subject__subject_identifier",
     )
     def allocation_changelist(self, obj):
-        subject_identifier = obj.stock.current_allocation.registered_subject.subject_identifier
+        subject_identifier = obj.stock.allocation.registered_subject.subject_identifier
         url = reverse("edc_pharmacy_admin:edc_pharmacy_allocation_changelist")
         url = f"{url}?q={subject_identifier}"
         context = dict(url=url, label=subject_identifier, title="Go to allocation")

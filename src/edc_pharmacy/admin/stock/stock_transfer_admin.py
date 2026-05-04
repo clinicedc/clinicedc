@@ -144,7 +144,7 @@ class StockTransferAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "id",
         "transfer_identifier",
         "stocktransferitem__stock__code",
-        "stocktransferitem__stock__current_allocation__registered_subject__subject_identifier",
+        "stocktransferitem__stock__allocation__registered_subject__subject_identifier",
     )
 
     def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:

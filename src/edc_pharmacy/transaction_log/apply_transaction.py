@@ -18,21 +18,16 @@ if TYPE_CHECKING:
     from ..models import Stock, StockTransaction
 
 
-def _snapshot(stock: Stock) -> CurrentState:
+def _current_state(stock: Stock) -> CurrentState:
 
     confirmation_at_location_item_cls = django_apps.get_model(
         "edc_pharmacy", "confirmationatlocationitem"
     )
     storage_bin_item_cls = django_apps.get_model("edc_pharmacy", "StorageBinItem")
-    allocation = stock.current_allocation
-    has_active_allocation = allocation is not None
-    active_allocation_subject = (
-        (
-            allocation.registered_subject.subject_identifier
-            if allocation.registered_subject_id
-            else ""
-        )
-        if has_active_allocation
+    has_allocation = stock.allocation is not None
+    allocation_subject_identifier = (
+        stock.allocation.registered_subject.subject_identifier
+        if has_allocation
         else ""
     )
     try:
@@ -67,14 +62,14 @@ def _snapshot(stock: Stock) -> CurrentState:
         unit_qty_in=stock.unit_qty_in or Decimal(0),
         unit_qty_out=stock.unit_qty_out or Decimal(0),
         container_unit_qty=stock.container_unit_qty or Decimal(0),
-        has_active_allocation=has_active_allocation,
-        active_allocation_subject=active_allocation_subject,
+        has_allocation=has_allocation,
+        allocation_subject_identifier=allocation_subject_identifier,
         has_storage_bin_item=has_storage_bin_item,
         has_confirmation_at_location_item=has_confirmation_at_location_item,
     )
 
 
-def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:
+def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:  # noqa: C901
 
     update_fields: list[str] = []
     created_objects: dict = {}
@@ -124,12 +119,19 @@ def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:
                 code=stock.code,
                 stock=stock,
             )
-            stock.current_allocation = allocation
-            update_fields.append("current_allocation")
+            stock.allocation = allocation
+            # subject_identifier already applied via delta.stock_fields by the
+            # loop above (set by _compute_allocated). Just record the FK.
+            update_fields.append("allocation")
             created_objects["to_allocation"] = allocation
 
         elif delta.allocation_action == "end":
-            ending_allocation = stock.current_allocation
+            # Stamp the Allocation row's ended_datetime / ended_reason.
+            # The Stock.allocation FK is sticky by policy — preserved across
+            # dispense, damage, destroy, expire, lose, void, quarantine, etc.
+            # so an auditor can read stock.allocation.registered_subject directly.
+            # It is cleared only when delta.clear_allocation is True (REPOOLED).
+            ending_allocation = stock.allocation
             if ending_allocation is not None:
                 ended_datetime = kwargs.get("ended_datetime", timezone.now())
                 ended_reason = delta.allocation_end_reason or kwargs.get("ended_reason", "")
@@ -143,8 +145,10 @@ def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:
                 ending_allocation.ended_datetime = ended_datetime
                 ending_allocation.ended_reason = ended_reason
             created_objects["from_allocation"] = ending_allocation
-            stock.current_allocation = None
-            update_fields.append("current_allocation")
+            if delta.clear_allocation:
+                stock.allocation = None
+                stock.subject_identifier = ""
+                update_fields.extend(["allocation", "subject_identifier"])
 
         # Save all Stock changes in one write.
         if update_fields:
@@ -223,6 +227,13 @@ def _write_ledger_row(
     }
 
     username = actor.username if actor else ""
+    # Ledger semantics for to_allocation: "the active allocation AFTER this txn".
+    # For an "end" action the allocation is no longer active even though
+    # Stock.allocation may still point at it (sticky-pointer policy).
+    if delta.allocation_action == "end":
+        to_allocation = None
+    else:
+        to_allocation = kwargs.get("to_allocation") or stock.allocation
     return stock_transaction_cls.objects.create(
         stock=stock,
         transaction_type=txn_type,
@@ -233,7 +244,7 @@ def _write_ledger_row(
         from_location_id=kwargs.get("_from_location_id"),
         to_location_id=stock.location_id,
         from_allocation=kwargs.get("from_allocation"),
-        to_allocation=kwargs.get("to_allocation") or stock.current_allocation,
+        to_allocation=to_allocation,
         receive_item=stock.receive_item,  # kwargs.get("receive_item"),
         repack_request=kwargs.get("repack_request"),
         stock_transfer_item=kwargs.get("stock_transfer_item"),
@@ -266,8 +277,8 @@ def apply_transaction(
         stock = stock_model_cls.objects.select_for_update().get(pk=stock.pk)
 
         from_location_id = stock.location_id
-        current = _snapshot(stock)
-        delta = compute_delta(txn_type, current, **kwargs)
+        current_state = _current_state(stock)
+        delta = compute_delta(txn_type, current_state, **kwargs)
 
         if delta.preconditions_failed:
             raise InvalidTransitionError(

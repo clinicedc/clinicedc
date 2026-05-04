@@ -118,7 +118,9 @@
                                 <th>#</th>
                                 <th>Code</th>
                                 <th>Subject</th>
-                                <th>To location</th>
+                                <th>To</th>
+                                <th>Transfer status</th>
+                                <th>Dispensed</th>
                                 <th>Scanned by</th>
                                 <th>Scanned</th>
                             </tr>
@@ -128,8 +130,10 @@
                             <tr>
                                 <td>{{ forloop.counter }}</td>
                                 <td style="font-family:monospace;">{{ item.code }}</td>
-                                <td>{{ item.stock.current_allocation.registered_subject.subject_identifier|default:"—" }}</td>
+                                <td>{{ item.subject_identifier|default:"—" }}</td>
                                 <td>{{ item.stock_transfer.to_location.display_name }}</td>
+                                <td>{% if item.stock.location !=  item.stock_transfer.to_location%}in-transit{% else %}Received{% endif %}</td>
+                                <td>{% if item.stock.dispensed %}Dispensed{% else %}Not-disp{% endif %}</td>
                                 <td>{{ item.user_created }}</td>
                                 <td style="white-space:nowrap;">{{ item.transfer_item_datetime|date:"d-M-Y H:i" }}</td>
                             </tr>

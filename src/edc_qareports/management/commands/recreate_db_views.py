@@ -2,6 +2,7 @@ import sys
 
 from django.apps import apps as django_apps
 from django.core.management import BaseCommand
+from django_db_views.db_view import DBView
 
 from edc_qareports.model_mixins import QaReportModelMixin
 
@@ -15,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):  # noqa: ARG002
         for model_cls in django_apps.get_models():
-            if issubclass(model_cls, (QaReportModelMixin,)):
+            if issubclass(model_cls, (QaReportModelMixin, DBView)):
                 sys.stdout.write(f"{model_cls._meta.db_table}\n")
                 try:
                     model_cls.recreate_db_view()
