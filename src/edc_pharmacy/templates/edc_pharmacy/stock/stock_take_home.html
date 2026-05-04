@@ -30,9 +30,13 @@
     <div class="container">
         <div class="col-sm-12">
 
-            <div style="padding:10px;">
-                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
-                Stock Take
+            <div style="padding:10px;display:flex;align-items:center;justify-content:space-between;">
+                <span>
+                    <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                    Stock Take
+                </span>
+                <a href="{% url "edc_pharmacy:stock_take_discrepancy_report_url" %}"
+                   class="btn btn-default btn-sm">Discrepancy report</a>
             </div>
 
             {% if rows %}

@@ -55,6 +55,7 @@ class StockTakeScanView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             storage_bin=storage_bin,
             expected_items=expected_items,
             expected_count=expected_items.count(),
+            debug=settings.DEBUG,
             **kwargs,
         )
 
