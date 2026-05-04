@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from celery.states import PENDING
-from clinicedc_constants import CANCEL, COMPLETE, NEW
+from clinicedc_constants import CANCEL, COMPLETE, NEW, PARTIAL
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ProtectedError, Sum
 from django.db.models.signals import post_delete, post_save, pre_delete
@@ -13,8 +13,6 @@ from django.utils.translation import gettext as _
 
 from edc_utils.celery import get_task_result, run_task_sync_or_async
 
-from ..constants import PARTIAL
-from ..exceptions import InsufficientStockError
 from ..model_mixins import StudyMedicationCrfModelMixin
 from ..utils import (
     create_new_stock_on_receive,

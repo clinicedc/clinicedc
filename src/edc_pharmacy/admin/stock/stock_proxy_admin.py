@@ -77,10 +77,10 @@ class StockProxyAdmin(StockAdmin):
         "code",
         "from_stock__code",
         "repack_request__id",
-        "current_allocation__registered_subject__subject_identifier",
-        "current_allocation__stock_request_item__id",
-        "current_allocation__stock_request_item__stock_request__id",
-        "current_allocation__id",
+        "allocation__registered_subject__subject_identifier",
+        "allocation__stock_request_item__id",
+        "allocation__stock_request_item__stock_request__id",
+        "allocation__id",
         "stocktransferitem__stock_transfer__id",
     )
     readonly_fields = (
@@ -106,7 +106,7 @@ class StockProxyAdmin(StockAdmin):
             .get_queryset(request)
             .filter(
                 confirmation__isnull=False,
-                current_allocation__isnull=False,
+                allocation__isnull=False,
                 container__may_request_as=True,
             )
         )

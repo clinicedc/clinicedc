@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-from clinicedc_constants import COMPLETE, IN_PROGRESS, PARTIAL
+from clinicedc_constants import COMPLETE, PARTIAL
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -42,18 +42,18 @@ class ReceiveOrderView(
     navbar_name = settings.APP_NAME
     navbar_selected_item = "pharmacy"
 
-    def get_order(self):
+    def get_order(self) -> Order:
         return get_object_or_404(Order, pk=self.kwargs["order"])
 
     @staticmethod
-    def get_receive(order):
+    def get_receive(order: Order) -> Receive:
         try:
             return Receive.objects.get(order=order)
         except Receive.DoesNotExist:
-            return None
+            return Receive.objects.none()
 
     @staticmethod
-    def _build_rows(order, receive):
+    def _build_rows(order: Order, receive: Receive):
         """Build per-order-item context rows."""
         # Pre-compute confirmed-stock status per ReceiveItem in one query
         confirmed_set = set(
@@ -62,26 +62,30 @@ class ReceiveOrderView(
             ).values_list("receive_item_id", flat=True)
         )
         rows = []
-        for oi in OrderItem.objects.filter(order=order).select_related("product", "container"):
-            ris = list(
-                ReceiveItem.objects.filter(order_item=oi)
+        for order_item in OrderItem.objects.filter(order=order).select_related(
+            "product", "container"
+        ):
+            receive_items = list(
+                ReceiveItem.objects.filter(order_item=order_item)
                 .select_related("lot", "container")
                 .order_by("receive_item_datetime")
             )
             receive_items = [
                 {
-                    "ri": ri,
-                    "can_edit_delete": ri.pk not in confirmed_set,
+                    "ri": obj,
+                    "can_edit_delete": obj.pk not in confirmed_set,
                 }
-                for ri in ris
+                for obj in receive_items
             ]
             rows.append(
                 {
-                    "order_item": oi,
+                    "order_item": order_item,
                     "receive_items": receive_items,
                     # NULL means signal hasn't run yet — treat as pending
                     "can_add": receive is not None
-                    and (oi.unit_qty_pending is None or oi.unit_qty_pending > 0),
+                    and (
+                        order_item.unit_qty_pending is None or order_item.unit_qty_pending > 0
+                    ),
                 }
             )
         return rows

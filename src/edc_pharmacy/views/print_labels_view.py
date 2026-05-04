@@ -82,7 +82,7 @@ class PrintLabelsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Templ
                 pk=request.POST.get("label_configuration")
             )
             if label_configuration.requires_allocation and queryset.filter(
-                current_allocation__isnull=True
+                allocation__isnull=True
             ):
                 messages.add_message(
                     request,

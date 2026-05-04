@@ -65,8 +65,17 @@ class Allocation(BaseUuidModel):
     )
 
     # OneToOne → FK refactor fields.
-    # stock was previously the reverse accessor of Stock.allocation (OneToOneField).
-    # Now it is an explicit forward FK; Stock.current_allocation is the cache pointer.
+    # `stock` was previously the reverse accessor of Stock.allocation (OneToOneField).
+    # Now it is an explicit forward FK; Stock.allocation is the sticky cache pointer.
+    # Change required so a stock item may be reallocated after being repooled.
+    # Sticky-pointer policy (see DESIGN_transaction_log.md):
+    #   * Stock.allocation is preserved across dispense, damage, destroy, expire,
+    #     lose, void, quarantine — i.e. for the bottle's entire forward life.
+    #   * It is cleared only on RETURN_DISPOSITION_REPOOLED, the one transaction
+    #     that returns the bottle to the available pool.
+    #   * Allocation.ended_datetime / Allocation.ended_reason are stamped on
+    #     every "end" transaction regardless of whether Stock.allocation is cleared.
+    # See also StockTransaction.from_allocation / to_allocation.
     stock = models.ForeignKey(
         "edc_pharmacy.stock",
         on_delete=models.PROTECT,
@@ -125,3 +134,16 @@ class Allocation(BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Allocation"
         verbose_name_plural = "Allocations"
+        constraints = [
+            # At most one *active* (un-ended) Allocation per Stock.
+            # Sticky-pointer policy (see DESIGN_transaction_log.md §5.6):
+            # ended Allocation rows remain — many per stock — but only one
+            # may have ended_datetime IS NULL at a time. Catches cache drift
+            # between Stock.allocation and the canonical Allocation table at
+            # write time rather than at audit time.
+            models.UniqueConstraint(
+                fields=["stock"],
+                condition=models.Q(ended_datetime__isnull=True),
+                name="one_active_allocation_per_stock",
+            ),
+        ]

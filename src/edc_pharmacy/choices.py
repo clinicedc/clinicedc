@@ -1,4 +1,4 @@
-from clinicedc_constants import COMPLETE, NEW, NOT_APPLICABLE, OTHER
+from clinicedc_constants import COMPLETE, NEW, NOT_APPLICABLE, OTHER, PARTIAL
 from django.utils.translation import gettext as _
 
 from .constants import (
@@ -7,7 +7,6 @@ from .constants import (
     CANCELLED,
     DISPENSED,
     FILLED,
-    PARTIAL,
     TXN_ADJUSTED,
     TXN_ALLOCATED,
     TXN_ALLOCATION_ENDED,

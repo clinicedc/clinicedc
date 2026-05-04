@@ -62,7 +62,7 @@ class ReturnDispositionView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     stock__destroyed=False,
                 ).select_related(
                     "stock__product__formulation",
-                    "stock__current_allocation__registered_subject",
+                    "stock__allocation__registered_subject",
                 )
             )
 

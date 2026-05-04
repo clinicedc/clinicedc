@@ -10,7 +10,6 @@ FILLED = "filled"
 INVALID = "invalid"
 IN_PROGRESS_APPT = "in_progress"
 NOT_STORED_AT_LOCATION = "not_stored_at_location"
-PARTIAL = "partial"
 PER_DAY = "day"
 PER_HR = "hr"
 PRESCRIPTION_ACTION = "prescription"
@@ -54,12 +53,14 @@ TXN_VOIDED = "VOIDED"
 # Corrections (schema in V1, machinery in V2)
 TXN_REVERSAL = "REVERSAL"
 
-ALLOCATION_END_REASONS = frozenset({
-    "dispensed",
-    "returned",
-    "reallocated",
-    "damaged",
-    "expired",
-    "voided",
-    "lost",
-})
+ALLOCATION_END_REASONS = frozenset(
+    {
+        "dispensed",
+        "returned",
+        "reallocated",
+        "damaged",
+        "expired",
+        "voided",
+        "lost",
+    }
+)

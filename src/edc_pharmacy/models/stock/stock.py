@@ -41,7 +41,7 @@ GUARDED_FIELDS = frozenset(
         "expired",
         "voided",
         "subject_identifier",
-        "current_allocation_id",
+        "allocation_id",
     }
 )
 
@@ -95,13 +95,19 @@ class Stock(BaseUuidModel):
 
     confirmed_by = models.CharField(max_length=150, default="", blank=True)
 
-    current_allocation = models.ForeignKey(
+    allocation = models.ForeignKey(
         Allocation,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="+",
-        help_text="Active allocation for this stock item (NULL if unallocated or dispensed).",
+        help_text=(
+            "Sticky pointer to the most recent Allocation for this stock item. "
+            "Preserved across dispense, damage, destroy, expire, etc. for audit; "
+            "cleared only when the stock is repooled (returned and made available again). "
+            "To check whether the allocation is currently active, also test "
+            "`allocation.ended_datetime IS NULL`."
+        ),
     )
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
@@ -235,9 +241,13 @@ class Stock(BaseUuidModel):
             )
 
     def update_transferred(self) -> bool:
+        # Sticky-pointer policy: only an *active* allocation indicates a live
+        # transfer-to-subject relationship. A dispensed/damaged/etc. bottle
+        # still has Stock.allocation set but is no longer in transfer flow.
         return bool(
-            self.current_allocation
-            and self.current_allocation.stock_request_item.stock_request.location
+            self.allocation
+            and self.allocation.ended_datetime is None
+            and self.allocation.stock_request_item.stock_request.location
             == self.location
             and self.container.may_request_as
         )
@@ -249,15 +259,23 @@ class Stock(BaseUuidModel):
         if stock.product.assignment != stock.lot.assignment:
             raise AssignmentError("Lot number assignment does not match product assignment!")
         if (
-            self.current_allocation
-            and self.current_allocation.assignment != stock.lot.assignment
+            self.allocation
+            and self.allocation.assignment != stock.lot.assignment
         ):
             raise AllocationError(
                 f"Allocation assignment does not match lot assignment! Got {self.code}."
             )
 
     def update_status(self):
-        if self.current_allocation:
+        # Note: Stock.allocation is a sticky pointer (preserved past dispense,
+        # damage, etc.). For "is currently allocated", also require that the
+        # Allocation row has not been ended.
+        is_active_allocation = bool(
+            self.allocation_id
+            and self.allocation
+            and self.allocation.ended_datetime is None
+        )
+        if is_active_allocation:
             self.status = ALLOCATED
         elif self.qty_out == self.qty_in:
             self.status = ZERO_ITEM

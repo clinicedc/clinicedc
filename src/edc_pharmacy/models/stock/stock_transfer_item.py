@@ -7,6 +7,7 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ...exceptions import StockTransferError
 from .stock import Stock
+from .stock_transaction import StockTransaction
 from .stock_transfer import StockTransfer
 
 
@@ -36,7 +37,13 @@ class StockTransferItem(BaseUuidModel):
         on_delete=models.PROTECT,
         null=True,
         blank=False,
-        limit_choices_to={"current_allocation__isnull": False},
+        # Sticky-pointer policy: stock.allocation can be set on dispensed /
+        # damaged / etc. bottles. For transfer eligibility we want only
+        # currently-active allocations, so also require ended_datetime IS NULL.
+        limit_choices_to={
+            "allocation__isnull": False,
+            "allocation__ended_datetime__isnull": True,
+        },
     )
 
     code = models.CharField(
@@ -64,6 +71,13 @@ class StockTransferItem(BaseUuidModel):
     objects = Manager()
 
     history = HistoricalRecords()
+
+    @property
+    def subject_identifier(self) -> str:
+        txn = self.stock.transactions.filter(to_allocation__isnull=False).first()
+        if txn:
+            return txn.to_allocation.subject_identifier
+        return ""
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Stock transfer item"

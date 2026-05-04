@@ -146,17 +146,17 @@ class Command(BaseCommand):
     # ------------------------------------------------------------------
 
     def _fix_allocation_after_dispense(self, dry_run: bool) -> int:
-        qs = Stock.objects.filter(dispensed=True, current_allocation__isnull=False)
+        qs = Stock.objects.filter(dispensed=True, allocation__isnull=False)
         count = qs.count()
         self.stdout.write(
-            f"[allocation] {count} dispensed stocks with non-null current_allocation "
+            f"[allocation] {count} dispensed stocks with non-null allocation "
             f"({'dry-run' if dry_run else 'will update'})"
         )
         if count and not dry_run:
             try:
                 with transaction.atomic():
                     # Dispensed stocks have qty_out==qty_in so status=ZERO_ITEM.
-                    updated = qs.update(current_allocation=None, status=ZERO_ITEM)
+                    updated = qs.update(allocation=None, status=ZERO_ITEM)
                 self.stdout.write(self.style.SUCCESS(f"  Updated {updated} rows."))
             except Exception as exc:
                 self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))
@@ -356,7 +356,7 @@ class Command(BaseCommand):
         qs = Stock.objects.filter(
             dispensed=True,
             invalid_state=False,
-            current_allocation__isnull=True,
+            allocation__isnull=True,
             dispenseitem__isnull=True,
         )
 

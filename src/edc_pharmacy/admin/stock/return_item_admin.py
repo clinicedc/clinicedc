@@ -59,7 +59,7 @@ class ReturnItemAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "return_item_identifier",
         "return_request__id",
         "stock__code",
-        "stock__current_allocation__registered_subject__subject_identifier",
+        "stock__allocation__registered_subject__subject_identifier",
     )
 
     readonly_fields = (

@@ -92,6 +92,12 @@ class StateDelta:
     # "end" sets ended_datetime + ended_reason on the active one.
     allocation_action: AllocationAction = "unchanged"
     allocation_end_reason: str | None = None
+    # Sticky-pointer policy (§5.6): Stock.allocation and Stock.subject_identifier
+    # are preserved across most "end" actions (dispensed, damaged, destroyed,
+    # quarantined, etc.) so the bottle keeps its link to the prior subject for
+    # audit. Only set True for REPOOLED, where the bottle re-enters the pool
+    # and must lose the prior subject reference.
+    clear_allocation: bool = False
 
     # Location change (None = no change). Writes Stock.location plus
     # the ledger from_location/to_location.
@@ -330,8 +336,8 @@ def _compute_allocated(current, *, stock_request_item, registered_subject, **_):
 
 The actual `Allocation` row is created by `_apply_delta` using
 `stock_request_item` + `registered_subject` kwargs. `_apply_delta`
-also sets `Stock.current_allocation_id` (post Allocation FK refactor —
-see companion doc on Allocation OneToOne→FK).
+also sets `Stock.allocation_id` to the new Allocation row (the sticky
+pointer — see §5.6 and §11.5).
 
 ### 5.3 `ALLOCATION_ENDED` (business-action-driven)
 
@@ -349,14 +355,12 @@ def _compute_allocation_ended(current, *, reason, **_):
         return StateDelta(preconditions_failed=("no active allocation",))
     if reason not in VALID_END_REASONS:
         return StateDelta(preconditions_failed=(f"invalid reason: {reason}",))
-    stock_fields = {}
-    if reason != "dispensed":
-        # All non-dispense endings sever the subject relationship.
-        # For dispensed, subject_identifier is intentionally preserved —
-        # the bottle's recipient is permanent record. See lifecycle table in §5.5.
-        stock_fields["subject_identifier"] = ""
+    # Sticky-pointer policy (see §5.6): ending the allocation stamps the
+    # Allocation row but does NOT clear Stock.allocation or subject_identifier.
+    # Only RETURN_DISPOSITION_REPOOLED clears them. The sole forward path
+    # that clears the FK is repool; everything else preserves the link
+    # for audit/history.
     return StateDelta(
-        stock_fields=stock_fields,
         allocation_action="end",
         allocation_end_reason=reason,
     )
@@ -415,8 +419,11 @@ def _compute_dispensed(current, *, dispense_item, **_):
         stock_fields={
             "dispensed": True,
             "stored_at_location": False,
-            # subject_identifier intentionally NOT cleared:
-            # dispense is terminal — the bottle's recipient is permanent.
+            # Stock.allocation and subject_identifier intentionally preserved
+            # (sticky-pointer policy, §5.6): dispense is terminal, the
+            # bottle's recipient is a permanent record. The Allocation row
+            # is stamped (ended_datetime, ended_reason="dispensed") by the
+            # "end" action below.
         },
         dispense_item="create",
         storage_bin_item="delete",
@@ -433,22 +440,153 @@ a separate Allocation end path (which doesn't exist today because
 allocation is OneToOne — it just gets overwritten on reallocation,
 losing history).
 
-**`Stock.subject_identifier` lifecycle.** Because the lifecycle is
-non-obvious, stating it explicitly:
+### 5.6 `Stock.allocation` and `Stock.subject_identifier` — sticky-pointer policy
 
-| Transaction | `Stock.subject_identifier` after |
-|---|---|
-| `ALLOCATED` | set to the allocated subject |
-| `DISPENSED` | **kept** — bottle's permanent recipient |
-| `ALLOCATION_ENDED` (reason=dispensed) | **kept** — same rule: recipient identity is permanent record |
-| `ALLOCATION_ENDED` (reason=reallocated) | cleared, then the next `ALLOCATED` sets it to the new subject |
-| `ALLOCATION_ENDED` (reason=returned / damaged / expired / voided / lost) | cleared — bottle no longer with the subject |
+**The rule.** Once `ALLOCATED` sets `Stock.allocation` and
+`Stock.subject_identifier`, they are **sticky**: preserved across every
+forward transaction for the bottle's entire life, with **one** exception
+— `RETURN_DISPOSITION_REPOOLED`, the only forward path that returns the
+bottle to the available pool.
 
-`Stock.current_allocation` (the FK pointer added by the Allocation
-refactor) goes to NULL on every end reason including DISPENSED — there
-is no *active* allocation after dispense, even though the recipient
-identity is preserved on the Stock row for reporting and audit. Full
-allocation history remains queryable via `stock.allocations.all()`.
+The Allocation row itself is always stamped (`ended_datetime`,
+`ended_reason`) when the allocation logically ends, regardless of
+whether the FK on Stock is cleared. So the answer to *"is this bottle
+currently active for a subject?"* is a join, not a single column read:
+
+```python
+stock.allocation_id is not None
+    and stock.allocation.ended_datetime is None
+```
+
+This is what `update_status()` uses to decide between `ALLOCATED` /
+`AVAILABLE` / `ZERO_ITEM`.
+
+| Transaction | `Stock.allocation` after | `Stock.subject_identifier` after | `Allocation.ended_datetime` |
+|---|---|---|---|
+| `ALLOCATED` | set → new row | set | NULL |
+| `TRANSFER_DISPATCHED` / `_RECEIVED` | unchanged | unchanged | unchanged |
+| `STORED` / `BIN_MOVED` | unchanged | unchanged | unchanged |
+| `RETURN_REQUESTED` / `_DISPATCHED` / `_RECEIVED` | unchanged | unchanged | unchanged |
+| `DISPENSED` | **kept** | **kept** | stamped (reason=dispensed) |
+| `DAMAGED` / `LOST` / `EXPIRED` / `VOIDED` | **kept** | **kept** | stamped (reason=*) |
+| `RETURN_DISPOSITION_QUARANTINED` | **kept** | **kept** | stamped (reason=quarantined) |
+| `RETURN_DISPOSITION_DESTROYED` | **kept** | **kept** | stamped (reason=destroyed) |
+| `RETURN_DISPOSITION_REPOOLED` | **cleared** | **cleared** | stamped (reason=repooled) |
+| `ALLOCATION_ENDED` (admin path) | kept | kept | stamped (any reason) |
+
+**Why sticky everywhere except repool.** The bottle's link to the
+subject it was allocated to is a permanent record of *intent and
+custody*. Dispensed → patient has it. Damaged → bottle was meant for
+that patient and is now gone. Destroyed → same. Quarantined → held but
+still under that patient's name pending decision. Only repool means
+"the bottle never reached the patient and is being returned to the
+shared pool" — and only then must the prior subject reference be
+severed so that the bottle does not drag a stale subject identifier
+into a future `ALLOCATED`.
+
+**Audit traceability.** Even after repool clears `Stock.allocation`,
+the historical link survives via:
+
+* `Allocation.objects.filter(stock=stock).order_by("started_datetime")`
+  — the canonical history; one row per allocation lifecycle, each with
+  `registered_subject` (FK, PROTECT) and `subject_identifier` cache.
+* `StockTransaction` ledger rows — `from_allocation` / `to_allocation`
+  FKs (PROTECT) on every relevant txn.
+* `DispenseItem → Dispense` chain (independent of the Allocation chain).
+
+`Stock.subject_identifier` is **not** an audit field — it is a denormalised
+cache mirroring `Stock.allocation.registered_subject.subject_identifier`
+for fast list-view display. Auditors must query `Allocation` /
+`StockTransaction`.
+
+### 5.7 Implementation — single flag drives the choke-point
+
+`StateDelta` carries a single boolean `clear_allocation` (default
+`False`). Only `_compute_return_disposition_repooled` sets it `True`.
+`_apply_delta`'s `end` branch reads it:
+
+```python
+elif delta.allocation_action == "end":
+    ending_allocation = stock.allocation
+    if ending_allocation is not None:
+        # Always stamp the Allocation row.
+        Allocation.objects.filter(pk=ending_allocation.pk).update(
+            ended_datetime=ended_datetime,
+            ended_reason=ended_reason,
+        )
+    created_objects["from_allocation"] = ending_allocation
+    if delta.clear_allocation:        # repool only
+        stock.allocation = None
+        stock.subject_identifier = ""
+        update_fields.extend(["allocation", "subject_identifier"])
+```
+
+`_write_ledger_row` uses `delta.allocation_action == "end"` to decide
+that the ledger row's `to_allocation` should be `None`, regardless of
+whether the FK on Stock was cleared — semantically, no allocation is
+*active* after an end.
+
+### 5.8 Re-allocation precondition
+
+`_compute_allocated` rejects any stock where `Stock.allocation` is
+already set:
+
+```python
+if current_state.has_allocation:
+    fail.append("stock still references a prior allocation — repool first")
+```
+
+The error message describes the new policy: a bottle whose allocation
+has been ended must be repooled before it can be re-allocated. (Terminal
+states — dispensed, damaged, destroyed, etc. — are blocked earlier by
+`_check_not_terminal` and never reach this check.)
+
+### 5.9 Call-site audit needed (separate task)
+
+The rename `Stock.current_allocation → Stock.allocation` is mechanical.
+The semantic shift to **sticky** is not — every place that reads
+`Stock.allocation` (or filters `Stock` by `allocation__isnull`) and
+treats it as "currently active" must be reviewed and, where appropriate,
+also gate on `allocation__ended_datetime__isnull=True`.
+
+Already updated in this change:
+
+* `Stock.update_status()` — checks `ended_datetime is None`.
+* `Stock.update_transferred()` — checks `ended_datetime is None`.
+* `StockTransferItem.stock.limit_choices_to` — adds
+  `allocation__ended_datetime__isnull=True`.
+
+Sites that reference `Stock.allocation` and **must be reviewed** before
+the policy goes live (non-exhaustive — grep `Stock.objects.filter(allocation__`):
+
+* `admin/list_filters.py` — many `allocation__isnull` filters.
+* `admin/stock/stock_proxy_admin.py` — `allocation__isnull=False`.
+* `admin/stock/stock_transfer_item_admin.py` — `stock__allocation__isnull=False`.
+* `admin/stock/stock_admin.py`, `stock_request_item_admin.py` —
+  `obj.allocation.…` accesses are now safe (FK persists) but may
+  display stale subject info on dispensed/damaged stock.
+* `views/allocate_to_subject_view.py`, `views/print_labels_view.py`,
+  `views/move_to_storage_bin_view.py`, `views/add_to_storage_bin_view.py`.
+* `utils/allocate_stock.py`, `utils/confirmed_at_current_location.py`.
+* `utils/dispense.py` — direct attribute access; safe but needs review.
+* `analytics/dataframes/in_stock_for_subjects_df.py`.
+* `pdf_reports/stock_pdf_report.py`.
+
+Recommendation: add a manager helper to make the active-allocation
+query a single, named call and migrate sites to it incrementally:
+
+```python
+class StockManager(models.Manager):
+    def actively_allocated(self):
+        return self.filter(allocation__isnull=False,
+                           allocation__ended_datetime__isnull=True)
+```
+
+Note: many of the `__isnull` filters in the listing above are on
+`StockRequestItem.allocation` (a different field — OneToOne from
+`StockRequestItem` to `Allocation`). Those are unaffected by this
+policy. The audit must distinguish `Stock.allocation` from
+`StockRequestItem.allocation` per call site.
 
 ---
 
@@ -716,31 +854,42 @@ fixtures that call `stock.save()` directly.
 Three save()-time invariants that are NOT field mutations stay in `save()`:
 - `stock_identifier` / `code` assignment (new row only — no guard needed).
 - `verify_assignment_or_raise()` (lot/product consistency — always runs).
-- `update_status()` (derived from `current_allocation`, `qty_in`,
+- `update_status()` (derived from `allocation` activeness, `qty_in`,
   `qty_out` — still recomputed on every save so it stays consistent when
-  `_apply_delta` calls `stock.save()`).
+  `_apply_delta` calls `stock.save()`). Active = `allocation_id IS NOT
+  NULL AND allocation.ended_datetime IS NULL` (sticky-pointer policy, §5.6).
 
-### 11.5 `allocation` OneToOne → `current_allocation` FK
+### 11.5 `allocation` OneToOne → `Stock.allocation` FK (sticky pointer)
 
 Full 4-step migration sketch in the memory doc §"Allocation model
 refactor". Summary for this doc:
 
-- Remove: `allocation = OneToOneField(Allocation)`
-- Add: `current_allocation = FK(Allocation, null=True, on_delete=SET_NULL,
-  related_name="+")`
+- Remove: `allocation = OneToOneField(Allocation)` (the legacy reverse
+  accessor on Stock from `Allocation.stock = OneToOneField`).
+- Add: `allocation = FK(Allocation, null=True, on_delete=SET_NULL,
+  related_name="+")` — the **sticky pointer** to the most recent
+  Allocation for this Stock.
 
-`update_status()` and `verify_assignment_or_raise()` are updated to test
-`self.current_allocation`. The 4-step migration is independent of the
-boolean flag changes and can land in a separate PR.
+(An interim name `current_allocation` was used during the refactor; the
+final field is named `allocation` because, under sticky-pointer policy,
+the FK is preserved past dispense/damage/etc. — "current" is misleading.
+The "currently active" sense is computed: `allocation IS NOT NULL AND
+allocation.ended_datetime IS NULL`.)
+
+`update_status()` and `verify_assignment_or_raise()` test
+`self.allocation`. `update_status()` additionally checks
+`self.allocation.ended_datetime is None` to distinguish active from
+sticky-but-ended. The 4-step migration is independent of the boolean
+flag changes and can land in a separate PR.
 
 ### 11.6 `status` field
 
-`status` is computed in `update_status()` from `self.allocation` today;
-after the FK refactor, from `self.current_allocation`. The existing three
+`status` is computed in `update_status()` from `self.allocation` (gated
+on `ended_datetime IS NULL`), `qty_in`, `qty_out`. The existing three
 choices (`AVAILABLE`, `ALLOCATED`, `ZERO_ITEM`) remain sufficient for V1
-— exception states are queryable via the new boolean flags rather than
-`status`. Extending `status` to cover `QUARANTINED`, `DAMAGED`, etc. is
-deferred to implementation.
+— exception states (dispensed, damaged, etc.) are queryable via the
+boolean flags rather than `status`. Extending `status` to cover
+`QUARANTINED`, `DAMAGED`, etc. is deferred to implementation.
 
 ### 11.7 Migration plan
 
@@ -772,8 +921,8 @@ writes ledger rows.
 
 No application code changes (signal deletions, `apply_transaction` wiring)
 land until Migrations A and C are in. Migration B can trail — the
-`apply_transaction` machinery uses `current_allocation` only after B
-deploys; until then the deprecated `allocation` property bridge keeps
+`apply_transaction` machinery reads `Stock.allocation` only after B
+deploys; until then the deprecated OneToOne accessor bridge keeps
 existing code working.
 
 ---

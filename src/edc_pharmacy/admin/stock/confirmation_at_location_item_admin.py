@@ -72,7 +72,7 @@ class ConfirmationAtLocationItemAdmin(
         "confirm_at_location__pk",
         "stock_transfer_item__stock__code",
         "stock_transfer_item__stock__pk",
-        "stock_transfer_item__stock__current_allocation__registered_subject__subject_identifier",
+        "stock_transfer_item__stock__allocation__registered_subject__subject_identifier",
     )
 
     @admin.display(
@@ -92,11 +92,11 @@ class ConfirmationAtLocationItemAdmin(
     @admin.display(
         description="SUBJECT #",
         ordering=(
-            "stock_transfer_item__stock__current_allocation__registered_subject__subject_identifier"
+            "stock_transfer_item__stock__allocation__registered_subject__subject_identifier"
         ),
     )
     def subject(self, obj):
-        return obj.stock_transfer_item.stock.current_allocation.registered_subject.subject_identifier
+        return obj.stock_transfer_item.stock.allocation.registered_subject.subject_identifier
 
     @admin.display(
         description="Transfer confirmation",

@@ -29,8 +29,8 @@ class CurrentState:
     unit_qty_in: Decimal
     unit_qty_out: Decimal
     container_unit_qty: Decimal
-    has_active_allocation: bool
-    active_allocation_subject: str
+    has_allocation: bool
+    allocation_subject_identifier: str
     has_storage_bin_item: bool
     has_confirmation_at_location_item: bool
 
@@ -50,6 +50,11 @@ class StateDelta:
     # Allocation lifecycle.
     allocation_action: AllocationAction = "unchanged"
     allocation_end_reason: str | None = None
+    # Sticky-pointer policy: Stock.allocation is preserved across most "end"
+    # transactions (dispensed, damaged, destroyed, etc.) so the bottle keeps
+    # its link to the prior subject. Only set True for repool, where the
+    # bottle re-enters the available pool and must lose the prior link.
+    clear_allocation: bool = False
 
     # New location FK id (None = no change).
     new_location_id: int | None = None
