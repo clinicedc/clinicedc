@@ -145,7 +145,7 @@
                         <form method="post" style="display:inline;">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="confirm_stock">
-                            <button type="submit" class="btn btn-warning btn-sm"
+                            <button type="submit" class="btn {% if unconfirmed_allocated == 0 %}btn-success{% else %}btn-warning{% endif %} btn-sm"
                                     {% if unconfirmed_allocated == 0 %}disabled title="All allocated stock is already confirmed"{% endif %}>
                                 <i class="fa fa-check"></i> Confirm labelled stock
                                 {% if unconfirmed_allocated > 0 %}<span class="badge">{{ unconfirmed_allocated }}</span>{% endif %}
