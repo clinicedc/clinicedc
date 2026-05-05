@@ -46,7 +46,7 @@ class StockRequestView(
         pending = total - allocated
         allocations = (
             Allocation.objects.filter(stock_request_item__stock_request=sr)
-            .select_related("registered_subject", "assignment")
+            .select_related("registered_subject", "assignment", "stock")
             .order_by("allocation_datetime")
         )
         unconfirmed_allocated = Stock.objects.filter(

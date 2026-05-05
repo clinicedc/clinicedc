@@ -193,6 +193,7 @@
                                 <th>Subject</th>
                                 {% if show_assignment %}<th>Assignment</th>{% endif %}
                                 <th>Date</th>
+                                <th>Confirmed</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -206,6 +207,13 @@
                                 {% endif %}
                                 <td data-order="{{ alloc.allocation_datetime|date:"Y-m-d H:i" }}">
                                     {{ alloc.allocation_datetime|date:"d-M-Y H:i" }}
+                                </td>
+                                <td>
+                                    {% if alloc.stock.confirmed %}
+                                        <span class="label label-success">Yes</span>
+                                    {% else %}
+                                        <span class="label label-default">No</span>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
