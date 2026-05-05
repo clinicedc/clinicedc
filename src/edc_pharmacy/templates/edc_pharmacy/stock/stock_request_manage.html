@@ -200,7 +200,11 @@
                             {% for alloc in allocations %}
                             <tr>
                                 <td><code>{{ alloc.allocation_identifier }}</code></td>
-                                <td><code>{{ alloc.code|default:"—" }}</code></td>
+                                <td>
+                                    {% if alloc.code %}
+                                        <a href="{% url 'edc_pharmacy:ledger_url' %}?q={{ alloc.code }}"><code>{{ alloc.code }}</code></a>
+                                    {% else %}—{% endif %}
+                                </td>
                                 <td>{{ alloc.subject_identifier }}</td>
                                 {% if show_assignment %}
                                 <td>{{ alloc.assignment.display_name|default:"—" }}</td>
