@@ -129,6 +129,30 @@
                             {% endif %}
                         {% endif %}
 
+                        {# Print patient barcodes — once any stock is allocated #}
+                        {% if allocated > 0 %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="print_patient_barcodes">
+                            <button type="submit" class="btn btn-default btn-sm">
+                                <i class="fa fa-print"></i> Print patient barcodes
+                            </button>
+                        </form>
+                        {% endif %}
+
+                        {# Confirm labelled stock — shown once allocated; disabled if all already confirmed #}
+                        {% if allocated > 0 %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="confirm_stock">
+                            <button type="submit" class="btn {% if unconfirmed_allocated == 0 %}btn-success{% else %}btn-warning{% endif %} btn-sm"
+                                    {% if unconfirmed_allocated == 0 %}disabled title="All allocated stock is already confirmed"{% endif %}>
+                                Confirm labelled stock
+                                {% if unconfirmed_allocated > 0 %}<span class="badge">{{ unconfirmed_allocated }}</span>{% endif %}
+                            </button>
+                        </form>
+                        {% endif %}
+
                         {# Cancel — only if no allocations #}
                         {% if allocated == 0 %}
                         <form method="post" style="display:inline;"
@@ -169,19 +193,31 @@
                                 <th>Subject</th>
                                 {% if show_assignment %}<th>Assignment</th>{% endif %}
                                 <th>Date</th>
+                                <th>Confirmed</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for alloc in allocations %}
                             <tr>
                                 <td><code>{{ alloc.allocation_identifier }}</code></td>
-                                <td><code>{{ alloc.code|default:"—" }}</code></td>
+                                <td>
+                                    {% if alloc.code %}
+                                        <a href="{% url 'edc_pharmacy:ledger_url' %}?q={{ alloc.code }}"><code>{{ alloc.code }}</code></a>
+                                    {% else %}—{% endif %}
+                                </td>
                                 <td>{{ alloc.subject_identifier }}</td>
                                 {% if show_assignment %}
                                 <td>{{ alloc.assignment.display_name|default:"—" }}</td>
                                 {% endif %}
                                 <td data-order="{{ alloc.allocation_datetime|date:"Y-m-d H:i" }}">
                                     {{ alloc.allocation_datetime|date:"d-M-Y H:i" }}
+                                </td>
+                                <td>
+                                    {% if alloc.stock.confirmed %}
+                                        <span class="label label-success">Yes</span>
+                                    {% else %}
+                                        <span class="label label-default">No</span>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -201,6 +237,8 @@
                         <li>Click <b>Prepare items</b> — the system identifies subjects with upcoming appointments who need stock.</li>
                         <li>Review the proposed items and click <b>Create items</b> to confirm.</li>
                         <li>Click <b>Allocate</b> for each treatment assignment — scan stock barcodes to pair stock with subjects.</li>
+                        <li>Click <b>Print patient barcodes</b> — print and affix patient-specific labels to each bottle.</li>
+                        <li>Click <b>Confirm labelled stock</b> — scan each labelled bottle to confirm.</li>
                     </ol>
                 </div>
             </div>
