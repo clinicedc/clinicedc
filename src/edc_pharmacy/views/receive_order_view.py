@@ -46,11 +46,11 @@ class ReceiveOrderView(
         return get_object_or_404(Order, pk=self.kwargs["order"])
 
     @staticmethod
-    def get_receive(order: Order) -> Receive:
+    def get_receive(order: Order) -> Receive | None:
         try:
             return Receive.objects.get(order=order)
         except Receive.DoesNotExist:
-            return Receive.objects.none()
+            return None
 
     @staticmethod
     def _build_rows(order: Order, receive: Receive):

@@ -71,21 +71,18 @@
                     </table>
                     <a href="{% url "edc_pharmacy:order_edit_url" order=order.pk %}"
                        class="btn btn-primary btn-sm" style="margin-top:6px;">Edit</a>
-                    {% if order.item_count > 0 %}
-                    &nbsp;
-                    <a href="{% url "edc_pharmacy:print_order_url" order=order.pk %}"
-                       class="btn {% if order.printed %}btn-default{% else %}btn-success{% endif %} btn-sm"
-                       target="_blank"
-                       style="margin-top:6px;">
-                        <i class="fa fa-print"></i>
-                        {% if order.printed %}Re-print PDF{% else %}Print PDF{% endif %}
-                    </a>
+                    {% if order.item_count > 0 %}&nbsp;
+                        <a href="{% url "edc_pharmacy:print_order_url" order=order.pk %}"
+                           class="btn {% if order.printed %}btn-default{% else %}btn-success{% endif %} btn-sm"
+                           target="_blank"
+                           style="margin-top:6px;">
+                            <i class="fa fa-print"></i>
+                            {% if order.printed %}Re-print PDF{% else %}Print PDF{% endif %}
+                        </a>
+                        <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}"
+                           class="btn btn-default btn-sm" style="margin-top:6px;">Go to receiving <i class="fas fa-angle-double-right"></i></a>
                     {% endif %}
-                    {% if has_receive %}
                     &nbsp;
-                    <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}"
-                       class="btn btn-default btn-sm" style="margin-top:6px;">Go to receiving <i class="fas fa-angle-double-right"></i></a>
-                    {% endif %}
                     <a href="{% url "edc_pharmacy_admin:edc_pharmacy_order_history" order.pk %}"
                        class="btn btn-default btn-sm pull-right"
                        style="margin-top:6px;"

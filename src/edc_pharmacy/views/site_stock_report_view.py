@@ -47,6 +47,10 @@ class SiteStockReportView(
         if show_assignment:
             assignment_map = {str(a.pk): str(a) for a in Assignment.objects.all()}
 
+        # SECURITY: when the user lacks permission to see assignment, lot__assignment_id
+        # is intentionally excluded from values_fields so the ORM GROUP BY collapses all
+        # assignment rows into one. Hiding the column in the template alone is insufficient
+        # because the number of rows would still reveal how many assignments exist.
         values_fields = [
             "location__display_name",
             "location__name",
