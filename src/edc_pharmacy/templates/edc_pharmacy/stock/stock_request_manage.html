@@ -140,14 +140,15 @@
                         </form>
                         {% endif %}
 
-                        {# Confirm labelled stock — once allocated stock exists that is unconfirmed #}
-                        {% if unconfirmed_allocated > 0 %}
+                        {# Confirm labelled stock — shown once allocated; disabled if all already confirmed #}
+                        {% if allocated > 0 %}
                         <form method="post" style="display:inline;">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="confirm_stock">
-                            <button type="submit" class="btn btn-warning btn-sm">
+                            <button type="submit" class="btn btn-warning btn-sm"
+                                    {% if unconfirmed_allocated == 0 %}disabled title="All allocated stock is already confirmed"{% endif %}>
                                 <i class="fa fa-check"></i> Confirm labelled stock
-                                <span class="badge">{{ unconfirmed_allocated }}</span>
+                                {% if unconfirmed_allocated > 0 %}<span class="badge">{{ unconfirmed_allocated }}</span>{% endif %}
                             </button>
                         </form>
                         {% endif %}
