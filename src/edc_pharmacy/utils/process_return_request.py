@@ -66,9 +66,12 @@ def request_stock_return(
             except stock_model_cls.DoesNotExist:
                 skipped.append(code)
                 continue
-            txn = apply_transaction(stock, TXN_RETURN_REQUESTED, actor, reason=reason)
-            if txn:
-                requested.append(code)
+            try:
+                apply_transaction(stock, TXN_RETURN_REQUESTED, actor, reason=reason)
+            except InvalidTransitionError as e:
+                skipped.append(f"{code}: {e}")
+                continue
+            requested.append(code)
     return requested, skipped
 
 
@@ -189,25 +192,29 @@ def receive_return(
 
     received, skipped = [], []
     for code in stock_codes:
-        try:
-            stock = stock_model_cls.objects.get(
-                code=code,
-                invalid_state=False,
-                in_transit=True,
-                returnitem__return_request=return_request,
-            )
-        except stock_model_cls.DoesNotExist:
-            skipped.append(code)
-            continue
         with transaction.atomic():
-            apply_transaction(
-                stock,
-                TXN_RETURN_RECEIVED,
-                actor,
-                central_location_id=central_location.id,
-                reason=reason,
-            )
-        received.append(code)
+            try:
+                stock = stock_model_cls.objects.select_for_update().get(
+                    code=code,
+                    invalid_state=False,
+                    in_transit=True,
+                    returnitem__return_request=return_request,
+                )
+            except stock_model_cls.DoesNotExist:
+                skipped.append(code)
+                continue
+            try:
+                apply_transaction(
+                    stock,
+                    TXN_RETURN_RECEIVED,
+                    actor,
+                    central_location_id=central_location.id,
+                    reason=reason,
+                )
+            except InvalidTransitionError as e:
+                skipped.append(f"{code}: {e}")
+                continue
+            received.append(code)
     return received, skipped
 
 
@@ -244,19 +251,25 @@ def disposition_return(
     stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
     processed, skipped = [], []
     for code in stock_codes:
-        try:
-            stock = stock_model_cls.objects.get(code=code, invalid_state=False)
-        except stock_model_cls.DoesNotExist:
-            skipped.append(code)
-            continue
         with transaction.atomic():
-            apply_transaction(
-                stock,
-                txn_type,
-                actor,
-                reason=reason or f"disposition: {disposition}",
-            )
-        processed.append(code)
+            try:
+                stock = stock_model_cls.objects.select_for_update().get(
+                    code=code, invalid_state=False
+                )
+            except stock_model_cls.DoesNotExist:
+                skipped.append(code)
+                continue
+            try:
+                apply_transaction(
+                    stock,
+                    txn_type,
+                    actor,
+                    reason=reason or f"disposition: {disposition}",
+                )
+            except InvalidTransitionError as e:
+                skipped.append(f"{code}: {e}")
+                continue
+            processed.append(code)
     return processed, skipped
 
 

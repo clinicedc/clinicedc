@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from ..models import (
         ConfirmationAtLocation,
         Location,
-        Stock,
         StockTransfer,
         StockTransferItem,
     )
@@ -35,9 +34,13 @@ def confirm_stock_at_location(
 
     Called from ConfirmStock view.
     Each code is processed independently (per-scan atomicity).
+
+    Returns ``(confirmed, already_confirmed, invalid)``.
+    Bucketing happens in-loop so a TOCTOU race (a code confirmed by a
+    concurrent request between an upfront pre-check and our select_for_update)
+    is correctly reported as ``already_confirmed`` rather than ``invalid``.
     """
     confirmed_by = request.user.username
-    stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
     stock_transfer_item_model_cls: type[StockTransferItem] = django_apps.get_model(
         "edc_pharmacy.stocktransferitem"
     )
@@ -53,19 +56,9 @@ def confirm_stock_at_location(
     )
 
     confirmed_codes, already_confirmed_codes, invalid_codes = [], [], []
-
     stock_codes = [s.strip() for s in stock_codes]
-    valid_codes = [obj.code for obj in stock_model_cls.objects.filter(code__in=stock_codes)]
-    invalid_codes = [c for c in stock_codes if c not in valid_codes]
-    already_confirmed_codes = [
-        obj.code
-        for obj in stock_model_cls.objects.filter(
-            stocktransferitem__stock_transfer=stock_transfer,
-            stocktransferitem__confirmationatlocationitem__isnull=False,
-        )
-        if obj.code in valid_codes
-    ]
-    for stock_code in [c for c in valid_codes if c not in already_confirmed_codes]:
+
+    for stock_code in stock_codes:
         with transaction.atomic():
             try:
                 stock_transfer_item = stock_transfer_item_model_cls.objects.select_for_update(
@@ -82,24 +75,31 @@ def confirm_stock_at_location(
                         ),
                     )
                 invalid_codes.append(stock_code)
+                continue
+            try:
+                apply_transaction(
+                    stock_transfer_item.stock,
+                    TXN_TRANSFER_RECEIVED,
+                    request.user,
+                    site_location_id=location_obj.pk,
+                    confirm_at_location=confirm_at_location,
+                    stock_transfer_item=stock_transfer_item,
+                    confirmed_datetime=timezone.now(),
+                    confirmed_by=confirmed_by,
+                )
+            except InvalidTransitionError:
+                # Stock state forbids TXN_TRANSFER_RECEIVED — typically
+                # because confirmed_at_location is already True (this code
+                # was already received, possibly by a concurrent scan).
+                already_confirmed_codes.append(stock_code)
+            except ConfirmAtLocationError as e:
+                # Domain guard failure (e.g. site/transfer mismatch). This
+                # is a genuinely invalid scan, not an already-confirmed one.
+                if request:
+                    messages.add_message(request, messages.ERROR, str(e))
+                invalid_codes.append(stock_code)
             else:
-                try:
-                    apply_transaction(
-                        stock_transfer_item.stock,
-                        TXN_TRANSFER_RECEIVED,
-                        request.user,
-                        site_location_id=location_obj.pk,
-                        confirm_at_location=confirm_at_location,
-                        stock_transfer_item=stock_transfer_item,
-                        confirmed_datetime=timezone.now(),
-                        confirmed_by=confirmed_by,
-                    )
-                except (InvalidTransitionError, ConfirmAtLocationError) as e:
-                    if request:
-                        messages.add_message(request, messages.ERROR, str(e))
-                    invalid_codes.append(stock_code)
-                else:
-                    confirmed_codes.append(stock_code)
+                confirmed_codes.append(stock_code)
     return confirmed_codes, already_confirmed_codes, invalid_codes
 
 

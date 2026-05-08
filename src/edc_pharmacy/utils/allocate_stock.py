@@ -8,7 +8,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from ..constants import TXN_ALLOCATED
-from ..exceptions import AllocationError
+from ..exceptions import AllocationError, InvalidTransitionError
 from ..transaction_log import apply_transaction
 
 if TYPE_CHECKING:
@@ -64,30 +64,42 @@ def allocate_stock(
                 )
             except ObjectDoesNotExist:
                 skipped.append(f"{subject_identifier}: {code}")
-            else:
-                allocation = allocation_model_cls.objects.create(
-                    stock_request_item=stock_request_item,
-                    code=stock_obj.code,
-                    registered_subject=rs_obj,
-                    allocation_datetime=timezone.now(),
-                    allocated_by=allocated_by,
-                    user_created=user_created,
-                    created=created or timezone.now(),
-                )
-                if stock_obj.product.assignment != allocation.assignment:
-                    raise AllocationError(
-                        "Assignment mismatch. Stock must match subject assignment. "
-                        f"Allocation abandoned. See {subject_identifier} and {stock_obj}."
+                continue
+            try:
+                # Nested atomic = savepoint, so a rejected apply_transaction
+                # (or assignment mismatch) rolls back the Allocation row we
+                # just created.
+                with transaction.atomic():
+                    allocation = allocation_model_cls.objects.create(
+                        stock_request_item=stock_request_item,
+                        code=stock_obj.code,
+                        # Set the back-pointer; matches what _apply_delta
+                        # does when it creates the Allocation itself.
+                        stock=stock_obj,
+                        registered_subject=rs_obj,
+                        allocation_datetime=timezone.now(),
+                        allocated_by=allocated_by,
+                        user_created=user_created,
+                        created=created or timezone.now(),
                     )
-                apply_transaction(
-                    stock_obj,
-                    TXN_ALLOCATED,
-                    actor,
-                    allocation=allocation,
-                    registered_subject=rs_obj,
-                    stock_request_item=stock_request_item,
-                    allocated_by=allocated_by,
-                )
+                    if stock_obj.product.assignment != allocation.assignment:
+                        raise AllocationError(
+                            "Assignment mismatch. Stock must match subject "
+                            "assignment. "
+                            f"See {subject_identifier} and {stock_obj}."
+                        )
+                    apply_transaction(
+                        stock_obj,
+                        TXN_ALLOCATED,
+                        actor,
+                        allocation=allocation,
+                        registered_subject=rs_obj,
+                        stock_request_item=stock_request_item,
+                        allocated_by=allocated_by,
+                    )
+            except (InvalidTransitionError, AllocationError) as e:
+                skipped.append(f"{subject_identifier}: {code} ({e})")
+            else:
                 allocated.append(code)
     return allocated, skipped
 

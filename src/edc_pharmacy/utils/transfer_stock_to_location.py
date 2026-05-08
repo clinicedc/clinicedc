@@ -10,7 +10,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from ..constants import CENTRAL_LOCATION, TXN_TRANSFER_DISPATCHED
-from ..exceptions import StockTransferError
+from ..exceptions import InvalidTransitionError, StockTransferError
 from ..transaction_log import apply_transaction
 from ..utils import is_dispensed
 
@@ -59,20 +59,30 @@ def transfer_stock_to_location(
                 if stock_obj.dispensed:
                     dispensed_codes.append(stock_code)
                 else:
-                    stock_transfer_item = stock_transfer_item_model_cls.objects.create(
-                        stock=stock_obj,
-                        stock_transfer=stock_transfer,
-                        user_created=request.user.username,
-                        created=timezone.now(),
-                    )
-                    apply_transaction(
-                        stock_obj,
-                        TXN_TRANSFER_DISPATCHED,
-                        request.user,
-                        new_location_id=stock_transfer.to_location.id,
-                        stock_transfer_item=stock_transfer_item,
-                    )
-                    transferred.append(stock_code)
+                    try:
+                        # Nested atomic = savepoint, so a rejected
+                        # apply_transaction rolls back the StockTransferItem
+                        # row we just created.
+                        with transaction.atomic():
+                            stock_transfer_item = (
+                                stock_transfer_item_model_cls.objects.create(
+                                    stock=stock_obj,
+                                    stock_transfer=stock_transfer,
+                                    user_created=request.user.username,
+                                    created=timezone.now(),
+                                )
+                            )
+                            apply_transaction(
+                                stock_obj,
+                                TXN_TRANSFER_DISPATCHED,
+                                request.user,
+                                new_location_id=stock_transfer.to_location.id,
+                                stock_transfer_item=stock_transfer_item,
+                            )
+                    except InvalidTransitionError:
+                        skipped_codes.append(stock_code)
+                    else:
+                        transferred.append(stock_code)
 
                     if len(stock_codes) != (
                         len(unprocessed_codes)

@@ -26,9 +26,7 @@ def _current_state(stock: Stock) -> CurrentState:
     storage_bin_item_cls = django_apps.get_model("edc_pharmacy", "StorageBinItem")
     has_allocation = stock.allocation is not None
     allocation_subject_identifier = (
-        stock.allocation.registered_subject.subject_identifier
-        if has_allocation
-        else ""
+        stock.allocation.registered_subject.subject_identifier if has_allocation else ""
     )
     try:
         stock.storagebinitem  # noqa: B018
@@ -79,7 +77,7 @@ def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:  # noqa: C9
     confirmation_at_location_item_cls = django_apps.get_model(
         "edc_pharmacy", "confirmationatlocationitem"
     )
-    dispense_cls = django_apps.get_model("edc_pharmacy", "dispense")
+    dispense_item_cls = django_apps.get_model("edc_pharmacy", "dispenseitem")
     storage_bin_item_cls = django_apps.get_model("edc_pharmacy", "StorageBinItem")
 
     with apply_delta_context():
@@ -186,7 +184,7 @@ def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:  # noqa: C9
         )
 
     if delta.dispense_item == "create":
-        dispense_item = dispense_cls.objects.create(
+        dispense_item = dispense_item_cls.objects.create(
             stock=stock,
             dispense=kwargs["dispense"],
         )
