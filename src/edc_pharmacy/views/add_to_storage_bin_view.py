@@ -32,9 +32,14 @@ def update_bin(
     storage_bin: StorageBin,
     stock_codes: list[str],
     actor: AbstractUser | None = None,
-) -> tuple[list[str], list[str]]:
-    codes_created = []
-    codes_not_created = []
+) -> tuple[list[str], list[str], list[str]]:
+    """Add stock codes to a storage bin via TXN_STORED.
+
+    Returns ``(codes_created, codes_already_stored, codes_invalid)``.
+    """
+    codes_created: list[str] = []
+    codes_already_stored: list[str] = []
+    codes_invalid: list[str] = []
     for code in stock_codes:
         if storage_bin.location.name == CENTRAL_LOCATION:
             opts = dict(
@@ -58,20 +63,20 @@ def update_bin(
         try:
             stock_obj = Stock.objects.get(**opts)
         except ObjectDoesNotExist:
-            codes_not_created.append(code)
+            codes_invalid.append(code)
+            continue
+        try:
+            apply_transaction(
+                stock_obj,
+                TXN_STORED,
+                actor,
+                storage_bin=storage_bin,
+            )
+        except InvalidTransitionError:
+            codes_already_stored.append(code)
         else:
-            try:
-                apply_transaction(
-                    stock_obj,
-                    TXN_STORED,
-                    actor,
-                    storage_bin=storage_bin,
-                )
-            except InvalidTransitionError:
-                codes_not_created.append(code)
-            else:
-                codes_created.append(code)
-    return codes_created, codes_not_created
+            codes_created.append(code)
+    return codes_created, codes_already_stored, codes_invalid
 
 
 @method_decorator(login_required, name="dispatch")
@@ -202,7 +207,7 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
             return HttpResponseRedirect(url)
         if items_to_scan and stock_codes:
             try:
-                codes_created, codes_not_created = update_bin(
+                codes_created, codes_already_stored, codes_invalid = update_bin(
                     storage_bin,
                     stock_codes,
                     actor=request.user,
@@ -215,7 +220,8 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
                     messages.SUCCESS,
                     (
                         f"Updated {p.no('stock item', len(codes_created))} to bin. "
-                        f"Skipped {len(codes_not_created)}."
+                        f"Already stored: {len(codes_already_stored)}. "
+                        f"Invalid: {len(codes_invalid)}."
                     ),
                 )
             return HttpResponseRedirect(self.storage_bin_changelist_url)
