@@ -52,6 +52,15 @@ Five classes of inconsistency are corrected:
    no-op on the first pass (no bootstrap rows yet) and effective on the second
    pass.
 
+9. **Allocation.stock back-pointer left NULL** — pre-fix ``allocate_stock``
+   set ``Stock.allocation`` but never populated the reverse ``Allocation.stock``
+   FK.  The forward FK is authoritative so domain logic was correct, but
+   readers traversing ``allocation.stock`` saw ``None``.  Fix: copy the
+   back-pointer in via bulk ``UPDATE`` for every Allocation whose
+   ``stock_id`` is NULL and whose Stock points back at it.  This is also
+   covered by data migration ``0157_backfill_allocation_stock_backpointer``;
+   leaving it here makes the cleanup rerunnable on demand.
+
 This command is idempotent.  Re-running it is safe.
 
 Exit codes
@@ -75,7 +84,7 @@ from ...constants import (
     TXN_REPACK_PRODUCED,
     ZERO_ITEM,
 )
-from ...models import Location, RepackRequest, Stock, StockTransaction
+from ...models import Allocation, Location, RepackRequest, Stock, StockTransaction
 
 
 class Command(BaseCommand):
@@ -106,6 +115,7 @@ class Command(BaseCommand):
         errors += self._fix_bulk_stock_location(dry_run)
         errors += self._fix_repack_child_location(dry_run)
         errors += self._fix_bootstrapped_txn_locations(dry_run)
+        errors += self._fix_allocation_stock_backpointer(dry_run)
 
         if errors:
             raise SystemExit(1)
@@ -513,4 +523,45 @@ class Command(BaseCommand):
             except Exception as exc:
                 self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))
                 return 1
+        return 0
+
+    # ------------------------------------------------------------------
+    # Fix 11: Allocation.stock back-pointer left NULL by pre-fix allocate_stock
+    # ------------------------------------------------------------------
+
+    def _fix_allocation_stock_backpointer(self, dry_run: bool) -> int:
+        """Set Allocation.stock for legacy rows where it was left NULL.
+
+        Pre-fix ``allocate_stock`` populated ``Stock.allocation`` (forward
+        FK, authoritative) but never set the reverse ``Allocation.stock``
+        FK.  Walk every Stock with a non-null allocation pointing at an
+        Allocation whose own ``stock_id`` is NULL, and copy the
+        back-pointer in via bulk ``UPDATE``.
+
+        Idempotent: the ``stock__isnull=True`` filter on the update means
+        re-running is a no-op once the rows have been fixed (also covered
+        by data migration 0157_backfill_allocation_stock_backpointer).
+        """
+        qs = Stock.objects.filter(
+            allocation__isnull=False, allocation__stock__isnull=True
+        )
+        count = qs.count()
+        self.stdout.write(
+            f"[allocation_backpointer] {count} allocations missing stock back-pointer "
+            f"({'dry-run' if dry_run else 'will update'})"
+        )
+        if not count or dry_run:
+            return 0
+        pairs = list(qs.values_list("allocation_id", "id"))
+        try:
+            updated = 0
+            with transaction.atomic():
+                for allocation_id, stock_id in pairs:
+                    updated += Allocation.objects.filter(
+                        pk=allocation_id, stock__isnull=True
+                    ).update(stock_id=stock_id)
+            self.stdout.write(self.style.SUCCESS(f"  Updated {updated} rows."))
+        except Exception as exc:
+            self.stderr.write(self.style.ERROR(f"  ERROR: {exc}"))
+            return 1
         return 0
