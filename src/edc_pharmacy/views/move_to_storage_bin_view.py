@@ -118,8 +118,14 @@ class MoveToStorageBinView(AddToStorageBinView):
         if items_to_scan:
             items_to_scan = int(items_to_scan)
 
-        self.redirect_on_has_duplicates(stock_codes, storage_bin)
-        self.redirect_on_stock_not_already_in_a_bin(stock_codes, storage_bin)
+        # Each guard helper returns an HttpResponseRedirect or None;
+        # short-circuit on the first redirect so the guard actually fires.
+        redirect = self.redirect_on_has_duplicates(stock_codes, storage_bin)
+        if redirect:
+            return redirect
+        redirect = self.redirect_on_stock_not_already_in_a_bin(stock_codes, storage_bin)
+        if redirect:
+            return redirect
         if items_to_scan and not stock_codes:
             url = reverse(
                 "edc_pharmacy:move_to_storage_bin_url",

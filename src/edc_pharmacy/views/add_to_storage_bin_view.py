@@ -193,9 +193,17 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
         if items_to_scan:
             items_to_scan = int(items_to_scan)
 
-        self.redirect_on_has_duplicates(stock_codes, storage_bin)
-        self.redirect_on_invalid_subject_for_location(stock_codes, storage_bin)
-        self.redirect_on_stock_already_in_bin(stock_codes, storage_bin)
+        # Each guard helper returns an HttpResponseRedirect or None;
+        # short-circuit on the first redirect so the guard actually fires.
+        redirect = self.redirect_on_has_duplicates(stock_codes, storage_bin)
+        if redirect:
+            return redirect
+        redirect = self.redirect_on_invalid_subject_for_location(stock_codes, storage_bin)
+        if redirect:
+            return redirect
+        redirect = self.redirect_on_stock_already_in_bin(stock_codes, storage_bin)
+        if redirect:
+            return redirect
         if items_to_scan and not stock_codes:
             url = reverse(
                 "edc_pharmacy:add_to_storage_bin_url",
