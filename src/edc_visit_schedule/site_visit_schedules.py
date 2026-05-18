@@ -299,7 +299,7 @@ class SiteVisitSchedules:
             model_cls.objects.create(
                 visit_schedule_name=visit_schedule_name,
                 schedule_name=schedule_name,
-                label=f"{visit_schedule_name}.{schedule_name}",
+                label=f"{visit_schedule_name}.{schedule_name}"[:255],
             )
         else:
             obj.label = f"{visit_schedule_name}.{schedule_name}"

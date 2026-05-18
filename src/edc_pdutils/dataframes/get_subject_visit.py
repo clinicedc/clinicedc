@@ -123,5 +123,8 @@ def get_subject_visit(
     df = df.merge(df_last, on="subject_identifier", how="left")
 
     df["followup_days"] = (df.visit_datetime - df.baseline_datetime).dt.days
+    df["visit_count"] = df.groupby(by=["subject_identifier"])["subject_identifier"].transform(
+        "count"
+    )
 
     return df.sort_values(by=["subject_identifier", "visit_code"]).reset_index(drop=True)
