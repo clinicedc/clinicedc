@@ -1,6 +1,19 @@
 Changes
 -------
 
+4.0.0
+-----
+- Major refactor of edc-pharmacy: append-only ``StockTransaction``
+  ledger, single ``apply_transaction()`` gateway, returns workflow,
+  stock-take workflow, expanded UI, guarded ``Stock`` fields, sticky
+  ``Allocation`` pointer.
+- **Breaking changes** for project devs and **required deployment
+  steps** (migrations + ``fix_historical_stock_state`` +
+  ``bootstrap_stock_transactions`` + ``check_stock_ledger``).
+- See ``src/edc_pharmacy/docs/UPGRADE_4.0.md`` for the full upgrade
+  procedure, the list of API changes, and the removed signal
+  handlers.
+
 2.0.0
 -----
 - import edc_modeules to create monorepo. See `module-name` list in
