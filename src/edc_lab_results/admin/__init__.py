@@ -1,2 +1,4 @@
 from .blood_results_modeladmin_mixin import BloodResultsModelAdminMixin
+from .investigation_mapping_admin import InvestigationMappingAdmin
 from .reportable_results_modeladmin_mixin import ReportableResultsModelAdminMixin
+from .result_admin import ResultAdmin
