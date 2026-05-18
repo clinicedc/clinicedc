@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from copy import copy
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
@@ -26,9 +25,7 @@ def transfer_stock_to_location(
         "edc_pharmacy.stocktransferitem"
     )
     transferred, dispensed_codes, skipped_codes, invalid_codes = ([], [], [], [])
-    unprocessed_codes = copy(stock_codes)
     for stock_code in stock_codes:
-        unprocessed_codes.remove(stock_code)
         if not stock_model_cls.objects.filter(code=stock_code).exists():
             invalid_codes.append(stock_code)
             continue
@@ -84,19 +81,19 @@ def transfer_stock_to_location(
                     else:
                         transferred.append(stock_code)
 
-                    if len(stock_codes) != (
-                        len(unprocessed_codes)
-                        + len(transferred)
-                        + len(dispensed_codes)
-                        + len(skipped_codes)
-                        + len(invalid_codes)
-                    ):
-                        codes = transferred + dispensed_codes + skipped_codes + invalid_codes
-                        suspect_codes = [c for c in stock_codes if c not in codes]
-                        raise StockTransferError(
-                            f"Some codes were not accounted for. Got {suspect_codes} "
-                            "Cancelling transfer"
-                        )
+    # Final accounting check. Each code should land in exactly one bucket;
+    # if the totals don't add up, that's a bucketing-logic bug. Raise after
+    # the loop so the message is honest about partial commits — per-iteration
+    # atomicity means earlier transfers cannot be rolled back from here.
+    accounted = transferred + dispensed_codes + skipped_codes + invalid_codes
+    if len(stock_codes) != len(accounted):
+        suspect_codes = [c for c in stock_codes if c not in accounted]
+        raise StockTransferError(
+            f"Some codes were not accounted for during transfer: "
+            f"{suspect_codes}. Earlier successful transfers may have "
+            f"already committed (per-iteration atomicity)."
+        )
+
     return transferred, dispensed_codes, skipped_codes, invalid_codes
 
 
