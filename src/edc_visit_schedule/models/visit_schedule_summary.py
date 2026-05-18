@@ -8,7 +8,7 @@ class VisitScheduleSummary(BaseUuidModel):
 
     schedule_name = models.CharField(verbose_name="Schedule name", max_length=150)
 
-    label = models.CharField(verbose_name="Label", max_length=301, unique=True)
+    label = models.CharField(verbose_name="Label", max_length=255, unique=True)
 
     visits = models.IntegerField(default=0)
 
