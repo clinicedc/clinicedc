@@ -9,6 +9,12 @@ discrepancy.
 Quantity columns (qty_in / qty_out / unit_qty_in / unit_qty_out) are
 checked separately using ledger deltas.
 
+In addition, the bidirectional Stock <-> Allocation FK consistency is
+verified: for every Stock with ``allocation_id IS NOT NULL``, the
+linked ``Allocation.stock_id`` must point back at it.  This catches
+both the legacy NULL back-pointer (fixed by migration 0157) and any
+exotic divergence.
+
 Stocks with no transactions are reported as a distinct group; they
 indicate either genuinely inert stock (never confirmed) or a gap in the
 ledger that may need investigation.
@@ -232,6 +238,32 @@ def _compare(stock: Stock, expected: dict) -> dict[str, dict]:
     return mismatches
 
 
+def _check_allocation_backpointer(stock: Stock) -> dict | None:
+    """Verify bidirectional Stock <-> Allocation FK consistency.
+
+    Invariant: for every Stock whose ``allocation_id`` is not NULL, the
+    linked ``Allocation.stock_id`` must equal that Stock's id.  The
+    forward FK (``Stock.allocation``) is authoritative; the reverse
+    (``Allocation.stock``) is the back-pointer set inside
+    ``_apply_delta`` and (post-fix) in ``utils/allocate_stock``.
+
+    Catches:
+      * ``Allocation.stock_id IS NULL`` — the legacy regression backfilled
+        by migration 0157 and the create-side fix in PR #85.
+      * ``Allocation.stock_id`` pointing at a different Stock — a more
+        exotic divergence that would suggest a bug elsewhere.
+
+    Returns a discrepancy dict ``{expected, actual}`` if inconsistent,
+    else ``None``.
+    """
+    if stock.allocation_id is None:
+        return None
+    actual = stock.allocation.stock_id
+    if actual == stock.id:
+        return None
+    return {"expected": stock.id, "actual": actual}
+
+
 class Command(BaseCommand):
     help = (
         "Verify Stock cache columns are consistent with the StockTransaction "
@@ -284,6 +316,10 @@ class Command(BaseCommand):
 
             expected = _replay(txns)
             mismatches = _compare(stock, expected)
+
+            bp = _check_allocation_backpointer(stock)
+            if bp:
+                mismatches["allocation_backpointer"] = bp
 
             if mismatches:
                 discrepancy_count += 1
