@@ -17,9 +17,41 @@ The expected output of this runbook is a short go/no-go report (template at the 
 
 ---
 
-## 1. Pre-upgrade invariant snapshot
+## 1. Dry-runs
 
-Run this **before** any migration. The output is your baseline for the diff in step 5.
+Before mutating anything, see what's coming.
+
+```bash
+uv run --dev manage.py migrate --plan --settings=<your.settings>
+```
+
+The dry-runs for the management commands cannot be run yet — they require the 4.0.0 schema (`StockTransaction` ledger fields, `Allocation.stock` back-pointer, etc.) which only lands after `migrate`. See § 3 for those.
+
+Record:
+- [ ] Migrations listed (expect `0139`–`0157`)
+
+---
+
+## 2. Run migrations only
+
+Migrations are run on their own first, so the next step (the pre-fix snapshot) can use the 4.0.0 ORM against the new schema.
+
+```bash
+time uv run --dev manage.py migrate --settings=<your.settings>
+```
+
+Capture one number from the migration output:
+- [ ] `0157_backfill_allocation_stock_backpointer` — the tqdm progress bar reports how many `Allocation` rows had their `stock` back-pointer backfilled. This is the *only* place that count exists; record it from the log. (Post-snapshot will show `Allocation.stock_id IS NULL` count = 0 — the migration already did its work.)
+
+At this point: the schema is 4.0.0 but no cached `Stock` columns have been touched by `fix_historical_stock_state` or `bootstrap_stock_transactions` yet.
+
+---
+
+## 3. Pre-fix invariant snapshot and command dry-runs
+
+The pre-snapshot is captured here — **after** `migrate` but **before** any data-transformation command. The cached Stock columns are still whatever they were on 3.1.5; only the schema has moved.
+
+### 3a. Snapshot
 
 ```python
 # scripts/pre_upgrade_invariants.py
@@ -38,10 +70,6 @@ from edc_pharmacy.models import (
 )
 
 
-def _as_int(x):
-    return int(x or 0)
-
-
 def _as_str_dec(x):
     return str(x or Decimal("0"))
 
@@ -54,9 +82,10 @@ snapshot = {
     "storage_bin_items": StorageBinItem.objects.count(),
     "confirmation_at_location_items": ConfirmationAtLocationItem.objects.count(),
 
-    # Stock cache columns — must NOT change across upgrade (the whole point
-    # of `fix_historical_stock_state` is that the corrections are idempotent
-    # *given the current data*).
+    # Stock cache columns — `fix_historical_stock_state` may correct some of
+    # these (stuck `in_transit`, dispense not nulling `allocation`, etc.).
+    # Capture the deltas; cross-reference against the per-rule counts the
+    # command prints to confirm each delta is accounted for.
     "stocks_confirmed": Stock.objects.filter(confirmed=True).count(),
     "stocks_confirmed_at_location": Stock.objects.filter(confirmed_at_location=True).count(),
     "stocks_in_transit": Stock.objects.filter(in_transit=True).count(),
@@ -70,8 +99,8 @@ snapshot = {
     "unit_qty_in_total": _as_str_dec(Stock.objects.aggregate(s=Sum("unit_qty_in"))["s"]),
     "unit_qty_out_total": _as_str_dec(Stock.objects.aggregate(s=Sum("unit_qty_out"))["s"]),
 
-    # Allocation counts. Note: in 3.1.5 Allocation was a OneToOneField and
-    # the row was deleted when stock was dispensed. In 4.0.0 it's a sticky
+    # Allocation counts. In 3.1.5 Allocation was a OneToOneField and the
+    # row was deleted when stock was dispensed. In 4.0.0 it's a sticky
     # ForeignKey and rows may accumulate (ended_datetime IS NOT NULL). The
     # pre-snapshot number is therefore a LOWER bound on the post-snapshot.
     "allocations": Allocation.objects.count(),
@@ -80,10 +109,6 @@ snapshot = {
     "subjects_with_allocations": (
         Allocation.objects.values("subject_identifier").distinct().count()
     ),
-
-    # Allocation back-pointer health — pre-upgrade many will be NULL; that's
-    # the legacy bug. Post-upgrade should be zero.
-    "allocations_with_null_stock": Allocation.objects.filter(stock__isnull=True).count(),
 }
 
 with open("upgrade_invariants_pre.json", "w") as f:
@@ -97,23 +122,25 @@ mkdir -p scripts
 uv run --dev manage.py shell --settings=<your.settings> < scripts/pre_upgrade_invariants.py
 ```
 
-Outputs `upgrade_invariants_pre.json` in the project working directory and prints the same to stdout.
+Outputs `upgrade_invariants_pre.json` in the project working directory.
 
----
+> **Note on `allocations_with_null_stock`.** This metric is intentionally
+> omitted from the snapshot. Migration 0157 (run during § 2) backfills
+> the back-pointer before any ORM-level snapshot can see it. Read the
+> count from the `0157_backfill_allocation_stock_backpointer` tqdm output
+> in the migrate log instead.
 
-## 2. Dry-runs
+### 3b. Command dry-runs
 
-Before mutating anything, see what's coming.
+Now that the schema is 4.0.0, the dry-runs work.
 
 ```bash
-uv run --dev manage.py migrate --plan --settings=<your.settings>
 uv run --dev manage.py fix_historical_stock_state --dry-run --settings=<your.settings>
 uv run --dev manage.py bootstrap_stock_transactions --dry-run --settings=<your.settings>
 ```
 
 Record:
-- [ ] Migrations listed (expect `0139`–`0157`)
-- [ ] `fix_historical_stock_state` per-rule counts:
+- [ ] `fix_historical_stock_state` per-rule counts (first-pass dry-run):
   - [ ] `[in_transit]` count
   - [ ] `[allocation]` count
   - [ ] `[stored_at_location]` count
@@ -123,20 +150,19 @@ Record:
   - [ ] `[invalid]` count
   - [ ] `[bulk_location]` count
   - [ ] `[repack_child_location]` count
-  - [ ] `[bootstrapped_txn_locations]` count
-  - [ ] `[allocation_backpointer]` count
+  - [ ] `[bootstrapped_txn_locations]` count (expected ~0 on first pass)
+  - [ ] `[allocation_backpointer]` count (expected 0 — migration 0157 already ran)
 - [ ] `bootstrap_stock_transactions` "would create N transactions" count
 
-Counts that are surprising (e.g. all zeros, or wildly larger than expected) are a flag to investigate before running for real.
+Surprising counts (all zeros where you expected fixes, or wildly large) are flags to investigate before running for real.
 
 ---
 
-## 3. The upgrade sequence
+## 4. Run the data-transformation sequence
 
 Time each step. On any non-zero exit, **stop and investigate** — don't run the next step.
 
 ```bash
-time uv run --dev manage.py migrate --settings=<your.settings> && \
 time uv run --dev manage.py fix_historical_stock_state --settings=<your.settings> && \
 time uv run --dev manage.py bootstrap_stock_transactions --settings=<your.settings> && \
 time uv run --dev manage.py fix_historical_stock_state --settings=<your.settings> && \
@@ -149,7 +175,7 @@ Record wall-clock times — they bound your production maintenance window.
 
 ---
 
-## 4. Post-upgrade invariant snapshot
+## 5. Post-upgrade invariant snapshot
 
 ```python
 # scripts/post_upgrade_invariants.py
@@ -195,8 +221,6 @@ snapshot = {
     "subjects_with_allocations": (
         Allocation.objects.values("subject_identifier").distinct().count()
     ),
-    "allocations_with_null_stock": Allocation.objects.filter(stock__isnull=True).count(),
-
     # Post-upgrade additions: ledger health.
     "stock_transactions_total": StockTransaction.objects.count(),
     "stocks_with_ledger": (
@@ -220,7 +244,7 @@ uv run --dev manage.py shell --settings=<your.settings> < scripts/post_upgrade_i
 
 ---
 
-## 5. Diff the snapshots
+## 6. Diff the snapshots
 
 ```python
 # scripts/diff_upgrade_invariants.py
@@ -244,7 +268,6 @@ MUST_NOT_CHANGE = (
     "unit_qty_out_total",
     "subjects_with_allocations",
 )
-EXPECTED_TO_ZERO = ("allocations_with_null_stock",)
 EXPECTED_TO_GROW = ("allocations",)  # sticky-pointer accumulation
 EXPECTED_TO_APPEAR = ("stock_transactions_total",)  # was ~0 pre-bootstrap
 
@@ -253,12 +276,6 @@ for k in MUST_NOT_CHANGE:
     pre_v, post_v = pre.get(k), post.get(k)
     marker = "OK" if pre_v == post_v else "*** DRIFT ***"
     print(f"  {marker:14s} {k}: pre={pre_v} post={post_v}")
-
-print("\n=== EXPECTED_TO_ZERO post-upgrade ===")
-for k in EXPECTED_TO_ZERO:
-    post_v = post.get(k)
-    marker = "OK" if post_v == 0 else "*** NOT ZERO ***"
-    print(f"  {marker:18s} {k}: post={post_v}")
 
 print("\n=== EXPECTED_TO_GROW ===")
 for k in EXPECTED_TO_GROW:
@@ -284,11 +301,11 @@ for k in (
     print(f"  {k}: pre={pre.get(k)} post={post.get(k)}")
 ```
 
-Eyeball the cached-column counts. They *may* change slightly if `fix_historical_stock_state` corrected stuck-true flags (e.g. `in_transit`). Cross-reference any change against the `fix_historical_stock_state` output from step 3 — if the rule fired, the delta is expected and quantifiable.
+Eyeball the cached-column counts. They *may* change slightly if `fix_historical_stock_state` corrected stuck-true flags (e.g. `in_transit`). Cross-reference any change against the `fix_historical_stock_state` output from step 4 — if the rule fired, the delta is expected and quantifiable.
 
 ---
 
-## 6. Spot-check sample stocks
+## 7. Spot-check sample stocks
 
 For each of these lifecycle shapes, pick a couple of stock codes and walk the ledger in `manage.py shell`. Use codes you recognize.
 
@@ -316,7 +333,7 @@ Shapes worth picking on purpose:
 
 ---
 
-## 7. UI smoke test on staging
+## 8. UI smoke test on staging
 
 Each row = one workflow exercise. Tick when you've completed it on staging and verified the listed expectations.
 
@@ -344,13 +361,13 @@ Each row = one workflow exercise. Tick when you've completed it on staging and v
 | [ ] | Return — destroy | Disposition as destroy | `TXN_RETURN_DISPOSITION_DESTROYED`, `Stock.destroyed=True` |
 | [ ] | Stock-take | Run a stock take on a bin with a mix of expected and missing codes | StockTake/StockTakeItem rows; results page renders matched/missing/unexpected counts |
 | [ ] | Guard redirects (NEW fix) | POST add-to-bin with duplicate codes in form | Redirect actually fires (was a silent error in 3.1.x) |
-| [ ] | Ledger viewer | Open `LedgerView` for one of your spot-check stocks | Reads the full ledger you walked in step 6 |
+| [ ] | Ledger viewer | Open `LedgerView` for one of your spot-check stocks | Reads the full ledger you walked in step 7 |
 
 ---
 
-## 8. Performance findings
+## 9. Performance findings
 
-Capture wall-clock times from step 3 here. These define your production maintenance window.
+Capture wall-clock times from steps 2 and 4 here. These define your production maintenance window.
 
 | Step | Time | Notes |
 |---|---|---|
@@ -363,7 +380,7 @@ Capture wall-clock times from step 3 here. These define your production maintena
 
 ---
 
-## 9. Go/no-go report template
+## 10. Go/no-go report template
 
 Copy and fill before production deploy.
 
@@ -375,18 +392,20 @@ DB snapshot:                <prod backup tag/date>
 Staging environment:        <hostname / branch>
 Staging upgrade run by:     <name>
 
-1. Pre-upgrade invariants captured:           [ ] Y / [ ] N
-2. Dry-runs ran cleanly:                      [ ] Y / [ ] N
-3. Upgrade sequence completed (all 5 steps):  [ ] Y / [ ] N
-   - check_stock_ledger exit code:            _____
-4. Post-upgrade invariants captured:          [ ] Y / [ ] N
-5. Invariant diff:
-   - MUST_NOT_CHANGE rows drift:              [ ] none / [ ] see notes
-   - allocations_with_null_stock post:        _____
-   - stock_transactions_total post:           _____
-6. Spot-check sample (>= 5 lifecycle shapes): [ ] Y / [ ] N
-7. UI smoke test rows passed:                 _____ / _____
-8. Performance acceptable for prod window:    [ ] Y / [ ] N
+1. Migration plan reviewed (dry-run):          [ ] Y / [ ] N
+2. `migrate` ran cleanly:                      [ ] Y / [ ] N
+   - Migration 0157 backfilled N allocations:  _____
+3. Pre-fix invariants captured:                [ ] Y / [ ] N
+   - Command dry-runs reviewed:                [ ] Y / [ ] N
+4. Data-transformation sequence completed:     [ ] Y / [ ] N
+   - check_stock_ledger exit code:             _____
+5. Post-upgrade invariants captured:           [ ] Y / [ ] N
+6. Invariant diff:
+   - MUST_NOT_CHANGE rows drift:               [ ] none / [ ] see notes
+   - stock_transactions_total post:            _____
+7. Spot-check sample (>= 5 lifecycle shapes):  [ ] Y / [ ] N
+8. UI smoke test rows passed:                  _____ / _____
+9. Performance acceptable for prod window:     [ ] Y / [ ] N
 
 Anomalies found / resolved:
   - …
