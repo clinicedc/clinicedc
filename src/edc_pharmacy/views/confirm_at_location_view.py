@@ -90,8 +90,17 @@ class ConfirmaAtLocationView(
         if entry_form is None and not stock_transfer:
             entry_form = ConfirmAtLocationEntryForm(location_queryset=location_qs)
 
+        # When the entry form is being re-rendered after a validation
+        # failure, the user already chose a Location and a Reference. The
+        # Reference <select> is normally populated by JS via the
+        # get-stock-transfers endpoint on Location change — but that JS
+        # hasn't fired on form redisplay, so we'd lose the options. Pre-
+        # render them server-side based on the bound Location.
+        prefilled_transfers = self._prefilled_transfers(entry_form)
+
         kwargs.update(
             entry_form=entry_form,
+            prefilled_transfers=prefilled_transfers,
             locations=location_qs,
             location=self.location,
             location_id=self.location_id,
@@ -105,6 +114,35 @@ class ConfirmaAtLocationView(
             **extra_opts,
         )
         return super().get_context_data(**kwargs)
+
+    def _prefilled_transfers(self, entry_form) -> list[dict]:
+        """Return server-side data for the Reference <select> on
+        validation-error redisplay. Mirrors the JSON shape produced by
+        ``get_stock_transfers_view`` so the JS can read it identically.
+        """
+        if entry_form is None or not entry_form.is_bound:
+            return []
+        # Use raw data (not cleaned_data) — cleaned_data may be missing
+        # if the bound location failed its own validation.
+        raw_location_id = entry_form.data.get("location") or None
+        if not raw_location_id:
+            return []
+        transfers = (
+            StockTransfer.objects.filter(
+                to_location_id=raw_location_id,
+                stocktransferitem__confirmationatlocationitem__isnull=True,
+            )
+            .distinct()
+            .order_by("-transfer_identifier")
+        )
+        return [
+            {
+                "transfer_identifier": t.transfer_identifier,
+                "item_count": t.item_count,
+                "unconfirmed_items": t.unconfirmed_items,
+            }
+            for t in transfers
+        ]
 
     # ------------------------------------------------------------------
     # Queryset helpers

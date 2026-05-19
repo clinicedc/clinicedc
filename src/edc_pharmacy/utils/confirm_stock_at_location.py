@@ -61,8 +61,15 @@ def confirm_stock_at_location(
     for stock_code in stock_codes:
         with transaction.atomic():
             try:
+                # of=("self",) only: locking "stock" via of= would require
+                # an explicit select_related("stock") to expose it as a
+                # known alias for select_for_update (Django raises
+                # FieldError on MySQL otherwise). The Stock row is locked
+                # anyway by apply_transaction(...) inside compute_delta's
+                # caller, so the outer lock on just the StockTransferItem
+                # is sufficient.
                 stock_transfer_item = stock_transfer_item_model_cls.objects.select_for_update(
-                    of=("self", "stock")
+                    of=("self",)
                 ).get(stock__code=stock_code, stock_transfer=stock_transfer)
             except ObjectDoesNotExist:
                 if request:

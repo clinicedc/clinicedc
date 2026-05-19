@@ -31,7 +31,17 @@
                     </div>
                     <div class="form-group">
                       <label class="control-label" for="id_stock_transfer_identifier">Reference</label>
-                      {{ entry_form.stock_transfer_identifier }}
+                      {# Render server-side so options survive a form-error redisplay.   #}
+                      {# JS in extra-scripts-bottom still repopulates on Location change. #}
+                      <select class="form-control" id="id_stock_transfer_identifier" name="stock_transfer_identifier">
+                        <option value="" {% if not entry_form.stock_transfer_identifier.value %}selected{% endif %}>---</option>
+                        {% for t in prefilled_transfers %}
+                          <option value="{{ t.transfer_identifier }}" {% if t.transfer_identifier == entry_form.stock_transfer_identifier.value %}selected{% endif %}>
+                            {{ t.transfer_identifier }} -- {{ t.item_count }} items
+                          </option>
+                        {% endfor %}
+                      </select>
+                      {{ prefilled_transfers|json_script:"prefilled-transfers-data" }}
                       {% if entry_form.stock_transfer_identifier.errors %}
                         <div class="text-danger">{{ entry_form.stock_transfer_identifier.errors }}</div>
                       {% endif %}
@@ -172,22 +182,23 @@
       }
     }
 
-    // Replace the bare-select reference dropdown rendered by Django form
-    // ({{ entry_form.stock_transfer_identifier }} is a CharField) with a
-    // populated <select> driven by the location_id AJAX endpoint.
-    function buildReferenceSelect() {
-      if (!referenceEl) { return; }
-      if (referenceEl.tagName !== 'SELECT') {
-        // The Django widget rendered a text input; swap it out for a select
-        // of the same id/name so reverse-form posts still work.
-        const select = document.createElement('select');
-        select.id = referenceEl.id;
-        select.name = referenceEl.name;
-        select.className = referenceEl.className || 'form-control';
-        referenceEl.parentNode.replaceChild(select, referenceEl);
+    // On initial render the Reference <select> is built server-side (so
+    // its options survive a form-error redisplay). Seed
+    // unconfirmedByIdentifier from the JSON payload the server embedded
+    // so the "max:" hint works on first paint.
+    (function primeFromPrefilled() {
+      const dataEl = document.getElementById('prefilled-transfers-data');
+      if (!dataEl) { return; }
+      try {
+        const data = JSON.parse(dataEl.textContent);
+        data.forEach(function(item) {
+          unconfirmedByIdentifier[item.transfer_identifier] = item.unconfirmed_items;
+        });
+        updateNumberOfItemsHint();
+      } catch (e) {
+        console.error('Failed to parse prefilled-transfers-data:', e);
       }
-    }
-    buildReferenceSelect();
+    })();
 
     if (locationEl) {
       locationEl.addEventListener('change', function() {
