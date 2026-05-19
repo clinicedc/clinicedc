@@ -588,6 +588,77 @@ Note: many of the `__isnull` filters in the listing above are on
 policy. The audit must distinguish `Stock.allocation` from
 `StockRequestItem.allocation` per call site.
 
+### 5.10 Reference table — TXN → Stock state transitions
+
+Derived from `transaction_log/compute_delta.py`. The "Sets True" /
+"Sets False" columns list the `Stock` boolean flags that the txn
+flips. "Side effects" cover qty deltas, the `Allocation` lifecycle,
+child rows, and `Stock.location`.
+
+Notation:
+- `*` = conditional (only if the field is currently `True`).
+- Child row codes: `C` = `Confirmation`, `CALI` = `ConfirmationAtLocationItem`, `SBI` = `StorageBinItem`, `DI` = `DispenseItem`.
+- "**end** (sticky)" = stamps `Allocation.ended_datetime` / `ended_reason` but does NOT clear `Stock.allocation` or `Stock.subject_identifier` (sticky-pointer policy, see §5.6).
+- "**end + clear FK**" = stamps `Allocation.ended_datetime` AND clears `Stock.allocation` and `Stock.subject_identifier`. Only `TXN_RETURN_DISPOSITION_REPOOLED` does this.
+
+| TXN type | Sets True | Sets False | qty / unit_qty | Allocation | Child rows | Location |
+|---|---|---|---|---|---|---|
+| `TXN_RECEIVED` | `confirmed` | — | `+1` / `+container_unit_qty` | — | create `C` | — |
+| `TXN_REPACK_CONSUMED` | — | — | caller-supplied | — | — | — |
+| `TXN_REPACK_PRODUCED` | — | — | — | — | — | — |
+| `TXN_ALLOCATED` | — | — | — | **create** (sets `subject_identifier`) | — | — |
+| `TXN_ALLOCATION_ENDED` | — | — | — | **end** (sticky) | — | — |
+| `TXN_TRANSFER_DISPATCHED` | `in_transit` | `stored_at_location`*, `confirmed_at_location`* | — | — | delete `SBI`*, delete `CALI`* | → `new_location` |
+| `TXN_TRANSFER_RECEIVED` | `confirmed_at_location` | `in_transit` | — | — | create `CALI` | → `site_location` |
+| `TXN_STORED` | `stored_at_location` | — | — | — | create `SBI` | — |
+| `TXN_BIN_MOVED` | — | — | — | — | replace `SBI` (delete + create) | — |
+| `TXN_DISPENSED` | `dispensed` | `stored_at_location` | `-1` / `-container_unit_qty` | **end** (sticky, reason=`dispensed`) | delete `SBI`, create `DI` | — |
+| `TXN_RETURN_REQUESTED` | `return_requested` | — | — | — | — | — |
+| `TXN_RETURN_DISPATCHED` | `in_transit` | `return_requested`, `stored_at_location`, `confirmed_at_location` | — | — | delete `SBI` | → `central_location` |
+| `TXN_RETURN_RECEIVED` | — | `in_transit`, `confirmed_at_location` | — | — | — | → `central_location` |
+| `TXN_RETURN_DISPOSITION_REPOOLED` | — | `quarantined` | — | **end + clear FK** (resets `subject_identifier`) | — | — |
+| `TXN_RETURN_DISPOSITION_QUARANTINED` | `quarantined` | — | — | **end** (sticky, reason=`quarantined`) | — | — |
+| `TXN_RETURN_DISPOSITION_DESTROYED` | `destroyed` | `quarantined` | — | **end** (sticky, reason=`destroyed`) | — | — |
+| `TXN_ADJUSTED` | — | — | caller-supplied (any sign) | — | — | — |
+| `TXN_DAMAGED` | `damaged` | `stored_at_location`* | `-1` / `-remaining_units` | **end** (sticky, reason=`damaged`) | delete `SBI`* | — |
+| `TXN_LOST` | `lost` | `stored_at_location`* | `-1` / `-remaining_units` | **end** (sticky, reason=`lost`) | delete `SBI`* | — |
+| `TXN_EXPIRED` | `expired` | `stored_at_location`* | `-1` / `-remaining_units` | **end** (sticky, reason=`expired`) | delete `SBI`* | — |
+| `TXN_VOIDED` | `voided` | `stored_at_location`* | `-1` / `-remaining_units` | **end** (sticky, reason=`voided`) | delete `SBI`* | — |
+| `TXN_REVERSAL` | — | — | — | — | — | V2 — not implemented |
+
+#### Inverse view: which TXN sets/clears each flag
+
+| Field | Set True by | Set False by |
+|---|---|---|
+| `confirmed` | `TXN_RECEIVED` | (never via ledger) |
+| `confirmed_at_location` | `TXN_TRANSFER_RECEIVED` | `TXN_TRANSFER_DISPATCHED`, `TXN_RETURN_DISPATCHED`, `TXN_RETURN_RECEIVED` |
+| `in_transit` | `TXN_TRANSFER_DISPATCHED`, `TXN_RETURN_DISPATCHED` | `TXN_TRANSFER_RECEIVED`, `TXN_RETURN_RECEIVED` |
+| `stored_at_location` | `TXN_STORED` | `TXN_TRANSFER_DISPATCHED`, `TXN_RETURN_DISPATCHED`, `TXN_DISPENSED`, `TXN_DAMAGED`, `TXN_LOST`, `TXN_EXPIRED`, `TXN_VOIDED` |
+| `dispensed` | `TXN_DISPENSED` | (terminal; never cleared) |
+| `damaged` | `TXN_DAMAGED` | (terminal; never cleared) |
+| `lost` | `TXN_LOST` | (terminal; never cleared) |
+| `expired` | `TXN_EXPIRED` | (terminal; never cleared) |
+| `voided` | `TXN_VOIDED` | (terminal; never cleared) |
+| `destroyed` | `TXN_RETURN_DISPOSITION_DESTROYED` | (terminal; never cleared) |
+| `quarantined` | `TXN_RETURN_DISPOSITION_QUARANTINED` | `TXN_RETURN_DISPOSITION_REPOOLED`, `TXN_RETURN_DISPOSITION_DESTROYED` |
+| `return_requested` | `TXN_RETURN_REQUESTED` | `TXN_RETURN_DISPATCHED` |
+| `Stock.allocation` (FK) | `TXN_ALLOCATED` | `TXN_RETURN_DISPOSITION_REPOOLED` only — sticky elsewhere |
+| `Stock.subject_identifier` | `TXN_ALLOCATED` | `TXN_RETURN_DISPOSITION_REPOOLED` only — sticky elsewhere |
+
+#### Key rules embedded in the table
+
+1. **Terminal flags are one-way.** Once `dispensed` / `damaged` / `lost` / `expired` / `voided` / `destroyed` flips True, only `TXN_REVERSAL` (V2) could undo it. Every other TXN's `_check_not_terminal` precondition rejects.
+2. **`Stock.allocation` FK is sticky.** Only `TXN_RETURN_DISPOSITION_REPOOLED` clears it; every other "end" action stamps `Allocation.ended_datetime` / `ended_reason` but leaves the FK pointing for audit.
+3. **`stored_at_location` is the trampoline.** Most other transitions either depend on it (`TXN_DISPENSED`, `TXN_RETURN_REQUESTED`) or clear it (terminal flips, transfers, return dispatch).
+4. **`confirmed_at_location` is only ever True at a site.** Central never has it True. Both `TXN_TRANSFER_DISPATCHED` (leaving central for site) and `TXN_RETURN_DISPATCHED` / `TXN_RETURN_RECEIVED` (back to central) clear it.
+5. **Quantity changes are scarce.** Only `TXN_RECEIVED` (+), `TXN_DISPENSED` (−1), the four destruction txns (`DAMAGED` / `LOST` / `EXPIRED` / `VOIDED`, all −1 plus remaining units), `TXN_REPACK_CONSUMED` and `TXN_ADJUSTED` (caller-supplied) ever touch `qty_*` or `unit_qty_*`. Everything else leaves both deltas zero.
+
+This table is the source of truth for what each TXN actually does to a
+Stock row. The admin's `StageListFilter` (`admin/list_filters.py`)
+classifies stocks into lifecycle stages by reading these flag
+combinations after the fact; this reference shows which flags get
+flipped by which TXN to produce those combinations.
+
 ---
 
 ## 6. What goes away
