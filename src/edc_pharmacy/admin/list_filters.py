@@ -469,12 +469,12 @@ class StageListFilter(SimpleListFilter):
             ("unconfirmed", "Unconfirmed"),
             ("received", "Received"),
             ("allocated", "Allocated"),
-            ("at_location", "At Location"),
-            ("in_bin", "In Bin"),
             ("in_transit", "In Transit"),
+            ("at_location", "At Location"),
+            ("in_bin", "At location (in bin)"),
+            ("dispensed", "Dispensed"),
             ("return_requested", "Return Requested"),
             ("returning", "Returning"),
-            ("dispensed", "Dispensed"),
             ("quarantined", "Quarantined"),
             ("destroyed", "Destroyed"),
             ("lost", "Lost"),
@@ -524,12 +524,12 @@ class StageListFilter(SimpleListFilter):
             return queryset.filter(return_requested=True, in_transit=False)
         if v == "in_transit":
             return queryset.filter(in_transit=True, return_requested=False)
-        if v == "in_bin":
-            return queryset.filter(stored_at_location=True, dispensed=False)
         if v == "at_location":
             return queryset.filter(
                 confirmed_at_location=True, stored_at_location=False, dispensed=False
             )
+        if v == "in_bin":
+            return queryset.filter(stored_at_location=True, dispensed=False)
         if v == "allocated":
             return queryset.filter(
                 allocation__isnull=False,
