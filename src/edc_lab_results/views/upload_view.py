@@ -12,9 +12,9 @@ from django.views.generic import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
+from ..constants import PENDING
 from ..forms import UploadResultFileForm
 from ..models import UploadedResultFile
-from ..models.uploaded_result_file import PENDING
 
 
 def _get_pending_dir() -> Path:
@@ -34,9 +34,7 @@ class UploadView(EdcViewMixin, NavbarViewMixin, TemplateView):
 
         parsers: dict = getattr(settings, "EDC_LAB_PARSERS", {})
         laboratory_choices = [(k, k) for k in sorted(parsers.keys())]
-        default_laboratory = getattr(
-            settings, "EDC_LAB_RESULTS_DEFAULT_LABORATORY", ""
-        )
+        default_laboratory = getattr(settings, "EDC_LAB_RESULTS_DEFAULT_LABORATORY", "")
 
         context.update(
             form=form,

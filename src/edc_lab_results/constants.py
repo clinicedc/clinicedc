@@ -7,3 +7,7 @@ BLOOD_RESULTS_LFT_ACTION = "abnormal-blood-results-lft"
 BLOOD_RESULTS_LIPIDS_ACTION = "abnormal-blood-results-lipid"
 BLOOD_RESULTS_RFT_ACTION = "abnormal-blood-results-rft"
 URINALYSIS_ACTION = "abnormal-urinalysis"
+
+PENDING = "pending"
+IMPORTED = "imported"
+ERROR = "error"
