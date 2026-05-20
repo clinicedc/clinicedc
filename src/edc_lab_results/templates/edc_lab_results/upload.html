@@ -36,6 +36,32 @@
     </div>
   </div>
 
+  {% if pending_count %}
+  <div class="panel panel-info">
+    <div class="panel-heading">
+      <h4 class="panel-title">Process pending files ({{ pending_count }})</h4>
+    </div>
+    <div class="panel-body">
+      <form method="post" action="{% url 'edc_lab_results:process-pending' %}">
+        {% csrf_token %}
+        <div class="form-inline">
+          <div class="form-group">
+            <label for="id_laboratory">Laboratory</label>
+            <select name="laboratory" id="id_laboratory" class="form-control" style="margin-left: 10px;">
+              {% for value, label in laboratory_choices %}
+              <option value="{{ value }}"{% if value == default_laboratory %} selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-success" style="margin-left: 10px;">
+            Process pending files
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
   {% if recent_uploads %}
   <h4>Recent uploads</h4>
   <table class="table table-striped table-condensed">

@@ -1,0 +1,100 @@
+{% extends "edc_dashboard/base.html" %}
+{% load static %}
+
+{% block main %}
+<div class="container" style="margin-top: 70px;">
+  <div style="margin-bottom: 15px;">
+    <a href="{% url 'edc_lab_results:upload' %}"
+       class="btn btn-default btn-sm">&laquo; Back to uploads</a>
+  </div>
+
+  <h3>Review Pending Import</h3>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 class="panel-title">Summary</h4>
+    </div>
+    <div class="panel-body">
+      <dl class="dl-horizontal" style="margin-bottom: 0;">
+        <dt>Laboratory</dt><dd>{{ laboratory }}</dd>
+        <dt>Files to process</dt><dd>{{ file_count }}</dd>
+        <dt>Results parsed</dt><dd>{{ result_count }}</dd>
+        <dt>Mapped investigations</dt><dd>{{ mapped|length }}</dd>
+        <dt>Unmapped investigations</dt><dd>{{ unmapped|length }}</dd>
+      </dl>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="confirm" value="1">
+
+    {% if unmapped %}
+    <div class="panel panel-warning">
+      <div class="panel-heading">
+        <h4 class="panel-title">Unmapped Investigations</h4>
+      </div>
+      <div class="panel-body">
+        <p>Enter the EDC utest_id for each investigation below, or leave blank to skip.</p>
+      </div>
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <th>Investigation</th>
+            <th>Best guess</th>
+            <th>utest_id</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in unmapped %}
+          <tr>
+            <td>{{ item.investigation }}</td>
+            <td><code>{{ item.guess|default:"-" }}</code></td>
+            <td>
+              <input type="text" class="form-control input-sm"
+                     name="utest_id_{{ item.investigation }}"
+                     value="{{ item.guess }}"
+                     placeholder="utest_id or leave blank">
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if mapped %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title">Already Mapped Investigations</h4>
+      </div>
+      <table class="table table-condensed table-striped">
+        <thead>
+          <tr>
+            <th>Investigation</th>
+            <th>utest_id</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in mapped %}
+          <tr>
+            <td>{{ item.investigation }}</td>
+            <td><code>{{ item.utest_id|default:"-" }}</code></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <div style="margin-top: 20px; margin-bottom: 40px;">
+      <button type="submit" class="btn btn-success btn-lg">
+        Confirm and import
+      </button>
+      <a href="{% url 'edc_lab_results:upload' %}" class="btn btn-default btn-lg" style="margin-left: 10px;">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock main %}

@@ -14,6 +14,7 @@ from edc_navbar import NavbarViewMixin
 
 from ..forms import UploadResultFileForm
 from ..models import UploadedResultFile
+from ..models.uploaded_result_file import PENDING
 
 
 def _get_pending_dir() -> Path:
@@ -29,7 +30,21 @@ class UploadView(EdcViewMixin, NavbarViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         form = UploadResultFileForm() if "form" not in kwargs else kwargs["form"]
         recent_uploads = UploadedResultFile.objects.all()[:50]
-        context.update(form=form, recent_uploads=recent_uploads)
+        pending_count = UploadedResultFile.objects.filter(status=PENDING).count()
+
+        parsers: dict = getattr(settings, "EDC_LAB_PARSERS", {})
+        laboratory_choices = [(k, k) for k in sorted(parsers.keys())]
+        default_laboratory = getattr(
+            settings, "EDC_LAB_RESULTS_DEFAULT_LABORATORY", ""
+        )
+
+        context.update(
+            form=form,
+            recent_uploads=recent_uploads,
+            pending_count=pending_count,
+            laboratory_choices=laboratory_choices,
+            default_laboratory=default_laboratory,
+        )
         return context
 
     def post(self, request: object, *args: object, **kwargs: object) -> object:  # noqa: ARG002

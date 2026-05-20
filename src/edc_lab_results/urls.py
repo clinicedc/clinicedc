@@ -5,6 +5,7 @@ from .views import (
     DeleteUploadView,
     HomeView,
     OrderDetailView,
+    ProcessPendingView,
     SubjectResultsView,
     UploadView,
     VisitsForSubjectView,
@@ -33,6 +34,11 @@ urlpatterns = [
         "upload/delete/<uuid:pk>/",
         DeleteUploadView.as_view(),
         name="delete-upload",
+    ),
+    path(
+        "upload/process/",
+        ProcessPendingView.as_view(),
+        name="process-pending",
     ),
     path(
         "api/visits-for-subject/",
