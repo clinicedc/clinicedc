@@ -15,13 +15,13 @@ from django.views.generic import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
+from ..constants import PENDING
 from ..import_results import (
     LabResultImporter,
     LabResultImportError,
     best_guess_utest_id,
 )
 from ..models import UploadedResultFile
-from ..models.uploaded_result_file import PENDING
 
 
 def _get_laboratory_choices() -> list[tuple[str, str]]:

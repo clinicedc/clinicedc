@@ -31,14 +31,15 @@ from parse_trial_labs import parse_folder as _parse_folder
 from tqdm import tqdm
 
 from edc_lab.utils import get_requisition_model
-from edc_lab_results.models import InvestigationMapping, Result
-from edc_lab_results.unit_conversion import (
+from edc_registration.models import RegisteredSubject
+from edc_reportable.models import NormalData
+
+from .models import InvestigationMapping, Result
+from .unit_conversion import (
     attempt_conversion,
     build_normal_data_units_cache,
     normalize_units,
 )
-from edc_registration.models import RegisteredSubject
-from edc_reportable.models import NormalData
 
 
 class LabResultImportError(Exception):

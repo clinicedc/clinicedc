@@ -8,8 +8,8 @@ from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
 
+from ..constants import PENDING
 from ..models import UploadedResultFile
-from ..models.uploaded_result_file import PENDING
 
 
 class DeleteUploadView(View):

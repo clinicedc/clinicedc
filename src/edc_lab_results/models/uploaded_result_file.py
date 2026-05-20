@@ -7,15 +7,8 @@ from django.db import models
 
 from edc_model.models import BaseUuidModel
 
-PENDING = "pending"
-IMPORTED = "imported"
-ERROR = "error"
-
-STATUS_CHOICES = [
-    (PENDING, "Pending"),
-    (IMPORTED, "Imported"),
-    (ERROR, "Error"),
-]
+from ..choices import STATUS_CHOICES
+from ..constants import PENDING
 
 
 class UploadedResultFile(BaseUuidModel):
