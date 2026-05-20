@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 
 from ...models import Result
 from ...transcribe import transcribe_results
+from ...transcribe.discovery import discover_crf_models
 
 
 class Command(BaseCommand):
@@ -61,6 +62,9 @@ class Command(BaseCommand):
         mode = "DRY RUN" if dry_run else "LIVE"
         self.stdout.write(f"\n[{mode}] Processing {count} result(s)...\n")
 
+        if self.verbose:
+            self._print_discovered_crfs()
+
         summary = transcribe_results(qs, dry_run=dry_run)
         self._print_summary(summary, dry_run)
 
@@ -89,6 +93,16 @@ class Command(BaseCommand):
             "Error: Specify --order-no, --subject-identifier, or --all-pending."
         )
         return None
+
+    def _print_discovered_crfs(self) -> None:
+        crf_models = discover_crf_models()
+        self.stdout.write("--- Discovered CRF models ---")
+        for panel_name, info in sorted(crf_models.items()):
+            verbose_name = info.model._meta.verbose_name  # noqa: SLF001
+            utest_ids = ", ".join(info.utest_ids) if info.utest_ids else "(none)"
+            self.stdout.write(f"  {verbose_name} [{panel_name}]")
+            self.stdout.write(f"    utest_ids: {utest_ids}")
+        self.stdout.write("")
 
     def _print_summary(self, summary: object, dry_run: bool) -> None:
         self.stdout.write("\n--- Summary ---")
