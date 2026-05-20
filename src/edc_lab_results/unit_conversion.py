@@ -24,18 +24,35 @@ def normalize_units(units: str) -> str:
     return UNIT_ALIASES.get(units, units)
 
 
-def _find_target_units(utest_id: str, source_units: str) -> str | None:
+def build_normal_data_units_cache() -> dict[str, list[str]]:
+    """Pre-load all NormalData label→units mappings in one query."""
+    cache: dict[str, list[str]] = {}
+    for label, units in (
+        NormalData.objects.values_list("label", "units").distinct()
+    ):
+        cache.setdefault(label, []).append(units)
+    return cache
+
+
+def _find_target_units(
+    utest_id: str,
+    source_units: str,
+    units_cache: dict[str, list[str]] | None = None,
+) -> str | None:
     """Find a NormalData unit to convert to.
 
     If the source units already match a formula, return None
     (no conversion needed). Otherwise return the first available
     unit for this utest_id.
     """
-    available = list(
-        NormalData.objects.filter(label=utest_id)
-        .values_list("units", flat=True)
-        .distinct()
-    )
+    if units_cache is not None:
+        available = units_cache.get(utest_id, [])
+    else:
+        available = list(
+            NormalData.objects.filter(label=utest_id)
+            .values_list("units", flat=True)
+            .distinct()
+        )
     if not available:
         return None
     if source_units in available:
@@ -47,18 +64,23 @@ def attempt_conversion(
     utest_id: str,
     value: Decimal | None,
     units: str,
+    *,
+    units_cache: dict[str, list[str]] | None = None,
 ) -> tuple[Decimal | None, str]:
     """Attempt to convert a result value to units recognized
     by edc_reportable.
 
     Returns (converted_value, converted_units).
     Returns (None, "") if no conversion is needed or possible.
+
+    Pass *units_cache* (from ``build_normal_data_units_cache``)
+    to avoid per-call database queries.
     """
     if not utest_id or value is None or not units:
         return None, ""
 
     normalized = normalize_units(units)
-    target = _find_target_units(utest_id, normalized)
+    target = _find_target_units(utest_id, normalized, units_cache)
     if target is None:
         return None, ""
 

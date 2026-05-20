@@ -15,12 +15,16 @@ class ResultAdmin(
 ):
     list_display = (
         "subject_identifier",
+        "screening_identifier",
         "dashboard",
+        "visit_code",
         "investigation",
         "link_to_reportable",
         "result_value",
         "units",
         "flag",
+        "subject_not_found",
+        "requisition_ambiguous",
         "order_datetime",
         "report_datetime",
         "order_no",
@@ -28,8 +32,11 @@ class ResultAdmin(
         "result_no",
     )
     list_filter = (
+        "subject_not_found",
+        "requisition_ambiguous",
         ("report_datetime", DateRangeFilterBuilder()),
         ("order_datetime", DateRangeFilterBuilder()),
+        "visit_code",
         "investigation",
         "utest_id",
         "report_type",
@@ -37,6 +44,8 @@ class ResultAdmin(
     )
     search_fields = (
         "subject_identifier",
+        "screening_identifier",
+        "name_id",
         "investigation",
         "order_no",
         "sample_no",

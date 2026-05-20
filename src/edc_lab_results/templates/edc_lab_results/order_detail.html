@@ -1,0 +1,200 @@
+{% extends "edc_dashboard/base.html" %}
+{% load static %}
+
+{% block main %}
+<div class="container" style="margin-top: 70px;">
+  <div style="margin-bottom: 15px;">
+    <a href="{% url 'edc_lab_results:subject-results' %}?identifier={{ header.subject_identifier|default:header.screening_identifier }}"
+       class="btn btn-default btn-sm">&laquo; Back to orders</a>
+  </div>
+
+  <h3>Order {{ header.order_no }}</h3>
+
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <div class="row">
+        <div class="col-md-4">
+          <dl class="dl-horizontal" style="margin-bottom: 0;">
+            <dt>Subject</dt><dd>{{ header.subject_identifier|default:"-" }}</dd>
+            <dt>Screening</dt><dd>{{ header.screening_identifier|default:"-" }}</dd>
+            <dt>Name/ID</dt><dd>{{ header.name_id|default:"-" }}</dd>
+            <dt>Age / Sex</dt><dd>{{ header.age|default:"-" }} / {{ header.sex|default:"-" }}</dd>
+          </dl>
+        </div>
+        <div class="col-md-4">
+          <dl class="dl-horizontal" style="margin-bottom: 0;">
+            <dt>Visit</dt><dd>{{ header.visit_code|default:"-" }}{% if header.visit_code_sequence %}.{{ header.visit_code_sequence }}{% endif %}</dd>
+            <dt>Order date</dt><dd>{{ header.order_datetime|default:"-" }}</dd>
+            <dt>Collected</dt><dd>{{ header.specimen_collected_datetime|default:"-" }}</dd>
+          </dl>
+        </div>
+        <div class="col-md-4">
+          <dl class="dl-horizontal" style="margin-bottom: 0;">
+            <dt>Sample No</dt><dd>{{ header.sample_no|default:"-" }}</dd>
+            <dt>Result No</dt><dd>{{ header.result_no|default:"-" }}</dd>
+            <dt>Source</dt><dd><small>{{ header.source_file|default:"-" }}</small></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="panel panel-info">
+    <div class="panel-heading">
+      <h4 class="panel-title">Update Order Details</h4>
+    </div>
+    <div class="panel-body">
+      <form method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+        <div class="alert alert-danger">
+          <strong>Please correct the errors below.</strong>
+          {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group{% if form.subject_identifier.errors %} has-error{% endif %}">
+              <label for="{{ form.subject_identifier.id_for_label }}">Subject identifier</label>
+              {{ form.subject_identifier }}
+              {% for error in form.subject_identifier.errors %}
+              <span class="help-block">{{ error }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group{% if form.screening_identifier.errors %} has-error{% endif %}">
+              <label for="{{ form.screening_identifier.id_for_label }}">Screening identifier</label>
+              {{ form.screening_identifier }}
+              {% for error in form.screening_identifier.errors %}
+              <span class="help-block">{{ error }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group{% if form.visit.errors %} has-error{% endif %}">
+              <label for="{{ form.visit.id_for_label }}">Visit</label>
+              {{ form.visit }}
+              {% for error in form.visit.errors %}
+              <span class="help-block">{{ error }}</span>
+              {% endfor %}
+              <span class="help-block" id="visit-status" style="display:none;"></span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label>&nbsp;</label>
+              <button type="submit" class="btn btn-primary btn-block">Update all results</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <table class="table table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Investigation</th>
+        <th>UTEST ID</th>
+        <th>Result</th>
+        <th>Units</th>
+        <th>Flag</th>
+        <th>Reference Range</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in results %}
+      <tr{% if result.flag %} class="{% if result.flag == 'H' or result.flag == 'HH' %}danger{% elif result.flag == 'L' or result.flag == 'LL' %}warning{% endif %}"{% endif %}>
+        <td>{{ result.investigation }}</td>
+        <td>{{ result.utest_id|default:"-" }}</td>
+        <td>{{ result.result_value|default:"-" }}</td>
+        <td>{{ result.units|default:"-" }}</td>
+        <td>{{ result.flag|default:"" }}</td>
+        <td>
+          {% if result.reference_range_lower is not None and result.reference_range_upper is not None %}
+            {{ result.reference_range_lower }} - {{ result.reference_range_upper }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock main %}
+
+{% block extra-scripts-bottom %}
+<script>
+(function() {
+  var subjectInput = document.getElementById("id_subject_identifier");
+  var visitSelect = document.getElementById("id_visit");
+  var visitStatus = document.getElementById("visit-status");
+  var fetchUrl = "{% url 'edc_lab_results:visits-for-subject' %}";
+  var initialVisit = "{{ initial_visit }}";
+  var timer = null;
+
+  function setVisitDisabled(disabled) {
+    visitSelect.disabled = disabled;
+    if (disabled) {
+      visitSelect.innerHTML = '<option value="">---</option>';
+    }
+  }
+
+  function loadVisits(subjectId) {
+    var currentValue = initialVisit || visitSelect.value;
+    visitStatus.style.display = "block";
+    visitStatus.textContent = "Loading visits…";
+
+    fetch(fetchUrl + "?subject_identifier=" + encodeURIComponent(subjectId))
+      .then(function(resp) { return resp.json(); })
+      .then(function(data) {
+        visitSelect.innerHTML = '<option value="">---------</option>';
+        data.visits.forEach(function(v) {
+          var opt = document.createElement("option");
+          opt.value = v.value;
+          opt.textContent = v.label;
+          if (v.value === currentValue) { opt.selected = true; }
+          visitSelect.appendChild(opt);
+        });
+        visitSelect.disabled = false;
+        if (data.visits.length === 0) {
+          visitStatus.textContent = "No visits found for this subject.";
+        } else {
+          visitStatus.style.display = "none";
+        }
+      })
+      .catch(function() {
+        visitStatus.textContent = "Error loading visits.";
+      });
+  }
+
+  function onSubjectChange() {
+    var val = subjectInput.value.trim();
+    if (!val) {
+      setVisitDisabled(true);
+      visitStatus.style.display = "none";
+      return;
+    }
+    clearTimeout(timer);
+    timer = setTimeout(function() { loadVisits(val); }, 400);
+  }
+
+  subjectInput.addEventListener("input", onSubjectChange);
+
+  // On page load: if subject is pre-filled, fetch visits
+  if (subjectInput.value.trim()) {
+    loadVisits(subjectInput.value.trim());
+  } else {
+    setVisitDisabled(true);
+  }
+})();
+</script>
+{% endblock extra-scripts-bottom %}
