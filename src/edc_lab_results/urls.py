@@ -2,6 +2,7 @@ from django.urls.conf import path
 
 from .admin_site import edc_lab_results_admin
 from .views import (
+    DeleteUploadView,
     HomeView,
     OrderDetailView,
     SubjectResultsView,
@@ -27,6 +28,11 @@ urlpatterns = [
         "upload/",
         UploadView.as_view(),
         name="upload",
+    ),
+    path(
+        "upload/delete/<uuid:pk>/",
+        DeleteUploadView.as_view(),
+        name="delete-upload",
     ),
     path(
         "api/visits-for-subject/",

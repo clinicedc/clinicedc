@@ -47,6 +47,7 @@
         <th>Uploaded</th>
         <th>Imported</th>
         <th>Error</th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
@@ -58,6 +59,16 @@
         <td>{{ upload.uploaded_datetime }}</td>
         <td>{{ upload.imported_datetime|default:"-" }}</td>
         <td><small>{{ upload.error_message|default:"-"|truncatewords:20 }}</small></td>
+        <td>
+          {% if upload.status == "pending" %}
+          <form method="post" action="{% url 'edc_lab_results:delete-upload' pk=upload.pk %}"
+                style="display:inline;"
+                onsubmit="return confirm('Remove {{ upload.original_filename }}?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-xs">Remove</button>
+          </form>
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
