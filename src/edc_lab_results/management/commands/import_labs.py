@@ -92,8 +92,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--laboratory",
             dest="laboratory",
-            required=True,
-            help="Laboratory name (e.g. 'MNH').",
+            default=None,
+            help="Laboratory name (e.g. 'MNH'). Required except for --show-pending.",
         )
         parser.add_argument(
             "--output",
@@ -118,12 +118,43 @@ class Command(BaseCommand):
             default=False,
             help="Process all pending uploaded files instead of a folder.",
         )
+        parser.add_argument(
+            "--show-pending",
+            action="store_true",
+            dest="show_pending",
+            default=False,
+            help="List all pending uploaded files and exit.",
+        )
 
     def handle(self, *args, **options) -> None:  # noqa: ARG002
-        if options["pending"]:
+        if options["show_pending"]:
+            self._handle_show_pending()
+        elif options["pending"]:
             self._handle_pending(options)
         else:
             self._handle_folder(options)
+
+    def _handle_show_pending(self) -> None:
+        pending_files = UploadedResultFile.objects.filter(status="pending")
+        count = pending_files.count()
+        if not count:
+            self.stdout.write("No pending files.")
+            return
+        self.stdout.write(f"{count} pending file(s):\n")
+        for upload in pending_files:
+            self.stdout.write(
+                f"  {upload.original_filename}  "
+                f"(stored as {upload.stored_filename}, "
+                f"uploaded {upload.uploaded_datetime:%Y-%m-%d %H:%M} "
+                f"by {upload.uploaded_by.username})"
+            )
+
+    @staticmethod
+    def _require_laboratory(options: dict) -> str:
+        laboratory = options.get("laboratory")
+        if not laboratory:
+            raise CommandError("--laboratory is required.")
+        return laboratory
 
     def _handle_folder(self, options: dict) -> None:
         folder_arg = options.get("folder")
@@ -132,7 +163,7 @@ class Command(BaseCommand):
                 "A folder path is required unless --pending is used."
             )
         folder = Path(folder_arg).expanduser()
-        laboratory = options["laboratory"]
+        laboratory = self._require_laboratory(options)
         output_path = (
             Path(options["output"]).expanduser()
             if options["output"]
@@ -170,7 +201,7 @@ class Command(BaseCommand):
         pending_dir = base_dir / "pending"
         processed_dir = base_dir / "processed"
 
-        laboratory = options["laboratory"]
+        laboratory = self._require_laboratory(options)
         prompt_func = _make_prompt_func(self.stdout, self.style)
         tz = ZoneInfo(settings.TIME_ZONE)
 
