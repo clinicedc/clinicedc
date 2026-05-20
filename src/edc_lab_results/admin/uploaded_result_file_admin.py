@@ -1,11 +1,27 @@
 from django.contrib import admin
+from django_audit_fields.admin import ModelAdminAuditFieldsMixin
+from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
+
+from edc_model_admin.mixins import (
+    ModelAdminInstitutionMixin,
+    TemplatesModelAdminMixin,
+)
 
 from ..admin_site import edc_lab_results_admin
 from ..models import UploadedResultFile
 
 
 @admin.register(UploadedResultFile, site=edc_lab_results_admin)
-class UploadedResultFileAdmin(admin.ModelAdmin):
+class UploadedResultFileAdmin(
+    TemplatesModelAdminMixin,
+    ModelAdminRevisionMixin,
+    ModelAdminInstitutionMixin,
+    ModelAdminAuditFieldsMixin,
+    admin.ModelAdmin,
+):
+    date_hierarchy = "modified"
+    empty_value_display = "-"
+
     list_display = (
         "original_filename",
         "stored_filename",
