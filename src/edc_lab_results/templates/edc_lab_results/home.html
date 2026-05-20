@@ -1,0 +1,28 @@
+{% extends 'edc_dashboard/base.html' %}
+{% load static %}
+
+{% block main %}
+
+{{ block.super }}
+
+  <div class="col-sm-4">&nbsp;</div>
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading"><i class="fas fa-flask fa-lg fa-fw"></i> Lab Results</div>
+      <div class="list-group">
+        <a href="{% url 'home_url' %}" class="list-group-item">
+          <i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+        <a href="{% url 'edc_lab_results:upload' %}" class="list-group-item">
+          <i class="fas fa-upload fa-1x fa-fw" aria-hidden="true"></i> Upload Lab Result PDFs</a>
+        <a href="{% url 'edc_lab_results:subject-results' %}" class="list-group-item">
+          <i class="fas fa-search fa-1x fa-fw" aria-hidden="true"></i> Subject / Order Lookup</a>
+        <a href="{% url 'edc_lab_results_admin:edc_lab_results_result_changelist' %}" class="list-group-item">
+          <i class="fas fa-table fa-1x fa-fw" aria-hidden="true"></i> Results</a>
+        <a href="{% url 'edc_lab_results_admin:edc_lab_results_investigationmapping_changelist' %}" class="list-group-item">
+          <i class="fas fa-exchange-alt fa-1x fa-fw" aria-hidden="true"></i> Investigation Mappings</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-4">&nbsp;</div>
+
+{% endblock main %}

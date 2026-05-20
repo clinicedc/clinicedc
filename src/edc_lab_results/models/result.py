@@ -5,6 +5,42 @@ from edc_model.models import BaseUuidModel
 
 
 class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
+    screening_identifier = models.CharField(
+        max_length=50,
+        blank=True,
+        default="",
+        help_text="Screening identifier resolved from name_id.",
+    )
+
+    subject_not_found = models.BooleanField(
+        default=False,
+        help_text=(
+            "True if name_id could not be resolved to a "
+            "subject_identifier or screening_identifier."
+        ),
+    )
+
+    visit_code = models.CharField(
+        max_length=25,
+        blank=True,
+        default="",
+        help_text="Visit code from the linked SubjectRequisition.",
+    )
+
+    visit_code_sequence = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Visit code sequence from the linked SubjectRequisition.",
+    )
+
+    requisition_ambiguous = models.BooleanField(
+        default=False,
+        help_text=(
+            "True if multiple SubjectRequisitions matched on the same day. "
+            "Requires manual review."
+        ),
+    )
+
     source_file = models.CharField(max_length=200, blank=True, default="")
 
     report_datetime = models.DateTimeField(null=True, blank=True)
