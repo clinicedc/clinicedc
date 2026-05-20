@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 
 from ...models import Result
 from ...transcribe import transcribe_results
-from ...transcribe.discovery import discover_crf_models
+from ...transcribe.discovery import build_utest_to_panel_map, discover_crf_models
 
 
 class Command(BaseCommand):
@@ -63,7 +63,7 @@ class Command(BaseCommand):
         self.stdout.write(f"\n[{mode}] Processing {count} result(s)...\n")
 
         if self.verbose:
-            self._print_discovered_crfs()
+            self._print_discovered_crfs(qs)
 
         summary = transcribe_results(qs, dry_run=dry_run)
         self._print_summary(summary, dry_run)
@@ -94,14 +94,41 @@ class Command(BaseCommand):
         )
         return None
 
-    def _print_discovered_crfs(self) -> None:
+    def _print_discovered_crfs(self, qs: object) -> None:
         crf_models = discover_crf_models()
+        utest_to_panel = build_utest_to_panel_map(crf_models)
+
         self.stdout.write("--- Discovered CRF models ---")
         for panel_name, info in sorted(crf_models.items()):
             verbose_name = info.model._meta.verbose_name  # noqa: SLF001
             utest_ids = ", ".join(info.utest_ids) if info.utest_ids else "(none)"
             self.stdout.write(f"  {verbose_name} [{panel_name}]")
             self.stdout.write(f"    utest_ids: {utest_ids}")
+
+        # Identify which CRFs match the results being processed
+        result_utest_ids = set(
+            qs.filter(utest_id__gt="").values_list("utest_id", flat=True).distinct()
+        )
+        matched_panels: dict[str, list[str]] = {}
+        unmatched: list[str] = []
+        for utest_id in sorted(result_utest_ids):
+            panel_name = utest_to_panel.get(utest_id)
+            if panel_name:
+                matched_panels.setdefault(panel_name, []).append(utest_id)
+            else:
+                unmatched.append(utest_id)
+
+        self.stdout.write("\n--- Selected CRF for this run ---")
+        if matched_panels:
+            for panel_name, utest_ids in sorted(matched_panels.items()):
+                info = crf_models[panel_name]
+                verbose_name = info.model._meta.verbose_name  # noqa: SLF001
+                self.stdout.write(f"  {verbose_name} [{panel_name}]")
+                self.stdout.write(f"    matched utest_ids: {', '.join(utest_ids)}")
+        else:
+            self.stdout.write("  (none)")
+        if unmatched:
+            self.stdout.write(f"  unmatched utest_ids: {', '.join(unmatched)}")
         self.stdout.write("")
 
     def _print_summary(self, summary: object, dry_run: bool) -> None:
