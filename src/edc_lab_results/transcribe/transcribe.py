@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from typing import TYPE_CHECKING
 
 from clinicedc_constants import NO, NOT_APPLICABLE
@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db.models import QuerySet
 from django.utils import timezone
 
+from ..models import Result as ResultModel
 from .discovery import CrfInfo, build_utest_to_panel_map, discover_crf_models
 from .summary import TranscribeDetail, TranscribeSummary
 
@@ -22,6 +23,23 @@ logger = logging.getLogger(__name__)
 
 class TranscribeError(Exception):
     pass
+
+
+def _round_to_field_precision(
+    value: Decimal,
+    model: type,
+    field_name: str,
+) -> Decimal:
+    """Round a Decimal to the decimal_places defined on the model field."""
+    try:
+        field = model._meta.get_field(field_name)  # noqa: SLF001
+        dp = field.decimal_places
+    except Exception:  # noqa: BLE001
+        return value
+    if dp is None:
+        return value
+    quantize_str = Decimal(10) ** -dp
+    return value.quantize(quantize_str, rounding=ROUND_HALF_UP)
 
 
 def _get_result_value(result: Result) -> tuple[Decimal | None, str]:
@@ -118,17 +136,22 @@ def _transcribe_to_crf(
             )
             continue
 
+        # Round imported value to match the CRF field's decimal_places
+        rounded_value = _round_to_field_precision(
+            imported_value, type(crf), value_field
+        )
+
         existing_value = getattr(crf, value_field, None)
         existing_units = getattr(crf, units_field, "") or ""
 
         if existing_value is not None:
-            if existing_value == imported_value:
+            if existing_value == rounded_value:
                 summary.add(
                     _make_detail(
                         result,
                         panel_name,
                         "already_correct",
-                        imported_value=imported_value,
+                        imported_value=rounded_value,
                         imported_units=imported_units,
                         existing_value=existing_value,
                         existing_units=existing_units,
@@ -140,13 +163,13 @@ def _transcribe_to_crf(
                         result,
                         panel_name,
                         "discrepancy",
-                        imported_value=imported_value,
+                        imported_value=rounded_value,
                         imported_units=imported_units,
                         existing_value=existing_value,
                         existing_units=existing_units,
                         message=(
                             f"Existing={existing_value} {existing_units}, "
-                            f"Imported={imported_value} {imported_units}"
+                            f"Imported={rounded_value} {imported_units}"
                         ),
                     )
                 )
@@ -154,7 +177,7 @@ def _transcribe_to_crf(
 
         # Field is blank — transcribe
         if not dry_run:
-            setattr(crf, value_field, imported_value)
+            setattr(crf, value_field, rounded_value)
             if imported_units and hasattr(crf, units_field):
                 setattr(crf, units_field, imported_units)
         modified = True
@@ -163,7 +186,7 @@ def _transcribe_to_crf(
                 result,
                 panel_name,
                 "transcribed",
-                imported_value=imported_value,
+                imported_value=rounded_value,
                 imported_units=imported_units,
             )
         )
@@ -310,8 +333,6 @@ def transcribe_results(
                     summary.crf_created += 1
                 # Mark results as transcribed
                 result_pks = [r.pk for r in panel_results if r.utest_id]
-                from ..models import Result as ResultModel
-
                 ResultModel.objects.filter(
                     pk__in=result_pks,
                     transcribed_datetime__isnull=True,
