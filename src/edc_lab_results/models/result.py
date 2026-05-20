@@ -147,6 +147,12 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         blank=True,
     )
 
+    transcribed_datetime = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Set when this result has been transcribed onto a CRF.",
+    )
+
     def __str__(self):
         return f"{self.result_no}: {self.utest_id} {self.result_value} {self.units}"
 
