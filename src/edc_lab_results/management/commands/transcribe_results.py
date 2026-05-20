@@ -35,6 +35,11 @@ class Command(BaseCommand):
             action="store_true",
             help="Report what would be done without saving.",
         )
+        parser.add_argument(
+            "--verbose",
+            action="store_true",
+            help="Show details for all results including skipped.",
+        )
 
     def handle(self, **options: object) -> None:
         order_no = options["order_no"]
@@ -42,6 +47,7 @@ class Command(BaseCommand):
         visit_code = options["visit_code"]
         all_pending = options["all_pending"]
         dry_run = options["dry_run"]
+        self.verbose = options["verbose"]
 
         qs = self._build_queryset(order_no, subject_identifier, visit_code, all_pending)
         if qs is None:
@@ -101,6 +107,32 @@ class Command(BaseCommand):
                     f"  {d.subject_identifier} {d.visit_code}.{d.visit_code_sequence} "
                     f"{d.panel_name}/{d.utest_id}: {d.message}"
                 )
+
+        if self.verbose:
+            skipped = [d for d in summary.details if d.status == "skipped"]
+            if skipped:
+                self.stdout.write("\n--- Skipped ---")
+                for d in skipped:
+                    self.stdout.write(
+                        f"  {d.subject_identifier} {d.visit_code}.{d.visit_code_sequence} "
+                        f"{d.panel_name}/{d.utest_id}: {d.message}"
+                    )
+            correct = [d for d in summary.details if d.status == "already_correct"]
+            if correct:
+                self.stdout.write("\n--- Already correct ---")
+                for d in correct:
+                    self.stdout.write(
+                        f"  {d.subject_identifier} {d.visit_code}.{d.visit_code_sequence} "
+                        f"{d.panel_name}/{d.utest_id}: {d.imported_value} {d.imported_units}"
+                    )
+            transcribed = [d for d in summary.details if d.status == "transcribed"]
+            if transcribed:
+                self.stdout.write("\n--- Transcribed ---")
+                for d in transcribed:
+                    self.stdout.write(
+                        f"  {d.subject_identifier} {d.visit_code}.{d.visit_code_sequence} "
+                        f"{d.panel_name}/{d.utest_id}: {d.imported_value} {d.imported_units}"
+                    )
 
         if dry_run:
             self.stdout.write("\n(Dry run — no changes saved.)\n")
