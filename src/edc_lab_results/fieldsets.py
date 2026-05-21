@@ -119,7 +119,7 @@ class BloodResultFieldset:
                 try:
                     getattr(self.model_cls, field)
                 except AttributeError as e:
-                    raise BloodResultFieldsetError(f"{e}. See {self}")
+                    raise BloodResultFieldsetError(f"{e}. See {self}") from e
 
         return (
             title,

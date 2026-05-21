@@ -5,7 +5,7 @@ from collections import defaultdict
 from decimal import ROUND_HALF_UP, Decimal
 from typing import TYPE_CHECKING
 
-from clinicedc_constants import NO, NOT_APPLICABLE
+from clinicedc_constants import CRF_ISSUE_DETECTED, NO, NOT_APPLICABLE
 from django.apps import apps
 from django.conf import settings
 from django.db.models import QuerySet
@@ -32,9 +32,9 @@ def _round_to_field_precision(
 ) -> Decimal:
     """Round a Decimal to the decimal_places defined on the model field."""
     try:
-        field = model._meta.get_field(field_name)  # noqa: SLF001
+        field = model._meta.get_field(field_name)
         dp = field.decimal_places
-    except Exception:  # noqa: BLE001
+    except Exception:
         return value
     if dp is None:
         return value
@@ -93,6 +93,20 @@ def _create_crf_instance(
         results_reportable=NOT_APPLICABLE,
     )
     return crf
+
+
+def _flag_discrepancy(crf: object, line: str) -> None:
+    """Flag the CRF and append a discrepancy line, avoiding duplicates."""
+    if not hasattr(crf, "crf_status_comments"):
+        return
+    crf.crf_status = CRF_ISSUE_DETECTED
+    existing = crf.crf_status_comments or ""
+    existing_lines = set(existing.splitlines())
+    if line not in existing_lines:
+        if existing.strip():
+            crf.crf_status_comments = f"{existing.rstrip()}\n{line}"
+        else:
+            crf.crf_status_comments = line
 
 
 def _transcribe_to_crf(
@@ -158,6 +172,10 @@ def _transcribe_to_crf(
                     )
                 )
             else:
+                discrepancy_msg = (
+                    f"Existing={existing_value} {existing_units}, "
+                    f"Imported={rounded_value} {imported_units}"
+                )
                 summary.add(
                     _make_detail(
                         result,
@@ -167,12 +185,15 @@ def _transcribe_to_crf(
                         imported_units=imported_units,
                         existing_value=existing_value,
                         existing_units=existing_units,
-                        message=(
-                            f"Existing={existing_value} {existing_units}, "
-                            f"Imported={rounded_value} {imported_units}"
-                        ),
+                        message=discrepancy_msg,
                     )
                 )
+                # Flag the CRF with a discrepancy comment
+                comment_line = (
+                    f"{panel_name}/{utest_id}: {discrepancy_msg}"
+                )
+                _flag_discrepancy(crf, comment_line)
+                modified = True
             continue
 
         # Field is blank — transcribe
@@ -193,6 +214,50 @@ def _transcribe_to_crf(
     return modified
 
 
+_VENDOR_FIELD_MAP: dict[str, str] = {
+    "laboratory_id": "laboratory",
+    "order_number": "order_no",
+    "order_datetime": "order_datetime",
+    "result_number": "result_no",
+    "result_datetime": "result_datetime",
+    "specimen_number": "sample_no",
+    "specimen_received_datetime": "specimen_received_datetime",
+}
+
+
+def _update_requisition_vendor_fields(
+    requisition: object,
+    results: list[Result],
+) -> None:
+    """Populate blank vendor fields on the requisition from imported results.
+
+    Only sets fields that are currently empty/null. Uses the first
+    non-empty value found across the results in the group.
+    """
+    ref = results[0] if results else None
+    if not ref:
+        return
+    updated_fields: list[str] = []
+    for req_field, result_attr in _VENDOR_FIELD_MAP.items():
+        if not hasattr(requisition, req_field):
+            continue
+        current = getattr(requisition, req_field, None)
+        if current not in (None, ""):
+            continue
+        value = next(
+            (getattr(r, result_attr) for r in results if getattr(r, result_attr, None)),
+            None,
+        )
+        if value is not None:
+            setattr(requisition, req_field, value)
+            updated_fields.append(req_field)
+    if not requisition.resulted:
+        requisition.resulted = True
+        updated_fields.append("resulted")
+    if updated_fields:
+        requisition.save(update_fields=updated_fields)
+
+
 def transcribe_results(
     results_qs: QuerySet,
     *,
@@ -210,8 +275,8 @@ def transcribe_results(
     crf_models = discover_crf_models()
     utest_to_panel = build_utest_to_panel_map(crf_models)
 
-    SubjectVisit = apps.get_model(settings.SUBJECT_VISIT_MODEL)  # noqa: N806
-    SubjectRequisition = apps.get_model(  # noqa: N806
+    SubjectVisit = apps.get_model(settings.SUBJECT_VISIT_MODEL)
+    SubjectRequisition = apps.get_model(
         settings.SUBJECT_REQUISITION_MODEL
     )
 
@@ -327,15 +392,32 @@ def transcribe_results(
                 crf, panel_results, panel_name, summary, dry_run
             )
 
-            if not dry_run and (modified or created):
-                crf.save()
-                if created:
-                    summary.crf_created += 1
-                # Mark results as transcribed
-                result_pks = [r.pk for r in panel_results if r.utest_id]
-                ResultModel.objects.filter(
-                    pk__in=result_pks,
-                    transcribed_datetime__isnull=True,
-                ).update(transcribed_datetime=now)
+            if not dry_run:
+                if modified or created:
+                    crf.save()
+                    if created:
+                        summary.crf_created += 1
+                    # Reset clinic verification if CRF values were changed
+                    if (
+                        modified
+                        and hasattr(requisition, "clinic_verified")
+                        and requisition.clinic_verified != NO
+                    ):
+                        requisition.clinic_verified = NO
+                        requisition.clinic_verified_datetime = None
+                        requisition.save(
+                            update_fields=[
+                                "clinic_verified",
+                                "clinic_verified_datetime",
+                            ]
+                        )
+                    # Mark results as transcribed
+                    result_pks = [r.pk for r in panel_results if r.utest_id]
+                    ResultModel.objects.filter(
+                        pk__in=result_pks,
+                        transcribed_datetime__isnull=True,
+                    ).update(transcribed_datetime=now)
+                # Always update requisition vendor fields
+                _update_requisition_vendor_fields(requisition, panel_results)
 
     return summary

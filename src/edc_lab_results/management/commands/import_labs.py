@@ -1,6 +1,6 @@
 """Import lab results from a folder of PDF files.
 
-The parser is resolved from the EDC_LAB_PARSERS setting,
+The parser is resolved from the EDC_LAB_RESULTS_PARSERS setting,
 keyed by laboratory name.
 
 Usage::

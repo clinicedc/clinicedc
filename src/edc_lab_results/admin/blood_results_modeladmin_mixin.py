@@ -1,5 +1,7 @@
+from edc_crf.modeladmin_mixins import CrfStatusModelAdminMixin
+
 from .reportable_results_modeladmin_mixin import ReportableResultsModelAdminMixin
 
 
-class BloodResultsModelAdminMixin(ReportableResultsModelAdminMixin):
+class BloodResultsModelAdminMixin(CrfStatusModelAdminMixin, ReportableResultsModelAdminMixin):
     pass

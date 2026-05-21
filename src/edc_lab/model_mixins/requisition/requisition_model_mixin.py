@@ -25,6 +25,7 @@ from ...managers import RequisitionManager
 from ..panel_model_mixin import PanelModelMixin
 from .requisition_identifier_mixin import RequisitionIdentifierMixin
 from .requisition_status_mixin import RequisitionStatusMixin
+from .requisition_vendor_model_mixin import RequisitionVendorModelMixin
 from .requisition_verify_model_mixin import RequisitionVerifyModelMixin
 
 
@@ -36,6 +37,7 @@ class RequisitionModelMixin(
     PreviousVisitModelMixin,
     RequiresConsentFieldsModelMixin,
     RequisitionIdentifierMixin,
+    RequisitionVendorModelMixin,
     RequisitionStatusMixin,
     RequisitionVerifyModelMixin,
     SearchSlugModelMixin,

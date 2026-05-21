@@ -41,6 +41,14 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         ),
     )
 
+    laboratory = models.CharField(
+        verbose_name="Laboratory",
+        max_length=25,
+        blank=True,
+        default="",
+        help_text="Laboratory identifier (e.g. MNH) from --laboratory flag.",
+    )
+
     source_file = models.CharField(max_length=200, blank=True, default="")
 
     report_datetime = models.DateTimeField(null=True, blank=True)

@@ -25,7 +25,7 @@ from ..models import UploadedResultFile
 
 
 def _get_laboratory_choices() -> list[tuple[str, str]]:
-    parsers: dict = getattr(settings, "EDC_LAB_PARSERS", {})
+    parsers: dict = getattr(settings, "EDC_LAB_RESULTS_PARSERS", {})
     return [(k, k) for k in sorted(parsers.keys())]
 
 
@@ -116,7 +116,7 @@ class ProcessPendingView(EdcViewMixin, NavbarViewMixin, TemplateView):
             NormalData.objects.values_list("label", flat=True).distinct()
         )
         default_mappings: dict = getattr(
-            settings, "EDC_LAB_DEFAULT_MAPPINGS", {}
+            settings, "EDC_LAB_RESULTS_DEFAULT_MAPPINGS", {}
         ).get(laboratory, {})
 
         investigations = sorted(df["investigation"].unique())

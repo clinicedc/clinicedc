@@ -32,7 +32,7 @@ class UploadView(EdcViewMixin, NavbarViewMixin, TemplateView):
         recent_uploads = UploadedResultFile.objects.all()[:50]
         pending_count = UploadedResultFile.objects.filter(status=PENDING).count()
 
-        parsers: dict = getattr(settings, "EDC_LAB_PARSERS", {})
+        parsers: dict = getattr(settings, "EDC_LAB_RESULTS_PARSERS", {})
         laboratory_choices = [(k, k) for k in sorted(parsers.keys())]
         default_laboratory = getattr(settings, "EDC_LAB_RESULTS_DEFAULT_LABORATORY", "")
 
