@@ -7,6 +7,7 @@ from .views import (
     OrderDetailView,
     ProcessPendingView,
     SubjectResultsView,
+    TranscribeOrderView,
     UploadView,
     VisitsForSubjectView,
 )
@@ -24,6 +25,11 @@ urlpatterns = [
         "results/order/<str:order_no>/",
         OrderDetailView.as_view(),
         name="order-detail",
+    ),
+    path(
+        "results/order/<str:order_no>/transcribe/",
+        TranscribeOrderView.as_view(),
+        name="transcribe-order",
     ),
     path(
         "upload/",

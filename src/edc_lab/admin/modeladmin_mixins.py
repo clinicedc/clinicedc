@@ -6,10 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from edc_lab.admin.fieldsets import (
-    requisition_identifier_fields,
-    requisition_verify_fields,
-)
+from edc_lab.admin.fieldsets import requisition_identifier_fields
 from edc_visit_tracking.utils import get_related_visit_model_cls
 
 
@@ -26,6 +23,7 @@ class RequisitionAdminMixin:
         "is_drawn": admin.VERTICAL,
         "reason_not_drawn": admin.VERTICAL,
         "item_type": admin.VERTICAL,
+        "clinic_verified": admin.VERTICAL,
     }
 
     search_fields: tuple[str, ...] = (
@@ -62,7 +60,13 @@ class RequisitionAdminMixin:
 
     def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
-        custom_fields = ("requisition_datetime", "site", "is_drawn", "panel")
+        custom_fields = (
+            "requisition_datetime",
+            "clinic_verified",
+            "site",
+            "is_drawn",
+            "panel",
+        )
         list_filter = tuple(f for f in list_filter if f not in custom_fields)
         return custom_fields + list_filter
 
@@ -81,9 +85,7 @@ class RequisitionAdminMixin:
 
     def get_readonly_fields(self, request, obj=None) -> tuple[str, ...]:
         readonly_fields = super().get_readonly_fields(request, obj=obj)
-        return tuple(
-            set(readonly_fields + requisition_identifier_fields + requisition_verify_fields)
-        )
+        return tuple(set(readonly_fields + requisition_identifier_fields))
 
     def get_changeform_initial_data(self, request) -> dict:
         initial_data = super().get_changeform_initial_data(request)

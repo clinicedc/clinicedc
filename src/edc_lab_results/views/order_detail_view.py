@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from django.apps import apps
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import TemplateView
 
+from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
@@ -46,6 +49,31 @@ class OrderDetailView(EdcViewMixin, NavbarViewMixin, TemplateView):
             return f"{first.visit_code}.{seq}"
         return ""
 
+    @staticmethod
+    def _get_subject_dashboard_url(first: Result) -> str:
+        """Return the subject dashboard URL for this result's appointment,
+        or empty string if not enough data to resolve."""
+        if not first.subject_identifier or not first.visit_code:
+            return ""
+        Appointment = apps.get_model("edc_appointment", "Appointment")  # noqa: N806
+        visit_code_sequence = first.visit_code_sequence or 0
+        try:
+            appointment = Appointment.objects.values("pk").get(
+                subject_identifier=first.subject_identifier,
+                visit_code=first.visit_code,
+                visit_code_sequence=visit_code_sequence,
+            )
+        except ObjectDoesNotExist:
+            return ""
+        dashboard_url_name = url_names.get("subject_dashboard_url")
+        return reverse(
+            dashboard_url_name,
+            kwargs={
+                "subject_identifier": first.subject_identifier,
+                "appointment": str(appointment.get("pk")),
+            },
+        )
+
     def get_context_data(self, **kwargs: object) -> dict:
         context = super().get_context_data(**kwargs)
         order_no = self.kwargs["order_no"]
@@ -70,6 +98,7 @@ class OrderDetailView(EdcViewMixin, NavbarViewMixin, TemplateView):
             results=results,
             form=form,
             initial_visit=self._initial_visit_value(first),
+            dashboard_url=self._get_subject_dashboard_url(first),
         )
         return context
 
@@ -90,9 +119,7 @@ class OrderDetailView(EdcViewMixin, NavbarViewMixin, TemplateView):
                 update_fields["subject_identifier"] = subject_identifier
                 update_fields["subject_not_found"] = False
                 update_fields["visit_code"] = form.cleaned_data["visit_code"]
-                update_fields["visit_code_sequence"] = form.cleaned_data[
-                    "visit_code_sequence"
-                ]
+                update_fields["visit_code_sequence"] = form.cleaned_data["visit_code_sequence"]
 
             updated = Result.objects.filter(order_no=order_no).update(**update_fields)
             messages.success(

@@ -43,6 +43,17 @@ requisition_identifier_fields: tuple[str, ...] = (
     "primary_aliquot_identifier",
 )
 
+requisition_vendor_fields: tuple[str, ...] = (
+    "resulted",
+    "laboratory_id",
+    "order_number",
+    "order_datetime",
+    "result_number",
+    "result_datetime",
+    "specimen_number",
+    "specimen_received_datetime",
+)
+
 requisition_identifier_fieldset: tuple[str, dict[str, tuple[str, ...]]] = (
     "Identifiers",
     {"classes": ("collapse",), "fields": requisition_identifier_fields},
@@ -50,5 +61,10 @@ requisition_identifier_fieldset: tuple[str, dict[str, tuple[str, ...]]] = (
 
 requisition_verify_fieldset: tuple[str, dict[str, tuple[str, ...]]] = (
     "Verification",
-    {"classes": ("collapse",), "fields": requisition_verify_fields},
+    {"fields": requisition_verify_fields},
+)
+
+requisition_vendor_fieldset: tuple[str, dict[str, tuple[str, ...]]] = (
+    "Vendor",
+    {"classes": ("collapse",), "fields": requisition_vendor_fields},
 )

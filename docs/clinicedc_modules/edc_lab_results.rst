@@ -198,7 +198,7 @@ Settings
 
 Two settings control the import behavior:
 
-``EDC_LAB_PARSERS``
+``EDC_LAB_RESULTS_PARSERS``
     A dict mapping laboratory names to dotted paths of parser callables. Each parser
     must accept ``(folder, *, tz=None)`` and return a ``pandas.DataFrame``.
 
@@ -206,11 +206,11 @@ Two settings control the import behavior:
 
         # settings.py
 
-        EDC_LAB_PARSERS = {
+        EDC_LAB_RESULTS_PARSERS = {
             "MNH": "parse_trial_labs.parse_folder",
         }
 
-``EDC_LAB_DEFAULT_MAPPINGS``
+``EDC_LAB_RESULTS_DEFAULT_MAPPINGS``
     A dict of dicts providing default investigation-to-utest_id mappings per laboratory.
     Used as best guesses during the interactive prompt when no saved mapping exists.
 
@@ -218,7 +218,7 @@ Two settings control the import behavior:
 
         # settings.py
 
-        EDC_LAB_DEFAULT_MAPPINGS = {
+        EDC_LAB_RESULTS_DEFAULT_MAPPINGS = {
             "MNH": {
                 "WBC": "wbc",
                 "RBC": "rbc",
@@ -248,11 +248,11 @@ At minimum: ``source_file``, ``name_id``, ``investigation``, ``result``, ``units
 ``flag``, ``reference_range_lower``, ``reference_range_upper``, and the various
 datetime and specimen metadata columns.
 
-Register the parser in ``EDC_LAB_PARSERS``:
+Register the parser in ``EDC_LAB_RESULTS_PARSERS``:
 
 .. code-block:: python
 
-    EDC_LAB_PARSERS = {
+    EDC_LAB_RESULTS_PARSERS = {
         "MNH": "parse_trial_labs.parsers.parse_mnh",
         "KCMC": "my_project.parsers.kcmc_parse_folder",
     }
@@ -270,7 +270,7 @@ Management Commands
         manage.py import_labs /path/to/pdf_folder --laboratory "MNH" --dry-run
         manage.py import_labs /path/to/pdf_folder --laboratory "MNH" --output results.csv
 
-    The ``--laboratory`` flag is required. It selects the parser from ``EDC_LAB_PARSERS``
+    The ``--laboratory`` flag is required. It selects the parser from ``EDC_LAB_RESULTS_PARSERS``
     and scopes the investigation mappings in ``InvestigationMapping``.
 
     On first run, the command prompts for each unknown investigation:

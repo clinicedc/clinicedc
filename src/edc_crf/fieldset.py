@@ -4,3 +4,8 @@ crf_status_fieldset = (
     _("CRF Status"),
     {"classes": ("collapse",), "fields": ["crf_status", "crf_status_comments"]},
 )
+
+crf_status_not_collapsed_fieldset = (
+    _("CRF Status"),
+    {"fields": ["crf_status", "crf_status_comments"]},
+)

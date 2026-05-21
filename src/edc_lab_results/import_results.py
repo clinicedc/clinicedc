@@ -193,7 +193,7 @@ class LabResultImporter:
     Parameters
     ----------
     laboratory
-        Laboratory name (key into ``EDC_LAB_PARSERS``).
+        Laboratory name (key into ``EDC_LAB_RESULTS_PARSERS``).
     prompt_func
         Optional callback ``(investigation, guess, laboratory) -> utest_id``
         called when an investigation has no saved mapping.  If *None*,
@@ -215,14 +215,14 @@ class LabResultImporter:
 
     def resolve_parser(self) -> Callable:
         """Return the parser callable for this laboratory."""
-        parsers: dict[str, str] = getattr(settings, "EDC_LAB_PARSERS", {})
+        parsers: dict[str, str] = getattr(settings, "EDC_LAB_RESULTS_PARSERS", {})
         dotted_path = parsers.get(self.laboratory)
         if not dotted_path:
             available = ", ".join(sorted(parsers.keys())) or "(none)"
             raise LabResultImportError(
                 f"No parser configured for laboratory '{self.laboratory}'. "
                 f"Available: {available}. "
-                f"Check EDC_LAB_PARSERS in settings."
+                f"Check EDC_LAB_RESULTS_PARSERS in settings."
             )
         module_path, func_name = dotted_path.rsplit(".", 1)
         try:
@@ -296,7 +296,7 @@ class LabResultImporter:
         """
         known_utest_ids = set(NormalData.objects.values_list("label", flat=True).distinct())
         default_mappings: dict[str, str] = getattr(
-            settings, "EDC_LAB_DEFAULT_MAPPINGS", {}
+            settings, "EDC_LAB_RESULTS_DEFAULT_MAPPINGS", {}
         ).get(self.laboratory, {})
 
         investigations = list(df["investigation"].unique())
@@ -445,8 +445,8 @@ class LabResultImporter:
             unrecognized_units=unrecognized_units,
         )
 
-    @staticmethod
     def _build_result(
+        self,
         unique_values: tuple[Any, ...],
         row: pd.Series,
         resolution: SubjectResolution,
@@ -457,6 +457,7 @@ class LabResultImporter:
         converted_units: str,
     ) -> Result:
         return Result(
+            laboratory=self.laboratory,
             order_no=unique_values[0],
             result_no=unique_values[1],
             sample_no=unique_values[2],
