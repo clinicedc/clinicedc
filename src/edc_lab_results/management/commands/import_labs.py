@@ -35,9 +35,7 @@ from edc_lab_results.models import UploadedResultFile
 def _make_prompt_func(stdout, style):
     """Return a prompt callback wired to the command's stdout/style."""
 
-    def prompt_func(
-        investigation: str, guess: str, laboratory: str
-    ) -> str:
+    def prompt_func(investigation: str, guess: str, laboratory: str) -> str:
         stdout.write("")
         stdout.write(style.WARNING(f"  Unknown investigation: {investigation}"))
 
@@ -45,15 +43,11 @@ def _make_prompt_func(stdout, style):
             if guess:
                 stdout.write(f"  Best guess: {guess}")
                 prompt = (
-                    f"  Enter utest_id for '{investigation}' "
-                    f"[{guess}] or 'u' for unknown: "
+                    f"  Enter utest_id for '{investigation}' [{guess}] or 'u' for unknown: "
                 )
             else:
                 stdout.write("  Best guess: (no match)")
-                prompt = (
-                    f"  Enter utest_id for '{investigation}' "
-                    f"or press Enter for unknown: "
-                )
+                prompt = f"  Enter utest_id for '{investigation}' or press Enter for unknown: "
 
             answer = input(prompt).strip().lower()
 
@@ -61,14 +55,11 @@ def _make_prompt_func(stdout, style):
                 return ""
             utest_id = guess if not answer and guess else answer
 
-            conflict = check_utest_id_conflict(
-                utest_id, investigation, laboratory
-            )
+            conflict = check_utest_id_conflict(utest_id, investigation, laboratory)
             if conflict:
                 stdout.write(
                     style.ERROR(
-                        f"  '{utest_id}' is already mapped to "
-                        f"'{conflict}'. Try again."
+                        f"  '{utest_id}' is already mapped to '{conflict}'. Try again."
                     )
                 )
                 guess = ""
@@ -99,10 +90,7 @@ class Command(BaseCommand):
             "--output",
             dest="output",
             default=None,
-            help=(
-                "Output CSV path. Defaults to lab_results.csv "
-                "inside the PDF folder."
-            ),
+            help=("Output CSV path. Defaults to lab_results.csv inside the PDF folder."),
         )
         parser.add_argument(
             "--dry-run",
@@ -159,9 +147,7 @@ class Command(BaseCommand):
     def _handle_folder(self, options: dict) -> None:
         folder_arg = options.get("folder")
         if not folder_arg:
-            raise CommandError(
-                "A folder path is required unless --pending is used."
-            )
+            raise CommandError("A folder path is required unless --pending is used.")
         folder = Path(folder_arg).expanduser()
         laboratory = self._require_laboratory(options)
         output_path = (
@@ -171,9 +157,7 @@ class Command(BaseCommand):
         )
 
         prompt_func = _make_prompt_func(self.stdout, self.style)
-        importer = LabResultImporter(
-            laboratory, prompt_func=prompt_func
-        )
+        importer = LabResultImporter(laboratory, prompt_func=prompt_func)
 
         try:
             tz = ZoneInfo(settings.TIME_ZONE)
@@ -212,9 +196,7 @@ class Command(BaseCommand):
                 upload.error_message = f"File not found: {source}"
                 upload.save(update_fields=["status", "error_message"])
                 self.stdout.write(
-                    self.style.ERROR(
-                        f"  {upload.original_filename}: file not found"
-                    )
+                    self.style.ERROR(f"  {upload.original_filename}: file not found")
                 )
                 continue
 
@@ -235,29 +217,20 @@ class Command(BaseCommand):
                     )
                     self.stdout.write(
                         self.style.WARNING(
-                            f"    {upload.original_filename}: "
-                            f"no results extracted"
+                            f"    {upload.original_filename}: no results extracted"
                         )
                     )
                 else:
-                    self._import_dataframe(
-                        importer, df, laboratory, options
-                    )
+                    self._import_dataframe(importer, df, laboratory, options)
                     upload.status = "imported"
                     upload.imported_datetime = timezone.now()
-                    upload.save(
-                        update_fields=["status", "imported_datetime"]
-                    )
+                    upload.save(update_fields=["status", "imported_datetime"])
                 shutil.move(str(source), str(processed_dir / upload.stored_filename))
             except Exception as e:
                 upload.status = "error"
                 upload.error_message = str(e)
                 upload.save(update_fields=["status", "error_message"])
-                self.stdout.write(
-                    self.style.ERROR(
-                        f"    {upload.original_filename}: {e}"
-                    )
-                )
+                self.stdout.write(self.style.ERROR(f"    {upload.original_filename}: {e}"))
 
         self.stdout.write(self.style.SUCCESS("Pending files processed."))
 
@@ -269,8 +242,7 @@ class Command(BaseCommand):
         options: dict,
     ) -> None:
         self.stdout.write(
-            f"Resolving investigation mappings for "
-            f"laboratory '{laboratory}' ..."
+            f"Resolving investigation mappings for laboratory '{laboratory}' ..."
         )
         mapping_summary = importer.resolve_mappings(df)
         self.stdout.write(
@@ -281,8 +253,7 @@ class Command(BaseCommand):
         if mapping_summary.not_in_reportable:
             self.stdout.write(
                 self.style.WARNING(
-                    "The following utest_ids are NOT in "
-                    "reportable normal data:"
+                    "The following utest_ids are NOT in reportable normal data:"
                 )
             )
             for inv, uid in mapping_summary.not_in_reportable:
@@ -290,19 +261,14 @@ class Command(BaseCommand):
 
         if options["dry_run"]:
             self.stdout.write(
-                self.style.WARNING(
-                    f"Dry run: {len(df)} results parsed, not saved."
-                )
+                self.style.WARNING(f"Dry run: {len(df)} results parsed, not saved.")
             )
             return
 
-        save_summary = importer.save_results(
-            df, mapping_summary.utest_map
-        )
+        save_summary = importer.save_results(df, mapping_summary.utest_map)
 
         msg = (
-            f"Created {save_summary.created} results from "
-            f"{df['source_file'].nunique()} files."
+            f"Created {save_summary.created} results from {df['source_file'].nunique()} files."
         )
         if save_summary.skipped:
             msg += f" Skipped {save_summary.skipped} duplicates."
