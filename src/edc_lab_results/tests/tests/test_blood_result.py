@@ -2,6 +2,7 @@ from clinicedc_constants import (
     FEMALE,
     GRADE3,
     GRAMS_PER_DECILITER,
+    INCOMPLETE,
     NO,
     NOT_APPLICABLE,
     PERCENT,
@@ -46,7 +47,11 @@ class TestBloodResult(TestCase):
             panel=panel,
             requisition_datetime=subject_visit.report_datetime,
         )
-        self.data = dict(subject_visit=subject_visit, requisition=requisition)
+        self.data = dict(
+            subject_visit=subject_visit,
+            requisition=requisition,
+            crf_status=INCOMPLETE,
+        )
 
     def test_ok(self):
         BloodResultsFbc.objects.create(**self.data)
