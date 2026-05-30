@@ -4,6 +4,7 @@ from clinicedc_constants import (
     GRADE3,
     GRADE4,
     GRAMS_PER_DECILITER,
+    INCOMPLETE,
     NO,
     NOT_APPLICABLE,
     PERCENT,
@@ -70,6 +71,7 @@ class TestBloodResultForm(TestCase):
             results_reportable=NOT_APPLICABLE,
             results_abnormal=NO,
             site=Site.objects.get(id=settings.SITE_ID),
+            crf_status=INCOMPLETE,
         )
 
     @tag("lab_results1")
@@ -189,6 +191,7 @@ class TestBloodResultFormForPoc(TestCase):
             results_reportable=NOT_APPLICABLE,
             results_abnormal=NO,
             site=Site.objects.get(id=settings.SITE_ID),
+            crf_status=INCOMPLETE,
         )
 
     def test_is_poc_does_not_require_requisition(self):
