@@ -1,0 +1,107 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    <script>
+        $(document).ready(function() {
+            $('#bulk_stock_table').DataTable({
+                order: [[1, 'asc']],
+                pageLength: 25,
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                Bulk container report
+            </div>
+
+            {% if rows %}
+            <table id="bulk_stock_table" class="table table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        {% if PHARMACIST_ROLE in roles %}<th>Batch</th>{% endif %}
+                        <th>Date</th>
+                        {% if PHARMACIST_ROLE in roles %}<th>Assignment</th>{% endif %}
+                        <th>Formulation</th>
+                        <th>Container</th>
+                        <th>Location</th>
+                        <th style="text-align:right;">Unit Qty In</th>
+                        <th style="text-align:right;">Unit Qty Out</th>
+                        <th style="text-align:right;">Balance</th>
+                        <th style="text-align:center;">Repacks</th>
+                        <th>Ledger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    {% with s=row.stock %}
+                    <tr {% if row.balance < 0 %}style="color:#c00;"{% endif %}>
+                        <td>
+                            <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stock_change" s.pk %}">
+                                <code>{{ s.code }}</code>
+                            </a>
+                        </td>
+                        {% if PHARMACIST_ROLE in roles %}<td style="white-space:nowrap;">{{ s.lot.lot_no }}</td>{% endif %}
+                        <td style="white-space:nowrap;">{{ s.lot.expiration_date|date:"Y-m-d"|default:"—" }}</td>
+                        {% if PHARMACIST_ROLE in roles %}<td>{{ s.lot.assignment|default:"—" }}</td>{% endif %}
+                        <td>{{ s.product.formulation.imp_description|default:"—" }}</td>
+                        <td>{{ s.container|default:"—" }}</td>
+                        <td style="white-space:nowrap;">{{ s.location.display_name|default:"—" }}</td>
+                        <td style="text-align:right;">{{ row.unit_qty_in }}</td>
+                        <td style="text-align:right;">{{ row.unit_qty_out }}</td>
+                        <td style="text-align:right;">
+                            {% if row.balance == 0 %}
+                                <span class="label label-success">0</span>
+                            {% elif row.balance < 0 %}
+                                <span class="label label-danger">{{ row.balance }}</span>
+                            {% else %}
+                                {{ row.balance }}
+                            {% endif %}
+                        </td>
+                        <td style="text-align:center;">{{ row.repack_count }}</td>
+                        <td>
+                            <a href="{{ row.ledger_url }}">Ledger</a>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr style="font-weight:bold; border-top:2px solid #ddd;">
+                        <td colspan="{% if PHARMACIST_ROLE in roles %}7{% else %}5{% endif %}" style="text-align:right;">Total</td>
+                        <td style="text-align:right;">{{ totals.unit_qty_in }}</td>
+                        <td style="text-align:right;">{{ totals.unit_qty_out }}</td>
+                        <td style="text-align:right;">{{ totals.balance }}</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+            {% else %}
+                <p class="text-muted">No bulk containers found.</p>
+            {% endif %}
+
+            <p style="margin-top:8px;">
+                <a href="{% url "edc_pharmacy_admin:edc_pharmacy_stock_changelist" %}?from_stock__isnull=1">View in admin &rsaquo;</a>
+            </p>
+
+        </div>
+    </div>
+{% endblock main %}

@@ -97,19 +97,21 @@ class DispenseView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Template
 
         if location and formulation and rx and container_count:
             if stock_codes:
-                dispense_qs = dispense(
+                dispensed, already_dispensed, invalid = dispense(
                     stock_codes,
                     location,
                     rx,
                     request.user.username,
                     request,
                 )
-                if dispense_qs:
+                if dispensed:
                     messages.add_message(
                         self.request,
                         messages.SUCCESS,
-                        f"Dispensed {dispense_qs.count()} item.",
+                        f"Dispensed {len(dispensed)} item(s).",
                     )
+                # already_dispensed and invalid emit their own ERROR
+                # messages from inside dispense(); no extra flash needed.
                 url = reverse(
                     "edc_pharmacy:dispense_url",
                     kwargs={

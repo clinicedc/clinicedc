@@ -1,6 +1,6 @@
 from __future__ import annotations  # noqa: I001
 
-from datetime import datetime
+from typing import TYPE_CHECKING
 
 import inflect
 from django.conf import settings
@@ -9,7 +9,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -18,9 +17,13 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
-from ..constants import CENTRAL_LOCATION
-from ..exceptions import StorageBinError
+from ..constants import CENTRAL_LOCATION, TXN_STORED
+from ..exceptions import InvalidTransitionError, StorageBinError
 from ..models import Stock, StorageBin, StorageBinItem
+from ..transaction_log import apply_transaction
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractUser
 
 p = inflect.engine()
 
@@ -28,11 +31,15 @@ p = inflect.engine()
 def update_bin(
     storage_bin: StorageBin,
     stock_codes: list[str],
-    user_created: str | None = None,
-    created: datetime | None = None,
-) -> tuple[list[str], list[str]]:
-    codes_created = []
-    codes_not_created = []
+    actor: AbstractUser | None = None,
+) -> tuple[list[str], list[str], list[str]]:
+    """Add stock codes to a storage bin via TXN_STORED.
+
+    Returns ``(codes_created, codes_already_stored, codes_invalid)``.
+    """
+    codes_created: list[str] = []
+    codes_already_stored: list[str] = []
+    codes_invalid: list[str] = []
     for code in stock_codes:
         if storage_bin.location.name == CENTRAL_LOCATION:
             opts = dict(
@@ -56,22 +63,20 @@ def update_bin(
         try:
             stock_obj = Stock.objects.get(**opts)
         except ObjectDoesNotExist:
-            stock_obj = None
-            codes_not_created.append(code)
-        if stock_obj:
-            try:
-                StorageBinItem.objects.get(stock=stock_obj)
-            except ObjectDoesNotExist:
-                StorageBinItem.objects.create(
-                    stock=stock_obj,
-                    storage_bin=storage_bin,
-                    user_created=user_created,
-                    created=created,
-                )
-                codes_created.append(code)
-            else:
-                codes_not_created.append(code)
-    return codes_created, codes_not_created
+            codes_invalid.append(code)
+            continue
+        try:
+            apply_transaction(
+                stock_obj,
+                TXN_STORED,
+                actor,
+                storage_bin=storage_bin,
+            )
+        except InvalidTransitionError:
+            codes_already_stored.append(code)
+        else:
+            codes_created.append(code)
+    return codes_created, codes_already_stored, codes_invalid
 
 
 @method_decorator(login_required, name="dispatch")
@@ -188,9 +193,17 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
         if items_to_scan:
             items_to_scan = int(items_to_scan)
 
-        self.redirect_on_has_duplicates(stock_codes, storage_bin)
-        self.redirect_on_invalid_subject_for_location(stock_codes, storage_bin)
-        self.redirect_on_stock_already_in_bin(stock_codes, storage_bin)
+        # Each guard helper returns an HttpResponseRedirect or None;
+        # short-circuit on the first redirect so the guard actually fires.
+        redirect = self.redirect_on_has_duplicates(stock_codes, storage_bin)
+        if redirect:
+            return redirect
+        redirect = self.redirect_on_invalid_subject_for_location(stock_codes, storage_bin)
+        if redirect:
+            return redirect
+        redirect = self.redirect_on_stock_already_in_bin(stock_codes, storage_bin)
+        if redirect:
+            return redirect
         if items_to_scan and not stock_codes:
             url = reverse(
                 "edc_pharmacy:add_to_storage_bin_url",
@@ -202,11 +215,10 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
             return HttpResponseRedirect(url)
         if items_to_scan and stock_codes:
             try:
-                codes_created, codes_not_created = update_bin(
+                codes_created, codes_already_stored, codes_invalid = update_bin(
                     storage_bin,
                     stock_codes,
-                    user_created=request.user.username,
-                    created=timezone.now(),
+                    actor=request.user,
                 )
             except StorageBinError as e:
                 messages.add_message(request, messages.ERROR, str(e))
@@ -216,7 +228,8 @@ class AddToStorageBinView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, T
                     messages.SUCCESS,
                     (
                         f"Updated {p.no('stock item', len(codes_created))} to bin. "
-                        f"Skipped {len(codes_not_created)}."
+                        f"Already stored: {len(codes_already_stored)}. "
+                        f"Invalid: {len(codes_invalid)}."
                     ),
                 )
             return HttpResponseRedirect(self.storage_bin_changelist_url)

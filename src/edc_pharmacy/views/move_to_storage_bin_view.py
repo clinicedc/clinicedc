@@ -1,14 +1,24 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import inflect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 
+from ..constants import TXN_BIN_MOVED
+from ..exceptions import InvalidTransitionError
 from ..models import Stock, StorageBin, StorageBinItem
+from ..transaction_log import apply_transaction
 from .add_to_storage_bin_view import AddToStorageBinView, StorageBinError
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractUser
+    from django.http import HttpRequest
 
 p = inflect.engine()
 MAX_STORAGE_BIN_CAPACITY = 50
@@ -17,12 +27,20 @@ MAX_STORAGE_BIN_CAPACITY = 50
 def move_to_bin(
     storage_bin: StorageBin,
     stock_codes: list[str],
-    user_modified: str,
+    actor: AbstractUser,
     request: HttpRequest,
 ) -> tuple[list[str], list[str]]:
-    codes_moved = []
-    codes_not_moved = []
-    # update storage bin capacity
+    """Move scanned stock codes into ``storage_bin`` via TXN_BIN_MOVED.
+
+    Returns ``(codes_moved, codes_not_moved)``. Each successful move goes
+    through ``apply_transaction`` so the ledger is written and the
+    StorageBinItem replace (delete-old + create-new) happens inside
+    ``_apply_delta``.
+    """
+    codes_moved: list[str] = []
+    codes_not_moved: list[str] = []
+
+    # Capacity check (bin metadata; not stock state).
     new_capacity = StorageBinItem.objects.filter(storage_bin=storage_bin).count() + len(
         stock_codes
     )
@@ -33,13 +51,13 @@ def move_to_bin(
         )
     if new_capacity > storage_bin.capacity:
         storage_bin.capacity = new_capacity
-        storage_bin.save()
+        storage_bin.save(update_fields=["capacity"])
         messages.add_message(
             request,
             messages.INFO,
             f"Storage bin {storage_bin.name} capacity has been increased to {new_capacity}.",
         )
-    # try to move codes to target bin
+
     for code in stock_codes:
         try:
             stock_obj = Stock.objects.get(
@@ -51,19 +69,19 @@ def move_to_bin(
                 location=storage_bin.location,
             )
         except ObjectDoesNotExist:
-            stock_obj = None
             codes_not_moved.append(code)
-        if stock_obj:
-            try:
-                obj = StorageBinItem.objects.get(stock=stock_obj)
-            except ObjectDoesNotExist:
-                codes_not_moved.append(code)
-            else:
-                obj.storage_bin = storage_bin
-                obj.user_modified = user_modified
-                obj.modified = timezone.now()
-                obj.save()
-                codes_moved.append(code)
+            continue
+        try:
+            apply_transaction(
+                stock_obj,
+                TXN_BIN_MOVED,
+                actor,
+                storage_bin=storage_bin,
+            )
+        except InvalidTransitionError:
+            codes_not_moved.append(code)
+        else:
+            codes_moved.append(code)
     return codes_moved, codes_not_moved
 
 
@@ -100,8 +118,14 @@ class MoveToStorageBinView(AddToStorageBinView):
         if items_to_scan:
             items_to_scan = int(items_to_scan)
 
-        self.redirect_on_has_duplicates(stock_codes, storage_bin)
-        self.redirect_on_stock_not_already_in_a_bin(stock_codes, storage_bin)
+        # Each guard helper returns an HttpResponseRedirect or None;
+        # short-circuit on the first redirect so the guard actually fires.
+        redirect = self.redirect_on_has_duplicates(stock_codes, storage_bin)
+        if redirect:
+            return redirect
+        redirect = self.redirect_on_stock_not_already_in_a_bin(stock_codes, storage_bin)
+        if redirect:
+            return redirect
         if items_to_scan and not stock_codes:
             url = reverse(
                 "edc_pharmacy:move_to_storage_bin_url",
@@ -114,7 +138,7 @@ class MoveToStorageBinView(AddToStorageBinView):
         if items_to_scan and stock_codes:
             try:
                 codes_moved, codes_not_moved = move_to_bin(
-                    storage_bin, stock_codes, request.user.username, request
+                    storage_bin, stock_codes, request.user, request
                 )
             except StorageBinError as e:
                 messages.add_message(request, messages.ERROR, str(e))

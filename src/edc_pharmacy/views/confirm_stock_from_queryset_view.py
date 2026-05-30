@@ -16,7 +16,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..constants import ALREADY_CONFIRMED, INVALID
-from ..models import Stock
+from ..models import Order, Stock
 from ..utils import confirm_stock
 
 
@@ -76,6 +76,7 @@ class ConfirmStockFromQuerySetView(
                 last_stock_codes=last_stock_codes,
                 stock_codes=session_obj.get("stock_codes") or [],
                 total_stock_code_count=len(session_obj.get("stock_codes")),
+                return_url=session_obj.get("return_url"),
             )
         return session_data
 
@@ -134,6 +135,7 @@ class ConfirmStockFromQuerySetView(
                 None,
                 confirmed_by=request.user.username,
                 user_created=request.user.username,
+                actor=request.user,
             )
             if confirmed_codes:
                 messages.add_message(
@@ -174,9 +176,17 @@ class ConfirmStockFromQuerySetView(
                     source_label_lower=self.session_data.get("source_label_lower"),
                     source_model_name=self.session_data.get("source_model_name"),
                     stock_codes=self.session_data.get("stock_codes"),
+                    return_url=self.session_data.get("return_url"),
                 )
                 url = reverse("edc_pharmacy:confirm_stock_from_queryset_url", kwargs=kwargs)
             else:
                 self.request.session[self.kwargs.get("session_uuid")] = None
-                url = f"{self.source_changelist_url}?q="
+                return_url = self.session_data.get("return_url")
+                if return_url:
+                    url = return_url
+                else:
+                    order = Order.objects.get(receive__id=self.session_data.get("source_pk"))
+                    url = reverse(
+                        "edc_pharmacy:receive_order_url", kwargs={"order": str(order.id)}
+                    )
         return HttpResponseRedirect(url)

@@ -5,15 +5,16 @@ from django.utils.translation import gettext as _
 
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_export.admin import ExportMixinModelAdminMixin
+
+from .. import REQUIRED
+from ..admin_site import edc_metadata_admin
+from ..models import RequisitionMetadata
 from .list_filters import (
     RequisitionDocumentNameListFilter,
     VisitScheduleNameListFilter,
 )
 from .modeladmin_mixins import MetadataModelAdminMixin
 from .resources import RequisitionMetadataResource
-from .. import REQUIRED
-from ..admin_site import edc_metadata_admin
-from ..models import RequisitionMetadata
 
 
 @admin.register(RequisitionMetadata, site=edc_metadata_admin)

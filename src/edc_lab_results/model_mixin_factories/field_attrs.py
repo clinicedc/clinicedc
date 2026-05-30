@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from clinicedc_constants import EQ
+from clinicedc_constants.choices import GRADING_SCALE_WITH_NOT_GRADED, YES_NO
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from clinicedc_constants.choices import GRADING_SCALE_WITH_NOT_GRADED, YES_NO
 from edc_lab.choices import RESULT_QUANTIFIER
 from edc_reportable.choices import REPORTABLE
 

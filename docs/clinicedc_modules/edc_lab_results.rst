@@ -169,3 +169,130 @@ If all result models are prefixed with "bloodresult", you can filter on the path
                 else:
                     queryset = queryset.filter(subject_visit=subject_visit, is_drawn=YES)
             return queryset, use_distinct
+
+
+Importing External Lab Results
+------------------------------
+
+``edc_lab_results`` provides management commands and models to import lab results
+from external sources (e.g. PDF reports from a hospital laboratory) into the EDC.
+
+Models
+~~~~~~
+
+``Result``
+    Stores raw parsed lab data. Each row represents one investigation result from a PDF.
+    Fields include patient identifiers, specimen details, timestamps, result values,
+    units, flags, and reference ranges. A ``utest_id`` field links the result to the
+    EDC's internal test identifier. A ``subject_identifier`` field is resolved from
+    the ``name_id`` on the PDF via ``RegisteredSubject``.
+
+``InvestigationMapping``
+    Persists the mapping between a laboratory's investigation name (as printed on the PDF)
+    and the EDC ``utest_id``. Scoped by ``laboratory`` so the same investigation name can
+    map differently at different labs. An ``in_reportable`` boolean records whether the
+    ``utest_id`` exists in ``edc_reportable.NormalData``.
+
+Settings
+~~~~~~~~
+
+Two settings control the import behavior:
+
+``EDC_LAB_RESULTS_PARSERS``
+    A dict mapping laboratory names to dotted paths of parser callables. Each parser
+    must accept ``(folder, *, tz=None)`` and return a ``pandas.DataFrame``.
+
+    .. code-block:: python
+
+        # settings.py
+
+        EDC_LAB_RESULTS_PARSERS = {
+            "MNH": "parse_trial_labs.parse_folder",
+        }
+
+``EDC_LAB_RESULTS_DEFAULT_MAPPINGS``
+    A dict of dicts providing default investigation-to-utest_id mappings per laboratory.
+    Used as best guesses during the interactive prompt when no saved mapping exists.
+
+    .. code-block:: python
+
+        # settings.py
+
+        EDC_LAB_RESULTS_DEFAULT_MAPPINGS = {
+            "MNH": {
+                "WBC": "wbc",
+                "RBC": "rbc",
+                "HGB": "haemoglobin",
+                "CREATININE": "creatinine",
+                "CHOLESTEROL": "chol",
+                # ...
+            },
+        }
+
+Writing a Custom Parser
+~~~~~~~~~~~~~~~~~~~~~~~
+
+A parser is any callable with the signature:
+
+.. code-block:: python
+
+    def parse_folder(
+        folder: str | Path,
+        *,
+        tz: ZoneInfo | None = None,
+    ) -> pd.DataFrame:
+        ...
+
+The returned DataFrame must include columns matching the ``Result`` model fields.
+At minimum: ``source_file``, ``name_id``, ``investigation``, ``result``, ``units``,
+``flag``, ``reference_range_lower``, ``reference_range_upper``, and the various
+datetime and specimen metadata columns.
+
+Register the parser in ``EDC_LAB_RESULTS_PARSERS``:
+
+.. code-block:: python
+
+    EDC_LAB_RESULTS_PARSERS = {
+        "MNH": "parse_trial_labs.parsers.parse_mnh",
+        "KCMC": "my_project.parsers.kcmc_parse_folder",
+    }
+
+Management Commands
+~~~~~~~~~~~~~~~~~~~
+
+``import_labs``
+    Parses PDF files, resolves investigation mappings interactively, and saves
+    results to the database.
+
+    .. code-block:: bash
+
+        manage.py import_labs /path/to/pdf_folder --laboratory "MNH"
+        manage.py import_labs /path/to/pdf_folder --laboratory "MNH" --dry-run
+        manage.py import_labs /path/to/pdf_folder --laboratory "MNH" --output results.csv
+
+    The ``--laboratory`` flag is required. It selects the parser from ``EDC_LAB_RESULTS_PARSERS``
+    and scopes the investigation mappings in ``InvestigationMapping``.
+
+    On first run, the command prompts for each unknown investigation:
+
+    .. code-block:: text
+
+        Unknown investigation: CHOLESTEROL
+          Best guess: chol
+          Enter utest_id for 'CHOLESTEROL' [chol] or 'u' for unknown:
+
+    Accepted mappings are saved to ``InvestigationMapping`` and reused on subsequent runs.
+    The command also checks ``edc_reportable.NormalData`` and warns about mapped
+    ``utest_id`` values that have no normal range data.
+
+``update_mapping``
+    Updates an existing mapping and backfills the ``utest_id`` on all matching
+    ``Result`` rows.
+
+    .. code-block:: bash
+
+        manage.py update_mapping --laboratory "MNH" \
+            --investigation "ABS NEUTROPHIL" --utest-id "neutrophil"
+
+    Checks for conflicts (another investigation already mapped to the same
+    ``utest_id``) and refreshes the ``in_reportable`` flag.

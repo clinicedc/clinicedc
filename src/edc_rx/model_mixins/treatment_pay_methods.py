@@ -1,8 +1,7 @@
 from clinicedc_constants import UNKNOWN
+from clinicedc_constants.choices import YES_NO
 from django.core.validators import MinValueValidator
 from django.db import models
-
-from clinicedc_constants.choices import YES_NO
 
 
 class TreatmentPayMethodsModelMixin(models.Model):

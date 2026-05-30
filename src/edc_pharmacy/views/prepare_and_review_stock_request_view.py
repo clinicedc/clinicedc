@@ -32,7 +32,11 @@ class PrepareAndReviewStockRequestView(
 
     def get_context_data(self, **kwargs):
         stock_request = StockRequest.objects.get(pk=self.kwargs.get("stock_request"))
-        df = get_next_scheduled_visit_for_subjects_df(stock_request)
+        filter_opts = {}
+        for obj in stock_request.visit_schedules.all():
+            filter_opts.update(visit_schedule_name=obj.visit_schedule_name)
+            filter_opts.update(schedule_name=obj.schedule_name)
+        df = get_next_scheduled_visit_for_subjects_df(stock_request, filter_opts)
 
         # get unallocated stock that appears in a stock request for this location
         df_unallocated_request_items = (
@@ -212,7 +216,10 @@ class PrepareAndReviewStockRequestView(
                     f"{stock_request.request_identifier}"
                 ),
             )
-            url = f"{self.source_changelist_url}?q={stock_request.request_identifier}"
+            url = reverse(
+                "edc_pharmacy:stock_request_url",
+                kwargs={"stock_request": stock_request.pk},
+            )
         else:
             if session_uuid:
                 del request.session[session_uuid]
@@ -221,5 +228,8 @@ class PrepareAndReviewStockRequestView(
                 messages.INFO,
                 "Cancelled. No stock request items were created.",
             )
-            url = f"{self.source_changelist_url}"
+            url = reverse(
+                "edc_pharmacy:stock_request_url",
+                kwargs={"stock_request": stock_request.pk},
+            )
         return HttpResponseRedirect(url)

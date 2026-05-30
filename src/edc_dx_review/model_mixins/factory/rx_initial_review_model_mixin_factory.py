@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from clinicedc_constants import NOT_APPLICABLE, YES
+from clinicedc_constants.choices import YES_NO, YES_NO_NA
 from django.db import models
 
-from clinicedc_constants.choices import YES_NO, YES_NO_NA
 from edc_model.models import DurationYMDField
 from edc_model.validators import date_not_future
 

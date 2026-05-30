@@ -43,6 +43,7 @@ class ReportableResultsModelAdminMixin(ActionItemModelAdminMixin, ModelAdmin):
     def get_search_fields(self, request):
         fields = super().get_search_fields(request)
         fields = list(fields)
+        fields.insert(0, "requisition__order_number")
         fields.insert(0, "subject_visit__subject_identifier")
         return tuple(set(fields))
 

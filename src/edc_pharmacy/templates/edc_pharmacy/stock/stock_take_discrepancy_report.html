@@ -1,0 +1,123 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;display:flex;align-items:center;justify-content:space-between;">
+                <span>
+                    <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                    <a href="{% url "edc_pharmacy:stock_take_home_url" %}">Stock Take</a> &rsaquo;
+                    Discrepancy Report
+                </span>
+                {% if rows_by_location %}
+                <a href="{% url "edc_pharmacy:print_stock_take_discrepancy_report_url" %}"
+                   class="btn btn-default btn-sm">
+                    <i class="fa fa-print"></i> Print PDF
+                </a>
+                {% endif %}
+            </div>
+
+            {% if not rows_by_location %}
+            <div class="alert alert-success">
+                <strong>All clear.</strong> No discrepancies found in the most recent stock take for any bin.
+            </div>
+            {% else %}
+                {% for location_name, rows in rows_by_location.items %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <b>{{ location_name }}</b>
+                        <span class="text-muted" style="font-weight:normal;"> &mdash; {{ rows|length }} bin{{ rows|length|pluralize }} with discrepancies</span>
+                    </div>
+                    <div class="panel-body" style="padding:0;">
+                        {% for row in rows %}
+                        <div style="padding:10px 15px;{% if not forloop.first %}border-top:1px solid #ddd;{% endif %}">
+                            <div style="margin-bottom:6px;">
+                                <strong>Bin <code>{{ row.bin.bin_identifier }}</code></strong>
+                                &middot; {{ row.bin.container }}
+                                &middot; <span class="text-muted small">Stock take {{ row.stock_take.stock_take_datetime|date:"d-M-Y H:i" }}</span>
+                                &nbsp;
+                                <a href="{% url "edc_pharmacy:stock_take_results_url" stock_take=row.stock_take.pk %}"
+                                   class="btn btn-default btn-xs">Full results</a>
+                                <a href="{% url "edc_pharmacy:stock_take_scan_url" storage_bin=row.bin.pk %}"
+                                   class="btn btn-primary btn-xs">Redo stock take</a>
+                            </div>
+                            <div class="row">
+                                {% if row.missing %}
+                                <div class="col-sm-6">
+                                    <table class="table table-condensed" style="margin-bottom:0;">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="2">
+                                                    <span class="label label-danger">Missing ({{ row.missing|length }})</span>
+                                                </th>
+                                            </tr>
+                                            <tr>
+                                                <th>Code</th>
+                                                <th>Product</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in row.missing %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ item.code }}">
+                                                        <code>{{ item.code }}</code>
+                                                    </a>
+                                                </td>
+                                                <td>{{ item.stock.product.name|default:"—" }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% endif %}
+                                {% if row.unexpected %}
+                                <div class="col-sm-6">
+                                    <table class="table table-condensed" style="margin-bottom:0;">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="2">
+                                                    <span class="label label-warning">Unexpected ({{ row.unexpected|length }})</span>
+                                                </th>
+                                            </tr>
+                                            <tr>
+                                                <th>Code</th>
+                                                <th>Product</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in row.unexpected %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ item.code }}">
+                                                        <code>{{ item.code }}</code>
+                                                    </a>
+                                                    {% if not item.stock %}
+                                                        <span class="text-muted small">(not in system)</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ item.stock.product.name|default:"—" }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <p>
+                <a href="{% url "edc_pharmacy:stock_take_home_url" %}" class="btn btn-default btn-sm">All bins</a>
+            </p>
+
+        </div>
+    </div>
+{% endblock main %}

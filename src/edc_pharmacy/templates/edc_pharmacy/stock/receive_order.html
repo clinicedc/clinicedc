@@ -1,0 +1,393 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:receive_home_url" %}">Receive</a> &rsaquo;
+                {{ order.order_identifier }}
+            </div>
+
+            {# ── Order summary ── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <b>Receive against order <code>{{ order.order_identifier }}</code></b>
+                    &mdash; {{ order.title }}
+                    &nbsp;
+                    {% if order.status == COMPLETE %}
+                        <span class="label label-success">Complete</span>
+                    {% elif order.status == PARTIAL %}
+                        <span class="label label-warning">Partial</span>
+                    {% else %}
+                        <span class="label label-warning">New</span>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+                    <table class="table table-condensed" style="margin-bottom:0;">
+                        <tr>
+                            <th style="width:140px;">Supplier</th>
+                            <td>{{ order.supplier }}</td>
+                            <th style="width:140px;">Order date</th>
+                            <td>{{ order.order_datetime|date:"d-M-Y" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Items ordered</th>
+                            <td>{{ order.item_count|default:"—" }}</td>
+                            <th>Created by</th>
+                            <td>{{ order.user_created|default:"—" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Printed</th>
+                            <td colspan="3">
+                                {% if order.printed %}
+                                    <span class="label label-success">Yes</span>
+                                    &mdash;
+                                    by <b>{{ order.printed_by|default:"—" }}</b>
+                                    on {{ order.printed_datetime|date:"d-M-Y H:i"|default:"—" }}
+                                {% else %}
+                                    <span class="label label-default">No</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% if order.comment %}
+                        <tr>
+                            <th>Comment</th>
+                            <td colspan="3">{{ order.comment }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                    <a href="{% url "edc_pharmacy:order_url" order=order.pk %}"
+                       class="btn btn-default btn-sm" style="margin-top:6px;"
+                       title="Previous step: ordering">
+                        <i class="fas fa-angle-double-left"></i> Back to ordering
+                    </a>
+                    &nbsp;
+                    <a href="{% url "edc_pharmacy:receive_stock_list_url" order=order.pk %}"
+                       class="btn btn-default btn-sm" style="margin-top:6px;"
+                       title="View stock received against this order">
+                        <i class="fas fa-list"></i> Stock received
+                    </a>
+                    &nbsp;
+                    <a href="{% url "edc_pharmacy:repack_home_url" %}"
+                       class="btn btn-default btn-sm" style="margin-top:6px;"
+                       title="Next step: repack">
+                        Go to repack <i class="fas fa-angle-double-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            {# ── Receive record ── #}
+            <div class="panel {% if receive %}panel-info{% else %}panel-warning{% endif %}">
+                <div class="panel-heading">
+                    {% if receive %}
+                        <b>Receive <code>{{ receive.receive_identifier }}</code></b>
+                        &mdash; {{ receive.receive_datetime|date:"d-M-Y" }} at {{ receive.receive_datetime|date:"H:i" }}
+                        &nbsp;
+                        {% if unconfirmed_count == 0 and confirmed_count > 0 %}
+                            <span class="label label-success">All confirmed</span>
+                        {% elif confirmed_count > 0 %}
+                            <span class="label label-warning">{{ confirmed_count }} confirmed, {{ unconfirmed_count }} unconfirmed</span>
+                        {% else %}
+                            <span class="label label-warning">{{ unconfirmed_count }} unconfirmed</span>
+                        {% endif %}
+                    {% else %}
+                        <b>New receiving record</b> &mdash; <span class="text-muted small">Complete the following to start receiving against this order</span>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+
+                    {% if receive and not edit_receive %}
+                    {# ── Read-only summary ── #}
+                    <table class="table table-condensed" style="margin-bottom:8px;">
+                        <tr>
+                            <th style="width:160px;">Location</th>
+                            <td>{{ receive.location }}</td>
+                            <th style="width:160px;">Received count</th>
+                            <td>{{ receive.item_count|default:"—" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Invoice #</th>
+                            <td>{{ receive.invoice_number|default:"—" }}</td>
+                            <th>Invoice date</th>
+                            <td>{{ receive.invoice_date|date:"d-M-Y"|default:"—" }}</td>
+                        </tr>
+                        {% if receive.comment %}
+                        <tr>
+                            <th>Comment</th>
+                            <td colspan="3">{{ receive.comment }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                    <a href="{% url "edc_pharmacy:receive_edit_url" order=order.pk %}"
+                       class="btn btn-primary btn-sm">Edit</a>
+
+                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_receive_history" receive.pk %}"
+                       class="btn btn-default btn-sm pull-right"
+                       title="View audit trail">
+                        <i class="fa fa-history"></i> Audit trail
+                    </a>
+
+                    {% else %}
+                    {# ── Edit / create form ── #}
+                    <form method="post" id="receive-panel">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="save_receive">
+                        <div class="row">
+                            {% for field in receive_form %}
+                            <div class="col-sm-4">
+                                <div class="form-group{% if field.errors %} has-error{% endif %}">
+                                    <label class="control-label" for="{{ field.id_for_label }}">
+                                        {{ field.label }}
+                                        {% if field.field.required %}<span style="color:red;">*</span>{% endif %}
+                                    </label>
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <span class="help-block">{{ field.help_text }}</span>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <span class="help-block">{{ field.errors|join:", " }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if receive_form.non_field_errors %}
+                            <div class="alert alert-danger">{{ receive_form.non_field_errors }}</div>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                        {% if receive %}
+                        &nbsp;
+                        <a href="{% url "edc_pharmacy:receive_order_url" order=order.pk %}"
+                           class="btn btn-default btn-sm">Cancel</a>
+                        {% endif %}
+                    </form>
+                    {% endif %}
+
+                </div>
+
+                {# ── Order items (with receive progress) ── #}
+                {% if receive %}
+                <div class="panel-body" style="border-top:1px solid #e7e7e7;">
+                    <h4 style="margin-top:0;margin-bottom:12px;">
+                        Receive progress for this order
+                    </h4>
+
+
+            {% for row in rows %}
+            {% with oi=row.order_item %}
+            <div class="panel {% if oi.unit_qty_pending is not None and oi.unit_qty_pending == 0 %}panel-success{% elif row.receive_items %}panel-warning{% else %}panel-warning{% endif %}"
+                 id="oi_{{ oi.pk }}">
+                <div class="panel-heading">
+                    <b>Item {{ oi.order_item_identifier }}</b>
+                    &mdash; {{ oi.product.name }}
+                    &nbsp;
+                    {% if oi.unit_qty_pending is not None and oi.unit_qty_pending == 0 %}
+                        <span class="label label-success">Fully received</span>
+                    {% elif row.receive_items %}
+                        <span class="label label-warning">Partial</span>
+                    {% else %}
+                        <span class="label label-warning">Pending</span>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+                    <table class="table table-condensed" style="margin-bottom:8px;">
+                        <tr>
+                            <th style="width:140px;">Container</th>
+                            <td>{{ oi.container }}</td>
+                            <th style="width:140px;">Units/container</th>
+                            <td>{{ oi.container_unit_qty }}</td>
+                        </tr>
+                        <tr>
+                            <th>Containers ordered</th>
+                            <td>{{ oi.item_qty_ordered }}</td>
+                            <th>Units ordered</th>
+                            <td>{{ oi.unit_qty_ordered }}</td>
+                        </tr>
+                        <tr>
+                            <th>Units received</th>
+                            <td>{{ oi.unit_qty_received|default:"0" }}</td>
+                            <th>Units pending</th>
+                            <td>
+                                {% if oi.unit_qty_pending %}
+                                    <span style="color:#c00;font-weight:bold;">{{ oi.unit_qty_pending }}</span>
+                                {% else %}
+                                    <span style="color:#3c763d;">0</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+
+                    {# Existing receive items #}
+                    {% if row.receive_items %}
+                    <div class="table-responsive">
+                    <table class="table table-condensed table-bordered" style="margin-bottom:8px;">
+                        <thead>
+                            <tr>
+                                <th>Receive item #</th>
+                                <th>Batch</th>
+                                <th>Container</th>
+                                <th style="text-align:right;">Containers</th>
+                                <th style="text-align:right;">Units</th>
+                                <th>Date</th>
+                                <th>Reference</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in row.receive_items %}
+                            {% with ri=entry.ri %}
+                            <tr>
+                                <td><code>{{ ri.receive_item_identifier }}</code></td>
+                                <td>{% if show_batch %}{{ ri.lot.lot_no }}{% else %}<span class="text-muted">******</span>{% endif %}</td>
+                                <td>{{ ri.container }}</td>
+                                <td style="text-align:right;">{{ ri.item_qty_received }}</td>
+                                <td style="text-align:right;">{{ ri.unit_qty_received }}</td>
+                                <td style="white-space:nowrap;">{{ ri.receive_item_datetime|date:"d-M-Y" }}</td>
+                                <td>{{ ri.reference }}</td>
+                                <td style="white-space:nowrap;">
+                                    {% if entry.can_edit_delete %}
+                                    <a href="{% url "edc_pharmacy:receive_item_edit_url" order=order.pk order_item=oi.pk receive_item=ri.pk %}"
+                                       class="btn btn-primary btn-xs"
+                                       title="Edit receive item">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    <form method="post" class="js-delete-form"
+                                          style="display:inline;"
+                                          data-confirm-message="Delete receive item <code>{{ ri.receive_item_identifier }}</code>?<br><br>Any unconfirmed stock for this item will also be removed.">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="delete_receive_item">
+                                        <input type="hidden" name="receive_item" value="{{ ri.pk }}">
+                                        <button type="submit" class="btn btn-danger btn-xs"
+                                                title="Delete receive item">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-muted small" title="Stock has been confirmed">
+                                        <i class="fa fa-lock text-success"></i>
+                                    </span>
+                                    {% endif %}
+                                    <a href="{% url "edc_pharmacy_admin:edc_pharmacy_receiveitem_history" ri.pk %}"
+                                       class="btn btn-default btn-xs"
+                                       title="View audit trail">
+                                        <i class="fa fa-history"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endwith %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                    {% endif %}
+
+                    {# Receive button — navigates to dedicated receive-item page #}
+                    <div style="border-top:1px solid #ddd;padding-top:10px;margin-top:4px;">
+                        {% if row.can_add %}
+                        <a href="{% url "edc_pharmacy:receive_order_item_url" order=order.pk order_item=oi.pk %}"
+                           class="btn btn-warning btn-sm">Receive this item</a>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+            {% endwith %}
+            {% endfor %}
+
+            {% if unconfirmed_count > 0 %}
+                <div class="alert alert-warning" style="margin-bottom:12px;">
+                    <b>{{ unconfirmed_count }}</b> stock item{{ unconfirmed_count|pluralize }}
+                    need{{ unconfirmed_count|pluralize:"s," }} labelling and confirming.
+                    <div style="margin-top:8px;">
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="print_labels">
+                            <button type="submit" class="btn btn-default btn-sm">
+                                <i class="fas fa-print"></i> Print labels ({{ unconfirmed_count }})
+                            </button>
+                        </form>
+                        &nbsp;
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="confirm_stock">
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                Confirm labelled stock
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            {% endif %}
+
+            </div>{# /panel-body items #}
+            </div>{# /panel Receive record #}
+
+            <p style="margin-top:8px;">
+                <a href="{% url "edc_pharmacy:receive_home_url" %}" class="btn btn-default btn-sm">
+                    &larr; All orders
+                </a>
+                <a href="{% url "edc_pharmacy_admin:edc_pharmacy_receive_changelist" %}"
+                   class="btn btn-default btn-sm">Receive records (admin)</a>
+            </p>
+
+        </div>
+    </div>
+
+    {# ── Delete confirmation modal (shared across delete forms on this page) ── #}
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog"
+         aria-labelledby="confirmDeleteModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="confirmDeleteModalLabel">
+                        <i class="fa fa-exclamation-triangle text-warning"></i>
+                        Confirm delete
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p id="confirmDeleteMsg"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                        <i class="fa fa-trash"></i> Yes, delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var msgEl = document.getElementById("confirmDeleteMsg");
+            var confirmBtn = document.getElementById("confirmDeleteBtn");
+            var pendingForm = null;
+
+            document.querySelectorAll(".js-delete-form").forEach(function (form) {
+                form.addEventListener("submit", function (e) {
+                    if (form.dataset.confirmed === "1") { return; }
+                    e.preventDefault();
+                    msgEl.innerHTML = form.dataset.confirmMessage || "Delete this item?";
+                    pendingForm = form;
+                    $("#confirmDeleteModal").modal("show");
+                });
+            });
+
+            confirmBtn.addEventListener("click", function () {
+                if (!pendingForm) { return; }
+                pendingForm.dataset.confirmed = "1";
+                $("#confirmDeleteModal").modal("hide");
+                pendingForm.submit();
+            });
+        })();
+    </script>
+{% endblock main %}

@@ -17,6 +17,7 @@ from .print_labels import (
     print_labels_from_receive_item,
     print_labels_from_repack_request,
 )
+from .print_return_manifest import print_return_manifest_action
 from .print_stock_labels import print_stock_labels
 from .print_stock_report import print_stock_report_action
 from .print_transfer_stock_manifest import print_transfer_stock_manifest_action

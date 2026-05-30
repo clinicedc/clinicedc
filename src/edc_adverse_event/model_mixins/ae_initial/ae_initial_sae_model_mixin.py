@@ -1,7 +1,6 @@
+from clinicedc_constants.choices import YES_NO
 from django.db import models
 from django.db.models.deletion import PROTECT
-
-from clinicedc_constants.choices import YES_NO
 
 
 class AeInitialSaeModelMixin(models.Model):

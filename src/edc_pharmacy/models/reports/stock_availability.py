@@ -18,6 +18,10 @@ class StockAvailability(QaReportModelMixin, models.Model):
 
     bins = models.TextField(default="")
 
+    @classmethod
+    def recreate_db_view(cls, drop: bool | None = None, verbose: bool | None = None):
+        pass
+
     class Meta(QaReportModelMixin.Meta):
         verbose_name = "Stock availability"
         verbose_name_plural = "Stock availability"

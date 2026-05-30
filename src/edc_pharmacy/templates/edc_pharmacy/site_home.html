@@ -11,11 +11,12 @@
                 <a id="home_list_group_dispense" href="{% url 'edc_pharmacy_admin:edc_pharmacy_storagebin_changelist' %}" class="list-group-item"><b>Add/Update storage bins</b></a>
                 <a id="home_list_group_dispense" href="{% url 'edc_pharmacy_admin:edc_pharmacy_storagebinitem_changelist' %}" class="list-group-item"><b>Search storage bins</b></a>
                 <a id="home_list_group_dispense" href="{% url 'edc_pharmacy:dispense_url' %}" class="list-group-item"><b>Dispense</b></a>
-                <a id="home_list_group_stocktransfer" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stocktransfer_changelist' %}?to_location__name=central" class="list-group-item"><b>Return stock to central (transfer)</b></a>
+                <a id="home_list_group_return_request" href="{% url 'edc_pharmacy:return_request_url' %}" class="list-group-item"><b>Return stock to central</b></a>
             {% endif %}
         </div>
         <div class="panel-heading"></div>
         <div class="list-group">
+            <a id="home_list_group_stock_take" href="{% url 'edc_pharmacy:stock_take_home_url' %}" class="list-group-item">Stock take</a>
             <a id="home_list_group_stock" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockproxy_changelist' %}" class="list-group-item">Stock</a>
             <a id="home_list_group_allocation" href="{% url 'edc_pharmacy_admin:edc_pharmacy_allocationproxy_changelist' %}" class="list-group-item">Allocations</a>
             <a id="home_list_group_stockavailability" href="{% url 'edc_pharmacy_admin:edc_pharmacy_stockavailability_changelist' %}" class="list-group-item">Stock availability</a>

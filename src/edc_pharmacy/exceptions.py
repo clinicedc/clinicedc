@@ -126,6 +126,10 @@ class StockTransferError(Exception):
     pass
 
 
+class ReturnError(Exception):
+    pass
+
+
 class AssignmentError(Exception):
     pass
 
@@ -139,4 +143,8 @@ class StorageBinError(Exception):
 
 
 class ConfirmAtLocationError(Exception):
+    pass
+
+
+class InvalidTransitionError(Exception):
     pass

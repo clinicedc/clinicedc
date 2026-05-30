@@ -1,0 +1,129 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+            <div style="padding:10px">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:return_disposition_url" %}">Return Disposition</a>
+                {% if return_request %}&rsaquo; {{ return_request.return_identifier }}{% endif %}
+            </div>
+
+            {% if not return_request %}
+            {# ─── Phase 1: Select a return request to disposition ─────── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">Set Disposition for Returned Stock</div>
+                <div class="panel-body">
+                    {% if pending_disposition %}
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>From</th>
+                                <th>Date</th>
+                                <th>Pending Disposition</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rr in pending_disposition %}
+                            <tr>
+                                <td>{{ rr.return_identifier }}</td>
+                                <td>{{ rr.from_location.display_name }}</td>
+                                <td>{{ rr.return_datetime|date:"d-M-Y" }}</td>
+                                <td>{{ rr.returnitem_set.all|length }}</td>
+                                <td>
+                                    <a href="{% url "edc_pharmacy:return_disposition_url" return_request=rr.pk %}"
+                                       class="btn btn-xs btn-primary">Disposition</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No returned stock awaiting disposition.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% else %}
+            {# ─── Phase 2: Set per-item disposition ───────────────────── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Disposition: {{ return_request.return_identifier }}
+                    &mdash; {{ return_request.from_location.display_name }}
+                </div>
+                <div class="panel-body">
+                    {% if pending_items %}
+                    <form method="post"
+                          onSubmit="document.getElementById('submit_disposition').disabled=true;">
+                        {% csrf_token %}
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Code</th>
+                                    <th>Subject</th>
+                                    <th>Formulation</th>
+                                    <th>Disposition</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in pending_items %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td><code>{{ item.stock.code }}</code></td>
+                                    <td>
+                                        {% if item.stock.current_allocation %}
+                                            {{ item.stock.current_allocation.registered_subject.subject_identifier }}
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td>{{ item.stock.product.formulation.imp_description }}</td>
+                                    <td>
+                                        <select class="form-control input-sm"
+                                                name="disposition_{{ item.pk }}" required>
+                                            {% for value, label in disposition_choices %}
+                                            <option value="{{ value }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div style="margin-bottom:8px;">
+                            <span class="text-muted small" style="margin-right:6px;">Set all to:</span>
+                            <button type="button" class="btn btn-xs btn-default"
+                                    onclick="setAllDispositions('repooled')">Repool all</button>
+                            <button type="button" class="btn btn-xs btn-default"
+                                    onclick="setAllDispositions('quarantined')">Quarantine all</button>
+                            <button type="button" class="btn btn-xs btn-danger"
+                                    onclick="setAllDispositions('destroyed')">Destroy all</button>
+                        </div>
+                        <button type="submit" class="btn btn-primary"
+                                id="submit_disposition">Apply Disposition</button>
+                        <a class="btn btn-default" style="margin-left:6px;"
+                           href="{% url "edc_pharmacy:return_central_url" %}">Done</a>
+                    </form>
+                    <script>
+                        function setAllDispositions(value) {
+                            document.querySelectorAll('select[name^="disposition_"]')
+                                .forEach(function(sel) { sel.value = value; });
+                        }
+                    </script>
+                    {% else %}
+                    <p class="text-success">All items have been dispositioned.</p>
+                    <a class="btn btn-default"
+                       href="{% url "edc_pharmacy:return_central_url" %}">Done</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+{% endblock main %}

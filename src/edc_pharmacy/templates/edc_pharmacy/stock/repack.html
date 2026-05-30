@@ -1,0 +1,157 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:repack_home_url" %}">Repack</a> &rsaquo;
+                {{ repack_request.repack_identifier }}
+            </div>
+
+            {# ── Repack request summary ── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <b>Repack request <code>{{ repack_request.repack_identifier }}</code></b>
+                    &nbsp;
+                    {% if confirmed_qty == repack_request.item_qty_repack and repack_request.item_qty_repack %}
+                        <span class="label label-success">All confirmed</span>
+                    {% elif repack_request.item_qty_processed > 0 and confirmed_qty > 0 %}
+                        <span class="label label-warning">{{ confirmed_qty }} confirmed, {{ unconfirmed_qty }} unconfirmed</span>
+                    {% elif repack_request.item_qty_processed > 0 %}
+                        <span class="label label-info">Processed — awaiting confirmation</span>
+                    {% elif repack_request.task_id %}
+                        <span class="label label-info">Processing…</span>
+                    {% else %}
+                        <span class="label label-default">New</span>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+                    <table class="table table-condensed" style="margin-bottom:8px;">
+                        <tr>
+                            <th style="width:180px;">Bulk stock code</th>
+                            <td><code>{{ repack_request.from_stock.code }}</code></td>
+                            <th style="width:180px;">Product</th>
+                            <td>{{ repack_request.from_stock.product.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Assignment</th>
+                            <td>{{ repack_request.from_stock.product.assignment.display_name|default:"—" }}</td>
+                            <th>Lot / Batch</th>
+                            <td>{{ repack_request.from_stock.lot.lot_no|default:"—" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Target container</th>
+                            <td>{{ repack_request.container }}</td>
+                            <th>Units per container</th>
+                            <td>{{ repack_request.container_unit_qty }}</td>
+                        </tr>
+                        <tr>
+                            <th>Containers requested</th>
+                            <td>{{ repack_request.item_qty_repack }}</td>
+                            <th>Containers processed</th>
+                            <td>{{ repack_request.item_qty_processed }}</td>
+                        </tr>
+                        <tr>
+                            <th>Units processed</th>
+                            <td>{{ repack_request.unit_qty_processed }}</td>
+                            <th>Confirmed</th>
+                            <td>{{ confirmed_qty }} / {{ repack_request.item_qty_repack }}</td>
+                        </tr>
+                        <tr>
+                            <th>Date</th>
+                            <td>{{ repack_request.repack_datetime|date:"d-M-Y H:i" }}</td>
+                            <th>Created by</th>
+                            <td>{{ repack_request.user_created|default:"—" }}</td>
+                        </tr>
+                    </table>
+
+                    {# ── Action buttons ── #}
+                    <div style="margin-top:6px;">
+                        {# Edit — only before processing #}
+                        {% if not repack_request.item_qty_processed %}
+                        <a href="{% url "edc_pharmacy:repack_edit_url" repack_request=repack_request.pk %}"
+                           class="btn btn-primary btn-sm">Edit</a>
+                        {% endif %}
+
+                        {# Process — only if not yet processed and no pending task #}
+                        {% if not repack_request.item_qty_processed and not repack_request.task_id %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="process">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fa fa-cogs"></i> Process
+                            </button>
+                        </form>
+                        {% elif repack_request.task_id and not repack_request.item_qty_processed %}
+                        <span class="btn btn-default btn-sm disabled">
+                            <i class="fa fa-spinner fa-spin"></i> Processing…
+                        </span>
+                        {% endif %}
+
+                        {# Print labels + Confirm — once stock rows exist #}
+                        {% if repack_request.item_qty_processed %}
+                        <a href="{% url "edc_pharmacy:repack_edit_url" repack_request=repack_request.pk %}"
+                           class="btn btn-primary btn-sm">Edit</a>
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="print_labels">
+                            <button type="submit" class="btn btn-default btn-sm">
+                                <i class="fa fa-print"></i> Print labels ({{ repack_request.item_qty_processed }})
+                            </button>
+                        </form>
+                        {% if unconfirmed_qty > 0 %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="confirm_stock">
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fa fa-check"></i> Confirm labelled stock ({{ unconfirmed_qty }} unconfirmed)
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="btn btn-success btn-sm disabled">
+                            <i class="fa fa-check"></i> All confirmed
+                        </span>
+                        {% endif %}
+                        {% endif %}
+
+                        <a href="{% url "edc_pharmacy_admin:edc_pharmacy_repackrequest_history" repack_request.pk %}"
+                           class="btn btn-default btn-sm pull-right"
+                           title="View audit trail">
+                            <i class="fa fa-history"></i> Audit trail
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── Instructions ── #}
+            <div class="panel panel-info">
+                <div class="panel-heading"><b>Instructions</b></div>
+                <div class="panel-body" style="font-size:13px;">
+                    <ol style="margin-bottom:0; padding-left:18px;">
+                        <li>Fill in a repack request and <b>Save</b>.</li>
+                        <li>Click <b>Process</b> — the system creates one stock record per container. Allow a moment if processing in background.</li>
+                        <li>Click <b>Print labels</b> and print at <b>100% scale</b> (do not fit to page).</li>
+                        <li>Affix each printed label to its physical container.</li>
+                        <li>Click <b>Confirm labelled stock</b> and scan each barcode to confirm.</li>
+                    </ol>
+                    <p class="text-muted" style="margin-top:8px; margin-bottom:0;">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        Process only one medication type (Active <em>or</em> Placebo) at a time in the work area.
+                    </p>
+                </div>
+            </div>
+
+            <p style="margin-top:8px;">
+                <a href="{% url "edc_pharmacy:repack_home_url" %}" class="btn btn-default btn-sm">
+                    &larr; All repack requests
+                </a>
+            </p>
+
+        </div>
+    </div>
+{% endblock main %}

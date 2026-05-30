@@ -1,9 +1,9 @@
 from clinicedc_constants import NULL_STRING, TBD
+from clinicedc_constants.choices import YES_NO_TBD
 from django.db import models
 from django.utils import timezone
 
 from edc_action_item.models.action_model_mixin import ActionModelMixin
-from clinicedc_constants.choices import YES_NO_TBD
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models.base_uuid_model import BaseUuidModel

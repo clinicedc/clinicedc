@@ -1,0 +1,281 @@
+"""Utilities for the stock-return workflow.
+
+Each function is a thin wrapper that:
+  1. Looks up the relevant Stock objects.
+  2. Calls apply_transaction() for the appropriate TXN_RETURN_* type.
+  3. Creates or updates the ReturnItem business object where needed.
+
+The six lifecycle steps are:
+
+  TXN_RETURN_REQUESTED      - site flags stock for return
+  TXN_RETURN_DISPATCHED     - site ships stock back to central
+  TXN_RETURN_RECEIVED       - central confirms receipt
+  TXN_RETURN_DISPOSITION_REPOOLED     - returned stock re-enters general supply
+  TXN_RETURN_DISPOSITION_QUARANTINED  - returned stock quarantined
+  TXN_RETURN_DISPOSITION_DESTROYED    - returned stock destroyed
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+from django.apps import apps as django_apps
+from django.db import transaction
+
+from ..constants import (
+    CENTRAL_LOCATION,
+    TXN_RETURN_DISPATCHED,
+    TXN_RETURN_DISPOSITION_DESTROYED,
+    TXN_RETURN_DISPOSITION_QUARANTINED,
+    TXN_RETURN_DISPOSITION_REPOOLED,
+    TXN_RETURN_RECEIVED,
+    TXN_RETURN_REQUESTED,
+)
+from ..exceptions import InvalidTransitionError, ReturnError
+from ..transaction_log import apply_transaction
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractUser
+
+    from ..models import Location, ReturnRequest, Stock
+
+
+# ---------------------------------------------------------------------------
+# Step 1 — Request
+# ---------------------------------------------------------------------------
+
+
+def request_stock_return(
+    stock_codes: list[str],
+    actor: AbstractUser,
+    *,
+    reason: str = "return requested",
+) -> tuple[list[str], list[str]]:
+    """Mark each stock code as return_requested.
+
+    Returns (requested_codes, skipped_codes).
+    """
+    stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
+    requested, skipped = [], []
+    for code in stock_codes:
+        with transaction.atomic():
+            try:
+                stock = stock_model_cls.objects.select_for_update().get(
+                    code=code, invalid_state=False
+                )
+            except stock_model_cls.DoesNotExist:
+                skipped.append(code)
+                continue
+            try:
+                apply_transaction(stock, TXN_RETURN_REQUESTED, actor, reason=reason)
+            except InvalidTransitionError as e:
+                skipped.append(f"{code}: {e}")
+                continue
+            requested.append(code)
+    return requested, skipped
+
+
+# ---------------------------------------------------------------------------
+# Step 2 — Dispatch
+# ---------------------------------------------------------------------------
+
+
+def dispatch_return(
+    return_request: ReturnRequest,
+    stock_codes: list[str],
+    actor: AbstractUser,
+    *,
+    reason: str = "return dispatched",
+) -> tuple[list[str], list[str]]:
+    """Dispatch stock items from site back to central.
+
+    Creates a ReturnItem for each code and fires TXN_RETURN_DISPATCHED.
+    Returns (dispatched_codes, skipped_codes).
+    """
+    stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
+    return_item_model_cls = django_apps.get_model("edc_pharmacy.returnitem")
+    location_model_cls: type[Location] = django_apps.get_model("edc_pharmacy.location")
+
+    try:
+        central_location = location_model_cls.objects.get(name=CENTRAL_LOCATION)
+    except location_model_cls.DoesNotExist as e:
+        raise ReturnError(f"Central location '{CENTRAL_LOCATION}' not found.") from e
+
+    dispatched, skipped = [], []
+    for code in stock_codes:
+        skip_reason = _why_dispatch_skip(code, return_request.from_location, stock_model_cls)
+        if skip_reason:
+            skipped.append(f"{code}: {skip_reason}")
+            continue
+        stock = stock_model_cls.objects.get(code=code)
+        try:
+            with transaction.atomic():
+                # Auto-request if not already flagged — the view dispatches in
+                # one step, so TXN_RETURN_REQUESTED and TXN_RETURN_DISPATCHED
+                # are collapsed into a single scan action.
+                if not stock.return_requested:
+                    apply_transaction(stock, TXN_RETURN_REQUESTED, actor, reason=reason)
+                    stock.refresh_from_db()
+                return_item = return_item_model_cls.objects.create(
+                    stock=stock,
+                    return_request=return_request,
+                    user_created=actor.username,
+                )
+                apply_transaction(
+                    stock,
+                    TXN_RETURN_DISPATCHED,
+                    actor,
+                    central_location_id=central_location.id,
+                    return_item=return_item,
+                    reason=reason,
+                )
+        except InvalidTransitionError as e:
+            skipped.append(f"{code}: {e}")
+            continue
+        dispatched.append(code)
+    return dispatched, skipped
+
+
+def _why_dispatch_skip(
+    code: str,
+    from_location,
+    stock_model_cls,
+) -> str | None:
+    """Return a human-readable reason why this code cannot be dispatched,
+    or None if it looks dispatchable."""
+    reason = None
+    try:
+        stock = stock_model_cls.objects.get(code=code)
+    except stock_model_cls.DoesNotExist:
+        reason = "code not found"
+    else:
+        if stock.invalid_state:
+            reason = "stock has an invalid state and cannot be processed"
+        elif stock.dispensed:
+            reason = "already dispensed"
+        elif stock.in_transit:
+            reason = "already in transit"
+        elif stock.destroyed:
+            reason = "stock is destroyed"
+        elif stock.quarantined:
+            reason = "stock is quarantined"
+        elif stock.location != from_location:
+            reason = f"stock is at '{stock.location}', not '{from_location}'"
+        elif not stock.stored_at_location:
+            reason = "not stored in a bin at the site"
+    return reason
+
+
+# ---------------------------------------------------------------------------
+# Step 3 — Receive
+# ---------------------------------------------------------------------------
+
+
+def receive_return(
+    return_request: ReturnRequest,
+    stock_codes: list[str],
+    actor: AbstractUser,
+    *,
+    reason: str = "return received",
+) -> tuple[list[str], list[str]]:
+    """Central confirms receipt of returned stock.
+
+    Returns (received_codes, skipped_codes).
+    """
+    stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
+    location_model_cls: type[Location] = django_apps.get_model("edc_pharmacy.location")
+
+    try:
+        central_location = location_model_cls.objects.get(name=CENTRAL_LOCATION)
+    except location_model_cls.DoesNotExist as e:
+        raise ReturnError(f"Central location '{CENTRAL_LOCATION}' not found.") from e
+
+    received, skipped = [], []
+    for code in stock_codes:
+        with transaction.atomic():
+            try:
+                stock = stock_model_cls.objects.select_for_update().get(
+                    code=code,
+                    invalid_state=False,
+                    in_transit=True,
+                    returnitem__return_request=return_request,
+                )
+            except stock_model_cls.DoesNotExist:
+                skipped.append(code)
+                continue
+            try:
+                apply_transaction(
+                    stock,
+                    TXN_RETURN_RECEIVED,
+                    actor,
+                    central_location_id=central_location.id,
+                    reason=reason,
+                )
+            except InvalidTransitionError as e:
+                skipped.append(f"{code}: {e}")
+                continue
+            received.append(code)
+    return received, skipped
+
+
+# ---------------------------------------------------------------------------
+# Step 4 — Disposition
+# ---------------------------------------------------------------------------
+
+
+def disposition_return(
+    stock_codes: list[str],
+    actor: AbstractUser,
+    *,
+    disposition: str,
+    reason: str = "",
+) -> tuple[list[str], list[str]]:
+    """Apply final disposition to returned stock.
+
+    disposition must be one of:
+      'repooled', 'quarantined', 'destroyed'
+
+    Returns (processed_codes, skipped_codes).
+    """
+    _disposition_map = {
+        "repooled": TXN_RETURN_DISPOSITION_REPOOLED,
+        "quarantined": TXN_RETURN_DISPOSITION_QUARANTINED,
+        "destroyed": TXN_RETURN_DISPOSITION_DESTROYED,
+    }
+    txn_type = _disposition_map.get(disposition)
+    if txn_type is None:
+        raise ReturnError(
+            f"Invalid disposition {disposition!r}. Choose from: {', '.join(_disposition_map)}"
+        )
+
+    stock_model_cls: type[Stock] = django_apps.get_model("edc_pharmacy.stock")
+    processed, skipped = [], []
+    for code in stock_codes:
+        with transaction.atomic():
+            try:
+                stock = stock_model_cls.objects.select_for_update().get(
+                    code=code, invalid_state=False
+                )
+            except stock_model_cls.DoesNotExist:
+                skipped.append(code)
+                continue
+            try:
+                apply_transaction(
+                    stock,
+                    txn_type,
+                    actor,
+                    reason=reason or f"disposition: {disposition}",
+                )
+            except InvalidTransitionError as e:
+                skipped.append(f"{code}: {e}")
+                continue
+            processed.append(code)
+    return processed, skipped
+
+
+__all__ = [
+    "dispatch_return",
+    "disposition_return",
+    "receive_return",
+    "request_stock_return",
+]

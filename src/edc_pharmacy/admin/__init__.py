@@ -34,6 +34,7 @@ from .stock import (
     StockProxyAdmin,
     StockRequestAdmin,
     StockRequestItemAdmin,
+    StockTakeAdmin,
     StockTransferAdmin,
     StorageBinAdmin,
     StorageBinItemAdmin,

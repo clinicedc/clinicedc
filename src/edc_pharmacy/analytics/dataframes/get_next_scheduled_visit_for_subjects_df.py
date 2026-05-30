@@ -18,10 +18,11 @@ if TYPE_CHECKING:
 
 
 def get_next_scheduled_visit_for_subjects_df(
-    stock_request: StockRequest | None = None,
+    stock_request: StockRequest | None = None, filter_opts: dict | None = None
 ) -> pd.DataFrame:
     # get the next scheduled visit from appointment
     # subject_identifier, next_visit_code, next_appt_datetime
+    filter_opts = filter_opts or {}
     df_appt = get_appointment_df(
         normalize=True,
         localize=True,
@@ -36,7 +37,9 @@ def get_next_scheduled_visit_for_subjects_df(
             "appt_type",
         ],
         site_id=int(stock_request.location.site_id) if stock_request else None,
+        filter_opts=filter_opts,
     )
+
     if df_appt.empty:
         df = pd.DataFrame()
     else:

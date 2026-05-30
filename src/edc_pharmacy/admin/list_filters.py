@@ -1,10 +1,9 @@
 from clinicedc_constants import NEW, NO, NOT_APPLICABLE, NULL_STRING, PARTIAL, RECEIVED, YES
+from clinicedc_constants.choices import YES_NO, YES_NO_NA
 from django.contrib.admin import SimpleListFilter
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Count, F, Q
 from django.utils.translation import gettext as _
-
-from clinicedc_constants.choices import YES_NO, YES_NO_NA
 
 from ..models import Medication, Rx
 from ..utils import blinded_user
@@ -117,7 +116,7 @@ class StockItemTransferredListFilter(SimpleListFilter):
         if self.value():
             if self.value() == YES:
                 qs = queryset.filter(
-                    allocation__stock__in_transit=True,
+                    allocation__stock__in_transit=True,  # StockRequestItem → Allocation → Stock
                 )
             elif self.value() == NO:
                 qs = queryset.filter(
@@ -457,6 +456,102 @@ class OrderItemStatusListFilter(SimpleListFilter):
             elif self.value() == NEW:
                 qs = queryset.filter(unit_qty=F("unit_qty_ordered"))
         return qs
+
+
+class StageListFilter(SimpleListFilter):
+    """Filter Stock items by their computed lifecycle stage."""
+
+    title = "Stage"
+    parameter_name = "stage"
+
+    def lookups(self, request, model_admin):  # noqa: ARG002
+        return (
+            ("unconfirmed", "Unconfirmed"),
+            ("received", "Received"),
+            ("allocated", "Allocated"),
+            ("in_transit", "In Transit"),
+            ("at_location", "At Location"),
+            ("in_bin", "At location (in bin)"),
+            ("dispensed", "Dispensed"),
+            ("return_requested", "Return Requested"),
+            ("returning", "Returning"),
+            ("quarantined", "Quarantined"),
+            ("destroyed", "Destroyed"),
+            ("lost", "Lost"),
+            ("damaged", "Damaged"),
+            ("expired", "Expired"),
+            ("voided", "Voided"),
+        )
+
+    def queryset(self, request, queryset):  # noqa: ARG002
+        v = self.value()
+        if not v:
+            return None
+        if v == "voided":
+            return queryset.filter(voided=True)
+        if v == "expired":
+            return queryset.filter(expired=True, voided=False)
+        if v == "destroyed":
+            return queryset.filter(destroyed=True, expired=False, voided=False)
+        if v == "lost":
+            return queryset.filter(lost=True, destroyed=False, expired=False, voided=False)
+        if v == "damaged":
+            return queryset.filter(
+                damaged=True, lost=False, destroyed=False, expired=False, voided=False
+            )
+        if v == "dispensed":
+            return queryset.filter(
+                dispensed=True,
+                voided=False,
+                expired=False,
+                destroyed=False,
+                lost=False,
+                damaged=False,
+            )
+        if v == "quarantined":
+            return queryset.filter(
+                quarantined=True,
+                dispensed=False,
+                voided=False,
+                expired=False,
+                destroyed=False,
+                lost=False,
+                damaged=False,
+            )
+        if v == "returning":
+            return queryset.filter(return_requested=True, in_transit=True)
+        if v == "return_requested":
+            return queryset.filter(return_requested=True, in_transit=False)
+        if v == "in_transit":
+            return queryset.filter(in_transit=True, return_requested=False)
+        if v == "at_location":
+            return queryset.filter(
+                confirmed_at_location=True, stored_at_location=False, dispensed=False
+            )
+        if v == "in_bin":
+            return queryset.filter(stored_at_location=True, dispensed=False)
+        if v == "allocated":
+            return queryset.filter(
+                allocation__isnull=False,
+                in_transit=False,
+                confirmed_at_location=False,
+                stored_at_location=False,
+                dispensed=False,
+                destroyed=False,
+            )
+        if v == "received":
+            return queryset.filter(
+                confirmed=True,
+                allocation__isnull=True,
+                in_transit=False,
+                confirmed_at_location=False,
+                stored_at_location=False,
+                dispensed=False,
+                destroyed=False,
+            )
+        if v == "unconfirmed":
+            return queryset.filter(confirmed=False, destroyed=False, dispensed=False)
+        return None
 
 
 class DecantedListFilter(SimpleListFilter):

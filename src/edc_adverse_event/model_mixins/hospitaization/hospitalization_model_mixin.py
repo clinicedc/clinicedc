@@ -1,8 +1,8 @@
 from clinicedc_constants import NOT_APPLICABLE
+from clinicedc_constants.choices import YES_NO, YES_NO_UNKNOWN
 from django.db import models
 from django.utils import timezone
 
-from clinicedc_constants.choices import YES_NO, YES_NO_UNKNOWN
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model import models as edc_models
 from edc_model.validators import date_not_future, datetime_not_future

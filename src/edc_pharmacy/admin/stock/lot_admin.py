@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
 from django_audit_fields.admin import audit_fieldset_tuple
 
 from edc_model_admin.history import SimpleHistoryAdmin
@@ -6,7 +8,7 @@ from edc_randomization.blinding import user_is_blinded_from_request
 
 from ...admin_site import edc_pharmacy_admin
 from ...forms import LotForm
-from ...models import Lot
+from ...models import Lot, Stock
 from ..model_admin_mixin import ModelAdminMixin
 from ..remove_fields_for_blinded_users import remove_fields_for_blinded_users
 
@@ -80,6 +82,7 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         "expiration_date",
         "product",
         "assignment",
+        "stock_link",
         "reference",
         "created",
         "modified",
@@ -89,6 +92,12 @@ class LotAdmin(ModelAdminMixin, SimpleHistoryAdmin):
     search_fields = ("lot_no",)
 
     ordering = ("-expiration_date",)
+
+    @admin.display(description="Stock items")
+    def stock_link(self, obj):
+        count = Stock.objects.filter(lot=obj).count()
+        url = reverse("edc_pharmacy:lot_stock_list_url", kwargs={"lot": obj.pk})
+        return format_html('<a href="{}">{} item(s)</a>', url, count)
 
     def get_readonly_fields(self, request, obj=None):  # noqa: ARG002
         # if obj:

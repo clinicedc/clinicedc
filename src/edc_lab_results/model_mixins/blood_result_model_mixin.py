@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from clinicedc_constants.choices import YES_NO, YES_NO_NA
 from django.db import models
 
-from clinicedc_constants.choices import YES_NO, YES_NO_NA
+from edc_crf.model_mixins import CrfStatusModelMixin
 
 from ..calculate_missing import calculate_missing
 from ..get_summary import get_summary
@@ -94,7 +95,10 @@ class BloodResultsMethodsModelMixin(models.Model):
 
 
 class BloodResultsModelMixin(
-    BloodResultsFieldsModelMixin, BloodResultsMethodsModelMixin, models.Model
+    BloodResultsFieldsModelMixin,
+    BloodResultsMethodsModelMixin,
+    CrfStatusModelMixin,
+    models.Model,
 ):
     """For each `result` the field name or its prefix should
     match with a value in reportables.

@@ -8,12 +8,13 @@ from django.utils.translation import gettext as _
 
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_export.admin import ExportMixinModelAdminMixin
-from .list_filters import CrfDocumentNameListFilter, VisitScheduleNameListFilter
-from .modeladmin_mixins import MetadataModelAdminMixin
-from .resources import CrfMetadataResource
+
 from ..admin_site import edc_metadata_admin
 from ..constants import REQUIRED
 from ..models import CrfMetadata
+from .list_filters import CrfDocumentNameListFilter, VisitScheduleNameListFilter
+from .modeladmin_mixins import MetadataModelAdminMixin
+from .resources import CrfMetadataResource
 
 
 class CrfMetadataForm(forms.ModelForm):

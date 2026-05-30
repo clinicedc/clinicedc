@@ -1,0 +1,435 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-8">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                <a href="{% url "edc_pharmacy:order_home_url" %}">Orders</a> &rsaquo;
+                {% if order %}
+                    <a href="{% url "edc_pharmacy:order_url" order=order.pk %}">{{ order.order_identifier }}</a> &rsaquo;
+                    Edit
+                {% else %}
+                    New order
+                {% endif %}
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {% if order %}
+                        <b>Edit Order <code>{{ order.order_identifier }}</code></b>
+                        &nbsp;
+                        {% if order.status == "complete" %}
+                            <span class="label label-success">{{ order.get_status_display }}</span>
+                        {% elif order.status == "partial" %}
+                            <span class="label label-warning">{{ order.get_status_display }}</span>
+                        {% else %}
+                            <span class="label label-default">{{ order.get_status_display }}</span>
+                        {% endif %}
+                    {% else %}
+                        <b>New Order</b>
+                    {% endif %}
+                </div>
+                <div class="panel-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            {% for field in form %}
+                            <div class="{% if field.name == 'title' %}col-sm-12{% else %}col-sm-6{% endif %}"
+                                 style="margin-bottom:12px;">
+                                <label class="control-label" style="text-align:left;display:block;">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span style="color:red;">*</span>{% endif %}
+                                </label>
+                                {% if field.name == "supplier" %}
+                                <div class="input-group">
+                                    {{ field }}
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-success btn-sm"
+                                                data-toggle="modal"
+                                                data-target="#supplierModal"
+                                                title="Add new supplier">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                id="editSupplierBtn"
+                                                data-toggle="modal"
+                                                data-target="#supplierEditModal"
+                                                title="Edit selected supplier">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                                {% else %}
+                                {{ field }}
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <span class="text-muted small">{{ field.help_text }}</span>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <span class="text-danger small">{{ field.errors|join:", " }}</span>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                        &nbsp;
+                        {% if order %}
+                        <a href="{% url "edc_pharmacy:order_url" order=order.pk %}"
+                           class="btn btn-default btn-sm">Cancel</a>
+                        {% else %}
+                        <a href="{% url "edc_pharmacy:order_home_url" %}"
+                           class="btn btn-default btn-sm">Cancel</a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {# ── Edit Supplier Modal ────────────────────────────────────────────── #}
+    <div class="modal fade" id="supplierEditModal" tabindex="-1" role="dialog"
+         aria-labelledby="supplierEditModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="supplierEditModalLabel">Edit supplier</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="supplier-edit-errors" class="alert alert-danger" style="display:none;"></div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="edit_name">Name <span style="color:red;">*</span></label>
+                                <input type="text" class="form-control" id="edit_name" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="edit_contact">Contact</label>
+                                <input type="text" class="form-control" id="edit_contact" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label for="edit_telephone">Telephone</label>
+                                <input type="text" class="form-control" id="edit_telephone" maxlength="15">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label for="edit_email">Email</label>
+                                <input type="email" class="form-control" id="edit_email">
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="edit_address_one">Address line 1</label>
+                                <input type="text" class="form-control" id="edit_address_one" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="edit_address_two">Address line 2</label>
+                                <input type="text" class="form-control" id="edit_address_two" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="edit_city">City</label>
+                                <input type="text" class="form-control" id="edit_city" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="edit_state">State / Province</label>
+                                <input type="text" class="form-control" id="edit_state" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="edit_postal_code">Postal code</label>
+                                <input type="text" class="form-control" id="edit_postal_code" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="edit_country">Country</label>
+                                <input type="text" class="form-control" id="edit_country" maxlength="255">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveSupplierEditBtn">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Add Supplier Modal ─────────────────────────────────────────────── #}
+    <div class="modal fade" id="supplierModal" tabindex="-1" role="dialog"
+         aria-labelledby="supplierModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="supplierModalLabel">Add supplier</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="supplier-modal-errors" class="alert alert-danger" style="display:none;"></div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="modal_name">Name <span style="color:red;">*</span></label>
+                                <input type="text" class="form-control" id="modal_name" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="modal_contact">Contact</label>
+                                <input type="text" class="form-control" id="modal_contact" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label for="modal_telephone">Telephone</label>
+                                <input type="text" class="form-control" id="modal_telephone" maxlength="15">
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <label for="modal_email">Email</label>
+                                <input type="email" class="form-control" id="modal_email">
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="modal_address_one">Address line 1</label>
+                                <input type="text" class="form-control" id="modal_address_one" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="modal_address_two">Address line 2</label>
+                                <input type="text" class="form-control" id="modal_address_two" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="modal_city">City</label>
+                                <input type="text" class="form-control" id="modal_city" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="modal_state">State / Province</label>
+                                <input type="text" class="form-control" id="modal_state" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="modal_postal_code">Postal code</label>
+                                <input type="text" class="form-control" id="modal_postal_code" maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="modal_country">Country</label>
+                                <input type="text" class="form-control" id="modal_country" maxlength="255">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="saveSupplierBtn">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var supplierAddUrl = "{% url 'edc_pharmacy:receive_supplier_add_url' %}";
+        var csrfToken = "{{ csrf_token }}";
+
+        document.getElementById("saveSupplierBtn").addEventListener("click", function () {
+            var errDiv = document.getElementById("supplier-modal-errors");
+            errDiv.style.display = "none";
+            errDiv.textContent = "";
+
+            var formData = new FormData();
+            formData.append("csrfmiddlewaretoken", csrfToken);
+            formData.append("name",         document.getElementById("modal_name").value.trim());
+            formData.append("contact",      document.getElementById("modal_contact").value.trim());
+            formData.append("telephone",    document.getElementById("modal_telephone").value.trim());
+            formData.append("email",        document.getElementById("modal_email").value.trim());
+            formData.append("address_one",  document.getElementById("modal_address_one").value.trim());
+            formData.append("address_two",  document.getElementById("modal_address_two").value.trim());
+            formData.append("city",         document.getElementById("modal_city").value.trim());
+            formData.append("state",        document.getElementById("modal_state").value.trim());
+            formData.append("postal_code",  document.getElementById("modal_postal_code").value.trim());
+            formData.append("country",      document.getElementById("modal_country").value.trim());
+
+            fetch(supplierAddUrl, {
+                method: "POST",
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+                body: formData,
+            })
+            .then(function (response) {
+                return response.json().then(function (data) {
+                    return {status: response.status, data: data};
+                });
+            })
+            .then(function (result) {
+                if (result.status === 200) {
+                    var select = document.getElementById("id_supplier");
+                    if (select) {
+                        var option = new Option(result.data.name, result.data.pk, true, true);
+                        select.appendChild(option);
+                        select.value = result.data.pk;
+                    }
+                    ["modal_name", "modal_contact", "modal_telephone", "modal_email",
+                     "modal_address_one", "modal_address_two", "modal_city",
+                     "modal_state", "modal_postal_code", "modal_country"].forEach(function (id) {
+                        document.getElementById(id).value = "";
+                    });
+                    $("#supplierModal").modal("hide");
+                } else {
+                    var msgs = [];
+                    var errors = result.data.errors || {};
+                    Object.keys(errors).forEach(function (field) {
+                        msgs.push((field === "__all__" ? "" : field + ": ") + errors[field].join(", "));
+                    });
+                    errDiv.textContent = msgs.join(" | ");
+                    errDiv.style.display = "block";
+                }
+            })
+            .catch(function () {
+                errDiv.textContent = "An error occurred. Please try again.";
+                errDiv.style.display = "block";
+            });
+        });
+
+        $("#supplierModal").on("show.bs.modal", function () {
+            var errDiv = document.getElementById("supplier-modal-errors");
+            errDiv.style.display = "none";
+            errDiv.textContent = "";
+        });
+
+        var supplierEditUrlBase = "{% url 'edc_pharmacy:receive_supplier_edit_url' pk='00000000-0000-0000-0000-000000000000' %}";
+
+        function getSupplierEditUrl(pk) {
+            return supplierEditUrlBase.replace("00000000-0000-0000-0000-000000000000", pk);
+        }
+
+        $("#supplierEditModal").on("show.bs.modal", function () {
+            var select = document.getElementById("id_supplier");
+            var pk = select ? select.value : "";
+            var errDiv = document.getElementById("supplier-edit-errors");
+            errDiv.style.display = "none";
+            errDiv.textContent = "";
+
+            if (!pk) {
+                errDiv.textContent = "Please select a supplier to edit.";
+                errDiv.style.display = "block";
+                return;
+            }
+
+            fetch(getSupplierEditUrl(pk), {
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                document.getElementById("edit_name").value         = data.name         || "";
+                document.getElementById("edit_contact").value      = data.contact      || "";
+                document.getElementById("edit_telephone").value    = data.telephone    || "";
+                document.getElementById("edit_email").value        = data.email        || "";
+                document.getElementById("edit_address_one").value  = data.address_one  || "";
+                document.getElementById("edit_address_two").value  = data.address_two  || "";
+                document.getElementById("edit_city").value         = data.city         || "";
+                document.getElementById("edit_state").value        = data.state        || "";
+                document.getElementById("edit_postal_code").value  = data.postal_code  || "";
+                document.getElementById("edit_country").value      = data.country      || "";
+            })
+            .catch(function () {
+                errDiv.textContent = "Could not load supplier data.";
+                errDiv.style.display = "block";
+            });
+        });
+
+        document.getElementById("saveSupplierEditBtn").addEventListener("click", function () {
+            var select = document.getElementById("id_supplier");
+            var pk = select ? select.value : "";
+            var errDiv = document.getElementById("supplier-edit-errors");
+            errDiv.style.display = "none";
+            errDiv.textContent = "";
+
+            if (!pk) {
+                errDiv.textContent = "No supplier selected.";
+                errDiv.style.display = "block";
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append("csrfmiddlewaretoken", csrfToken);
+            formData.append("name",         document.getElementById("edit_name").value.trim());
+            formData.append("contact",      document.getElementById("edit_contact").value.trim());
+            formData.append("telephone",    document.getElementById("edit_telephone").value.trim());
+            formData.append("email",        document.getElementById("edit_email").value.trim());
+            formData.append("address_one",  document.getElementById("edit_address_one").value.trim());
+            formData.append("address_two",  document.getElementById("edit_address_two").value.trim());
+            formData.append("city",         document.getElementById("edit_city").value.trim());
+            formData.append("state",        document.getElementById("edit_state").value.trim());
+            formData.append("postal_code",  document.getElementById("edit_postal_code").value.trim());
+            formData.append("country",      document.getElementById("edit_country").value.trim());
+
+            fetch(getSupplierEditUrl(pk), {
+                method: "POST",
+                headers: {"X-Requested-With": "XMLHttpRequest"},
+                body: formData,
+            })
+            .then(function (r) {
+                return r.json().then(function (data) {
+                    return {status: r.status, data: data};
+                });
+            })
+            .then(function (result) {
+                if (result.status === 200) {
+                    var option = select.querySelector("option[value='" + result.data.pk + "']");
+                    if (option) { option.textContent = result.data.name; }
+                    $("#supplierEditModal").modal("hide");
+                } else {
+                    var msgs = [];
+                    var errors = result.data.errors || {};
+                    Object.keys(errors).forEach(function (field) {
+                        msgs.push((field === "__all__" ? "" : field + ": ") + errors[field].join(", "));
+                    });
+                    errDiv.textContent = msgs.join(" | ");
+                    errDiv.style.display = "block";
+                }
+            })
+            .catch(function () {
+                errDiv.textContent = "An error occurred. Please try again.";
+                errDiv.style.display = "block";
+            });
+        });
+    </script>
+{% endblock main %}

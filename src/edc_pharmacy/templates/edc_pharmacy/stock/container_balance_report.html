@@ -1,0 +1,114 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+    <script>
+        $(document).ready(function() {
+            var cntCol = {% if show_assignment %}4{% else %}3{% endif %};
+            var inCol  = {% if show_assignment %}5{% else %}4{% endif %};
+            var outCol = {% if show_assignment %}6{% else %}5{% endif %};
+            var balCol = {% if show_assignment %}7{% else %}6{% endif %};
+
+            function sumCol(api, idx) {
+                return api.column(idx, {search: 'applied'}).data().reduce(function(acc, val) {
+                    var n = parseFloat(String(val).replace(/<[^>]*>/g, '').trim());
+                    return acc + (isNaN(n) ? 0 : n);
+                }, 0);
+            }
+
+            $('#container_balance_table').DataTable({
+                order: [[0, 'asc'], [1, 'asc'], [2, 'asc']],
+                pageLength: 50,
+                footerCallback: function() {
+                    var api = this.api();
+                    $(api.column(cntCol).footer()).text(sumCol(api, cntCol).toLocaleString());
+                    var totalIn  = sumCol(api, inCol);
+                    var totalOut = sumCol(api, outCol);
+                    var balance  = totalIn - totalOut;
+                    $(api.column(inCol).footer()).text(totalIn.toLocaleString());
+                    $(api.column(outCol).footer()).text(totalOut.toLocaleString());
+                    $(api.column(balCol).footer()).text(balance.toLocaleString());
+                },
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-12">
+
+            <div style="padding:10px;">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                Container balance report
+            </div>
+
+            {% if groups %}
+            <table id="container_balance_table" class="table table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th>Container Type</th>
+                        <th>Container</th>
+                        <th>Location</th>
+                        {% if show_assignment %}<th>Assignment</th>{% endif %}
+                        <th style="text-align:right;">Stock items</th>
+                        <th style="text-align:right;">Unit Qty In</th>
+                        <th style="text-align:right;">Unit Qty Out</th>
+                        <th style="text-align:right;">Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group in groups %}
+                        {% for row in group.rows %}
+                        <tr {% if row.balance < 0 %}style="color:#c00;"{% endif %}>
+                            <td>{{ group.container_type }}</td>
+                            <td>{{ row.container }}</td>
+                            <td>{{ row.location }}</td>
+                            {% if show_assignment %}<td>{{ row.assignment }}</td>{% endif %}
+                            <td style="text-align:right;">{{ row.stock_count }}</td>
+                            <td style="text-align:right;">{{ row.unit_qty_in }}</td>
+                            <td style="text-align:right;">{{ row.unit_qty_out }}</td>
+                            <td style="text-align:right;">
+                                {% if row.balance == 0 %}
+                                    <span class="label label-success">0</span>
+                                {% elif row.balance < 0 %}
+                                    <span class="label label-danger">{{ row.balance }}</span>
+                                {% else %}
+                                    {{ row.balance }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr style="font-weight:bold; border-top:2px solid #ddd;">
+                        <td></td>
+                        <td></td>
+                        <td style="text-align:right;">Total</td>
+                        {% if show_assignment %}<td></td>{% endif %}
+                        <td style="text-align:right;"></td>
+                        <td style="text-align:right;"></td>
+                        <td style="text-align:right;"></td>
+                        <td style="text-align:right;"></td>
+                    </tr>
+                </tfoot>
+            </table>
+            {% else %}
+                <p class="text-muted">No stock found.</p>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock main %}

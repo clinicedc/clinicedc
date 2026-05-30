@@ -95,8 +95,10 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     @property
     def stock_request_changelist_url(self) -> str:
         if self.stock_request:
-            url = reverse("edc_pharmacy_admin:edc_pharmacy_stockrequest_changelist")
-            return f"{url}?q={self.stock_request.request_identifier}"
+            return reverse(
+                "edc_pharmacy:stock_request_url",
+                kwargs={"stock_request": self.stock_request.pk},
+            )
         return "/"
 
     @staticmethod
@@ -224,7 +226,9 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
     ) -> str | None:
         if (
             stock_codes
-            and Stock.objects.filter(code__in=stock_codes, allocation__isnull=False).exists()
+            and Stock.objects.filter(
+                code__in=stock_codes, allocation__isnull=False
+            ).exists()
         ):
             allocated_stock_codes = []
             for stock in Stock.objects.filter(code__in=stock_codes):
@@ -308,7 +312,9 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
         return 0, 0
 
     def post(self, request, *args, **kwargs):  # noqa: ARG002
-        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
+        stock_codes: list[str] | None = (
+            request.POST.getlist("codes") if request.POST.get("codes") else None
+        )
         subject_identifiers = request.POST.get("subject_identifiers")
         assignment_id = request.POST.get("assignment")
         subject_identifiers = ast.literal_eval(subject_identifiers)
@@ -327,6 +333,7 @@ class AllocateToSubjectView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin,
                     allocated_by=request.user.username,
                     user_created=request.user.username,
                     created=timezone.now(),
+                    actor=request.user,
                 )
             except AllocationError as e:
                 messages.add_message(request, messages.ERROR, str(e))

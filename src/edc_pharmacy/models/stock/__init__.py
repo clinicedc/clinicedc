@@ -16,12 +16,15 @@ from .product import Product
 from .receive import Receive
 from .receive_item import ReceiveItem
 from .repack_request import RepackRequest
+from .return_item import ReturnItem
+from .return_request import ReturnRequest
 from .stock import Stock
-from .stock_adjustment import StockAdjustment
 from .stock_proxy import StockProxy
 from .stock_request import StockRequest
 from .stock_request_item import StockRequestItem
-from .stock_transaction import StockTransaction, StockTransactionType
+from .stock_take import COMPLETED, IN_PROGRESS, StockTake
+from .stock_take_item import MATCHED, MISSING, UNEXPECTED, StockTakeItem
+from .stock_transaction import StockTransaction
 from .stock_transfer import StockTransfer
 from .stock_transfer_item import StockTransferItem
 from .storage_bin import StorageBin

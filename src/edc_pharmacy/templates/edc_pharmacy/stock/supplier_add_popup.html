@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Add supplier</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <style>
+        body { padding: 20px; }
+        .form-group { margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+
+{% if saved_pk %}
+{# Saved successfully — notify parent and close #}
+<script>
+    if (window.opener && window.opener.supplierAdded) {
+        window.opener.supplierAdded("{{ saved_pk }}", "{{ saved_name|escapejs }}");
+    }
+    window.close();
+</script>
+<p>Supplier saved. This window will close automatically.</p>
+{% else %}
+<h4>Add supplier</h4>
+<form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+        <label>{{ field.label }}{% if field.field.required %} <span style="color:red;">*</span>{% endif %}</label>
+        {{ field }}
+        {% if field.errors %}
+            <span class="text-danger small">{{ field.errors|join:", " }}</span>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary btn-sm">Save supplier</button>
+    <button type="button" class="btn btn-default btn-sm" onclick="window.close()">Cancel</button>
+</form>
+{% endif %}
+
+</body>
+</html>

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import contextlib
 from decimal import Decimal
 
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -14,6 +13,7 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 from ...choices import STOCK_STATUS
 from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
 from ...exceptions import AllocationError, AssignmentError, StockError
+from ...transaction_log import is_apply_delta_active
 from ...utils import get_random_code
 from .allocation import Allocation
 from .container import Container
@@ -23,6 +23,27 @@ from .managers import StockManager
 from .product import Product
 from .receive_item import ReceiveItem
 from .repack_request import RepackRequest
+
+# Fields that may only be mutated via apply_transaction / _apply_delta.
+# Any save() that changes one of these without the sentinel active raises StockError.
+GUARDED_FIELDS = frozenset(
+    {
+        "confirmed",
+        "confirmed_at_location",
+        "in_transit",
+        "stored_at_location",
+        "dispensed",
+        "destroyed",
+        "return_requested",
+        "quarantined",
+        "damaged",
+        "lost",
+        "expired",
+        "voided",
+        "subject_identifier",
+        "allocation_id",
+    }
+)
 
 
 class Stock(BaseUuidModel):
@@ -74,12 +95,19 @@ class Stock(BaseUuidModel):
 
     confirmed_by = models.CharField(max_length=150, default="", blank=True)
 
-    allocation = models.OneToOneField(
+    allocation = models.ForeignKey(
         Allocation,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        help_text="Subject allocation",
+        related_name="+",
+        help_text=(
+            "Sticky pointer to the most recent Allocation for this stock item. "
+            "Preserved across dispense, damage, destroy, expire, etc. for audit; "
+            "cleared only when the stock is repooled (returned and made available again). "
+            "To check whether the allocation is currently active, also test "
+            "`allocation.ended_datetime IS NULL`."
+        ),
     )
 
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
@@ -148,20 +176,34 @@ class Stock(BaseUuidModel):
 
     description = models.CharField(max_length=100, default="", blank=True)
 
-    in_transit = models.BooleanField(default=False, help_text="See stocktransferitem.")
+    in_transit = models.BooleanField(default=False)
 
-    confirmed_at_location = models.BooleanField(
-        default=False, help_text="See confirmeatlocationitem."
-    )
+    confirmed_at_location = models.BooleanField(default=False)
 
-    stored_at_location = models.BooleanField(default=False, help_text="See storagebinitem.")
+    stored_at_location = models.BooleanField(default=False)
 
-    dispensed = models.BooleanField(default=False, help_text="See dispenseitem.")
+    dispensed = models.BooleanField(default=False)
 
     destroyed = models.BooleanField(default=False)
 
+    # New flags added for returns workflow.
+    return_requested = models.BooleanField(default=False)
+    quarantined = models.BooleanField(default=False)
+    damaged = models.BooleanField(default=False)
+    lost = models.BooleanField(default=False)
+    expired = models.BooleanField(default=False)
+    voided = models.BooleanField(default=False)
+
     subject_identifier = models.CharField(
         max_length=50, default="", blank=True, editable=False
+    )
+
+    # Temporary flag: marks stocks whose cached columns are in an irreconcilable
+    # state due to pre-refactor data corruption. Excluded from bootstrap and
+    # ledger checks. Drop after the transition is stable.
+    invalid_state = models.BooleanField(
+        default=False,
+        help_text="Pre-refactor data corruption; excluded from ledger bootstrap/checks.",
     )
 
     objects = StockManager()
@@ -177,74 +219,63 @@ class Stock(BaseUuidModel):
             self.stock_identifier = f"{next_id:010d}"
             self.code = get_random_code(self.__class__, 6, 10000)
             self.product = self.get_receive_item().order_item.product
-        # if not self.description:
-        #     self.description = f"{self.product.name} - {self.container.name}"
         self.verify_assignment_or_raise()
         self.verify_assignment_or_raise(self.from_stock)
         self.update_status()
-
-        # in_transit
-        if "in_transit" not in kwargs.get("update_fields", []):
-            with contextlib.suppress(Stock.DoesNotExist):
-                original_instance = Stock.objects.get(pk=self.pk)
-                if self.in_transit != original_instance.in_transit:
-                    raise StockError(
-                        "Invalid attempt to change field. The value of field `in_transit` "
-                        "is only set in the post-save/delete signals of model "
-                        "StockTransferItem."
-                    )
-
-        # received / confirmed at location
-
-        # stored_at_location
-        if "stored_at_location" not in kwargs.get("update_fields", []):
-            with contextlib.suppress(Stock.DoesNotExist):
-                original_instance = Stock.objects.get(pk=self.pk)
-                if self.stored_at_location != original_instance.stored_at_location:
-                    raise StockError(
-                        "Invalid attempt to change field. The value of field "
-                        "`stored_at_location` is only set in the post-save/delete "
-                        "signals of model StorageBinItem."
-                    )
-
-        # dispensed
-        if "dispensed" not in kwargs.get("update_fields", []):
-            with contextlib.suppress(Stock.DoesNotExist):
-                original_instance = Stock.objects.get(pk=self.pk)
-                if self.dispensed != original_instance.dispensed:
-                    raise StockError(
-                        "Invalid attempt to change field. The value of field `dispensed` "
-                        "is only set in the post-save/delete signals of model DispenseItem."
-                    )
-
-        # destroyed
-
-        # do this in the post-save signal?
-        # self.unit_qty_in = Decimal(self.qty_in) * Decimal(self.container_unit_qty)
+        self._check_guarded_fields_or_raise()
         super().save(*args, **kwargs)
 
+    def _check_guarded_fields_or_raise(self) -> None:
+        """Raise if a guarded field changed without apply_transaction being active."""
+        if is_apply_delta_active() or not self.pk:
+            return
+        try:
+            original = Stock.objects.get(pk=self.pk)
+        except Stock.DoesNotExist:
+            return
+        changed = [f for f in GUARDED_FIELDS if getattr(self, f) != getattr(original, f)]
+        if changed:
+            raise StockError(
+                f"Mutating {changed} on Stock requires apply_transaction. "
+                "Do not write guarded fields directly."
+            )
+
     def update_transferred(self) -> bool:
-        return (
+        # Sticky-pointer policy: only an *active* allocation indicates a live
+        # transfer-to-subject relationship. A dispensed/damaged/etc. bottle
+        # still has Stock.allocation set but is no longer in transfer flow.
+        return bool(
             self.allocation
-            and self.allocation.stock_request_item.stock_request.location == self.location
+            and self.allocation.ended_datetime is None
+            and self.allocation.stock_request_item.stock_request.location
+            == self.location
             and self.container.may_request_as
         )
 
-    def verify_assignment_or_raise(
-        self, stock: models.ForeignKey[Stock] | None = None
-    ) -> None:
+    def verify_assignment_or_raise(self, stock: models.ForeignKey[Stock] = None) -> None:
         """Verify that the LOT and PRODUCT assignments match."""
         if not stock:
             stock = self
         if stock.product.assignment != stock.lot.assignment:
             raise AssignmentError("Lot number assignment does not match product assignment!")
-        if self.allocation and self.allocation.assignment != stock.lot.assignment:
+        if (
+            self.allocation
+            and self.allocation.assignment != stock.lot.assignment
+        ):
             raise AllocationError(
                 f"Allocation assignment does not match lot assignment! Got {self.code}."
             )
 
     def update_status(self):
-        if self.allocation:
+        # Note: Stock.allocation is a sticky pointer (preserved past dispense,
+        # damage, etc.). For "is currently allocated", also require that the
+        # Allocation row has not been ended.
+        is_active_allocation = bool(
+            self.allocation_id
+            and self.allocation
+            and self.allocation.ended_datetime is None
+        )
+        if is_active_allocation:
             self.status = ALLOCATED
         elif self.qty_out == self.qty_in:
             self.status = ZERO_ITEM

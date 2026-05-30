@@ -3,6 +3,7 @@ from django.db import models
 from django_db_views.db_view import DBView
 
 from ...model_mixins import qa_reports_permissions
+from ...utils import recreate_db_view
 from .view_definition import get_view_definition
 
 
@@ -15,6 +16,10 @@ class QaReportLogSummary(DBView):
     access_count = models.IntegerField()
 
     view_definition = get_view_definition()
+
+    @classmethod
+    def recreate_db_view(cls, drop: bool | None = None, verbose: bool | None = None):
+        recreate_db_view(cls, drop=drop, verbose=verbose)
 
     class Meta:
         managed = False

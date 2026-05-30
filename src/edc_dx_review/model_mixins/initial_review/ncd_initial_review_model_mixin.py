@@ -1,7 +1,7 @@
 from clinicedc_constants import YES
+from clinicedc_constants.choices import YES_NO
 from django.db import models
 
-from clinicedc_constants.choices import YES_NO
 from edc_model import models as edc_models
 from edc_model.utils import duration_to_date
 

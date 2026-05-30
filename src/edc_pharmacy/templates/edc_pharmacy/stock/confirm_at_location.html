@@ -14,21 +14,47 @@
           <div class="panel panel-default">
             <div class="panel-heading">Confirm transferred stock</div>
             <div class="panel-body">
+              {% if entry_form.non_field_errors %}
+                <div class="alert alert-danger">
+                  {{ entry_form.non_field_errors }}
+                </div>
+              {% endif %}
               <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;" >
                 {% csrf_token %}
                   <div class="col-sm-10">
                     <div class="form-group">
-                      <label class="control-label" for="location_id">Location</label>
-                      <select class="form-control" id="location_id" name="location_id" >
-                        <option value="" selected > ----- </option>
-                        {% for loc in locations %}
-                          <option value="{{ loc.id }}" >{{ loc.site.id }}: {{ loc.display_name }}</option>
-                        {% endfor %}
-                      </select>
+                      <label class="control-label" for="id_location">Location</label>
+                      {{ entry_form.location }}
+                      {% if entry_form.location.errors %}
+                        <div class="text-danger">{{ entry_form.location.errors }}</div>
+                      {% endif %}
                     </div>
                     <div class="form-group">
-                      <label class="control-label" for="stock_transfer_identifier">Reference</label>
-                      <select class="form-control" id="stock_transfer_identifier" name="stock_transfer_identifier"></select>
+                      <label class="control-label" for="id_stock_transfer_identifier">Reference</label>
+                      {# Render server-side so options survive a form-error redisplay.   #}
+                      {# JS in extra-scripts-bottom still repopulates on Location change. #}
+                      <select class="form-control" id="id_stock_transfer_identifier" name="stock_transfer_identifier">
+                        <option value="" {% if not entry_form.stock_transfer_identifier.value %}selected{% endif %}>---</option>
+                        {% for t in prefilled_transfers %}
+                          <option value="{{ t.transfer_identifier }}" {% if t.transfer_identifier == entry_form.stock_transfer_identifier.value %}selected{% endif %}>
+                            {{ t.transfer_identifier }} -- {{ t.item_count }} items
+                          </option>
+                        {% endfor %}
+                      </select>
+                      {{ prefilled_transfers|json_script:"prefilled-transfers-data" }}
+                      {% if entry_form.stock_transfer_identifier.errors %}
+                        <div class="text-danger">{{ entry_form.stock_transfer_identifier.errors }}</div>
+                      {% endif %}
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label" for="id_number_of_items">Number of items</label>
+                      {{ entry_form.number_of_items }}
+                      <small id="number_of_items_hint" class="form-text text-muted">
+                        Select a reference to see how many items remain on the manifest.
+                      </small>
+                      {% if entry_form.number_of_items.errors %}
+                        <div class="text-danger">{{ entry_form.number_of_items.errors }}</div>
+                      {% endif %}
                     </div>
                   </div>
                 <input type="hidden" id="session_uuid" name="session_uuid"  value="{{ session_uuid }}">
@@ -48,23 +74,29 @@
             <div class="panel-heading">Confirm transferred stock: {{ stock_transfer }}</div>
             <div class="panel-body">
               {% if not item_count %}All done!{% endif  %}
-              <form class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;" >
+              {% if items_to_scan and item_count %}
+                <p class="text-muted">
+                  Scan page: {{ item_count|length }} input(s) shown;
+                  {{ items_to_scan }} item(s) remaining in this workflow.
+                </p>
+              {% endif %}
+              <form id="scan-form" class="form-horizontal" action="{{ url }}" method="post" onSubmit="document.getElementById('submit').disabled=true;" >
                 {% csrf_token %}
                 <div class="form-group">
                   {% for i in item_count %}
-                    <label class="control-label col-sm-2" for="code{{ i  }}">{{ i }}.</label>
+                    <label class="control-label col-sm-2" for="stock_codes_{{ i }}">{{ i }}.</label>
                     <div class="col-sm-10">
-                      <input type="text" class="form-control" id="stock_codes" name="stock_codes" placeholder="code # {{ i }} " value="" pattern="[A-Z0-9]{6}" required autofocus>
+                      <input type="text" class="form-control stock-code-input" id="stock_codes_{{ i }}" name="stock_codes" placeholder="code # {{ i }} " value="" pattern="[A-Z0-9]{6}" required {% if forloop.first %}autofocus{% endif %}>
                     </div>
                   {% endfor %}
                 </div>
-                <input type="hidden" id="session_uuid" name="session_uuid"  value="{{ session_uuid }}">
-                <input type="hidden" id="stock_transfer_identifier" name="stock_transfer_identifier"  value="{{ stock_transfer_identifier }}">
-                <input type="hidden" id="location_id" name="location_id"  value="{{ location_id }}">
-                <input type="hidden" id="items_to_scan" name="items_to_scan"  value="{{ items_to_scan }}">
-                <input type="hidden" id="confirmed" name="confirmed"  value="{{ confirmed }}">
-                <input type="hidden" id="already_confirmed" name="already_confirmed"  value="{{ already_confirmed }}">
-                <input type="hidden" id="invalid" name="invalid"  value="{{ invalid }}">
+                <input type="hidden" id="session_uuid" name="session_uuid" value="{{ session_uuid }}">
+                <input type="hidden" id="stock_transfer_identifier" name="stock_transfer_identifier" value="{{ stock_transfer_identifier }}">
+                <input type="hidden" id="location_id" name="location_id" value="{{ location_id }}">
+                <input type="hidden" id="items_to_scan" name="items_to_scan" value="{{ items_to_scan }}">
+                <input type="hidden" id="confirmed" name="confirmed" value="{{ confirmed }}">
+                <input type="hidden" id="already_confirmed" name="already_confirmed" value="{{ already_confirmed }}">
+                <input type="hidden" id="invalid" name="invalid" value="{{ invalid }}">
                 <button type="submit" class="btn btn-default" name="submit" id="submit" {% if not item_count %}disabled{% endif %}>Submit</button>
                 <button type="button" class="btn btn-default" onclick="window.location.href='{% url "edc_pharmacy:home_url" %}'">Done</button>
             </form>
@@ -75,27 +107,31 @@
         <div class="col-sm-4">
           <div style="padding:10px">&nbsp;</div>
             <div class="panel panel-default">
-              <div class="panel-heading">Last scanned {{ confirmed_count }}</div>
+              <div class="panel-heading">Last scanned ({{ last_scanned_count|default:0 }})</div>
                 <div class="panel-body">
                   <div class="col-sm-10">
-                    <table class="table table-condensed">
-                      {% for code, comment in last_codes %}
-                        <tr>
-                          <td class="text text-{% if comment == CONFIRMED %}success{% elif comment == ALREADY_CONFIRMED %}warning{% elif comment == INVALID %}danger{% else %}default{% endif %}">
-                            {% if comment == CONFIRMED %}<i class="fa-solid fa-check fa-fw"></i>
-                            {% elif comment == ALREADY_CONFIRMED %}<i class="fa-solid fa-minus fa-fw"></i>
-                            {% elif comment == INVALID %}<i class="fa-solid fa-xmark fa-fw"></i>
-                            {% endif %}
-                          </td>
-                          <td class="text text-{% if comment == CONFIRMED %}success{% elif comment == ALREADY_CONFIRMED %}warning{% elif comment == INVALID %}danger{% else %}default{% endif %}">
-                            {{ code }}
-                          </td>
-                          <td class="text text-{% if comment == CONFIRMED %}success{% elif comment == ALREADY_CONFIRMED %}warning{% elif comment == INVALID %}danger{% else %}default{% endif %}">
-                            {{ comment }}
-                          </td>
-                        </tr>
-                      {% endfor %}
-                     </table>
+                    {% if last_codes %}
+                      <table class="table table-condensed">
+                        {% for code, comment in last_codes %}
+                          <tr>
+                            <td class="text text-{% if comment == CONFIRMED %}success{% elif comment == ALREADY_CONFIRMED %}warning{% elif comment == INVALID %}danger{% else %}default{% endif %}">
+                              {% if comment == CONFIRMED %}<i class="fa-solid fa-check fa-fw"></i>
+                              {% elif comment == ALREADY_CONFIRMED %}<i class="fa-solid fa-minus fa-fw"></i>
+                              {% elif comment == INVALID %}<i class="fa-solid fa-xmark fa-fw"></i>
+                              {% endif %}
+                            </td>
+                            <td class="text text-{% if comment == CONFIRMED %}success{% elif comment == ALREADY_CONFIRMED %}warning{% elif comment == INVALID %}danger{% else %}default{% endif %}">
+                              {{ code }}
+                            </td>
+                            <td class="text text-{% if comment == CONFIRMED %}success{% elif comment == ALREADY_CONFIRMED %}warning{% elif comment == INVALID %}danger{% else %}default{% endif %}">
+                              {{ comment }}
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </table>
+                    {% else %}
+                      <p class="text-muted"><em>No scans yet</em></p>
+                    {% endif %}
                   </div>
                 </div>
               </div>
@@ -112,25 +148,126 @@
 
 {% block extra-scripts-bottom %}
   <script>
-    document.getElementById('location_id').addEventListener('change', function() {
-      var locationId = this.value;
-      fetch(`/edc_pharmacy/get-stock-transfers/?location_id=${locationId}`)
-        .then(response => response.json())
-        .then(data => {
-            var stockTransferSelect = document.getElementById('stock_transfer_identifier');
-            stockTransferSelect.innerHTML = '';
-            var option = document.createElement('option');
-            option.value = '';
-            option.text = '---';
-            stockTransferSelect.appendChild(option);
-            data.forEach(function(item) {
-                var option = document.createElement('option');
-                option.value = item.transfer_identifier;
-                option.text = `${item.transfer_identifier} -- ${item.item_count} items`; // Use the correct key
-                stockTransferSelect.appendChild(option);
-            });
-        })
-        .catch(error => console.error('Error:', error));
+    // Scan-grid page size — informational only on this entry page; the
+    // scan loop is multi-page so the user may enter any number up to
+    // unconfirmed_items, not just SCAN_GRID_PAGE_SIZE.
+    const SCAN_GRID_PAGE_SIZE = {{ SCAN_GRID_PAGE_SIZE|default:10 }};
+
+    // transfer_identifier -> unconfirmed_items, populated on location change.
+    let unconfirmedByIdentifier = {};
+
+    const locationEl = document.getElementById('id_location');
+    const referenceEl = document.getElementById('id_stock_transfer_identifier');
+    const numberEl = document.getElementById('id_number_of_items');
+    const hintEl = document.getElementById('number_of_items_hint');
+
+    function updateNumberOfItemsHint() {
+      const identifier = referenceEl && referenceEl.value;
+      const unconfirmed = unconfirmedByIdentifier[identifier];
+      if (!identifier || unconfirmed === undefined) {
+        if (hintEl) {
+          hintEl.textContent = 'Select a reference to see how many items remain on the manifest.';
+        }
+        if (numberEl) { numberEl.removeAttribute('max'); }
+        return;
+      }
+      if (numberEl) { numberEl.setAttribute('max', unconfirmed); }
+      if (hintEl) {
+        const pages = Math.ceil(unconfirmed / SCAN_GRID_PAGE_SIZE);
+        hintEl.textContent = (
+          `Max: ${unconfirmed} (items remaining on manifest). ` +
+          `Scanning the full amount uses ${pages} grid page(s) of up to ` +
+          `${SCAN_GRID_PAGE_SIZE} bottles each.`
+        );
+      }
+    }
+
+    // On initial render the Reference <select> is built server-side (so
+    // its options survive a form-error redisplay). Seed
+    // unconfirmedByIdentifier from the JSON payload the server embedded
+    // so the "max:" hint works on first paint.
+    (function primeFromPrefilled() {
+      const dataEl = document.getElementById('prefilled-transfers-data');
+      if (!dataEl) { return; }
+      try {
+        const data = JSON.parse(dataEl.textContent);
+        data.forEach(function(item) {
+          unconfirmedByIdentifier[item.transfer_identifier] = item.unconfirmed_items;
         });
-</script>
+        updateNumberOfItemsHint();
+      } catch (e) {
+        console.error('Failed to parse prefilled-transfers-data:', e);
+      }
+    })();
+
+    if (locationEl) {
+      locationEl.addEventListener('change', function() {
+        const locationId = this.value;
+        const refSel = document.getElementById('id_stock_transfer_identifier');
+        unconfirmedByIdentifier = {};
+        refSel.innerHTML = '';
+        const blank = document.createElement('option');
+        blank.value = '';
+        blank.text = '---';
+        refSel.appendChild(blank);
+        if (!locationId) {
+          updateNumberOfItemsHint();
+          return;
+        }
+        fetch(`/edc_pharmacy/get-stock-transfers/?location_id=${locationId}`)
+          .then(response => response.json())
+          .then(data => {
+            data.forEach(function(item) {
+              unconfirmedByIdentifier[item.transfer_identifier] = item.unconfirmed_items;
+              const option = document.createElement('option');
+              option.value = item.transfer_identifier;
+              option.text = `${item.transfer_identifier} -- ${item.item_count} items`;
+              refSel.appendChild(option);
+            });
+            updateNumberOfItemsHint();
+          })
+          .catch(error => console.error('Error:', error));
+      });
+    }
+
+    document.addEventListener('change', function(evt) {
+      if (evt.target && evt.target.id === 'id_stock_transfer_identifier') {
+        updateNumberOfItemsHint();
+      }
+    });
+
+    // ------------------------------------------------------------------
+    // Scan-page barcode flow
+    // ------------------------------------------------------------------
+    // Each .stock-code-input represents one physical bottle. Barcode
+    // scanners typically emit the code followed by Enter; this script
+    // catches the Enter, advances focus to the next input, and on the
+    // last input of the page auto-submits the form. The next page
+    // (rendered server-side) autofocuses its own first input via the
+    // `autofocus` HTML attribute set by the template on forloop.first.
+    (function() {
+      const scanInputs = document.querySelectorAll('.stock-code-input');
+      if (!scanInputs.length) { return; }
+      const submitBtn = document.getElementById('submit');
+      scanInputs.forEach(function(input, idx) {
+        input.addEventListener('keydown', function(evt) {
+          if (evt.key !== 'Enter') { return; }
+          evt.preventDefault();
+          // Trim and uppercase whatever the scanner delivered.
+          input.value = (input.value || '').trim().toUpperCase();
+          if (!input.value) { return; }
+          if (idx < scanInputs.length - 1) {
+            scanInputs[idx + 1].focus();
+          } else if (submitBtn && !submitBtn.disabled) {
+            submitBtn.click();
+          }
+        });
+      });
+      // Belt-and-suspenders: if the browser doesn't honor `autofocus`,
+      // explicitly focus the first input on page load.
+      if (document.activeElement === document.body || document.activeElement === null) {
+        scanInputs[0].focus();
+      }
+    })();
+  </script>
 {% endblock %}

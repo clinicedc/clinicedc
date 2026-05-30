@@ -1,9 +1,8 @@
 from clinicedc_constants import INCOMPLETE
+from clinicedc_constants.choices import DOCUMENT_STATUS
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
-from clinicedc_constants.choices import DOCUMENT_STATUS
 
 from ..update_crf_status_for_instance import update_crf_status_for_instance
 

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
@@ -8,10 +7,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.utils import timezone
 
-from ..exceptions import AllocationError
+from ..constants import TXN_ALLOCATED
+from ..exceptions import AllocationError, InvalidTransitionError
+from ..transaction_log import apply_transaction
 
 if TYPE_CHECKING:
-    from ..models import StockRequest
+    from django.contrib.auth.models import AbstractUser
+
+    from ..models import Stock, StockRequest
 
 
 def allocate_stock(
@@ -19,7 +22,8 @@ def allocate_stock(
     allocation_data: dict[str, str],
     allocated_by: str,
     user_created: str | None = None,
-    created: datetime | None = None,
+    created=None,
+    actor: AbstractUser | None = None,
 ) -> tuple[list[int], list[str]]:
     """Link stock instances to subjects.
 
@@ -38,13 +42,10 @@ def allocate_stock(
     allocation_model_cls = django_apps.get_model("edc_pharmacy.allocation")
     registered_subject_model_cls = django_apps.get_model("edc_registration.registeredsubject")
     allocated, skipped = [], []
-    stock_objs = []
     for code, subject_identifier in allocation_data.items():
-        # get rs
         rs_obj = registered_subject_model_cls.objects.get(
             subject_identifier=subject_identifier
         )
-        # get the stock request item from this request for this subject
         stock_request_item = stock_request.stockrequestitem_set.filter(
             registered_subject=rs_obj,
             allocation__isnull=True,
@@ -52,48 +53,54 @@ def allocate_stock(
         if not stock_request_item:
             skipped.append(f"{subject_identifier}: N/A")
             continue
-        # try to create the allocation instance and update the stock instance
-        # for this stock code
-        try:
-            stock_obj = stock_model_cls.objects.get(
-                code=code,
-                confirmation__isnull=False,
-                container__may_request_as=True,
-                allocation__isnull=True,
-            )
-        except ObjectDoesNotExist:
-            skipped.append(f"{subject_identifier}: {code}")
-        else:
-            with transaction.atomic():
-                allocation = allocation_model_cls.objects.create(
-                    stock_request_item=stock_request_item,
-                    code=stock_obj.code,
-                    registered_subject=rs_obj,
-                    allocation_datetime=timezone.now(),
-                    allocated_by=allocated_by,
-                    user_created=user_created,
-                    created=created,
+        with transaction.atomic():
+            # Lock the stock row before checking allocation.
+            try:
+                stock_obj: Stock = stock_model_cls.objects.select_for_update(of=("self",)).get(
+                    code=code,
+                    confirmation__isnull=False,
+                    container__may_request_as=True,
+                    allocation__isnull=True,
                 )
-                # check stock assigment matches subject`s assignment
-                if (
-                    stock_model_cls.objects.get(code=code).product.assignment
-                    != allocation.get_assignment()
-                ):
-                    allocation.delete()
-                    raise AllocationError(
-                        "Assignment mismatch. Stock must match subject assignment. "
-                        f"Allocation abandoned. See {subject_identifier} and {stock_obj}."
+            except ObjectDoesNotExist:
+                skipped.append(f"{subject_identifier}: {code}")
+                continue
+            try:
+                # Nested atomic = savepoint, so a rejected apply_transaction
+                # (or assignment mismatch) rolls back the Allocation row we
+                # just created.
+                with transaction.atomic():
+                    allocation = allocation_model_cls.objects.create(
+                        stock_request_item=stock_request_item,
+                        code=stock_obj.code,
+                        # Set the back-pointer; matches what _apply_delta
+                        # does when it creates the Allocation itself.
+                        stock=stock_obj,
+                        registered_subject=rs_obj,
+                        allocation_datetime=timezone.now(),
+                        allocated_by=allocated_by,
+                        user_created=user_created,
+                        created=created or timezone.now(),
                     )
-
-                stock_obj.allocation = allocation
-                stock_obj.allocated = True
-                stock_obj.user_modified = user_created
-                stock_obj.modified = created
-                stock_objs.append(stock_obj)
-    if stock_objs:
-        for obj in stock_objs:
-            obj.save()
-            allocated.append(obj.code)
+                    if stock_obj.product.assignment != allocation.assignment:
+                        raise AllocationError(
+                            "Assignment mismatch. Stock must match subject "
+                            "assignment. "
+                            f"See {subject_identifier} and {stock_obj}."
+                        )
+                    apply_transaction(
+                        stock_obj,
+                        TXN_ALLOCATED,
+                        actor,
+                        allocation=allocation,
+                        registered_subject=rs_obj,
+                        stock_request_item=stock_request_item,
+                        allocated_by=allocated_by,
+                    )
+            except (InvalidTransitionError, AllocationError) as e:
+                skipped.append(f"{subject_identifier}: {code} ({e})")
+            else:
+                allocated.append(code)
     return allocated, skipped
 
 

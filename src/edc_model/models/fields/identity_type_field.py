@@ -1,7 +1,6 @@
+from clinicedc_constants.choices import IDENTITY_TYPE
 from django.db.models import CharField
 from django.utils.translation import gettext as _
-
-from clinicedc_constants.choices import IDENTITY_TYPE
 
 
 class IdentityTypeField(CharField):

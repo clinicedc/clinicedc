@@ -1,7 +1,7 @@
+from clinicedc_constants.choices import YES_NO
 from django.db import models
 from django.utils import timezone
 
-from clinicedc_constants.choices import YES_NO
 from edc_model.validators import datetime_not_future
 
 from ..choices import DEVIATION_VIOLATION, REPORT_STATUS

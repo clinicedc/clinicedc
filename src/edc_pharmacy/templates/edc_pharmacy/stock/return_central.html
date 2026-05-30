@@ -1,0 +1,120 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+    {{ block.super }}
+    <div class="container">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
+            <div style="padding:10px">
+                <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
+                Returns
+            </div>
+
+            {# ─── Panel 1: Receive Returned Stock ──────────────────────── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">Receive Returned Stock</div>
+                <div class="panel-body">
+                    {% if pending_receipts %}
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>From</th>
+                                <th>Date</th>
+                                <th>Items in Transit</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rr in pending_receipts %}
+                            <tr>
+                                <td>{{ rr.return_identifier }}</td>
+                                <td>{{ rr.from_location.display_name }}</td>
+                                <td>{{ rr.return_datetime|date:"d-M-Y" }}</td>
+                                <td>{{ rr.returnitem_set.all|length }}</td>
+                                <td>
+                                    <a href="{% url "edc_pharmacy:return_receive_url" return_request=rr.pk %}"
+                                       class="btn btn-xs btn-primary">Receive</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No returns currently in transit.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# ─── Panel 2: Return Disposition ──────────────────────────── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">Return Disposition</div>
+                <div class="panel-body">
+                    {% if pending_disposition %}
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>From</th>
+                                <th>Date</th>
+                                <th>Pending Disposition</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rr in pending_disposition %}
+                            <tr>
+                                <td>{{ rr.return_identifier }}</td>
+                                <td>{{ rr.from_location.display_name }}</td>
+                                <td>{{ rr.return_datetime|date:"d-M-Y" }}</td>
+                                <td>{{ rr.returnitem_set.all|length }}</td>
+                                <td>
+                                    <a href="{% url "edc_pharmacy:return_disposition_url" return_request=rr.pk %}"
+                                       class="btn btn-xs btn-primary">Disposition</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No returned stock awaiting disposition.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# ─── Panel 3: Recent Dispositions ────────────────────────── #}
+            <div class="panel panel-default">
+                <div class="panel-heading">Recent Dispositions</div>
+                <div class="panel-body">
+                    {% if recent_dispositions %}
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Reference</th>
+                                <th>From</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rr in recent_dispositions %}
+                            <tr>
+                                <td>{{ rr.return_identifier }}</td>
+                                <td>{{ rr.from_location.display_name }}</td>
+                                <td>{{ rr.return_datetime|date:"d-M-Y" }}</td>
+                                <td>{{ rr.returnitem_set.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">No dispositions yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+{% endblock main %}

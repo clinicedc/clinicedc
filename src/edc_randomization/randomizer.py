@@ -4,15 +4,16 @@ import contextlib
 import warnings
 from datetime import datetime
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
+from clinicedc_constants import NULL_STRING
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
-from clinicedc_constants import NULL_STRING
 from edc_registration.utils import get_registered_subject_model_cls
+
 from .constants import (
     DEFAULT_ASSIGNMENT_DESCRIPTION_MAP,
     DEFAULT_ASSIGNMENT_MAP,

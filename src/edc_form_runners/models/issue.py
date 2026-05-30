@@ -1,6 +1,6 @@
 from django.contrib.sites.models import Site
 from django.db import models
-from django.db.models import Index, PROTECT, UniqueConstraint
+from django.db.models import PROTECT, Index, UniqueConstraint
 
 from edc_model.models import BaseUuidModel
 

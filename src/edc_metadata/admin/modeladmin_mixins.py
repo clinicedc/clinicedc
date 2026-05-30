@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django_audit_fields import audit_fieldset_tuple, ModelAdminAuditFieldsMixin
+from django_audit_fields import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 from django_revision.modeladmin_mixin import ModelAdminRevisionMixin
 from rangefilter.filters import DateRangeFilterBuilder
 
@@ -21,6 +21,7 @@ from edc_model_admin.mixins import (
     TemplatesModelAdminMixin,
 )
 from edc_sites.admin import SiteModelAdminMixin
+
 from .list_filters import (
     ScheduleNameListFilter,
     VisitCodeListFilter,

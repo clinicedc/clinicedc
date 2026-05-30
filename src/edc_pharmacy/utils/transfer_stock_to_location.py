@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from copy import copy
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
@@ -9,18 +8,13 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.db import transaction
 from django.utils import timezone
 
-from ..constants import CENTRAL_LOCATION
-from ..exceptions import StockTransferError
+from ..constants import CENTRAL_LOCATION, TXN_TRANSFER_DISPATCHED
+from ..exceptions import InvalidTransitionError, StockTransferError
+from ..transaction_log import apply_transaction
 from ..utils import is_dispensed
 
 if TYPE_CHECKING:
-    from ..models import (
-        ConfirmationAtLocationItem,
-        Stock,
-        StockTransfer,
-        StockTransferItem,
-        StorageBinItem,
-    )
+    from ..models import Stock, StockTransfer, StockTransferItem
 
 
 def transfer_stock_to_location(
@@ -30,21 +24,8 @@ def transfer_stock_to_location(
     stock_transfer_item_model_cls: type[StockTransferItem] = django_apps.get_model(
         "edc_pharmacy.stocktransferitem"
     )
-    storage_bin_item_model_cls: type[StorageBinItem] = django_apps.get_model(
-        "edc_pharmacy.storagebinitem"
-    )
-    confirmation_at_location_item_model_cls: type[ConfirmationAtLocationItem] = (
-        django_apps.get_model("edc_pharmacy.confirmationatlocationitem")
-    )
-    transferred, dispensed_codes, skipped_codes, invalid_codes = (
-        [],
-        [],
-        [],
-        [],
-    )
-    unprocessed_codes = copy(stock_codes)
+    transferred, dispensed_codes, skipped_codes, invalid_codes = ([], [], [], [])
     for stock_code in stock_codes:
-        unprocessed_codes.remove(stock_code)
         if not stock_model_cls.objects.filter(code=stock_code).exists():
             invalid_codes.append(stock_code)
             continue
@@ -55,71 +36,64 @@ def transfer_stock_to_location(
             allocation__registered_subject__isnull=False,
             location=stock_transfer.from_location,
         )
-        try:
-            stock_model_cls.objects.get(**opts)
-        except ObjectDoesNotExist:
-            skipped_codes.append(stock_code)
-        else:
+        with transaction.atomic():
+            # Gate 2: stock must be allocated via a request whose destination is the
+            # site being transferred to/from. Use StockRequestItem→StockRequest→location
+            # rather than registered_subject.site, which can diverge in multi-site DBs.
             if stock_transfer.to_location.name == CENTRAL_LOCATION:
                 opts.update(
-                    allocation__registered_subject__site=stock_transfer.from_location.site,
+                    allocation__registered_subject__site=stock_transfer.from_location.site,  # noqa:E501
                 )
             else:
                 opts.update(
-                    allocation__registered_subject__site=stock_transfer.to_location.site
+                    allocation__registered_subject__site=stock_transfer.to_location.site,  # noqa:E501
                 )
             try:
-                stock_obj = stock_model_cls.objects.get(**opts)
+                stock_obj = stock_model_cls.objects.select_for_update(of=("self",)).get(**opts)
             except ObjectDoesNotExist:
                 skipped_codes.append(stock_code)
             else:
-                if is_dispensed(stock_code):
+                if stock_obj.dispensed:
                     dispensed_codes.append(stock_code)
                 else:
-                    with transaction.atomic():
-                        # get or create stock_transfer_item and relate
-                        # to this stock transfer
-                        stock_transfer_item_model_cls.objects.create(
-                            stock=stock_obj,
-                            stock_transfer=stock_transfer,
-                            user_created=request.user.username,
-                            created=timezone.now(),
-                        )
-
-                        # remove stock from the storage bin, if stored at
-                        # a site bin
-                        storage_bin_item_model_cls.objects.filter(stock=stock_obj).delete()
-                        stock_obj.stored_at_location = False
-
-                        # delete confirmation (you can still see it in history)
-                        confirmation_at_location_item_model_cls.objects.filter(
-                            stock=stock_obj
-                        ).delete()
-
-                        # change location of stock
-                        stock_obj.location = stock_transfer.to_location
-
-                        # save
-                        stock_obj.save()
-
+                    try:
+                        # Nested atomic = savepoint, so a rejected
+                        # apply_transaction rolls back the StockTransferItem
+                        # row we just created.
+                        with transaction.atomic():
+                            stock_transfer_item = (
+                                stock_transfer_item_model_cls.objects.create(
+                                    stock=stock_obj,
+                                    stock_transfer=stock_transfer,
+                                    user_created=request.user.username,
+                                    created=timezone.now(),
+                                )
+                            )
+                            apply_transaction(
+                                stock_obj,
+                                TXN_TRANSFER_DISPATCHED,
+                                request.user,
+                                new_location_id=stock_transfer.to_location.id,
+                                stock_transfer_item=stock_transfer_item,
+                            )
+                    except InvalidTransitionError:
+                        skipped_codes.append(stock_code)
+                    else:
                         transferred.append(stock_code)
 
-                        if len(stock_codes) != (
-                            len(unprocessed_codes)
-                            + len(transferred)
-                            + len(dispensed_codes)
-                            + len(skipped_codes)
-                            + len(invalid_codes)
-                        ):
-                            # show diff codes
-                            codes = (
-                                transferred + dispensed_codes + skipped_codes + invalid_codes
-                            )
-                            suspect_codes = [c for c in stock_codes if c not in codes]
-                            raise StockTransferError(
-                                f"Some codes were not accounted for. Got {suspect_codes} "
-                                "Cancelling transfer"
-                            )
+    # Final accounting check. Each code should land in exactly one bucket;
+    # if the totals don't add up, that's a bucketing-logic bug. Raise after
+    # the loop so the message is honest about partial commits — per-iteration
+    # atomicity means earlier transfers cannot be rolled back from here.
+    accounted = transferred + dispensed_codes + skipped_codes + invalid_codes
+    if len(stock_codes) != len(accounted):
+        suspect_codes = [c for c in stock_codes if c not in accounted]
+        raise StockTransferError(
+            f"Some codes were not accounted for during transfer: "
+            f"{suspect_codes}. Earlier successful transfers may have "
+            f"already committed (per-iteration atomicity)."
+        )
+
     return transferred, dispensed_codes, skipped_codes, invalid_codes
 
 
