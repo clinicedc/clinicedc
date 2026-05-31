@@ -9,8 +9,7 @@ Documentation: `clinicedc.readthedocs.io <https://clinicedc.readthedocs.io/>`_
 
 Source code: https://github.com/clinicedc/clinicedc
 
-`Here is a python module that extends Django <https://github.com/clinicedc/clinicedc>`__ to empower you to build an EDC / eSource system to handle data
-collection and management for multi-site longitudinal clinical trials.
+`Here is a python module that extends Django <https://github.com/clinicedc/clinicedc>`__ to empower you to build an EDC / eSource system to handle data collection and management for multi-site longitudinal clinical trials.
 
 Refer to the specific open projects listed below for example EDC systems built with these modules.
 The more recent the trial the better the example.
@@ -28,7 +27,7 @@ three main chronic conditions -- HIV/DM/HTN.
 
 See also https://www.ucl.ac.uk/global-health/respond-africa
 
-The implementations we develop with this framework are mostly eSource systems rather than the traditional EDCs.
+The implementations we develop with this framework are mostly eSource systems rather than the traditional EDCs. The clinicedc approach simplifies embedding cross-domain and cross-visit checks.
 
 The projects listed below consist of a subset of trial-specific modules that make heavy use of modules in this framework.
 
@@ -168,6 +167,7 @@ edc-mnsi_                   |edc-mnsi|                    |pypi-edc-mnsi|
 edc-phq9_                   |edc-phq9|                    |pypi-edc-phq9|
 edc-qol_                    |edc-qol|                     |pypi-edc-qol|
 edc-icecap-a_               |edc-icecap-a|                |pypi-edc-icecap-a|
+edc-retinopathy_            |edc-retinopathy|             |pypi-edc-retinopathy|
 =========================== ============================= ==================================
 
 Testing modules
@@ -236,6 +236,7 @@ Lint and format
 .. _edc-csf: https://github.com/clinicedc/edc-csf
 .. _edc-he: https://github.com/clinicedc/edc-he
 .. _edc-icecap-a: https://github.com/clinicedc/edc-icecap-a
+.. _edc-retinopathy: https://github.com/clinicedc/edc-retinopathy
 .. _edc-mnsi: https://github.com/clinicedc/edc-mnsi
 .. _edc-microbiology: https://github.com/clinicedc/edc-microbiology
 .. _edc-microscopy: https://github.com/clinicedc/edc-microscopy
@@ -250,6 +251,8 @@ Lint and format
   :target: https://github.com/clinicedc/edc-he/actions/workflows/build.yml
 .. |edc-icecap-a| image:: https://github.com/clinicedc/edc-icecap-a/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-icecap-a/actions/workflows/build.yml
+.. |edc-retinopathy| image:: https://github.com/clinicedc/edc-retinopathy/actions/workflows/build.yml/badge.svg
+  :target: https://github.com/clinicedc/edc-retinopathy/actions/workflows/build.yml
 .. |edc-mnsi| image:: https://github.com/clinicedc/edc-mnsi/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-mnsi/actions/workflows/build.yml
 .. |edc-microbiology| image:: https://github.com/clinicedc/edc-microbiology/actions/workflows/build.yml/badge.svg
@@ -271,8 +274,10 @@ Lint and format
     :target: https://pypi.python.org/pypi/edc-csf
 .. |pypi-edc-he| image:: https://img.shields.io/pypi/v/edc-he.svg
     :target: https://pypi.python.org/pypi/edc-he
-.. |pypi-edc-icecap-a| image:: https://img.shields.io/pypi/v/edc-he.svg
+.. |pypi-edc-icecap-a| image:: https://img.shields.io/pypi/v/edc-icecap-a.svg
     :target: https://pypi.python.org/pypi/edc-icecap-a
+.. |pypi-edc-retinopathy| image:: https://img.shields.io/pypi/v/edc-retinopathy.svg
+    :target: https://pypi.python.org/pypi/edc-retinopathy
 .. |pypi-edc-mnsi| image:: https://img.shields.io/pypi/v/edc-mnsi.svg
     :target: https://pypi.python.org/pypi/edc-mnsi
 .. |pypi-edc-microbiology| image:: https://img.shields.io/pypi/v/edc-microbiology.svg
