@@ -104,13 +104,16 @@ class AppConfig(DjangoAppConfig):
         )
         # site_offline_models.autodiscover()
         opts = {k: v for k, v in opts.items() if k in installed_apps}
+        sys.stdout.write(" * calling autodiscover in apps\n")
         for app, autodiscover in opts.items():
+            sys.stdout.write(f" **** {app} ****\n")
             autodiscover()
 
     @staticmethod
     def register_system_checks():
         """Register system checks"""
-        from edc_consent.system_checks import check_consents  # wait, app not ready
+        # wait, app not ready
+        from edc_consent.system_checks import check_consents  # noqa: PLC0415
 
         sys.stdout.write(" * registering system checks\n")
         if "edc_visit_schedule" in installed_apps:

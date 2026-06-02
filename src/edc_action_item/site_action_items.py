@@ -157,6 +157,7 @@ class SiteActionItemCollection:
                     writer(f"   - loading {app}.{module_name} ... ")
                     writer(style.ERROR(f"ERROR! {e}\n"))
                 except ImportError as e:
+                    writer("                                            \r")
                     site_action_items.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
                         raise SiteActionError(str(e)) from e

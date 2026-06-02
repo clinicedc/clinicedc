@@ -346,6 +346,7 @@ class SiteAuths:
                         import_module(f"{app_name}.{module_name}")
                         writer(f"   - registered '{module_name}' from '{app_name}'\n")
                     except ImportError as e:
+                        writer("                                            \r")
                         site_auths.registry = before_import_registry
                         if module_has_submodule(mod, module_name):
                             raise SiteAuthError(str(e)) from e

@@ -149,16 +149,19 @@ class SiteListData:
                     self._import_and_register(app_name)
 
     def _import_and_register(self, app_name: str) -> None:
-        mod = import_module(app_name)
-        before_import_registry = copy.deepcopy(site_list_data.registry)
         try:
-            module = import_module(f"{app_name}.{self.module_name}")
-        except ImportError as e:
-            site_list_data.registry = before_import_registry
-            if module_has_submodule(mod, self.module_name):
-                raise SiteListDataError(f"{e} See {app_name}.{self.module_name}") from e
-        else:
-            self.register(module, app_name=app_name)
+            mod = import_module(app_name)
+            before_import_registry = copy.deepcopy(site_list_data.registry)
+            try:
+                module = import_module(f"{app_name}.{self.module_name}")
+            except ImportError as e:
+                site_list_data.registry = before_import_registry
+                if module_has_submodule(mod, self.module_name):
+                    raise SiteListDataError(f"{e} See {app_name}.{self.module_name}") from e
+            else:
+                self.register(module, app_name=app_name)
+        except ImportError:
+            pass
 
 
 site_list_data = SiteListData()

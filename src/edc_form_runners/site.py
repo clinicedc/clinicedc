@@ -46,7 +46,7 @@ class SiteFormRunners:
         style = color_style()
         writer(f" * checking for {module_name} ...\n")
         for app in django_apps.app_configs:
-            writer(f" * searching {app}           \r")
+            writer(f" * searching {app}                       \r")
             try:
                 mod = import_module(app)
                 try:
@@ -54,13 +54,15 @@ class SiteFormRunners:
                     import_module(f"{app}.{module_name}")
                     writer(f"   - registered '{module_name}' from '{app}'\n")
                 except SiteFormRunnerError as e:
-                    writer(f"   - loading {app}.{module_name} ... ")
+                    writer(f"   - loading {app}.{module_name} ... \n")
                     writer(style.ERROR(f"ERROR! {e}\n"))
                 except ImportError as e:
+                    writer("                                            \r")
                     site_form_runners.registry = before_import_registry
                     if module_has_submodule(mod, module_name):
-                        raise SiteFormRunnerError(str(e))
+                        raise SiteFormRunnerError(str(e)) from e
             except ImportError:
+                writer("                                            \r")
                 pass
 
 

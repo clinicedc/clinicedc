@@ -217,12 +217,12 @@ class SiteNotifications:
                         sys.stdout.write(
                             f"   - registered notifications from application '{app}'\n"
                         )
-                except Exception as e:
+                except ImportError as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         site_notifications._registry = before_import_registry
                         if module_has_submodule(mod, module_name):
                             raise
-            except ModuleNotFoundError:
+            except (ModuleNotFoundError, ImportError):
                 pass
 
 
