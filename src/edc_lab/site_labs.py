@@ -183,12 +183,12 @@ class SiteLabs:
                     before_import_registry = copy.copy(site_labs._registry)
                     import_module(f"{app}.{module_name}")
                     sys.stdout.write(f"   - registered labs from application '{app}'\n")
-                except Exception as e:
+                except ImportError as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         site_labs._registry = before_import_registry
                         if module_has_submodule(mod, module_name):
                             raise
-            except ModuleNotFoundError:
+            except (ModuleNotFoundError, ImportError):
                 pass
 
 

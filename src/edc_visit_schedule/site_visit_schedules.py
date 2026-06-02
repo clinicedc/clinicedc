@@ -323,13 +323,13 @@ class SiteVisitSchedules:
                     import_module(f"{app}.{module_name}")
                     if verbose:
                         sys.stdout.write(f"   - registered visit schedule from '{app}'\n")
-                except Exception as e:
+                except ImportError as e:
                     if f"No module named '{app}.{module_name}'" not in str(e):
                         raise
                     site_visit_schedules._registry = before_import_registry
                     if module_has_submodule(mod, module_name):
                         raise
-            except ModuleNotFoundError:
+            except (ModuleNotFoundError, ImportError):
                 pass
 
 

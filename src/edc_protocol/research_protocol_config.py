@@ -106,6 +106,14 @@ class ResearchProtocolConfig:
         return "_".join(self.protocol_name.lower().split(" "))
 
     @property
+    def protocol_module_prefix(self) -> str:
+        return getattr(
+            settings,
+            "EDC_PROTOCOL_MODULE_PREFIX",
+            "",
+        )
+
+    @property
     def disclaimer(self) -> str:
         return _("For research purposes only")
 

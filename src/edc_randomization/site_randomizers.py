@@ -5,6 +5,7 @@ import sys
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.utils.module_loading import import_module, module_has_submodule
 
 from .exceptions import AlreadyRegistered, NotRegistered, RegistryNotLoaded
@@ -112,6 +113,10 @@ class SiteRandomizers:
             if verbose:
                 sys.stdout.write(f" * checking site for module '{module_name}' ...\n")
             for app in apps or django_apps.app_configs:
+                if (prefix := getattr(settings, "EDC_PROTOCOL_MODULE_PREFIX", None)) and (
+                    not app.startswith(prefix)
+                ):
+                    continue
                 try:
                     mod = import_module(app)
                     try:

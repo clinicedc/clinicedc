@@ -59,7 +59,7 @@ class SiteMetadataRules:
         of any INSTALLED_APP.
         """
         module_name = module_name or "metadata_rules"
-        sys.stdout.write(f" * checking for {module_name} ...\n")
+        sys.stdout.write(f" * checking for {module_name} ...                   \n")
         for app in django_apps.app_configs:
             try:
                 before_import_registry = None
