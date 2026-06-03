@@ -121,7 +121,32 @@ class Allocation(BaseUuidModel):
         self.assignment = self.get_assignment()
         if not self.started_datetime:
             self.started_datetime = self.allocation_datetime or timezone.now()
+        self._check_one_active_per_stock_or_raise()
         super().save(*args, **kwargs)
+
+    def _check_one_active_per_stock_or_raise(self) -> None:
+        """Application-level twin of the ``one_active_allocation_per_stock``
+        partial unique constraint declared in ``Meta.constraints``.
+
+        That constraint becomes a partial unique index on Postgres / SQLite
+        but Django silently skips it on MySQL (which has no partial-index
+        syntax). This guard reproduces the invariant on every backend.
+
+        Callers that race two concurrent saves should still wrap the work
+        in ``transaction.atomic()`` with ``Stock.objects.select_for_update()``
+        on the stock row — this check closes the application-path gap but
+        not the database-level race window.
+        """
+        if self.ended_datetime is not None or self.stock is None:
+            return
+        qs = Allocation.objects.filter(stock=self.stock, ended_datetime__isnull=True)
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+        if qs.exists():
+            raise AllocationError(
+                f"Stock {self.stock.code} already has an active allocation. "
+                "End it before creating a new one."
+            )
 
     def get_assignment(self) -> Assignment:
         rx = Rx.objects.get(
