@@ -56,6 +56,12 @@ def reverse(apps, schema_editor):  # noqa: ARG001
 
 class Migration(migrations.Migration):
 
+    # MySQL can't roll back DDL, so Django forbids ALTER inside the
+    # transaction RunPython is otherwise wrapped in. Disable the wrapping
+    # transaction at the Migration level — the SQL is one ALTER statement
+    # so atomicity at the migration boundary is sufficient.
+    atomic = False
+
     dependencies = [
         ("edc_pharmacy", "0157_backfill_allocation_stock_backpointer"),
     ]
