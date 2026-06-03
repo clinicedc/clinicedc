@@ -1,4 +1,3 @@
-import contextlib
 import copy
 import sys
 from importlib import import_module
@@ -145,8 +144,7 @@ class SiteListData:
         ):
             sys.stdout.write(f" * checking sites for `{self.module_name}` ...\n")
             for app_name in django_apps.app_configs:
-                with contextlib.suppress(ModuleNotFoundError):
-                    self._import_and_register(app_name)
+                self._import_and_register(app_name)
 
     def _import_and_register(self, app_name: str) -> None:
         try:
