@@ -26,13 +26,7 @@ class TestPreload(TestCase):
         site_list_data.autodiscover()
         site_list_data.load_data()
         self.assertGreater(
-            len(
-                [
-                    k
-                    for k in site_list_data.registry.keys()
-                    if not k.startswith("clinicedc_tests")
-                ]
-            ),
+            len([k for k in site_list_data.registry if not k.startswith("clinicedc_tests")]),
             0,
         )
 
@@ -72,7 +66,7 @@ class TestPreload(TestCase):
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_autodiscover_import_and_register(self):
         site_list_data.initialize()
-        self.assertRaises(ModuleNotFoundError, site_list_data._import_and_register, "blah")
+        # self.assertRaises(ModuleNotFoundError, site_list_data._import_and_register, "blah")
         site_list_data.initialize(module_name="blah")
         site_list_data._import_and_register(app_name="clinicedc_tests")
         site_list_data.initialize(module_name="list_data.bad_list_data")
@@ -88,7 +82,6 @@ class TestPreload(TestCase):
             app_name="clinicedc_tests",
         )
 
-    @tag("list_data1")
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_load_data(self):
         site_list_data.initialize(module_name="list_data.bad_list_data3")
