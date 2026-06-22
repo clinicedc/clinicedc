@@ -103,4 +103,15 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
             models.Index(fields=["panel_name"]),
             models.Index(fields=["due_datetime"]),
             models.Index(fields=["fill_datetime"]),
+            models.Index(
+                fields=[
+                    "entry_status",
+                    "site",
+                    "subject_identifier",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "show_order",
+                ],
+                name="%(app_label)s_%(class)s_a10idx",
+            ),
         )

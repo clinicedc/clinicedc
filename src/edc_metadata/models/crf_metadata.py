@@ -90,7 +90,13 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
                 name="%(app_label)s_%(class)s_a5idx",
             ),
             models.Index(
-                fields=["site", "subject_identifier", "visit_code", "visit_code_sequence", "show_order"],
+                fields=[
+                    "site",
+                    "subject_identifier",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "show_order",
+                ],
                 name="%(app_label)s_%(class)s_a6idx",
             ),
             models.Index(
@@ -104,5 +110,16 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
             models.Index(
                 fields=["document_name"],
                 name="%(app_label)s_%(class)s_a9idx",
+            ),
+            models.Index(
+                fields=[
+                    "entry_status",
+                    "site",
+                    "subject_identifier",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "show_order",
+                ],
+                name="%(app_label)s_%(class)s_a10idx",
             ),
         )

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from django.contrib import admin
-from django.db.models import OuterRef, Subquery
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html
@@ -132,17 +131,7 @@ class MetadataModelAdminMixin(
     )
 
     def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        appointment_model_cls = get_appointment_model_cls()
-        appointment_subquery = appointment_model_cls.objects.filter(
-            schedule_name=OuterRef("schedule_name"),
-            site=OuterRef("site"),
-            subject_identifier=OuterRef("subject_identifier"),
-            visit_code=OuterRef("visit_code"),
-            visit_code_sequence=OuterRef("visit_code_sequence"),
-            visit_schedule_name=OuterRef("visit_schedule_name"),
-        ).values("id")[:1]
-        return qs.annotate(_appointment_id=Subquery(appointment_subquery))
+        return super().get_queryset(request)
 
     def get_view_only_site_ids_for_user(self, request) -> list[int]:
         return [s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id]
@@ -160,12 +149,32 @@ class MetadataModelAdminMixin(
         extra_context.update(show_cancel=True)
         return extra_context
 
+    @staticmethod
+    def _get_appointment_id(obj) -> str | None:
+        """Look up the appointment for this metadata row on demand."""
+        if obj is None:
+            return None
+        appointment_model_cls = get_appointment_model_cls()
+        appointment_id = (
+            appointment_model_cls.objects.filter(
+                schedule_name=obj.schedule_name,
+                site=obj.site,
+                subject_identifier=obj.subject_identifier,
+                visit_code=obj.visit_code,
+                visit_code_sequence=obj.visit_code_sequence,
+                visit_schedule_name=obj.visit_schedule_name,
+            )
+            .values_list("id", flat=True)
+            .first()
+        )
+        return str(appointment_id) if appointment_id else None
+
     def get_subject_dashboard_url(self, obj=None) -> str | None:
         opts = {}
         if obj:
-            appointment_id = getattr(obj, "_appointment_id", None)
+            appointment_id = self._get_appointment_id(obj)
             if appointment_id:
-                opts = dict(appointment=str(appointment_id))
+                opts = dict(appointment=appointment_id)
         return reverse(
             url_names.get(self.subject_dashboard_url_name),
             kwargs=dict(subject_identifier=obj.subject_identifier, **opts),
@@ -179,9 +188,9 @@ class MetadataModelAdminMixin(
     def get_subject_review_dashboard_url(self, obj=None) -> str | None:
         opts = {}
         if obj:
-            appointment_id = getattr(obj, "_appointment_id", None)
+            appointment_id = self._get_appointment_id(obj)
             if appointment_id:
-                opts = dict(appointment=str(appointment_id))
+                opts = dict(appointment=appointment_id)
         return reverse(
             url_names.get(self.subject_review_dashboard_url_name),
             kwargs=dict(subject_identifier=obj.subject_identifier, **opts),
