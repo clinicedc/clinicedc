@@ -53,11 +53,16 @@ class EgfrDropNotificationAdminMixin:
             "creatinine_value",
             "creatinine_units",
             "egfr_percent_change",
-        ) + fields
+            *fields,
+        )
 
     def get_list_filter(self, request) -> tuple[str, ...]:
         list_filter = super().get_list_filter(request)
-        return ("report_status", "creatinine_date") + list_filter
+        return (
+            "report_status",
+            "creatinine_date",
+            *list_filter,
+        )
 
     def get_list_display(self, request) -> tuple[str, ...]:
         list_display = super().get_list_display(request)
