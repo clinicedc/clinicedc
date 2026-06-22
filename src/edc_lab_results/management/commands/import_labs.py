@@ -5,16 +5,38 @@ keyed by laboratory name.
 
 Usage::
 
+    # Preview unmapped investigations (parse only, no DB writes):
+    manage.py import_labs /path/to/pdf_folder \
+        --laboratory "MNH" --show-unmapped
+
+    # Prepare a JSON mappings file from the report, then import:
+    manage.py import_labs /path/to/pdf_folder \
+        --laboratory "MNH" --mappings /path/to/mappings.json
+
+    # Full import (uses persisted mappings, prompts for unknowns):
     manage.py import_labs /path/to/pdf_folder --laboratory "MNH"
     manage.py import_labs /path/to/pdf_folder \
         --laboratory "MNH" --dry-run
     manage.py import_labs /path/to/pdf_folder \
         --laboratory "MNH" --output /path/to/output.csv
     manage.py import_labs --pending --laboratory "MNH"
+
+The --mappings JSON file format::
+
+    {
+        "Haemoglobin": "hgb",
+        "White Cell Count": "wbc",
+        "Platelet Count": "platelets",
+        "Glucose (Fasting)": ""
+    }
+
+Keys are investigation names (from the PDF), values are EDC utest_ids.
+Use an empty string for investigations with no EDC equivalent.
 """
 
 from __future__ import annotations
 
+import json
 import shutil
 import sys
 from pathlib import Path
@@ -29,7 +51,8 @@ from edc_lab_results.import_results import (
     LabResultImportError,
     check_utest_id_conflict,
 )
-from edc_lab_results.models import UploadedResultFile
+from edc_lab_results.models import InvestigationMapping, UploadedResultFile
+from edc_reportable.models import NormalData
 
 
 def _make_prompt_func(stdout, style):
@@ -70,6 +93,12 @@ def _make_prompt_func(stdout, style):
 
 
 class Command(BaseCommand):
+    """Import lab results from a folder of PDF files.
+
+    See also script `download_gmail_pdfs` if fetching PDFs
+    from Gmail.
+    """
+
     help = "Import lab results from a folder of PDF files."
 
     def add_arguments(self, parser) -> None:
@@ -113,10 +142,33 @@ class Command(BaseCommand):
             default=False,
             help="List all pending uploaded files and exit.",
         )
+        parser.add_argument(
+            "--show-unmapped",
+            action="store_true",
+            dest="show_unmapped",
+            default=False,
+            help=(
+                "Parse PDFs, list investigations that have no persisted "
+                "utest_id mapping, and exit. Use this to prepare a "
+                "--mappings JSON file."
+            ),
+        )
+        parser.add_argument(
+            "--mappings",
+            dest="mappings",
+            default=None,
+            help=(
+                "Path to a JSON file mapping investigation names to "
+                "utest_ids. Validated against persisted mappings, then "
+                "persisted before import."
+            ),
+        )
 
     def handle(self, *args, **options) -> None:  # noqa: ARG002
         if options["show_pending"]:
             self._handle_show_pending()
+        elif options["show_unmapped"]:
+            self._handle_show_unmapped(options)
         elif options["pending"]:
             self._handle_pending(options)
         else:
@@ -144,6 +196,148 @@ class Command(BaseCommand):
             raise CommandError("--laboratory is required.")
         return laboratory
 
+    def _handle_show_unmapped(self, options: dict) -> None:
+        """Parse PDFs and report investigations without a persisted mapping."""
+        folder_arg = options.get("folder")
+        if not folder_arg:
+            raise CommandError("A folder path is required with --show-unmapped.")
+        folder = Path(folder_arg).expanduser()
+        laboratory = self._require_laboratory(options)
+
+        importer = LabResultImporter(laboratory)
+        try:
+            tz = ZoneInfo(settings.TIME_ZONE)
+            self.stdout.write(f"Parsing PDFs from {folder} ...")
+            df = importer.parse(folder, tz=tz)
+        except LabResultImportError as e:
+            raise CommandError(str(e)) from e
+
+        if df.empty:
+            self.stdout.write(self.style.WARNING("No results extracted."))
+            return
+
+        investigations = sorted(df["investigation"].unique())
+        persisted = set(
+            InvestigationMapping.objects.filter(
+                laboratory=laboratory,
+            ).values_list("investigation", flat=True)
+        )
+
+        unmapped = [inv for inv in investigations if inv not in persisted]
+        already_mapped = [inv for inv in investigations if inv in persisted]
+
+        self.stdout.write(
+            f"\n{len(investigations)} unique investigation(s) found in PDFs."
+        )
+
+        if already_mapped:
+            self.stdout.write(
+                self.style.SUCCESS(f"\n{len(already_mapped)} already mapped:")
+            )
+            for inv in already_mapped:
+                mapping = InvestigationMapping.objects.get(
+                    laboratory=laboratory, investigation=inv
+                )
+                label = mapping.utest_id or "(unmapped)"
+                self.stdout.write(f"  {inv} -> {label}")
+
+        if unmapped:
+            self.stdout.write(
+                self.style.WARNING(f"\n{len(unmapped)} need mapping:")
+            )
+            for inv in unmapped:
+                self.stdout.write(f"  {inv}")
+
+            self.stdout.write(
+                "\nCreate a JSON file with these mappings and pass it "
+                "via --mappings. Example:\n"
+            )
+            template = {inv: "" for inv in unmapped}
+            self.stdout.write(json.dumps(template, indent=2))
+        else:
+            self.stdout.write(
+                self.style.SUCCESS("\nAll investigations are already mapped.")
+            )
+
+    def _load_and_validate_mappings(
+        self, mappings_path: Path, laboratory: str
+    ) -> dict[str, str]:
+        """Load a JSON mappings file, validate against persisted mappings,
+        and persist new ones. Returns the full mapping dict.
+
+        Raises CommandError on conflicts or invalid JSON.
+        """
+        if not mappings_path.exists():
+            raise CommandError(f"Mappings file not found: {mappings_path}")
+
+        try:
+            with mappings_path.open() as f:
+                file_mappings: dict[str, str] = json.load(f)
+        except (json.JSONDecodeError, ValueError) as e:
+            raise CommandError(f"Invalid JSON in {mappings_path}: {e}") from e
+
+        if not isinstance(file_mappings, dict):
+            raise CommandError(
+                f"Mappings file must contain a JSON object, "
+                f"got {type(file_mappings).__name__}."
+            )
+
+        conflicts: list[str] = []
+        for investigation, utest_id in file_mappings.items():
+            if not isinstance(utest_id, str):
+                raise CommandError(
+                    f"Value for '{investigation}' must be a string, "
+                    f"got {type(utest_id).__name__}."
+                )
+
+            try:
+                existing = InvestigationMapping.objects.get(
+                    laboratory=laboratory, investigation=investigation
+                )
+            except InvestigationMapping.DoesNotExist:
+                continue
+
+            if existing.utest_id != utest_id:
+                conflicts.append(
+                    f"  {investigation}: file says '{utest_id}', "
+                    f"DB has '{existing.utest_id}'"
+                )
+
+        if conflicts:
+            msg = "Mapping conflicts with persisted values:\n" + "\n".join(conflicts)
+            raise CommandError(msg)
+
+        persisted_count = 0
+        for investigation, utest_id in file_mappings.items():
+            if InvestigationMapping.objects.filter(
+                laboratory=laboratory, investigation=investigation
+            ).exists():
+                continue
+
+            in_reportable = bool(
+                utest_id
+                and NormalData.objects.filter(label=utest_id).exists()
+            )
+            InvestigationMapping.objects.create(
+                laboratory=laboratory,
+                investigation=investigation,
+                utest_id=utest_id,
+                in_reportable=in_reportable,
+            )
+            persisted_count += 1
+
+        if persisted_count:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Persisted {persisted_count} new mapping(s) from "
+                    f"{mappings_path.name}."
+                )
+            )
+        else:
+            self.stdout.write("All mappings from file already persisted.")
+
+        return file_mappings
+
     def _handle_folder(self, options: dict) -> None:
         folder_arg = options.get("folder")
         if not folder_arg:
@@ -156,7 +350,13 @@ class Command(BaseCommand):
             else folder / "lab_results.csv"
         )
 
-        prompt_func = _make_prompt_func(self.stdout, self.style)
+        if options.get("mappings"):
+            mappings_path = Path(options["mappings"]).expanduser()
+            self._load_and_validate_mappings(mappings_path, laboratory)
+            prompt_func = None
+        else:
+            prompt_func = _make_prompt_func(self.stdout, self.style)
+
         importer = LabResultImporter(laboratory, prompt_func=prompt_func)
 
         try:
@@ -186,7 +386,14 @@ class Command(BaseCommand):
         processed_dir = base_dir / "processed"
 
         laboratory = self._require_laboratory(options)
-        prompt_func = _make_prompt_func(self.stdout, self.style)
+
+        if options.get("mappings"):
+            mappings_path = Path(options["mappings"]).expanduser()
+            self._load_and_validate_mappings(mappings_path, laboratory)
+            prompt_func = None
+        else:
+            prompt_func = _make_prompt_func(self.stdout, self.style)
+
         tz = ZoneInfo(settings.TIME_ZONE)
 
         for upload in pending_files:
