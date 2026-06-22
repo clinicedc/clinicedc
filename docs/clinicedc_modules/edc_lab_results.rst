@@ -261,17 +261,18 @@ Management Commands
 ~~~~~~~~~~~~~~~~~~~
 
 ``import_labs``
-    Parses PDF files, resolves investigation mappings interactively, and saves
-    results to the database.
+    Parses PDF files, resolves investigation mappings, and saves results to the
+    database. The ``--laboratory`` flag is required. It selects the parser from
+    ``EDC_LAB_RESULTS_PARSERS`` and scopes the investigation mappings in
+    ``InvestigationMapping``.
+
+    **Basic usage (interactive):**
 
     .. code-block:: bash
 
         manage.py import_labs /path/to/pdf_folder --laboratory "MNH"
         manage.py import_labs /path/to/pdf_folder --laboratory "MNH" --dry-run
         manage.py import_labs /path/to/pdf_folder --laboratory "MNH" --output results.csv
-
-    The ``--laboratory`` flag is required. It selects the parser from ``EDC_LAB_RESULTS_PARSERS``
-    and scopes the investigation mappings in ``InvestigationMapping``.
 
     On first run, the command prompts for each unknown investigation:
 
@@ -284,6 +285,56 @@ Management Commands
     Accepted mappings are saved to ``InvestigationMapping`` and reused on subsequent runs.
     The command also checks ``edc_reportable.NormalData`` and warns about mapped
     ``utest_id`` values that have no normal range data.
+
+    **Non-interactive mapping workflow:**
+
+    For scripted or batch use, investigation mappings can be prepared in advance
+    using a two-step workflow:
+
+    First, preview unmapped investigations (read-only, no DB writes):
+
+    .. code-block:: bash
+
+        manage.py import_labs /path/to/pdf_folder \
+            --laboratory "MNH" --show-unmapped
+
+    This parses the PDFs, reports which investigations already have persisted
+    mappings and which need one, and outputs a JSON template for the unmapped
+    investigations.
+
+    Then, prepare a JSON file from the template and import:
+
+    .. code-block:: bash
+
+        manage.py import_labs /path/to/pdf_folder \
+            --laboratory "MNH" --mappings /path/to/mappings.json
+
+    The JSON file maps investigation names (as printed on the PDF) to EDC
+    ``utest_id`` values. Use an empty string for investigations with no EDC
+    equivalent:
+
+    .. code-block:: json
+
+        {
+            "Haemoglobin": "hgb",
+            "White Cell Count": "wbc",
+            "Platelet Count": "platelets",
+            "Glucose (Fasting)": ""
+        }
+
+    When ``--mappings`` is provided, the command validates the file against
+    persisted mappings and fails on any conflicts (same investigation mapped to
+    a different ``utest_id``). If all checks pass, new mappings are persisted
+    to ``InvestigationMapping`` and the import runs without interactive prompts.
+
+    **Processing pending uploads:**
+
+    .. code-block:: bash
+
+        manage.py import_labs --pending --laboratory "MNH"
+        manage.py import_labs --pending --laboratory "MNH" \
+            --mappings /path/to/mappings.json
+        manage.py import_labs --show-pending
 
 ``update_mapping``
     Updates an existing mapping and backfills the ``utest_id`` on all matching
