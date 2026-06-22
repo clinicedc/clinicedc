@@ -1,17 +1,18 @@
 import pandas as pd
+from clinicedc_utils import convert_visit_code_to_float
 from django.apps import apps as django_apps
 from django_pandas.io import read_frame
 
 from edc_appointment.models import AppointmentType
 
-from ..utils import convert_dates_from_model, convert_visit_code_to_float
+from ..utils import convert_dates_from_model
 
 
 def get_subject_visit(
-    model: str,
-    subject_identifiers: list[str] | None = None,
-    normalize: bool | None = None,
-    localize: bool | None = None,
+        model: str,
+        subject_identifiers: list[str] | None = None,
+        normalize: bool | None = None,
+        localize: bool | None = None,
 ) -> pd.DataFrame:
     """Read subject visit django model.
 
@@ -64,7 +65,6 @@ def get_subject_visit(
             "appointment__appt_type": "appt_type",
         }
     )
-    df["visit_code_str"] = df["visit_code"]
     df = df[
         [
             "subject_visit_id",
@@ -73,7 +73,6 @@ def get_subject_visit(
             "visit_code_sequence",
             "visit_datetime",
             "site_id",
-            "visit_code_str",
             "reason",
             "reason_unscheduled",
             "reason_unscheduled_other",
@@ -93,10 +92,11 @@ def get_subject_visit(
 
     df["visit_datetime"] = df["visit_datetime"].apply(pd.to_datetime)
 
-    convert_visit_code_to_float(df)
+    df = convert_visit_code_to_float(df)
 
     df_baseline_visit = df.copy()
-    df_baseline_visit = df_baseline_visit[(df_baseline_visit["visit_code"] == 1000.0)]  # noqa: PLR2004
+    df_baseline_visit = df_baseline_visit[
+        (df_baseline_visit["visit_code"] == 1000.0)]  # noqa: PLR2004
     df_baseline_visit = df_baseline_visit.rename(
         columns={"visit_datetime": "baseline_datetime"}
     )
@@ -126,5 +126,7 @@ def get_subject_visit(
     df["visit_count"] = df.groupby(by=["subject_identifier"])["subject_identifier"].transform(
         "count"
     )
-
+    df.convert_dtypes()
+    for column in df.select_dtypes(include="string").columns:
+        df[column] = df[column].astype(pd.StringDtype(na_value=pd.NA))
     return df.sort_values(by=["subject_identifier", "visit_code"]).reset_index(drop=True)

@@ -48,7 +48,7 @@ class SiteFieldsProtocol(Protocol):
     name: str | None
 
 
-class RelatedVisitProtocol(VisitScheduleFieldsProtocol, Protocol):
+class RelatedVisitProtocol(Protocol):
     metadata_cls: type[Metadata]
     metadata_destroyer_cls: type[Destroyer]
     metadata_rule_evaluator_cls: type[MetadataRuleEvaluator]
@@ -67,8 +67,13 @@ class RelatedVisitProtocol(VisitScheduleFieldsProtocol, Protocol):
     schedule: Schedule
     site: Site
     subject_identifier: str | None
+    visit_code: str
+    visit_code_sequence: int
+    visit_schedule_name: str
+    schedule_name: str
     user_created: str | None
     user_modified: str | None
+
     visit: Visit
     visit_schedule: VisitSchedule
     visits: VisitCollection

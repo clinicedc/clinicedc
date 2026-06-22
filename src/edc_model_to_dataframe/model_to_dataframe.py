@@ -4,12 +4,11 @@ import contextlib
 from copy import copy
 from typing import TYPE_CHECKING
 
-import numpy as np
 import pandas as pd
-from clinicedc_constants import NULL_STRING
+from clinicedc_utils import convert_visit_code_to_float as func_convert_visit_code_to_float
 from django.apps import apps as django_apps
 from django.core.exceptions import FieldError
-from django.db.models import QuerySet
+from django.db.models import DecimalField, FloatField, IntegerField, QuerySet
 from django_crypto_fields.utils import get_encrypted_fields, has_encrypted_fields
 from django_pandas.io import read_frame
 
@@ -18,7 +17,6 @@ from edc_sites.utils import get_site_model_cls
 from .constants import ACTION_ITEM_COLUMNS, SYSTEM_COLUMNS
 
 __all__ = ["ModelToDataframe", "ModelToDataframeError"]
-
 
 if TYPE_CHECKING:
     pass
@@ -71,16 +69,17 @@ class ModelToDataframe:
     }
 
     def __init__(
-        self,
-        model: str | None = None,
-        queryset: [QuerySet] | None = None,
-        query_filter: dict | None = None,
-        decrypt: bool | None = None,
-        drop_sys_columns: bool | None = None,
-        drop_action_item_columns: bool | None = None,
-        read_frame_verbose: bool | None = None,
-        remove_timezone: bool | None = None,
-        sites: list[int] | None = None,
+            self,
+            model: str | None = None,
+            queryset: QuerySet | None = None,
+            query_filter: dict | None = None,
+            decrypt: bool | None = None,
+            drop_sys_columns: bool | None = None,
+            drop_action_item_columns: bool | None = None,
+            read_frame_verbose: bool | None = None,
+            remove_timezone: bool | None = None,
+            sites: list[int] | None = None,
+            convert_visit_code_to_float: bool | None = None,
     ):
         self._columns = None
         self._has_encrypted_fields = None
@@ -99,6 +98,9 @@ class ModelToDataframe:
         self.m2m_columns = []
         self.query_filter = query_filter or {}
         self.remove_timezone = True if remove_timezone is None else remove_timezone
+        self.convert_visit_code_to_float = (
+            True if convert_visit_code_to_float is None else convert_visit_code_to_float
+        )
         self.queryset = queryset
         self.model = queryset.model._meta.label_lower if self.queryset else model
 
@@ -107,9 +109,18 @@ class ModelToDataframe:
         except LookupError as e:
             raise LookupError(f"Model is {self.model}. Got `{e}`") from e
 
+        self.float_cols = [
+            f.name
+            for f in self.model_cls._meta.get_fields()
+            if isinstance(f, (DecimalField, FloatField))
+        ]
+        self.int_cols = [
+            f.name for f in self.model_cls._meta.get_fields() if isinstance(f, (IntegerField,))
+        ]
+
         # by default exports for all sites
         if self.sites and (
-            "site" in self.model_field_names or "site_id" in self.model_field_names
+                "site" in self.model_field_names or "site_id" in self.model_field_names
         ):
             self.query_filter.update({"site__in": self.sites})
 
@@ -141,6 +152,9 @@ class ModelToDataframe:
                 verbose=self.read_frame_verbose,
             )[[col for col in self.columns]]
 
+            # convert to nullable dtypes consistently
+            df = df.convert_dtypes()
+
             self.validate_row_count(model_row_count, df, step_name="read_frame")
 
             df = self.merge_m2ms(df)
@@ -151,38 +165,49 @@ class ModelToDataframe:
 
             # remove timezone if asked
             if self.remove_timezone:
-                for column in list(
-                    df.select_dtypes(include=["datetimetz", "datetime64"]).columns
-                ):
-                    df[column] = pd.to_datetime(df[column]).dt.tz_localize(None)
+                for column in df.select_dtypes(include="datetime").columns:
+                    df[column] = df[column].dt.tz_localize(None)
 
             # convert bool to int64
-            for column in list(df.select_dtypes(include=["bool"]).columns):
-                df[column] = df[column].astype("int64").replace({True: 1, False: 0})
-
-            # convert object to str
-            for column in list(df.select_dtypes(include=["object"]).columns):
-                df[column] = df[column].fillna("")
-                df[column] = df[column].astype(str)
-
-            # convert timedeltas to secs
-            for column in list(df.select_dtypes(include=["timedelta64"]).columns):
-                df[column] = df[column].dt.total_seconds()
-
-            # fillna
-            df = df.fillna(value=np.nan, axis=0)
+            for column in df.select_dtypes(include=["bool"]).columns:
+                df[column] = df[column].astype("Int64")
 
             # remove illegal chars
-            for column in list(df.select_dtypes(include=["object"]).columns):
-                df[column] = df.apply(lambda x, col=column: self._clean_chars(x[col]), axis=1)
+            for column in df.select_dtypes(include="string").columns:
+                for char, replacement in self.illegal_chars.items():
+                    df[column] = df[column].str.replace(char, replacement, regex=False)
+
+            # clean up empty strings
+            for column in df.select_dtypes(include="string").columns:
+                df[column] = df[column].str.strip().replace("", pd.NA)
+
+            # convert timedeltas to secs
+            for column in df.select_dtypes(include="timedelta").columns:
+                df[column] = df[column].dt.total_seconds().astype("Float64")
+
+            for column in self.float_cols:
+                df[column] = df[column].astype("Float64")
+
+            for column in self.int_cols:
+                df[column] = df[column].astype("Int64")
+
+            # fillna
+            # df = df.fillna(value=np.nan, axis=0)
 
             # check merges worked correctly
             self.validate_row_count(model_row_count, df, step_name="final")
+
+            if (
+                    self.convert_visit_code_to_float
+                    and "visit_code" in df.columns
+                    and "visit_code_sequence" in df.columns
+            ):
+                df = func_convert_visit_code_to_float(df)
             self._dataframe = df
         return self._dataframe
 
     def validate_row_count(
-        self, model_row_count: int, df: pd.DataFrame, step_name: str
+            self, model_row_count: int, df: pd.DataFrame, step_name: str
     ) -> bool:
         if model_row_count != len(df):
             model = (self.queryset or self.model_cls)._meta.label_lower
@@ -232,18 +257,9 @@ class ModelToDataframe:
                 .reset_index()
                 .rename(columns={m2m_field_name: m2m_field_name.split("__", maxsplit=1)[0]})
             )
+            df_m2m = df_m2m.convert_dtypes()
             dataframe = dataframe.merge(df_m2m, on="id", how="left").reset_index(drop=True)
         return dataframe
-
-    def _clean_chars(self, s: str) -> str:
-        if s:
-            for k, v in self.illegal_chars.items():
-                try:
-                    s = s.replace(k, v)
-                except (AttributeError, TypeError):
-                    break
-            return s
-        return NULL_STRING
 
     def move_sys_columns_to_end(self, columns: dict[str, str]) -> dict[str, str]:
         system_columns = [
@@ -251,9 +267,9 @@ class ModelToDataframe:
         ]
         new_columns = {k: v for k, v in columns.items() if k not in system_columns}
         if (
-            system_columns
-            and len(new_columns.keys()) != len(columns.keys())
-            and not self.drop_sys_columns
+                system_columns
+                and len(new_columns.keys()) != len(columns.keys())
+                and not self.drop_sys_columns
         ):
             new_columns.update({k: k for k in system_columns})
         return new_columns
@@ -264,8 +280,8 @@ class ModelToDataframe:
         ]
         new_columns = {k: v for k, v in columns.items() if k not in ACTION_ITEM_COLUMNS}
         if action_item_columns and (
-            len(new_columns.keys()) != len(columns.keys())
-            and not self.drop_action_item_columns
+                len(new_columns.keys()) != len(columns.keys())
+                and not self.drop_action_item_columns
         ):
             new_columns.update({k: k for k in ACTION_ITEM_COLUMNS})
         return new_columns
@@ -287,7 +303,7 @@ class ModelToDataframe:
                     with contextlib.suppress(FieldError):
                         columns = self.add_columns_for_subject_visit(field_name, columns)
                 if field_name.endswith("_requisition") or field_name.endswith(
-                    "requisition_id"
+                        "requisition_id"
                 ):
                     columns = self.add_columns_for_subject_requisitions(columns)
             columns = self.add_columns_for_site(columns)
@@ -341,9 +357,10 @@ class ModelToDataframe:
             list_model_related_columns = []
             for fld_cls in self.model_cls._meta.get_fields():
                 if (
-                    hasattr(fld_cls, "related_model")
-                    and fld_cls.related_model
-                    and issubclass(fld_cls.related_model, (ListModelMixin, ListUuidModelMixin))
+                        hasattr(fld_cls, "related_model")
+                        and fld_cls.related_model
+                        and issubclass(fld_cls.related_model, (ListModelMixin,
+                                                               ListUuidModelMixin))
                 ):
                     list_model_related_columns.append(fld_cls.attname)  # noqa: PERF401
             self._list_model_related_columns = list(set(list_model_related_columns))
@@ -357,9 +374,9 @@ class ModelToDataframe:
             site_columns = []
             for fld_cls in self.model_cls._meta.get_fields():
                 if (
-                    hasattr(fld_cls, "related_model")
-                    and fld_cls.related_model
-                    and issubclass(fld_cls.related_model, (get_site_model_cls(),))
+                        hasattr(fld_cls, "related_model")
+                        and fld_cls.related_model
+                        and issubclass(fld_cls.related_model, (get_site_model_cls(),))
                 ):
                     site_columns.append(fld_cls.attname)  # noqa: PERF401
             self._site_columns = list(set(site_columns))
@@ -373,9 +390,9 @@ class ModelToDataframe:
             list_model_related_columns = []
             for fld_cls in self.model_cls._meta.get_fields():
                 if (
-                    hasattr(fld_cls, "related_model")
-                    and fld_cls.related_model
-                    and fld_cls.related_model in related_model
+                        hasattr(fld_cls, "related_model")
+                        and fld_cls.related_model
+                        and fld_cls.related_model in related_model
                 ):
                     list_model_related_columns.append(fld_cls.attname)  # noqa: PERF401
             self._list_model_related_columns = list(set(list_model_related_columns))
@@ -400,7 +417,7 @@ class ModelToDataframe:
 
     @staticmethod
     def add_columns_for_subject_visit(
-        column_name: str, columns: dict[str, str]
+            column_name: str, columns: dict[str, str]
     ) -> dict[str, str]:
         if "subject_identifier" not in [v for v in columns.values()]:
             columns.update(
