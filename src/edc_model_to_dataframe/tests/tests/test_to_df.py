@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from tempfile import mkdtemp
 from zoneinfo import ZoneInfo
 
@@ -98,6 +99,7 @@ class TestExport(TestCase):
         for f in SYSTEM_COLUMNS:
             self.assertNotIn(f, m.dataframe.columns)
 
+    @tag("1")
     def test_values(self):
         model = "clinicedc_tests.crffour"
         df = ModelToDataframe(model=model).dataframe.sort_values(
@@ -111,7 +113,12 @@ class TestExport(TestCase):
             self.assertEqual(
                 df.subject_identifier.iloc[i], crf.subject_visit.subject_identifier
             )
-            self.assertEqual(df.visit_code.iloc[i], crf.subject_visit.visit_code)
+            self.assertEqual(
+                df.visit_code.iloc[i],
+                Decimal(
+                    f"{crf.subject_visit.visit_code}.{crf.subject_visit.visit_code_sequence}"
+                ),
+            )
 
     def test_encrypted_none(self):
         model = "clinicedc_tests.crfencrypted"

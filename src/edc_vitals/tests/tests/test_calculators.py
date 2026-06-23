@@ -42,7 +42,6 @@ class TestCalculators(TestCase):
                 else:
                     self.assertEqual(round_half_away_from_zero(bmi.value, 2), 24.89)
 
-    @tag("1")
     def test_bmi_form_validator(self):
         data = dict(
             gender=MALE,
