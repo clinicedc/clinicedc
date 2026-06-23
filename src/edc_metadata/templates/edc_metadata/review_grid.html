@@ -1,0 +1,273 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block extrastyle %}{{ block.super }}
+<style>
+  /* compact, scrollable pivot with sticky header + first column */
+  .review-scroll { overflow: auto; max-height: 80vh; }
+  .review-table { font-size: 12px; margin-bottom: 0; }
+  .review-table th, .review-table td { white-space: nowrap; padding: 4px 8px; }
+  .review-table thead th {
+    position: sticky; top: 0; z-index: 2; background-color: #fff;
+    box-shadow: inset 0 -1px 0 #ddd;
+  }
+  .review-table tbody th, .review-table tfoot th:first-child {
+    position: sticky; left: 0; z-index: 1; background-color: #fff;
+  }
+  .review-table thead th:first-child { left: 0; z-index: 3; }
+  .review-table tfoot th {
+    position: sticky; bottom: 0; z-index: 2; background-color: #f5f5f5;
+    box-shadow: inset 0 1px 0 #ddd;
+  }
+  .review-cell-zero { color: #cfd8dc; }
+  .review-cell-has { background-color: #fdebd0; }
+  .review-table tbody tr.review-tier-1 th,
+  .review-table tbody tr.review-tier-1 td { background-color: #fcf3cf; }
+  .review-chip { display: inline-block; margin-top: 4px; }
+  /* django-admin style paginator */
+  .review-paginator { margin: 12px 0; font-size: 13px; }
+  .review-paginator a,
+  .review-paginator .this-page,
+  .review-paginator .ellipsis {
+    display: inline-block; padding: 2px 8px; margin-right: 2px; line-height: 1.4;
+  }
+  .review-paginator a {
+    background: #f8f8f8; border: 1px solid #ccc; border-radius: 3px;
+    color: #205067; text-decoration: none;
+  }
+  .review-paginator a:hover { background: #eee; }
+  .review-paginator .this-page {
+    background: #79aec8; border: 1px solid #79aec8; border-radius: 3px;
+    color: #fff; font-weight: bold;
+  }
+  .review-paginator .ellipsis { color: #999; }
+  .review-paginator .paginator-count { color: #999; margin-left: 10px; }
+</style>
+{% endblock extrastyle %}
+
+{% block main %}
+{{ block.super }}
+
+<div class="container-fluid">
+
+  <h3><a id="home" href="{% url 'edc_metadata:home_url' %}" class="btn btn-primary"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i></a>&nbsp;Outstanding CRFs and Requisitions</h3>
+
+  {% if no_schedule %}
+    <div class="alert alert-warning">No visit schedules are loaded.</div>
+  {% else %}
+
+  {# ---- filter bar ---- #}
+  <div class="panel panel-default">
+  <div class="panel-heading">Filters</div>
+    <div class="panel-body">
+      <form method="get">
+        <input type="hidden" name="submitted" value="1">
+        <input type="hidden" name="lens" value="{{ lens }}">
+
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label">Subject</label>
+              <input type="text" name="q" value="{{ subject_q }}" class="form-control input-sm"
+                     placeholder="subject identifier or leave blank">
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label">Schedule</label>
+              <select name="schedule" class="form-control input-sm">
+                {% for value, label in schedule_choices %}
+                  <option value="{{ value }}" {% if value == selected_schedule %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label">Site</label>
+              <select name="site" class="form-control input-sm">
+                <option value="" {% if selected_site_value == '' %}selected{% endif %}>All sites</option>
+                {% for value, label in site_choices %}
+                  <option value="{{ value }}" {% if value|stringformat:'s' == selected_site_value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label">Visit</label>
+              <select name="visit_code" class="form-control input-sm">
+                <option value="">All visits</option>
+                {% for code, title in columns %}
+                  <option value="{{ code }}" {% if code == selected_visit_code %}selected{% endif %}>{{ code }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="form-group">
+              <label class="control-label">CRFs <small class="text-muted">(override priority)</small></label>
+              <select name="models" class="form-control input-sm" multiple size="3">
+                {% for value, label in crf_model_choices %}
+                  <option value="{{ value }}" {% if value in selected_models %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              <p class="help-block" style="margin:4px 0 0;">
+                Hold down "Control", or "Command" on a Mac, to select more than one or deselect.
+              </p>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label">&nbsp;</label>
+              <div class="checkbox" style="margin-top:0;">
+                <label>
+                  <input type="checkbox" name="priority_only" value="1" {% if priority_only_checked %}checked{% endif %}>
+                  Priority only
+                </label>
+              </div>
+            </div>
+          </div>
+            <div class="col-sm-12">
+                <button type="submit" class="btn btn-primary" style="padding-left: 2rem; padding-right: 2rem;">Apply filters</button>
+            </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if no_priority_configured %}
+    <div class="alert alert-info">
+      No priority CRFs configured for this schedule &mdash; showing all forms.
+    </div>
+  {% endif %}
+
+  {# ---- lens toggle ---- #}
+  <div class="btn-group" role="group" style="margin-bottom:12px;">
+    <a href="?{{ filter_querystring }}&lens=leaderboard"
+       class="btn {% if lens == 'leaderboard' %}btn-primary{% else %}btn-default{% endif %}">
+      Leaderboard</a>
+    <a href="?{{ filter_querystring }}&lens=grid"
+       class="btn {% if lens == 'grid' %}btn-primary{% else %}btn-default{% endif %}">
+      Subjects by visit grid</a>
+  </div>
+
+  {% if lens == 'grid' %}
+  <p class="small text-muted">
+    Outstanding = entry status <strong>New</strong> (REQUIRED) only.
+    {% if crf_only %}
+      Cells show <strong>CRF</strong> counts for the selected CRFs only
+      (requisitions hidden while a CRF filter is active).
+    {% else %}
+      Cells show <strong>CRF / requisition</strong> counts.
+    {% endif %}
+    Click a cell to open the subject dashboard.
+  </p>
+  {% endif %}
+
+  {# ================= GRID ================= #}
+  {% if lens == 'grid' %}
+  <div class="review-scroll">
+    <table class="table table-condensed table-hover review-table">
+      <thead>
+        <tr>
+          <th>Subject ({{ subject_count }})</th>
+          {% for code, title in columns %}<th class="text-center" title="{{ title }}">{{ code }}</th>{% endfor %}
+          <th class="text-center">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in grid %}
+          <tr>
+            <th>{{ row.subject_identifier }}</th>
+            {% for cell in row.cells %}
+              <td class="text-center {% if cell.total == 0 %}review-cell-zero{% else %}review-cell-has{% endif %}">
+                {% if cell.total == 0 %}&middot;{% else %}
+                  {% if crf_only %}
+                    {% if cell.url %}<a href="{{ cell.url }}">{{ cell.crf }}</a>{% else %}{{ cell.crf }}{% endif %}
+                  {% else %}
+                    {% if cell.url %}<a href="{{ cell.url }}">{{ cell.crf }} / {{ cell.req }}</a>{% else %}{{ cell.crf }} / {{ cell.req }}{% endif %}
+                  {% endif %}
+                {% endif %}
+              </td>
+            {% endfor %}
+            <td class="text-center"><strong>{{ row.total }}</strong></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="{{ columns|length|add:2 }}" class="text-center text-muted">
+            No outstanding forms for this selection.</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th>Total</th>
+          {% for total in column_totals %}<th class="text-center">{{ total }}</th>{% endfor %}
+          <th class="text-center">{{ grand_total }}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <p class="review-paginator">
+    {% if page_obj.has_previous %}
+      <a href="?{{ filter_querystring }}&lens={{ lens }}&page={{ page_obj.previous_page_number }}">&lsaquo; Prev</a>
+    {% endif %}
+    {% for num in page_range %}
+      {% if num == page_obj.paginator.ELLIPSIS %}
+        <span class="ellipsis">{{ num }}</span>
+      {% elif num == page_obj.number %}
+        <span class="this-page">{{ num }}</span>
+      {% else %}
+        <a href="?{{ filter_querystring }}&lens={{ lens }}&page={{ num }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <a href="?{{ filter_querystring }}&lens={{ lens }}&page={{ page_obj.next_page_number }}">Next &rsaquo;</a>
+    {% endif %}
+    <span class="paginator-count">{{ subject_count }} subject{{ subject_count|pluralize }}</span>
+  </p>
+
+  {# ================= LEADERBOARD ================= #}
+  {% else %}
+  <div class="review-scroll">
+    <table class="table table-condensed table-hover review-table">
+      <thead>
+        <tr>
+          <th>CRF</th>
+          {% for code, title in columns %}<th class="text-center" title="{{ title }}">{{ code }}</th>{% endfor %}
+          <th class="text-center">Total subjects</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in leaderboard %}
+          <tr {% if row.tier == 1 %}class="review-tier-1"{% endif %}>
+            <th>
+              {{ row.verbose_name }}
+              {% if row.tier %}<span class="label label-warning">Tier {{ row.tier }}</span>{% endif %}
+            </th>
+            {% for cell in row.cells %}
+              <td class="text-center {% if cell.count == 0 %}review-cell-zero{% endif %}">
+                {% if cell.count == 0 %}&middot;{% else %}<a href="{{ cell.url }}">{{ cell.count }}</a>{% endif %}
+              </td>
+            {% endfor %}
+            <td class="text-center"><strong>{{ row.total }}</strong></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="{{ columns|length|add:2 }}" class="text-center text-muted">
+            No outstanding CRFs for this selection.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="small text-muted">
+    Each cell is the number of distinct subjects with that CRF outstanding at the visit.
+    Click a cell to open the matching subjects in the grid.
+  </p>
+  {% endif %}
+
+  {% endif %}{# no_schedule #}
+</div>
+{% endblock main %}

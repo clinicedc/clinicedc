@@ -120,6 +120,20 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
                     "visit_code_sequence",
                     "show_order",
                 ],
-                name="%(app_label)s_%(class)s_a10idx",
+                # name kept <= 30 chars (Django models.E034); the full
+                # %(class)s prefix overflows for these models.
+                name="edc_metadata_crf_a10idx",
+            ),
+            # leaderboard: GROUP BY model, visit_code (COUNT DISTINCT subject)
+            models.Index(
+                fields=[
+                    "entry_status",
+                    "site",
+                    "schedule_name",
+                    "model",
+                    "visit_code",
+                    "subject_identifier",
+                ],
+                name="edc_metadata_crf_a11idx",
             ),
         )

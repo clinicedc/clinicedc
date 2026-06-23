@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                     "visit_code_sequence",
                     "show_order",
                 ],
-                name="edc_metadata_crfmetadata_a10idx",
+                name="edc_metadata_crf_a10idx",
             ),
         ),
         migrations.AddIndex(
@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                     "visit_code_sequence",
                     "show_order",
                 ],
-                name="edc_metadata_requisitionmetadata_a10idx",
+                name="edc_metadata_req_a10idx",
             ),
         ),
     ]

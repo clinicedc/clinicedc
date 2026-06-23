@@ -1,4 +1,5 @@
 from .crf_metadata import CrfMetadata
+from .crf_priority import CrfPriority
 from .requisition_metadata import RequisitionMetadata
 from .signals import (
     metadata_create_on_post_save,
