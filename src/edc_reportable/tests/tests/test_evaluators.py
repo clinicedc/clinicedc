@@ -19,7 +19,6 @@ from edc_utils import age
 @tag("reportable")
 @override_settings(SITE_ID=10)
 class TestEvaluators(TestCase):
-    @tag("1")
     def test_evaluator_zero(self):
         """Test the basic evaluator."""
         ref = Evaluator(
@@ -35,7 +34,6 @@ class TestEvaluators(TestCase):
         self.assertTrue(ref.in_bounds_or_raise(99.9, units="mg/dL"))
         self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 100, units="mg/dL")
 
-    @tag("1")
     def test_evaluator_lower_none(self):
         """Test the basic evaluator."""
         ref = Evaluator(upper=100, units="mg/dL", upper_inclusive=False)
@@ -47,7 +45,6 @@ class TestEvaluators(TestCase):
         self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 100, units="mg/dL")
         self.assertRaises(ValueBoundryError, ref.in_bounds_or_raise, 10000, units="mg/dL")
 
-    @tag("1")
     def test_evaluator_upper_none(self):
         """Test the basic evaluator."""
         ref = Evaluator(lower=100, units="mg/dL", lower_inclusive=True)
@@ -57,7 +54,6 @@ class TestEvaluators(TestCase):
         self.assertTrue(ref.in_bounds_or_raise(100, units="mg/dL"))
         self.assertTrue(ref.in_bounds_or_raise(10000, units="mg/dL"))
 
-    @tag("1")
     def test_evaluator(self):  # noqa: PLR0915
         """Test the basic evaluator."""
 
@@ -146,7 +142,6 @@ class TestEvaluators(TestCase):
         self.assertRaises(InvalidCombination, Evaluator, lower=10, upper=10, units="mg/dL")
         self.assertRaises(InvalidCombination, Evaluator, lower=11, upper=10, units="mg/dL")
 
-    @tag("1")
     def test_age_evaluator(self):
         """Test the age evaluator which is a child class
         of the basic evaluator.

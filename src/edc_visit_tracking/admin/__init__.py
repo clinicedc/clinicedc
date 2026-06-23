@@ -1,0 +1,2 @@
+from .subject_visit_admin import SubjectVisitAdmin
+from .subject_visit_missed_admin import SubjectVisitMissedAdmin

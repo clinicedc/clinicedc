@@ -630,7 +630,6 @@ class TestNextAppointmentCrf(TestCase):
             form_validator.validate()
         self.assertIn("Next appointment has already started", str(cm.exception))
 
-    @tag("1")
     def test_next_appt_form_validator_next_ok_if_appt_date_not_changed(self):
         subject_visit_model_cls = get_related_visit_model_cls()
         for timepoint in [0, 1, 2]:
