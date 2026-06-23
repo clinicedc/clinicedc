@@ -3,7 +3,7 @@
 Reads account credentials from a JSON file. Set the path via the
 GMAIL_ACCOUNTS_FILE env var or the --accounts-file argument.
 
-Accounts file format:
+Accounts file format (e.g: .gmail_accounts.json):
     [
         {"email": "account1@gmail.com", "password": "xxxx xxxx xxxx xxxx"},
         {"email": "account2@gmail.com", "password": "yyyy yyyy yyyy yyyy"}
@@ -15,10 +15,13 @@ Usage:
     uv run --dev python -m edc_lab_results.scripts.download_gmail_pdfs \
         --email account1@gmail.com \
         --output-dir /path/to/pdf_downloads
+        --accounts-file ~/.clinicedc/my_edc/.gmail_accounts.json
 
 Features:
     - Tracks downloads in a manifest file (safe to re-run / resume).
     - Reconnects automatically on transient network errors (up to 3 retries).
+
+After running this see the management command `import_labs`
 """
 
 import argparse
@@ -137,9 +140,7 @@ def download_pdf_attachments(
         try:
             status, msg_data = mail.fetch(msg_id, "(BODY.PEEK[])")
         except (imaplib.IMAP4.abort, imaplib.IMAP4.error, OSError, socket.error) as e:
-            mail = _reconnect_with_retry(
-                e, email_address, password, imap_host, msg_index=i
-            )
+            mail = _reconnect_with_retry(e, email_address, password, imap_host, msg_index=i)
             status, data = mail.search(None, "ALL")
             if status != "OK":
                 print("Search failed after reconnect.")
@@ -159,9 +160,8 @@ def download_pdf_attachments(
             if filename:
                 filename = decode_header_value(filename)
 
-            is_pdf = (
-                content_type == "application/pdf"
-                or (filename and filename.lower().endswith(".pdf"))
+            is_pdf = content_type == "application/pdf" or (
+                filename and filename.lower().endswith(".pdf")
             )
             if not is_pdf or part.get("Content-Disposition") is None:
                 continue
@@ -197,7 +197,7 @@ def download_pdf_attachments(
             }
             save_manifest(output_dir, manifest)
 
-            print(f"  [{saved + 1}] {dest.name}  (subject: \"{subject}\", date: {date})")
+            print(f'  [{saved + 1}] {dest.name}  (subject: "{subject}", date: {date})')
             saved += 1
 
         if i % 100 == 0:
@@ -275,9 +275,7 @@ def main() -> None:
     accounts_file = Path(accounts_file)
 
     accounts = load_accounts(accounts_file)
-    account = next(
-        (a for a in accounts if a["email"] == args.email), None
-    )
+    account = next((a for a in accounts if a["email"] == args.email), None)
     if not account:
         print(
             f"Error: '{args.email}' not found in {accounts_file}.",

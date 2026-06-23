@@ -1,2 +1,33 @@
 {% extends edc_base_template %}
 {% load static %}
+
+{% block main %}
+
+{{ block.super }}
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+
+  <div class="col-sm-4">
+    <div class="panel panel-default">
+      <div class="panel-heading">Data Collection Status</div>
+      <div class="list-group">
+        <a id="home_list_group_home" href="{% url 'home_url' %}" class="list-group-item"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i> Home</a>
+        {% if perms.edc_metadata.view_crfmetadata %}
+          <a id="home_edc_metadata_review" href="{% url 'edc_metadata:review_grid_url' %}" class="list-group-item">Review outstanding CRFs/Requisitions</a>
+        {% endif %}
+        <a id="home_list_group_crfmetadata" href="{% url 'edc_metadata_admin:edc_metadata_crfmetadata_changelist' %}" class="list-group-item">Crf Collection Status</a>
+        <a id="home_list_group_requisitionmetadata" href="{% url 'edc_metadata_admin:edc_metadata_requisitionmetadata_changelist' %}" class="list-group-item">Requisition Collection Status</a>
+        {% if perms.edc_crf %}
+          <a id="home_edc_crf_admin" href="{% url 'edc_crf_admin:edc_crf_crfstatus_changelist' %}" class="list-group-item">Review CRFs Flagged as Incomplete</a>
+        {% endif %}
+        {% if perms.edc_metadata %}
+          <a id="home_edc_metadata_admin" href="{% url 'edc_metadata_admin:app_list' 'edc_metadata' %}" class="list-group-item">Admin</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-4">&nbsp;
+  </div>
+{% endblock main %}

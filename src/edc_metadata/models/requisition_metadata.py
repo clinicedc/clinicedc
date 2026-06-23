@@ -103,4 +103,29 @@ class RequisitionMetadata(CrfMetadataModelMixin, BaseUuidModel):
             models.Index(fields=["panel_name"]),
             models.Index(fields=["due_datetime"]),
             models.Index(fields=["fill_datetime"]),
+            models.Index(
+                fields=[
+                    "entry_status",
+                    "site",
+                    "subject_identifier",
+                    "visit_code",
+                    "visit_code_sequence",
+                    "show_order",
+                ],
+                # name kept <= 30 chars (Django models.E034); the full
+                # %(class)s prefix overflows for these models.
+                name="edc_metadata_req_a10idx",
+            ),
+            # leaderboard: GROUP BY model, visit_code (COUNT DISTINCT subject)
+            models.Index(
+                fields=[
+                    "entry_status",
+                    "site",
+                    "schedule_name",
+                    "model",
+                    "visit_code",
+                    "subject_identifier",
+                ],
+                name="edc_metadata_req_a11idx",
+            ),
         )

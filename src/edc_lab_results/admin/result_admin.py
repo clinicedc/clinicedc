@@ -10,13 +10,13 @@ from ..models import Result
 
 
 @admin.register(Result, site=edc_lab_results_admin)
-class ResultAdmin(
-    ModelAdminSubjectDashboardMixin, admin.ModelAdmin
-):
+class ResultAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
     list_display = (
         "subject_identifier",
         "screening_identifier",
         "dashboard",
+        "order_datetime",
+        "report_datetime",
         "visit_code",
         "investigation",
         "link_to_reportable",
@@ -25,8 +25,6 @@ class ResultAdmin(
         "flag",
         "subject_not_found",
         "requisition_ambiguous",
-        "order_datetime",
-        "report_datetime",
         "order_no",
         "sample_no",
         "result_no",
@@ -56,10 +54,7 @@ class ResultAdmin(
     @admin.display(description="UTESTID", ordering="utest_id")
     def link_to_reportable(self, obj):
         if obj.utest_id:
-            url = reverse(
-                "edc_reportable_admin:"
-                "edc_reportable_normaldata_changelist"
-            )
+            url = reverse("edc_reportable_admin:edc_reportable_normaldata_changelist")
             return format_html(
                 '<A href="{url}?q={utestid}">{utestid}</A>',
                 url=url,
