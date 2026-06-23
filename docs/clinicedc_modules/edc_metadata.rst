@@ -30,6 +30,78 @@ By default the ``entry_status`` field attribute is set to ``REQUIRED``. You can 
     The same applies to REQUISITIONS.
 
 
+Reviewing outstanding forms (data manager review screen)
+--------------------------------------------------------
+
+``edc_metadata`` provides a proactive review screen for data managers that aggregates
+**outstanding** forms — those with ``entry_status == REQUIRED`` ("New", not yet ``KEYED``) —
+across subjects and visits. It answers "which subjects, at which visits, have outstanding CRFs
+and requisitions, and which form types are most behind".
+
+* URL name: ``edc_metadata:review_grid_url`` (``/edc_metadata/review/``).
+* View: ``views/review_grid_view.py`` — ``MetadataReviewGridView`` (a ``TemplateView``).
+* Permission: gated by the existing ``edc_metadata.view_crfmetadata`` codename. No new
+  navbar item — it is reached from the **Data Management** home page link and from the
+  **"Outstanding CRFs"** link in the subject dashboard "Collection status" sidebar.
+
+Two lenses
+++++++++++
+
+Switch lenses with the ``?lens=`` parameter (default ``leaderboard``):
+
+* **Leaderboard** (``lens=leaderboard``) — rows are CRF types, columns are visit codes, and
+  each cell is the number of **distinct subjects** with that CRF outstanding at that visit.
+  Rows are ordered by priority tier then outstanding count; tier-1 CRFs are highlighted.
+  Clicking a cell hands off to the grid filtered to that CRF and visit.
+* **Subjects-by-visit grid** (``lens=grid``) — rows are subjects (ordered by
+  ``subject_identifier``, paginated), columns are the schedule's visit codes, and each cell
+  shows ``CRF / requisition`` outstanding counts. Row and column totals are included.
+  Clicking a cell opens the subject dashboard at that appointment.
+
+Filters
++++++++
+
+* **Subject** — case-insensitive ``subject_identifier`` search (``q``).
+* **Schedule** — one ``visit_schedule_name`` / ``schedule_name`` at a time (counts never
+  span schedules, because ``visit_code`` collides across them).
+* **Site** — a single site or **All sites** across the user's allowed set (see below).
+* **Visit** — restrict to a single ``visit_code``.
+* **CRFs (override priority)** — a multiselect of CRF model labels.
+* **Priority only** — restrict CRF counts to the configured priority set (see below).
+
+Priority CRFs
++++++++++++++
+
+The ``CrfPriority`` model (``models/crf_priority.py``, admin-maintained by data managers)
+flags CRF types as priority per schedule, with a ``tier`` and ``active`` flag. Resolution
+order for which CRFs are counted:
+
+1. an explicit **CRFs multiselect** selection wins; otherwise
+2. if **Priority only** is checked and priority rows exist, the active priority set for the
+   schedule is used; otherwise
+3. all CRFs (with a banner when priority-only is on but nothing is configured).
+
+When a CRF set is active (priority or multiselect), the grid becomes **CRF-focused**:
+requisitions are excluded from the subject set, cells and totals so the filter is not muddied
+by unrelated requisitions (requisition prioritisation is deferred).
+
+Site scoping
+++++++++++++
+
+Queries use the default ``objects`` manager (not ``on_site``) and scope explicitly with
+``site_id__in``. ``allowed_site_ids()`` returns, for users with the ``DATA_MANAGER_ROLE``,
+every site on their user profile (including the current site); other users get
+``edc_sites.sites.get_site_ids_for_user()`` (current + view-only).
+
+.. important::
+
+   The screen counts **persisted** metadata. It does not recompute rules on render (that
+   would be far too expensive across many subjects), so counts can lag reality until metadata
+   is refreshed — e.g. by visiting a subject dashboard (which recomputes that timepoint) or by
+   running ``python manage.py update_metadata``. The subject-grid aggregation is served by the
+   ``a10idx`` composite index and the leaderboard by ``a11idx`` (see the model ``Meta``).
+
+
 ``metadata_rules`` manipulate ``metadata`` model instances
 ----------------------------------------------------------
 
