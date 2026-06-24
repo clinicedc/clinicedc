@@ -123,6 +123,20 @@ from the review board's outstanding counts.
 * The flag matters only while ``entry_status == REQUIRED``. If the form is later keyed it is no
   longer outstanding and the flag is ignored (a leftover row is harmless and cleanable in admin).
 
+The flag/un-flag view sets ``user_created``/``user_modified`` itself (``django_audit_fields`` only
+populates those from the admin). To also capture the acting user in the **history** tables —
+including the delete row written on un-flag — install simple_history's request middleware
+**after** ``AuthenticationMiddleware``:
+
+.. code-block:: python
+
+    MIDDLEWARE = [
+        ...,
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        ...,
+        "simple_history.middleware.HistoryRequestMiddleware",
+    ]
+
 
 ``metadata_rules`` manipulate ``metadata`` model instances
 ----------------------------------------------------------

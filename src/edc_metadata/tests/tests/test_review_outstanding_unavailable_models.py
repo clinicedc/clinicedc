@@ -10,7 +10,7 @@ from edc_metadata.models import (
 
 @tag("metadata")
 @override_settings(SITE_ID=10)
-class TestMetadataUnavailableModels(TestCase):
+class TestReviewOutstandingUnavailableModels(TestCase):
     def setUp(self):
         self.reason = DataUnavailableReason.objects.create(
             name="test_reason", display_name="Test reason"
