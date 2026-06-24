@@ -39,7 +39,7 @@ across subjects and visits. It answers "which subjects, at which visits, have ou
 and requisitions, and which form types are most behind".
 
 * URL name: ``edc_metadata:review_grid_url`` (``/edc_metadata/review/``).
-* View: ``views/review_grid_view.py`` — ``MetadataReviewGridView`` (a ``TemplateView``).
+* View: ``views/review_grid_view.py`` — ``ReviewOutstandingGridView`` (a ``TemplateView``).
 * Permission: gated by the existing ``edc_metadata.view_crfmetadata`` codename. No new
   navbar item — it is reached from the **Data Management** home page link and from the
   **"Outstanding CRFs"** link in the subject dashboard "Collection status" sidebar.
@@ -100,6 +100,28 @@ every site on their user profile (including the current site); other users get
    is refreshed — e.g. by visiting a subject dashboard (which recomputes that timepoint) or by
    running ``python manage.py update_metadata``. The subject-grid aggregation is served by the
    ``a10idx`` composite index and the leaderboard by ``a11idx`` (see the model ``Meta``).
+
+Flagging a form as "data unavailable"
++++++++++++++++++++++++++++++++++++++
+
+Sometimes a required form can never be completed because the data can no longer be obtained
+(subject lost to follow-up, sample lost, source document missing, etc.). Submitting the form
+is not possible, so ``edc_crf``'s ``crf_status`` (which lives on the *keyed* CRF) cannot
+represent it. Instead, an outstanding form can be flagged **data unavailable**, which drops it
+from the review board's outstanding counts.
+
+* From a grid cell (or the subject dashboard "Outstanding CRFs" link) you reach a per-(subject,
+  visit) **detail page** listing the outstanding CRFs and requisitions, each with a
+  *mark unavailable* control (a configurable ``DataUnavailableReason`` + comment +
+  ``decision_datetime``) and an *un-flag* action.
+* Flags are stored in ``CrfMetadataUnavailable`` / ``RequisitionMetadataUnavailable``, keyed by
+  the metadata **natural key** (never the regenerable primary key) and audited via
+  ``HistoricalRecords``. Un-flagging deletes the row; the history table retains the trail.
+* The board excludes flagged items from the counts and shows an "Unavailable: N" tally.
+* Flagging requires the model ``add``/``delete`` permissions (granted to data managers and
+  clinic staff); clinic staff may only flag forms at their own site (enforced in the view).
+* The flag matters only while ``entry_status == REQUIRED``. If the form is later keyed it is no
+  longer outstanding and the flag is ignored (a leftover row is harmless and cleanable in admin).
 
 
 ``metadata_rules`` manipulate ``metadata`` model instances

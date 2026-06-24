@@ -16,7 +16,10 @@ from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_metadata.constants import REQUIRED
 from edc_metadata.models import CrfMetadata
-from edc_metadata.views.review_grid_view import MetadataReviewGridView, visit_columns
+from edc_metadata.views.review_outstanding_grid_view import (
+    ReviewOutstandingGridView,
+    visit_columns,
+)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -52,7 +55,7 @@ class TestLeaderboard(TestCase):
         self.baseline = self.appointment.visit_code
 
     def _view(self):
-        view = MetadataReviewGridView()
+        view = ReviewOutstandingGridView()
         view.request = RequestFactory().get("/review/?site=")
         view.request.user = self.user
         return view

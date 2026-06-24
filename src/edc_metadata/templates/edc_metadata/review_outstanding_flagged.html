@@ -1,0 +1,91 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block extrastyle %}{{ block.super }}
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+  <script>
+    $(document).ready(function () {
+      var table = $('#unavailable_table').DataTable({order: [[6, 'desc']], pageLength: 25});
+
+      // Get the search parameter from the URL query string
+      var urlParams = new URLSearchParams(window.location.search);
+      var searchParam = urlParams.get('search'); // Looks for ?search=your_keyword
+
+      // If the parameter exists, apply it to the global search and draw
+      if (searchParam) {
+        table.search(searchParam).draw();
+      }
+
+      $('#reason_filter').on('change', function () {
+        var v = this.value;
+        table
+          .column(4)
+          .search(v ? '^' + $.fn.dataTable.util.escapeRegex(v) + '$' : '', true, false)
+          .draw();
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block main %}
+{{ block.super }}
+<div class="container-fluid">
+
+  <h3>
+    <a href="{% url 'edc_metadata:review_grid_url' %}?lens=grid" class="btn btn-primary"
+       title="Back to the review grid">
+      <i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i></a>&nbsp;Outstanding CRFs and Requisitions &mdash; Review flagged
+  </h3>
+
+  <form class="form-inline" style="margin-bottom:12px;">
+    <div class="form-group">
+      <label>Reason</label>
+      <select id="reason_filter" class="form-control input-sm">
+        <option value="">All reasons</option>
+        {% for r in reason_choices %}
+          <option value="{{ r.display_name }}">{{ r.display_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table id="unavailable_table" class="table table-condensed table-hover">
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Form</th>
+          <th>Visit</th>
+          <th>Seq</th>
+          <th>Reason</th>
+          <th>Comment</th>
+          <th>Modified</th>
+          <th>User</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td><a href="{{ row.url }}" title="back to flag/unflag">{{ row.subject_identifier }}</a></td>
+            <td>{{ row.form }}</td>
+            <td>{{ row.visit_code }}</td>
+            <td>{{ row.visit_code_sequence }}</td>
+            <td>{{ row.reason }}</td>
+            <td title="{{ row.comment }}">{{ row.comment|truncatechars:40 }}</td>
+            <td data-order="{{ row.modified|date:'U' }}">{{ row.modified|date:"Y-m-d H:i" }}</td>
+            <td>{{ row.user }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock main %}

@@ -1,3 +1,5 @@
 from .home_view import HomeView
 from .refresh_metadata_actions_view import RefreshMetadataActionsView
-from .review_grid_view import MetadataReviewGridView
+from .review_outstanding_detail_view import ReviewOutstandingDetailView
+from .review_outstanding_flagged_view import ReviewOutstandingFlaggedView
+from .review_outstanding_grid_view import ReviewOutstandingGridView
