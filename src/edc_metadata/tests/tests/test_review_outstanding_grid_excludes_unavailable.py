@@ -27,7 +27,7 @@ utc_tz = ZoneInfo("UTC")
 @tag("metadata")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
-class TestReviewGridExcludesUnavailable(TestCase):
+class TestReviewOutstandingGridExcludesUnavailable(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()

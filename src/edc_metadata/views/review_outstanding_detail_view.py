@@ -187,14 +187,23 @@ class ReviewOutstandingDetailView(
                 continue
             reason_id = request.POST.get(f"reason_{i}")
             if reason_id:
+                username = request.user.username
+                common = dict(
+                    reason_id=reason_id,
+                    comment=request.POST.get(f"comment_{i}") or "",
+                    decision_datetime=timezone.now(),
+                    site_id=source.site_id,
+                )
+                # django_audit_fields only fills user_* via the admin; this POST
+                # path bypasses the admin, so set them here.
                 unavailable_cls.objects.update_or_create(
                     **natkey,
-                    defaults=dict(
-                        reason_id=reason_id,
-                        comment=request.POST.get(f"comment_{i}") or "",
-                        decision_datetime=timezone.now(),
-                        site_id=source.site_id,
-                    ),
+                    defaults={**common, "user_modified": username},
+                    create_defaults={
+                        **common,
+                        "user_created": username,
+                        "user_modified": username,
+                    },
                 )
                 flagged += 1
             else:

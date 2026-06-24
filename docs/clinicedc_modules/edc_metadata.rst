@@ -51,7 +51,7 @@ Switch lenses with the ``?lens=`` parameter (default ``leaderboard``):
 
 * **Leaderboard** (``lens=leaderboard``) — rows are CRF types, columns are visit codes, and
   each cell is the number of **distinct subjects** with that CRF outstanding at that visit.
-  Rows are ordered by priority tier then outstanding count; tier-1 CRFs are highlighted.
+  Rows are ordered by descending outstanding count.
   Clicking a cell hands off to the grid filtered to that CRF and visit.
 * **Subjects-by-visit grid** (``lens=grid``) — rows are subjects (ordered by
   ``subject_identifier``, paginated), columns are the schedule's visit codes, and each cell
@@ -66,24 +66,23 @@ Filters
   span schedules, because ``visit_code`` collides across them).
 * **Site** — a single site or **All sites** across the user's allowed set (see below).
 * **Visit** — restrict to a single ``visit_code``.
-* **CRFs (override priority)** — a multiselect of CRF model labels.
-* **Priority only** — restrict CRF counts to the configured priority set (see below).
+* **CRFs** — a multiselect of CRF model labels. When CRFs are selected the grid becomes
+  **CRF-focused**: requisitions are excluded from the subject set, cells and totals so the
+  filter is not muddied by unrelated requisitions (requisition prioritisation is deferred).
 
-Priority CRFs
+Saved filters
 +++++++++++++
 
-The ``CrfPriority`` model (``models/crf_priority.py``, admin-maintained by data managers)
-flags CRF types as priority per schedule, with a ``tier`` and ``active`` flag. Resolution
-order for which CRFs are counted:
+The whole Filters panel can be saved as a named preset and reloaded. A ``ReviewFilter``
+(``models/review_filter.py``) stores the board's urlencoded filter querystring; loading one
+navigates to ``review_grid_url?<query>`` so every field repopulates.
 
-1. an explicit **CRFs multiselect** selection wins; otherwise
-2. if **Priority only** is checked and priority rows exist, the active priority set for the
-   schedule is used; otherwise
-3. all CRFs (with a banner when priority-only is on but nothing is configured).
-
-When a CRF set is active (priority or multiselect), the grid becomes **CRF-focused**:
-requisitions are excluded from the subject set, cells and totals so the filter is not muddied
-by unrelated requisitions (requisition prioritisation is deferred).
+* Filters are **personal** by default; ticking **Share with team** makes one visible to
+  everyone (``shared=True``). The Filters panel lists the user's own filters plus all shared.
+* **Save as** writes via ``SaveReviewFilterView`` (``update_or_create`` on ``(user, name)`` — a
+  repeated name overwrites). **Delete** (``DeleteReviewFilterView``) is allowed for the owner, or
+  for a data manager on a shared filter.
+* A saved filter stores **filters only** (not the lens); pick Leaderboard vs grid separately.
 
 Site scoping
 ++++++++++++
@@ -122,6 +121,20 @@ from the review board's outstanding counts.
   clinic staff); clinic staff may only flag forms at their own site (enforced in the view).
 * The flag matters only while ``entry_status == REQUIRED``. If the form is later keyed it is no
   longer outstanding and the flag is ignored (a leftover row is harmless and cleanable in admin).
+
+The flag/un-flag view sets ``user_created``/``user_modified`` itself (``django_audit_fields`` only
+populates those from the admin). To also capture the acting user in the **history** tables —
+including the delete row written on un-flag — install simple_history's request middleware
+**after** ``AuthenticationMiddleware``:
+
+.. code-block:: python
+
+    MIDDLEWARE = [
+        ...,
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        ...,
+        "simple_history.middleware.HistoryRequestMiddleware",
+    ]
 
 
 ``metadata_rules`` manipulate ``metadata`` model instances

@@ -5,7 +5,7 @@ from edc_metadata.models import (
     DataUnavailableReason,
     RequisitionMetadataUnavailable,
 )
-from edc_metadata.views.review_unavailable_view import ReviewOutstandingFlaggedView
+from edc_metadata.views import ReviewOutstandingFlaggedView
 
 
 @tag("metadata")

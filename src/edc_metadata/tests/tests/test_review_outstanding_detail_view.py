@@ -127,11 +127,12 @@ class TestReviewOutstandingDetailView(TestCase):
         )
         response = view.post(request)
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(
-            CrfMetadataUnavailable.objects.filter(
-                subject_identifier=self.sid, visit_code=crf.visit_code, model=crf.model
-            ).exists()
+        obj = CrfMetadataUnavailable.objects.get(
+            subject_identifier=self.sid, visit_code=crf.visit_code, model=crf.model
         )
+        # the posting user is captured (django_audit_fields only does this in admin)
+        self.assertEqual(obj.user_created, "erik")
+        self.assertEqual(obj.user_modified, "erik")
 
     def test_post_blank_reason_clears_existing_flag(self):
         crf = self._first_crf()

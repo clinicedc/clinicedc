@@ -2,10 +2,12 @@ from django.urls import path
 
 from .admin_site import edc_metadata_admin
 from .views import (
+    DeleteReviewFilterView,
     HomeView,
     ReviewOutstandingDetailView,
     ReviewOutstandingFlaggedView,
     ReviewOutstandingGridView,
+    SaveReviewFilterView,
 )
 
 app_name = "edc_metadata"
@@ -23,6 +25,16 @@ urlpatterns = [
         "review-outstanding/unavailable/",
         ReviewOutstandingFlaggedView.as_view(),
         name="unavailable_report_url",
+    ),
+    path(
+        "review-outstanding/filters/save/",
+        SaveReviewFilterView.as_view(),
+        name="save_filter_url",
+    ),
+    path(
+        "review-outstanding/filters/delete/",
+        DeleteReviewFilterView.as_view(),
+        name="delete_filter_url",
     ),
     path("", HomeView.as_view(), name="home_url"),
 ]

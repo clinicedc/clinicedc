@@ -41,10 +41,6 @@ data_manager = [
     "edc_data_manager.view_visitdatadictionary",
     "edc_metadata.view_crfmetadata",
     "edc_metadata.view_requisitionmetadata",
-    "edc_metadata.add_crfpriority",
-    "edc_metadata.change_crfpriority",
-    "edc_metadata.delete_crfpriority",
-    "edc_metadata.view_crfpriority",
 ]
 
 custom_codenames = [

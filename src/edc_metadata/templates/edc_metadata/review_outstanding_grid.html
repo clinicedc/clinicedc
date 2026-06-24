@@ -21,8 +21,6 @@
   }
   .review-cell-zero { color: #cfd8dc; }
   .review-cell-has { background-color: #fdebd0; }
-  .review-table tbody tr.review-tier-1 th,
-  .review-table tbody tr.review-tier-1 td { background-color: #fcf3cf; }
   .review-chip { display: inline-block; margin-top: 4px; }
   /* django-admin style paginator */
   .review-paginator { margin: 12px 0; font-size: 13px; }
@@ -60,8 +58,7 @@
   <div class="panel panel-default">
   <div class="panel-heading">Filters</div>
     <div class="panel-body">
-      <form method="get">
-        <input type="hidden" name="submitted" value="1">
+      <form id="filter-form" method="get">
         <input type="hidden" name="lens" value="{{ lens }}">
 
         <div class="row">
@@ -109,7 +106,7 @@
         <div class="row">
           <div class="col-sm-6">
             <div class="form-group">
-              <label class="control-label">CRFs <small class="text-muted">(override priority)</small></label>
+              <label class="control-label">CRFs</label>
               <select name="models" class="form-control input-sm" multiple size="3">
                 {% for value, label in crf_model_choices %}
                   <option value="{{ value }}" {% if value in selected_models %}selected{% endif %}>{{ label }}</option>
@@ -120,30 +117,65 @@
               </p>
             </div>
           </div>
-          <div class="col-sm-3">
-            <div class="form-group">
-              <label class="control-label">&nbsp;</label>
-              <div class="checkbox" style="margin-top:0;">
-                <label>
-                  <input type="checkbox" name="priority_only" value="1" {% if priority_only_checked %}checked{% endif %}>
-                  Priority only
-                </label>
-              </div>
-            </div>
-          </div>
-            <div class="col-sm-12">
-                <button type="submit" class="btn btn-primary" style="padding-left: 2rem; padding-right: 2rem;">Apply filters</button>
-            </div>
         </div>
       </form>
+
+      {# ---- saved filters (above Apply) ---- #}
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <label class="control-label">Save current filters as</label>
+            <form method="post" action="{% url 'edc_metadata:save_filter_url' %}" class="form-inline">{% csrf_token %}
+              <input type="hidden" name="query" value="{{ filter_querystring }}">
+              <input type="text" name="name" class="form-control input-sm" placeholder="name" required>
+              {% if can_share %}<label class="checkbox-inline"><input type="checkbox" name="shared" value="1"> Share with team</label>{% endif %}
+              <button type="submit" class="btn btn-default btn-sm">Save</button>
+            </form>
+          </div>
+        </div>
+        <div class="col-sm-4">
+          <div class="form-group">
+            <label class="control-label">Saved filters</label>
+            <select id="saved_filter" class="form-control input-sm" onchange="loadSavedFilter(this)">
+              <option value="">&mdash; load a saved filter &mdash;</option>
+              {% for f in saved_filters %}
+                <option value="{{ f.id }}" data-query="{{ f.query }}">{{ f.name }}{% if f.shared %} (shared){% endif %}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="col-sm-2">
+          <div class="form-group">
+            <label class="control-label">&nbsp;</label>
+            <form method="post" action="{% url 'edc_metadata:delete_filter_url' %}">{% csrf_token %}
+              <input type="hidden" name="filter_id" id="delete_filter_id">
+              <button type="button" class="btn btn-default btn-sm"
+                      onclick="deleteSavedFilter(this.form)">Delete</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12">
+          <button type="submit" form="filter-form" class="btn btn-primary" style="padding-left: 2rem; padding-right: 2rem;">Apply filters</button>
+        </div>
+      </div>
+      <script>
+        function loadSavedFilter(sel) {
+          var opt = sel.options[sel.selectedIndex];
+          var q = opt ? opt.getAttribute('data-query') : '';
+          window.location.href = '{% url "edc_metadata:review_grid_url" %}' + (q ? '?' + q : '');
+        }
+        function deleteSavedFilter(form) {
+          var sel = document.getElementById('saved_filter');
+          if (!sel.value) { return; }
+          document.getElementById('delete_filter_id').value = sel.value;
+          form.submit();
+        }
+      </script>
     </div>
   </div>
-
-  {% if no_priority_configured %}
-    <div class="alert alert-info">
-      No priority CRFs configured for this schedule &mdash; showing all forms.
-    </div>
-  {% endif %}
 
   {# ---- lens toggle ---- #}
   <div class="clearfix">
@@ -250,11 +282,8 @@
       </thead>
       <tbody>
         {% for row in leaderboard %}
-          <tr {% if row.tier == 1 %}class="review-tier-1"{% endif %}>
-            <th>
-              {{ row.verbose_name }}
-              {% if row.tier %}<span class="label label-warning">Tier {{ row.tier }}</span>{% endif %}
-            </th>
+          <tr>
+            <th>{{ row.verbose_name }}</th>
             {% for cell in row.cells %}
               <td class="text-center {% if cell.count == 0 %}review-cell-zero{% endif %}">
                 {% if cell.count == 0 %}&middot;{% else %}<a href="{{ cell.url }}">{{ cell.count }}</a>{% endif %}
