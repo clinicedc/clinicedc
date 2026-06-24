@@ -7,20 +7,25 @@ from django.conf import settings
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.sites.models import Site
 from django.core.paginator import Paginator
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 
-from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
-from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_navbar import NavbarViewMixin
 from edc_sites.site import sites
 from edc_visit_schedule.exceptions import RegistryNotLoaded
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 from ..constants import CRF, REQUIRED
-from ..models import CrfMetadata, CrfPriority, RequisitionMetadata
+from ..models import (
+    CrfMetadata,
+    CrfMetadataUnavailable,
+    CrfPriority,
+    RequisitionMetadata,
+    RequisitionMetadataUnavailable,
+)
+from ..view_mixins import SiteScopeViewMixin
 
 CRF_COLLECTION_ATTRS = ("crfs", "crfs_prn", "crfs_unscheduled", "crfs_missed")
 
@@ -78,8 +83,9 @@ def model_verbose_name(label: str) -> str:
         return label
 
 
-class MetadataReviewGridView(
+class ReviewOutstandingGridView(
     PermissionRequiredMixin,
+    SiteScopeViewMixin,
     EdcViewMixin,
     NavbarViewMixin,
     TemplateView,
@@ -89,7 +95,7 @@ class MetadataReviewGridView(
     lens for prioritising follow-up.
     """
 
-    template_name = "edc_metadata/review_grid.html"
+    template_name = "edc_metadata/review_outstanding_grid.html"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "data_manager_home"
     permission_required = "edc_metadata.view_crfmetadata"
@@ -138,6 +144,16 @@ class MetadataReviewGridView(
         # (requisition prioritisation is deferred).
         crf_only = bool(models)
 
+        # items flagged "data unavailable" drop out of the outstanding counts
+        crf_exclude = self._flagged_ids(CrfMetadata, CrfMetadataUnavailable, crf_base)
+        req_exclude = (
+            set()
+            if crf_only
+            else self._flagged_ids(
+                RequisitionMetadata, RequisitionMetadataUnavailable, req_base, panel=True
+            )
+        )
+
         kwargs.update(
             columns=columns,
             crf_model_choices=crf_model_choices(visit_schedule_name, schedule_name),
@@ -147,6 +163,7 @@ class MetadataReviewGridView(
             selected_visit_code=visit_code or "",
             subject_q=subject_q,
             crf_only=crf_only,
+            unavailable_count=len(crf_exclude) + len(req_exclude),
             filter_querystring=self._filter_querystring(),
         )
         if self.lens() == "grid":
@@ -157,8 +174,9 @@ class MetadataReviewGridView(
                     columns,
                     visit_schedule_name,
                     schedule_name,
-                    site_ids,
                     crf_only,
+                    crf_exclude,
+                    req_exclude,
                 )
             )
         else:
@@ -171,6 +189,7 @@ class MetadataReviewGridView(
                     columns,
                     tier_map,
                     subject_q,
+                    crf_exclude,
                 )
             )
         return kwargs
@@ -196,15 +215,6 @@ class MetadataReviewGridView(
             return None, None
         visit_schedule_name, schedule_name = value.split("::", 1)
         return visit_schedule_name, schedule_name
-
-    def allowed_site_ids(self) -> list[int]:
-        if self.request.user.userprofile.roles.filter(name=DATA_MANAGER_ROLE).exists():
-            # data managers may review across every site on their profile,
-            # including the current one
-            site_ids = {s.id for s in self.request.user.userprofile.sites.all()}
-            site_ids.add(self.request.site.id)
-            return sorted(site_ids)
-        return sites.get_site_ids_for_user(request=self.request)
 
     def site_choices(self) -> list[tuple[int, str]]:
         qs = Site.objects.filter(id__in=self.allowed_site_ids()).order_by("name")
@@ -285,51 +295,72 @@ class MetadataReviewGridView(
 
     # ------------------------------------------------------------------ queries
     @staticmethod
-    def _subject_totals(model_cls, base: dict) -> dict[str, int]:
+    def _flagged_ids(model_cls, unavailable_cls, base: dict, panel: bool = False) -> set:
+        """Metadata ids flagged 'data unavailable' within the request scope.
+
+        Flags are exceptions (few), so resolving their natural keys to a bounded
+        Q-OR and `.exclude(id__in=...)` keeps the board queries simple.
+        """
+        flags = unavailable_cls.objects.filter(
+            visit_schedule_name=base["visit_schedule_name"],
+            schedule_name=base["schedule_name"],
+            site_id__in=base["site_id__in"],
+        )
+        if base.get("visit_code"):
+            flags = flags.filter(visit_code=base["visit_code"])
+        if base.get("subject_identifier__icontains"):
+            flags = flags.filter(
+                subject_identifier__icontains=base["subject_identifier__icontains"]
+            )
+        key_fields = ["subject_identifier", "visit_code", "visit_code_sequence", "model"]
+        if panel:
+            key_fields.append("panel_name")
+        q = Q()
+        found = False
+        for row in flags.values(*key_fields):
+            q |= Q(**row)
+            found = True
+        if not found:
+            return set()
+        return set(model_cls.objects.filter(q, **base).values_list("id", flat=True))
+
+    @staticmethod
+    def _subject_totals(
+        model_cls, base: dict, exclude_ids: set | None = None
+    ) -> dict[str, int]:
+        qs = model_cls.objects.filter(**base)
+        if exclude_ids:
+            qs = qs.exclude(id__in=exclude_ids)
         return {
             row["subject_identifier"]: row["n"]
-            for row in model_cls.objects.filter(**base)
-            .values("subject_identifier")
-            .annotate(n=Count("id"))
-            .order_by()
+            for row in qs.values("subject_identifier").annotate(n=Count("id")).order_by()
         }
 
     @staticmethod
-    def _cell_counts(model_cls, base: dict, subject_ids: list[str]) -> dict[tuple, int]:
+    def _cell_counts(
+        model_cls, base: dict, subject_ids: list[str], exclude_ids: set | None = None
+    ) -> dict[tuple, int]:
+        qs = model_cls.objects.filter(**base, subject_identifier__in=subject_ids)
+        if exclude_ids:
+            qs = qs.exclude(id__in=exclude_ids)
         return {
             (row["subject_identifier"], row["visit_code"]): row["n"]
-            for row in model_cls.objects.filter(**base, subject_identifier__in=subject_ids)
-            .values("subject_identifier", "visit_code")
+            for row in qs.values("subject_identifier", "visit_code")
             .annotate(n=Count("id"))
             .order_by()
         }
 
     @staticmethod
-    def _column_counts(model_cls, base: dict) -> dict[str, int]:
+    def _column_counts(
+        model_cls, base: dict, exclude_ids: set | None = None
+    ) -> dict[str, int]:
+        qs = model_cls.objects.filter(**base)
+        if exclude_ids:
+            qs = qs.exclude(id__in=exclude_ids)
         return {
             row["visit_code"]: row["n"]
-            for row in model_cls.objects.filter(**base)
-            .values("visit_code")
-            .annotate(n=Count("id"))
-            .order_by()
+            for row in qs.values("visit_code").annotate(n=Count("id")).order_by()
         }
-
-    @staticmethod
-    def _appointment_map(
-        subject_ids: list[str],
-        visit_schedule_name: str,
-        schedule_name: str,
-        site_ids: list[int],
-    ) -> dict[tuple, str]:
-        appointment_cls = django_apps.get_model("edc_appointment.appointment")
-        rows = appointment_cls.objects.filter(
-            subject_identifier__in=subject_ids,
-            visit_schedule_name=visit_schedule_name,
-            schedule_name=schedule_name,
-            site_id__in=site_ids,
-            visit_code_sequence=0,
-        ).values_list("subject_identifier", "visit_code", "id")
-        return {(subject, visit_code): str(pk) for subject, visit_code, pk in rows}
 
     # ------------------------------------------------------------------ builders
     def grid(
@@ -339,12 +370,17 @@ class MetadataReviewGridView(
         columns,
         visit_schedule_name,
         schedule_name,
-        site_ids,
-        crf_only=False,
+        crf_only,
+        crf_exclude,
+        req_exclude,
     ) -> dict:
-        crf_totals = self._subject_totals(CrfMetadata, crf_base)
+        crf_totals = self._subject_totals(CrfMetadata, crf_base, crf_exclude)
         # CRF-focused view (a CRF set is active): exclude requisitions entirely.
-        req_totals = {} if crf_only else self._subject_totals(RequisitionMetadata, req_base)
+        req_totals = (
+            {}
+            if crf_only
+            else self._subject_totals(RequisitionMetadata, req_base, req_exclude)
+        )
         totals: dict[str, int] = {}
         for source in (crf_totals, req_totals):
             for subject, n in source.items():
@@ -356,14 +392,12 @@ class MetadataReviewGridView(
         page_obj = paginator.get_page(self.request.GET.get("page"))
         page_subjects = list(page_obj.object_list)
 
-        crf_cells = self._cell_counts(CrfMetadata, crf_base, page_subjects)
+        crf_cells = self._cell_counts(CrfMetadata, crf_base, page_subjects, crf_exclude)
         req_cells = (
-            {} if crf_only else self._cell_counts(RequisitionMetadata, req_base, page_subjects)
+            {}
+            if crf_only
+            else self._cell_counts(RequisitionMetadata, req_base, page_subjects, req_exclude)
         )
-        appt_map = self._appointment_map(
-            page_subjects, visit_schedule_name, schedule_name, site_ids
-        )
-        dashboard_url_name = url_names.get("subject_dashboard_url")
 
         visit_codes = [code for code, _ in columns]
         rows = []
@@ -372,13 +406,17 @@ class MetadataReviewGridView(
             for visit_code in visit_codes:
                 crf_n = crf_cells.get((subject, visit_code), 0)
                 req_n = req_cells.get((subject, visit_code), 0)
-                appointment = appt_map.get((subject, visit_code))
                 url = (
                     reverse(
-                        dashboard_url_name,
-                        kwargs=dict(subject_identifier=subject, appointment=appointment),
+                        "edc_metadata:metadata_detail_url",
+                        kwargs=dict(
+                            subject_identifier=subject,
+                            visit_schedule_name=visit_schedule_name,
+                            schedule_name=schedule_name,
+                            visit_code=visit_code,
+                        ),
                     )
-                    if appointment
+                    if (crf_n + req_n)
                     else None
                 )
                 cells.append(dict(crf=crf_n, req=req_n, total=crf_n + req_n, url=url))
@@ -386,8 +424,10 @@ class MetadataReviewGridView(
                 dict(subject_identifier=subject, cells=cells, total=totals.get(subject, 0))
             )
 
-        crf_cols = self._column_counts(CrfMetadata, crf_base)
-        req_cols = {} if crf_only else self._column_counts(RequisitionMetadata, req_base)
+        crf_cols = self._column_counts(CrfMetadata, crf_base, crf_exclude)
+        req_cols = (
+            {} if crf_only else self._column_counts(RequisitionMetadata, req_base, req_exclude)
+        )
         column_totals = []
         grand_total = 0
         for visit_code in visit_codes:
@@ -416,6 +456,7 @@ class MetadataReviewGridView(
         columns,
         tier_map,
         subject_q=None,
+        exclude_ids=None,
     ) -> list[dict]:
         opts = dict(
             entry_status=REQUIRED,
@@ -427,9 +468,11 @@ class MetadataReviewGridView(
             opts["model__in"] = models
         if subject_q:
             opts["subject_identifier__icontains"] = subject_q
+        qs = CrfMetadata.objects.filter(**opts)
+        if exclude_ids:
+            qs = qs.exclude(id__in=exclude_ids)
         rows_qs = (
-            CrfMetadata.objects.filter(**opts)
-            .values("model", "visit_code")
+            qs.values("model", "visit_code")
             .annotate(subjects=Count("subject_identifier", distinct=True))
             .order_by()
         )

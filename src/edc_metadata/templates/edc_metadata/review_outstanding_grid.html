@@ -146,13 +146,20 @@
   {% endif %}
 
   {# ---- lens toggle ---- #}
-  <div class="btn-group" role="group" style="margin-bottom:12px;">
-    <a href="?{{ filter_querystring }}&lens=leaderboard"
-       class="btn {% if lens == 'leaderboard' %}btn-primary{% else %}btn-default{% endif %}">
-      Leaderboard</a>
-    <a href="?{{ filter_querystring }}&lens=grid"
-       class="btn {% if lens == 'grid' %}btn-primary{% else %}btn-default{% endif %}">
-      Subjects by visit grid</a>
+  <div class="clearfix">
+      <div class="btn-group pull-left" role="group" style="margin-bottom:12px;">
+        <a href="?{{ filter_querystring }}&lens=leaderboard"
+        class="btn {% if lens == 'leaderboard' %}btn-primary{% else %}btn-default{% endif %}">
+        Leader board</a>
+        <a href="?{{ filter_querystring }}&lens=grid"
+        class="btn {% if lens == 'grid' %}btn-primary{% else %}btn-default{% endif %}">
+        Subjects by visit grid</a>
+     </div>
+          {% if unavailable_count %}
+              <a href="{% url 'edc_metadata:unavailable_report_url' %}" class="btn btn-default pull-right" title="Review all forms flagged as data unavailable">
+                  Review flagged: {{ unavailable_count }}
+              </a>
+          {% endif %}
   </div>
 
   {% if lens == 'grid' %}
@@ -164,7 +171,7 @@
     {% else %}
       Cells show <strong>CRF / requisition</strong> counts.
     {% endif %}
-    Click a cell to open the subject dashboard.
+    Click a cell to review / flag outstanding forms.
   </p>
   {% endif %}
 

@@ -1,5 +1,4 @@
 from datetime import datetime
-from unittest.mock import patch
 from zoneinfo import ZoneInfo
 
 import time_machine
@@ -13,12 +12,14 @@ from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 
 from edc_consent import site_consents
-from edc_dashboard.url_names import url_names
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
-from edc_metadata.views.review_grid_view import MetadataReviewGridView, visit_columns
+from edc_metadata.views.review_outstanding_grid_view import (
+    ReviewOutstandingGridView,
+    visit_columns,
+)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -54,7 +55,7 @@ class TestReviewGrid(TestCase):
         self.baseline = self.appointment.visit_code
 
     def base(self, **extra):
-        opts = MetadataReviewGridView.base_filter(
+        opts = ReviewOutstandingGridView.base_filter(
             [10], self.vsn, self.sn, extra.pop("visit_code", None), extra.pop("q", None)
         )
         opts.update(extra)
@@ -62,7 +63,7 @@ class TestReviewGrid(TestCase):
 
     # -------------------------------------------------------------- base_filter
     def test_base_filter_minimal(self):
-        opts = MetadataReviewGridView.base_filter([10], self.vsn, self.sn, None, None)
+        opts = ReviewOutstandingGridView.base_filter([10], self.vsn, self.sn, None, None)
         self.assertEqual(
             opts,
             dict(
@@ -74,7 +75,7 @@ class TestReviewGrid(TestCase):
         )
 
     def test_base_filter_with_visit_and_subject(self):
-        opts = MetadataReviewGridView.base_filter(
+        opts = ReviewOutstandingGridView.base_filter(
             [10], self.vsn, self.sn, self.baseline, "105"
         )
         self.assertEqual(opts["visit_code"], self.baseline)
@@ -86,7 +87,7 @@ class TestReviewGrid(TestCase):
             entry_status=REQUIRED, site_id=10, subject_identifier=self.subject_identifier
         ).count()
         self.assertGreater(expected, 0)
-        totals = MetadataReviewGridView._subject_totals(CrfMetadata, self.base())
+        totals = ReviewOutstandingGridView._subject_totals(CrfMetadata, self.base())
         self.assertEqual(totals[self.subject_identifier], expected)
 
     def test_keyed_metadata_excluded_from_required_count(self):
@@ -95,7 +96,7 @@ class TestReviewGrid(TestCase):
         # count drops by exactly one.
         sid = self.subject_identifier
         base = self.base()
-        before = MetadataReviewGridView._subject_totals(CrfMetadata, base)[sid]
+        before = ReviewOutstandingGridView._subject_totals(CrfMetadata, base)[sid]
         pk = (
             CrfMetadata.objects.filter(
                 entry_status=REQUIRED, site_id=10, subject_identifier=sid
@@ -104,7 +105,7 @@ class TestReviewGrid(TestCase):
             .first()
         )
         CrfMetadata.objects.filter(pk=pk).update(entry_status=KEYED)
-        after = MetadataReviewGridView._subject_totals(CrfMetadata, base)[sid]
+        after = ReviewOutstandingGridView._subject_totals(CrfMetadata, base)[sid]
         self.assertEqual(after, before - 1)
 
     def test_cell_counts_keyed_by_subject_and_visit(self):
@@ -114,7 +115,7 @@ class TestReviewGrid(TestCase):
             subject_identifier=self.subject_identifier,
             visit_code=self.baseline,
         ).count()
-        cells = MetadataReviewGridView._cell_counts(
+        cells = ReviewOutstandingGridView._cell_counts(
             CrfMetadata, self.base(), [self.subject_identifier]
         )
         self.assertEqual(cells[(self.subject_identifier, self.baseline)], expected)
@@ -123,33 +124,23 @@ class TestReviewGrid(TestCase):
         one = CrfMetadata.objects.filter(
             entry_status=REQUIRED, subject_identifier=self.subject_identifier
         ).values_list("model", flat=True)[0]
-        totals = MetadataReviewGridView._subject_totals(
+        totals = ReviewOutstandingGridView._subject_totals(
             CrfMetadata, self.base(model__in=[one])
         )
         self.assertEqual(totals[self.subject_identifier], 1)
 
-    def test_appointment_map_built_in_one_query(self):
-        with self.assertNumQueries(1):
-            appt_map = MetadataReviewGridView._appointment_map(
-                [self.subject_identifier], self.vsn, self.sn, [10]
-            )
-        self.assertIn((self.subject_identifier, self.baseline), appt_map)
-
     # ------------------------------------------------------------------- grid()
     def _grid(self, crf_only):
-        view = MetadataReviewGridView()
+        view = ReviewOutstandingGridView()
         view.request = RequestFactory().get("/review/")
         view.request.user = self.user
         columns = visit_columns(self.vsn, self.sn)
-        with (
-            patch.object(url_names, "get", return_value="subject_dashboard_url"),
-            patch(
-                "edc_metadata.views.review_grid_view.reverse", return_value="/dash/"
+        return (
+            view.grid(
+                self.base(), self.base(), columns, self.vsn, self.sn, crf_only, set(), set()
             ),
-        ):
-            return view.grid(
-                self.base(), self.base(), columns, self.vsn, self.sn, [10], crf_only
-            ), columns
+            columns,
+        )
 
     def test_grid_totals_include_requisitions(self):
         crf_n = CrfMetadata.objects.filter(entry_status=REQUIRED, site_id=10).count()
@@ -164,12 +155,13 @@ class TestReviewGrid(TestCase):
         ctx, _ = self._grid(crf_only=True)
         self.assertEqual(ctx["grand_total"], crf_n)
 
-    def test_grid_cell_links_to_dashboard(self):
+    def test_grid_cell_links_to_detail(self):
         ctx, columns = self._grid(crf_only=False)
         row = next(
             r for r in ctx["grid"] if r["subject_identifier"] == self.subject_identifier
         )
         baseline_index = [code for code, _ in columns].index(self.baseline)
         cell = row["cells"][baseline_index]
-        self.assertEqual(cell["url"], "/dash/")
+        self.assertIn("/detail/", cell["url"])
+        self.assertIn(self.subject_identifier, cell["url"])
         self.assertGreater(cell["crf"], 0)

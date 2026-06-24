@@ -1,0 +1,45 @@
+<div class="table-responsive">
+  <table class="table table-condensed table-hover">
+    <thead>
+      <tr><th>Form</th><th>Visit</th><th>Reason (blank = available)</th><th>Comment</th></tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr {% if row.flag %}class="warning"{% endif %}>
+          <td>
+            {{ row.meta.document_name|default:row.meta.model }}
+            {% if is_req %}<span class="text-muted small">({{ row.meta.panel_name }})</span>{% endif %}
+          </td>
+          <td>{{ row.meta.visit_code }}.{{ row.meta.visit_code_sequence }}</td>
+          {% if can_flag %}
+            <td>
+              <input type="hidden" name="rows" value="{{ forloop.counter0 }}">
+              <input type="hidden" name="model_{{ forloop.counter0 }}" value="{{ row.meta.model }}">
+              <input type="hidden" name="seq_{{ forloop.counter0 }}" value="{{ row.meta.visit_code_sequence }}">
+              {% if is_req %}
+                <input type="hidden" name="panel_{{ forloop.counter0 }}" value="{{ row.meta.panel_name }}">
+              {% endif %}
+              <select name="reason_{{ forloop.counter0 }}" class="form-control input-sm">
+                <option value="">&mdash; available &mdash;</option>
+                {% for r in reason_choices %}
+                  <option value="{{ r.id }}" {% if row.flag and r.id == row.flag.reason_id %}selected{% endif %}>{{ r.display_name }}</option>
+                {% endfor %}
+              </select>
+            </td>
+            <td>
+              <input type="text" name="comment_{{ forloop.counter0 }}" class="form-control input-sm"
+                     value="{{ row.flag.comment|default:'' }}" placeholder="comment">
+            </td>
+          {% else %}
+            <td>
+              {% if row.flag %}<span class="label label-danger">{{ row.flag.reason }}</span>{% else %}<span class="text-muted">available</span>{% endif %}
+            </td>
+            <td>{{ row.flag.comment|default:'' }}</td>
+          {% endif %}
+        </tr>
+      {% empty %}
+        <tr><td colspan="4" class="text-center text-muted">No outstanding forms.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

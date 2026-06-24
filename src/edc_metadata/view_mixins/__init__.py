@@ -1,1 +1,2 @@
 from .metadata_view_mixin import MetadataViewMixin
+from .site_scope_mixin import SiteScopeViewMixin
