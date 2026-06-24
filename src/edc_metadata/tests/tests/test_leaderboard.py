@@ -60,7 +60,7 @@ class TestLeaderboard(TestCase):
         view.request.user = self.user
         return view
 
-    def _leaderboard(self, tier_map=None):
+    def _leaderboard(self):
         view = self._view()
         return view.leaderboard(
             [10],
@@ -68,7 +68,6 @@ class TestLeaderboard(TestCase):
             self.sn,
             None,
             visit_columns(self.vsn, self.sn),
-            tier_map or {},
         )
 
     def test_one_row_per_required_crf_model_with_distinct_subjects(self):
@@ -91,10 +90,7 @@ class TestLeaderboard(TestCase):
         self.assertIn("visit_code=", cell["url"])
         self.assertIn("models=", cell["url"])
 
-    def test_tier_one_rows_sort_first(self):
+    def test_rows_sorted_by_descending_count(self):
         rows = self._leaderboard()
-        models = sorted(r["model"] for r in rows)
-        promoted = models[-1]  # last alphabetically; tier would otherwise not float it up
-        rows = self._leaderboard(tier_map={promoted: 1})
-        self.assertEqual(rows[0]["model"], promoted)
-        self.assertEqual(rows[0]["tier"], 1)
+        totals = [r["total"] for r in rows]
+        self.assertEqual(totals, sorted(totals, reverse=True))

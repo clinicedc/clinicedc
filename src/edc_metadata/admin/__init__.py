@@ -1,6 +1,6 @@
 from .crf_metadata import CrfMetadataAdmin
 from .crf_metadata_unavailable import CrfMetadataUnavailableAdmin
-from .crf_priority import CrfPriorityAdmin
 from .data_unavailable_reason import DataUnavailableReasonAdmin
 from .requisition_metadata import RequisitionMetadataAdmin
 from .requisition_metadata_unavailable import RequisitionMetadataUnavailableAdmin
+from .review_filter import ReviewFilterAdmin
