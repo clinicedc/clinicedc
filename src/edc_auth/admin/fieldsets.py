@@ -7,6 +7,7 @@ user_profile_fieldsets = (
             {
                 "fields": (
                     "job_title",
+                    "institution",
                     "alternate_email",
                     "mobile",
                 )
