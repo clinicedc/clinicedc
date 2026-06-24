@@ -17,13 +17,13 @@ from edc_sites.site import sites
 from edc_visit_schedule.exceptions import RegistryNotLoaded
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..constants import CRF, REQUIRED
+from ..constants import REQUIRED
 from ..models import (
     CrfMetadata,
     CrfMetadataUnavailable,
-    CrfPriority,
     RequisitionMetadata,
     RequisitionMetadataUnavailable,
+    ReviewFilter,
 )
 from ..view_mixins import SiteScopeViewMixin
 
@@ -120,10 +120,7 @@ class ReviewOutstandingGridView(
 
         site_ids = self.selected_site_ids()
         columns = visit_columns(visit_schedule_name, schedule_name)
-        models, priority_only, configured = self.priority_models(
-            visit_schedule_name, schedule_name
-        )
-        tier_map = self.tier_map(visit_schedule_name, schedule_name)
+        models = self.selected_models()
         visit_code = self.request.GET.get("visit_code") or None
         subject_q = self.request.GET.get("q", "").strip()
 
@@ -132,16 +129,15 @@ class ReviewOutstandingGridView(
         )
         if models:
             crf_base["model__in"] = models
-        # requisitions are not narrowed by the CRF priority set (those are CRF
-        # model labels); requisition prioritisation is deferred.
+        # requisitions are not narrowed by the CRF set (those are CRF model
+        # labels); requisition prioritisation is deferred.
         req_base = self.base_filter(
             site_ids, visit_schedule_name, schedule_name, visit_code, subject_q
         )
 
-        # When a CRF set is active (priority or ad-hoc override) the view is
-        # CRF-focused: requisitions are excluded from the subject set, cells
-        # and totals so the filter isn't muddied by unrelated requisitions
-        # (requisition prioritisation is deferred).
+        # When CRFs are selected the view is CRF-focused: requisitions are
+        # excluded from the subject set, cells and totals so the filter isn't
+        # muddied by unrelated requisitions.
         crf_only = bool(models)
 
         # items flagged "data unavailable" drop out of the outstanding counts
@@ -158,13 +154,13 @@ class ReviewOutstandingGridView(
             columns=columns,
             crf_model_choices=crf_model_choices(visit_schedule_name, schedule_name),
             selected_models=models or [],
-            priority_only_checked=priority_only,
-            no_priority_configured=priority_only and not configured,
             selected_visit_code=visit_code or "",
             subject_q=subject_q,
             crf_only=crf_only,
             unavailable_count=len(crf_exclude) + len(req_exclude),
             filter_querystring=self._filter_querystring(),
+            saved_filters=self.saved_filters(),
+            can_share=True,
         )
         if self.lens() == "grid":
             kwargs.update(
@@ -187,23 +183,24 @@ class ReviewOutstandingGridView(
                     schedule_name,
                     models,
                     columns,
-                    tier_map,
                     subject_q,
                     crf_exclude,
                 )
             )
         return kwargs
 
+    def saved_filters(self):
+        return ReviewFilter.objects.filter(
+            Q(user=self.request.user) | Q(shared=True)
+        ).order_by("name")
+
     # ------------------------------------------------------------------ params
     def lens(self) -> str:
         return "grid" if self.request.GET.get("lens") == "grid" else "leaderboard"
 
-    def priority_only_requested(self) -> bool:
-        """Default on. A submitted filter form (marker `submitted`) with the
-        checkbox cleared turns it off."""
-        if self.request.GET.get("submitted"):
-            return self.request.GET.get("priority_only") == "1"
-        return True
+    def selected_models(self) -> list[str] | None:
+        """CRF model labels selected in the multiselect, or None."""
+        return [m for m in self.request.GET.getlist("models") if m] or None
 
     def selected_schedule(self) -> tuple[str | None, str | None]:
         choices = schedule_choices()
@@ -255,43 +252,6 @@ class ReviewOutstandingGridView(
         if subject_q:
             opts["subject_identifier__icontains"] = subject_q
         return opts
-
-    def priority_models(
-        self, visit_schedule_name: str, schedule_name: str
-    ) -> tuple[list[str] | None, bool, bool]:
-        """Return (models_or_None, priority_only_effective, configured_exists).
-
-        An ad-hoc `models` querystring overrides the persisted set. Otherwise
-        the active CRF priority rows for the schedule are used. Falls back to
-        all models (None) with a banner when priority-only is on but nothing
-        is configured.
-        """
-        ad_hoc = [m for m in self.request.GET.getlist("models") if m]
-        if ad_hoc:
-            return ad_hoc, True, True
-        priority_only = self.priority_only_requested()
-        configured = list(
-            CrfPriority.objects.filter(
-                active=True,
-                visit_schedule_name=visit_schedule_name,
-                schedule_name=schedule_name,
-                metadata_kind=CRF,
-            ).values_list("model", flat=True)
-        )
-        if priority_only and configured:
-            return configured, True, bool(configured)
-        return None, priority_only, bool(configured)
-
-    @staticmethod
-    def tier_map(visit_schedule_name: str, schedule_name: str) -> dict[str, int]:
-        return dict(
-            CrfPriority.objects.filter(
-                active=True,
-                visit_schedule_name=visit_schedule_name,
-                schedule_name=schedule_name,
-                metadata_kind=CRF,
-            ).values_list("model", "tier")
-        )
 
     # ------------------------------------------------------------------ queries
     @staticmethod
@@ -454,7 +414,6 @@ class ReviewOutstandingGridView(
         schedule_name,
         models,
         columns,
-        tier_map,
         subject_q=None,
         exclude_ids=None,
     ) -> list[dict]:
@@ -486,7 +445,7 @@ class ReviewOutstandingGridView(
         schedule_value = f"{visit_schedule_name}::{schedule_name}"
         site_value = self.selected_site_value()
         leaderboard = []
-        ordered = sorted(totals, key=lambda m: (tier_map.get(m, 99), -totals[m], m))
+        ordered = sorted(totals, key=lambda m: (-totals[m], m))
         for model_label in ordered:
             cells = []
             for visit_code in visit_codes:
@@ -494,7 +453,6 @@ class ReviewOutstandingGridView(
                 handoff = "?" + urlencode(
                     [
                         ("lens", "grid"),
-                        ("submitted", "1"),
                         ("schedule", schedule_value),
                         ("site", site_value),
                         ("models", model_label),
@@ -506,7 +464,6 @@ class ReviewOutstandingGridView(
                 dict(
                     model=model_label,
                     verbose_name=model_verbose_name(model_label),
-                    tier=tier_map.get(model_label),
                     cells=cells,
                     total=totals[model_label],
                 )
@@ -523,7 +480,7 @@ class ReviewOutstandingGridView(
         params: list[tuple[str, str]] = [("site", self.selected_site_value())]
         params += [
             (key, get.get(key))
-            for key in ("schedule", "submitted", "priority_only", "visit_code", "q")
+            for key in ("schedule", "visit_code", "q")
             if get.get(key)
         ]
         params += [("models", model) for model in get.getlist("models") if model]
