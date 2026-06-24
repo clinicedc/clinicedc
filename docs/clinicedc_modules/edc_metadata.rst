@@ -52,7 +52,9 @@ Switch lenses with the ``?lens=`` parameter (default ``leaderboard``):
 * **Leaderboard** (``lens=leaderboard``) — rows are CRF types, columns are visit codes, and
   each cell is the number of **distinct subjects** with that CRF outstanding at that visit.
   Rows are ordered by descending outstanding count.
-  Clicking a cell hands off to the grid filtered to that CRF and visit.
+  Clicking a cell hands off to the grid filtered to that CRF and visit. The leaderboard can be
+  exported to ``.xlsx`` (respecting the current filters) via the **Export** button
+  (``ExportLeaderboardView``; requires ``openpyxl``).
 * **Subjects-by-visit grid** (``lens=grid``) — rows are subjects (ordered by
   ``subject_identifier``, paginated), columns are the schedule's visit codes, and each cell
   shows ``CRF / requisition`` outstanding counts. Row and column totals are included.

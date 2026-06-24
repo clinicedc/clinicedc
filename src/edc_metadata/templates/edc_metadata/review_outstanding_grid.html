@@ -187,6 +187,11 @@
         class="btn {% if lens == 'grid' %}btn-primary{% else %}btn-default{% endif %}">
         Subjects by visit grid</a>
      </div>
+          {% if lens == 'leaderboard' %}
+              <a href="{% url 'edc_metadata:export_leaderboard_url' %}?{{ filter_querystring }}" class="btn btn-default pull-right" style="margin-left:6px;" title="Export the leaderboard to Excel">
+                  <i class="fas fa-file-excel" aria-hidden="true"></i> Export
+              </a>
+          {% endif %}
           {% if unavailable_count %}
               <a href="{% url 'edc_metadata:unavailable_report_url' %}" class="btn btn-default pull-right" title="Review all forms flagged as data unavailable">
                   Review flagged: {{ unavailable_count }}

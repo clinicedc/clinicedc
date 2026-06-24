@@ -3,6 +3,7 @@ from django.urls import path
 from .admin_site import edc_metadata_admin
 from .views import (
     DeleteReviewFilterView,
+    ExportLeaderboardView,
     HomeView,
     ReviewOutstandingDetailView,
     ReviewOutstandingFlaggedView,
@@ -35,6 +36,11 @@ urlpatterns = [
         "review-outstanding/filters/delete/",
         DeleteReviewFilterView.as_view(),
         name="delete_filter_url",
+    ),
+    path(
+        "review-outstanding/leaderboard-export/",
+        ExportLeaderboardView.as_view(),
+        name="export_leaderboard_url",
     ),
     path("", HomeView.as_view(), name="home_url"),
 ]
