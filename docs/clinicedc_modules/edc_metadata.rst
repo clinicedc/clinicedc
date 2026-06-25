@@ -30,115 +30,6 @@ By default the ``entry_status`` field attribute is set to ``REQUIRED``. You can 
     The same applies to REQUISITIONS.
 
 
-Reviewing outstanding forms (data manager review screen)
---------------------------------------------------------
-
-``edc_metadata`` provides a proactive review screen for data managers that aggregates
-**outstanding** forms — those with ``entry_status == REQUIRED`` ("New", not yet ``KEYED``) —
-across subjects and visits. It answers "which subjects, at which visits, have outstanding CRFs
-and requisitions, and which form types are most behind".
-
-* URL name: ``edc_metadata:review_grid_url`` (``/edc_metadata/review/``).
-* View: ``views/review_grid_view.py`` — ``ReviewOutstandingGridView`` (a ``TemplateView``).
-* Permission: gated by the existing ``edc_metadata.view_crfmetadata`` codename. No new
-  navbar item — it is reached from the **Data Management** home page link and from the
-  **"Outstanding CRFs"** link in the subject dashboard "Collection status" sidebar.
-
-Two lenses
-++++++++++
-
-Switch lenses with the ``?lens=`` parameter (default ``leaderboard``):
-
-* **Leaderboard** (``lens=leaderboard``) — rows are CRF types, columns are visit codes, and
-  each cell is the number of **distinct subjects** with that CRF outstanding at that visit.
-  Rows are ordered by descending outstanding count.
-  Clicking a cell hands off to the grid filtered to that CRF and visit. The leaderboard can be
-  exported to ``.xlsx`` (respecting the current filters) via the **Export** button
-  (``ExportLeaderboardView``; requires ``openpyxl``).
-* **Subjects-by-visit grid** (``lens=grid``) — rows are subjects (ordered by
-  ``subject_identifier``, paginated), columns are the schedule's visit codes, and each cell
-  shows ``CRF / requisition`` outstanding counts. Row and column totals are included.
-  Clicking a cell opens the subject dashboard at that appointment.
-
-Filters
-+++++++
-
-* **Subject** — case-insensitive ``subject_identifier`` search (``q``).
-* **Schedule** — one ``visit_schedule_name`` / ``schedule_name`` at a time (counts never
-  span schedules, because ``visit_code`` collides across them).
-* **Site** — a single site or **All sites** across the user's allowed set (see below).
-* **Visit** — restrict to a single ``visit_code``.
-* **CRFs** — a multiselect of CRF model labels. When CRFs are selected the grid becomes
-  **CRF-focused**: requisitions are excluded from the subject set, cells and totals so the
-  filter is not muddied by unrelated requisitions (requisition prioritisation is deferred).
-
-Saved filters
-+++++++++++++
-
-The whole Filters panel can be saved as a named preset and reloaded. A ``ReviewFilter``
-(``models/review_filter.py``) stores the board's urlencoded filter querystring; loading one
-navigates to ``review_grid_url?<query>`` so every field repopulates.
-
-* Filters are **personal** by default; ticking **Share with team** makes one visible to
-  everyone (``shared=True``). The Filters panel lists the user's own filters plus all shared.
-* **Save as** writes via ``SaveReviewFilterView`` (``update_or_create`` on ``(user, name)`` — a
-  repeated name overwrites). **Delete** (``DeleteReviewFilterView``) is allowed for the owner, or
-  for a data manager on a shared filter.
-* A saved filter stores **filters only** (not the lens); pick Leaderboard vs grid separately.
-
-Site scoping
-++++++++++++
-
-Queries use the default ``objects`` manager (not ``on_site``) and scope explicitly with
-``site_id__in``. ``allowed_site_ids()`` returns, for users with the ``DATA_MANAGER_ROLE``,
-every site on their user profile (including the current site); other users get
-``edc_sites.sites.get_site_ids_for_user()`` (current + view-only).
-
-.. important::
-
-   The screen counts **persisted** metadata. It does not recompute rules on render (that
-   would be far too expensive across many subjects), so counts can lag reality until metadata
-   is refreshed — e.g. by visiting a subject dashboard (which recomputes that timepoint) or by
-   running ``python manage.py update_metadata``. The subject-grid aggregation is served by the
-   ``a10idx`` composite index and the leaderboard by ``a11idx`` (see the model ``Meta``).
-
-Flagging a form as "data unavailable"
-+++++++++++++++++++++++++++++++++++++
-
-Sometimes a required form can never be completed because the data can no longer be obtained
-(subject lost to follow-up, sample lost, source document missing, etc.). Submitting the form
-is not possible, so ``edc_crf``'s ``crf_status`` (which lives on the *keyed* CRF) cannot
-represent it. Instead, an outstanding form can be flagged **data unavailable**, which drops it
-from the review board's outstanding counts.
-
-* From a grid cell (or the subject dashboard "Outstanding CRFs" link) you reach a per-(subject,
-  visit) **detail page** listing the outstanding CRFs and requisitions, each with a
-  *mark unavailable* control (a configurable ``DataUnavailableReason`` + comment +
-  ``decision_datetime``) and an *un-flag* action.
-* Flags are stored in ``CrfMetadataUnavailable`` / ``RequisitionMetadataUnavailable``, keyed by
-  the metadata **natural key** (never the regenerable primary key) and audited via
-  ``HistoricalRecords``. Un-flagging deletes the row; the history table retains the trail.
-* The board excludes flagged items from the counts and shows an "Unavailable: N" tally.
-* Flagging requires the model ``add``/``delete`` permissions (granted to data managers and
-  clinic staff); clinic staff may only flag forms at their own site (enforced in the view).
-* The flag matters only while ``entry_status == REQUIRED``. If the form is later keyed it is no
-  longer outstanding and the flag is ignored (a leftover row is harmless and cleanable in admin).
-
-The flag/un-flag view sets ``user_created``/``user_modified`` itself (``django_audit_fields`` only
-populates those from the admin). To also capture the acting user in the **history** tables —
-including the delete row written on un-flag — install simple_history's request middleware
-**after** ``AuthenticationMiddleware``:
-
-.. code-block:: python
-
-    MIDDLEWARE = [
-        ...,
-        "django.contrib.auth.middleware.AuthenticationMiddleware",
-        ...,
-        "simple_history.middleware.HistoryRequestMiddleware",
-    ]
-
-
 ``metadata_rules`` manipulate ``metadata`` model instances
 ----------------------------------------------------------
 
@@ -793,3 +684,113 @@ It works as follows:
    * - ``update_metadata_on_schedule_change.py`` — ``UpdateMetadataOnScheduleChange``
      - Bulk-updates ``schedule_name`` / ``visit_schedule_name`` on existing records when
        schedule configuration changes
+
+
+Reviewing outstanding forms (data manager review screen)
+--------------------------------------------------------
+
+``edc_metadata`` provides a proactive review screen for data managers that aggregates
+**outstanding** forms — those with ``entry_status == REQUIRED`` ("New", not yet ``KEYED``) —
+across subjects and visits. It answers "which subjects, at which visits, have outstanding CRFs
+and requisitions, and which form types are most behind".
+
+* URL name: ``edc_metadata:review_grid_url`` (``/edc_metadata/review/``).
+* View: ``views/review_grid_view.py`` — ``ReviewOutstandingGridView`` (a ``TemplateView``).
+* Permission: gated by the existing ``edc_metadata.view_crfmetadata`` codename. No new
+  navbar item — it is reached from the **Data Management** home page link and from the
+  **"Outstanding CRFs"** link in the subject dashboard "Collection status" sidebar.
+
+Two lenses
+++++++++++
+
+Switch lenses with the ``?lens=`` parameter (default ``leaderboard``):
+
+* **Leaderboard** (``lens=leaderboard``) — rows are CRF types, columns are visit codes, and
+  each cell is the number of **distinct subjects** with that CRF outstanding at that visit.
+  Rows are ordered by descending outstanding count.
+  Clicking a cell hands off to the grid filtered to that CRF and visit. The leaderboard can be
+  exported to ``.xlsx`` (respecting the current filters) via the **Export** button
+  (``ExportLeaderboardView``; requires ``openpyxl``).
+* **Subjects-by-visit grid** (``lens=grid``) — rows are subjects (ordered by
+  ``subject_identifier``, paginated), columns are the schedule's visit codes, and each cell
+  shows ``CRF / requisition`` outstanding counts. Row and column totals are included.
+  Clicking a cell opens the subject dashboard at that appointment.
+
+Filters
++++++++
+
+* **Subject** — case-insensitive ``subject_identifier`` search (``q``).
+* **Schedule** — one ``visit_schedule_name`` / ``schedule_name`` at a time (counts never
+  span schedules, because ``visit_code`` collides across them).
+* **Site** — a single site or **All sites** across the user's allowed set (see below).
+* **Visit** — restrict to a single ``visit_code``.
+* **CRFs** — a multiselect of CRF model labels. When CRFs are selected the grid becomes
+  **CRF-focused**: requisitions are excluded from the subject set, cells and totals so the
+  filter is not muddied by unrelated requisitions (requisition prioritisation is deferred).
+
+Saved filters
++++++++++++++
+
+The whole Filters panel can be saved as a named preset and reloaded. A ``ReviewFilter``
+(``models/review_filter.py``) stores the board's urlencoded filter querystring; loading one
+navigates to ``review_grid_url?<query>`` so every field repopulates.
+
+* Filters are **personal** by default; ticking **Share with team** makes one visible to
+  everyone (``shared=True``). The Filters panel lists the user's own filters plus all shared.
+* **Save as** writes via ``SaveReviewFilterView`` (``update_or_create`` on ``(user, name)`` — a
+  repeated name overwrites). **Delete** (``DeleteReviewFilterView``) is allowed for the owner, or
+  for a data manager on a shared filter.
+* A saved filter stores **filters only** (not the lens); pick Leaderboard vs grid separately.
+
+Site scoping
+++++++++++++
+
+Queries use the default ``objects`` manager (not ``on_site``) and scope explicitly with
+``site_id__in``. ``allowed_site_ids()`` returns, for users with the ``DATA_MANAGER_ROLE``,
+every site on their user profile (including the current site); other users get
+``edc_sites.sites.get_site_ids_for_user()`` (current + view-only).
+
+.. important::
+
+   The screen counts **persisted** metadata. It does not recompute rules on render (that
+   would be far too expensive across many subjects), so counts can lag reality until metadata
+   is refreshed — e.g. by visiting a subject dashboard (which recomputes that timepoint) or by
+   running ``python manage.py update_metadata``. The subject-grid aggregation is served by the
+   ``a10idx`` composite index and the leaderboard by ``a11idx`` (see the model ``Meta``).
+
+Flagging a form as "data unavailable"
++++++++++++++++++++++++++++++++++++++
+
+Sometimes a required form can never be completed because the data can no longer be obtained
+(subject lost to follow-up, sample lost, source document missing, etc.). Submitting the form
+is not possible, so ``edc_crf``'s ``crf_status`` (which lives on the *keyed* CRF) cannot
+represent it. Instead, an outstanding form can be flagged **data unavailable**, which drops it
+from the review board's outstanding counts.
+
+* From a grid cell (or the subject dashboard "Outstanding CRFs" link) you reach a per-(subject,
+  visit) **detail page** listing the outstanding CRFs and requisitions, each with a
+  *mark unavailable* control (a configurable ``DataUnavailableReason`` + comment +
+  ``decision_datetime``) and an *un-flag* action.
+* Flags are stored in ``CrfMetadataUnavailable`` / ``RequisitionMetadataUnavailable``, keyed by
+  the metadata **natural key** (never the regenerable primary key) and audited via
+  ``HistoricalRecords``. Un-flagging deletes the row; the history table retains the trail.
+* The board excludes flagged items from the counts and shows an "Unavailable: N" tally.
+* Flagging requires the model ``add``/``delete`` permissions (granted to data managers and
+  clinic staff); clinic staff may only flag forms at their own site (enforced in the view).
+* The flag matters only while ``entry_status == REQUIRED``. If the form is later keyed, a
+  ``post_save`` signal on the source CRF/Requisition (``delete_unavailable_on_keyed_post_save``
+  in ``models/signals.py``) deletes the matching flag — the data has now been obtained.
+
+The flag/un-flag view sets ``user_created``/``user_modified`` itself (``django_audit_fields`` only
+populates those from the admin). To also capture the acting user in the **history** tables —
+including the delete row written on un-flag — install simple_history's request middleware
+**after** ``AuthenticationMiddleware``:
+
+.. code-block:: python
+
+    MIDDLEWARE = [
+        ...,
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        ...,
+        "simple_history.middleware.HistoryRequestMiddleware",
+    ]
