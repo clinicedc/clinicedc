@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from urllib.parse import urlencode
+from urllib.parse import parse_qsl, urlencode
 
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -150,6 +150,22 @@ class ReviewOutstandingGridView(
             )
         )
 
+        filter_querystring = self._filter_querystring()
+        saved_filters = list(self.saved_filters())
+        # mark the saved filter (if any) whose query matches the current state, so
+        # the dropdown reflects the loaded filter instead of resetting to blank.
+        # Compare parsed params (order/encoding-insensitive) since saved blobs may
+        # be encoded slightly differently (e.g. built client-side).
+        current = sorted(parse_qsl(filter_querystring, keep_blank_values=True))
+        selected_filter_id = next(
+            (
+                f.id
+                for f in saved_filters
+                if sorted(parse_qsl(f.query, keep_blank_values=True)) == current
+            ),
+            None,
+        )
+
         kwargs.update(
             columns=columns,
             crf_model_choices=crf_model_choices(visit_schedule_name, schedule_name),
@@ -158,8 +174,9 @@ class ReviewOutstandingGridView(
             subject_q=subject_q,
             crf_only=crf_only,
             unavailable_count=len(crf_exclude) + len(req_exclude),
-            filter_querystring=self._filter_querystring(),
-            saved_filters=self.saved_filters(),
+            filter_querystring=filter_querystring,
+            saved_filters=saved_filters,
+            selected_filter_id=selected_filter_id,
             can_share=True,
         )
         if self.lens() == "grid":
