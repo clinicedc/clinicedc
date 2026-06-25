@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "4.2.1"
+version = "4.2.2"
 description = "A clinical trials data management framework built on Django"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -60,6 +60,7 @@ dependencies = [
     "inflect>=7.5.0",
     "mempass>=0.1.2",
     "mysqlclient>=2.2.7",
+    "openpyxl>=3.1.5",
     "psycopg2>=2.9.10",
     "pycups>=2.0.4",
     "pypdf>=5.9.0",
