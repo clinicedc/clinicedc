@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.helper import Helper
-from clinicedc_tests.models import CrfOne
+from clinicedc_tests.models import CrfFour
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
@@ -47,33 +47,29 @@ class TestUnavailableAutoCleanup(TestCase):
             name="test_reason", display_name="Test reason"
         )
 
-    def test_keying_a_crf_deletes_its_unavailable_flag(self):
-        # flag the (yet-unkeyed) CrfOne as data unavailable
-        opts = dict(
+    def _opts(self, model: str) -> dict:
+        return dict(
             subject_identifier=self.sid,
             visit_schedule_name=self.appointment.visit_schedule_name,
             schedule_name=self.appointment.schedule_name,
             visit_code=self.appointment.visit_code,
             visit_code_sequence=0,
-            model="clinicedc_tests.crfone",
+            model=model,
         )
+
+    def test_keying_a_crf_deletes_its_unavailable_flag(self):
+        # flag the (yet-unkeyed) CrfFour at baseline as data unavailable
+        opts = self._opts(CrfFour._meta.label_lower)
         CrfMetadataUnavailable.objects.create(**opts, reason=self.reason, site_id=10)
         self.assertTrue(CrfMetadataUnavailable.objects.filter(**opts).exists())
 
         # keying the CRF (saving the source model) fires the cleanup signal
-        CrfOne.objects.create(subject_visit=self.subject_visit)
+        CrfFour.objects.create(subject_visit=self.subject_visit)
         self.assertFalse(CrfMetadataUnavailable.objects.filter(**opts).exists())
 
     def test_unrelated_flag_is_left_alone(self):
-        # a flag for a different form is not touched when CrfOne is keyed
-        opts = dict(
-            subject_identifier=self.sid,
-            visit_schedule_name=self.appointment.visit_schedule_name,
-            schedule_name=self.appointment.schedule_name,
-            visit_code=self.appointment.visit_code,
-            visit_code_sequence=0,
-            model="clinicedc_tests.crftwo",
-        )
+        # a flag for a different form is not touched when CrfFour is keyed
+        opts = self._opts("clinicedc_tests.crffive")
         CrfMetadataUnavailable.objects.create(**opts, reason=self.reason, site_id=10)
-        CrfOne.objects.create(subject_visit=self.subject_visit)
+        CrfFour.objects.create(subject_visit=self.subject_visit)
         self.assertTrue(CrfMetadataUnavailable.objects.filter(**opts).exists())
