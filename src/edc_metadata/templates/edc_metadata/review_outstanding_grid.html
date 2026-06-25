@@ -125,7 +125,7 @@
         <div class="col-sm-6">
           <div class="form-group">
             <label class="control-label">Save current filters as</label>
-            <form method="post" action="{% url 'edc_metadata:save_filter_url' %}" class="form-inline">{% csrf_token %}
+            <form method="post" action="{% url 'edc_metadata:save_filter_url' %}" class="form-inline" onsubmit="return syncSaveQuery(this)">{% csrf_token %}
               <input type="hidden" name="query" value="{{ filter_querystring }}">
               <input type="text" name="name" class="form-control input-sm" placeholder="name" required>
               {% if can_share %}<label class="checkbox-inline"><input type="checkbox" name="shared" value="1"> Share with team</label>{% endif %}
@@ -139,7 +139,7 @@
             <select id="saved_filter" class="form-control input-sm" onchange="loadSavedFilter(this)">
               <option value="">&mdash; load a saved filter &mdash;</option>
               {% for f in saved_filters %}
-                <option value="{{ f.id }}" data-query="{{ f.query }}">{{ f.name }}{% if f.shared %} (shared){% endif %}</option>
+                <option value="{{ f.id }}" data-query="{{ f.query }}" {% if f.id == selected_filter_id %}selected{% endif %}>{{ f.name }}{% if f.shared %} (shared){% endif %}</option>
               {% endfor %}
             </select>
           </div>
@@ -172,6 +172,24 @@
           if (!sel.value) { return; }
           document.getElementById('delete_filter_id').value = sel.value;
           form.submit();
+        }
+        function syncSaveQuery(saveForm) {
+          // capture the LIVE filter selections (not the last-applied state)
+          var ff = document.getElementById('filter-form');
+          var p = new URLSearchParams();
+          p.set('site', ff.elements['site'] ? ff.elements['site'].value : '');
+          ['schedule', 'visit_code', 'q'].forEach(function (n) {
+            var el = ff.elements[n];
+            if (el && el.value) { p.set(n, el.value); }
+          });
+          var models = ff.elements['models'];
+          if (models) {
+            Array.prototype.forEach.call(models.selectedOptions, function (o) {
+              if (o.value) { p.append('models', o.value); }
+            });
+          }
+          saveForm.elements['query'].value = p.toString();
+          return true;
         }
       </script>
     </div>
