@@ -4,7 +4,7 @@ from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_sites.site import sites
 
 
-class SiteScopeViewMixin:
+class AllowedSitesViewMixin:
     """Resolve the site ids a user may act on in the review screens.
 
     Data managers may work across every site on their profile (including the

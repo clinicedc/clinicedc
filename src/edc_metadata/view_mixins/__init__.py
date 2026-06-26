@@ -1,2 +1,2 @@
+from .allowed_sites_view_mixin import AllowedSitesViewMixin
 from .metadata_view_mixin import MetadataViewMixin
-from .site_scope_mixin import SiteScopeViewMixin

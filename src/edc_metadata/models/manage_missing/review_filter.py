@@ -11,15 +11,13 @@ class ReviewFilter(BaseUuidModel):
     """A named, saved snapshot of the review board Filters panel.
 
     Stores the board's urlencoded filter querystring so it can be replayed by
-    navigating to ``review_grid_url?<query>``. Personal by default; ``shared``
+    navigating to ``manage_missing_url?<query>``. Personal by default; ``shared``
     makes it visible to the whole team.
     """
 
     name = models.CharField(max_length=100)
 
-    user = models.ForeignKey(
-        get_user_model(), on_delete=models.CASCADE, related_name="+"
-    )
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="+")
 
     query = models.TextField(
         default="", blank=True, help_text="urlencoded review board filter querystring"

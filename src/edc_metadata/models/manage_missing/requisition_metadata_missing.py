@@ -6,10 +6,10 @@ from django.db.models import UniqueConstraint
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
-from .metadata_unavailable_model_mixin import MetadataUnavailableModelMixin
+from .model_mixins import ManageMissingModelMixin
 
 
-class RequisitionMetadataUnavailable(MetadataUnavailableModelMixin, BaseUuidModel):
+class RequisitionMetadataMissing(ManageMissingModelMixin, BaseUuidModel):
     """Flags an outstanding (REQUIRED) requisition as data unavailable. Keyed by
     the requisition natural key, which includes ``panel_name``."""
 
@@ -24,8 +24,8 @@ class RequisitionMetadataUnavailable(MetadataUnavailableModelMixin, BaseUuidMode
         )
 
     class Meta(BaseUuidModel.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
-        verbose_name = "Requisition data unavailable"
-        verbose_name_plural = "Requisition data unavailable"
+        verbose_name = "Requisition flagged missing"
+        verbose_name_plural = "Requisitions flagged missing"
         constraints = (
             UniqueConstraint(
                 fields=[

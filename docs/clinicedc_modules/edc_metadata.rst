@@ -694,8 +694,8 @@ Reviewing outstanding forms (data manager review screen)
 across subjects and visits. It answers "which subjects, at which visits, have outstanding CRFs
 and requisitions, and which form types are most behind".
 
-* URL name: ``edc_metadata:review_grid_url`` (``/edc_metadata/review/``).
-* View: ``views/review_grid_view.py`` — ``ReviewOutstandingGridView`` (a ``TemplateView``).
+* URL name: ``edc_metadata:manage_missing_url`` (``/edc_metadata/review/``).
+* View: ``views/review_grid_view.py`` — ``ManageMissingView`` (a ``TemplateView``).
 * Permission: gated by the existing ``edc_metadata.view_crfmetadata`` codename. No new
   navbar item — it is reached from the **Data Management** home page link and from the
   **"Outstanding CRFs"** link in the subject dashboard "Collection status" sidebar.
@@ -703,14 +703,14 @@ and requisitions, and which form types are most behind".
 Two lenses
 ++++++++++
 
-Switch lenses with the ``?lens=`` parameter (default ``leaderboard``):
+Switch lenses with the ``?lens=`` parameter (default ``overview``):
 
-* **Leaderboard** (``lens=leaderboard``) — rows are CRF types, columns are visit codes, and
+* **Leaderboard** (``lens=overview``) — rows are CRF types, columns are visit codes, and
   each cell is the number of **distinct subjects** with that CRF outstanding at that visit.
   Rows are ordered by descending outstanding count.
-  Clicking a cell hands off to the grid filtered to that CRF and visit. The leaderboard can be
+  Clicking a cell hands off to the grid filtered to that CRF and visit. The overview can be
   exported to ``.xlsx`` (respecting the current filters) via the **Export** button
-  (``ExportLeaderboardView``; requires ``openpyxl``).
+  (``ExportOverviewView``; requires ``openpyxl``).
 * **Subjects-by-visit grid** (``lens=grid``) — rows are subjects (ordered by
   ``subject_identifier``, paginated), columns are the schedule's visit codes, and each cell
   shows ``CRF / requisition`` outstanding counts. Row and column totals are included.
@@ -733,7 +733,7 @@ Saved filters
 
 The whole Filters panel can be saved as a named preset and reloaded. A ``ReviewFilter``
 (``models/review_filter.py``) stores the board's urlencoded filter querystring; loading one
-navigates to ``review_grid_url?<query>`` so every field repopulates.
+navigates to ``manage_missing_url?<query>`` so every field repopulates.
 
 * Filters are **personal** by default; ticking **Share with team** makes one visible to
   everyone (``shared=True``). The Filters panel lists the user's own filters plus all shared.
@@ -756,25 +756,25 @@ every site on their user profile (including the current site); other users get
    would be far too expensive across many subjects), so counts can lag reality until metadata
    is refreshed — e.g. by visiting a subject dashboard (which recomputes that timepoint) or by
    running ``python manage.py update_metadata``. The subject-grid aggregation is served by the
-   ``a10idx`` composite index and the leaderboard by ``a11idx`` (see the model ``Meta``).
+   ``a10idx`` composite index and the overview by ``a11idx`` (see the model ``Meta``).
 
-Flagging a form as "data unavailable"
-+++++++++++++++++++++++++++++++++++++
+Flagging a form as "missing"
+++++++++++++++++++++++++++++
 
 Sometimes a required form can never be completed because the data can no longer be obtained
 (subject lost to follow-up, sample lost, source document missing, etc.). Submitting the form
 is not possible, so ``edc_crf``'s ``crf_status`` (which lives on the *keyed* CRF) cannot
-represent it. Instead, an outstanding form can be flagged **data unavailable**, which drops it
-from the review board's outstanding counts.
+represent it. Instead, a missing form can be flagged **mising**, which drops it
+from the review board's missing counts.
 
-* From a grid cell (or the subject dashboard "Outstanding CRFs" link) you reach a per-(subject,
-  visit) **detail page** listing the outstanding CRFs and requisitions, each with a
-  *mark unavailable* control (a configurable ``DataUnavailableReason`` + comment +
+* From a grid cell (or the subject dashboard "Manage missing CRFs" link) you reach a per-(subject,
+  visit) **detail page** listing the missing CRFs and requisitions, each with a
+  *mark missing* control (a configurable ``DataMissingReason`` + comment +
   ``decision_datetime``) and an *un-flag* action.
-* Flags are stored in ``CrfMetadataUnavailable`` / ``RequisitionMetadataUnavailable``, keyed by
+* Flags are stored in ``CrfMetadataMissing`` / ``RequisitionMetadataMissing``, keyed by
   the metadata **natural key** (never the regenerable primary key) and audited via
   ``HistoricalRecords``. Un-flagging deletes the row; the history table retains the trail.
-* The board excludes flagged items from the counts and shows an "Unavailable: N" tally.
+* The board excludes flagged items from the counts and shows an "Missing: N" tally.
 * Flagging requires the model ``add``/``delete`` permissions (granted to data managers and
   clinic staff); clinic staff may only flag forms at their own site (enforced in the view).
 * The flag matters only while ``entry_status == REQUIRED``. If the form is later keyed, a

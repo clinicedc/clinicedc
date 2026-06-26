@@ -9,12 +9,12 @@ from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
-from ..models import (
-    CrfMetadataUnavailable,
-    DataUnavailableReason,
-    RequisitionMetadataUnavailable,
+from ...models import (
+    CrfMetadataMissing,
+    DataMissingReason,
+    RequisitionMetadataMissing,
 )
-from ..view_mixins import SiteScopeViewMixin
+from ...view_mixins import AllowedSitesViewMixin
 
 
 def _verbose(label: str) -> str:
@@ -24,9 +24,9 @@ def _verbose(label: str) -> str:
         return label
 
 
-class ReviewOutstandingFlaggedView(
+class ManageMissingFlaggedReportView(
     PermissionRequiredMixin,
-    SiteScopeViewMixin,
+    AllowedSitesViewMixin,
     EdcViewMixin,
     NavbarViewMixin,
     TemplateView,
@@ -34,16 +34,16 @@ class ReviewOutstandingFlaggedView(
     """A flat, DataTable-driven report of every CRF/requisition flagged as
     'data unavailable', filterable by reason. Site-scoped."""
 
-    template_name = "edc_metadata/review_outstanding_flagged.html"
+    template_name = "edc_metadata/manage_missing_flagged.html"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "data_manager_home"
-    permission_required = "edc_metadata.view_crfmetadataunavailable"
+    permission_required = "edc_metadata.view_crfmetadatamissing"
 
     def get_context_data(self, **kwargs) -> dict:
         kwargs = super().get_context_data(**kwargs)
         kwargs.update(
             rows=self.gather_rows(self.allowed_site_ids()),
-            reason_choices=DataUnavailableReason.objects.all().order_by("display_index"),
+            reason_choices=DataMissingReason.objects.all().order_by("display_index"),
         )
         return kwargs
 
@@ -51,13 +51,13 @@ class ReviewOutstandingFlaggedView(
     def gather_rows(cls, allowed: list[int]) -> list[dict]:
         rows = [
             cls._row(obj, _verbose(obj.model), cls.get_url(obj))
-            for obj in CrfMetadataUnavailable.objects.filter(
-                site_id__in=allowed
-            ).select_related("reason")
+            for obj in CrfMetadataMissing.objects.filter(site_id__in=allowed).select_related(
+                "reason"
+            )
         ]
         rows += [
             cls._row(obj, f"{_verbose(obj.model)} ({obj.panel_name})", cls.get_url(obj))
-            for obj in RequisitionMetadataUnavailable.objects.filter(
+            for obj in RequisitionMetadataMissing.objects.filter(
                 site_id__in=allowed
             ).select_related("reason")
         ]
@@ -65,9 +65,9 @@ class ReviewOutstandingFlaggedView(
         return rows
 
     @staticmethod
-    def get_url(obj: CrfMetadataUnavailable) -> str:
+    def get_url(obj: CrfMetadataMissing) -> str:
         return reverse(
-            "edc_metadata:metadata_detail_url",
+            "edc_metadata:manage_missing_by_subject_url",
             kwargs=dict(
                 subject_identifier=obj.subject_identifier,
                 visit_schedule_name=obj.visit_schedule_name,

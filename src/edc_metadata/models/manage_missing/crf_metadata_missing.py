@@ -6,10 +6,10 @@ from django.db.models import UniqueConstraint
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
-from .metadata_unavailable_model_mixin import MetadataUnavailableModelMixin
+from .model_mixins import ManageMissingModelMixin
 
 
-class CrfMetadataUnavailable(MetadataUnavailableModelMixin, BaseUuidModel):
+class CrfMetadataMissing(ManageMissingModelMixin, BaseUuidModel):
     """Flags an outstanding (REQUIRED) CRF as data unavailable so the review
     screen stops counting it. Reversible (delete the row); the history table
     retains the audit trail."""
@@ -23,8 +23,8 @@ class CrfMetadataUnavailable(MetadataUnavailableModelMixin, BaseUuidModel):
         )
 
     class Meta(BaseUuidModel.Meta, NonUniqueSubjectIdentifierFieldMixin.Meta):
-        verbose_name = "CRF data unavailable"
-        verbose_name_plural = "CRF data unavailable"
+        verbose_name = "CRF flagged missing"
+        verbose_name_plural = "CRFs flagged missing"
         constraints = (
             UniqueConstraint(
                 fields=[

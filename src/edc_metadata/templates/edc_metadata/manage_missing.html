@@ -48,7 +48,7 @@
 
 <div class="container-fluid">
 
-  <h3><a id="home" href="{% url 'edc_metadata:home_url' %}" class="btn btn-primary"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i></a>&nbsp;Outstanding CRFs and Requisitions</h3>
+  <h4><a id="home" href="{% url 'edc_metadata:home_url' %}" class="btn btn-sm btn-primary"><i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i></a>&nbsp;Manage Missing CRFs and Requisitions</h4>
 
   {% if no_schedule %}
     <div class="alert alert-warning">No visit schedules are loaded.</div>
@@ -58,6 +58,7 @@
   <div class="panel panel-default">
   <div class="panel-heading">Filters</div>
     <div class="panel-body">
+    <p>Select the options you need and click `Apply filters` to filter the table of missing forms below. The default shows all for the site.</p>
       <form id="filter-form" method="get">
         <input type="hidden" name="lens" value="{{ lens }}">
 
@@ -65,7 +66,7 @@
           <div class="col-sm-3">
             <div class="form-group">
               <label class="control-label">Subject</label>
-              <input type="text" name="q" value="{{ subject_q }}" class="form-control input-sm"
+              <input type="text" name="subject_identifier" value="{{ subject_identifier }}" class="form-control input-sm"
                      placeholder="subject identifier or leave blank">
             </div>
           </div>
@@ -122,20 +123,9 @@
 
       {# ---- saved filters (above Apply) ---- #}
       <div class="row">
-        <div class="col-sm-6">
-          <div class="form-group">
-            <label class="control-label">Save current filters as</label>
-            <form method="post" action="{% url 'edc_metadata:save_filter_url' %}" class="form-inline" onsubmit="return syncSaveQuery(this)">{% csrf_token %}
-              <input type="hidden" name="query" value="{{ filter_querystring }}">
-              <input type="text" name="name" class="form-control input-sm" placeholder="name" required>
-              {% if can_share %}<label class="checkbox-inline"><input type="checkbox" name="shared" value="1"> Share with team</label>{% endif %}
-              <button type="submit" class="btn btn-default btn-sm">Save</button>
-            </form>
-          </div>
-        </div>
         <div class="col-sm-4">
           <div class="form-group">
-            <label class="control-label">Saved filters</label>
+            <label class="control-label">Select a saved filter (optional)</label>
             <select id="saved_filter" class="form-control input-sm" onchange="loadSavedFilter(this)">
               <option value="">&mdash; load a saved filter &mdash;</option>
               {% for f in saved_filters %}
@@ -144,14 +134,17 @@
             </select>
           </div>
         </div>
-        <div class="col-sm-2">
-          <div class="form-group">
-            <label class="control-label">&nbsp;</label>
-            <form method="post" action="{% url 'edc_metadata:delete_filter_url' %}">{% csrf_token %}
-              <input type="hidden" name="filter_id" id="delete_filter_id">
-              <button type="button" class="btn btn-default btn-sm"
-                      onclick="deleteSavedFilter(this.form)">Delete</button>
-            </form>
+        <div class="col-sm-6 pull-right">
+          <div class="well well-sm">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="control-label">Save current filters (optional)</label>
+              <form method="post" action="{% url 'edc_metadata:manage_missing_save_filter_url' %}" class="form-inline" onsubmit="return syncSaveQuery(this)">{% csrf_token %}
+                <input type="hidden" name="query" value="{{ filter_querystring }}">
+                <input type="text" name="name" class="form-control input-sm" placeholder="filter name" required>
+                {% if can_share %}<label class="checkbox-inline"><input type="checkbox" name="shared" value="1"> Share saved filter with team</label>{% endif %}
+                <button type="submit" class="btn btn-default btn-sm pull-right" style="margin-bottom:4px;">Save filter</button>
+              </form>
+            </div>
           </div>
         </div>
       </div>
@@ -159,13 +152,38 @@
       <div class="row">
         <div class="col-sm-12">
           <button type="submit" form="filter-form" class="btn btn-primary" style="padding-left: 2rem; padding-right: 2rem;">Apply filters</button>
+          <button type="button" class="btn btn-default" style="margin-left:6px;" onclick="clearFilters()">Clear</button>
+          <form method="post" action="{% url 'edc_metadata:manage_missing_delete_filter_url' %}" class="pull-right" style="display:inline;">{% csrf_token %}
+            <input type="hidden" name="filter_id" id="delete_filter_id">
+            <button type="button" id="delete_filter_btn" class="btn btn-danger btn-sm"
+                    style="{% if not selected_filter_id %}display:none;{% endif %}"
+                    onclick="deleteSavedFilter(this.form)">Delete selected filter</button>
+          </form>
         </div>
       </div>
       <script>
         function loadSavedFilter(sel) {
           var opt = sel.options[sel.selectedIndex];
           var q = opt ? opt.getAttribute('data-query') : '';
-          window.location.href = '{% url "edc_metadata:review_grid_url" %}' + (q ? '?' + q : '');
+          window.location.href = '{% url "edc_metadata:manage_missing_url" %}' + (q ? '?' + q : '');
+        }
+        function clearFilters() {
+          var ff = document.getElementById('filter-form');
+          // text inputs -> empty
+          Array.prototype.forEach.call(ff.querySelectorAll('input[type="text"]'), function (el) {
+            el.value = '';
+          });
+          // single selects -> first option; multi-select -> deselect all
+          Array.prototype.forEach.call(ff.querySelectorAll('select'), function (sel) {
+            if (sel.multiple) {
+              Array.prototype.forEach.call(sel.options, function (o) { o.selected = false; });
+            } else {
+              sel.selectedIndex = 0;
+            }
+          });
+          // reset the saved-filter dropdown too (does not navigate)
+          var saved = document.getElementById('saved_filter');
+          if (saved) { saved.selectedIndex = 0; }
         }
         function deleteSavedFilter(form) {
           var sel = document.getElementById('saved_filter');
@@ -198,38 +216,38 @@
   {# ---- lens toggle ---- #}
   <div class="clearfix">
       <div class="btn-group pull-left" role="group" style="margin-bottom:12px;">
-        <a href="?{{ filter_querystring }}&lens=leaderboard"
-        class="btn {% if lens == 'leaderboard' %}btn-primary{% else %}btn-default{% endif %}">
-        Leader board</a>
+        <a href="?{{ filter_querystring }}&lens=overview"
+        class="btn {% if lens == 'overview' %}btn-primary{% else %}btn-default{% endif %}">
+        Overview</a>
         <a href="?{{ filter_querystring }}&lens=grid"
         class="btn {% if lens == 'grid' %}btn-primary{% else %}btn-default{% endif %}">
-        Subjects by visit grid</a>
+        View by subject</a>
      </div>
-          {% if lens == 'leaderboard' %}
-              <a href="{% url 'edc_metadata:export_leaderboard_url' %}?{{ filter_querystring }}" class="btn btn-default pull-right" style="margin-left:6px;" title="Export the leaderboard to Excel">
+          {% if lens == 'overview' %}
+              <a href="{% url 'edc_metadata:manage_missing_export_overview_url' %}?{{ filter_querystring }}" class="btn btn-default pull-right" style="margin-left:6px;" title="Export the overview to Excel">
                   <i class="fas fa-file-excel" aria-hidden="true"></i> Export
               </a>
           {% endif %}
           {% if unavailable_count %}
-              <a href="{% url 'edc_metadata:unavailable_report_url' %}" class="btn btn-default pull-right" title="Review all forms flagged as data unavailable">
+              <a href="{% url 'edc_metadata:manage_missing_flagged_url' %}" class="btn btn-default pull-right" title="Review all forms flagged as data unavailable">
                   Review flagged: {{ unavailable_count }}
               </a>
           {% endif %}
   </div>
 
-  {% if lens == 'grid' %}
   <p class="small text-muted">
-    Outstanding = entry status <strong>New</strong> (REQUIRED) only.
+  {% if lens == 'grid' %}
     {% if crf_only %}
-      Cells show <strong>CRF</strong> counts for the selected CRFs only
-      (requisitions hidden while a CRF filter is active).
+      Cells show <strong># missing CRF</strong> counts for the selected CRFs only
     {% else %}
-      Cells show <strong>CRF / requisition</strong> counts.
+      Cells show the counts of "<strong># CRFs / # Requisitions</strong>" missing.
     {% endif %}
-    Click a cell to review / flag outstanding forms.
-  </p>
+      Click a cell to review and/or update the status of a CRF or Requisition.
+  {% else %}
+      Cells show the number of missing documents per visit.
+      Click a cell to expand the number of missing documents by subject.
   {% endif %}
-
+    </p>
   {# ================= GRID ================= #}
   {% if lens == 'grid' %}
   <div class="review-scroll">
@@ -260,7 +278,7 @@
           </tr>
         {% empty %}
           <tr><td colspan="{{ columns|length|add:2 }}" class="text-center text-muted">
-            No outstanding forms for this selection.</td></tr>
+            No missing forms for this selection.</td></tr>
         {% endfor %}
       </tbody>
       <tfoot>
@@ -298,13 +316,13 @@
     <table class="table table-condensed table-hover review-table">
       <thead>
         <tr>
-          <th>CRF</th>
+          <th>Missing CRFs</th>
           {% for code, title in columns %}<th class="text-center" title="{{ title }}">{{ code }}</th>{% endfor %}
-          <th class="text-center">Total subjects</th>
+          <th class="text-center">Total</th>
         </tr>
       </thead>
       <tbody>
-        {% for row in leaderboard %}
+        {% for row in overview %}
           <tr>
             <th>{{ row.verbose_name }}</th>
             {% for cell in row.cells %}
@@ -316,13 +334,13 @@
           </tr>
         {% empty %}
           <tr><td colspan="{{ columns|length|add:2 }}" class="text-center text-muted">
-            No outstanding CRFs for this selection.</td></tr>
+            No missing CRFs for this selection.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   <p class="small text-muted">
-    Each cell is the number of distinct subjects with that CRF outstanding at the visit.
+    Each cell is the number of distinct subjects with that CRF missing at the visit.
     Click a cell to open the matching subjects in the grid.
   </p>
   {% endif %}

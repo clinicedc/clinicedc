@@ -17,15 +17,15 @@ from edc_sites.site import sites
 from edc_visit_schedule.exceptions import RegistryNotLoaded
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
-from ..constants import REQUIRED
-from ..models import (
+from ...constants import REQUIRED
+from ...models import (
     CrfMetadata,
-    CrfMetadataUnavailable,
+    CrfMetadataMissing,
     RequisitionMetadata,
-    RequisitionMetadataUnavailable,
+    RequisitionMetadataMissing,
     ReviewFilter,
 )
-from ..view_mixins import SiteScopeViewMixin
+from ...view_mixins import AllowedSitesViewMixin
 
 CRF_COLLECTION_ATTRS = ("crfs", "crfs_prn", "crfs_unscheduled", "crfs_missed")
 
@@ -83,19 +83,19 @@ def model_verbose_name(label: str) -> str:
         return label
 
 
-class ReviewOutstandingGridView(
+class ManageMissingView(
     PermissionRequiredMixin,
-    SiteScopeViewMixin,
+    AllowedSitesViewMixin,
     EdcViewMixin,
     NavbarViewMixin,
     TemplateView,
 ):
     """A data-manager review screen aggregating outstanding (REQUIRED) CRFs
-    and requisitions at the subject x visit grain, with a CRF leaderboard
+    and requisitions at the subject x visit grain, with a CRF overview
     lens for prioritising follow-up.
     """
 
-    template_name = "edc_metadata/review_outstanding_grid.html"
+    template_name = "edc_metadata/manage_missing.html"
     navbar_name = settings.APP_NAME
     navbar_selected_item = "data_manager_home"
     permission_required = "edc_metadata.view_crfmetadata"
@@ -110,7 +110,10 @@ class ReviewOutstandingGridView(
             selected_schedule=(
                 f"{visit_schedule_name}::{schedule_name}" if visit_schedule_name else ""
             ),
-            site_choices=self.site_choices(),
+            site_choices=[
+                (site.id, sites.get(site.id).title)
+                for site in Site.objects.all().order_by("name")
+            ],
             selected_site_value=self.selected_site_value(),
             lens=self.lens(),
         )
@@ -122,17 +125,17 @@ class ReviewOutstandingGridView(
         columns = visit_columns(visit_schedule_name, schedule_name)
         models = self.selected_models()
         visit_code = self.request.GET.get("visit_code") or None
-        subject_q = self.request.GET.get("q", "").strip()
+        subject_identifier = self.request.GET.get("subject_identifier", "").strip()
 
         crf_base = self.base_filter(
-            site_ids, visit_schedule_name, schedule_name, visit_code, subject_q
+            site_ids, visit_schedule_name, schedule_name, visit_code, subject_identifier
         )
         if models:
             crf_base["model__in"] = models
         # requisitions are not narrowed by the CRF set (those are CRF model
         # labels); requisition prioritisation is deferred.
         req_base = self.base_filter(
-            site_ids, visit_schedule_name, schedule_name, visit_code, subject_q
+            site_ids, visit_schedule_name, schedule_name, visit_code, subject_identifier
         )
 
         # When CRFs are selected the view is CRF-focused: requisitions are
@@ -141,12 +144,12 @@ class ReviewOutstandingGridView(
         crf_only = bool(models)
 
         # items flagged "data unavailable" drop out of the outstanding counts
-        crf_exclude = self._flagged_ids(CrfMetadata, CrfMetadataUnavailable, crf_base)
+        crf_exclude = self._flagged_ids(CrfMetadata, CrfMetadataMissing, crf_base)
         req_exclude = (
             set()
             if crf_only
             else self._flagged_ids(
-                RequisitionMetadata, RequisitionMetadataUnavailable, req_base, panel=True
+                RequisitionMetadata, RequisitionMetadataMissing, req_base, panel=True
             )
         )
 
@@ -171,7 +174,7 @@ class ReviewOutstandingGridView(
             crf_model_choices=crf_model_choices(visit_schedule_name, schedule_name),
             selected_models=models or [],
             selected_visit_code=visit_code or "",
-            subject_q=subject_q,
+            subject_identifier=subject_identifier,
             crf_only=crf_only,
             unavailable_count=len(crf_exclude) + len(req_exclude),
             filter_querystring=filter_querystring,
@@ -194,13 +197,13 @@ class ReviewOutstandingGridView(
             )
         else:
             kwargs.update(
-                leaderboard=self.leaderboard(
+                overview=self.overview(
                     site_ids,
                     visit_schedule_name,
                     schedule_name,
                     models,
                     columns,
-                    subject_q,
+                    subject_identifier,
                     crf_exclude,
                 )
             )
@@ -213,7 +216,7 @@ class ReviewOutstandingGridView(
 
     # ------------------------------------------------------------------ params
     def lens(self) -> str:
-        return "grid" if self.request.GET.get("lens") == "grid" else "leaderboard"
+        return "grid" if self.request.GET.get("lens") == "grid" else "overview"
 
     def selected_models(self) -> list[str] | None:
         """CRF model labels selected in the multiselect, or None."""
@@ -230,13 +233,11 @@ class ReviewOutstandingGridView(
         visit_schedule_name, schedule_name = value.split("::", 1)
         return visit_schedule_name, schedule_name
 
-    def site_choices(self) -> list[tuple[int, str]]:
-        qs = Site.objects.filter(id__in=self.allowed_site_ids()).order_by("name")
-        return [(site.id, sites.get(site.id).title) for site in qs]
-
     def selected_site_value(self) -> str:
         """The raw site selection: "" means all allowed sites."""
-        value = self.request.GET.get("site")
+        value = (
+            "" if self.request.GET.get("subject_identifier") else self.request.GET.get("site")
+        )
         if value == "":
             return ""
         try:
@@ -256,7 +257,7 @@ class ReviewOutstandingGridView(
 
     @staticmethod
     def base_filter(
-        site_ids, visit_schedule_name, schedule_name, visit_code, subject_q=None
+        site_ids, visit_schedule_name, schedule_name, visit_code, subject_identifier=None
     ) -> dict:
         opts = dict(
             entry_status=REQUIRED,
@@ -266,19 +267,21 @@ class ReviewOutstandingGridView(
         )
         if visit_code:
             opts["visit_code"] = visit_code
-        if subject_q:
-            opts["subject_identifier__icontains"] = subject_q
+        if subject_identifier:
+            opts["subject_identifier__icontains"] = subject_identifier
         return opts
 
     # ------------------------------------------------------------------ queries
     @staticmethod
-    def _flagged_ids(model_cls, unavailable_cls, base: dict, panel: bool = False) -> set:
+    def _flagged_ids(
+        model_cls, crf_metadata_missing_model_cls, base: dict, panel: bool = False
+    ) -> set:
         """Metadata ids flagged 'data unavailable' within the request scope.
 
         Flags are exceptions (few), so resolving their natural keys to a bounded
         Q-OR and `.exclude(id__in=...)` keeps the board queries simple.
         """
-        flags = unavailable_cls.objects.filter(
+        flags = crf_metadata_missing_model_cls.objects.filter(
             visit_schedule_name=base["visit_schedule_name"],
             schedule_name=base["schedule_name"],
             site_id__in=base["site_id__in"],
@@ -385,7 +388,7 @@ class ReviewOutstandingGridView(
                 req_n = req_cells.get((subject, visit_code), 0)
                 url = (
                     reverse(
-                        "edc_metadata:metadata_detail_url",
+                        "edc_metadata:manage_missing_by_subject_url",
                         kwargs=dict(
                             subject_identifier=subject,
                             visit_schedule_name=visit_schedule_name,
@@ -424,14 +427,14 @@ class ReviewOutstandingGridView(
             subject_count=len(ordered),
         )
 
-    def leaderboard(
+    def overview(
         self,
         site_ids,
         visit_schedule_name,
         schedule_name,
         models,
         columns,
-        subject_q=None,
+        subject_identifier=None,
         exclude_ids=None,
     ) -> list[dict]:
         opts = dict(
@@ -442,8 +445,8 @@ class ReviewOutstandingGridView(
         )
         if models:
             opts["model__in"] = models
-        if subject_q:
-            opts["subject_identifier__icontains"] = subject_q
+        if subject_identifier:
+            opts["subject_identifier__icontains"] = subject_identifier
         qs = CrfMetadata.objects.filter(**opts)
         if exclude_ids:
             qs = qs.exclude(id__in=exclude_ids)
@@ -461,7 +464,7 @@ class ReviewOutstandingGridView(
         visit_codes = [code for code, _ in columns]
         schedule_value = f"{visit_schedule_name}::{schedule_name}"
         site_value = self.selected_site_value()
-        leaderboard = []
+        overview = []
         ordered = sorted(totals, key=lambda m: (-totals[m], m))
         for model_label in ordered:
             cells = []
@@ -477,7 +480,7 @@ class ReviewOutstandingGridView(
                     ]
                 )
                 cells.append(dict(count=count, url=handoff if count else None))
-            leaderboard.append(
+            overview.append(
                 dict(
                     model=model_label,
                     verbose_name=model_verbose_name(model_label),
@@ -485,7 +488,7 @@ class ReviewOutstandingGridView(
                     total=totals[model_label],
                 )
             )
-        return leaderboard
+        return overview
 
     # ------------------------------------------------------------------ links
     def _filter_querystring(self) -> str:
@@ -496,9 +499,7 @@ class ReviewOutstandingGridView(
         # otherwise "All sites" is lost across pagination/lens links.
         params: list[tuple[str, str]] = [("site", self.selected_site_value())]
         params += [
-            (key, get.get(key))
-            for key in ("schedule", "visit_code", "q")
-            if get.get(key)
+            (key, get.get(key)) for key in ("schedule", "visit_code", "q") if get.get(key)
         ]
         params += [("models", model) for model in get.getlist("models") if model]
         return urlencode(params)

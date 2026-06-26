@@ -6,8 +6,8 @@ from django_audit_fields import ModelAdminAuditFieldsMixin, audit_fieldset_tuple
 
 from edc_model_admin.mixins import TemplatesModelAdminMixin
 
-from ..admin_site import edc_metadata_admin
-from ..models import ReviewFilter
+from ...admin_site import edc_metadata_admin
+from ...models import ReviewFilter
 
 
 class ReviewFilterForm(forms.ModelForm):

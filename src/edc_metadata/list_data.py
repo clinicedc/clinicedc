@@ -1,11 +1,12 @@
 list_data = {
-    "edc_metadata.dataunavailablereason": [
-        ("pending", "Data is pending"),
-        ("time_sensitive", "Time-sensitive data - never collected"),
-        ("collected_next_appt", "Collected at next unscheduled appt"),
-        ("subject_unavailable", "Subject permanently unavailable"),
+    "edc_metadata.datamissingreason": [
+        ("time_sensitive", "Time-sensitive data - unfortunately never collected"),
+        ("submitted_later", "Document was submitted at the next unscheduled visit"),
+        ("not_required", "Document not required at this timepoint"),
         ("source_lost", "Source document lost or destroyed"),
         ("not_performed", "Procedure not performed"),
+        ("subject_unavailable", "Subject permanently unavailable"),
+        ("pending", "Data is pending"),
         ("other", "Other (see comment)"),
     ],
 }

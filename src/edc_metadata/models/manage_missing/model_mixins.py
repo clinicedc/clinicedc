@@ -11,7 +11,7 @@ from edc_visit_schedule.model_mixins import (
 )
 
 
-class MetadataUnavailableModelMixin(
+class ManageMissingModelMixin(
     NonUniqueSubjectIdentifierFieldMixin,
     SiteModelMixin,
     VisitScheduleFieldsModelMixin,
@@ -31,7 +31,7 @@ class MetadataUnavailableModelMixin(
     )
 
     reason = models.ForeignKey(
-        "edc_metadata.DataUnavailableReason",
+        "edc_metadata.DataMissingReason",
         on_delete=models.PROTECT,
         related_name="+",
     )

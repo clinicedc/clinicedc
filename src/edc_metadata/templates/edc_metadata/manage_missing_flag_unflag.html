@@ -1,0 +1,63 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block main %}
+{{ block.super }}
+
+<div class="container-fluid">
+
+  <h4>
+    <a href="{{ back_url }}" class="btn btn-primary btn-sm">
+      <i class="fas fa-reply fa-fw" aria-hidden="true"></i></a>&nbsp;
+    Manage Missing CRFs and Requisitions: Flag or unflag
+  </h4>
+    <h4>{{ subject_identifier }} {% if visit_code %}@ {{ visit_code }}{% endif %}</h4>
+<p class="small text-muted">
+    <h5>To flag a form that will always be missing</h5>
+      <p>Give the reason one or more forms cannot be submitted and click <strong>UPDATE</strong>.
+          This will remove the document from the "Missing CRFs / Requisitions" reports.</p>
+    <h5>To unflag a form that is now available</h5>
+    <p>If you change your mind just select "-- available --" as the reason and click <strong>UPDATE</strong>.</p>
+
+    <BR><BR><strong>Click UPDATE to save your decision(s).</strong>
+
+  </p>
+
+  {% if not reason_choices %}
+    <div class="alert alert-warning">No "missing" reasons are configured yet.</div>
+  {% endif %}
+
+  {# ---------- CRFs ---------- #}
+  <div class="panel panel-default">
+    <div class="panel-heading clearfix">CRFs
+      <span class="pull-right">
+        <a class="btn btn-default btn-sm" href="{{ review_flagged_url }}">Review flagged</a>
+        {% if can_flag_crf %}<button class="btn btn-warning btn-sm" type="submit" form="crf-form"{% if not reason_choices %} disabled{% endif %}>Update</button>{% endif %}
+      </span>
+    </div>
+    <div class="panel-body">
+      <form id="crf-form" method="post">{% csrf_token %}
+        <input type="hidden" name="metadata_category" value="{{ CRF }}">
+        {% include "edc_metadata/missing_rows.html" with rows=crf_rows can_flag=can_flag_crf is_req=False %}
+      </form>
+    </div>
+  </div>
+
+  {# ---------- Requisitions ---------- #}
+  <div class="panel panel-default">
+    <div class="panel-heading clearfix">Requisitions
+      <span class="pull-right">
+        <a class="btn btn-default btn-sm" href="{{ review_flagged_url }}">Review flagged</a>
+        {% if can_flag_requisition %}<button class="btn btn-warning btn-sm" type="submit" form="req-form"{% if not reason_choices %} disabled{% endif %}>Update</button>{% endif %}
+      </span>
+    </div>
+    <div class="panel-body">
+      <form id="req-form" method="post">{% csrf_token %}
+        <input type="hidden" name="metadata_category" value="{{ REQUISITION }}">
+        {% include "edc_metadata/missing_rows.html" with rows=requisition_rows can_flag=can_flag_requisition is_requisition=True %}
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock main %}
