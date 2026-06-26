@@ -20,7 +20,7 @@ class SaveReviewFilterView(PermissionRequiredMixin, View):
         name = (request.POST.get("name") or "").strip()
         query = request.POST.get("query") or ""
         shared = request.POST.get("shared") == "1"
-        board = reverse("edc_metadata:review_grid_url")
+        board = reverse("edc_metadata:manage_missing_url")
         if not name:
             messages.error(request, "Provide a name for the filter.")
         else:
@@ -39,7 +39,7 @@ class DeleteReviewFilterView(PermissionRequiredMixin, View):
     permission_required = "edc_metadata.view_crfmetadata"
 
     def post(self, request, *args, **kwargs):  # noqa: ARG002
-        board = reverse("edc_metadata:review_grid_url")
+        board = reverse("edc_metadata:manage_missing_url")
         obj = ReviewFilter.objects.filter(pk=request.POST.get("filter_id")).first()
         if obj and (obj.user_id == request.user.id or (obj.shared and self._is_dm(request))):
             name = obj.name

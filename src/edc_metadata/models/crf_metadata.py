@@ -124,7 +124,7 @@ class CrfMetadata(CrfMetadataModelMixin, BaseUuidModel):
                 # %(class)s prefix overflows for these models.
                 name="edc_metadata_crf_a10idx",
             ),
-            # leaderboard: GROUP BY model, visit_code (COUNT DISTINCT subject)
+            # overview: GROUP BY model, visit_code (COUNT DISTINCT subject)
             models.Index(
                 fields=[
                     "entry_status",

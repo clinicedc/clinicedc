@@ -1,26 +1,28 @@
 <div class="table-responsive">
   <table class="table table-condensed table-hover">
     <thead>
-      <tr><th>Form</th><th>Visit</th><th>Reason (blank = available)</th><th>Comment</th></tr>
+      <tr><th>Form</th><th>Visit</th><th>Reason missing</th><th>Comment</th></tr>
     </thead>
     <tbody>
       {% for row in rows %}
         <tr {% if row.flag %}class="warning"{% endif %}>
-          <td>
-            {{ row.meta.document_name|default:row.meta.model }}
-            {% if is_req %}<span class="text-muted small">({{ row.meta.panel_name }})</span>{% endif %}
+            <td>{% if is_requisition %}
+                <A href="{% url "edc_metadata_admin:edc_metadata_requisitionmetadata_changelist"%}?q={{ subject_identifier }}&entry_status__exact={{ REQUIRED }}&panel_name={{ row.meta.panel_name }}">{{ row.meta.panel_name }}</A>
+            {% else %}
+                <A href="{% url "edc_metadata_admin:edc_metadata_crfmetadata_changelist"%}?q={{ subject_identifier }}&entry_status__exact={{ REQUIRED }}&document_name={{ row.meta.document_name|urlencode }}">{{ row.meta.document_name|default:row.meta.model }}</A>
+            {% endif %}
           </td>
-          <td>{{ row.meta.visit_code }}.{{ row.meta.visit_code_sequence }}</td>
+            <td><a class="btn btn-xs btn-primary" title="Go to subject dashboard" href="{% url dashboard_url_name subject_identifier row.meta.appointment.id %}">{{ row.meta.visit_code }}.{{ row.meta.visit_code_sequence }}</a></td>
           {% if can_flag %}
             <td>
               <input type="hidden" name="rows" value="{{ forloop.counter0 }}">
               <input type="hidden" name="model_{{ forloop.counter0 }}" value="{{ row.meta.model }}">
               <input type="hidden" name="seq_{{ forloop.counter0 }}" value="{{ row.meta.visit_code_sequence }}">
-              {% if is_req %}
+              {% if is_requisition %}
                 <input type="hidden" name="panel_{{ forloop.counter0 }}" value="{{ row.meta.panel_name }}">
               {% endif %}
               <select name="reason_{{ forloop.counter0 }}" class="form-control input-sm">
-                <option value="">&mdash; available &mdash;</option>
+                <option value="">&mdash; not missing, will be submitted &mdash;</option>
                 {% for r in reason_choices %}
                   <option value="{{ r.id }}" {% if row.flag and r.id == row.flag.reason_id %}selected{% endif %}>{{ r.display_name }}</option>
                 {% endfor %}
@@ -38,7 +40,7 @@
           {% endif %}
         </tr>
       {% empty %}
-        <tr><td colspan="4" class="text-center text-muted">No outstanding forms.</td></tr>
+        <tr><td colspan="4" class="text-center text-muted">No missing forms.</td></tr>
       {% endfor %}
     </tbody>
   </table>

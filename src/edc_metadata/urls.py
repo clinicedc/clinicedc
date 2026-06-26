@@ -3,11 +3,11 @@ from django.urls import path
 from .admin_site import edc_metadata_admin
 from .views import (
     DeleteReviewFilterView,
-    ExportLeaderboardView,
+    ExportOverviewView,
     HomeView,
-    ReviewOutstandingDetailView,
-    ReviewOutstandingFlaggedView,
-    ReviewOutstandingGridView,
+    ManageMissingFlaggedReportView,
+    ManageMissingFlagUnFlagView,
+    ManageMissingView,
     SaveReviewFilterView,
 )
 
@@ -15,32 +15,41 @@ app_name = "edc_metadata"
 
 urlpatterns = [
     path("admin/", edc_metadata_admin.urls),
-    path("review-outstanding/", ReviewOutstandingGridView.as_view(), name="review_grid_url"),
     path(
-        "review-outstanding/detail/<str:subject_identifier>/<str:visit_schedule_name>/"
+        "manage-missing/",
+        ManageMissingView.as_view(),
+        name="manage_missing_url",
+    ),
+    path(
+        "manage-missing/flag-unflag/<str:subject_identifier>/<str:visit_schedule_name>/"
         "<str:schedule_name>/<str:visit_code>/",
-        ReviewOutstandingDetailView.as_view(),
-        name="metadata_detail_url",
+        ManageMissingFlagUnFlagView.as_view(),
+        name="manage_missing_by_subject_url",
     ),
     path(
-        "review-outstanding/unavailable/",
-        ReviewOutstandingFlaggedView.as_view(),
-        name="unavailable_report_url",
+        "manage-missing/bysubject/<str:subject_identifier>/",
+        ManageMissingFlagUnFlagView.as_view(),
+        name="manage_missing_by_subject_url",
     ),
     path(
-        "review-outstanding/filters/save/",
+        "manage-missing/flagged/",
+        ManageMissingFlaggedReportView.as_view(),
+        name="manage_missing_flagged_url",
+    ),
+    path(
+        "manage-missing/filters/save/",
         SaveReviewFilterView.as_view(),
-        name="save_filter_url",
+        name="manage_missing_save_filter_url",
     ),
     path(
-        "review-outstanding/filters/delete/",
+        "manage-missing/filters/delete/",
         DeleteReviewFilterView.as_view(),
-        name="delete_filter_url",
+        name="manage_missing_delete_filter_url",
     ),
     path(
-        "review-outstanding/leaderboard-export/",
-        ExportLeaderboardView.as_view(),
-        name="export_leaderboard_url",
+        "manage-missing/overview-export/",
+        ExportOverviewView.as_view(),
+        name="manage_missing_export_overview_url",
     ),
     path("", HomeView.as_view(), name="home_url"),
 ]

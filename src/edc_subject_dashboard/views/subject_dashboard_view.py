@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from django.core.exceptions import ImproperlyConfigured
+from django.urls import NoReverseMatch, reverse
 
 from edc_action_item.view_mixins import ActionItemViewMixin
 from edc_appointment.view_mixins import AppointmentViewMixin

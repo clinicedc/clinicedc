@@ -15,10 +15,10 @@ from edc_lab.models.panel import Panel
 from edc_metadata.constants import REQUIRED
 from edc_metadata.models import (
     CrfMetadata,
-    CrfMetadataUnavailable,
-    DataUnavailableReason,
+    CrfMetadataMissing,
+    DataMissingReason,
 )
-from edc_metadata.views.review_outstanding_grid_view import ReviewOutstandingGridView
+from edc_metadata.views import ManageMissingView
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -27,7 +27,7 @@ utc_tz = ZoneInfo("UTC")
 @tag("metadata")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
-class TestReviewOutstandingGridExcludesUnavailable(TestCase):
+class TestManageMissingExcludesFlagged(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -51,16 +51,16 @@ class TestReviewOutstandingGridExcludesUnavailable(TestCase):
         self.vsn = self.appointment.visit_schedule_name
         self.sn = self.appointment.schedule_name
         self.baseline = self.appointment.visit_code
-        self.reason = DataUnavailableReason.objects.create(
+        self.reason = DataMissingReason.objects.create(
             name="test_reason", display_name="Test reason"
         )
-        self.base = ReviewOutstandingGridView.base_filter([10], self.vsn, self.sn, None, None)
+        self.base = ManageMissingView.base_filter([10], self.vsn, self.sn, None, None)
 
     def _flag_one(self):
         crf = CrfMetadata.objects.filter(
             entry_status=REQUIRED, site_id=10, subject_identifier=self.sid
         ).first()
-        CrfMetadataUnavailable.objects.create(
+        CrfMetadataMissing.objects.create(
             subject_identifier=crf.subject_identifier,
             visit_schedule_name=crf.visit_schedule_name,
             schedule_name=crf.schedule_name,
@@ -74,34 +74,26 @@ class TestReviewOutstandingGridExcludesUnavailable(TestCase):
 
     def test_flagged_ids_resolves_the_flag(self):
         self._flag_one()
-        flagged = ReviewOutstandingGridView._flagged_ids(
-            CrfMetadata, CrfMetadataUnavailable, self.base
-        )
+        flagged = ManageMissingView._flagged_ids(CrfMetadata, CrfMetadataMissing, self.base)
         self.assertEqual(len(flagged), 1)
 
     def test_counts_drop_by_one_when_flagged(self):
-        before = ReviewOutstandingGridView._subject_totals(CrfMetadata, self.base)[self.sid]
+        before = ManageMissingView._subject_totals(CrfMetadata, self.base)[self.sid]
         self._flag_one()
-        flagged = ReviewOutstandingGridView._flagged_ids(
-            CrfMetadata, CrfMetadataUnavailable, self.base
-        )
-        after = ReviewOutstandingGridView._subject_totals(CrfMetadata, self.base, flagged)[
-            self.sid
-        ]
+        flagged = ManageMissingView._flagged_ids(CrfMetadata, CrfMetadataMissing, self.base)
+        after = ManageMissingView._subject_totals(CrfMetadata, self.base, flagged)[self.sid]
         self.assertEqual(after, before - 1)
 
-        cells_before = ReviewOutstandingGridView._cell_counts(
-            CrfMetadata, self.base, [self.sid]
-        )[(self.sid, self.baseline)]
-        cells_after = ReviewOutstandingGridView._cell_counts(
+        cells_before = ManageMissingView._cell_counts(CrfMetadata, self.base, [self.sid])[
+            (self.sid, self.baseline)
+        ]
+        cells_after = ManageMissingView._cell_counts(
             CrfMetadata, self.base, [self.sid], flagged
         )[(self.sid, self.baseline)]
         self.assertEqual(cells_after, cells_before - 1)
 
-        cols_before = ReviewOutstandingGridView._column_counts(CrfMetadata, self.base)[
-            self.baseline
-        ]
-        cols_after = ReviewOutstandingGridView._column_counts(CrfMetadata, self.base, flagged)[
+        cols_before = ManageMissingView._column_counts(CrfMetadata, self.base)[self.baseline]
+        cols_after = ManageMissingView._column_counts(CrfMetadata, self.base, flagged)[
             self.baseline
         ]
         self.assertEqual(cols_after, cols_before - 1)

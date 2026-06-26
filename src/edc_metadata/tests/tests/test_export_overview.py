@@ -15,7 +15,7 @@ from django.test.client import RequestFactory
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
-from edc_metadata.views.export_leaderboard_view import ExportLeaderboardView
+from edc_metadata.views.export_overview_view import ExportOverviewView
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -24,7 +24,7 @@ utc_tz = ZoneInfo("UTC")
 @tag("metadata")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
-class TestExportLeaderboard(TestCase):
+class TestExportOverview(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -49,10 +49,8 @@ class TestExportLeaderboard(TestCase):
         self.sn = self.appointment.schedule_name
 
     def test_export_returns_xlsx_workbook(self):
-        view = ExportLeaderboardView()
-        view.request = RequestFactory().get(
-            f"/export/?schedule={self.vsn}::{self.sn}&site=10"
-        )
+        view = ExportOverviewView()
+        view.request = RequestFactory().get(f"/export/?schedule={self.vsn}::{self.sn}&site=10")
         view.request.user = self.user
         view.allowed_site_ids = lambda: [10]
         response = view.get(view.request)

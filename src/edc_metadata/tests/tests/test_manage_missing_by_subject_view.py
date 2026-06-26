@@ -18,10 +18,10 @@ from edc_lab.models.panel import Panel
 from edc_metadata.constants import REQUIRED
 from edc_metadata.models import (
     CrfMetadata,
-    CrfMetadataUnavailable,
-    DataUnavailableReason,
+    CrfMetadataMissing,
+    DataMissingReason,
 )
-from edc_metadata.views.review_outstanding_detail_view import ReviewOutstandingDetailView
+from edc_metadata.views import ManageMissingFlagUnFlagView
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -30,7 +30,7 @@ utc_tz = ZoneInfo("UTC")
 @tag("metadata")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
-class TestReviewOutstandingDetailView(TestCase):
+class TestManageMissingFlagUnFlagView(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -58,12 +58,12 @@ class TestReviewOutstandingDetailView(TestCase):
             schedule_name=self.appointment.schedule_name,
             visit_code=self.appointment.visit_code,
         )
-        self.reason = DataUnavailableReason.objects.create(
+        self.reason = DataMissingReason.objects.create(
             name="test_reason", display_name="Test reason"
         )
 
     def _flag(self, crf):
-        return CrfMetadataUnavailable.objects.create(
+        return CrfMetadataMissing.objects.create(
             subject_identifier=crf.subject_identifier,
             visit_schedule_name=crf.visit_schedule_name,
             schedule_name=crf.schedule_name,
@@ -80,7 +80,7 @@ class TestReviewOutstandingDetailView(TestCase):
         ).first()
 
     def _post_view(self, data, allowed=(10,)):
-        view = ReviewOutstandingDetailView()
+        view = ManageMissingFlagUnFlagView()
         view.kwargs = dict(self.opts)
         view.allowed_site_ids = lambda: list(allowed)
         view.can_flag = lambda *_: True
@@ -93,8 +93,8 @@ class TestReviewOutstandingDetailView(TestCase):
 
     # ----------------------------------------------------------------- GET rows
     def test_rows_list_outstanding_with_no_flag(self):
-        rows = ReviewOutstandingDetailView._rows(
-            CrfMetadata, CrfMetadataUnavailable, "crf", self.opts, [10], panel=False
+        rows = ManageMissingFlagUnFlagView._rows(
+            CrfMetadata, CrfMetadataMissing, "crf", self.opts, [10], panel=False
         )
         expected = CrfMetadata.objects.filter(
             entry_status=REQUIRED, site_id=10, **self.opts
@@ -105,8 +105,8 @@ class TestReviewOutstandingDetailView(TestCase):
     def test_rows_reflect_an_existing_flag(self):
         crf = self._first_crf()
         self._flag(crf)
-        rows = ReviewOutstandingDetailView._rows(
-            CrfMetadata, CrfMetadataUnavailable, "crf", self.opts, [10], panel=False
+        rows = ManageMissingFlagUnFlagView._rows(
+            CrfMetadata, CrfMetadataMissing, "crf", self.opts, [10], panel=False
         )
         flagged = [r for r in rows if r["flag"] is not None]
         self.assertEqual(len(flagged), 1)
@@ -127,7 +127,7 @@ class TestReviewOutstandingDetailView(TestCase):
         )
         response = view.post(request)
         self.assertEqual(response.status_code, 302)
-        obj = CrfMetadataUnavailable.objects.get(
+        obj = CrfMetadataMissing.objects.get(
             subject_identifier=self.sid, visit_code=crf.visit_code, model=crf.model
         )
         # the posting user is captured (django_audit_fields only does this in admin)
@@ -148,7 +148,7 @@ class TestReviewOutstandingDetailView(TestCase):
         )
         view.post(request)
         self.assertFalse(
-            CrfMetadataUnavailable.objects.filter(
+            CrfMetadataMissing.objects.filter(
                 subject_identifier=self.sid, visit_code=crf.visit_code, model=crf.model
             ).exists()
         )
@@ -167,7 +167,7 @@ class TestReviewOutstandingDetailView(TestCase):
         )
         view.post(request)
         self.assertFalse(
-            CrfMetadataUnavailable.objects.filter(
+            CrfMetadataMissing.objects.filter(
                 subject_identifier=self.sid, model=crf.model
             ).exists()
         )

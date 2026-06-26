@@ -6,51 +6,49 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 
-from ..models import CrfMetadata, CrfMetadataUnavailable
-from .review_outstanding_grid_view import ReviewOutstandingGridView, visit_columns
+from ...models import CrfMetadata, CrfMetadataMissing
+from .manage_missing_view import ManageMissingView, visit_columns
 
-XLSX_CONTENT_TYPE = (
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
+XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
 
-class ExportLeaderboardView(ReviewOutstandingGridView):
-    """Export the CRF leaderboard, respecting the current filters, as .xlsx.
+class ExportOverviewView(ManageMissingView):
+    """Export the CRF overview, respecting the current filters, as .xlsx.
 
-    Subclasses the board so all filter parsing and ``leaderboard()`` are reused.
+    Subclasses the board so all filter parsing and ``overview()`` are reused.
     """
 
     def get(self, request, *args, **kwargs):  # noqa: ARG002
         visit_schedule_name, schedule_name = self.selected_schedule()
         if not visit_schedule_name:
-            return HttpResponseRedirect(reverse("edc_metadata:review_grid_url"))
+            return HttpResponseRedirect(reverse("edc_metadata:manage_missing_url"))
         site_ids = self.selected_site_ids()
         columns = visit_columns(visit_schedule_name, schedule_name)
         models = self.selected_models()
-        subject_q = self.request.GET.get("q", "").strip()
+        subject_identifier = self.request.GET.get("q", "").strip()
         crf_base = self.base_filter(
             site_ids,
             visit_schedule_name,
             schedule_name,
             self.request.GET.get("visit_code") or None,
-            subject_q,
+            subject_identifier,
         )
         if models:
             crf_base["model__in"] = models
-        crf_exclude = self._flagged_ids(CrfMetadata, CrfMetadataUnavailable, crf_base)
-        leaderboard = self.leaderboard(
+        crf_exclude = self._flagged_ids(CrfMetadata, CrfMetadataMissing, crf_base)
+        overview = self.overview(
             site_ids,
             visit_schedule_name,
             schedule_name,
             models,
             columns,
-            subject_q,
+            subject_identifier,
             crf_exclude,
         )
-        return self._xlsx(leaderboard, columns, schedule_name)
+        return self._xlsx(overview, columns, schedule_name)
 
     @staticmethod
-    def _xlsx(leaderboard, columns, schedule_name) -> HttpResponse:
+    def _xlsx(overview, columns, schedule_name) -> HttpResponse:
         from openpyxl import Workbook  # noqa: PLC0415
         from openpyxl.styles import Font  # noqa: PLC0415
 
@@ -60,15 +58,13 @@ class ExportLeaderboardView(ReviewOutstandingGridView):
         ws.append(["CRF", *[code for code, _ in columns], "Total"])
         for cell in ws[1]:
             cell.font = Font(bold=True)
-        for row in leaderboard:
-            ws.append(
-                [row["verbose_name"], *[c["count"] for c in row["cells"]], row["total"]]
-            )
+        for row in overview:
+            ws.append([row["verbose_name"], *[c["count"] for c in row["cells"]], row["total"]])
         stream = BytesIO()
         wb.save(stream)
         response = HttpResponse(stream.getvalue(), content_type=XLSX_CONTENT_TYPE)
         stamp = timezone.now().strftime("%Y%m%d")
         response["Content-Disposition"] = (
-            f'attachment; filename="leaderboard_{schedule_name}_{stamp}.xlsx"'
+            f'attachment; filename="overview_{schedule_name}_{stamp}.xlsx"'
         )
         return response

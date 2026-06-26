@@ -1,18 +1,18 @@
 from django.test import TestCase, override_settings, tag
 
 from edc_metadata.models import (
-    CrfMetadataUnavailable,
-    DataUnavailableReason,
-    RequisitionMetadataUnavailable,
+    CrfMetadataMissing,
+    DataMissingReason,
+    RequisitionMetadataMissing,
 )
-from edc_metadata.views import ReviewOutstandingFlaggedView
+from edc_metadata.views import ManageMissingFlaggedReportView
 
 
 @tag("metadata")
 @override_settings(SITE_ID=10)
 class TestReviewUnavailable(TestCase):
     def setUp(self):
-        self.reason = DataUnavailableReason.objects.create(
+        self.reason = DataMissingReason.objects.create(
             name="test_reason", display_name="Test reason"
         )
         common = dict(
@@ -24,18 +24,18 @@ class TestReviewUnavailable(TestCase):
             reason=self.reason,
             site_id=10,
         )
-        CrfMetadataUnavailable.objects.create(model="clinicedc_tests.crfone", **common)
-        RequisitionMetadataUnavailable.objects.create(
+        CrfMetadataMissing.objects.create(model="clinicedc_tests.crfone", **common)
+        RequisitionMetadataMissing.objects.create(
             model="clinicedc_tests.subjectrequisition", panel_name="fbc", **common
         )
 
     def test_gathers_rows_from_both_models(self):
-        rows = ReviewOutstandingFlaggedView.gather_rows([10])
+        rows = ManageMissingFlaggedReportView.gather_rows([10])
         self.assertEqual(len(rows), 2)
         forms = {r["form"] for r in rows}
         # requisition row carries its panel in the form label
         self.assertTrue(any("(fbc)" in f for f in forms))
 
     def test_site_scoped(self):
-        self.assertEqual(ReviewOutstandingFlaggedView.gather_rows([9999]), [])
-        self.assertEqual(len(ReviewOutstandingFlaggedView.gather_rows([10])), 2)
+        self.assertEqual(ManageMissingFlaggedReportView.gather_rows([9999]), [])
+        self.assertEqual(len(ManageMissingFlaggedReportView.gather_rows([10])), 2)

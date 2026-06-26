@@ -16,8 +16,8 @@ from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_metadata.constants import REQUIRED
 from edc_metadata.models import CrfMetadata
-from edc_metadata.views.review_outstanding_grid_view import (
-    ReviewOutstandingGridView,
+from edc_metadata.views import (
+    ManageMissingView,
     visit_columns,
 )
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -28,7 +28,7 @@ utc_tz = ZoneInfo("UTC")
 @tag("metadata")
 @override_settings(SITE_ID=10)
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
-class TestLeaderboard(TestCase):
+class TestOverview(TestCase):
     @classmethod
     def setUpTestData(cls):
         import_holidays()
@@ -55,14 +55,14 @@ class TestLeaderboard(TestCase):
         self.baseline = self.appointment.visit_code
 
     def _view(self):
-        view = ReviewOutstandingGridView()
+        view = ManageMissingView()
         view.request = RequestFactory().get("/review/?site=")
         view.request.user = self.user
         return view
 
-    def _leaderboard(self):
+    def _overview(self):
         view = self._view()
-        return view.leaderboard(
+        return view.overview(
             [10],
             self.vsn,
             self.sn,
@@ -76,14 +76,14 @@ class TestLeaderboard(TestCase):
                 entry_status=REQUIRED, site_id=10, visit_code=self.baseline
             ).values_list("model", flat=True)
         )
-        rows = self._leaderboard()
+        rows = self._overview()
         self.assertEqual({r["model"] for r in rows}, expected_models)
         for row in rows:
             # one enrolled subject -> distinct subject count of 1
             self.assertEqual(row["total"], 1)
 
     def test_cell_handoff_url_carries_model_and_visit(self):
-        rows = self._leaderboard()
+        rows = self._overview()
         row = rows[0]
         cell = next(c for c in row["cells"] if c["count"])
         self.assertIn("lens=grid", cell["url"])
@@ -91,6 +91,6 @@ class TestLeaderboard(TestCase):
         self.assertIn("models=", cell["url"])
 
     def test_rows_sorted_by_descending_count(self):
-        rows = self._leaderboard()
+        rows = self._overview()
         totals = [r["total"] for r in rows]
         self.assertEqual(totals, sorted(totals, reverse=True))
