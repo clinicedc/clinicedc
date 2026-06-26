@@ -13,7 +13,7 @@ from django.test import TestCase, override_settings, tag
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
-from edc_metadata.models import CrfMetadataUnavailable, DataUnavailableReason
+from edc_metadata.models import CrfMetadataMissing, DataMissingReason
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -43,7 +43,7 @@ class TestUnavailableAutoCleanup(TestCase):
         )
         self.appointment = self.subject_visit.appointment
         self.sid = self.subject_visit.subject_identifier
-        self.reason = DataUnavailableReason.objects.create(
+        self.reason = DataMissingReason.objects.create(
             name="test_reason", display_name="Test reason"
         )
 
@@ -60,16 +60,16 @@ class TestUnavailableAutoCleanup(TestCase):
     def test_keying_a_crf_deletes_its_unavailable_flag(self):
         # flag the (yet-unkeyed) CrfFour at baseline as data unavailable
         opts = self._opts(CrfFour._meta.label_lower)
-        CrfMetadataUnavailable.objects.create(**opts, reason=self.reason, site_id=10)
-        self.assertTrue(CrfMetadataUnavailable.objects.filter(**opts).exists())
+        CrfMetadataMissing.objects.create(**opts, reason=self.reason, site_id=10)
+        self.assertTrue(CrfMetadataMissing.objects.filter(**opts).exists())
 
         # keying the CRF (saving the source model) fires the cleanup signal
         CrfFour.objects.create(subject_visit=self.subject_visit)
-        self.assertFalse(CrfMetadataUnavailable.objects.filter(**opts).exists())
+        self.assertFalse(CrfMetadataMissing.objects.filter(**opts).exists())
 
     def test_unrelated_flag_is_left_alone(self):
         # a flag for a different form is not touched when CrfFour is keyed
         opts = self._opts("clinicedc_tests.crffive")
-        CrfMetadataUnavailable.objects.create(**opts, reason=self.reason, site_id=10)
+        CrfMetadataMissing.objects.create(**opts, reason=self.reason, site_id=10)
         CrfFour.objects.create(subject_visit=self.subject_visit)
-        self.assertTrue(CrfMetadataUnavailable.objects.filter(**opts).exists())
+        self.assertTrue(CrfMetadataMissing.objects.filter(**opts).exists())

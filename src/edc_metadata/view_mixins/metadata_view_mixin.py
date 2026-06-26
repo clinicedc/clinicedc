@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from django.urls import NoReverseMatch, reverse
+
 from edc_appointment.utils import update_appt_status_for_timepoint
 
 from ..constants import KEYED, NOT_REQUIRED, REQUIRED
@@ -36,6 +38,7 @@ class MetadataViewMixin:
             NOT_REQUIRED=NOT_REQUIRED,
             REQUIRED=REQUIRED,
             KEYED=KEYED,
+            review_outstanding_url=self.review_outstanding_url,
         )
         return super().get_context_data(**kwargs)
 
@@ -52,3 +55,20 @@ class MetadataViewMixin:
             .filter(entry_status__in=self.metadata_show_status)
             .order_by("show_order")
         )
+
+    @property
+    def review_outstanding_url(self):
+        opts = dict(subject_identifier=self.subject_identifier)
+        if self.appointment:
+            opts.update(
+                visit_schedule_name=self.appointment.visit_schedule_name,
+                schedule_name=self.appointment.schedule_name,
+                visit_code=self.appointment.visit_code,
+            )
+        try:
+            review_outstanding_url = reverse(
+                "edc_metadata:manage_missing_by_subject_url", kwargs=opts
+            )
+        except NoReverseMatch:
+            review_outstanding_url = "#"
+        return review_outstanding_url

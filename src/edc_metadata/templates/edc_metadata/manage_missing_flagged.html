@@ -12,7 +12,7 @@
 {% block document_ready %}
   <script>
     $(document).ready(function () {
-      var table = $('#unavailable_table').DataTable({order: [[6, 'desc']], pageLength: 25});
+      var table = $('#missing_table').DataTable({order: [[6, 'desc']], pageLength: 25});
 
       // Get the search parameter from the URL query string
       var urlParams = new URLSearchParams(window.location.search);
@@ -38,11 +38,11 @@
 {{ block.super }}
 <div class="container-fluid">
 
-  <h3>
-    <a href="{% url 'edc_metadata:review_grid_url' %}?lens=grid" class="btn btn-primary"
+  <h4>
+    <a href="{% url 'edc_metadata:manage_missing_url' %}?lens=grid&subject_identifier={{ subject_identifier }}" class="btn btn-sm btn-primary"
        title="Back to the review grid">
-      <i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i></a>&nbsp;Outstanding CRFs and Requisitions &mdash; Review flagged
-  </h3>
+      <i class="fas fa-reply fa-1x fa-fw" aria-hidden="true"></i></a>&nbsp;Manage Missing CRFs and Requisitions &mdash; Review flagged
+  </h4>
 
   <form class="form-inline" style="margin-bottom:12px;">
     <div class="form-group">
@@ -57,7 +57,7 @@
   </form>
 
   <div class="table-responsive">
-    <table id="unavailable_table" class="table table-condensed table-hover">
+    <table id="missing_table" class="table table-condensed table-hover">
       <thead>
         <tr>
           <th>Subject</th>
