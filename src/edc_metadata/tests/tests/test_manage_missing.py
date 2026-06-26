@@ -16,7 +16,7 @@ from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
-from edc_metadata.views import ManageMissingView, visit_columns
+from edc_metadata.views.manage_missing import ManageMissingView, visit_columns
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -148,13 +148,13 @@ class TestManageMissing(TestCase):
         ctx, _ = self._grid(crf_only=True)
         self.assertEqual(ctx["grand_total"], crf_n)
 
-    def test_grid_cell_links_to_detail(self):
+    def test_grid_cell_links_to_flag_unflag(self):
         ctx, columns = self._grid(crf_only=False)
         row = next(
             r for r in ctx["grid"] if r["subject_identifier"] == self.subject_identifier
         )
         baseline_index = [code for code, _ in columns].index(self.baseline)
         cell = row["cells"][baseline_index]
-        self.assertIn("/detail/", cell["url"])
+        self.assertIn("/flag-unflag/", cell["url"])
         self.assertIn(self.subject_identifier, cell["url"])
         self.assertGreater(cell["crf"], 0)

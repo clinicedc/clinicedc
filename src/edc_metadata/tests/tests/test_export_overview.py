@@ -15,7 +15,7 @@ from django.test.client import RequestFactory
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
-from edc_metadata.views.export_overview_view import ExportOverviewView
+from edc_metadata.views import ExportOverviewView
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")

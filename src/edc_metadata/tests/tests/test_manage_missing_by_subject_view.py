@@ -83,7 +83,7 @@ class TestManageMissingFlagUnFlagView(TestCase):
         view = ManageMissingFlagUnFlagView()
         view.kwargs = dict(self.opts)
         view.allowed_site_ids = lambda: list(allowed)
-        view.can_flag = lambda *_: True
+        view.has_perms_for = lambda *_: True
         request = RequestFactory().post("/", data=data)
         request.user = self.user
         request.session = {}
@@ -93,7 +93,7 @@ class TestManageMissingFlagUnFlagView(TestCase):
 
     # ----------------------------------------------------------------- GET rows
     def test_rows_list_outstanding_with_no_flag(self):
-        rows = ManageMissingFlagUnFlagView._rows(
+        rows = ManageMissingFlagUnFlagView()._get_rows(
             CrfMetadata, CrfMetadataMissing, "crf", self.opts, [10], panel=False
         )
         expected = CrfMetadata.objects.filter(
@@ -105,7 +105,7 @@ class TestManageMissingFlagUnFlagView(TestCase):
     def test_rows_reflect_an_existing_flag(self):
         crf = self._first_crf()
         self._flag(crf)
-        rows = ManageMissingFlagUnFlagView._rows(
+        rows = ManageMissingFlagUnFlagView()._get_rows(
             CrfMetadata, CrfMetadataMissing, "crf", self.opts, [10], panel=False
         )
         flagged = [r for r in rows if r["flag"] is not None]
@@ -117,7 +117,7 @@ class TestManageMissingFlagUnFlagView(TestCase):
         crf = self._first_crf()
         view, request = self._post_view(
             dict(
-                kind="crf",
+                metadata_category="crf",
                 rows="0",
                 model_0=crf.model,
                 seq_0=crf.visit_code_sequence,
@@ -139,7 +139,7 @@ class TestManageMissingFlagUnFlagView(TestCase):
         self._flag(crf)
         view, request = self._post_view(
             dict(
-                kind="crf",
+                metadata_category="crf",
                 rows="0",
                 model_0=crf.model,
                 seq_0=crf.visit_code_sequence,
@@ -157,7 +157,7 @@ class TestManageMissingFlagUnFlagView(TestCase):
         crf = self._first_crf()
         view, request = self._post_view(
             dict(
-                kind="crf",
+                metadata_category="crf",
                 rows="0",
                 model_0=crf.model,
                 seq_0=crf.visit_code_sequence,

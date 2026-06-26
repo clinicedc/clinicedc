@@ -16,7 +16,7 @@ from edc_facility.import_holidays import import_holidays
 from edc_lab.models.panel import Panel
 from edc_metadata.constants import REQUIRED
 from edc_metadata.models import CrfMetadata
-from edc_metadata.views import (
+from edc_metadata.views.manage_missing import (
     ManageMissingView,
     visit_columns,
 )
