@@ -126,16 +126,27 @@ class ManageMissingView(
         models = self.selected_models()
         visit_code = self.request.GET.get("visit_code") or None
         subject_identifier = self.request.GET.get("subject_identifier", "").strip()
+        visit_type = self.selected_visit_type()
 
         crf_base = self.base_filter(
-            site_ids, visit_schedule_name, schedule_name, visit_code, subject_identifier
+            site_ids,
+            visit_schedule_name,
+            schedule_name,
+            visit_code,
+            subject_identifier,
+            visit_type,
         )
         if models:
             crf_base["model__in"] = models
         # requisitions are not narrowed by the CRF set (those are CRF model
         # labels); requisition prioritisation is deferred.
         req_base = self.base_filter(
-            site_ids, visit_schedule_name, schedule_name, visit_code, subject_identifier
+            site_ids,
+            visit_schedule_name,
+            schedule_name,
+            visit_code,
+            subject_identifier,
+            visit_type,
         )
 
         # When CRFs are selected the view is CRF-focused: requisitions are
@@ -174,6 +185,7 @@ class ManageMissingView(
             crf_model_choices=crf_model_choices(visit_schedule_name, schedule_name),
             selected_models=models or [],
             selected_visit_code=visit_code or "",
+            selected_visit_type=visit_type,
             subject_identifier=subject_identifier,
             crf_only=crf_only,
             unavailable_count=len(crf_exclude) + len(req_exclude),
@@ -205,6 +217,7 @@ class ManageMissingView(
                     columns,
                     subject_identifier,
                     crf_exclude,
+                    visit_type,
                 )
             )
         return kwargs
@@ -221,6 +234,11 @@ class ManageMissingView(
     def selected_models(self) -> list[str] | None:
         """CRF model labels selected in the multiselect, or None."""
         return [m for m in self.request.GET.getlist("models") if m] or None
+
+    def selected_visit_type(self) -> str:
+        """"scheduled"/"unscheduled", or "" (all)."""
+        value = self.request.GET.get("visit_type")
+        return value if value in ("scheduled", "unscheduled") else ""
 
     def selected_schedule(self) -> tuple[str | None, str | None]:
         choices = schedule_choices()
@@ -256,8 +274,27 @@ class ManageMissingView(
         return [int(value)]
 
     @staticmethod
+    def visit_type_filter(visit_type: str | None) -> dict:
+        """Queryset fragment narrowing by scheduled vs unscheduled visit.
+
+        A visit is unique for a subject by visit_code + visit_code_sequence:
+        a visit_code_sequence of 0 is the scheduled visit, > 0 is unscheduled.
+        An empty/unknown value means "all" (no narrowing).
+        """
+        if visit_type == "scheduled":
+            return {"visit_code_sequence": 0}
+        if visit_type == "unscheduled":
+            return {"visit_code_sequence__gt": 0}
+        return {}
+
+    @staticmethod
     def base_filter(
-        site_ids, visit_schedule_name, schedule_name, visit_code, subject_identifier=None
+        site_ids,
+        visit_schedule_name,
+        schedule_name,
+        visit_code,
+        subject_identifier=None,
+        visit_type=None,
     ) -> dict:
         opts = dict(
             entry_status=REQUIRED,
@@ -269,6 +306,7 @@ class ManageMissingView(
             opts["visit_code"] = visit_code
         if subject_identifier:
             opts["subject_identifier__icontains"] = subject_identifier
+        opts.update(ManageMissingView.visit_type_filter(visit_type))
         return opts
 
     # ------------------------------------------------------------------ queries
@@ -436,6 +474,7 @@ class ManageMissingView(
         columns,
         subject_identifier=None,
         exclude_ids=None,
+        visit_type=None,
     ) -> list[dict]:
         opts = dict(
             entry_status=REQUIRED,
@@ -447,6 +486,7 @@ class ManageMissingView(
             opts["model__in"] = models
         if subject_identifier:
             opts["subject_identifier__icontains"] = subject_identifier
+        opts.update(self.visit_type_filter(visit_type))
         qs = CrfMetadata.objects.filter(**opts)
         if exclude_ids:
             qs = qs.exclude(id__in=exclude_ids)
@@ -499,7 +539,9 @@ class ManageMissingView(
         # otherwise "All sites" is lost across pagination/lens links.
         params: list[tuple[str, str]] = [("site", self.selected_site_value())]
         params += [
-            (key, get.get(key)) for key in ("schedule", "visit_code", "q") if get.get(key)
+            (key, get.get(key))
+            for key in ("schedule", "visit_code", "visit_type", "q")
+            if get.get(key)
         ]
         params += [("models", model) for model in get.getlist("models") if model]
         return urlencode(params)

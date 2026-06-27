@@ -4,6 +4,7 @@ from .manage_missing import (
     ManageMissingFlaggedReportView,
     ManageMissingFlagUnFlagView,
     ManageMissingView,
+    visit_columns,
 )
 from .refresh_metadata_actions_view import RefreshMetadataActionsView
 from .review_filter_views import DeleteReviewFilterView, SaveReviewFilterView
