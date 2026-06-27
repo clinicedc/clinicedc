@@ -118,6 +118,16 @@
               </p>
             </div>
           </div>
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label">Visit type</label>
+              <select name="visit_type" class="form-control input-sm">
+                <option value="" {% if selected_visit_type == '' %}selected{% endif %}>All visit types</option>
+                <option value="scheduled" {% if selected_visit_type == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                <option value="unscheduled" {% if selected_visit_type == 'unscheduled' %}selected{% endif %}>Unscheduled</option>
+              </select>
+            </div>
+          </div>
         </div>
       </form>
 
@@ -125,9 +135,9 @@
       <div class="row">
         <div class="col-sm-4">
           <div class="form-group">
-            <label class="control-label">Select a saved filter (optional)</label>
+            <label class="control-label">Select a custom filter (optional)</label>
             <select id="saved_filter" class="form-control input-sm" onchange="loadSavedFilter(this)">
-              <option value="">&mdash; load a saved filter &mdash;</option>
+              <option value="">&mdash; load a custom filter &mdash;</option>
               {% for f in saved_filters %}
                 <option value="{{ f.id }}" data-query="{{ f.query }}" {% if f.id == selected_filter_id %}selected{% endif %}>{{ f.name }}{% if f.shared %} (shared){% endif %}</option>
               {% endfor %}
@@ -140,9 +150,9 @@
               <label class="control-label">Save current filters (optional)</label>
               <form method="post" action="{% url 'edc_metadata:manage_missing_save_filter_url' %}" class="form-inline" onsubmit="return syncSaveQuery(this)">{% csrf_token %}
                 <input type="hidden" name="query" value="{{ filter_querystring }}">
-                <input type="text" name="name" class="form-control input-sm" placeholder="filter name" required>
+                <input type="text" name="name" class="form-control input-sm" placeholder="custom filter name" required>
                 {% if can_share %}<label class="checkbox-inline"><input type="checkbox" name="shared" value="1"> Share saved filter with team</label>{% endif %}
-                <button type="submit" class="btn btn-default btn-sm pull-right" style="margin-bottom:4px;">Save filter</button>
+                <button type="submit" class="btn btn-default btn-sm pull-right" style="margin-bottom:4px;">Save custom filter</button>
               </form>
             </div>
           </div>
@@ -152,12 +162,12 @@
       <div class="row">
         <div class="col-sm-12">
           <button type="submit" form="filter-form" class="btn btn-primary" style="padding-left: 2rem; padding-right: 2rem;">Apply filters</button>
-          <button type="button" class="btn btn-default" style="margin-left:6px;" onclick="clearFilters()">Clear</button>
+          <button type="button" class="btn btn-default" style="margin-left:6px;" onclick="clearFilters()">Clear filters</button>
           <form method="post" action="{% url 'edc_metadata:manage_missing_delete_filter_url' %}" class="pull-right" style="display:inline;">{% csrf_token %}
             <input type="hidden" name="filter_id" id="delete_filter_id">
             <button type="button" id="delete_filter_btn" class="btn btn-danger btn-sm"
                     style="{% if not selected_filter_id %}display:none;{% endif %}"
-                    onclick="deleteSavedFilter(this.form)">Delete selected filter</button>
+                    onclick="deleteSavedFilter(this.form)">Delete selected custom filter</button>
           </form>
         </div>
       </div>
@@ -196,7 +206,7 @@
           var ff = document.getElementById('filter-form');
           var p = new URLSearchParams();
           p.set('site', ff.elements['site'] ? ff.elements['site'].value : '');
-          ['schedule', 'visit_code', 'q'].forEach(function (n) {
+          ['schedule', 'visit_code', 'visit_type', 'q'].forEach(function (n) {
             var el = ff.elements[n];
             if (el && el.value) { p.set(n, el.value); }
           });
