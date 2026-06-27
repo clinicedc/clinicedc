@@ -26,6 +26,7 @@ from ...models import (
     RequisitionMetadataMissing,
 )
 from ...view_mixins import AllowedSitesViewMixin
+from .manage_missing_view import visit_type_filter
 
 if TYPE_CHECKING:
     from edc_appointment.models import Appointment
@@ -72,20 +73,32 @@ class ManageMissingFlagUnFlagView(
             visit_code=self.kwargs.get("visit_code"),
         )
 
+    def selected_visit_type(self) -> str:
+        """"scheduled"/"unscheduled" carried from the manage-missing grid,
+        or "" (all)."""
+        value = self.request.GET.get("visit_type")
+        return value if value in ("scheduled", "unscheduled") else ""
+
     def get_context_data(self, **kwargs) -> dict:
         kwargs = super().get_context_data(**kwargs)
         opts = {k: v for k, v in self.default_filter_opts().items() if v}
+        visit_type = self.selected_visit_type()
+        # narrow the listed rows to scheduled/unscheduled when carried from the
+        # grid; keep `opts` clean for the url builders (dashboard_url pins
+        # visit_code_sequence=0 itself).
+        row_opts = {**opts, **visit_type_filter(visit_type)}
         allowed_site_ids = self.allowed_site_ids()
         kwargs.update(
             **opts,
-            crf_rows=self.get_crf_rows(opts, allowed_site_ids),
-            requisition_rows=self.get_requisition_rows(opts, allowed_site_ids),
+            selected_visit_type=visit_type,
+            crf_rows=self.get_crf_rows(row_opts, allowed_site_ids),
+            requisition_rows=self.get_requisition_rows(row_opts, allowed_site_ids),
             reason_choices=DataMissingReason.objects.all().order_by("display_index"),
             can_flag_crf=self.has_perms_for("crfmetadatamissing"),
             can_flag_requisition=self.has_perms_for("requisitionmetadatamissing"),
             dashboard_url=self.dashboard_url(opts, allowed_site_ids),
             dashboard_url_name=url_names.get("subject_dashboard_url"),
-            back_url=self.back_url(opts),
+            back_url=self.back_url(opts, visit_type),
             review_flagged_url=self.review_flagged_url(opts),
             now=timezone.now(),
             CRF=CRF,
@@ -125,16 +138,17 @@ class ManageMissingFlagUnFlagView(
         return None
 
     @staticmethod
-    def back_url(opts) -> str:
-        query = urlencode(
-            [
-                ("lens", "grid"),
-                ("submitted", "1"),
-                ("schedule", f"{opts['visit_schedule_name']}::{opts['schedule_name']}"),
-                ("subject_identifier", opts["subject_identifier"]),
-                ("visit_code", opts["visit_code"]),
-            ]
-        )
+    def back_url(opts, visit_type=None) -> str:
+        params = [
+            ("lens", "grid"),
+            ("submitted", "1"),
+            ("schedule", f"{opts['visit_schedule_name']}::{opts['schedule_name']}"),
+            ("subject_identifier", opts["subject_identifier"]),
+            ("visit_code", opts["visit_code"]),
+        ]
+        if visit_type:
+            params.append(("visit_type", visit_type))
+        query = urlencode(params)
         return f"{reverse('edc_metadata:manage_missing_url')}?{query}"
 
     @staticmethod
@@ -150,9 +164,14 @@ class ManageMissingFlagUnFlagView(
     def post(self, request, *args, **kwargs):  # noqa: ARG002
         """Reconcile every row in the submitted panel against its reason: a
         reason creates/updates the flag, a blank reason removes it."""
-        redirect = HttpResponseRedirect(
-            reverse("edc_metadata:manage_missing_by_subject_url", kwargs=self.kwargs)
+        # keep the scheduled/unscheduled selection on the post-submit reload
+        visit_type = self.selected_visit_type()
+        redirect_url = reverse(
+            "edc_metadata:manage_missing_by_subject_url", kwargs=self.kwargs
         )
+        if visit_type:
+            redirect_url += f"?{urlencode({'visit_type': visit_type})}"
+        redirect = HttpResponseRedirect(redirect_url)
         metadata_category = request.POST.get("metadata_category")
         if metadata_category not in METADATA_TYPES:
             messages.error(request, f"Unknown metadata category. Got {metadata_category}.")
