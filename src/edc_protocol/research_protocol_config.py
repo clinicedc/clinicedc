@@ -139,12 +139,11 @@ class ResearchProtocolConfig:
 
     @property
     def subject_identifier_pattern(self) -> str:
+        default_pattern = r"\b" + self.protocol_number + r"-\d{2}-\d{4}-\d{1}\b"
         return getattr(
             settings,
             "EDC_PROTOCOL_SUBJECT_IDENTIFIER_PATTERN",
-            r"{protocol_number}\-[0-9\-]+".format(
-                **dict(protocol_number=self.protocol_number)
-            ),
+            default_pattern,
         )
 
     @property

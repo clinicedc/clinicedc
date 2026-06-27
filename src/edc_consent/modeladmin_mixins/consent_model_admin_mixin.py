@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import admin
@@ -8,15 +10,24 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
+from edc_auth.constants import PII
 from edc_identifier import SubjectIdentifierError, is_subject_identifier_or_raise
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from ..actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
 
 
 class ConsentModelAdminMixin:
     name_fields: tuple[str] = ("first_name", "last_name")
-    name_display_field: str = "first_name"
+    name_display_fields: tuple[str] = ("first_name", "last_name")
     actions = (flag_as_verified_against_paper, unflag_as_verified_against_paper)
+    change_list_note = format_html(
+        "If <strong>sensitive data</strong> is available and the user has permissions "
+        "to view, the <strong>sensitive data</strong> will only show for a search result "
+        "that is an exact match for a given <strong>Subject ID</strong>. If multiple results "
+        "appear, click on a <strong>Subject ID</strong> to add it to the search filter.",
+        "",
+    )
 
     def __init__(self, *args):
         self.update_radio_fields()
@@ -87,17 +98,53 @@ class ConsentModelAdminMixin:
 
     def get_list_display(self, request) -> tuple[str, ...]:
         list_display: tuple[str] = super().get_list_display(request)
+        has_perms_for_pii = request.user.groups.filter(name=PII).exists()
+        MASK = "*****"  # noqa: N806
+
+        pattern = ResearchProtocolConfig().subject_identifier_pattern
+        query = request.GET.get("q", "").strip()
+        search_active = re.match(pattern, query)
+
+        @admin.display(description="Edit/View")
+        def edit(obj) -> str:
+            return "Edit"
+
+        @admin.display(description="May store samples")
+        def may_store_samples_str(obj) -> str:
+            return obj.may_store_samples
+
+        @admin.display(description="Subject ID")
+        def subject_identifier_link(obj) -> str:
+            return format_html(
+                '<A title="search on this subject ID" href="?q={}">{}</A>',
+                obj.subject_identifier,
+                obj.subject_identifier,
+            )
+
+        @admin.display(description="Initials")
+        def masked_initials(obj) -> str:
+            return obj.initials if has_perms_for_pii else MASK
+
+        @admin.display(description="Name")
+        def masked_full_name(obj) -> str:
+            name = [
+                getattr(obj, s) if has_perms_for_pii and search_active else MASK
+                for s in self.name_display_fields
+            ]
+            return " ".join(name)
+
         custom_fields = (
-            "subject_identifier",
+            edit,
+            subject_identifier_link,
+            "consent_datetime",
             "screening_identifier",
-            "is_verified",
-            "is_verified_datetime",
-            self.name_display_field,
-            "initials",
+            masked_initials,
+            masked_full_name,
             "gender",
             "dob",
-            "may_store_samples",
-            "consent_datetime",
+            may_store_samples_str,
+            "is_verified",
+            "is_verified_datetime",
             "created",
             "modified",
             "user_created",

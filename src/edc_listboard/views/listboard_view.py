@@ -75,6 +75,10 @@ class BaseListboardView(SiteViewMixin, TemplateRequestContextMixin, ListView):
             listboard_view_permission_codename=self.listboard_view_permission_codename,
             permissions_warning_message=self.permissions_warning_message,
             show_change_form_button=self.show_change_form_button,
+            unmask_pii=(
+                (self.search_term and len(self.object_list) <= 10)
+                or len(self.object_list) <= 5
+            ),
             **{"listboard_url": url_names.get(self.listboard_url)},
             **{"paginator_url": url_names.get(self.paginator_url or self.listboard_url)},
             **{

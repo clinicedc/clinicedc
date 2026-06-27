@@ -81,6 +81,7 @@ class ModelAdminSiteTest(WebTest):
         form["password"] = "pass"  # noqa: S105
         return form.submit()
 
+    @tag("1")
     def test_redirect_next(self):
         """Assert redirects to "dashboard_url" as given in the
         query_string "next=".
@@ -423,6 +424,7 @@ class ModelAdminSiteTest(WebTest):
         self.assertRaises(ObjectDoesNotExist, CrfFour.objects.get, id=crffour.id)
         self.assertIn("changelist", response)
 
+    @tag("1")
     def test_add_directly_from_changelist_without_subject_visit_raises(self):
         self.login()
 
