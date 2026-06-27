@@ -514,15 +514,21 @@ class ManageMissingView(
             cells = []
             for visit_code in visit_codes:
                 count = pivot.get(model_label, {}).get(visit_code, 0)
-                handoff = "?" + urlencode(
-                    [
-                        ("lens", "grid"),
-                        ("schedule", schedule_value),
-                        ("site", site_value),
-                        ("models", model_label),
-                        ("visit_code", visit_code),
-                    ]
-                )
+                # the clicked cell pins the model + visit_code drill-down; carry
+                # the remaining active filters so the grid lens matches the
+                # overview the user is drilling from.
+                handoff_params = [
+                    ("lens", "grid"),
+                    ("schedule", schedule_value),
+                    ("site", site_value),
+                    ("models", model_label),
+                    ("visit_code", visit_code),
+                ]
+                if subject_identifier:
+                    handoff_params.append(("subject_identifier", subject_identifier))
+                if visit_type:
+                    handoff_params.append(("visit_type", visit_type))
+                handoff = "?" + urlencode(handoff_params)
                 cells.append(dict(count=count, url=handoff if count else None))
             overview.append(
                 dict(
