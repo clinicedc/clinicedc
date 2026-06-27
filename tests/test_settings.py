@@ -47,6 +47,8 @@ project_settings = DefaultTestSettings(
         "data_manager": "joe@sample.com",
         "tmg": "joe@sample.com",
     },
+    EDC_PROTOCOL_NUMBER="101",
+    EDC_PROTOCOL_SUBJECT_IDENTIFIER_PATTERN=r"101-\d{8}-\d{1}",
     EDC_SITES_REGISTER_DEFAULT=False,
     EDC_SITES_CREATE_DEFAULT=False,
     INSTALLED_APPS=[

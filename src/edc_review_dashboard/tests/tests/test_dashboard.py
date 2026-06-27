@@ -133,7 +133,7 @@ class TestDashboard(WebTest):
 
         self.assertIn(self.subject_identifiers[1], response)
 
-    @tag("review_dashboard1")
+    @tag("1")
     def test_ordering(self):
         self.login()
 
