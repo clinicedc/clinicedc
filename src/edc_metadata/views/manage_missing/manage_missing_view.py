@@ -83,6 +83,20 @@ def model_verbose_name(label: str) -> str:
         return label
 
 
+def visit_type_filter(visit_type: str | None) -> dict:
+    """Queryset fragment narrowing by scheduled vs unscheduled visit.
+
+    A visit is unique for a subject by visit_code + visit_code_sequence:
+    a visit_code_sequence of 0 is the scheduled visit, > 0 is unscheduled.
+    An empty/unknown value means "all" (no narrowing).
+    """
+    if visit_type == "scheduled":
+        return {"visit_code_sequence": 0}
+    if visit_type == "unscheduled":
+        return {"visit_code_sequence__gt": 0}
+    return {}
+
+
 class ManageMissingView(
     PermissionRequiredMixin,
     AllowedSitesViewMixin,
@@ -274,20 +288,6 @@ class ManageMissingView(
         return [int(value)]
 
     @staticmethod
-    def visit_type_filter(visit_type: str | None) -> dict:
-        """Queryset fragment narrowing by scheduled vs unscheduled visit.
-
-        A visit is unique for a subject by visit_code + visit_code_sequence:
-        a visit_code_sequence of 0 is the scheduled visit, > 0 is unscheduled.
-        An empty/unknown value means "all" (no narrowing).
-        """
-        if visit_type == "scheduled":
-            return {"visit_code_sequence": 0}
-        if visit_type == "unscheduled":
-            return {"visit_code_sequence__gt": 0}
-        return {}
-
-    @staticmethod
     def base_filter(
         site_ids,
         visit_schedule_name,
@@ -306,7 +306,7 @@ class ManageMissingView(
             opts["visit_code"] = visit_code
         if subject_identifier:
             opts["subject_identifier__icontains"] = subject_identifier
-        opts.update(ManageMissingView.visit_type_filter(visit_type))
+        opts.update(visit_type_filter(visit_type))
         return opts
 
     # ------------------------------------------------------------------ queries
@@ -418,6 +418,9 @@ class ManageMissingView(
         )
 
         visit_codes = [code for code, _ in columns]
+        # carry the scheduled/unscheduled selection into the flag-unflag screen
+        visit_type = self.selected_visit_type()
+        visit_type_qs = f"?{urlencode({'visit_type': visit_type})}" if visit_type else ""
         rows = []
         for subject in page_subjects:
             cells = []
@@ -434,6 +437,7 @@ class ManageMissingView(
                             visit_code=visit_code,
                         ),
                     )
+                    + visit_type_qs
                     if (crf_n + req_n)
                     else None
                 )
@@ -486,7 +490,7 @@ class ManageMissingView(
             opts["model__in"] = models
         if subject_identifier:
             opts["subject_identifier__icontains"] = subject_identifier
-        opts.update(self.visit_type_filter(visit_type))
+        opts.update(visit_type_filter(visit_type))
         qs = CrfMetadata.objects.filter(**opts)
         if exclude_ids:
             qs = qs.exclude(id__in=exclude_ids)
