@@ -68,6 +68,7 @@
                                                     <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ item.code }}">
                                                         <code>{{ item.code }}</code>
                                                     </a>
+                                                    {% include "edc_pharmacy/stock/_conflict_hint.html" with item=item %}
                                                 </td>
                                                 <td>{{ item.stock.product.name|default:"—" }}</td>
                                                 <td>{% include "edc_pharmacy/stock/_resolve_actions.html" with item=item next_url=report_next %}</td>
@@ -102,6 +103,7 @@
                                                     {% if not item.stock %}
                                                         <span class="text-muted small">(not in system)</span>
                                                     {% endif %}
+                                                    {% include "edc_pharmacy/stock/_conflict_hint.html" with item=item %}
                                                 </td>
                                                 <td>{{ item.stock.product.name|default:"—" }}</td>
                                                 <td>{% include "edc_pharmacy/stock/_resolve_actions.html" with item=item next_url=report_next %}</td>

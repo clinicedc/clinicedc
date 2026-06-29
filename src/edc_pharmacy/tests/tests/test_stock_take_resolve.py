@@ -57,6 +57,7 @@ from edc_pharmacy.models import (
 )
 from edc_pharmacy.transaction_log import apply_delta_context, apply_transaction
 from edc_pharmacy.utils import confirm_stock
+from edc_pharmacy.views import StockTakeDiscrepancyReportView
 from edc_randomization.constants import ACTIVE
 from edc_sites.site import sites
 from edc_sites.utils import add_or_update_django_sites
@@ -399,3 +400,32 @@ class TestStockTakeResolve(TestCase):
         self.assertIn("Resolved", html)
         self.assertIn("Undo", html)
         self.assertIn('value="undo"', html)
+
+    # -- cross-bin conflict detection ----------------------------------
+
+    def test_conflict_missing_also_unexpected_elsewhere(self):
+        # The same code is scanned as unexpected in bin_b's take.
+        take_b = StockTake.objects.create(
+            storage_bin=self.bin_b, performed_by=self.user
+        )
+        item_unexpected_b = StockTakeItem.objects.create(
+            stock_take=take_b,
+            stock=self.stock_missing,
+            code=self.stock_missing.code,
+            status=UNEXPECTED,
+        )
+        StockTakeDiscrepancyReportView()._annotate_conflicts(
+            [self.item_missing, item_unexpected_b]
+        )
+        # missing row is warned not to mark it lost
+        self.assertEqual(self.item_missing.conflict_level, "warning")
+        self.assertIn(self.bin_b.bin_identifier, self.item_missing.conflict)
+        self.assertIn("misfiled", self.item_missing.conflict)
+        # the unexpected row shows where it is currently registered (bin_a)
+        self.assertEqual(item_unexpected_b.conflict_level, "info")
+        self.assertIn(self.bin_a.bin_identifier, item_unexpected_b.conflict)
+
+    def test_no_conflict_when_isolated(self):
+        StockTakeDiscrepancyReportView()._annotate_conflicts([self.item_missing])
+        self.assertEqual(self.item_missing.conflict, "")
+        self.assertEqual(self.item_missing.conflict_level, "")

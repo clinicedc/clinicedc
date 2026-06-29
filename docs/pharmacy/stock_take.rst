@@ -87,6 +87,12 @@ item has been and what last happened to it. A code marked *(not in system)* was 
 is not known to the EDC at all — most often a mislabelled or foreign label that needs to be
 investigated by hand and cannot be resolved from the report.
 
+The report also cross-checks each code against the other bins and shows a hint where
+relevant. In particular, a **missing** item whose code was *also scanned as unexpected in
+another bin* is flagged with a warning — it is most likely misfiled there, **not** lost, so
+resolve it from that bin rather than marking it lost here. A quieter note shows when a code is
+currently registered in a different bin than the one it appears in.
+
 Each open discrepancy has a **Resolve** control in its row.
 
 **Missing** (expected in the bin, but not found):
