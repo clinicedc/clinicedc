@@ -110,6 +110,9 @@ Each open discrepancy has a **Resolve** control in its row.
   bin being counted. No reason is asked for — an audit note is recorded automatically. The
   row then shows **Resolved** with an **Undo** button; clicking **Undo** returns the item to
   its original bin and re-opens the discrepancy.
+* Because the same item being missing from another bin is the other half of the same problem,
+  **Add to bin** also clears any open *missing* record for that code in other bins — both
+  sides are resolved by the one move, and a single **Undo** re-opens both.
 * If the item does not belong in this bin, move it to its correct bin from that bin's page
   instead.
 * Some unexpected items **cannot** be added to a bin — a code *not in the system*, or a stock

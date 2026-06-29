@@ -303,6 +303,44 @@ class TestStockTakeResolve(TestCase):
         self.item_unexpected.refresh_from_db()
         self.assertFalse(self.item_unexpected.resolved)
 
+    # -- paired resolution (add clears the matching missing record) ----
+
+    def _missing_counterpart_in_bin_b(self):
+        # bin_b's take expected stock_unexpected but didn't scan it -> missing.
+        take_b = StockTake.objects.create(
+            storage_bin=self.bin_b, performed_by=self.user
+        )
+        return StockTakeItem.objects.create(
+            stock_take=take_b,
+            stock=self.stock_unexpected,
+            code=self.stock_unexpected.code,
+            status=MISSING,
+        )
+
+    def test_add_to_bin_clears_missing_counterpart(self):
+        missing_b = self._missing_counterpart_in_bin_b()
+        self._post(self.item_unexpected, action="move_to_bin")
+        self.item_unexpected.refresh_from_db()
+        missing_b.refresh_from_db()
+        self.assertTrue(self.item_unexpected.resolved)
+        # the missing counterpart is resolved by the SAME transaction
+        self.assertTrue(missing_b.resolved)
+        self.assertEqual(
+            missing_b.stock_transaction_id, self.item_unexpected.stock_transaction_id
+        )
+
+    def test_undo_reopens_both_sides(self):
+        missing_b = self._missing_counterpart_in_bin_b()
+        self._post(self.item_unexpected, action="move_to_bin")
+        self._post(self.item_unexpected, action="undo")
+        self.item_unexpected.refresh_from_db()
+        missing_b.refresh_from_db()
+        self.assertFalse(self.item_unexpected.resolved)
+        self.assertFalse(missing_b.resolved)
+        # stock returned to its original bin (bin_b)
+        sbi = StorageBinItem.objects.get(stock=self.stock_unexpected)
+        self.assertEqual(sbi.storage_bin_id, self.bin_b.pk)
+
     def test_reason_is_required(self):
         response = self._post(self.item_missing, action="lost")
         self.assertEqual(response.status_code, 302)

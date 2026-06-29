@@ -30,6 +30,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.template.defaultfilters import pluralize
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -162,8 +163,11 @@ class ResolveStockTakeItemView(View):
             except InvalidTransitionError as e:
                 messages.error(request, f"Could not undo {item.code}: {e}")
                 return self._redirect(request)
-            item.stock_transaction = None
-            item.save(update_fields=["stock_transaction"])
+            # Re-open every row resolved by this transaction (the added item and
+            # any missing counterparts that were cleared with it).
+            for linked in StockTakeItem.objects.filter(stock_transaction=txn):
+                linked.stock_transaction = None
+                linked.save(update_fields=["stock_transaction"])
         messages.success(
             request, f"Undone: {item.code} returned to bin {origin_bin.bin_identifier}."
         )
@@ -247,6 +251,40 @@ class ResolveStockTakeItemView(View):
                 return self._redirect(request)
             item.stock_transaction = txn
             item.save(update_fields=["stock_transaction"])
+            # Adding the item to this bin also explains any open "missing"
+            # record for the same code elsewhere — resolve both at once.
+            cleared = (
+                self._link_missing_counterparts(item, txn)
+                if txn_type == TXN_BIN_MOVED
+                else 0
+            )
 
-        messages.success(request, f"Resolved {item.code} ({item.status}).")
+        if cleared:
+            messages.success(
+                request,
+                f"Added {item.code} to this bin; also cleared "
+                f"{cleared} missing record{pluralize(cleared)} in other bins.",
+            )
+        else:
+            messages.success(request, f"Resolved {item.code} ({item.status}).")
         return self._redirect(request)
+
+    @staticmethod
+    def _link_missing_counterparts(item, txn) -> int:
+        """Link open 'missing' records for the same code to ``txn``.
+
+        The item is the same physical stock, so adding it to a bin resolves the
+        missing side too. Saved one-by-one to preserve the audit trail.
+        """
+        counterparts = StockTakeItem.objects.filter(
+            code=item.code,
+            status=MISSING,
+            stock_transaction__isnull=True,
+            acknowledged_datetime__isnull=True,
+        )
+        cleared = 0
+        for counterpart in counterparts:
+            counterpart.stock_transaction = txn
+            counterpart.save(update_fields=["stock_transaction"])
+            cleared += 1
+        return cleared
