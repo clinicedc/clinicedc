@@ -18,8 +18,8 @@ class StockTakeItemInline(admin.TabularInline):
     model = StockTakeItem
     extra = 0
     can_delete = False
-    fields = ("code", "status", "stock_link")
-    readonly_fields = ("code", "status", "stock_link")
+    fields = ("code", "status", "stock_link", "resolution")
+    readonly_fields = ("code", "status", "stock_link", "resolution")
 
     @admin.display(description="Stock")
     def stock_link(self, obj):
@@ -28,6 +28,24 @@ class StockTakeItemInline(admin.TabularInline):
             return render_to_string(
                 "edc_pharmacy/stock/items_as_link.html",
                 context={"url": url, "label": obj.stock.code, "title": "Go to stock"},
+            )
+        return "—"
+
+    @admin.display(description="Resolution")
+    def resolution(self, obj):
+        if obj.stock_transaction_id:
+            txn = obj.stock_transaction
+            url = reverse(
+                "edc_pharmacy_admin:edc_pharmacy_stocktransaction_change",
+                args=[txn.pk],
+            )
+            return render_to_string(
+                "edc_pharmacy/stock/items_as_link.html",
+                context={
+                    "url": url,
+                    "label": txn.get_transaction_type_display(),
+                    "title": "Go to resolving transaction",
+                },
             )
         return "—"
 

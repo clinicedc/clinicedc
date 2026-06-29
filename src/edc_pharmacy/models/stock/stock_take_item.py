@@ -50,7 +50,26 @@ class StockTakeItem(BaseUuidModel):
         choices=STOCK_TAKE_ITEM_STATUS,
     )
 
+    stock_transaction = models.ForeignKey(
+        "edc_pharmacy.StockTransaction",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        help_text=(
+            "The ledger transaction that resolved this discrepancy, if any. "
+            "Set when a correction (e.g. lost/damaged/expired or move-to-bin) is "
+            "applied from the stock take. SET_NULL so the append-only ledger can be "
+            "rebuilt without being blocked."
+        ),
+    )
+
     history = HistoricalRecords()
+
+    @property
+    def resolved(self) -> bool:
+        """True if a correction has been linked to this discrepancy."""
+        return self.stock_transaction_id is not None
 
     def __str__(self):
         return f"{self.code}: {self.get_status_display()}"
