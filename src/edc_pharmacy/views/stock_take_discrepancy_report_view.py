@@ -45,9 +45,9 @@ class StockTakeDiscrepancyReportView(
             .order_by("location__display_name", "bin_identifier")
         )
 
-        # Build per-bin rows, keeping only those with discrepancies
-        rows_by_location: dict[str, list[dict]] = {}
-        all_items: list[StockTakeItem] = []
+        # One flat, bin-ordered list of discrepancies (missing then unexpected
+        # within each bin) for a single grouped DataTable.
+        items: list[StockTakeItem] = []
         for b in bins:
             last = (
                 StockTake.objects.filter(storage_bin=b)
@@ -56,35 +56,22 @@ class StockTakeDiscrepancyReportView(
             )
             if not last or (last.missing_count == 0 and last.unexpected_count == 0):
                 continue
+            # Reuse the already-loaded bin (with container/location) for URLs.
+            last.storage_bin = b
 
-            missing_items = list(
-                last.items.filter(status=MISSING).select_related("stock__product").order_by("code")
-            )
-            unexpected_items = list(
-                last.items.filter(status=UNEXPECTED)
+            bin_items = list(
+                last.items.filter(status__in=(MISSING, UNEXPECTED))
                 .select_related("stock__product")
-                .order_by("code")
+                .order_by("status", "code")
             )
-            # Populate the stock_take FK cache so conflict annotation does not
-            # re-query it per item.
-            for item in (*missing_items, *unexpected_items):
+            # Populate the stock_take FK cache so neither conflict annotation nor
+            # the template re-queries it per item.
+            for item in bin_items:
                 item.stock_take = last
-            all_items.extend(missing_items)
-            all_items.extend(unexpected_items)
+            items.extend(bin_items)
 
-            location = last.storage_bin.location
-            location_name = location.display_name or location.name
-            rows_by_location.setdefault(location_name, []).append(
-                {
-                    "bin": b,
-                    "stock_take": last,
-                    "missing": missing_items,
-                    "unexpected": unexpected_items,
-                }
-            )
-
-        self._annotate_conflicts(all_items)
-        return super().get_context_data(rows_by_location=rows_by_location, **kwargs)
+        self._annotate_conflicts(items)
+        return super().get_context_data(items=items, **kwargs)
 
     def _annotate_conflicts(self, items: list[StockTakeItem]) -> None:
         """Tag each item with a cross-bin ``conflict``/``conflict_level`` hint.
