@@ -15,6 +15,11 @@ A *matched* item, or an *unexpected* item whose code is not in the system
 The ``undo`` action reverses an "add to bin" resolution: it returns the item to
 its original bin via a compensating ``TXN_BIN_MOVED`` and re-opens the
 discrepancy. Only available for an unexpected item resolved by a bin move.
+
+The ``acknowledge`` action records a review note (no transaction) for an
+unexpected item that cannot be corrected in-system — not in the system, or in a
+terminal state such as dispensed — so the row can be cleared. ``unacknowledge``
+reverses it.
 """
 
 from __future__ import annotations
@@ -25,6 +30,7 @@ from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 
@@ -45,6 +51,10 @@ MOVE_ACTION = "move_to_bin"
 
 # Reverse a prior "add to bin" resolution.
 UNDO_ACTION = "undo"
+
+# Acknowledge an unexpected item that cannot be corrected in-system, and reverse it.
+ACK_ACTION = "acknowledge"
+UNACK_ACTION = "unacknowledge"
 
 
 @method_decorator(login_required, name="dispatch")
@@ -130,13 +140,62 @@ class ResolveStockTakeItemView(View):
         )
         return self._redirect(request)
 
+    def _handle_acknowledge(self, request, item, note):
+        """Record a review note for an unexpected item that can't be corrected."""
+        if item.handled:
+            messages.warning(request, f"{item.code} is already handled.")
+            return self._redirect(request)
+        if not (item.status == UNEXPECTED and (item.stock is None or item.stock.is_terminal)):
+            messages.error(
+                request, f"{item.code} cannot be acknowledged; resolve it instead."
+            )
+            return self._redirect(request)
+        if not note:
+            messages.error(request, "A note is required to acknowledge.")
+            return self._redirect(request)
+        item.acknowledged_datetime = timezone.now()
+        item.acknowledged_by = request.user
+        item.acknowledged_note = note
+        item.save(
+            update_fields=[
+                "acknowledged_datetime",
+                "acknowledged_by",
+                "acknowledged_note",
+            ]
+        )
+        messages.success(request, f"Acknowledged {item.code}.")
+        return self._redirect(request)
+
+    def _handle_unacknowledge(self, request, item):
+        """Reverse an acknowledgement and re-open the discrepancy."""
+        if not item.acknowledged:
+            messages.warning(request, f"{item.code} is not acknowledged.")
+            return self._redirect(request)
+        item.acknowledged_datetime = None
+        item.acknowledged_by = None
+        item.acknowledged_note = ""
+        item.save(
+            update_fields=[
+                "acknowledged_datetime",
+                "acknowledged_by",
+                "acknowledged_note",
+            ]
+        )
+        messages.success(request, f"Re-opened {item.code}.")
+        return self._redirect(request)
+
     def post(self, request, *args, **kwargs):  # noqa: ARG002
         item = get_object_or_404(StockTakeItem, pk=kwargs["stock_take_item"])
         action = request.POST.get("action", "").strip().lower()
         reason = request.POST.get("reason", "").strip()
 
-        if action == UNDO_ACTION:
-            return self._handle_undo(request, item)
+        handlers = {
+            UNDO_ACTION: lambda: self._handle_undo(request, item),
+            ACK_ACTION: lambda: self._handle_acknowledge(request, item, reason),
+            UNACK_ACTION: lambda: self._handle_unacknowledge(request, item),
+        }
+        if action in handlers:
+            return handlers[action]()
 
         if item.resolved:
             messages.warning(request, f"{item.code} is already resolved.")

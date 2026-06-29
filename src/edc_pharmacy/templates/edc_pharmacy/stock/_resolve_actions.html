@@ -5,20 +5,19 @@ Expects in context:
   item      — a StockTakeItem (status "missing" or "unexpected")
   next_url  — URL to return to after the POST (this page)
 
-Renders:
-  * a "Resolved" badge linking to the resolving transaction, if already resolved;
-  * an "investigate" note for an unexpected code not in the system (no stock);
-  * otherwise a small inline form posting to resolve_stock_take_item_url:
-      - missing    → reason + Lost/Damaged/Expired select + Apply
-      - unexpected → reason + "Move to this bin"
+Branches:
+  * resolved              → "Resolved" badge; Undo (unexpected) or txn link (missing)
+  * acknowledged          → "Acknowledged" badge + note; Undo (unacknowledge)
+  * missing               → reason + Lost/Damaged/Expired + Apply
+  * unexpected, binnable  → "Add to bin"
+  * unexpected, not binnable (not in system or terminal e.g. dispensed)
+                          → Acknowledge with a required note
 {% endcomment %}
+{% url 'edc_pharmacy:resolve_stock_take_item_url' stock_take_item=item.pk as action_url %}
 {% if item.resolved %}
     <span class="label label-success">Resolved</span>
     {% if item.status == "unexpected" %}
-        {# Added to this bin — offer to undo (return it to its original bin). #}
-        <form method="post"
-              action="{% url 'edc_pharmacy:resolve_stock_take_item_url' stock_take_item=item.pk %}"
-              style="display:inline;margin:0;">
+        <form method="post" action="{{ action_url }}" style="display:inline;margin:0;">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next_url }}">
             <input type="hidden" name="action" value="undo">
@@ -33,31 +32,59 @@ Renders:
             {{ item.stock_transaction.get_transaction_type_display }}
         </a>
     {% endif %}
-{% elif not item.stock %}
-    <span class="text-muted small">Not in system — investigate</span>
-{% else %}
-    <form method="post"
-          action="{% url 'edc_pharmacy:resolve_stock_take_item_url' stock_take_item=item.pk %}"
+{% elif item.acknowledged %}
+    <span class="label label-default">Acknowledged</span>
+    <span class="text-muted small" title="{{ item.acknowledged_note }}">
+        {{ item.acknowledged_note|truncatechars:40 }}
+    </span>
+    <form method="post" action="{{ action_url }}" style="display:inline;margin:0;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="action" value="unacknowledge">
+        <button type="submit" class="btn btn-default btn-xs"
+                title="Re-open this item.">Undo</button>
+    </form>
+{% elif item.status == "missing" %}
+    <form method="post" action="{{ action_url }}"
           class="form-inline" style="margin:0;white-space:nowrap;">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next_url }}">
-        {% if item.status == "missing" %}
-            <input type="text" name="reason" class="form-control input-sm"
-                   placeholder="Reason (audit note)" required style="width:140px;"
-                   title="Why this correction is being made — recorded in the stock ledger.">
-            <select name="action" class="form-control input-sm"
-                    title="Mark this missing item as lost, damaged, or expired.">
-                <option value="lost">Lost</option>
-                <option value="damaged">Damaged</option>
-                <option value="expired">Expired</option>
-            </select>
-            <button type="submit" class="btn btn-primary btn-xs">Apply</button>
-        {% else %}
-            <input type="hidden" name="action" value="move_to_bin">
-            <button type="submit" class="btn btn-primary btn-xs"
-                    title="Record this scanned item as belonging to this bin. A note is recorded automatically.">
-                Add to bin
-            </button>
-        {% endif %}
+        <input type="text" name="reason" class="form-control input-sm"
+               placeholder="Reason (audit note)" required style="width:140px;"
+               title="Why this correction is being made — recorded in the stock ledger.">
+        <select name="action" class="form-control input-sm"
+                title="Mark this missing item as lost, damaged, or expired.">
+            <option value="lost">Lost</option>
+            <option value="damaged">Damaged</option>
+            <option value="expired">Expired</option>
+        </select>
+        <button type="submit" class="btn btn-primary btn-xs">Apply</button>
+    </form>
+{% elif item.stock and not item.stock.is_terminal %}
+    {# unexpected and physically present — register it to this bin #}
+    <form method="post" action="{{ action_url }}" style="display:inline;margin:0;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="action" value="move_to_bin">
+        <button type="submit" class="btn btn-primary btn-xs"
+                title="Record this scanned item as belonging to this bin. A note is recorded automatically.">
+            Add to bin
+        </button>
+    </form>
+{% else %}
+    {# unexpected but cannot be added to a bin: not in system, or terminal #}
+    <div class="small text-muted" style="margin-bottom:2px;">
+        Cannot add to bin &mdash;
+        {% if item.stock %}already {{ item.stock.terminal_reason }}{% else %}not in the system{% endif %}.
+        Acknowledge to clear it.
+    </div>
+    <form method="post" action="{{ action_url }}"
+          class="form-inline" style="margin:0;white-space:nowrap;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="action" value="acknowledge">
+        <input type="text" name="reason" class="form-control input-sm"
+               placeholder="Note (why)" required style="width:140px;">
+        <button type="submit" class="btn btn-warning btn-xs">Acknowledge</button>
     </form>
 {% endif %}

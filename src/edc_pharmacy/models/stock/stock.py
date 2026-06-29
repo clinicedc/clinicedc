@@ -213,6 +213,20 @@ class Stock(BaseUuidModel):
     def __str__(self):
         return f"{self.code}: {self.product.name} - {self.container.container_type}"
 
+    # Terminal states — a stock here cannot be moved between bins. Mirrors
+    # transaction_log._check_not_terminal.
+    TERMINAL_FLAGS = ("dispensed", "destroyed", "lost", "expired", "voided")
+
+    @property
+    def is_terminal(self) -> bool:
+        """True if the stock is in a state that blocks further bin movement."""
+        return any(getattr(self, flag) for flag in self.TERMINAL_FLAGS)
+
+    @property
+    def terminal_reason(self) -> str:
+        """Short label for the active terminal state, or empty string."""
+        return next((flag for flag in self.TERMINAL_FLAGS if getattr(self, flag)), "")
+
     def save(self, *args, **kwargs):
         if not self.stock_identifier:
             next_id = get_next_value(self._meta.label_lower)

@@ -110,7 +110,10 @@ Each open discrepancy has a **Resolve** control in its row.
   its original bin and re-opens the discrepancy.
 * If the item does not belong in this bin, move it to its correct bin from that bin's page
   instead.
-* If it is *(not in system)*, investigate the label before doing anything else.
+* Some unexpected items **cannot** be added to a bin — a code *not in the system*, or a stock
+  already in a terminal state (e.g. dispensed). These show **Cannot add to bin** with the
+  reason, and an **Acknowledge** action: after investigating, record a short note and click
+  **Acknowledge** to mark the row reviewed and clear it. **Undo** re-opens it.
 
 Once a missing row is resolved it shows a **Resolved** badge linking to the resolving
 transaction. Note that the bin remains on the discrepancy report until you **redo the stock

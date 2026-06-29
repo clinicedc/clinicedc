@@ -375,10 +375,15 @@ class TestStockTakeResolve(TestCase):
         # no reason input for the add action — the note is auto-generated
         self.assertNotIn('name="reason"', html)
 
-    def test_partial_not_in_system_shows_no_form(self):
+    def test_partial_not_in_system_shows_acknowledge(self):
         html = self._render_actions(self.item_foreign)
-        self.assertNotIn("<form", html)
-        self.assertIn("Not in system", html)
+        self.assertIn('value="acknowledge"', html)
+        self.assertIn("Acknowledge", html)
+        self.assertIn('name="reason"', html)
+        self.assertNotIn("Add to bin", html)
+        # visible reason explaining why it can't be added to a bin
+        self.assertIn("Cannot add to bin", html)
+        self.assertIn("not in the system", html)
 
     def test_partial_resolved_missing_shows_badge_and_link(self):
         self._post(self.item_missing, action="lost", reason="not on shelf")
@@ -429,3 +434,67 @@ class TestStockTakeResolve(TestCase):
         StockTakeDiscrepancyReportView()._annotate_conflicts([self.item_missing])
         self.assertEqual(self.item_missing.conflict, "")
         self.assertEqual(self.item_missing.conflict_level, "")
+
+    # -- acknowledge (unresolvable unexpected items) -------------------
+
+    def test_acknowledge_not_in_system(self):
+        response = self._post(
+            self.item_foreign, action="acknowledge", reason="foreign label"
+        )
+        self.assertEqual(response.status_code, 302)
+        self.item_foreign.refresh_from_db()
+        self.assertTrue(self.item_foreign.acknowledged)
+        self.assertTrue(self.item_foreign.handled)
+        self.assertEqual(self.item_foreign.acknowledged_by_id, self.user.id)
+        self.assertEqual(self.item_foreign.acknowledged_note, "foreign label")
+
+    def test_acknowledge_terminal_stock(self):
+        # make the unexpected item's stock terminal (lost) -> not binnable
+        apply_transaction(self.stock_unexpected, TXN_LOST, self.user, reason="x")
+        self.stock_unexpected.refresh_from_db()
+        self.assertTrue(self.stock_unexpected.is_terminal)
+        response = self._post(
+            self.item_unexpected, action="acknowledge", reason="dispensed in error"
+        )
+        self.assertEqual(response.status_code, 302)
+        self.item_unexpected.refresh_from_db()
+        self.assertTrue(self.item_unexpected.acknowledged)
+        # the partial offers Acknowledge, not Add to bin, for terminal stock
+        self.item_unexpected.acknowledged_datetime = None  # render the open state
+        html = self._render_actions(self.item_unexpected)
+        self.assertIn('value="acknowledge"', html)
+        self.assertNotIn("Add to bin", html)
+        # visible reason names the terminal state
+        self.assertIn("Cannot add to bin", html)
+        self.assertIn("already lost", html)
+
+    def test_acknowledge_rejected_for_binnable_item(self):
+        # stock_unexpected is stored (not terminal) -> must be added, not acknowledged
+        response = self._post(
+            self.item_unexpected, action="acknowledge", reason="x"
+        )
+        self.assertEqual(response.status_code, 302)
+        self.item_unexpected.refresh_from_db()
+        self.assertFalse(self.item_unexpected.acknowledged)
+
+    def test_acknowledge_requires_note(self):
+        response = self._post(self.item_foreign, action="acknowledge")
+        self.assertEqual(response.status_code, 302)
+        self.item_foreign.refresh_from_db()
+        self.assertFalse(self.item_foreign.acknowledged)
+
+    def test_unacknowledge_reopens(self):
+        self._post(self.item_foreign, action="acknowledge", reason="foreign")
+        self.item_foreign.refresh_from_db()
+        self.assertTrue(self.item_foreign.acknowledged)
+        self._post(self.item_foreign, action="unacknowledge")
+        self.item_foreign.refresh_from_db()
+        self.assertFalse(self.item_foreign.acknowledged)
+
+    def test_partial_acknowledged_shows_badge(self):
+        self._post(self.item_foreign, action="acknowledge", reason="foreign label")
+        self.item_foreign.refresh_from_db()
+        html = self._render_actions(self.item_foreign)
+        self.assertIn("Acknowledged", html)
+        self.assertIn("foreign label", html)
+        self.assertIn('value="unacknowledge"', html)
