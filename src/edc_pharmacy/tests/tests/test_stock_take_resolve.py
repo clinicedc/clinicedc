@@ -329,7 +329,10 @@ class TestStockTakeResolve(TestCase):
     def test_partial_open_unexpected_shows_move_form(self):
         html = self._render_actions(self.item_unexpected)
         self.assertIn("move_to_bin", html)
-        self.assertIn("Move to this bin", html)
+        # button names the destination bin (the bin being counted)
+        self.assertIn(
+            f"Move to bin {self.stock_take.storage_bin.bin_identifier}", html
+        )
         self.assertIn('name="reason"', html)
 
     def test_partial_not_in_system_shows_no_form(self):
