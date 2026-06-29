@@ -97,10 +97,12 @@ Each open discrepancy has a **Resolve** control in its row.
 
 **Missing** (expected in the bin, but not found):
 
-* Choose *Lost*, *Damaged*, or *Expired*, enter a short reason, and click **Apply**. The
-  stock is marked accordingly and removed from the bin.
-* If the ledger instead shows the item was already dispensed or transferred, no action is
-  needed here — the bin record was simply out of date and is corrected by the next stock take.
+* A stock take reconciles *location*, so the only outcome a count can conclude is **lost**:
+  enter a short reason and click **Mark lost**. (Condition dispositions — damaged, expired,
+  voided — are made in the stock-adjustment workflow, where the item is in hand.)
+* If the item is **accounted for in another bin** (the row shows *"also scanned as unexpected
+  in bin NN"* or *"now registered in bin NN"*), it is not lost, so **Mark lost** is not
+  offered. Investigate, then click **Acknowledge** with a note to clear the row.
 
 **Unexpected** (scanned in the bin, but not registered there):
 

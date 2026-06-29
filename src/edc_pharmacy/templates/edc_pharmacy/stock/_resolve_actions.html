@@ -27,9 +27,9 @@ Branches:
             </button>
         </form>
     {% else %}
-        <a href="{% url 'edc_pharmacy_admin:edc_pharmacy_stocktransaction_change' item.stock_transaction.pk %}"
-           title="View resolving transaction">
-            {{ item.stock_transaction.get_transaction_type_display }}
+        <a href="{% url 'edc_pharmacy:ledger_url' %}?q={{ item.code }}"
+           title="View this item in the ledger">
+            {{ item.stock_transaction.get_transaction_type_display }} &rsaquo; ledger
         </a>
     {% endif %}
 {% elif item.acknowledged %}
@@ -44,21 +44,29 @@ Branches:
         <button type="submit" class="btn btn-default btn-xs"
                 title="Re-open this item.">Undo</button>
     </form>
-{% elif item.status == "missing" %}
+{% elif item.status == "missing" and item.conflict %}
+    {# accounted for in another bin — cannot be lost. The reason is shown under #}
+    {# the stock code via the conflict hint; clear the row with acknowledge.    #}
     <form method="post" action="{{ action_url }}"
           class="form-inline" style="margin:0;white-space:nowrap;">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="action" value="acknowledge">
+        <input type="text" name="reason" class="form-control input-sm"
+               placeholder="Reason (audit note)" required style="width:140px;">
+        <button type="submit" class="btn btn-warning btn-xs">Acknowledge</button>
+    </form>
+{% elif item.status == "missing" %}
+    {# not accounted for anywhere — the only count outcome is "lost" #}
+    <form method="post" action="{{ action_url }}"
+          class="form-inline" style="margin:0;white-space:nowrap;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="action" value="lost">
         <input type="text" name="reason" class="form-control input-sm"
                placeholder="Reason (audit note)" required style="width:140px;"
-               title="Why this correction is being made — recorded in the stock ledger.">
-        <select name="action" class="form-control input-sm"
-                title="Mark this missing item as lost, damaged, or expired.">
-            <option value="lost">Lost</option>
-            <option value="damaged">Damaged</option>
-            <option value="expired">Expired</option>
-        </select>
-        <button type="submit" class="btn btn-primary btn-xs">Apply</button>
+               title="Mark this item lost — it could not be located.">
+        <button type="submit" class="btn btn-primary btn-xs">Mark lost</button>
     </form>
 {% elif item.stock and not item.stock.is_terminal %}
     {# unexpected and physically present — register it to this bin #}

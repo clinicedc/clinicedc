@@ -57,7 +57,7 @@ from edc_pharmacy.models import (
 )
 from edc_pharmacy.transaction_log import apply_delta_context, apply_transaction
 from edc_pharmacy.utils import confirm_stock
-from edc_pharmacy.views import StockTakeDiscrepancyReportView
+from edc_pharmacy.views.stock_take_conflicts import annotate_conflicts
 from edc_randomization.constants import ACTIVE
 from edc_sites.site import sites
 from edc_sites.utils import add_or_update_django_sites
@@ -360,14 +360,6 @@ class TestStockTakeResolve(TestCase):
             {"item": item, "next_url": "/next/"},
         )
 
-    def test_partial_open_missing_shows_status_form(self):
-        html = self._render_actions(self.item_missing)
-        self.assertIn('name="action"', html)
-        for value in ("lost", "damaged", "expired"):
-            self.assertIn(value, html)
-        self.assertIn('name="reason"', html)
-        self.assertIn("/next/", html)
-
     def test_partial_open_unexpected_shows_move_form(self):
         html = self._render_actions(self.item_unexpected)
         self.assertIn("move_to_bin", html)
@@ -393,18 +385,15 @@ class TestStockTakeResolve(TestCase):
         self.item_unexpected.refresh_from_db()
         self.assertEqual(self.item_unexpected.cannot_add_reason, "already lost")
 
-    def test_partial_resolved_missing_shows_badge_and_link(self):
+    def test_partial_resolved_missing_links_to_ledger(self):
         self._post(self.item_missing, action="lost", reason="not on shelf")
         self.item_missing.refresh_from_db()
         html = self._render_actions(self.item_missing)
         self.assertIn("Resolved", html)
         self.assertNotIn("Undo", html)
-        # links to the resolving transaction in admin
-        txn_url = reverse(
-            "edc_pharmacy_admin:edc_pharmacy_stocktransaction_change",
-            args=[self.item_missing.stock_transaction.pk],
-        )
-        self.assertIn(txn_url, html)
+        # links to the ledger filtered by this code, not the admin txn form
+        ledger_url = reverse("edc_pharmacy:ledger_url")
+        self.assertIn(f"{ledger_url}?q={self.item_missing.code}", html)
 
     def test_partial_resolved_unexpected_shows_undo(self):
         self._post(self.item_unexpected, action="move_to_bin")
@@ -427,9 +416,7 @@ class TestStockTakeResolve(TestCase):
             code=self.stock_missing.code,
             status=UNEXPECTED,
         )
-        StockTakeDiscrepancyReportView()._annotate_conflicts(
-            [self.item_missing, item_unexpected_b]
-        )
+        annotate_conflicts([self.item_missing, item_unexpected_b])
         # missing row is warned not to mark it lost
         self.assertEqual(self.item_missing.conflict_level, "warning")
         self.assertIn(self.bin_b.bin_identifier, self.item_missing.conflict)
@@ -439,9 +426,53 @@ class TestStockTakeResolve(TestCase):
         self.assertIn(self.bin_a.bin_identifier, item_unexpected_b.conflict)
 
     def test_no_conflict_when_isolated(self):
-        StockTakeDiscrepancyReportView()._annotate_conflicts([self.item_missing])
+        annotate_conflicts([self.item_missing])
         self.assertEqual(self.item_missing.conflict, "")
         self.assertEqual(self.item_missing.conflict_level, "")
+
+    # -- missing items accounted for elsewhere cannot be marked lost ----
+
+    def _scan_missing_code_as_unexpected_in_bin_b(self):
+        take_b = StockTake.objects.create(
+            storage_bin=self.bin_b, performed_by=self.user
+        )
+        return StockTakeItem.objects.create(
+            stock_take=take_b,
+            stock=self.stock_missing,
+            code=self.stock_missing.code,
+            status=UNEXPECTED,
+        )
+
+    def test_missing_lost_blocked_when_elsewhere(self):
+        self._scan_missing_code_as_unexpected_in_bin_b()
+        response = self._post(self.item_missing, action="lost", reason="x")
+        self.assertEqual(response.status_code, 302)
+        self.item_missing.refresh_from_db()
+        self.assertFalse(self.item_missing.resolved)
+
+    def test_acknowledge_missing_when_elsewhere(self):
+        self._scan_missing_code_as_unexpected_in_bin_b()
+        response = self._post(
+            self.item_missing, action="acknowledge", reason="it is in bin_b"
+        )
+        self.assertEqual(response.status_code, 302)
+        self.item_missing.refresh_from_db()
+        self.assertTrue(self.item_missing.acknowledged)
+
+    def test_partial_missing_no_conflict_shows_lost(self):
+        html = self._render_actions(self.item_missing)
+        self.assertIn('value="lost"', html)
+        self.assertIn("Mark lost", html)
+        self.assertNotIn("Damaged", html)
+        self.assertNotIn("Expired", html)
+        self.assertNotIn("Acknowledge", html)
+
+    def test_partial_missing_with_conflict_shows_acknowledge(self):
+        self.item_missing.conflict = "Now registered in bin 000031."
+        self.item_missing.conflict_level = "info"
+        html = self._render_actions(self.item_missing)
+        self.assertIn('value="acknowledge"', html)
+        self.assertNotIn("Mark lost", html)
 
     # -- acknowledge (unresolvable unexpected items) -------------------
 
