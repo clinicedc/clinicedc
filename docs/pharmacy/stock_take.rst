@@ -1,7 +1,7 @@
 Stock take
 ==========
 
-A *stock take* is a physical inventory count of a single :term:`storage bin`. You scan the
+A *stock take* is a physical inventory count of a single storage bin. You scan the
 stock codes of the items physically present in the bin, and the EDC compares the scanned
 codes against the items it *expects* to find in that bin (the ``StorageBinItem`` records).
 The result is recorded as a permanent reconciliation report.
