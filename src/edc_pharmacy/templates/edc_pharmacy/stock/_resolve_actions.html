@@ -14,10 +14,25 @@ Renders:
 {% endcomment %}
 {% if item.resolved %}
     <span class="label label-success">Resolved</span>
-    <a href="{% url 'edc_pharmacy_admin:edc_pharmacy_stocktransaction_change' item.stock_transaction.pk %}"
-       title="View resolving transaction">
-        {{ item.stock_transaction.get_transaction_type_display }}
-    </a>
+    {% if item.status == "unexpected" %}
+        {# Added to this bin — offer to undo (return it to its original bin). #}
+        <form method="post"
+              action="{% url 'edc_pharmacy:resolve_stock_take_item_url' stock_take_item=item.pk %}"
+              style="display:inline;margin:0;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+            <input type="hidden" name="action" value="undo">
+            <button type="submit" class="btn btn-default btn-xs"
+                    title="Return the item to its original bin and re-open this discrepancy.">
+                Undo
+            </button>
+        </form>
+    {% else %}
+        <a href="{% url 'edc_pharmacy_admin:edc_pharmacy_stocktransaction_change' item.stock_transaction.pk %}"
+           title="View resolving transaction">
+            {{ item.stock_transaction.get_transaction_type_display }}
+        </a>
+    {% endif %}
 {% elif not item.stock %}
     <span class="text-muted small">Not in system — investigate</span>
 {% else %}
@@ -40,8 +55,8 @@ Renders:
         {% else %}
             <input type="hidden" name="action" value="move_to_bin">
             <button type="submit" class="btn btn-primary btn-xs"
-                    title="Record this scanned item as belonging to bin {{ item.stock_take.storage_bin.bin_identifier }}. A note is recorded automatically.">
-                Add to bin {{ item.stock_take.storage_bin.bin_identifier }}
+                    title="Record this scanned item as belonging to this bin. A note is recorded automatically.">
+                Add to bin
             </button>
         {% endif %}
     </form>

@@ -257,9 +257,50 @@ class TestStockTakeResolve(TestCase):
         self.assertEqual(txn.transaction_type, TXN_BIN_MOVED)
         self.assertIn(self.bin_a.bin_identifier, txn.reason)
         self.assertIn(self.stock_take.stock_take_identifier, txn.reason)
+        # the ledger records where it moved from (bin_b) and to (bin_a)
+        self.assertEqual(txn.from_bin_id, self.bin_b.pk)
+        self.assertEqual(txn.to_bin_id, self.bin_a.pk)
         # StorageBinItem for the stock now points at bin_a (the take's bin).
         sbi = StorageBinItem.objects.get(stock=self.stock_unexpected)
         self.assertEqual(sbi.storage_bin_id, self.bin_a.pk)
+
+    def test_undo_add_returns_item_to_original_bin(self):
+        self._post(self.item_unexpected, action="move_to_bin")
+        self.item_unexpected.refresh_from_db()
+        self.assertTrue(self.item_unexpected.resolved)
+        # Undo
+        response = self._post(self.item_unexpected, action="undo")
+        self.assertEqual(response.status_code, 302)
+        self.item_unexpected.refresh_from_db()
+        # discrepancy is re-opened
+        self.assertFalse(self.item_unexpected.resolved)
+        # item is back in its original bin (bin_b)
+        sbi = StorageBinItem.objects.get(stock=self.stock_unexpected)
+        self.assertEqual(sbi.storage_bin_id, self.bin_b.pk)
+        # a compensating BIN_MOVED was written (forward + undo = 2 on this stock)
+        self.assertEqual(
+            self.stock_unexpected.transactions.filter(
+                transaction_type=TXN_BIN_MOVED
+            ).count(),
+            2,
+        )
+
+    def test_undo_rejected_for_non_bin_move(self):
+        # resolve a missing item as lost, then attempt undo -> rejected
+        self._post(self.item_missing, action="lost", reason="x")
+        self.item_missing.refresh_from_db()
+        txn_id = self.item_missing.stock_transaction_id
+        response = self._post(self.item_missing, action="undo")
+        self.assertEqual(response.status_code, 302)
+        self.item_missing.refresh_from_db()
+        # still resolved, link unchanged
+        self.assertEqual(self.item_missing.stock_transaction_id, txn_id)
+
+    def test_undo_on_unresolved_is_noop(self):
+        response = self._post(self.item_unexpected, action="undo")
+        self.assertEqual(response.status_code, 302)
+        self.item_unexpected.refresh_from_db()
+        self.assertFalse(self.item_unexpected.resolved)
 
     def test_reason_is_required(self):
         response = self._post(self.item_missing, action="lost")
@@ -329,10 +370,7 @@ class TestStockTakeResolve(TestCase):
     def test_partial_open_unexpected_shows_move_form(self):
         html = self._render_actions(self.item_unexpected)
         self.assertIn("move_to_bin", html)
-        # button names the destination bin (the bin being counted)
-        self.assertIn(
-            f"Add to bin {self.stock_take.storage_bin.bin_identifier}", html
-        )
+        self.assertIn("Add to bin", html)
         # no reason input for the add action — the note is auto-generated
         self.assertNotIn('name="reason"', html)
 
@@ -341,15 +379,23 @@ class TestStockTakeResolve(TestCase):
         self.assertNotIn("<form", html)
         self.assertIn("Not in system", html)
 
-    def test_partial_resolved_shows_badge_and_link(self):
+    def test_partial_resolved_missing_shows_badge_and_link(self):
         self._post(self.item_missing, action="lost", reason="not on shelf")
         self.item_missing.refresh_from_db()
         html = self._render_actions(self.item_missing)
         self.assertIn("Resolved", html)
-        self.assertNotIn("<form", html)
+        self.assertNotIn("Undo", html)
         # links to the resolving transaction in admin
         txn_url = reverse(
             "edc_pharmacy_admin:edc_pharmacy_stocktransaction_change",
             args=[self.item_missing.stock_transaction.pk],
         )
         self.assertIn(txn_url, html)
+
+    def test_partial_resolved_unexpected_shows_undo(self):
+        self._post(self.item_unexpected, action="move_to_bin")
+        self.item_unexpected.refresh_from_db()
+        html = self._render_actions(self.item_unexpected)
+        self.assertIn("Resolved", html)
+        self.assertIn("Undo", html)
+        self.assertIn('value="undo"', html)

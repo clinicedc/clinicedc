@@ -7,10 +7,14 @@ from the item to the resulting ``StockTransaction`` ledger row.
 Allowed actions depend on the item's status:
 
 * **missing**    — mark the stock Lost / Damaged / Expired (status adjustment).
-* **unexpected** — move the stock into this bin (``TXN_BIN_MOVED``).
+* **unexpected** — add the stock to this bin (``TXN_BIN_MOVED``).
 
 A *matched* item, or an *unexpected* item whose code is not in the system
 (``stock is None``), cannot be resolved here.
+
+The ``undo`` action reverses an "add to bin" resolution: it returns the item to
+its original bin via a compensating ``TXN_BIN_MOVED`` and re-opens the
+discrepancy. Only available for an unexpected item resolved by a bin move.
 """
 
 from __future__ import annotations
@@ -38,6 +42,9 @@ MISSING_ACTIONS = {
 
 # The single action allowed for an *unexpected* item.
 MOVE_ACTION = "move_to_bin"
+
+# Reverse a prior "add to bin" resolution.
+UNDO_ACTION = "undo"
 
 
 @method_decorator(login_required, name="dispatch")
@@ -86,10 +93,50 @@ class ResolveStockTakeItemView(View):
         messages.error(request, f"{item.code} ({item.status}) cannot be resolved.")
         return None
 
+    def _handle_undo(self, request, item):
+        """Reverse an 'add to bin' resolution and re-open the discrepancy."""
+        if not item.resolved:
+            messages.warning(request, f"{item.code} is not resolved.")
+            return self._redirect(request)
+        txn = item.stock_transaction
+        if txn.transaction_type != TXN_BIN_MOVED:
+            messages.error(request, f"{item.code} cannot be undone here.")
+            return self._redirect(request)
+        origin_bin = txn.from_bin
+        if origin_bin is None:
+            messages.error(
+                request, f"Cannot undo {item.code}: its original bin is unknown."
+            )
+            return self._redirect(request)
+        with transaction.atomic():
+            try:
+                apply_transaction(
+                    item.stock,
+                    TXN_BIN_MOVED,
+                    request.user,
+                    storage_bin=origin_bin,
+                    reason=(
+                        f"Undo: returned to bin {origin_bin.bin_identifier} "
+                        f"(stock take {item.stock_take.stock_take_identifier})"
+                    ),
+                )
+            except InvalidTransitionError as e:
+                messages.error(request, f"Could not undo {item.code}: {e}")
+                return self._redirect(request)
+            item.stock_transaction = None
+            item.save(update_fields=["stock_transaction"])
+        messages.success(
+            request, f"Undone: {item.code} returned to bin {origin_bin.bin_identifier}."
+        )
+        return self._redirect(request)
+
     def post(self, request, *args, **kwargs):  # noqa: ARG002
         item = get_object_or_404(StockTakeItem, pk=kwargs["stock_take_item"])
         action = request.POST.get("action", "").strip().lower()
         reason = request.POST.get("reason", "").strip()
+
+        if action == UNDO_ACTION:
+            return self._handle_undo(request, item)
 
         if item.resolved:
             messages.warning(request, f"{item.code} is already resolved.")

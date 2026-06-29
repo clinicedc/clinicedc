@@ -98,14 +98,17 @@ Each open discrepancy has a **Resolve** control in its row.
 
 **Unexpected** (scanned in the bin, but not registered there):
 
-* The item is physically present, so click **Add to bin** *NN* to record it as belonging to
-  the bin being counted. No reason is asked for — an audit note is recorded automatically.
+* The item is physically present, so click **Add to bin** to record it as belonging to the
+  bin being counted. No reason is asked for — an audit note is recorded automatically. The
+  row then shows **Resolved** with an **Undo** button; clicking **Undo** returns the item to
+  its original bin and re-opens the discrepancy.
 * If the item does not belong in this bin, move it to its correct bin from that bin's page
   instead.
 * If it is *(not in system)*, investigate the label before doing anything else.
 
-Once a row is resolved it shows a **Resolved** badge linking to the resolving transaction.
-Note that the bin remains on the discrepancy report until you **redo the stock take** for it,
+Once a missing row is resolved it shows a **Resolved** badge linking to the resolving
+transaction. Note that the bin remains on the discrepancy report until you **redo the stock
+take** for it,
 since the report reflects the counts captured at the time of the take. When the bin's physical
 contents and the EDC records agree again, return to the bin on the stock take landing page
 (or use **Redo stock take**) and run the count again. A clean count drops the bin from the

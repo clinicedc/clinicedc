@@ -241,6 +241,12 @@ def _write_ledger_row(
         unit_qty_delta=delta.unit_qty_delta or Decimal(0),
         from_location_id=kwargs.get("_from_location_id"),
         to_location_id=stock.location_id,
+        from_bin_id=kwargs.get("_from_bin_id"),
+        to_bin=(
+            kwargs.get("storage_bin")
+            if delta.storage_bin_item in ("create", "replace")
+            else None
+        ),
         from_allocation=kwargs.get("from_allocation"),
         to_allocation=to_allocation,
         receive_item=stock.receive_item,  # kwargs.get("receive_item"),
@@ -275,6 +281,14 @@ def apply_transaction(
         stock = stock_model_cls.objects.select_for_update().get(pk=stock.pk)
 
         from_location_id = stock.location_id
+        # Capture the bin the item is in BEFORE _apply_delta deletes/replaces
+        # the StorageBinItem, so the ledger can record the bin it moved from.
+        storage_bin_item_cls = django_apps.get_model("edc_pharmacy.storagebinitem")
+        from_bin_id = (
+            storage_bin_item_cls.objects.filter(stock=stock)
+            .values_list("storage_bin_id", flat=True)
+            .first()
+        )
         current_state = _current_state(stock)
         delta = compute_delta(txn_type, current_state, **kwargs)
 
@@ -293,5 +307,6 @@ def apply_transaction(
                 actor,
                 reason=reason,
                 _from_location_id=from_location_id,
+                _from_bin_id=from_bin_id,
                 **{**kwargs, **created},
             )
