@@ -72,19 +72,15 @@ Branches:
         </button>
     </form>
 {% else %}
-    {# unexpected but cannot be added to a bin: not in system, or terminal #}
-    <div class="small text-muted" style="margin-bottom:2px;">
-        Cannot add to bin &mdash;
-        {% if item.stock %}already {{ item.stock.terminal_reason }}{% else %}not in the system{% endif %}.
-        Acknowledge to clear it.
-    </div>
+    {# unexpected but cannot be added to a bin: not in system, or terminal. #}
+    {# The reason is shown under the stock code via _cannot_add_hint.html. #}
     <form method="post" action="{{ action_url }}"
           class="form-inline" style="margin:0;white-space:nowrap;">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next_url }}">
         <input type="hidden" name="action" value="acknowledge">
         <input type="text" name="reason" class="form-control input-sm"
-               placeholder="Note (why)" required style="width:140px;">
+               placeholder="Reason (audit note)" required style="width:140px;">
         <button type="submit" class="btn btn-warning btn-xs">Acknowledge</button>
     </form>
 {% endif %}

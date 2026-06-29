@@ -95,6 +95,7 @@
                                 <span class="text-muted small">(not in system)</span>
                             {% endif %}
                             {% include "edc_pharmacy/stock/_conflict_hint.html" with item=item %}
+                            {% include "edc_pharmacy/stock/_cannot_add_hint.html" with item=item %}
                         </td>
                         <td>{{ item.stock.product.name|default:"—" }}</td>
                         <td>

@@ -379,11 +379,19 @@ class TestStockTakeResolve(TestCase):
         html = self._render_actions(self.item_foreign)
         self.assertIn('value="acknowledge"', html)
         self.assertIn("Acknowledge", html)
-        self.assertIn('name="reason"', html)
+        self.assertIn('placeholder="Reason (audit note)"', html)
         self.assertNotIn("Add to bin", html)
-        # visible reason explaining why it can't be added to a bin
-        self.assertIn("Cannot add to bin", html)
-        self.assertIn("not in the system", html)
+
+    def test_cannot_add_reason_property(self):
+        # binnable unexpected (stored, not terminal) and missing -> no reason
+        self.assertEqual(self.item_unexpected.cannot_add_reason, "")
+        self.assertEqual(self.item_missing.cannot_add_reason, "")
+        # not in the system
+        self.assertEqual(self.item_foreign.cannot_add_reason, "not in the system")
+        # terminal stock
+        apply_transaction(self.stock_unexpected, TXN_LOST, self.user, reason="x")
+        self.item_unexpected.refresh_from_db()
+        self.assertEqual(self.item_unexpected.cannot_add_reason, "already lost")
 
     def test_partial_resolved_missing_shows_badge_and_link(self):
         self._post(self.item_missing, action="lost", reason="not on shelf")
@@ -464,9 +472,6 @@ class TestStockTakeResolve(TestCase):
         html = self._render_actions(self.item_unexpected)
         self.assertIn('value="acknowledge"', html)
         self.assertNotIn("Add to bin", html)
-        # visible reason names the terminal state
-        self.assertIn("Cannot add to bin", html)
-        self.assertIn("already lost", html)
 
     def test_acknowledge_rejected_for_binnable_item(self):
         # stock_unexpected is stored (not terminal) -> must be added, not acknowledged

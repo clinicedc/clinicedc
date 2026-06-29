@@ -97,6 +97,21 @@ class StockTakeItem(BaseUuidModel):
         """True if the discrepancy is resolved or acknowledged."""
         return self.resolved or self.acknowledged
 
+    @property
+    def cannot_add_reason(self) -> str:
+        """Why an unexpected item cannot be added to a bin, else empty string.
+
+        Either the code is not in the system, or the stock is in a terminal
+        state (e.g. dispensed). Such items are cleared with *acknowledge*.
+        """
+        if self.status != UNEXPECTED:
+            return ""
+        if self.stock is None:
+            return "not in the system"
+        if self.stock.is_terminal:
+            return f"already {self.stock.terminal_reason}"
+        return ""
+
     def __str__(self):
         return f"{self.code}: {self.get_status_display()}"
 
