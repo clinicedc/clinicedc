@@ -1,0 +1,43 @@
+{% comment %}
+Per-row resolution control for one StockTakeItem.
+
+Expects in context:
+  item      — a StockTakeItem (status "missing" or "unexpected")
+  next_url  — URL to return to after the POST (this page)
+
+Renders:
+  * a "Resolved" badge linking to the resolving transaction, if already resolved;
+  * an "investigate" note for an unexpected code not in the system (no stock);
+  * otherwise a small inline form posting to resolve_stock_take_item_url:
+      - missing    → reason + Lost/Damaged/Expired select + Apply
+      - unexpected → reason + "Move to this bin"
+{% endcomment %}
+{% if item.resolved %}
+    <span class="label label-success">Resolved</span>
+    <a href="{% url 'edc_pharmacy_admin:edc_pharmacy_stocktransaction_change' item.stock_transaction.pk %}"
+       title="View resolving transaction">
+        {{ item.stock_transaction.get_transaction_type_display }}
+    </a>
+{% elif not item.stock %}
+    <span class="text-muted small">Not in system — investigate</span>
+{% else %}
+    <form method="post"
+          action="{% url 'edc_pharmacy:resolve_stock_take_item_url' stock_take_item=item.pk %}"
+          class="form-inline" style="margin:0;white-space:nowrap;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="text" name="reason" class="form-control input-sm"
+               placeholder="Reason" required style="width:130px;">
+        {% if item.status == "missing" %}
+            <select name="action" class="form-control input-sm">
+                <option value="lost">Lost</option>
+                <option value="damaged">Damaged</option>
+                <option value="expired">Expired</option>
+            </select>
+            <button type="submit" class="btn btn-primary btn-xs">Apply</button>
+        {% else %}
+            <input type="hidden" name="action" value="move_to_bin">
+            <button type="submit" class="btn btn-primary btn-xs">Move to this bin</button>
+        {% endif %}
+    </form>
+{% endif %}

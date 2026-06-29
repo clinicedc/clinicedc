@@ -76,32 +76,36 @@ correct bin, and re-run the stock take once the bin has been corrected.
 Resolving discrepancies
 -----------------------
 
-A stock take only *reports* discrepancies; it does not correct them. There is no
-"resolved" flag on an individual item — a discrepancy stays on the report until you fix
-the underlying records and **redo the stock take** for that bin. Resolving a discrepancy is
-done with the existing stock tools, and every correction is written to the stock ledger so
-the chain of custody is preserved.
+A stock take *reports* discrepancies; you resolve them from the discrepancy report (or the
+results page), and every correction is written to the stock ledger so the chain of custody is
+preserved. Each resolved item is linked to the transaction that resolved it and is marked
+**Resolved** in place.
 
 Start by investigating each flagged code. On the discrepancy report, every missing or
 unexpected code links to that item's **ledger** (transaction history), which shows where the
 item has been and what last happened to it. A code marked *(not in system)* was scanned but
 is not known to the EDC at all — most often a mislabelled or foreign label that needs to be
-investigated by hand.
+investigated by hand and cannot be resolved from the report.
+
+Each open discrepancy has a **Resolve** control in its row. Enter a short reason and choose
+the appropriate action:
 
 **Missing** (expected in the bin, but not found):
 
-* If the item is genuinely lost, damaged, or expired, use **Stock adjustment** and mark it
-  *Lost*, *Damaged*, or *Expired* (a reason is required).
-* If the ledger shows it was already dispensed or transferred, the bin record is simply out
-  of date and should be corrected.
-* If the item has been misfiled in another bin, find it and register it into the correct bin.
+* Choose *Lost*, *Damaged*, or *Expired* and click **Apply**. The stock is marked
+  accordingly and removed from the bin.
+* If the ledger instead shows the item was already dispensed or transferred, no action is
+  needed here — the bin record was simply out of date and is corrected by the next stock take.
 
 **Unexpected** (found in the bin, but not registered there):
 
-* If the item belongs in this bin, use **Move to storage bin** to register it here.
-* If it belongs elsewhere, move it (physically and in the EDC) to its correct bin.
+* Click **Move to this bin** to register the item into the bin being counted.
+* If it belongs elsewhere, move it to its correct bin from that bin's page instead.
 * If it is *(not in system)*, investigate the label before doing anything else.
 
-When the bin's physical contents and the EDC records agree again, return to the bin on the
-stock take landing page (or use **Redo stock take** on the discrepancy report) and run the
-count again. A clean count drops the bin from the discrepancy report.
+Once a row is resolved it shows a **Resolved** badge linking to the resolving transaction.
+Note that the bin remains on the discrepancy report until you **redo the stock take** for it,
+since the report reflects the counts captured at the time of the take. When the bin's physical
+contents and the EDC records agree again, return to the bin on the stock take landing page
+(or use **Redo stock take**) and run the count again. A clean count drops the bin from the
+discrepancy report.

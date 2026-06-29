@@ -16,6 +16,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
+from django.template.loader import render_to_string
 from django.test import TestCase, override_settings, tag
 from django.urls import reverse
 from django.utils import timezone
@@ -308,3 +309,43 @@ class TestStockTakeResolve(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, next_url)
+
+    # -- resolution-actions partial (PR2 UI) ---------------------------
+
+    def _render_actions(self, item):
+        return render_to_string(
+            "edc_pharmacy/stock/_resolve_actions.html",
+            {"item": item, "next_url": "/next/"},
+        )
+
+    def test_partial_open_missing_shows_status_form(self):
+        html = self._render_actions(self.item_missing)
+        self.assertIn('name="action"', html)
+        for value in ("lost", "damaged", "expired"):
+            self.assertIn(value, html)
+        self.assertIn('name="reason"', html)
+        self.assertIn("/next/", html)
+
+    def test_partial_open_unexpected_shows_move_form(self):
+        html = self._render_actions(self.item_unexpected)
+        self.assertIn("move_to_bin", html)
+        self.assertIn("Move to this bin", html)
+        self.assertIn('name="reason"', html)
+
+    def test_partial_not_in_system_shows_no_form(self):
+        html = self._render_actions(self.item_foreign)
+        self.assertNotIn("<form", html)
+        self.assertIn("Not in system", html)
+
+    def test_partial_resolved_shows_badge_and_link(self):
+        self._post(self.item_missing, action="lost", reason="not on shelf")
+        self.item_missing.refresh_from_db()
+        html = self._render_actions(self.item_missing)
+        self.assertIn("Resolved", html)
+        self.assertNotIn("<form", html)
+        # links to the resolving transaction in admin
+        txn_url = reverse(
+            "edc_pharmacy_admin:edc_pharmacy_stocktransaction_change",
+            args=[self.item_missing.stock_transaction.pk],
+        )
+        self.assertIn(txn_url, html)
