@@ -247,16 +247,16 @@ class TestStockTakeResolve(TestCase):
         self.stock_missing.refresh_from_db()
         self.assertTrue(self.stock_missing.lost)
 
-    def test_resolve_unexpected_move_to_bin(self):
-        response = self._post(
-            self.item_unexpected, action="move_to_bin", reason="found in wrong bin"
-        )
+    def test_resolve_unexpected_add_to_bin_auto_reason(self):
+        # No reason posted — the add action auto-generates the audit note.
+        response = self._post(self.item_unexpected, action="move_to_bin")
         self.assertEqual(response.status_code, 302)
         self.item_unexpected.refresh_from_db()
         self.assertTrue(self.item_unexpected.resolved)
-        self.assertEqual(
-            self.item_unexpected.stock_transaction.transaction_type, TXN_BIN_MOVED
-        )
+        txn = self.item_unexpected.stock_transaction
+        self.assertEqual(txn.transaction_type, TXN_BIN_MOVED)
+        self.assertIn(self.bin_a.bin_identifier, txn.reason)
+        self.assertIn(self.stock_take.stock_take_identifier, txn.reason)
         # StorageBinItem for the stock now points at bin_a (the take's bin).
         sbi = StorageBinItem.objects.get(stock=self.stock_unexpected)
         self.assertEqual(sbi.storage_bin_id, self.bin_a.pk)
@@ -331,9 +331,10 @@ class TestStockTakeResolve(TestCase):
         self.assertIn("move_to_bin", html)
         # button names the destination bin (the bin being counted)
         self.assertIn(
-            f"Move to bin {self.stock_take.storage_bin.bin_identifier}", html
+            f"Add to bin {self.stock_take.storage_bin.bin_identifier}", html
         )
-        self.assertIn('name="reason"', html)
+        # no reason input for the add action — the note is auto-generated
+        self.assertNotIn('name="reason"', html)
 
     def test_partial_not_in_system_shows_no_form(self):
         html = self._render_actions(self.item_foreign)

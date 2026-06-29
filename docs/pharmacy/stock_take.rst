@@ -87,20 +87,21 @@ item has been and what last happened to it. A code marked *(not in system)* was 
 is not known to the EDC at all — most often a mislabelled or foreign label that needs to be
 investigated by hand and cannot be resolved from the report.
 
-Each open discrepancy has a **Resolve** control in its row. Enter a short reason and choose
-the appropriate action:
+Each open discrepancy has a **Resolve** control in its row.
 
 **Missing** (expected in the bin, but not found):
 
-* Choose *Lost*, *Damaged*, or *Expired* and click **Apply**. The stock is marked
-  accordingly and removed from the bin.
+* Choose *Lost*, *Damaged*, or *Expired*, enter a short reason, and click **Apply**. The
+  stock is marked accordingly and removed from the bin.
 * If the ledger instead shows the item was already dispensed or transferred, no action is
   needed here — the bin record was simply out of date and is corrected by the next stock take.
 
-**Unexpected** (found in the bin, but not registered there):
+**Unexpected** (scanned in the bin, but not registered there):
 
-* Click **Move to this bin** to register the item into the bin being counted.
-* If it belongs elsewhere, move it to its correct bin from that bin's page instead.
+* The item is physically present, so click **Add to bin** *NN* to record it as belonging to
+  the bin being counted. No reason is asked for — an audit note is recorded automatically.
+* If the item does not belong in this bin, move it to its correct bin from that bin's page
+  instead.
 * If it is *(not in system)*, investigate the label before doing anything else.
 
 Once a row is resolved it shows a **Resolved** badge linking to the resolving transaction.

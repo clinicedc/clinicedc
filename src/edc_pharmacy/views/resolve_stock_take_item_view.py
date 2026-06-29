@@ -62,6 +62,10 @@ class ResolveStockTakeItemView(View):
             if not txn_type:
                 messages.error(request, f"Invalid action for a missing item: {action!r}")
                 return None
+            if not reason:
+                # The pharmacist chooses lost/damaged/expired, so a note is required.
+                messages.error(request, "A reason is required.")
+                return None
             return txn_type, {"reason": reason}
         if item.status == UNEXPECTED:
             if action != MOVE_ACTION:
@@ -69,9 +73,15 @@ class ResolveStockTakeItemView(View):
                     request, f"Invalid action for an unexpected item: {action!r}"
                 )
                 return None
+            # Adding a scanned item to the bin it was counted in always has the
+            # same meaning, so the audit note is generated rather than prompted.
+            storage_bin = item.stock_take.storage_bin
             return TXN_BIN_MOVED, {
-                "reason": reason,
-                "storage_bin": item.stock_take.storage_bin,
+                "reason": (
+                    f"Added to bin {storage_bin.bin_identifier} during stock take "
+                    f"{item.stock_take.stock_take_identifier}"
+                ),
+                "storage_bin": storage_bin,
             }
         messages.error(request, f"{item.code} ({item.status}) cannot be resolved.")
         return None
@@ -89,9 +99,6 @@ class ResolveStockTakeItemView(View):
                 request,
                 f"{item.code} is not in the system and cannot be resolved here.",
             )
-            return self._redirect(request)
-        if not reason:
-            messages.error(request, "A reason is required.")
             return self._redirect(request)
 
         params = self._status_params(request, item, action, reason)

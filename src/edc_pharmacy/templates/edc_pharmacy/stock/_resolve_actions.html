@@ -26,10 +26,10 @@ Renders:
           class="form-inline" style="margin:0;white-space:nowrap;">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next_url }}">
-        <input type="text" name="reason" class="form-control input-sm"
-               placeholder="Reason (audit note)" required style="width:140px;"
-               title="Why this correction is being made — recorded in the stock ledger.">
         {% if item.status == "missing" %}
+            <input type="text" name="reason" class="form-control input-sm"
+                   placeholder="Reason (audit note)" required style="width:140px;"
+                   title="Why this correction is being made — recorded in the stock ledger.">
             <select name="action" class="form-control input-sm"
                     title="Mark this missing item as lost, damaged, or expired.">
                 <option value="lost">Lost</option>
@@ -40,8 +40,8 @@ Renders:
         {% else %}
             <input type="hidden" name="action" value="move_to_bin">
             <button type="submit" class="btn btn-primary btn-xs"
-                    title="Register this item into bin {{ item.stock_take.storage_bin.bin_identifier }} (the bin being counted).">
-                Move to bin {{ item.stock_take.storage_bin.bin_identifier }}
+                    title="Record this scanned item as belonging to bin {{ item.stock_take.storage_bin.bin_identifier }}. A note is recorded automatically.">
+                Add to bin {{ item.stock_take.storage_bin.bin_identifier }}
             </button>
         {% endif %}
     </form>
