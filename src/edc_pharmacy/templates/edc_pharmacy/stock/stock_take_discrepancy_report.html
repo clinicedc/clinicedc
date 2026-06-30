@@ -46,7 +46,10 @@
 
                         var $wrap = $('<div style="display:flex;align-items:center;'
                             + 'justify-content:space-between;"/>').append($left).append($right);
-                        return $('<tr/>').append($('<td colspan="6"/>').append($wrap));
+                        var $td = $('<td colspan="6"/>')
+                            .css({ padding: '6px 8px', verticalAlign: 'middle' })
+                            .append($wrap);
+                        return $('<tr/>').append($td);
                     }
                 }
             });
