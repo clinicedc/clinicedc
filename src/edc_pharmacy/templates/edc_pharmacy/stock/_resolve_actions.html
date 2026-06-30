@@ -50,7 +50,7 @@ Branches:
         <input type="hidden" name="action" value="acknowledge">
         <input type="text" name="reason" class="form-control input-sm"
                placeholder="Reason (audit note)" required style="width:140px;">
-        <button type="submit" class="btn btn-warning btn-xs">Acknowledge</button>
+        <button type="submit" class="btn btn-primary btn-xs">Acknowledge</button>
     </form>
 {% elif item.status == "missing" %}
     {# not accounted for anywhere — the only count outcome is "lost" #}
@@ -85,6 +85,6 @@ Branches:
         <input type="hidden" name="action" value="acknowledge">
         <input type="text" name="reason" class="form-control input-sm"
                placeholder="Reason (audit note)" required style="width:140px;">
-        <button type="submit" class="btn btn-warning btn-xs">Acknowledge</button>
+        <button type="submit" class="btn btn-primary btn-xs">Acknowledge</button>
     </form>
 {% endif %}

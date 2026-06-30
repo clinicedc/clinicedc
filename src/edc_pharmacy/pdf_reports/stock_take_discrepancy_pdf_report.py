@@ -16,7 +16,7 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from ..choices import STOCK_TRANSACTION_ABBR, STOCK_TRANSACTION_CHOICES
 from ..constants import TXN_BIN_MOVED
 from ..models import MISSING, UNEXPECTED, StockTake, StorageBin
-from ..utils import get_related_or_none, last_txn_abbr_by_stock
+from ..utils import last_txn_abbr_by_stock, subject_identifier_by_stock
 
 # Compact action labels for the report (override the verbose choice display).
 _ACTION_LABELS = {TXN_BIN_MOVED: "Moved"}
@@ -145,7 +145,6 @@ class StockTakeDiscrepancyReport(Report):
                 last.items.filter(status__in=[MISSING, UNEXPECTED])
                 .select_related(
                     "stock__product__formulation",
-                    "stock__allocation__registered_subject",
                     "stock_transaction",
                 )
                 .order_by("status", "code")
@@ -204,7 +203,9 @@ class StockTakeDiscrepancyReport(Report):
             Paragraph(_("TXN"), _HEADER_STYLE),
         ]]
 
+        stock_ids = [row["item"].stock_id for row in rows]
         txn_abbr_by_stock = self._last_txn_abbr_by_stock(rows)
+        subject_by_stock = subject_identifier_by_stock(stock_ids)
 
         for row in rows:
             item = row["item"]
@@ -214,11 +215,9 @@ class StockTakeDiscrepancyReport(Report):
             barcode = code128.Code128(item.code, barHeight=5 * mm, barWidth=0.7, gap=1.7)
             code_cell = [barcode, Paragraph(item.code, _CELL_CENTER)]
 
-            subject_identifier = ""
-            if stock and get_related_or_none(stock, "allocation"):
-                subject_identifier = (
-                    stock.allocation.registered_subject.subject_identifier or ""
-                )
+            # Recipient from the canonical Allocation table (the Stock cache and
+            # the sticky-pointer FK are unreliable for terminal/dispensed stock).
+            subject_identifier = subject_by_stock.get(item.stock_id, "")
 
             product_name = ""
             if stock:

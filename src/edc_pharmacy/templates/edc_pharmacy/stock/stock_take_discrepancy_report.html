@@ -5,11 +5,6 @@
     {{ block.super }}
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.1.4/css/rowGroup.dataTables.min.css">
-    <style>
-        /* Compact, single-line group header band. */
-        #discrepancy_table tr.stg-group td { padding: 3px 8px !important; }
-        #discrepancy_table tr.stg-group .btn-xs { padding: 1px 6px; line-height: 1.4; }
-    </style>
 {% endblock %}
 
 {% block extrahead %}
@@ -42,18 +37,24 @@
                         var $right = $('<span style="display:flex;align-items:center;gap:8px;"/>');
                         var takeDate = $(node).data('take-date');
                         if (takeDate) {
-                            $right.append($('<span class="text-muted"/>').text(takeDate));
+                            // No theme class (e.g. text-muted may force a tall
+                            // line-height); style fully inline so the date can't
+                            // inflate the band.
+                            $right.append($('<span/>').css({
+                                color: '#777', fontSize: '13px',
+                                lineHeight: '1', whiteSpace: 'nowrap'
+                            }).text(takeDate));
                         }
-                        $right.append($('<a class="btn btn-primary btn-xs"/>')
+                        $right.append($('<a class="btn btn-default btn-xs"/>')
                             .attr('href', $(node).data('redo-url')).text('Redo stock take'));
                         $right.append($('<a class="btn btn-default btn-xs"/>')
                             .attr('href', $(node).data('results-url')).text('Full results'));
 
-                        var $wrap = $('<div style="display:flex;align-items:center;'
-                            + 'justify-content:space-between;line-height:1.4;"/>')
+                        // Return bare content; RowGroup wraps it in its own cell.
+                        // width:100% so space-between fills the cell.
+                        return $('<div style="display:flex;align-items:center;'
+                            + 'justify-content:space-between;width:100%;"/>')
                             .append($left).append($right);
-                        var $td = $('<td colspan="6"/>').append($wrap);
-                        return $('<tr class="stg-group"/>').append($td);
                     }
                 }
             });
@@ -136,7 +137,7 @@
                             {% if item.status == "missing" %}
                                 <span class="label label-danger">Missing</span>
                             {% else %}
-                                <span class="label label-warning">Unexpected</span>
+                                <span class="label label-danger">Unexpected</span>
                             {% endif %}
                         </td>
                         <td>{% include "edc_pharmacy/stock/_resolve_actions.html" with item=item next_url=report_next %}</td>

@@ -24,6 +24,7 @@ from .process_return_request import (
     request_stock_return,
 )
 from .stock_request import bulk_create_stock_request_items, get_instock_and_nostock_data
+from .subject_identifier_by_stock import subject_identifier_by_stock
 from .transfer_stock_to_location import transfer_stock_to_location
 from .update_previous_refill_end_datetime import update_previous_refill_end_datetime
 
@@ -54,6 +55,7 @@ __all__ = [
     "process_repack_request_queryset",
     "receive_return",
     "request_stock_return",
+    "subject_identifier_by_stock",
     "transfer_stock_to_location",
     "update_previous_refill_end_datetime",
 ]
