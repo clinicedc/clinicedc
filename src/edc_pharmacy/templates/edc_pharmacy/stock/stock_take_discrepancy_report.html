@@ -5,6 +5,11 @@
     {{ block.super }}
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.1.4/css/rowGroup.dataTables.min.css">
+    <style>
+        /* Compact, single-line group header band. */
+        #discrepancy_table tr.stg-group td { padding: 3px 8px !important; }
+        #discrepancy_table tr.stg-group .btn-xs { padding: 1px 6px; line-height: 1.4; }
+    </style>
 {% endblock %}
 
 {% block extrahead %}
@@ -45,11 +50,10 @@
                             .attr('href', $(node).data('results-url')).text('Full results'));
 
                         var $wrap = $('<div style="display:flex;align-items:center;'
-                            + 'justify-content:space-between;"/>').append($left).append($right);
-                        var $td = $('<td colspan="6"/>')
-                            .css({ padding: '6px 8px', verticalAlign: 'middle' })
-                            .append($wrap);
-                        return $('<tr/>').append($td);
+                            + 'justify-content:space-between;line-height:1.4;"/>')
+                            .append($left).append($right);
+                        var $td = $('<td colspan="6"/>').append($wrap);
+                        return $('<tr class="stg-group"/>').append($td);
                     }
                 }
             });
