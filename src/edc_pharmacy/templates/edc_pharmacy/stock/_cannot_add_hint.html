@@ -1,0 +1,10 @@
+{% comment %}
+Explains why an unexpected item cannot be added to a bin (not in the system, or
+terminal e.g. dispensed). Rendered under the stock code, like the conflict hint.
+Expects: item (a StockTakeItem).
+{% endcomment %}
+{% if item.cannot_add_reason %}
+    <div class="small text-muted" style="margin-top:2px;">
+        Cannot add to bin &mdash; {{ item.cannot_add_reason }}.
+    </div>
+{% endif %}

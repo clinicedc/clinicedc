@@ -2,6 +2,10 @@
 
 Shows only bins whose most recent stock take has missing or unexpected items,
 grouped by location.
+
+Each discrepancy is annotated with a cross-bin *conflict* hint so the user does
+not, for example, mark an item Lost when it is actually sitting in another bin
+as an unexpected scan.
 """
 
 from __future__ import annotations
@@ -15,7 +19,8 @@ from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
-from ..models import MISSING, UNEXPECTED, StockTake, StorageBin
+from ..models import MISSING, UNEXPECTED, StockTake, StockTakeItem, StorageBin
+from .stock_take_conflicts import annotate_conflicts
 
 
 @method_decorator(login_required, name="dispatch")
@@ -33,8 +38,9 @@ class StockTakeDiscrepancyReportView(
             .order_by("location__display_name", "bin_identifier")
         )
 
-        # Build per-bin rows, keeping only those with discrepancies
-        rows_by_location: dict[str, list[dict]] = {}
+        # One flat, bin-ordered list of discrepancies (missing then unexpected
+        # within each bin) for a single grouped DataTable.
+        items: list[StockTakeItem] = []
         for b in bins:
             last = (
                 StockTake.objects.filter(storage_bin=b)
@@ -43,24 +49,19 @@ class StockTakeDiscrepancyReportView(
             )
             if not last or (last.missing_count == 0 and last.unexpected_count == 0):
                 continue
+            # Reuse the already-loaded bin (with container/location) for URLs.
+            last.storage_bin = b
 
-            missing_items = list(
-                last.items.filter(status=MISSING).select_related("stock__product").order_by("code")
-            )
-            unexpected_items = list(
-                last.items.filter(status=UNEXPECTED)
+            bin_items = list(
+                last.items.filter(status__in=(MISSING, UNEXPECTED))
                 .select_related("stock__product")
-                .order_by("code")
+                .order_by("status", "code")
             )
+            # Populate the stock_take FK cache so neither conflict annotation nor
+            # the template re-queries it per item.
+            for item in bin_items:
+                item.stock_take = last
+            items.extend(bin_items)
 
-            location_name = last.storage_bin.location.display_name or last.storage_bin.location.name
-            rows_by_location.setdefault(location_name, []).append(
-                {
-                    "bin": b,
-                    "stock_take": last,
-                    "missing": missing_items,
-                    "unexpected": unexpected_items,
-                }
-            )
-
-        return super().get_context_data(rows_by_location=rows_by_location, **kwargs)
+        annotate_conflicts(items)
+        return super().get_context_data(items=items, **kwargs)

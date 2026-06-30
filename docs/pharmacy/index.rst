@@ -22,4 +22,5 @@ When integrated with an Clinic EDC project, study site requests for stock can be
     transfer_stock_to_site
     confirm_transferred_stock_at_site
     store_stock_at_site
+    stock_take
     dispense

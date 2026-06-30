@@ -1,0 +1,90 @@
+{% comment %}
+Per-row resolution control for one StockTakeItem.
+
+Expects in context:
+  item      — a StockTakeItem (status "missing" or "unexpected")
+  next_url  — URL to return to after the POST (this page)
+
+Branches:
+  * resolved              → "Resolved" badge; Undo (unexpected) or txn link (missing)
+  * acknowledged          → "Acknowledged" badge + note; Undo (unacknowledge)
+  * missing               → reason + Lost/Damaged/Expired + Apply
+  * unexpected, binnable  → "Add to bin"
+  * unexpected, not binnable (not in system or terminal e.g. dispensed)
+                          → Acknowledge with a required note
+{% endcomment %}
+{% url 'edc_pharmacy:resolve_stock_take_item_url' stock_take_item=item.pk as action_url %}
+{% if item.resolved %}
+    {# The code itself links to the ledger, so no extra link is shown here. #}
+    <span class="label label-success">Resolved</span>
+    {% if item.status == "unexpected" %}
+        <form method="post" action="{{ action_url }}" style="display:inline;margin:0;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+            <input type="hidden" name="action" value="undo">
+            <button type="submit" class="btn btn-default btn-xs"
+                    title="Return the item to its original bin and re-open this discrepancy.">
+                Undo
+            </button>
+        </form>
+    {% endif %}
+{% elif item.acknowledged %}
+    <span class="label label-default">Acknowledged</span>
+    <span class="text-muted small" title="{{ item.acknowledged_note }}">
+        {{ item.acknowledged_note|truncatechars:40 }}
+    </span>
+    <form method="post" action="{{ action_url }}" style="display:inline;margin:0;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="action" value="unacknowledge">
+        <button type="submit" class="btn btn-default btn-xs"
+                title="Re-open this item.">Undo</button>
+    </form>
+{% elif item.status == "missing" and item.conflict %}
+    {# accounted for in another bin — cannot be lost. The reason is shown under #}
+    {# the stock code via the conflict hint; clear the row with acknowledge.    #}
+    <form method="post" action="{{ action_url }}"
+          class="form-inline" style="margin:0;white-space:nowrap;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="action" value="acknowledge">
+        <input type="text" name="reason" class="form-control input-sm"
+               placeholder="Reason (audit note)" required style="width:140px;">
+        <button type="submit" class="btn btn-warning btn-xs">Acknowledge</button>
+    </form>
+{% elif item.status == "missing" %}
+    {# not accounted for anywhere — the only count outcome is "lost" #}
+    <form method="post" action="{{ action_url }}"
+          class="form-inline" style="margin:0;white-space:nowrap;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="action" value="lost">
+        <input type="text" name="reason" class="form-control input-sm"
+               placeholder="Reason (audit note)" required style="width:140px;"
+               title="Mark this item lost — it could not be located.">
+        <button type="submit" class="btn btn-primary btn-xs">Mark lost</button>
+    </form>
+{% elif item.stock and not item.stock.is_terminal %}
+    {# unexpected and physically present — register it to this bin #}
+    <form method="post" action="{{ action_url }}" style="display:inline;margin:0;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="action" value="move_to_bin">
+        <button type="submit" class="btn btn-primary btn-xs"
+                title="Record this scanned item as belonging to this bin. A note is recorded automatically.">
+            Add to bin
+        </button>
+    </form>
+{% else %}
+    {# unexpected but cannot be added to a bin: not in system, or terminal. #}
+    {# The reason is shown under the stock code via _cannot_add_hint.html. #}
+    <form method="post" action="{{ action_url }}"
+          class="form-inline" style="margin:0;white-space:nowrap;">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="action" value="acknowledge">
+        <input type="text" name="reason" class="form-control input-sm"
+               placeholder="Reason (audit note)" required style="width:140px;">
+        <button type="submit" class="btn btn-warning btn-xs">Acknowledge</button>
+    </form>
+{% endif %}

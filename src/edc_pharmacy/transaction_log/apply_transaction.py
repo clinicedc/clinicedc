@@ -241,6 +241,12 @@ def _write_ledger_row(
         unit_qty_delta=delta.unit_qty_delta or Decimal(0),
         from_location_id=kwargs.get("_from_location_id"),
         to_location_id=stock.location_id,
+        from_bin_id=kwargs.get("_from_bin_id"),
+        to_bin=(
+            kwargs.get("storage_bin")
+            if delta.storage_bin_item in ("create", "replace")
+            else None
+        ),
         from_allocation=kwargs.get("from_allocation"),
         to_allocation=to_allocation,
         receive_item=stock.receive_item,  # kwargs.get("receive_item"),
@@ -284,6 +290,18 @@ def apply_transaction(
                 f"{'; '.join(delta.preconditions_failed)}"
             )
 
+        # Only a transaction that removes/replaces the StorageBinItem leaves a
+        # bin, so only then is the origin bin worth a query (and only then would
+        # _apply_delta delete it). Avoids an extra read on every other txn type.
+        from_bin_id = None
+        if delta.storage_bin_item in ("delete", "replace"):
+            storage_bin_item_cls = django_apps.get_model("edc_pharmacy.storagebinitem")
+            from_bin_id = (
+                storage_bin_item_cls.objects.filter(stock=stock)
+                .values_list("storage_bin_id", flat=True)
+                .first()
+            )
+
         with transaction.atomic():
             created = _apply_delta(stock, delta, **kwargs)
             return _write_ledger_row(
@@ -293,5 +311,6 @@ def apply_transaction(
                 actor,
                 reason=reason,
                 _from_location_id=from_location_id,
+                _from_bin_id=from_bin_id,
                 **{**kwargs, **created},
             )

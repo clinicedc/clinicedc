@@ -11,7 +11,7 @@ from sequences import get_next_value
 from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ...choices import STOCK_STATUS
-from ...constants import ALLOCATED, AVAILABLE, ZERO_ITEM
+from ...constants import ALLOCATED, AVAILABLE, TERMINAL_STOCK_FLAGS, ZERO_ITEM
 from ...exceptions import AllocationError, AssignmentError, StockError
 from ...transaction_log import is_apply_delta_active
 from ...utils import get_random_code
@@ -212,6 +212,16 @@ class Stock(BaseUuidModel):
 
     def __str__(self):
         return f"{self.code}: {self.product.name} - {self.container.container_type}"
+
+    @property
+    def is_terminal(self) -> bool:
+        """True if the stock is in a state that blocks further bin movement."""
+        return any(getattr(self, flag) for flag in TERMINAL_STOCK_FLAGS)
+
+    @property
+    def terminal_reason(self) -> str:
+        """Short label for the active terminal state, or empty string."""
+        return next((flag for flag in TERMINAL_STOCK_FLAGS if getattr(self, flag)), "")
 
     def save(self, *args, **kwargs):
         if not self.stock_identifier:

@@ -3,6 +3,7 @@
 
 {% block main %}
     {{ block.super }}
+    {% url "edc_pharmacy:stock_take_results_url" stock_take=stock_take.pk as results_next %}
     <div class="container">
         <div class="col-sm-10">
 
@@ -57,6 +58,7 @@
                                 <th>Product</th>
                                 <th>Container</th>
                                 <th>Ledger</th>
+                                <th>Resolve</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -76,6 +78,7 @@
                                 <td>
                                     <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ item.code }}">Ledger</a>
                                 </td>
+                                <td>{% include "edc_pharmacy/stock/_resolve_actions.html" with item=item next_url=results_next %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -96,6 +99,7 @@
                                 <th>Product</th>
                                 <th>Current bin / location</th>
                                 <th>Ledger</th>
+                                <th>Resolve</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,6 +114,7 @@
                                         <code>{{ item.code }}</code>
                                         <span class="text-muted small">(not in system)</span>
                                     {% endif %}
+                                    {% include "edc_pharmacy/stock/_cannot_add_hint.html" with item=item %}
                                 </td>
                                 <td>{{ item.stock.product.name|default:"—" }}</td>
                                 <td>
@@ -122,6 +127,7 @@
                                 <td>
                                     <a href="{% url "edc_pharmacy:ledger_url" %}?q={{ item.code }}">Ledger</a>
                                 </td>
+                                <td>{% include "edc_pharmacy/stock/_resolve_actions.html" with item=item next_url=results_next %}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
