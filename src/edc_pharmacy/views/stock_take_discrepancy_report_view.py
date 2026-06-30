@@ -20,7 +20,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..models import MISSING, UNEXPECTED, StockTake, StockTakeItem, StorageBin
-from ..utils import last_txn_abbr_by_stock
+from ..utils import get_related_or_none, last_txn_abbr_by_stock
 from .stock_take_conflicts import annotate_conflicts
 from .stock_take_site_filter import get_selected_site_id, stock_take_site_choices
 
@@ -62,7 +62,10 @@ class StockTakeDiscrepancyReportView(
 
             bin_items = list(
                 last.items.filter(status__in=(MISSING, UNEXPECTED))
-                .select_related("stock__product")
+                .select_related(
+                    "stock__product",
+                    "stock__allocation__registered_subject",
+                )
                 .order_by("status", "code")
             )
             # Populate the stock_take FK cache so neither conflict annotation nor
@@ -76,9 +79,18 @@ class StockTakeDiscrepancyReportView(
         txn_abbr = last_txn_abbr_by_stock({item.stock_id for item in items})
         for item in items:
             item.txn_abbr = txn_abbr.get(item.stock_id, "")
+            item.subject_identifier = self._subject_identifier(item)
         return super().get_context_data(
             items=items,
             site_choices=site_choices,
             selected_site_id=selected_site_id,
             **kwargs,
         )
+
+    @staticmethod
+    def _subject_identifier(item: StockTakeItem) -> str:
+        """The allocated subject for the item's stock, or "" if unallocated."""
+        stock = item.stock
+        if stock and get_related_or_none(stock, "allocation"):
+            return stock.allocation.registered_subject.subject_identifier or ""
+        return ""
