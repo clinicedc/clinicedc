@@ -35,9 +35,9 @@
                     dataSrc: 0,
                     startRender: function(rows, group) {
                         var node = rows.nodes()[0];
-                        var $left = $('<span/>').append($('<strong/>').append(
-                            $('<a/>').attr('href', $(node).data('bin-url'))
-                                .text('Bin ' + $(node).data('bin-label'))));
+                        var $left = $('<a class="btn btn-default btn-xs"/>')
+                            .attr('href', $(node).data('bin-url'))
+                            .append($('<strong/>').text('Bin ' + $(node).data('bin-label')));
 
                         var $right = $('<span style="display:flex;align-items:center;gap:8px;"/>');
                         var takeDate = $(node).data('take-date');
