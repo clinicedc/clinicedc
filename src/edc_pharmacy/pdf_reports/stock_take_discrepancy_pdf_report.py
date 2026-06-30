@@ -94,11 +94,15 @@ class StockTakeDiscrepancyReport(Report):
     @staticmethod
     def _legend_flowables() -> list:
         """Legend mapping each TXN abbreviation to its full transaction type."""
-        entries = [
-            f"<b>{STOCK_TRANSACTION_ABBR[txn_type]}</b>&nbsp;&nbsp;{display}"
-            for txn_type, display in STOCK_TRANSACTION_CHOICES
-            if txn_type in STOCK_TRANSACTION_ABBR
-        ]
+        pairs = sorted(
+            (
+                (STOCK_TRANSACTION_ABBR[txn_type], display)
+                for txn_type, display in STOCK_TRANSACTION_CHOICES
+                if txn_type in STOCK_TRANSACTION_ABBR
+            ),
+            key=lambda pair: pair[0],
+        )
+        entries = [f"<b>{abbr}</b>&nbsp;&nbsp;{display}" for abbr, display in pairs]
         ncols = 3
         grid = [entries[i : i + ncols] for i in range(0, len(entries), ncols)]
         for grid_row in grid:
