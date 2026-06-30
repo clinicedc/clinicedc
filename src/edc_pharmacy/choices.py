@@ -96,3 +96,31 @@ STOCK_TRANSACTION_CHOICES = (
     # Corrections
     (TXN_REVERSAL, "Reversal"),
 )
+
+# Three-letter, all-caps abbreviations for transaction_type, used in compact
+# report columns (e.g. the stock take discrepancy report "TXN" column).
+STOCK_TRANSACTION_ABBR = {
+    TXN_ALLOCATED: "ALC",
+    TXN_BIN_MOVED: "MVD",
+    TXN_DISPENSED: "DSP",
+    TXN_RECEIVED: "RCV",
+    TXN_REPACK_CONSUMED: "RPK",
+    TXN_STORED: "STR",
+    TXN_TRANSFER_DISPATCHED: "TRD",
+    TXN_TRANSFER_RECEIVED: "TRR",
+    # Remaining types — abbreviations not yet confirmed by the user.
+    TXN_ALLOCATION_ENDED: "ALE",
+    TXN_REPACK_PRODUCED: "RPP",
+    TXN_RETURN_REQUESTED: "RRQ",
+    TXN_RETURN_DISPATCHED: "RRD",
+    TXN_RETURN_RECEIVED: "RRR",
+    TXN_RETURN_DISPOSITION_REPOOLED: "RDP",
+    TXN_RETURN_DISPOSITION_QUARANTINED: "RDQ",
+    TXN_RETURN_DISPOSITION_DESTROYED: "RDD",
+    TXN_ADJUSTED: "ADJ",
+    TXN_DAMAGED: "DMG",
+    TXN_LOST: "LST",
+    TXN_EXPIRED: "EXP",
+    TXN_VOIDED: "VOD",
+    TXN_REVERSAL: "REV",
+}
