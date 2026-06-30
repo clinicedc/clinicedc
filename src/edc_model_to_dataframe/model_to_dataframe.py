@@ -163,9 +163,13 @@ class ModelToDataframe:
 
             df = df.rename(columns=self.columns)
 
-            # remove timezone if asked
+            # remove timezone if asked. Note: tz-aware columns
+            # (datetime64[ns, UTC]) are selected with "datetimetz", not
+            # "datetime" (which only matches tz-naive datetime64). With
+            # USE_TZ=True Django datetimes are tz-aware, so selecting on
+            # "datetime" alone stripped nothing.
             if self.remove_timezone:
-                for column in df.select_dtypes(include="datetime").columns:
+                for column in df.select_dtypes(include="datetimetz").columns:
                     df[column] = df[column].dt.tz_localize(None)
 
             # convert bool to int64
