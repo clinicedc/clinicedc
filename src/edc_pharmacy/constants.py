@@ -53,6 +53,11 @@ TXN_VOIDED = "VOIDED"
 # Corrections (schema in V1, machinery in V2)
 TXN_REVERSAL = "REVERSAL"
 
+# Stock state flags that are terminal: the item can no longer move between bins.
+# Single source of truth shared by Stock.is_terminal and the transaction-log
+# precondition check (_check_not_terminal).
+TERMINAL_STOCK_FLAGS = ("dispensed", "destroyed", "lost", "expired", "voided")
+
 ALLOCATION_END_REASONS = frozenset(
     {
         "dispensed",

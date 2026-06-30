@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.conf import settings
 from django.db import models
 from django.db.models import PROTECT
 
@@ -64,12 +65,52 @@ class StockTakeItem(BaseUuidModel):
         ),
     )
 
+    # Acknowledgement — for an unexpected item that cannot be corrected in the
+    # system (not in the system, or in a terminal state such as dispensed). The
+    # reviewer records a note instead of a transaction so the row can be cleared.
+    acknowledged_datetime = models.DateTimeField(null=True, blank=True)
+
+    acknowledged_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+    )
+
+    acknowledged_note = models.TextField(default="", blank=True)
+
     history = HistoricalRecords()
 
     @property
     def resolved(self) -> bool:
         """True if a correction has been linked to this discrepancy."""
         return self.stock_transaction_id is not None
+
+    @property
+    def acknowledged(self) -> bool:
+        """True if reviewed and cleared without an in-system correction."""
+        return self.acknowledged_datetime is not None
+
+    @property
+    def handled(self) -> bool:
+        """True if the discrepancy is resolved or acknowledged."""
+        return self.resolved or self.acknowledged
+
+    @property
+    def cannot_add_reason(self) -> str:
+        """Why an unexpected item cannot be added to a bin, else empty string.
+
+        Either the code is not in the system, or the stock is in a terminal
+        state (e.g. dispensed). Such items are cleared with *acknowledge*.
+        """
+        if self.status != UNEXPECTED:
+            return ""
+        if self.stock is None:
+            return "not in the system"
+        if self.stock.is_terminal:
+            return f"already {self.stock.terminal_reason}"
+        return ""
 
     def __str__(self):
         return f"{self.code}: {self.get_status_display()}"

@@ -13,6 +13,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..models import MATCHED, MISSING, UNEXPECTED, StockTake
+from .stock_take_conflicts import annotate_conflicts
 
 
 @method_decorator(login_required, name="dispatch")
@@ -26,11 +27,17 @@ class StockTakeResultsView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, 
     def get_context_data(self, **kwargs):
         kwargs.pop("stock_take", None)  # remove UUID kwarg to avoid conflict
         stock_take = get_object_or_404(StockTake, pk=self.kwargs["stock_take"])
-        items = stock_take.items.select_related("stock").order_by("status", "code")
+        items = list(stock_take.items.select_related("stock").order_by("status", "code"))
+        # Cache the stock_take FK so conflict annotation does not re-query it.
+        for item in items:
+            item.stock_take = stock_take
 
         matched = [i for i in items if i.status == MATCHED]
         missing = [i for i in items if i.status == MISSING]
         unexpected = [i for i in items if i.status == UNEXPECTED]
+        # Annotate missing/unexpected so the page matches the discrepancy report
+        # (e.g. a missing item registered elsewhere is acknowledged, not lost).
+        annotate_conflicts(missing + unexpected)
 
         return super().get_context_data(
             stock_take=stock_take,

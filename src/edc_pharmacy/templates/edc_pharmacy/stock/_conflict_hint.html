@@ -1,0 +1,10 @@
+{% comment %}
+Cross-bin conflict hint for one StockTakeItem.
+Expects: item (with .conflict and .conflict_level set by the view).
+Warning = likely misfiled (don't mark lost); info = registered elsewhere.
+{% endcomment %}
+{% if item.conflict %}
+    <div class="small" style="margin-top:2px;{% if item.conflict_level == 'warning' %}color:#a94442;font-weight:bold;{% else %}color:#777;{% endif %}">
+        {% if item.conflict_level == 'warning' %}&#9888; {% endif %}{{ item.conflict }}
+    </div>
+{% endif %}

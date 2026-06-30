@@ -5,6 +5,7 @@ from decimal import Decimal
 
 from ..constants import (
     ALLOCATION_END_REASONS,
+    TERMINAL_STOCK_FLAGS,
     TXN_ADJUSTED,
     TXN_ALLOCATED,
     TXN_ALLOCATION_ENDED,
@@ -33,18 +34,11 @@ from .state_delta import CurrentState, StateDelta
 
 def _check_not_terminal(current_state: CurrentState) -> list[str]:
     """Return failure strings for any active terminal state."""
-    fails = []
-    if current_state.dispensed:
-        fails.append("already dispensed")
-    if current_state.destroyed:
-        fails.append("already destroyed")
-    if current_state.lost:
-        fails.append("already lost")
-    if current_state.expired:
-        fails.append("already expired")
-    if current_state.voided:
-        fails.append("already voided")
-    return fails
+    return [
+        f"already {flag}"
+        for flag in TERMINAL_STOCK_FLAGS
+        if getattr(current_state, flag)
+    ]
 
 
 def _compute_received(
