@@ -103,10 +103,13 @@ class StockTakeDiscrepancyReport(Report):
             key=lambda pair: pair[0],
         )
         entries = [f"<b>{abbr}</b>&nbsp;&nbsp;{display}" for abbr, display in pairs]
+        # Fill column-major so each column reads alphabetically top-to-bottom.
         ncols = 3
-        grid = [entries[i : i + ncols] for i in range(0, len(entries), ncols)]
-        for grid_row in grid:
-            grid_row.extend([""] * (ncols - len(grid_row)))
+        nrows = -(-len(entries) // ncols)
+        columns = [entries[c * nrows : (c + 1) * nrows] for c in range(ncols)]
+        grid = [
+            [col[r] if r < len(col) else "" for col in columns] for r in range(nrows)
+        ]
         data = [[Paragraph(cell, _CELL_STYLE) for cell in grid_row] for grid_row in grid]
         table = Table(data, colWidths=[9 * cm, 9 * cm, 9 * cm])
         table.setStyle(TableStyle([
