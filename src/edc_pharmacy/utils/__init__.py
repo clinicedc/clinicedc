@@ -12,6 +12,7 @@ from .get_random_code import get_random_code
 from .get_related_or_none import get_related_or_none
 from .get_stock_for_location_df import get_stock_for_location_df
 from .is_dispensed import is_dispensed
+from .last_txn_abbr import last_txn_abbr_by_stock
 from .may_delete_allocation import may_delete_allocation
 from .miscellaneous import get_rx_model_cls, get_rxrefill_model_cls
 from .process_repack_request import process_repack_request
@@ -23,6 +24,7 @@ from .process_return_request import (
     request_stock_return,
 )
 from .stock_request import bulk_create_stock_request_items, get_instock_and_nostock_data
+from .subject_identifier_by_stock import subject_identifier_by_stock
 from .transfer_stock_to_location import transfer_stock_to_location
 from .update_previous_refill_end_datetime import update_previous_refill_end_datetime
 
@@ -47,11 +49,13 @@ __all__ = [
     "get_rxrefill_model_cls",
     "get_stock_for_location_df",
     "is_dispensed",
+    "last_txn_abbr_by_stock",
     "may_delete_allocation",
     "process_repack_request",
     "process_repack_request_queryset",
     "receive_return",
     "request_stock_return",
+    "subject_identifier_by_stock",
     "transfer_stock_to_location",
     "update_previous_refill_end_datetime",
 ]

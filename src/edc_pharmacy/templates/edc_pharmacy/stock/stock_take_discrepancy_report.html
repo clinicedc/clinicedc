@@ -24,26 +24,37 @@
                 order: [[1, 'asc']],
                 columnDefs: [
                     { targets: 0, visible: false },                       // Bin (grouping only)
-                    { targets: 4, orderable: false, searchable: false }   // Resolve (controls)
+                    { targets: 5, orderable: false, searchable: false }   // Resolve (controls)
                 ],
                 rowGroup: {
                     dataSrc: 0,
                     startRender: function(rows, group) {
                         var node = rows.nodes()[0];
-                        var $td = $('<td colspan="4"/>');
-                        $td.append($('<strong/>').text('Bin ' + $(node).data('bin-label')));
+                        var $left = $('<a class="btn btn-default btn-xs"/>')
+                            .attr('href', $(node).data('bin-url'))
+                            .append($('<strong/>').text('Bin ' + $(node).data('bin-label')));
+
+                        var $right = $('<span style="display:flex;align-items:center;gap:8px;"/>');
                         var takeDate = $(node).data('take-date');
                         if (takeDate) {
-                            $td.append($('<span class="text-muted"/>')
-                                .text(' — last stock take ' + takeDate));
+                            // No theme class (e.g. text-muted may force a tall
+                            // line-height); style fully inline so the date can't
+                            // inflate the band.
+                            $right.append($('<span/>').css({
+                                color: '#777', fontSize: '13px',
+                                lineHeight: '1', whiteSpace: 'nowrap'
+                            }).text(takeDate));
                         }
-                        $td.append(' &middot; ' + rows.count() + ' to resolve &nbsp;');
-                        $td.append($('<a class="btn btn-primary btn-xs"/>')
+                        $right.append($('<a class="btn btn-default btn-xs"/>')
                             .attr('href', $(node).data('redo-url')).text('Redo stock take'));
-                        $td.append(' ');
-                        $td.append($('<a class="btn btn-default btn-xs"/>')
+                        $right.append($('<a class="btn btn-default btn-xs"/>')
                             .attr('href', $(node).data('results-url')).text('Full results'));
-                        return $('<tr/>').append($td);
+
+                        // Return bare content; RowGroup wraps it in its own cell.
+                        // width:100% so space-between fills the cell.
+                        return $('<div style="display:flex;align-items:center;'
+                            + 'justify-content:space-between;width:100%;"/>')
+                            .append($left).append($right);
                     }
                 }
             });
@@ -95,15 +106,18 @@
                     <tr>
                         <th>Bin</th>
                         <th>Code</th>
+                        <th>Subject</th>
                         <th>Product</th>
                         <th>Issue</th>
                         <th>Resolve</th>
+                        <th>TXN</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in items %}
                     <tr data-bin-label="{{ item.stock_take.storage_bin.bin_identifier }}"
                         data-take-date="{{ item.stock_take.stock_take_datetime|date:'d M Y' }}"
+                        data-bin-url="{% url 'edc_pharmacy_admin:edc_pharmacy_storagebinitem_changelist' %}?q={{ item.stock_take.storage_bin.id }}"
                         data-redo-url="{% url 'edc_pharmacy:stock_take_scan_url' storage_bin=item.stock_take.storage_bin.pk %}"
                         data-results-url="{% url 'edc_pharmacy:stock_take_results_url' stock_take=item.stock_take.pk %}">
                         <td>{{ item.stock_take.storage_bin.bin_identifier }}</td>
@@ -117,15 +131,17 @@
                             {% include "edc_pharmacy/stock/_conflict_hint.html" with item=item %}
                             {% include "edc_pharmacy/stock/_cannot_add_hint.html" with item=item %}
                         </td>
+                        <td>{{ item.subject_identifier|default:"—" }}</td>
                         <td>{{ item.stock.product.name|default:"—" }}</td>
                         <td>
                             {% if item.status == "missing" %}
                                 <span class="label label-danger">Missing</span>
                             {% else %}
-                                <span class="label label-warning">Unexpected</span>
+                                <span class="label label-danger">Unexpected</span>
                             {% endif %}
                         </td>
                         <td>{% include "edc_pharmacy/stock/_resolve_actions.html" with item=item next_url=report_next %}</td>
+                        <td><code>{{ item.txn_abbr }}</code></td>
                     </tr>
                     {% endfor %}
                 </tbody>
