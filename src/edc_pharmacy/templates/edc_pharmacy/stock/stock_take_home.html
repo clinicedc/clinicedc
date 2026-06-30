@@ -35,8 +35,22 @@
                     <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
                     Stock Take
                 </span>
-                <a href="{% url "edc_pharmacy:stock_take_discrepancy_report_url" %}"
-                   class="btn btn-default btn-sm">Discrepancy report</a>
+                <span style="display:flex;align-items:center;gap:8px;">
+                    {% if site_choices %}
+                    <form method="get" style="margin:0;">
+                        <label class="text-muted small" style="margin:0 4px 0 0;">Site</label>
+                        <select name="site" class="form-control input-sm" style="width:auto;display:inline-block;"
+                                onchange="this.form.submit()">
+                            <option value="">All sites</option>
+                            {% for site in site_choices %}
+                            <option value="{{ site.id }}"{% if site.id == selected_site_id %} selected{% endif %}>{{ site.display_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                    {% endif %}
+                    <a href="{% url "edc_pharmacy:stock_take_discrepancy_report_url" %}{% if selected_site_id %}?site={{ selected_site_id }}{% endif %}"
+                       class="btn btn-default btn-sm">Discrepancy report</a>
+                </span>
             </div>
 
             {% if rows %}

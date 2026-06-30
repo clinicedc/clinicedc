@@ -32,6 +32,11 @@
                         var node = rows.nodes()[0];
                         var $td = $('<td colspan="4"/>');
                         $td.append($('<strong/>').text('Bin ' + $(node).data('bin-label')));
+                        var takeDate = $(node).data('take-date');
+                        if (takeDate) {
+                            $td.append($('<span class="text-muted"/>')
+                                .text(' — last stock take ' + takeDate));
+                        }
                         $td.append(' &middot; ' + rows.count() + ' to resolve &nbsp;');
                         $td.append($('<a class="btn btn-primary btn-xs"/>')
                             .attr('href', $(node).data('redo-url')).text('Redo stock take'));
@@ -55,15 +60,29 @@
             <div style="padding:10px;display:flex;align-items:center;justify-content:space-between;">
                 <span>
                     <a href="{% url "edc_pharmacy:home_url" %}">Edc Pharmacy</a> &rsaquo;
-                    <a href="{% url "edc_pharmacy:stock_take_home_url" %}">Stock Take</a> &rsaquo;
+                    <a href="{% url "edc_pharmacy:stock_take_home_url" %}{% if selected_site_id %}?site={{ selected_site_id }}{% endif %}">Stock Take</a> &rsaquo;
                     Discrepancy Report
                 </span>
-                {% if items %}
-                <a href="{% url "edc_pharmacy:print_stock_take_discrepancy_report_url" %}"
-                   class="btn btn-default btn-sm">
-                    <i class="fa fa-print"></i> Print PDF
-                </a>
-                {% endif %}
+                <span style="display:flex;align-items:center;gap:8px;">
+                    {% if site_choices %}
+                    <form method="get" style="margin:0;">
+                        <label class="text-muted small" style="margin:0 4px 0 0;">Site</label>
+                        <select name="site" class="form-control input-sm" style="width:auto;display:inline-block;"
+                                onchange="this.form.submit()">
+                            <option value="">All sites</option>
+                            {% for site in site_choices %}
+                            <option value="{{ site.id }}"{% if site.id == selected_site_id %} selected{% endif %}>{{ site.display_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                    {% endif %}
+                    {% if items %}
+                    <a href="{% url "edc_pharmacy:print_stock_take_discrepancy_report_url" %}{% if selected_site_id %}?site={{ selected_site_id }}{% endif %}"
+                       class="btn btn-default btn-sm">
+                        <i class="fa fa-print"></i> Print PDF
+                    </a>
+                    {% endif %}
+                </span>
             </div>
 
             {% if not items %}
@@ -84,6 +103,7 @@
                 <tbody>
                     {% for item in items %}
                     <tr data-bin-label="{{ item.stock_take.storage_bin.bin_identifier }}"
+                        data-take-date="{{ item.stock_take.stock_take_datetime|date:'d M Y' }}"
                         data-redo-url="{% url 'edc_pharmacy:stock_take_scan_url' storage_bin=item.stock_take.storage_bin.pk %}"
                         data-results-url="{% url 'edc_pharmacy:stock_take_results_url' stock_take=item.stock_take.pk %}">
                         <td>{{ item.stock_take.storage_bin.bin_identifier }}</td>
@@ -113,7 +133,7 @@
             {% endif %}
 
             <p style="margin-top:10px;">
-                <a href="{% url "edc_pharmacy:stock_take_home_url" %}" class="btn btn-default btn-sm">All bins</a>
+                <a href="{% url "edc_pharmacy:stock_take_home_url" %}{% if selected_site_id %}?site={{ selected_site_id }}{% endif %}" class="btn btn-default btn-sm">All bins</a>
             </p>
 
         </div>
