@@ -423,15 +423,14 @@ class TestStockTakeResolve(TestCase):
         self.item_unexpected.refresh_from_db()
         self.assertEqual(self.item_unexpected.cannot_add_reason, "already lost")
 
-    def test_partial_resolved_missing_links_to_ledger(self):
+    def test_partial_resolved_missing_shows_badge_only(self):
         self._post(self.item_missing, action="lost", reason="not on shelf")
         self.item_missing.refresh_from_db()
         html = self._render_actions(self.item_missing)
         self.assertIn("Resolved", html)
         self.assertNotIn("Undo", html)
-        # links to the ledger filtered by this code, not the admin txn form
-        ledger_url = reverse("edc_pharmacy:ledger_url")
-        self.assertIn(f"{ledger_url}?q={self.item_missing.code}", html)
+        # no extra ledger link next to the badge — the code already links there
+        self.assertNotIn("ledger", html)
 
     def test_partial_resolved_unexpected_shows_undo(self):
         self._post(self.item_unexpected, action="move_to_bin")

@@ -15,6 +15,7 @@ Branches:
 {% endcomment %}
 {% url 'edc_pharmacy:resolve_stock_take_item_url' stock_take_item=item.pk as action_url %}
 {% if item.resolved %}
+    {# The code itself links to the ledger, so no extra link is shown here. #}
     <span class="label label-success">Resolved</span>
     {% if item.status == "unexpected" %}
         <form method="post" action="{{ action_url }}" style="display:inline;margin:0;">
@@ -26,11 +27,6 @@ Branches:
                 Undo
             </button>
         </form>
-    {% else %}
-        <a href="{% url 'edc_pharmacy:ledger_url' %}?q={{ item.code }}"
-           title="View this item in the ledger">
-            {{ item.stock_transaction.get_transaction_type_display }} &rsaquo; ledger
-        </a>
     {% endif %}
 {% elif item.acknowledged %}
     <span class="label label-default">Acknowledged</span>
