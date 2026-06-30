@@ -20,6 +20,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..models import MISSING, UNEXPECTED, StockTake, StockTakeItem, StorageBin
+from ..utils import last_txn_abbr_by_stock, subject_identifier_by_stock
 from .stock_take_conflicts import annotate_conflicts
 from .stock_take_site_filter import get_selected_site_id, stock_take_site_choices
 
@@ -71,6 +72,13 @@ class StockTakeDiscrepancyReportView(
             items.extend(bin_items)
 
         annotate_conflicts(items)
+        # Per-stock lookups (one query each), same sources as the PDF.
+        stock_ids = {item.stock_id for item in items}
+        txn_abbr = last_txn_abbr_by_stock(stock_ids)
+        subject = subject_identifier_by_stock(stock_ids)
+        for item in items:
+            item.txn_abbr = txn_abbr.get(item.stock_id, "")
+            item.subject_identifier = subject.get(item.stock_id, "")
         return super().get_context_data(
             items=items,
             site_choices=site_choices,

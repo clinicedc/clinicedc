@@ -15,8 +15,8 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from ..choices import STOCK_TRANSACTION_ABBR, STOCK_TRANSACTION_CHOICES
 from ..constants import TXN_BIN_MOVED
-from ..models import MISSING, UNEXPECTED, StockTake, StockTransaction, StorageBin
-from ..utils import get_related_or_none
+from ..models import MISSING, UNEXPECTED, StockTake, StorageBin
+from ..utils import last_txn_abbr_by_stock, subject_identifier_by_stock
 
 # Compact action labels for the report (override the verbose choice display).
 _ACTION_LABELS = {TXN_BIN_MOVED: "Moved"}
@@ -145,7 +145,6 @@ class StockTakeDiscrepancyReport(Report):
                 last.items.filter(status__in=[MISSING, UNEXPECTED])
                 .select_related(
                     "stock__product__formulation",
-                    "stock__allocation__registered_subject",
                     "stock_transaction",
                 )
                 .order_by("status", "code")
@@ -184,23 +183,8 @@ class StockTakeDiscrepancyReport(Report):
 
     @staticmethod
     def _last_txn_abbr_by_stock(rows: list[dict]) -> dict:
-        """Map stock_id -> abbreviation of its most recent transaction_type.
-
-        One query for the whole table; the first row seen per stock (ordered by
-        descending datetime) is the latest. Stocks not in the ledger are omitted.
-        """
-        stock_ids = {row["item"].stock_id for row in rows if row["item"].stock_id}
-        last_type: dict = {}
-        for stock_id, txn_type in (
-            StockTransaction.objects.filter(stock_id__in=stock_ids)
-            .order_by("stock_id", "-transaction_datetime")
-            .values_list("stock_id", "transaction_type")
-        ):
-            last_type.setdefault(stock_id, txn_type)
-        return {
-            stock_id: STOCK_TRANSACTION_ABBR.get(txn_type, "")
-            for stock_id, txn_type in last_type.items()
-        }
+        """Map stock_id -> abbreviation of its most recent transaction_type."""
+        return last_txn_abbr_by_stock(row["item"].stock_id for row in rows)
 
     def _location_table(self, rows: list[dict]) -> Table:
         col_widths = [
@@ -219,7 +203,9 @@ class StockTakeDiscrepancyReport(Report):
             Paragraph(_("TXN"), _HEADER_STYLE),
         ]]
 
+        stock_ids = [row["item"].stock_id for row in rows]
         txn_abbr_by_stock = self._last_txn_abbr_by_stock(rows)
+        subject_by_stock = subject_identifier_by_stock(stock_ids)
 
         for row in rows:
             item = row["item"]
@@ -229,11 +215,9 @@ class StockTakeDiscrepancyReport(Report):
             barcode = code128.Code128(item.code, barHeight=5 * mm, barWidth=0.7, gap=1.7)
             code_cell = [barcode, Paragraph(item.code, _CELL_CENTER)]
 
-            subject_identifier = ""
-            if stock and get_related_or_none(stock, "allocation"):
-                subject_identifier = (
-                    stock.allocation.registered_subject.subject_identifier or ""
-                )
+            # Recipient from the canonical Allocation table (the Stock cache and
+            # the sticky-pointer FK are unreliable for terminal/dispensed stock).
+            subject_identifier = subject_by_stock.get(item.stock_id, "")
 
             product_name = ""
             if stock:
