@@ -1,4 +1,5 @@
 import shutil
+from datetime import date
 from pathlib import Path
 from tempfile import mkdtemp
 
@@ -33,7 +34,11 @@ class TestArchiveExporter(TestCase):
     def setUp(self):
         self.user = get_user_for_tests(username="erikvw")
         Site.objects.get_current()
-        RegisteredSubject.objects.create(subject_identifier="12345")
+        # dob is a populated DateField (datetime.date object); leaving other
+        # nullable fields unset also exercises the all-null column path
+        RegisteredSubject.objects.create(
+            subject_identifier="12345", dob=date(1990, 6, 15)
+        )
         self.models = ["auth.user", "edc_registration.registeredsubject"]
 
     def test_request_archive(self):
@@ -54,12 +59,13 @@ class TestArchiveExporter(TestCase):
         self.assertTrue(filename.exists(), msg=f"file '{filename}' does not exist")
 
     def test_request_archive_stata(self):
-        """A STATA export must not raise on UUID pk/fk columns.
+        """A STATA export must not raise on object columns to_stata can't write.
 
-        Regression: the 'id' and '*_id' columns arrive as uuid.UUID objects
-        (object dtype) and 'last_login' (auth.user) is all-null. to_stata
-        rejects object columns that are not all strings/None, so without
-        coercion this raised "ValueError: Column `id` cannot be exported".
+        Regression cases, all object dtype in the dataframe but rejected by
+        to_stata ("Column `x` cannot be exported"):
+        - 'id'/'*_id' arrive as uuid.UUID objects
+        - 'last_login' (auth.user) is all-null
+        - 'dob' (DateField) arrives as datetime.date objects
         """
         exporter = ModelsToFile(
             models=self.models,
@@ -80,6 +86,9 @@ class TestArchiveExporter(TestCase):
         # the uuid pk must round-trip as a non-null string, not a uuid object
         self.assertTrue(df["id"].notna().all())
         self.assertIsInstance(df["id"].iloc[0], str)
+        # a populated DateField round-trips as a datetime, not a raw date object
+        self.assertIn("dob", df.columns)
+        self.assertEqual(pd.Timestamp(df["dob"].iloc[0]).date(), date(1990, 6, 15))
 
     def test_requested_with_invalid_table(self):
         models = ["auth.blah", "edc_registration.registeredsubject"]
