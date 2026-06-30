@@ -120,6 +120,30 @@ class TestExport(TestCase):
                 ),
             )
 
+    def test_remove_timezone(self):
+        model = "clinicedc_tests.crffour"
+
+        # remove_timezone=True (default) must strip tz from datetime columns
+        df = ModelToDataframe(model=model).dataframe
+        self.assertGreater(
+            len(df.select_dtypes(include="datetime").columns),
+            0,
+            msg="expected at least one tz-naive datetime column",
+        )
+        self.assertEqual(
+            list(df.select_dtypes(include="datetimetz").columns),
+            [],
+            msg="tz-aware datetime columns were not stripped",
+        )
+
+        # remove_timezone=False must keep datetime columns tz-aware
+        df = ModelToDataframe(model=model, remove_timezone=False).dataframe
+        self.assertGreater(
+            len(df.select_dtypes(include="datetimetz").columns),
+            0,
+            msg="expected tz-aware datetime columns to be retained",
+        )
+
     def test_encrypted_none(self):
         model = "clinicedc_tests.crfencrypted"
         m = ModelToDataframe(model=model)

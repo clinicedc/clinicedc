@@ -1,14 +1,16 @@
 import shutil
+from datetime import date
 from pathlib import Path
 from tempfile import mkdtemp
 
+import pandas as pd
 from clinicedc_tests.sites import all_sites
 from clinicedc_tests.utils import get_user_for_tests
 from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.test.utils import override_settings, tag
 
-from edc_export.constants import CSV
+from edc_export.constants import CSV, STATA_14
 from edc_export.models_to_file import ModelsToFile, ModelsToFileNothingExportedError
 from edc_facility.import_holidays import import_holidays
 from edc_registration.models import RegisteredSubject
@@ -32,7 +34,11 @@ class TestArchiveExporter(TestCase):
     def setUp(self):
         self.user = get_user_for_tests(username="erikvw")
         Site.objects.get_current()
-        RegisteredSubject.objects.create(subject_identifier="12345")
+        # dob is a populated DateField (datetime.date object); leaving other
+        # nullable fields unset also exercises the all-null column path
+        RegisteredSubject.objects.create(
+            subject_identifier="12345", dob=date(1990, 6, 15)
+        )
         self.models = ["auth.user", "edc_registration.registeredsubject"]
 
     def test_request_archive(self):
@@ -51,6 +57,38 @@ class TestArchiveExporter(TestCase):
         filename = Path(exporter.archive_filename)
         self.assertIsNotNone(filename)
         self.assertTrue(filename.exists(), msg=f"file '{filename}' does not exist")
+
+    def test_request_archive_stata(self):
+        """A STATA export must not raise on object columns to_stata can't write.
+
+        Regression cases, all object dtype in the dataframe but rejected by
+        to_stata ("Column `x` cannot be exported"):
+        - 'id'/'*_id' arrive as uuid.UUID objects
+        - 'last_login' (auth.user) is all-null
+        - 'dob' (DateField) arrives as datetime.date objects
+        """
+        exporter = ModelsToFile(
+            models=self.models,
+            user=self.user,
+            archive_to_single_file=True,
+            export_format=STATA_14,
+        )
+        folder = Path(mkdtemp())
+        shutil.unpack_archive(exporter.archive_filename, folder, "zip")
+        dta_files = list(folder.rglob("*.dta"))
+        self.assertGreater(len(dta_files), 0, msg="no .dta files were exported")
+        # the exported file must be readable back and carry the uuid pk as string
+        registeredsubject_dta = next(
+            f for f in dta_files if "registeredsubject" in f.name.lower()
+        )
+        df = pd.read_stata(registeredsubject_dta)
+        self.assertIn("id", df.columns)
+        # the uuid pk must round-trip as a non-null string, not a uuid object
+        self.assertTrue(df["id"].notna().all())
+        self.assertIsInstance(df["id"].iloc[0], str)
+        # a populated DateField round-trips as a datetime, not a raw date object
+        self.assertIn("dob", df.columns)
+        self.assertEqual(pd.Timestamp(df["dob"].iloc[0]).date(), date(1990, 6, 15))
 
     def test_requested_with_invalid_table(self):
         models = ["auth.blah", "edc_registration.registeredsubject"]

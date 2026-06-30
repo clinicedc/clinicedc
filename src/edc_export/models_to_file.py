@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import shutil
 import sys
+import uuid
+from datetime import date
 from pathlib import Path
 from tempfile import mkdtemp
 from typing import TYPE_CHECKING
@@ -157,6 +159,7 @@ class ModelsToFile:
                     )
                 elif self.export_format in [STATA_14, STATA_15]:
                     path = self.export_folder / self.sub_folder / f"{fname}.dta"
+                    dataframe = self.make_stata_safe(dataframe)
                     dataframe.to_stata(
                         path,
                         data_label=str(path),
@@ -184,6 +187,58 @@ class ModelsToFile:
             root_dir=self.export_folder,
             base_dir=self.sub_folder,
         )
+
+    @staticmethod
+    def make_stata_safe(dataframe: pd.DataFrame) -> pd.DataFrame:
+        """Coerce columns that pandas `to_stata` cannot write.
+
+        `to_stata` only writes object columns that are all strings/None;
+        everything else must be a recognised dtype. Several column kinds are
+        valid in a plain dataframe (and fine for `to_csv`) but trip this up.
+        Handled here, in order:
+
+        1. uuid.UUID values (the pk `id` and FK `*_id` columns, which arrive
+           from `.values()` as uuid.UUID objects) -> str
+        2. DateField values, which arrive as datetime.date objects (object
+           dtype) -> datetime64 so STATA writes them as dates
+        3. object/string columns that are entirely null (e.g. a nullable
+           field with no values for this queryset) -> "" (how STATA
+           represents a missing string); to_stata prohibits all-null object
+           columns
+        4. anything still left as object dtype (e.g. datetime.time from a
+           TimeField, Decimal, mixed) -> string, so to_stata never sees a raw
+           python object
+
+        Applied only for the STATA export. tz-aware datetime columns are also
+        unsupported by `to_stata`, but those are stripped upstream by
+        ModelToDataframe(remove_timezone=True), which is how this exporter
+        always builds the frame.
+        """
+        # 1. uuid.UUID -> str
+        for column in dataframe.select_dtypes(include="object").columns:
+            dataframe[column] = dataframe[column].map(
+                lambda v: str(v) if isinstance(v, uuid.UUID) else v
+            )
+        # 2. datetime.date (DateField) -> datetime64. datetime.datetime is a
+        #    date subclass but comes through as datetime64, not object, so it
+        #    is not matched here.
+        for column in dataframe.select_dtypes(include="object").columns:
+            non_null = dataframe[column].dropna()
+            if not non_null.empty and non_null.map(
+                lambda v: isinstance(v, date)
+            ).all():
+                dataframe[column] = pd.to_datetime(dataframe[column])
+        # 3. all-null object/string columns -> ""
+        for column in dataframe.columns:
+            is_text = dataframe[column].dtype == object or isinstance(
+                dataframe[column].dtype, pd.StringDtype
+            )
+            if is_text and dataframe[column].isna().all():
+                dataframe[column] = ""
+        # 4. any remaining object column -> string
+        for column in dataframe.select_dtypes(include="object").columns:
+            dataframe[column] = dataframe[column].astype("string")
+        return dataframe
 
     def stata_variable_labels(self, dataframe: pd.DataFrame, model: str) -> dict[str, str]:
         variable_labels = dict(id="primary key")
