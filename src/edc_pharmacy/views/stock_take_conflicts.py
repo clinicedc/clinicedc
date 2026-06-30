@@ -40,7 +40,9 @@ def open_discrepancies(codes: Iterable[str], statuses: Iterable[str]) -> QuerySe
     )
 
 
-def _first_other_bin(scans, code, status, own_bin_id):
+def _first_other_bin(
+    scans: dict[str, list[StockTakeItem]], code: str, status: str, own_bin_id: int
+) -> StockTakeItem | None:
     """Most recent unresolved item for ``code`` with ``status`` in another bin."""
     return next(
         (

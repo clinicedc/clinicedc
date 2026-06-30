@@ -28,7 +28,7 @@ from __future__ import annotations
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.http import HttpResponseRedirect
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import pluralize
 from django.urls import reverse
@@ -38,7 +38,7 @@ from django.views.generic import View
 
 from ..constants import TXN_BIN_MOVED, TXN_LOST
 from ..exceptions import InvalidTransitionError
-from ..models import MISSING, UNEXPECTED, StockTakeItem, StorageBinItem
+from ..models import MISSING, UNEXPECTED, StockTakeItem, StockTransaction, StorageBinItem
 from ..transaction_log import apply_transaction
 from .stock_take_conflicts import open_discrepancies
 
@@ -62,13 +62,13 @@ UNACK_ACTION = "unacknowledge"
 class ResolveStockTakeItemView(View):
     """Apply a correction to one stock take discrepancy and link the ledger row."""
 
-    def _redirect(self, request):
+    def _redirect(self, request: HttpRequest) -> HttpResponse:
         next_url = request.POST.get("next", "").strip()
         if next_url:
             return HttpResponseRedirect(next_url)
         return HttpResponseRedirect(reverse("edc_pharmacy:stock_take_discrepancy_report_url"))
 
-    def _is_accounted_elsewhere(self, item) -> bool:
+    def _is_accounted_elsewhere(self, item: StockTakeItem) -> bool:
         """True if the item's code is registered in, or scanned as unexpected
         in, another bin — i.e. it is not lost, just somewhere else.
         """
@@ -86,7 +86,7 @@ class ResolveStockTakeItemView(View):
             .exists()
         )
 
-    def _can_acknowledge(self, item) -> bool:
+    def _can_acknowledge(self, item: StockTakeItem) -> bool:
         """Acknowledge applies where the normal correction cannot."""
         if item.status == UNEXPECTED:
             return item.stock is None or item.stock.is_terminal
@@ -94,7 +94,9 @@ class ResolveStockTakeItemView(View):
             return self._is_accounted_elsewhere(item)
         return False
 
-    def _missing_params(self, request, item, action, reason) -> tuple | None:
+    def _missing_params(
+        self, request: HttpRequest, item: StockTakeItem, action: str, reason: str
+    ) -> tuple | None:
         if self._is_accounted_elsewhere(item):
             messages.error(
                 request,
@@ -110,7 +112,9 @@ class ResolveStockTakeItemView(View):
             return None
         return TXN_LOST, {"reason": reason}
 
-    def _unexpected_params(self, request, item, action) -> tuple | None:
+    def _unexpected_params(
+        self, request: HttpRequest, item: StockTakeItem, action: str
+    ) -> tuple | None:
         if action != MOVE_ACTION:
             messages.error(request, f"Invalid action for an unexpected item: {action!r}")
             return None
@@ -125,7 +129,9 @@ class ResolveStockTakeItemView(View):
             "storage_bin": storage_bin,
         }
 
-    def _status_params(self, request, item, action, reason) -> tuple | None:
+    def _status_params(
+        self, request: HttpRequest, item: StockTakeItem, action: str, reason: str
+    ) -> tuple | None:
         """Map (item status, action) to ``(txn_type, apply_kwargs)``."""
         if item.status == MISSING:
             return self._missing_params(request, item, action, reason)
@@ -134,7 +140,7 @@ class ResolveStockTakeItemView(View):
         messages.error(request, f"{item.code} ({item.status}) cannot be resolved.")
         return None
 
-    def _handle_undo(self, request, item):
+    def _handle_undo(self, request: HttpRequest, item: StockTakeItem) -> HttpResponse:
         """Reverse an 'add to bin' resolution and re-open the discrepancy."""
         if not item.resolved:
             messages.warning(request, f"{item.code} is not resolved.")
@@ -172,7 +178,9 @@ class ResolveStockTakeItemView(View):
         )
         return self._redirect(request)
 
-    def _handle_acknowledge(self, request, item, note):
+    def _handle_acknowledge(
+        self, request: HttpRequest, item: StockTakeItem, note: str
+    ) -> HttpResponse:
         """Record a review note where the normal correction cannot apply."""
         if item.handled:
             messages.warning(request, f"{item.code} is already handled.")
@@ -196,7 +204,9 @@ class ResolveStockTakeItemView(View):
         messages.success(request, f"Acknowledged {item.code}.")
         return self._redirect(request)
 
-    def _handle_unacknowledge(self, request, item):
+    def _handle_unacknowledge(
+        self, request: HttpRequest, item: StockTakeItem
+    ) -> HttpResponse:
         """Reverse an acknowledgement and re-open the discrepancy."""
         if not item.acknowledged:
             messages.warning(request, f"{item.code} is not acknowledged.")
@@ -214,7 +224,7 @@ class ResolveStockTakeItemView(View):
         messages.success(request, f"Re-opened {item.code}.")
         return self._redirect(request)
 
-    def post(self, request, *args, **kwargs):  # noqa: ARG002
+    def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:  # noqa: ARG002
         item = get_object_or_404(StockTakeItem, pk=kwargs["stock_take_item"])
         action = request.POST.get("action", "").strip().lower()
         reason = request.POST.get("reason", "").strip()
@@ -269,7 +279,7 @@ class ResolveStockTakeItemView(View):
         return self._redirect(request)
 
     @staticmethod
-    def _link_missing_counterparts(item, txn) -> int:
+    def _link_missing_counterparts(item: StockTakeItem, txn: StockTransaction) -> int:
         """Link open 'missing' records for the same code to ``txn``.
 
         The item is the same physical stock, so adding it to a bin resolves the

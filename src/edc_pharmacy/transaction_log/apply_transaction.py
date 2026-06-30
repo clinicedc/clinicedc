@@ -281,14 +281,6 @@ def apply_transaction(
         stock = stock_model_cls.objects.select_for_update().get(pk=stock.pk)
 
         from_location_id = stock.location_id
-        # Capture the bin the item is in BEFORE _apply_delta deletes/replaces
-        # the StorageBinItem, so the ledger can record the bin it moved from.
-        storage_bin_item_cls = django_apps.get_model("edc_pharmacy.storagebinitem")
-        from_bin_id = (
-            storage_bin_item_cls.objects.filter(stock=stock)
-            .values_list("storage_bin_id", flat=True)
-            .first()
-        )
         current_state = _current_state(stock)
         delta = compute_delta(txn_type, current_state, **kwargs)
 
@@ -296,6 +288,18 @@ def apply_transaction(
             raise InvalidTransitionError(
                 f"{txn_type} refused on stock={stock.code}: "
                 f"{'; '.join(delta.preconditions_failed)}"
+            )
+
+        # Only a transaction that removes/replaces the StorageBinItem leaves a
+        # bin, so only then is the origin bin worth a query (and only then would
+        # _apply_delta delete it). Avoids an extra read on every other txn type.
+        from_bin_id = None
+        if delta.storage_bin_item in ("delete", "replace"):
+            storage_bin_item_cls = django_apps.get_model("edc_pharmacy.storagebinitem")
+            from_bin_id = (
+                storage_bin_item_cls.objects.filter(stock=stock)
+                .values_list("storage_bin_id", flat=True)
+                .first()
             )
 
         with transaction.atomic():
