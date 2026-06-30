@@ -99,7 +99,7 @@ MOCCA Trial
 
 Integrated care for HIV and non-communicable diseases in Africa: a pilot study to inform a large-scale trial (MOCCA and MOCCA Extension Study)
 
-https://github.com/mocca-trail/mocca-edc (2020-2022)
+https://github.com/mocca-trial/mocca-edc (2020-2022)
 
 http://www.isrctn.com/ISRCTN71437522
 

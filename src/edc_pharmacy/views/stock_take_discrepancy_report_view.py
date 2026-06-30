@@ -21,6 +21,7 @@ from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..models import MISSING, UNEXPECTED, StockTake, StockTakeItem, StorageBin
 from .stock_take_conflicts import annotate_conflicts
+from .stock_take_site_filter import get_selected_site_id, stock_take_site_choices
 
 
 @method_decorator(login_required, name="dispatch")
@@ -32,11 +33,17 @@ class StockTakeDiscrepancyReportView(
     navbar_selected_item = "pharmacy"
 
     def get_context_data(self, **kwargs):
-        bins = (
-            StorageBin.objects.filter(in_use=True)
-            .select_related("container", "location")
-            .order_by("location__display_name", "bin_identifier")
-        )
+        base = StorageBin.objects.filter(in_use=True)
+
+        # Sites the user can choose from: only those with in-use bins. The
+        # default ("All sites") leaves the report unfiltered.
+        site_choices = stock_take_site_choices(base)
+        selected_site_id = get_selected_site_id(self.request, site_choices)
+
+        bins = base.select_related("container", "location")
+        if selected_site_id:
+            bins = bins.filter(location__site_id=selected_site_id)
+        bins = bins.order_by("location__display_name", "bin_identifier")
 
         # One flat, bin-ordered list of discrepancies (missing then unexpected
         # within each bin) for a single grouped DataTable.
@@ -64,4 +71,9 @@ class StockTakeDiscrepancyReportView(
             items.extend(bin_items)
 
         annotate_conflicts(items)
-        return super().get_context_data(items=items, **kwargs)
+        return super().get_context_data(
+            items=items,
+            site_choices=site_choices,
+            selected_site_id=selected_site_id,
+            **kwargs,
+        )

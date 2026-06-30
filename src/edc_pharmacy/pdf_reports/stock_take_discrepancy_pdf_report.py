@@ -13,8 +13,13 @@ from edc_pdf_reports import NumberedCanvas as BaseNumberedCanvas
 from edc_pdf_reports import Report
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
-from ..models import MISSING, UNEXPECTED, StockTake, StorageBin
+from ..choices import STOCK_TRANSACTION_ABBR, STOCK_TRANSACTION_CHOICES
+from ..constants import TXN_BIN_MOVED
+from ..models import MISSING, UNEXPECTED, StockTake, StockTransaction, StorageBin
 from ..utils import get_related_or_none
+
+# Compact action labels for the report (override the verbose choice display).
+_ACTION_LABELS = {TXN_BIN_MOVED: "Moved"}
 
 
 class NumberedCanvas(BaseNumberedCanvas):
@@ -35,8 +40,12 @@ _LOC_STYLE = ParagraphStyle(
 class StockTakeDiscrepancyReport(Report):
     """PDF report of stock take discrepancies, grouped by location."""
 
-    def __init__(self, **kwargs):
+    def __init__(self, site_id=None, **kwargs):
         self.protocol_name = ResearchProtocolConfig().protocol_title
+        try:
+            self.site_id = int(site_id) if site_id else None
+        except (TypeError, ValueError):
+            self.site_id = None
         super().__init__(**kwargs)
 
     def draw_header(self, canvas, doc):  # noqa: ARG002
@@ -79,13 +88,49 @@ class StockTakeDiscrepancyReport(Report):
             story.append(HRFlowable(width="100%", thickness=0.5, color=colors.grey))
             story.append(Spacer(0.1 * cm, 0.3 * cm))
 
+        story.extend(self._legend_flowables())
         return story
 
+    @staticmethod
+    def _legend_flowables() -> list:
+        """Legend mapping each TXN abbreviation to its full transaction type."""
+        pairs = sorted(
+            (
+                (STOCK_TRANSACTION_ABBR[txn_type], display)
+                for txn_type, display in STOCK_TRANSACTION_CHOICES
+                if txn_type in STOCK_TRANSACTION_ABBR
+            ),
+            key=lambda pair: pair[0],
+        )
+        entries = [f"<b>{abbr}</b>&nbsp;&nbsp;{display}" for abbr, display in pairs]
+        # Fill column-major so each column reads alphabetically top-to-bottom.
+        ncols = 3
+        nrows = -(-len(entries) // ncols)
+        columns = [entries[c * nrows : (c + 1) * nrows] for c in range(ncols)]
+        grid = [
+            [col[r] if r < len(col) else "" for col in columns] for r in range(nrows)
+        ]
+        data = [[Paragraph(cell, _CELL_STYLE) for cell in grid_row] for grid_row in grid]
+        table = Table(data, colWidths=[9 * cm, 9 * cm, 9 * cm])
+        table.setStyle(TableStyle([
+            ("FONTSIZE", (0, 0), (-1, -1), 7),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 0),
+            ("TOPPADDING", (0, 0), (-1, -1), 1),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
+        ]))
+        return [
+            Paragraph(_("TXN — last transaction codes").upper(), _LOC_STYLE),
+            Spacer(0.1 * cm, 0.15 * cm),
+            table,
+        ]
+
     def _build_rows(self) -> dict[str, tuple]:
-        bins = (
-            StorageBin.objects.filter(in_use=True)
-            .select_related("container", "location")
-            .order_by("location__display_name", "bin_identifier")
+        bins = StorageBin.objects.filter(in_use=True)
+        if self.site_id:
+            bins = bins.filter(location__site_id=self.site_id)
+        bins = bins.select_related("container", "location").order_by(
+            "location__display_name", "bin_identifier"
         )
         rows_by_location: dict[str, tuple] = {}
         for b in bins:
@@ -101,6 +146,7 @@ class StockTakeDiscrepancyReport(Report):
                 .select_related(
                     "stock__product__formulation",
                     "stock__allocation__registered_subject",
+                    "stock_transaction",
                 )
                 .order_by("status", "code")
             )
@@ -120,24 +166,68 @@ class StockTakeDiscrepancyReport(Report):
             ])
         return rows_by_location
 
+    @staticmethod
+    def _action_and_note(item) -> tuple[str, str]:
+        """The correction applied to a discrepancy and its audit note.
+
+        Returns ("", "") when the discrepancy is still open.
+        """
+        if item.resolved:
+            txn = item.stock_transaction
+            label = _ACTION_LABELS.get(txn.transaction_type) or (
+                txn.get_transaction_type_display()
+            )
+            return label, txn.reason
+        if item.acknowledged:
+            return _("Acknowledged"), item.acknowledged_note
+        return "", ""
+
+    @staticmethod
+    def _last_txn_abbr_by_stock(rows: list[dict]) -> dict:
+        """Map stock_id -> abbreviation of its most recent transaction_type.
+
+        One query for the whole table; the first row seen per stock (ordered by
+        descending datetime) is the latest. Stocks not in the ledger are omitted.
+        """
+        stock_ids = {row["item"].stock_id for row in rows if row["item"].stock_id}
+        last_type: dict = {}
+        for stock_id, txn_type in (
+            StockTransaction.objects.filter(stock_id__in=stock_ids)
+            .order_by("stock_id", "-transaction_datetime")
+            .values_list("stock_id", "transaction_type")
+        ):
+            last_type.setdefault(stock_id, txn_type)
+        return {
+            stock_id: STOCK_TRANSACTION_ABBR.get(txn_type, "")
+            for stock_id, txn_type in last_type.items()
+        }
+
     def _location_table(self, rows: list[dict]) -> Table:
-        col_widths = [2.5 * cm, 2.5 * cm, 3.5 * cm, 3.5 * cm, 5 * cm, 3 * cm, 3 * cm, 4 * cm]
+        col_widths = [
+            2.0 * cm, 3.5 * cm, 2.8 * cm, 3.6 * cm, 2.2 * cm,
+            2.0 * cm, 2.4 * cm, 4.0 * cm, 1.4 * cm,
+        ]
         data = [[
             Paragraph(_("BIN"), _HEADER_STYLE),
             Paragraph(_("CODE"), _HEADER_STYLE),
-            Paragraph(_("BARCODE"), _HEADER_STYLE),
             Paragraph(_("SUBJECT"), _HEADER_STYLE),
             Paragraph(_("PRODUCT"), _HEADER_STYLE),
-            Paragraph(_("DISCREPANCY"), _HEADER_STYLE),
+            Paragraph(_("ISSUE"), _HEADER_STYLE),
             Paragraph(_("STOCK TAKE DATE"), _HEADER_STYLE),
             Paragraph(_("ACTION"), _HEADER_STYLE),
+            Paragraph(_("AUDIT NOTE"), _HEADER_STYLE),
+            Paragraph(_("TXN"), _HEADER_STYLE),
         ]]
+
+        txn_abbr_by_stock = self._last_txn_abbr_by_stock(rows)
 
         for row in rows:
             item = row["item"]
             stock = item.stock
 
+            # Barcode with the human-readable code centered below it, one cell.
             barcode = code128.Code128(item.code, barHeight=5 * mm, barWidth=0.7, gap=1.7)
+            code_cell = [barcode, Paragraph(item.code, _CELL_CENTER)]
 
             subject_identifier = ""
             if stock and get_related_or_none(stock, "allocation"):
@@ -152,18 +242,21 @@ class StockTakeDiscrepancyReport(Report):
                 except AttributeError:
                     product_name = str(stock.product) if stock.product else ""
 
-            discrepancy = item.get_status_display()
-            take_date = localtime(row["stock_take_datetime"]).strftime("%d-%b-%Y %H:%M")
+            issue = item.get_status_display()
+            take_date = localtime(row["stock_take_datetime"]).strftime("%d-%b-%Y")
+            txn_abbr = txn_abbr_by_stock.get(item.stock_id, "")
+            action, audit_note = self._action_and_note(item)
 
             data.append([
                 Paragraph(row["bin"], _CELL_CENTER),
-                Paragraph(item.code, _CELL_CENTER),
-                barcode,
+                code_cell,
                 Paragraph(subject_identifier, _CELL_STYLE),
                 Paragraph(product_name, _CELL_STYLE),
-                Paragraph(discrepancy, _CELL_CENTER),
+                Paragraph(issue, _CELL_CENTER),
                 Paragraph(take_date, _CELL_CENTER),
-                Paragraph("", _CELL_STYLE),
+                Paragraph(action, _CELL_CENTER),
+                Paragraph(audit_note, _CELL_STYLE),
+                Paragraph(txn_abbr, _CELL_CENTER),
             ])
 
         table = Table(data, colWidths=col_widths, repeatRows=1)

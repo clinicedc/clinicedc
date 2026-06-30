@@ -17,6 +17,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..models import StockTake, StorageBin, StorageBinItem
+from .stock_take_site_filter import get_selected_site_id, stock_take_site_choices
 
 
 @method_decorator(login_required, name="dispatch")
@@ -37,12 +38,19 @@ class StockTakeHomeView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
             .values("c")
         )
 
-        bins = (
-            StorageBin.objects.filter(in_use=True)
-            .select_related("container", "location")
-            .annotate(item_count=Subquery(item_count_sq, output_field=IntegerField()))
-            .order_by("location__display_name", "bin_identifier")
+        base = StorageBin.objects.filter(in_use=True)
+
+        # Shared with the discrepancy report: "All sites" (no selection) leaves
+        # the bin list unfiltered.
+        site_choices = stock_take_site_choices(base)
+        selected_site_id = get_selected_site_id(self.request, site_choices)
+
+        bins = base.select_related("container", "location").annotate(
+            item_count=Subquery(item_count_sq, output_field=IntegerField())
         )
+        if selected_site_id:
+            bins = bins.filter(location__site_id=selected_site_id)
+        bins = bins.order_by("location__display_name", "bin_identifier")
 
         rows = []
         for b in bins:
@@ -56,4 +64,9 @@ class StockTakeHomeView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Tem
                 "last_take": last,
             })
 
-        return super().get_context_data(rows=rows, **kwargs)
+        return super().get_context_data(
+            rows=rows,
+            site_choices=site_choices,
+            selected_site_id=selected_site_id,
+            **kwargs,
+        )
