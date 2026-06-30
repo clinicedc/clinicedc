@@ -20,6 +20,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..models import MISSING, UNEXPECTED, StockTake, StockTakeItem, StorageBin
+from ..utils import last_txn_abbr_by_stock
 from .stock_take_conflicts import annotate_conflicts
 from .stock_take_site_filter import get_selected_site_id, stock_take_site_choices
 
@@ -71,6 +72,10 @@ class StockTakeDiscrepancyReportView(
             items.extend(bin_items)
 
         annotate_conflicts(items)
+        # Last ledger transaction code per stock, same abbreviations as the PDF.
+        txn_abbr = last_txn_abbr_by_stock({item.stock_id for item in items})
+        for item in items:
+            item.txn_abbr = txn_abbr.get(item.stock_id, "")
         return super().get_context_data(
             items=items,
             site_choices=site_choices,

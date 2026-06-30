@@ -30,7 +30,7 @@
                     dataSrc: 0,
                     startRender: function(rows, group) {
                         var node = rows.nodes()[0];
-                        var $td = $('<td colspan="4"/>');
+                        var $td = $('<td colspan="5"/>');
                         $td.append($('<strong/>').text('Bin ' + $(node).data('bin-label')));
                         var takeDate = $(node).data('take-date');
                         if (takeDate) {
@@ -98,6 +98,7 @@
                         <th>Product</th>
                         <th>Issue</th>
                         <th>Resolve</th>
+                        <th>TXN</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -126,6 +127,7 @@
                             {% endif %}
                         </td>
                         <td>{% include "edc_pharmacy/stock/_resolve_actions.html" with item=item next_url=report_next %}</td>
+                        <td><code>{{ item.txn_abbr }}</code></td>
                     </tr>
                     {% endfor %}
                 </tbody>
