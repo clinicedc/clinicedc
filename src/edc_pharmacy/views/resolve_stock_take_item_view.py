@@ -40,6 +40,7 @@ from ..constants import TXN_BIN_MOVED, TXN_LOST
 from ..exceptions import InvalidTransitionError
 from ..models import MISSING, UNEXPECTED, StockTakeItem, StorageBinItem
 from ..transaction_log import apply_transaction
+from .stock_take_conflicts import open_discrepancies
 
 # A stock take is a location reconciliation: a missing item can only be marked
 # *lost* (cannot be located). Condition dispositions (damaged/expired/voided)
@@ -80,9 +81,7 @@ class ResolveStockTakeItemView(View):
         if registered_bin_id and registered_bin_id != own_bin_id:
             return True
         return (
-            StockTakeItem.objects.filter(
-                code=item.code, status=UNEXPECTED, stock_transaction__isnull=True
-            )
+            open_discrepancies([item.code], [UNEXPECTED])
             .exclude(stock_take__storage_bin_id=own_bin_id)
             .exists()
         )
@@ -274,14 +273,10 @@ class ResolveStockTakeItemView(View):
         """Link open 'missing' records for the same code to ``txn``.
 
         The item is the same physical stock, so adding it to a bin resolves the
-        missing side too. Saved one-by-one to preserve the audit trail.
+        missing side too. Only live (latest-take, unacknowledged) missing rows are
+        linked; saved one-by-one to preserve the audit trail.
         """
-        counterparts = StockTakeItem.objects.filter(
-            code=item.code,
-            status=MISSING,
-            stock_transaction__isnull=True,
-            acknowledged_datetime__isnull=True,
-        )
+        counterparts = open_discrepancies([item.code], [MISSING])
         cleared = 0
         for counterpart in counterparts:
             counterpart.stock_transaction = txn

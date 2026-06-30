@@ -6,9 +6,38 @@ hints and the same missing-item resolution choice (lost vs acknowledge).
 
 from __future__ import annotations
 
+from collections.abc import Iterable
+
+from django.db.models import Exists, OuterRef, QuerySet
+
 from edc_utils.date import to_local
 
-from ..models import MISSING, UNEXPECTED, StockTakeItem, StorageBinItem
+from ..models import MISSING, UNEXPECTED, StockTake, StockTakeItem, StorageBinItem
+
+
+def open_discrepancies(codes: Iterable[str], statuses: Iterable[str]) -> QuerySet:
+    """Open discrepancies for the given codes/statuses, latest take per bin only.
+
+    "Open" = unresolved (no ``stock_transaction``) and not acknowledged. Items
+    belonging to a superseded (older) stock take for the same bin are excluded,
+    so stale rows from a previous count cannot drive conflict hints, block
+    resolution, or be swept into a paired resolution. This is the single source
+    of truth for "is this code a live discrepancy somewhere".
+    """
+    superseded = StockTake.objects.filter(
+        storage_bin=OuterRef("stock_take__storage_bin"),
+        stock_take_datetime__gt=OuterRef("stock_take__stock_take_datetime"),
+    )
+    return (
+        StockTakeItem.objects.filter(
+            code__in=list(codes),
+            status__in=list(statuses),
+            stock_transaction__isnull=True,
+            acknowledged_datetime__isnull=True,
+        )
+        .annotate(_superseded=Exists(superseded))
+        .filter(_superseded=False)
+    )
 
 
 def _first_other_bin(scans, code, status, own_bin_id):
@@ -47,10 +76,10 @@ def annotate_conflicts(items: list[StockTakeItem]) -> None:
             "storage_bin"
         )
     }
-    # Unresolved discrepancies for these codes, most recent first.
+    # Live discrepancies for these codes (latest take per bin), most recent first.
     scans: dict[str, list[StockTakeItem]] = {}
     for sti in (
-        StockTakeItem.objects.filter(code__in=codes, stock_transaction__isnull=True)
+        open_discrepancies(codes, [MISSING, UNEXPECTED])
         .select_related("stock_take__storage_bin")
         .order_by("-stock_take__stock_take_datetime")
     ):

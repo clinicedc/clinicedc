@@ -496,6 +496,64 @@ class TestStockTakeResolve(TestCase):
         self.item_missing.refresh_from_db()
         self.assertTrue(self.item_missing.acknowledged)
 
+    # -- stale / acknowledged rows must not drive resolution (regression) ----
+
+    def _bin_b_take(self, days_ago):
+        return StockTake.objects.create(
+            storage_bin=self.bin_b,
+            performed_by=self.user,
+            stock_take_datetime=timezone.now() - relativedelta(days=days_ago),
+        )
+
+    def test_stale_unexpected_does_not_block_lost(self):
+        # An old bin_b take scanned the code as unexpected (left unresolved),
+        # then a newer bin_b take supersedes it. The stale scan must not block
+        # marking the genuinely-missing item lost.
+        old = self._bin_b_take(days_ago=2)
+        StockTakeItem.objects.create(
+            stock_take=old,
+            stock=self.stock_missing,
+            code=self.stock_missing.code,
+            status=UNEXPECTED,
+        )
+        self._bin_b_take(days_ago=1)  # newer take, code no longer present
+        self._post(self.item_missing, action="lost", reason="truly gone")
+        self.item_missing.refresh_from_db()
+        self.assertTrue(self.item_missing.resolved)
+        self.assertEqual(self.item_missing.stock_transaction.transaction_type, TXN_LOST)
+
+    def test_acknowledged_unexpected_does_not_block_lost(self):
+        take_b = StockTake.objects.create(
+            storage_bin=self.bin_b, performed_by=self.user
+        )
+        StockTakeItem.objects.create(
+            stock_take=take_b,
+            stock=self.stock_missing,
+            code=self.stock_missing.code,
+            status=UNEXPECTED,
+            acknowledged_datetime=timezone.now(),
+            acknowledged_by=self.user,
+            acknowledged_note="reviewed",
+        )
+        self._post(self.item_missing, action="lost", reason="gone")
+        self.item_missing.refresh_from_db()
+        self.assertTrue(self.item_missing.resolved)
+
+    def test_stale_missing_not_swept_by_add(self):
+        # A superseded bin_b take had the code missing; adding the item to a bin
+        # must not clear that stale missing row.
+        old = self._bin_b_take(days_ago=2)
+        stale_missing = StockTakeItem.objects.create(
+            stock_take=old,
+            stock=self.stock_unexpected,
+            code=self.stock_unexpected.code,
+            status=MISSING,
+        )
+        self._bin_b_take(days_ago=1)  # newer take supersedes it
+        self._post(self.item_unexpected, action="move_to_bin")
+        stale_missing.refresh_from_db()
+        self.assertFalse(stale_missing.resolved)
+
     def test_partial_missing_no_conflict_shows_lost(self):
         html = self._render_actions(self.item_missing)
         self.assertIn('value="lost"', html)
