@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, time, timedelta
 from urllib.parse import parse_qsl, urlencode
 
 from django.apps import apps as django_apps
@@ -9,6 +10,8 @@ from django.contrib.sites.models import Site
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from django.urls import reverse
+from django.utils import timezone
+from django.utils.dateparse import parse_date
 from django.views.generic.base import TemplateView
 
 from edc_dashboard.view_mixins import EdcViewMixin
@@ -97,6 +100,29 @@ def visit_type_filter(visit_type: str | None) -> dict:
     return {}
 
 
+def _aware_start_of_day(d) -> datetime:
+    """Midnight of `d` as an aware datetime in the current timezone."""
+    return timezone.make_aware(
+        datetime.combine(d, time.min), timezone.get_current_timezone()
+    )
+
+
+def due_datetime_filter(due_to: str | None) -> dict:
+    """Queryset fragment narrowing to items due on or before ``due_to``.
+
+    ``due_to`` is a ``YYYY-MM-DD`` string (or empty). The bound is expressed as
+    an aware datetime so the ``due_datetime`` index is used (no ``__date`` wrap),
+    inclusive of the whole day via ``__lt`` next-day-midnight.
+
+    An active bound compares against ``due_datetime`` and so excludes rows where
+    it is NULL. An empty/unparsable value excludes the field from the filter.
+    """
+    d = parse_date(due_to) if due_to else None
+    if not d:
+        return {}
+    return {"due_datetime__lt": _aware_start_of_day(d + timedelta(days=1))}
+
+
 class ManageMissingView(
     PermissionRequiredMixin,
     AllowedSitesViewMixin,
@@ -141,6 +167,7 @@ class ManageMissingView(
         visit_code = self.request.GET.get("visit_code") or None
         subject_identifier = self.request.GET.get("subject_identifier", "").strip()
         visit_type = self.selected_visit_type()
+        due_to = self.selected_due_to()
 
         crf_base = self.base_filter(
             site_ids,
@@ -149,6 +176,7 @@ class ManageMissingView(
             visit_code,
             subject_identifier,
             visit_type,
+            due_to,
         )
         if models:
             crf_base["model__in"] = models
@@ -161,6 +189,7 @@ class ManageMissingView(
             visit_code,
             subject_identifier,
             visit_type,
+            due_to,
         )
 
         # When CRFs are selected the view is CRF-focused: requisitions are
@@ -168,13 +197,27 @@ class ManageMissingView(
         # muddied by unrelated requisitions.
         crf_only = bool(models)
 
-        # items flagged "data unavailable" drop out of the outstanding counts
-        crf_exclude = self._flagged_ids(CrfMetadata, CrfMetadataMissing, crf_base)
+        # items flagged "data unavailable" drop out of the outstanding counts.
+        # The overview lens is an all-visits leaderboard and ignores visit_code in
+        # its counts, so its exclude set must ignore visit_code too. Otherwise a
+        # visit_code filter that differs from a flag's visit narrows the exclude
+        # set away from the flagged rows and they reappear in the overview totals.
+        # The grid lens narrows counts by visit_code, so it keeps it.
+        if self.lens() == "overview":
+            crf_exclude_base = {k: v for k, v in crf_base.items() if k != "visit_code"}
+            req_exclude_base = {k: v for k, v in req_base.items() if k != "visit_code"}
+        else:
+            crf_exclude_base = crf_base
+            req_exclude_base = req_base
+        crf_exclude = self._flagged_ids(CrfMetadata, CrfMetadataMissing, crf_exclude_base)
         req_exclude = (
             set()
             if crf_only
             else self._flagged_ids(
-                RequisitionMetadata, RequisitionMetadataMissing, req_base, panel=True
+                RequisitionMetadata,
+                RequisitionMetadataMissing,
+                req_exclude_base,
+                panel=True,
             )
         )
 
@@ -200,6 +243,7 @@ class ManageMissingView(
             selected_models=models or [],
             selected_visit_code=visit_code or "",
             selected_visit_type=visit_type,
+            selected_due_to=due_to,
             subject_identifier=subject_identifier,
             crf_only=crf_only,
             unavailable_count=len(crf_exclude) + len(req_exclude),
@@ -232,6 +276,7 @@ class ManageMissingView(
                     subject_identifier,
                     crf_exclude,
                     visit_type,
+                    due_to,
                 )
             )
         return kwargs
@@ -253,6 +298,21 @@ class ManageMissingView(
         """"scheduled"/"unscheduled", or "" (all)."""
         value = self.request.GET.get("visit_type")
         return value if value in ("scheduled", "unscheduled") else ""
+
+    def _selected_date(self, key: str) -> str:
+        """Normalised ISO ``YYYY-MM-DD`` for a date param, or "" (excluded).
+
+        Round-tripping through ``parse_date`` drops unparsable input so a bad
+        value clears the field rather than propagating into the filter or the
+        saved-filter querystring.
+        """
+        raw = self.request.GET.get(key, "").strip()
+        d = parse_date(raw) if raw else None
+        return d.isoformat() if d else ""
+
+    def selected_due_to(self) -> str:
+        """Inclusive upper bound (ISO date) for ``due_datetime``, or "" (all)."""
+        return self._selected_date("due_to")
 
     def selected_schedule(self) -> tuple[str | None, str | None]:
         choices = schedule_choices()
@@ -295,6 +355,7 @@ class ManageMissingView(
         visit_code,
         subject_identifier=None,
         visit_type=None,
+        due_to=None,
     ) -> dict:
         opts = dict(
             entry_status=REQUIRED,
@@ -307,6 +368,7 @@ class ManageMissingView(
         if subject_identifier:
             opts["subject_identifier__icontains"] = subject_identifier
         opts.update(visit_type_filter(visit_type))
+        opts.update(due_datetime_filter(due_to))
         return opts
 
     # ------------------------------------------------------------------ queries
@@ -479,6 +541,7 @@ class ManageMissingView(
         subject_identifier=None,
         exclude_ids=None,
         visit_type=None,
+        due_to=None,
     ) -> list[dict]:
         opts = dict(
             entry_status=REQUIRED,
@@ -491,6 +554,7 @@ class ManageMissingView(
         if subject_identifier:
             opts["subject_identifier__icontains"] = subject_identifier
         opts.update(visit_type_filter(visit_type))
+        opts.update(due_datetime_filter(due_to))
         qs = CrfMetadata.objects.filter(**opts)
         if exclude_ids:
             qs = qs.exclude(id__in=exclude_ids)
@@ -528,6 +592,8 @@ class ManageMissingView(
                     handoff_params.append(("subject_identifier", subject_identifier))
                 if visit_type:
                     handoff_params.append(("visit_type", visit_type))
+                if due_to:
+                    handoff_params.append(("due_to", due_to))
                 handoff = "?" + urlencode(handoff_params)
                 cells.append(dict(count=count, url=handoff if count else None))
             overview.append(
@@ -553,5 +619,9 @@ class ManageMissingView(
             for key in ("schedule", "visit_code", "visit_type", "q")
             if get.get(key)
         ]
+        # normalise the date bound (drop unparsable values) so links and saved
+        # filters carry only a valid date.
+        if self.selected_due_to():
+            params.append(("due_to", self.selected_due_to()))
         params += [("models", model) for model in get.getlist("models") if model]
         return urlencode(params)

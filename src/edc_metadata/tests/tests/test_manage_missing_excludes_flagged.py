@@ -8,6 +8,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule impo
     get_visit_schedule,
 )
 from django.test import TestCase, override_settings, tag
+from django.test.client import RequestFactory
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -19,6 +20,7 @@ from edc_metadata.models import (
     DataMissingReason,
 )
 from edc_metadata.views import ManageMissingView
+from edc_metadata.views.manage_missing import visit_columns
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -97,3 +99,56 @@ class TestManageMissingExcludesFlagged(TestCase):
             self.baseline
         ]
         self.assertEqual(cols_after, cols_before - 1)
+
+    def test_flagged_ids_scoped_to_other_visit_code_misses_the_flag(self):
+        """Documents the trap: a visit_code-scoped base misses flags at other
+        visits, which is why the all-visits overview must not scope by it."""
+        flagged_crf = self._flag_one()
+        other_base = ManageMissingView.base_filter(
+            [10], self.vsn, self.sn, "not_the_flagged_visit", None
+        )
+        # scoped to a different visit_code -> the flag is not resolved
+        self.assertEqual(
+            ManageMissingView._flagged_ids(CrfMetadata, CrfMetadataMissing, other_base),
+            set(),
+        )
+        # dropping visit_code (as the overview lens now does) resolves it again
+        unscoped = {k: v for k, v in other_base.items() if k != "visit_code"}
+        flagged = ManageMissingView._flagged_ids(CrfMetadata, CrfMetadataMissing, unscoped)
+        self.assertEqual(flagged, {flagged_crf.id})
+
+    def test_overview_hides_flagged_despite_differing_visit_code_filter(self):
+        """Regression: with a visit_code filter that differs from the flag's
+        visit, the flagged CRF must still drop out of the overview totals."""
+        flagged_crf = self._flag_one()
+        model_label = flagged_crf.model
+        columns = visit_columns(self.vsn, self.sn)
+        visit_index = [code for code, _ in columns].index(self.baseline)
+
+        view = ManageMissingView()
+        # empty `site` param -> selected_site_value() returns "" without needing
+        # request.site, which RequestFactory does not populate.
+        view.request = RequestFactory().get("/review/?site=")
+
+        def _cell_count(exclude_ids):
+            overview = view.overview(
+                [10], self.vsn, self.sn, [model_label], columns, exclude_ids=exclude_ids
+            )
+            row = next((r for r in overview if r["model"] == model_label), None)
+            return 0 if row is None else row["cells"][visit_index]["count"]
+
+        # buggy scope (visit_code carried into the exclude) leaves it visible ...
+        scoped_base = ManageMissingView.base_filter(
+            [10], self.vsn, self.sn, "not_the_flagged_visit", None
+        )
+        scoped_exclude = ManageMissingView._flagged_ids(
+            CrfMetadata, CrfMetadataMissing, scoped_base
+        )
+        self.assertEqual(_cell_count(scoped_exclude), 1)
+
+        # ... the fixed scope (no visit_code) hides it
+        unscoped = {k: v for k, v in scoped_base.items() if k != "visit_code"}
+        fixed_exclude = ManageMissingView._flagged_ids(
+            CrfMetadata, CrfMetadataMissing, unscoped
+        )
+        self.assertEqual(_cell_count(fixed_exclude), 0)
