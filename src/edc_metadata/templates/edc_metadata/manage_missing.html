@@ -129,6 +129,21 @@
             </div>
           </div>
         </div>
+
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="form-group">
+              <label class="control-label">Due on or before</label>
+              <input type="date" name="due_to" class="form-control input-sm" value="{{ selected_due_to }}">
+            </div>
+          </div>
+          <div class="col-sm-9">
+            <p class="help-block" style="margin-top:26px;">
+              Filter to CRFs/requisitions due on or before this date. Leave blank to ignore
+              the due date. Forms with no due date are excluded when a date is set.
+            </p>
+          </div>
+        </div>
       </form>
 
       {# ---- saved filters (above Apply) ---- #}
@@ -179,8 +194,8 @@
         }
         function clearFilters() {
           var ff = document.getElementById('filter-form');
-          // text inputs -> empty
-          Array.prototype.forEach.call(ff.querySelectorAll('input[type="text"]'), function (el) {
+          // text and date inputs -> empty
+          Array.prototype.forEach.call(ff.querySelectorAll('input[type="text"], input[type="date"]'), function (el) {
             el.value = '';
           });
           // single selects -> first option; multi-select -> deselect all
@@ -206,7 +221,7 @@
           var ff = document.getElementById('filter-form');
           var p = new URLSearchParams();
           p.set('site', ff.elements['site'] ? ff.elements['site'].value : '');
-          ['schedule', 'visit_code', 'visit_type', 'q'].forEach(function (n) {
+          ['schedule', 'visit_code', 'visit_type', 'due_to', 'q'].forEach(function (n) {
             var el = ff.elements[n];
             if (el && el.value) { p.set(n, el.value); }
           });
