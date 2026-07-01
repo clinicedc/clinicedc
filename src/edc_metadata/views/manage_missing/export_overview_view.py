@@ -26,12 +26,14 @@ class ExportOverviewView(ManageMissingView):
         columns = visit_columns(visit_schedule_name, schedule_name)
         models = self.selected_models()
         subject_identifier = self.request.GET.get("q", "").strip()
+        due_to = self.selected_due_to()
         crf_base = self.base_filter(
             site_ids,
             visit_schedule_name,
             schedule_name,
             self.request.GET.get("visit_code") or None,
             subject_identifier,
+            due_to=due_to,
         )
         if models:
             crf_base["model__in"] = models
@@ -44,6 +46,7 @@ class ExportOverviewView(ManageMissingView):
             columns,
             subject_identifier,
             crf_exclude,
+            due_to=due_to,
         )
         return self._xlsx(overview, columns, schedule_name)
 

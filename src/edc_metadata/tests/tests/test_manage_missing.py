@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
@@ -17,6 +17,7 @@ from edc_lab.models.panel import Panel
 from edc_metadata.constants import KEYED, REQUIRED
 from edc_metadata.models import CrfMetadata, RequisitionMetadata
 from edc_metadata.views.manage_missing import ManageMissingView, visit_columns
+from edc_metadata.views.manage_missing.manage_missing_view import due_datetime_filter
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 utc_tz = ZoneInfo("UTC")
@@ -75,6 +76,60 @@ class TestManageMissing(TestCase):
         opts = ManageMissingView.base_filter([10], self.vsn, self.sn, self.baseline, "105")
         self.assertEqual(opts["visit_code"], self.baseline)
         self.assertEqual(opts["subject_identifier__icontains"], "105")
+
+    # -------------------------------------------------------- due_datetime_filter
+    def test_due_datetime_filter_blank_is_excluded(self):
+        # empty/None -> field not filtered at all
+        self.assertEqual(due_datetime_filter(""), {})
+        self.assertEqual(due_datetime_filter(None), {})
+
+    def test_due_datetime_filter_ignores_unparsable(self):
+        self.assertEqual(due_datetime_filter("not-a-date"), {})
+
+    def test_due_datetime_filter_bound_is_inclusive(self):
+        opts = due_datetime_filter("2019-08-31")
+        # upper bound is exclusive next-day-midnight so the whole to-date is kept
+        self.assertEqual(list(opts), ["due_datetime__lt"])
+        self.assertEqual(opts["due_datetime__lt"].date(), date(2019, 9, 1))
+        self.assertEqual(
+            (opts["due_datetime__lt"].hour, opts["due_datetime__lt"].minute), (0, 0)
+        )
+
+    def test_base_filter_includes_due_bound(self):
+        opts = ManageMissingView.base_filter(
+            [10], self.vsn, self.sn, None, None, due_to="2019-08-31"
+        )
+        self.assertIn("due_datetime__lt", opts)
+
+    def test_due_bound_narrows_and_excludes_nulls(self):
+        # give a couple of records an in-range due date, leave the rest NULL
+        sid = self.subject_identifier
+        qs = CrfMetadata.objects.filter(
+            entry_status=REQUIRED, site_id=10, subject_identifier=sid
+        )
+        pks = list(qs.values_list("pk", flat=True))
+        self.assertGreater(len(pks), 2)
+        in_range = datetime(2019, 8, 15, 12, 0, tzinfo=utc_tz)
+        CrfMetadata.objects.filter(pk__in=pks[:2]).update(due_datetime=in_range)
+        CrfMetadata.objects.filter(pk__in=pks[2:]).update(due_datetime=None)
+
+        base = ManageMissingView.base_filter(
+            [10], self.vsn, self.sn, None, sid, due_to="2019-08-31"
+        )
+        totals = ManageMissingView._subject_totals(CrfMetadata, base)
+        # only the two due-on-or-before (non-null) records survive; nulls excluded
+        self.assertEqual(totals[sid], 2)
+
+    def test_due_bound_before_window_returns_nothing(self):
+        sid = self.subject_identifier
+        CrfMetadata.objects.filter(
+            entry_status=REQUIRED, site_id=10, subject_identifier=sid
+        ).update(due_datetime=datetime(2019, 8, 15, 12, 0, tzinfo=utc_tz))
+        base = ManageMissingView.base_filter(
+            [10], self.vsn, self.sn, None, sid, due_to="2019-08-01"
+        )
+        totals = ManageMissingView._subject_totals(CrfMetadata, base)
+        self.assertNotIn(sid, totals)
 
     # ----------------------------------------------------------- count helpers
     def test_subject_totals_count_required_only(self):
