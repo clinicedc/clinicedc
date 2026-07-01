@@ -168,13 +168,27 @@ class ManageMissingView(
         # muddied by unrelated requisitions.
         crf_only = bool(models)
 
-        # items flagged "data unavailable" drop out of the outstanding counts
-        crf_exclude = self._flagged_ids(CrfMetadata, CrfMetadataMissing, crf_base)
+        # items flagged "data unavailable" drop out of the outstanding counts.
+        # The overview lens is an all-visits leaderboard and ignores visit_code in
+        # its counts, so its exclude set must ignore visit_code too. Otherwise a
+        # visit_code filter that differs from a flag's visit narrows the exclude
+        # set away from the flagged rows and they reappear in the overview totals.
+        # The grid lens narrows counts by visit_code, so it keeps it.
+        if self.lens() == "overview":
+            crf_exclude_base = {k: v for k, v in crf_base.items() if k != "visit_code"}
+            req_exclude_base = {k: v for k, v in req_base.items() if k != "visit_code"}
+        else:
+            crf_exclude_base = crf_base
+            req_exclude_base = req_base
+        crf_exclude = self._flagged_ids(CrfMetadata, CrfMetadataMissing, crf_exclude_base)
         req_exclude = (
             set()
             if crf_only
             else self._flagged_ids(
-                RequisitionMetadata, RequisitionMetadataMissing, req_base, panel=True
+                RequisitionMetadata,
+                RequisitionMetadataMissing,
+                req_exclude_base,
+                panel=True,
             )
         )
 
