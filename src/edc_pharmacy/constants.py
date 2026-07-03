@@ -18,8 +18,10 @@ PROBLEM = "problem"
 RECEIVE = "receive"
 REPACK = "repack"
 RESERVED = "reserved"
+RESOLVED = "resolved"
 SINGLE = "single"
 SOLUTION = "SOLUTION"
+UNRESOLVED = "unresolved"
 ZERO_ITEM = "zero_item"
 
 # Stock transaction types

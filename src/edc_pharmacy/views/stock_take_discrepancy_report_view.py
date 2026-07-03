@@ -11,10 +11,12 @@ as an unexpected scan.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.handlers.wsgi import WSGIRequest
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
@@ -23,6 +25,7 @@ from edc_navbar import NavbarViewMixin
 from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..choices import STOCK_TRANSACTION_ABBR, STOCK_TRANSACTION_CHOICES
+from ..constants import RESOLVED, UNRESOLVED
 from ..models import MISSING, UNEXPECTED, StockTake, StockTakeItem, StorageBin
 from ..utils import last_txn_abbr_by_stock, subject_identifier_by_stock
 from .stock_take_conflicts import annotate_conflicts
@@ -30,8 +33,6 @@ from .stock_take_site_filter import get_selected_site_id, stock_take_site_choice
 
 # "Resolved" here means handled — either corrected (a linked ledger
 # transaction) or acknowledged — matching StockTakeItem.handled.
-RESOLVED = "resolved"
-UNRESOLVED = "unresolved"
 RESOLVED_CHOICES = ((RESOLVED, "Resolved"), (UNRESOLVED, "Unresolved"))
 
 
@@ -65,6 +66,38 @@ def _get_selected_resolved(request: WSGIRequest) -> str:
     """Return the chosen resolution state from ``?resolved=``, or "" for "All"."""
     raw = request.GET.get("resolved", "").strip().lower()
     return raw if raw in (RESOLVED, UNRESOLVED) else ""
+
+
+def _filter_items(
+    items: list[StockTakeItem], selected_txn: str, selected_resolved: str
+) -> list[StockTakeItem]:
+    """Apply the TXN and resolved/unresolved filters to ``items``."""
+    if selected_txn:
+        items = [item for item in items if item.txn_abbr == selected_txn]
+    if selected_resolved == RESOLVED:
+        items = [item for item in items if item.handled]
+    elif selected_resolved == UNRESOLVED:
+        items = [item for item in items if not item.handled]
+    return items
+
+
+def _filter_query_string(
+    selected_site_id: int | None, selected_txn: str, selected_resolved: str
+) -> str:
+    """Encode the active filters for re-use in same-page and PDF links."""
+    filter_params = {}
+    if selected_site_id:
+        filter_params["site"] = selected_site_id
+    if selected_txn:
+        filter_params["txn"] = selected_txn
+    if selected_resolved:
+        filter_params["resolved"] = selected_resolved
+    return urlencode(filter_params)
+
+
+def _url_with_query(url_name: str, query_string: str) -> str:
+    url = reverse(f"edc_pharmacy:{url_name}")
+    return f"{url}?{query_string}" if query_string else url
 
 
 @method_decorator(login_required, name="dispatch")
@@ -127,12 +160,12 @@ class StockTakeDiscrepancyReportView(
         txn_choices = _txn_choices(items)
         selected_txn = _get_selected_txn(self.request, txn_choices)
         selected_resolved = _get_selected_resolved(self.request)
-        if selected_txn:
-            items = [item for item in items if item.txn_abbr == selected_txn]
-        if selected_resolved == RESOLVED:
-            items = [item for item in items if item.handled]
-        elif selected_resolved == UNRESOLVED:
-            items = [item for item in items if not item.handled]
+        items = _filter_items(items, selected_txn, selected_resolved)
+
+        # Carry the active filters through the "resolve this item" redirect and
+        # the Print PDF link, so both actions return to (or reproduce) the same
+        # filtered view instead of silently resetting to "All".
+        query_string = _filter_query_string(selected_site_id, selected_txn, selected_resolved)
 
         return super().get_context_data(
             items=items,
@@ -142,5 +175,9 @@ class StockTakeDiscrepancyReportView(
             selected_txn=selected_txn,
             resolved_choices=RESOLVED_CHOICES,
             selected_resolved=selected_resolved,
+            next_url=_url_with_query("stock_take_discrepancy_report_url", query_string),
+            print_url=_url_with_query(
+                "print_stock_take_discrepancy_report_url", query_string
+            ),
             **kwargs,
         )

@@ -7,14 +7,21 @@ from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.units import cm, mm
 from reportlab.pdfbase.pdfmetrics import stringWidth
-from reportlab.platypus import HRFlowable, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import (
+    HRFlowable,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 
 from edc_pdf_reports import NumberedCanvas as BaseNumberedCanvas
 from edc_pdf_reports import Report
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
 from ..choices import STOCK_TRANSACTION_ABBR, STOCK_TRANSACTION_CHOICES
-from ..constants import TXN_BIN_MOVED
+from ..constants import RESOLVED, TXN_BIN_MOVED, UNRESOLVED
 from ..models import MISSING, UNEXPECTED, StockTake, StorageBin
 from ..utils import last_txn_abbr_by_stock, subject_identifier_by_stock
 
@@ -40,12 +47,16 @@ _LOC_STYLE = ParagraphStyle(
 class StockTakeDiscrepancyReport(Report):
     """PDF report of stock take discrepancies, grouped by location."""
 
-    def __init__(self, site_id=None, **kwargs):
+    def __init__(self, site_id=None, txn_abbr=None, resolved=None, **kwargs):
         self.protocol_name = ResearchProtocolConfig().protocol_title
         try:
             self.site_id = int(site_id) if site_id else None
         except (TypeError, ValueError):
             self.site_id = None
+        txn_abbr = (txn_abbr or "").strip().upper()
+        self.txn_abbr = txn_abbr if txn_abbr in STOCK_TRANSACTION_ABBR.values() else None
+        resolved = (resolved or "").strip().lower()
+        self.resolved = resolved if resolved in (RESOLVED, UNRESOLVED) else None
         super().__init__(**kwargs)
 
     def draw_header(self, canvas, doc):  # noqa: ARG002
@@ -163,7 +174,33 @@ class StockTakeDiscrepancyReport(Report):
                 }
                 for item in items
             ])
+        if self.txn_abbr or self.resolved:
+            rows_by_location = self._filter_rows(rows_by_location)
         return rows_by_location
+
+    def _filter_rows(self, rows_by_location: dict[str, tuple]) -> dict[str, tuple]:
+        """Apply the TXN and resolved/unresolved filters, dropping locations
+        left with no rows.
+        """
+        all_stock_ids = {
+            row["item"].stock_id for _, rows in rows_by_location.values() for row in rows
+        }
+        txn_abbr_by_stock = last_txn_abbr_by_stock(all_stock_ids)
+        filtered: dict[str, tuple] = {}
+        for location_name, (location_obj, rows) in rows_by_location.items():
+            kept = [
+                row
+                for row in rows
+                if (
+                    not self.txn_abbr
+                    or txn_abbr_by_stock.get(row["item"].stock_id) == self.txn_abbr
+                )
+                and (self.resolved != RESOLVED or row["item"].handled)
+                and (self.resolved != UNRESOLVED or not row["item"].handled)
+            ]
+            if kept:
+                filtered[location_name] = (location_obj, kept)
+        return filtered
 
     @staticmethod
     def _action_and_note(item) -> tuple[str, str]:
