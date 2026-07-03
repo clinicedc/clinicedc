@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from typing import TYPE_CHECKING
 from urllib.parse import urlencode
 
@@ -7,7 +8,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
@@ -16,6 +17,7 @@ from django.views.generic.base import TemplateView
 from edc_dashboard.url_names import url_names
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
+from edc_visit_tracking.utils import get_related_visit_model_cls
 
 from ...constants import CRF, REQUIRED, REQUISITION
 from ...models import (
@@ -25,6 +27,7 @@ from ...models import (
     RequisitionMetadata,
     RequisitionMetadataMissing,
 )
+from ...utils import get_clinical_comment
 from ...view_mixins import AllowedSitesViewMixin
 from .manage_missing_view import visit_type_filter
 
@@ -74,7 +77,7 @@ class ManageMissingFlagUnFlagView(
         )
 
     def selected_visit_type(self) -> str:
-        """"scheduled"/"unscheduled" carried from the manage-missing grid,
+        """ "scheduled"/"unscheduled" carried from the manage-missing grid,
         or "" (all)."""
         value = self.request.GET.get("visit_type")
         return value if value in ("scheduled", "unscheduled") else ""
@@ -101,6 +104,7 @@ class ManageMissingFlagUnFlagView(
             back_url=self.back_url(opts, visit_type),
             review_flagged_url=self.review_flagged_url(opts),
             now=timezone.now(),
+            clinical_comment=get_clinical_comment(self.get_related_visit(row_opts)),
             CRF=CRF,
             REQUISITION=REQUISITION,
             REQUIRED=REQUIRED,
@@ -109,6 +113,13 @@ class ManageMissingFlagUnFlagView(
 
     def get_crf_rows(self, opts, allowed):
         return self._get_rows(CrfMetadata, CrfMetadataMissing, CRF, opts, allowed, panel=False)
+
+    @staticmethod
+    def get_related_visit(opts):
+        opts.update(visit_code_sequence=0)
+        with contextlib.suppress(ObjectDoesNotExist):
+            return get_related_visit_model_cls().objects.get(**opts)
+        return None
 
     def get_requisition_rows(self, opts, allowed):
         return self._get_rows(

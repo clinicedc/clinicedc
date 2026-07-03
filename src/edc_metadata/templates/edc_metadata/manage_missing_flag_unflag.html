@@ -40,6 +40,7 @@
         <input type="hidden" name="metadata_category" value="{{ CRF }}">
         {% include "edc_metadata/missing_rows.html" with rows=crf_rows can_flag=can_flag_crf is_req=False %}
       </form>
+      <p class="text"><small>Clinical comment: {% if clinical_comment %}{{ clinical_comment }}{% else %}---{% endif %}</small></p>
     </div>
   </div>
 
