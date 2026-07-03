@@ -23,13 +23,16 @@ class ResultAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
         "result_value",
         "units",
         "flag",
+        "requisition_match_category",
         "subject_not_found",
         "requisition_ambiguous",
+        "requisition_identifier",
         "order_no",
         "sample_no",
         "result_no",
     )
     list_filter = (
+        "requisition_match_category",
         "subject_not_found",
         "requisition_ambiguous",
         ("report_datetime", DateRangeFilterBuilder()),
@@ -48,6 +51,7 @@ class ResultAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
         "order_no",
         "sample_no",
         "result_no",
+        "requisition_identifier",
     )
     ordering = ("-report_datetime",)
 

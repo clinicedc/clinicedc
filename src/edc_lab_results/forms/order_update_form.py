@@ -5,6 +5,7 @@ from django.apps import apps as django_apps
 from django.conf import settings
 
 from edc_appointment.constants import MISSED_APPT
+from edc_appointment.utils import get_appointment_model_cls
 from edc_registration.models import RegisteredSubject
 
 VISIT_WINDOW_DAYS = 7
@@ -39,6 +40,12 @@ class OrderUpdateForm(forms.Form):
         value = self.cleaned_data.get("subject_identifier", "").strip()
         if value and not RegisteredSubject.objects.filter(subject_identifier=value).exists():
             raise forms.ValidationError("Subject identifier not found in RegisteredSubject.")
+        return value
+
+    def clean_screening_identifier(self) -> str:
+        value = self.cleaned_data.get("screening_identifier", "").strip()
+        if value and not RegisteredSubject.objects.filter(screening_identifier=value).exists():
+            raise forms.ValidationError("Screening identifier not found in RegisteredSubject.")
         return value
 
     def clean(self) -> dict:
@@ -82,25 +89,40 @@ class OrderUpdateForm(forms.Form):
         visit_code_sequence: int,
         order_datetime: object = None,
     ) -> None:
-        subject_visit_model = django_apps.get_model(settings.SUBJECT_VISIT_MODEL)
+        # Validate against the appointment (the subject visit may not be
+        # reported yet). The date window uses the subject visit report date
+        # when reported, otherwise the appointment date.
+        appointment_model = get_appointment_model_cls()
         try:
-            subject_visit = subject_visit_model.objects.exclude(
-                appointment__appt_timing=MISSED_APPT
+            appointment = appointment_model.objects.exclude(
+                appt_timing=MISSED_APPT
             ).get(
                 subject_identifier=subject_identifier,
                 visit_code=visit_code,
                 visit_code_sequence=visit_code_sequence,
             )
-        except subject_visit_model.DoesNotExist as e:
+        except appointment_model.DoesNotExist as e:
             raise forms.ValidationError(
-                f"No visit {visit_code}.{visit_code_sequence} found for "
+                f"No appointment {visit_code}.{visit_code_sequence} found for "
                 f"subject {subject_identifier} (excluding missed appointments)."
             ) from e
-        if order_datetime and subject_visit.report_datetime:
-            delta = abs((order_datetime - subject_visit.report_datetime).days)
+
+        subject_visit_model = django_apps.get_model(settings.SUBJECT_VISIT_MODEL)
+        subject_visit = subject_visit_model.objects.filter(
+            subject_identifier=subject_identifier,
+            visit_code=visit_code,
+            visit_code_sequence=visit_code_sequence,
+        ).first()
+        reference_datetime = (
+            subject_visit.report_datetime
+            if subject_visit and subject_visit.report_datetime
+            else appointment.appt_datetime
+        )
+        if order_datetime and reference_datetime:
+            delta = abs((order_datetime - reference_datetime).days)
             if delta > VISIT_WINDOW_DAYS:
                 raise forms.ValidationError(
-                    f"Order date is {delta} days from the visit report date "
-                    f"({subject_visit.report_datetime:%Y-%m-%d}). "
+                    f"Order date is {delta} days from the visit date "
+                    f"({reference_datetime:%Y-%m-%d}). "
                     f"Must be within {VISIT_WINDOW_DAYS} days."
                 )
