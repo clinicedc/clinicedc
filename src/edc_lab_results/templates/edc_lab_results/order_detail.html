@@ -4,8 +4,8 @@
 {% block main %}
 <div class="container" style="margin-top: 70px;">
   <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
-    <a href="{% url 'edc_lab_results:subject-results' %}?identifier={{ header.subject_identifier|default:header.screening_identifier }}"
-       class="btn btn-default btn-sm">&laquo; Back to orders</a>
+    <a href="{{ back_url }}"
+       class="btn btn-default btn-sm">&laquo; Back</a>
     {% if dashboard_url %}
     <a href="{{ dashboard_url }}" class="btn btn-primary btn-sm">
       Subject Dashboard &raquo;
@@ -50,6 +50,7 @@
     <div class="panel-body">
       <form method="post">
         {% csrf_token %}
+        {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
         {% if form.errors %}
         <div class="alert alert-danger">
           <strong>Please correct the errors below.</strong>
@@ -95,6 +96,41 @@
       </form>
     </div>
   </div>
+
+  {% if candidate_requisitions %}
+  <div class="panel panel-warning">
+    <div class="panel-heading">
+      <h4 class="panel-title">Resolve ambiguous requisition</h4>
+    </div>
+    <div class="panel-body">
+      <p>This order's results matched more than one requisition. Select the correct one:</p>
+      <form method="post">
+        {% csrf_token %}
+        {% if next_url %}<input type="hidden" name="next" value="{{ next_url }}">{% endif %}
+        <table class="table table-condensed">
+          <thead>
+            <tr><th></th><th>Requisition</th><th>Panel</th><th>Visit</th><th>Drawn</th></tr>
+          </thead>
+          <tbody>
+            {% for cand in candidate_requisitions %}
+            <tr>
+              <td>
+                <input type="radio" name="selected_requisition"
+                       value="{{ cand.requisition_identifier }}"{% if forloop.first %} checked{% endif %}>
+              </td>
+              <td>{{ cand.requisition_identifier }}</td>
+              <td>{{ cand.panel|default:"-" }}</td>
+              <td>{{ cand.visit|default:"-" }}</td>
+              <td>{{ cand.drawn_datetime|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <button type="submit" class="btn btn-warning">Link to selected requisition</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
 
   {% if header.subject_identifier and header.visit_code %}
   <div class="panel panel-success">

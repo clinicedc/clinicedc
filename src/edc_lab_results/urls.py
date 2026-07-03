@@ -6,6 +6,7 @@ from .views import (
     HomeView,
     OrderDetailView,
     ProcessPendingView,
+    ReviewWorklistView,
     SubjectResultsView,
     TranscribeOrderView,
     UploadView,
@@ -20,6 +21,11 @@ urlpatterns = [
         "results/",
         SubjectResultsView.as_view(),
         name="subject-results",
+    ),
+    path(
+        "results/review/",
+        ReviewWorklistView.as_view(),
+        name="review-worklist",
     ),
     path(
         "results/order/<str:order_no>/",
