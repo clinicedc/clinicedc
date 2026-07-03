@@ -25,6 +25,8 @@ def print_stock_take_discrepancy_report_view(request):
     report = StockTakeDiscrepancyReport(
         request=request,
         site_id=request.GET.get("site"),
+        txn_abbr=request.GET.get("txn"),
+        resolved=request.GET.get("resolved"),
         footer_row_height=20,
         page=page,
         numbered_canvas=NumberedCanvas,

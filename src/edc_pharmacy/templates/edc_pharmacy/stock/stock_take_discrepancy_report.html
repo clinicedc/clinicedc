@@ -64,7 +64,6 @@
 
 {% block main %}
     {{ block.super }}
-    {% url "edc_pharmacy:stock_take_discrepancy_report_url" as report_next %}
     <div class="container">
         <div class="col-sm-12">
 
@@ -112,8 +111,7 @@
                         </span>
                     </form>
                     {% if items %}
-                    <a href="{% url "edc_pharmacy:print_stock_take_discrepancy_report_url" %}{% if selected_site_id %}?site={{ selected_site_id }}{% endif %}"
-                       class="btn btn-default btn-sm">
+                    <a href="{{ print_url }}" class="btn btn-default btn-sm">
                         <i class="fa fa-print"></i> Print PDF
                     </a>
                     {% endif %}
@@ -168,7 +166,7 @@
                                 <span class="label label-danger">Unexpected</span>
                             {% endif %}
                         </td>
-                        <td>{% include "edc_pharmacy/stock/_resolve_actions.html" with item=item next_url=report_next %}</td>
+                        <td>{% include "edc_pharmacy/stock/_resolve_actions.html" with item=item next_url=next_url %}</td>
                         <td><code>{{ item.txn_abbr }}</code></td>
                     </tr>
                     {% endfor %}
