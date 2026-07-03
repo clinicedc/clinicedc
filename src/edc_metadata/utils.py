@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from clinicedc_constants import NULL_STRING
 from django.apps import apps as django_apps
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import QuerySet
 
@@ -128,3 +130,30 @@ def has_keyed_metadata(appointment, raise_on_true=None) -> bool:
             f"{appointment.visit_code}.{appointment.visit_code_sequence}."
         )
     return exists
+
+
+def get_clinical_comment_model_cls():
+    if model := getattr(settings, "EDC_METADATA_CLINICAL_COMMENT_MODEL", None):
+        return django_apps.get_model(model)
+    return None
+
+
+def get_clinical_comment(subject_visit) -> str:
+    value = NULL_STRING
+    if subject_visit and (model_cls := get_clinical_comment_model_cls()):
+        try:
+            obj = model_cls.objects.get(subject_visit=subject_visit)
+        except ObjectDoesNotExist:
+            value = f"'{model_cls._meta.verbose_name}' not submitted."
+        else:
+            if field_name := getattr(
+                settings, "EDC_METADATA_CLINICAL_COMMENT_FIELD", "comment"
+            ):
+                try:
+                    value = getattr(obj, field_name)
+                except AttributeError:
+                    value = (
+                        'Settings attribute not set, Try "settings.'
+                        'EDC_METADATA_CLINICAL_COMMENT_FIELD="comment"'
+                    )
+    return value

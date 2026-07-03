@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django_audit_fields.admin import audit_fieldset_tuple
 
+from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_model_admin.history import SimpleHistoryAdmin
 from edc_sites.admin import SiteModelAdminMixin
+from edc_sites.site import sites
 
 from .admin_site import edc_registration_admin
 from .modeladmin_mixins import RegisteredSubjectModelAdminMixin
@@ -94,3 +96,10 @@ class RegisteredSubjectAdmin(
         ),
         audit_fieldset_tuple,
     )
+
+    def get_view_only_site_ids_for_user(self, request) -> list[int]:
+        if request.user.userprofile.roles.filter(name=DATA_MANAGER_ROLE).exists():
+            return [
+                s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id
+            ]
+        return sites.get_view_only_site_ids_for_user(request=request)

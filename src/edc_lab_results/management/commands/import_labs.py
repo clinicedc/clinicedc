@@ -154,6 +154,17 @@ class Command(BaseCommand):
             ),
         )
         parser.add_argument(
+            "--show-untracked",
+            action="store_true",
+            dest="show_untracked",
+            default=False,
+            help=(
+                "Parse PDFs, list utest_ids that resolve to NO panel (would "
+                "become NO_PANEL_FOR_UTEST_ID / untracked), and exit. Use this "
+                "to prepare an EDC_LAB_RESULTS_UTEST_PANELS grouping."
+            ),
+        )
+        parser.add_argument(
             "--mappings",
             dest="mappings",
             default=None,
@@ -169,6 +180,8 @@ class Command(BaseCommand):
             self._handle_show_pending()
         elif options["show_unmapped"]:
             self._handle_show_unmapped(options)
+        elif options["show_untracked"]:
+            self._handle_show_untracked(options)
         elif options["pending"]:
             self._handle_pending(options)
         else:
@@ -257,6 +270,65 @@ class Command(BaseCommand):
         else:
             self.stdout.write(
                 self.style.SUCCESS("\nAll investigations are already mapped.")
+            )
+
+    def _handle_show_untracked(self, options: dict) -> None:
+        """Parse PDFs and report mapped utest_ids that resolve to no panel."""
+        folder_arg = options.get("folder")
+        if not folder_arg:
+            raise CommandError("A folder path is required with --show-untracked.")
+        folder = Path(folder_arg).expanduser()
+        laboratory = self._require_laboratory(options)
+
+        importer = LabResultImporter(laboratory)
+        try:
+            tz = ZoneInfo(settings.TIME_ZONE)
+            self.stdout.write(f"Parsing PDFs from {folder} ...")
+            df = importer.parse(folder, tz=tz)
+        except LabResultImportError as e:
+            raise CommandError(str(e)) from e
+
+        if df.empty:
+            self.stdout.write(self.style.WARNING("No results extracted."))
+            return
+
+        # Use persisted mappings only (no side effects).
+        investigations = set(df["investigation"].unique())
+        utest_ids = sorted(
+            {
+                utest_id
+                for utest_id in InvestigationMapping.objects.filter(
+                    laboratory=laboratory, investigation__in=investigations
+                ).values_list("utest_id", flat=True)
+                if utest_id
+            }
+        )
+        panel_index = LabResultImporter._build_utest_id_panel_index()
+        tracked = [u for u in utest_ids if u in panel_index]
+        untracked = [u for u in utest_ids if u not in panel_index]
+
+        self.stdout.write(f"\n{len(utest_ids)} mapped utest_id(s) found in PDFs.")
+        if tracked:
+            self.stdout.write(self.style.SUCCESS(f"\n{len(tracked)} on a panel:"))
+            for utest_id in tracked:
+                panels = ", ".join(sorted(panel_index[utest_id]))
+                self.stdout.write(f"  {utest_id} -> {panels}")
+
+        if untracked:
+            self.stdout.write(
+                self.style.WARNING(f"\n{len(untracked)} NOT on any panel (untracked):")
+            )
+            for utest_id in untracked:
+                self.stdout.write(f"  {utest_id}")
+            self.stdout.write(
+                "\nTo link/group these, attach each to a registered panel via "
+                "EDC_LAB_RESULTS_UTEST_PANELS, e.g. {'mono%': 'fbc'}. Template:\n"
+            )
+            template = {utest_id: "" for utest_id in untracked}
+            self.stdout.write(json.dumps(template, indent=2))
+        else:
+            self.stdout.write(
+                self.style.SUCCESS("\nAll mapped utest_ids are on a panel.")
             )
 
     def _load_and_validate_mappings(
@@ -482,13 +554,21 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(msg))
 
         if save_summary.unresolved:
+            oos = save_summary.out_of_scope
+            oos_note = (
+                f"{oos} out_of_scope (skipped, not stored)"
+                if save_summary.skipped_out_of_scope
+                else f"{oos} out_of_scope"
+            )
             self.stdout.write(
                 self.style.WARNING(
-                    f"{save_summary.unresolved} results could not be "
-                    f"resolved to a subject_identifier or "
-                    f"screening_identifier (flagged as subject_not_found)."
+                    f"{save_summary.unresolved} results could not be resolved: "
+                    f"{save_summary.subject_not_found} subject_not_found "
+                    f"(reissue-able), {oos_note}."
                 )
             )
+            for reason, count in save_summary.reasons.most_common():
+                self.stdout.write(f"  {reason or '(none)'}: {count}")
 
         if save_summary.unrecognized_units:
             self.stdout.write(
@@ -505,7 +585,9 @@ class Command(BaseCommand):
             self.style.SUCCESS(
                 f"Requisition matching: {link_summary.linked} matched, "
                 f"{link_summary.ambiguous} ambiguous (flagged), "
-                f"{link_summary.no_match} no match."
+                f"{link_summary.no_match} no match, "
+                f"{link_summary.untracked} untracked (no panel), "
+                f"{link_summary.unmapped} unmapped (no utest_id)."
             )
         )
 

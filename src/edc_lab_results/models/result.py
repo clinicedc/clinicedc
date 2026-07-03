@@ -1,7 +1,11 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
+from edc_lab.utils import get_requisition_model
 from edc_model.models import BaseUuidModel
+
+from ..choices import REQUISITION_MATCH_CATEGORY_CHOICES
 
 
 class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
@@ -38,6 +42,49 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         help_text=(
             "True if multiple SubjectRequisitions matched on the same day. "
             "Requires manual review."
+        ),
+    )
+
+    requisition_match_category = models.CharField(
+        max_length=25,
+        blank=True,
+        default="",
+        db_index=True,
+        choices=REQUISITION_MATCH_CATEGORY_CHOICES,
+        help_text=(
+            "Outcome/reason of automatic requisition matching, captured at match "
+            "time. Empty until the result has been through matching."
+        ),
+    )
+
+    requisition_match_comment = models.TextField(
+        blank=True,
+        default="",
+        help_text=(
+            "Human-readable reason for the match category (e.g. which panels/visits "
+            "were in contention). Auto-populated at flag time; editable during review."
+        ),
+    )
+
+    requisition_candidates = models.JSONField(
+        default=list,
+        blank=True,
+        help_text=(
+            "Contending requisition_identifiers captured at flag time, so review can "
+            "present the exact choices without recomputing. Empty unless ambiguous."
+        ),
+    )
+
+    requisition_identifier = models.CharField(
+        max_length=50,
+        blank=True,
+        default="",
+        db_index=True,
+        help_text=(
+            "requisition_identifier of the linked SubjectRequisition. Source of truth "
+            "for visit_code and visit_code_sequence, which are denormalized from it. "
+            "Empty until linked (automatically or via manual review). Soft reference "
+            "(not a DB FK) because the requisition model is project-specific."
         ),
     )
 
@@ -163,6 +210,19 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     def __str__(self):
         return f"{self.result_no}: {self.utest_id} {self.result_value} {self.units}"
+
+    @property
+    def requisition(self):
+        """Resolve the linked SubjectRequisition from
+        requisition_identifier, or None if unlinked or not found.
+        """
+        try:
+            obj = get_requisition_model().objects.get(
+                requisition_identifier=self.requisition_identifier
+            )
+        except ObjectDoesNotExist:
+            obj = None
+        return obj
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Result"

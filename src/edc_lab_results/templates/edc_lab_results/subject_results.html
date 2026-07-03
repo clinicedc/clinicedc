@@ -35,7 +35,7 @@
           {% for order in orders %}
           <tr>
             <td>
-              <a href="{% url 'edc_lab_results:order-detail' order_no=order.order_no %}">
+              <a href="{% url 'edc_lab_results:order-detail' order_no=order.order_no %}?next={{ request.get_full_path|urlencode }}">
                 {{ order.order_no }}
               </a>
             </td>

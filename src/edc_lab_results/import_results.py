@@ -15,7 +15,8 @@ a Django view, a Jupyter notebook, or any other context::
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
+from collections import Counter
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
 from difflib import get_close_matches
@@ -30,10 +31,31 @@ from django.conf import settings
 from parse_trial_labs import parse_folder as _parse_folder
 from tqdm import tqdm
 
+from edc_identifier.checkdigit_mixins import LuhnMixin
+from edc_lab import site_labs
 from edc_lab.utils import get_requisition_model
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
 from edc_registration.models import RegisteredSubject
 from edc_reportable.models import NormalData
+from edc_screening.utils import get_subject_screening_model_cls
+from edc_sites.site import sites
 
+from .constants import (
+    AMBIGUOUS_MULTI_PANEL,
+    AMBIGUOUS_SAME_PANEL,
+    LINKED,
+    NO_MATCH,
+    NO_PANEL_FOR_UTEST_ID,
+    NO_UTEST_ID,
+    OUT_OF_SCOPE,
+    REASON_BAD_CHECK_DIGIT,
+    REASON_FOREIGN,
+    REASON_INVALID_SCREENING,
+    REASON_UNREGISTERED_SITE,
+    REASON_VALID_SCREENING,
+    REASON_VALID_SUBJECT,
+    SUBJECT_NOT_FOUND,
+)
 from .models import InvestigationMapping, Result
 from .unit_conversion import (
     attempt_conversion,
@@ -50,7 +72,11 @@ class LabResultImportError(Exception):
 class SaveSummary:
     created: int = 0
     skipped: int = 0
-    unresolved: int = 0
+    skipped_out_of_scope: int = 0  # not stored (EDC_LAB_RESULTS_SKIP_OUT_OF_SCOPE)
+    unresolved: int = 0  # total unresolved (subject_not_found + out_of_scope)
+    subject_not_found: int = 0  # reissue-able (this protocol/site, or screening)
+    out_of_scope: int = 0  # wrong protocol / unregistered site / junk
+    reasons: Counter = field(default_factory=Counter)
     unrecognized_units: set[tuple[str, str]] = field(default_factory=set)
 
 
@@ -59,6 +85,8 @@ class LinkSummary:
     linked: int = 0
     ambiguous: int = 0
     no_match: int = 0
+    untracked: int = 0  # utest_id not on any panel
+    unmapped: int = 0  # no EDC utest_id at all
 
 
 @dataclass
@@ -160,6 +188,84 @@ def resolve_subject(
     result = SubjectResolution()
     cache[name_id] = result
     return result
+
+
+def _registered_site_ids() -> set[int]:
+    return {single_site.site_id for single_site in sites.all(aslist=True)}
+
+
+def _screening_exists(screening_identifier: str) -> bool:
+    return (
+        get_subject_screening_model_cls()
+        .objects.filter(screening_identifier=screening_identifier)
+        .exists()
+    )
+
+
+def _classify_subject_identifier(extracted: str) -> str:
+    """Reason for a value that matches the subject_identifier pattern:
+    UNREGISTERED_SITE / BAD_CHECK_DIGIT / VALID_SUBJECT (FOREIGN if malformed).
+    """
+    # pattern guarantees protocol-site-sequence-checkdigit numeric segments
+    parts = extracted.split("-")
+    try:
+        site_id = int(parts[1])
+    except (IndexError, ValueError):
+        return REASON_FOREIGN
+    if site_id not in _registered_site_ids():
+        return REASON_UNREGISTERED_SITE
+    if LuhnMixin().calculate_checkdigit("".join(parts[:-1])) != parts[-1]:
+        return REASON_BAD_CHECK_DIGIT
+    return REASON_VALID_SUBJECT
+
+
+def classify_identifier(extracted: str) -> str:
+    """Classify an extracted identifier against this deployment's rules.
+
+    All rules are sourced from config/registry (no hardcoding):
+    ``ResearchProtocolConfig`` for the subject/screening patterns and
+    protocol number, ``edc_sites`` for registered sites, the Luhn check
+    digit, and ``SubjectScreening`` for screening membership. Returns one
+    of the ``REASON_*`` codes.
+    """
+    cfg = ResearchProtocolConfig()
+    if re.search(cfg.subject_identifier_pattern, extracted):
+        return _classify_subject_identifier(extracted)
+    screening = extracted.replace("-", "")
+    if re.fullmatch(cfg.screening_identifier_pattern, screening):
+        # screening-shaped, but only "valid" if it is a known SubjectScreening;
+        # otherwise it's a mistyped screening identifier (reissue-able).
+        return (
+            REASON_VALID_SCREENING
+            if _screening_exists(screening)
+            else REASON_INVALID_SCREENING
+        )
+    return REASON_FOREIGN
+
+
+# Reasons that mean "this is (or should be) one of ours" -> reissue / review.
+_REISSUEABLE_REASONS = frozenset(
+    {
+        REASON_VALID_SUBJECT,
+        REASON_BAD_CHECK_DIGIT,
+        REASON_VALID_SCREENING,
+        REASON_INVALID_SCREENING,
+    }
+)
+
+
+def category_for_unresolved(name_id: str) -> tuple[str, str]:
+    """Category + reason for an unresolved name_id.
+
+    Returns (category, reason). A well-formed in-scope identifier (right
+    protocol + registered site, or a screening identifier) is reissue-able
+    -> SUBJECT_NOT_FOUND. Wrong protocol / unregistered site / junk is
+    OUT_OF_SCOPE.
+    """
+    reason = classify_identifier(_extract_subject_identifier(name_id))
+    if reason in _REISSUEABLE_REASONS:
+        return SUBJECT_NOT_FOUND, reason
+    return OUT_OF_SCOPE, reason
 
 
 def best_guess_utest_id(
@@ -368,8 +474,16 @@ class LabResultImporter:
     ) -> SaveSummary:
         """Bulk-create ``Result`` rows from *df*."""
         subject_cache: dict[str, SubjectResolution] = {}
+        category_cache: dict[str, tuple[str, str]] = {}
+        skip_out_of_scope = getattr(
+            settings, "EDC_LAB_RESULTS_SKIP_OUT_OF_SCOPE", False
+        )
         skipped = 0
+        skipped_out_of_scope = 0
         unresolved_count = 0
+        subject_not_found_count = 0
+        out_of_scope_count = 0
+        reasons: Counter = Counter()
         unrecognized_units: set[tuple[str, str]] = set()
 
         existing_keys = set(
@@ -388,8 +502,22 @@ class LabResultImporter:
         for _, row in tqdm(df.iterrows(), total=len(df)):
             name_id = row.get("name_id", "")
             resolution = resolve_subject(name_id, cache=subject_cache)
-            if not resolution.resolved:
+            if resolution.resolved:
+                match_category, match_comment = "", ""
+            else:
                 unresolved_count += 1
+                if name_id not in category_cache:
+                    category_cache[name_id] = category_for_unresolved(name_id)
+                match_category, match_comment = category_cache[name_id]
+                if match_category == SUBJECT_NOT_FOUND:
+                    subject_not_found_count += 1
+                else:
+                    out_of_scope_count += 1
+                reasons[match_comment] += 1
+                if skip_out_of_scope and match_category == OUT_OF_SCOPE:
+                    # governance: do not persist another protocol's data here
+                    skipped_out_of_scope += 1
+                    continue
 
             unique_values = (
                 row.get("order_no", ""),
@@ -408,22 +536,17 @@ class LabResultImporter:
             utest_id = utest_map.get(investigation, "")
             result_value = _to_decimal(row.get("result", ""))
             units = row.get("units", "")
-
-            converted_value, converted_units = attempt_conversion(
-                utest_id, result_value, units, units_cache=units_cache
+            converted_value, converted_units = self._convert_result(
+                utest_id, result_value, units, units_cache, unrecognized_units
             )
-
-            if utest_id and result_value is not None and units and converted_value is None:
-                normalized = normalize_units(units)
-                available = units_cache.get(utest_id, [])
-                if normalized not in available:
-                    unrecognized_units.add((utest_id, units))
 
             batch.append(
                 self._build_result(
                     unique_values,
                     row,
                     resolution,
+                    match_category,
+                    match_comment,
                     utest_id,
                     result_value,
                     units,
@@ -439,17 +562,45 @@ class LabResultImporter:
             Result.objects.bulk_create(batch)
 
         return SaveSummary(
-            created=len(df) - skipped,
+            created=len(df) - skipped - skipped_out_of_scope,
             skipped=skipped,
+            skipped_out_of_scope=skipped_out_of_scope,
             unresolved=unresolved_count,
+            subject_not_found=subject_not_found_count,
+            out_of_scope=out_of_scope_count,
+            reasons=reasons,
             unrecognized_units=unrecognized_units,
         )
+
+    @staticmethod
+    def _convert_result(
+        utest_id: str,
+        result_value: Decimal | None,
+        units: str,
+        units_cache: dict,
+        unrecognized_units: set[tuple[str, str]],
+    ) -> tuple[Decimal | None, str]:
+        """Convert to reportable units; record units with no conversion path."""
+        converted_value, converted_units = attempt_conversion(
+            utest_id, result_value, units, units_cache=units_cache
+        )
+        if (
+            utest_id
+            and result_value is not None
+            and units
+            and converted_value is None
+            and normalize_units(units) not in units_cache.get(utest_id, [])
+        ):
+            unrecognized_units.add((utest_id, units))
+        return converted_value, converted_units
 
     def _build_result(
         self,
         unique_values: tuple[Any, ...],
         row: pd.Series,
         resolution: SubjectResolution,
+        match_category: str,
+        match_comment: str,
         utest_id: str,
         result_value: Decimal | None,
         units: str,
@@ -467,6 +618,8 @@ class LabResultImporter:
             subject_identifier=resolution.subject_identifier,
             screening_identifier=resolution.screening_identifier,
             subject_not_found=not resolution.resolved,
+            requisition_match_category=match_category,
+            requisition_match_comment=match_comment,
             utest_id=utest_id,
             source_file=row.get("source_file", ""),
             report_type=row.get("report_type", ""),
@@ -501,16 +654,67 @@ class LabResultImporter:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def link_requisitions() -> LinkSummary:
-        """Populate visit_code / visit_code_sequence on unlinked Results.
+    def _iter_panel_utest_ids(utest_ids: Any) -> Iterator[str]:
+        """Yield the reported utest_id for each entry in a panel's
+        ``utest_ids``. Entries may be a plain utest_id or a tuple whose
+        first element is the (derived) utest_id.
+        """
+        for entry in utest_ids or ():
+            if isinstance(entry, (tuple, list)):
+                if entry:
+                    yield entry[0]
+            else:
+                yield entry
 
-        Matches by subject_identifier and same calendar day
-        (order_datetime vs drawn_datetime).  If multiple requisitions
-        match the same day, the result is flagged as ambiguous and
-        left unpopulated for manual review.
+    @classmethod
+    def _build_utest_id_panel_index(cls) -> dict[str, set[str]]:
+        """Map each utest_id to the set of panel names that report it,
+        derived from the registered lab profiles (``site_labs``).
+
+        A project may attach extra utest_ids to a registered panel via
+        ``settings.EDC_LAB_RESULTS_UTEST_PANELS`` ({utest_id: panel_name}),
+        e.g. FBC differentials -> "fbc", so those results link to that
+        panel's requisition instead of being untracked. Entries pointing to
+        an unregistered panel name are ignored.
+        """
+        index: dict[str, set[str]] = {}
+        registered_panels: set[str] = set()
+        for lab_profile in site_labs.lab_profiles.values():
+            for panel in lab_profile.panels.values():
+                registered_panels.add(panel.name)
+                for utest_id in cls._iter_panel_utest_ids(panel.utest_ids):
+                    index.setdefault(utest_id, set()).add(panel.name)
+        extra: dict[str, str] = getattr(settings, "EDC_LAB_RESULTS_UTEST_PANELS", {})
+        for utest_id, panel_name in extra.items():
+            if panel_name in registered_panels:
+                index.setdefault(utest_id, set()).add(panel_name)
+        return index
+
+    @classmethod
+    def link_requisitions(cls) -> LinkSummary:
+        """Populate requisition_identifier / visit_code / visit_code_sequence
+        on unlinked Results.
+
+        A result can only be matched by panel: its utest_id must resolve to a
+        registered panel. If it does not, no requisition can own it, so it is
+        categorized (NO_UTEST_ID when unmapped, NO_PANEL_FOR_UTEST_ID when the
+        utest_id is an untracked analyte) and left unlinked -- we deliberately
+        do NOT fall back to matching on day alone, which would manufacture
+        false ambiguity against every same-day requisition.
+
+        For a panel-resolvable result, candidates are keyed by
+        subject_identifier and same calendar day (order_datetime vs
+        drawn_datetime) and filtered to the requisition whose panel reports
+        that utest_id. Exactly one candidate -> linked; more than one ->
+        flagged requisition_ambiguous for manual review; none -> NO_MATCH.
+
+        In every case the outcome is recorded on the Result via
+        requisition_match_category, a human-readable requisition_match_comment,
+        and, for ambiguous matches, the contending requisition_candidates -- so
+        review can act without recomputing.
         """
         unlinked = Result.objects.filter(
-            visit_code="",
+            requisition_identifier="",
             subject_not_found=False,
             order_datetime__isnull=False,
         ).exclude(subject_identifier="")
@@ -530,7 +734,7 @@ class LabResultImporter:
                 drawn_datetime__isnull=False,
                 subject_identifier__in=subject_ids,
             )
-            .select_related("subject_visit")
+            .select_related("panel", "subject_visit")
         ):
             key = (
                 req.subject_identifier,
@@ -538,50 +742,168 @@ class LabResultImporter:
             )
             req_by_key.setdefault(key, []).append(req)
 
+        panel_index = cls._build_utest_id_panel_index()
+
         linked = 0
         ambiguous = 0
         no_match = 0
-        ambiguous_pks: list = []
-        updates: list[tuple[Any, str, int]] = []
+        untracked = 0
+        unmapped = 0
+        no_match_pks: list = []
+        no_panel_pks: list = []
+        no_utest_id_pks: list = []
+        # (pk, visit_code, visit_code_sequence, requisition_identifier)
+        link_updates: list[tuple[Any, str, int, str]] = []
+        # (pk, category, comment, candidate_identifiers)
+        ambiguous_updates: list[tuple[Any, str, str, list[str]]] = []
 
         for result in unlinked.iterator():
+            utest_id = result.utest_id
+            if not utest_id:
+                # No EDC utest_id mapping at all -> cannot match by panel.
+                unmapped += 1
+                no_utest_id_pks.append(result.pk)
+                continue
+
+            panel_names = panel_index.get(utest_id)
+            if not panel_names:
+                # utest_id is not on any registered panel (an untracked lab
+                # analyte). Do NOT fall back to day-only matching -- that
+                # manufactures false ambiguity against every same-day
+                # requisition. Record it as untracked and move on.
+                untracked += 1
+                no_panel_pks.append(result.pk)
+                continue
+
             key = (
                 result.subject_identifier,
                 result.order_datetime.date().isoformat(),
             )
-            candidates = req_by_key.get(key, [])
+            candidates = [
+                req
+                for req in req_by_key.get(key, [])
+                if req.panel and req.panel.name in panel_names
+            ]
+
             count = len(candidates)
             if count == 0:
                 no_match += 1
+                no_match_pks.append(result.pk)
             elif count > 1:
-                ambiguous_pks.append(result.pk)
                 ambiguous += 1
+                ambiguous_updates.append(cls._describe_ambiguity(result, candidates))
             else:
                 req = candidates[0]
-                updates.append(
+                link_updates.append(
                     (
                         result.pk,
                         req.visit_code,
                         req.visit_code_sequence,
+                        req.requisition_identifier,
                     )
                 )
                 linked += 1
 
-        if ambiguous_pks:
-            Result.objects.filter(pk__in=ambiguous_pks).update(requisition_ambiguous=True)
+        cls._apply_category(no_utest_id_pks, NO_UTEST_ID)
+        cls._apply_category(no_panel_pks, NO_PANEL_FOR_UTEST_ID)
+        cls._apply_category(no_match_pks, NO_MATCH)
+        cls._apply_ambiguous(ambiguous_updates)
+        cls._apply_linked(link_updates)
 
-        if updates:
-            result_objs = {
-                r.pk: r for r in Result.objects.filter(pk__in=[u[0] for u in updates])
-            }
-            for pk, vc, vcs in updates:
-                obj = result_objs[pk]
-                obj.visit_code = vc
-                obj.visit_code_sequence = vcs
-            Result.objects.bulk_update(
-                result_objs.values(),
-                ["visit_code", "visit_code_sequence"],
-                batch_size=500,
-            )
+        return LinkSummary(
+            linked=linked,
+            ambiguous=ambiguous,
+            no_match=no_match,
+            untracked=untracked,
+            unmapped=unmapped,
+        )
 
-        return LinkSummary(linked=linked, ambiguous=ambiguous, no_match=no_match)
+    @staticmethod
+    def _describe_ambiguity(result, candidates) -> tuple[Any, str, str, list[str]]:
+        """Classify an ambiguous match and capture its contending
+        requisitions for later review. Returns
+        (pk, category, comment, candidate_identifiers).
+        """
+        distinct_panels = sorted({r.panel.name for r in candidates if r.panel})
+        category = (
+            AMBIGUOUS_MULTI_PANEL if len(distinct_panels) > 1 else AMBIGUOUS_SAME_PANEL
+        )
+        candidate_ids = [r.requisition_identifier for r in candidates]
+        comment = (
+            f"{len(candidates)} candidate requisition(s) on "
+            f"{result.order_datetime.date().isoformat()}; "
+            f"panel(s): {', '.join(distinct_panels) or '(none)'}."
+        )
+        return result.pk, category, comment, candidate_ids
+
+    @staticmethod
+    def _apply_linked(link_updates: list[tuple[Any, str, int, str]]) -> None:
+        if not link_updates:
+            return
+        objs = {
+            r.pk: r for r in Result.objects.filter(pk__in=[u[0] for u in link_updates])
+        }
+        for pk, vc, vcs, req_id in link_updates:
+            obj = objs[pk]
+            obj.visit_code = vc
+            obj.visit_code_sequence = vcs
+            obj.requisition_identifier = req_id
+            # Clear any stale ambiguity carried from a prior day-only run.
+            obj.requisition_ambiguous = False
+            obj.requisition_match_category = LINKED
+            obj.requisition_match_comment = ""
+            obj.requisition_candidates = []
+        Result.objects.bulk_update(
+            objs.values(),
+            [
+                "visit_code",
+                "visit_code_sequence",
+                "requisition_identifier",
+                "requisition_ambiguous",
+                "requisition_match_category",
+                "requisition_match_comment",
+                "requisition_candidates",
+            ],
+            batch_size=500,
+        )
+
+    @staticmethod
+    def _apply_ambiguous(
+        ambiguous_updates: list[tuple[Any, str, str, list[str]]],
+    ) -> None:
+        if not ambiguous_updates:
+            return
+        objs = {
+            r.pk: r
+            for r in Result.objects.filter(pk__in=[u[0] for u in ambiguous_updates])
+        }
+        for pk, category, comment, candidate_ids in ambiguous_updates:
+            obj = objs[pk]
+            obj.requisition_ambiguous = True
+            obj.requisition_match_category = category
+            obj.requisition_match_comment = comment
+            obj.requisition_candidates = candidate_ids
+        Result.objects.bulk_update(
+            objs.values(),
+            [
+                "requisition_ambiguous",
+                "requisition_match_category",
+                "requisition_match_comment",
+                "requisition_candidates",
+            ],
+            batch_size=500,
+        )
+
+    @staticmethod
+    def _apply_category(pks: list, category: str) -> None:
+        """Bulk-set a terminal, non-linked category (no requisition, no
+        candidates) on the given results.
+        """
+        if not pks:
+            return
+        Result.objects.filter(pk__in=pks).update(
+            requisition_ambiguous=False,
+            requisition_match_category=category,
+            requisition_match_comment="",
+            requisition_candidates=[],
+        )
