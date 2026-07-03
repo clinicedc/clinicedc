@@ -122,7 +122,11 @@
 
             {% if not items %}
             <div class="alert alert-success">
+                {% if selected_txn or selected_resolved %}
+                <strong>No matches.</strong> No discrepancies match the selected filters.
+                {% else %}
                 <strong>All clear.</strong> No discrepancies found in the most recent stock take for any bin.
+                {% endif %}
             </div>
             {% else %}
             <table id="discrepancy_table" class="table table-condensed" style="width:100%;">
