@@ -75,18 +75,42 @@
                     Discrepancy Report
                 </span>
                 <span style="display:flex;align-items:center;gap:8px;">
-                    {% if site_choices %}
-                    <form method="get" style="margin:0;">
-                        <label class="text-muted small" style="margin:0 4px 0 0;">Site</label>
-                        <select name="site" class="form-control input-sm" style="width:auto;display:inline-block;"
-                                onchange="this.form.submit()">
-                            <option value="">All sites</option>
-                            {% for site in site_choices %}
-                            <option value="{{ site.id }}"{% if site.id == selected_site_id %} selected{% endif %}>{{ site.display_name }}</option>
-                            {% endfor %}
-                        </select>
+                    <form method="get" style="margin:0;display:flex;align-items:center;gap:8px;">
+                        {% if site_choices %}
+                        <span>
+                            <label class="text-muted small" style="margin:0 4px 0 0;">Site</label>
+                            <select name="site" class="form-control input-sm" style="width:auto;display:inline-block;"
+                                    onchange="this.form.submit()">
+                                <option value="">All sites</option>
+                                {% for site in site_choices %}
+                                <option value="{{ site.id }}"{% if site.id == selected_site_id %} selected{% endif %}>{{ site.display_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </span>
+                        {% endif %}
+                        {% if txn_choices %}
+                        <span>
+                            <label class="text-muted small" style="margin:0 4px 0 0;">TXN</label>
+                            <select name="txn" class="form-control input-sm" style="width:auto;display:inline-block;"
+                                    onchange="this.form.submit()">
+                                <option value="">All</option>
+                                {% for choice in txn_choices %}
+                                <option value="{{ choice.abbr }}"{% if choice.abbr == selected_txn %} selected{% endif %}>{{ choice.abbr }} — {{ choice.display_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </span>
+                        {% endif %}
+                        <span>
+                            <label class="text-muted small" style="margin:0 4px 0 0;">Status</label>
+                            <select name="resolved" class="form-control input-sm" style="width:auto;display:inline-block;"
+                                    onchange="this.form.submit()">
+                                <option value="">All</option>
+                                {% for value, label in resolved_choices %}
+                                <option value="{{ value }}"{% if value == selected_resolved %} selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </span>
                     </form>
-                    {% endif %}
                     {% if items %}
                     <a href="{% url "edc_pharmacy:print_stock_take_discrepancy_report_url" %}{% if selected_site_id %}?site={{ selected_site_id }}{% endif %}"
                        class="btn btn-default btn-sm">
