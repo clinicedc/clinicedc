@@ -96,9 +96,9 @@ class TestLinkOrderToVisit(TestCase):
         self.assertEqual(result.requisition_match_category, NO_MATCH)
 
     def test_no_link_when_requisition_panel_differs(self):
-        # a requisition exists at the visit, but for a different panel
-        other_panel = Panel.objects.exclude(name="fbc").first()
-        self._create_requisition(panel_name=other_panel.name)
+        # a requisition exists at the visit, but for a different panel that is
+        # registered in this lab_profile (blood_glucose, not fbc)
+        self._create_requisition(panel_name="blood_glucose")
         self._create_result(utest_id="haemoglobin")  # haemoglobin is only on fbc
 
         self.assertEqual(self._link(), 0)
