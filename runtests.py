@@ -30,6 +30,7 @@ if __name__ == "__main__":
         "edc_lab.tests",
         "edc_lab_dashboard.tests",
         "edc_lab_results.tests",
+        "edc_lab_results_import.tests",
         "edc_label.tests",
         "edc_list_data.tests",
         "edc_listboard.tests",

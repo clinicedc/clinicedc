@@ -119,6 +119,7 @@ module-name = [
     "edc_lab_dashboard",
     "edc_lab_panel",
     "edc_lab_results",
+    "edc_lab_results_import",
     "edc_label",
     "edc_list_data",
     "edc_listboard",

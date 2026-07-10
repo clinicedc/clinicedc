@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
+
 from django.apps import apps as django_apps
 from django.db import models
 
@@ -38,7 +40,8 @@ class RequisitionPanel:
 
     def __init__(
         self,
-        name: str | None = None,
+        name: str,
+        *,
         processing_profile: ProcessingProfile | None = None,
         verbose_name: str | None = None,
         abbreviation: str | None = None,
@@ -105,6 +108,15 @@ class RequisitionPanel:
     @property
     def alpha_code(self) -> str:
         return self.aliquot_type.alpha_code
+
+    def flatten_utestids(self) -> Iterable:
+        """Return a flat list of utestids."""
+        for item in self.utest_ids:
+            try:
+                value, _ = item
+            except ValueError:
+                value = item
+            yield value
 
 
 # TODO: panel should have some relation to the interface,

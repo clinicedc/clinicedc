@@ -97,6 +97,7 @@ project_settings = DefaultTestSettings(
         "edc_lab_dashboard.apps.AppConfig",
         "edc_lab_panel.apps.AppConfig",
         "edc_lab_results.apps.AppConfig",
+        "edc_lab_results_import.apps.AppConfig",
         "edc_label.apps.AppConfig",
         "edc_list_data.apps.AppConfig",
         "edc_listboard.apps.AppConfig",

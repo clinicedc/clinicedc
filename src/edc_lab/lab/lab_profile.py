@@ -1,3 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .requisition_panel import RequisitionPanel
+
+
 class PanelAlreadyRegistered(Exception):
     pass
 
@@ -16,12 +24,16 @@ class LabProfile:
     site_model = "sites.site"
 
     def __init__(
-        self, name=None, requisition_model=None, reference_range_collection_name=None
+        self,
+        name: str,
+        requisition_model: str,
+        *,
+        reference_range_collection_name: str | None = None,
     ):
         self.aliquot_types = {}
         self.processing_profiles = {}
-        self.panels = {}
-        self.name = name
+        self.panels: dict[str, RequisitionPanel] = {}
+        self.name: str = name
         if not requisition_model:
             raise LabProfileRequisitionModelError("Invalid requisition model. Got None")
         self.requisition_model = requisition_model
