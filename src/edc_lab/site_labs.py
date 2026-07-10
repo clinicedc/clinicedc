@@ -10,6 +10,8 @@ from django.utils.module_loading import import_module, module_has_submodule
 
 from edc_reportable.utils import reference_range_colllection_model_cls
 
+from .lab import LabProfile
+
 if TYPE_CHECKING:
     from edc_lab.models import Panel
 
@@ -86,7 +88,7 @@ class SiteLabs:
                 raise AlreadyRegistered(f"Lab profile {lab_profile} is already registered.")
 
     @property
-    def lab_profiles(self):
+    def lab_profiles(self) -> dict[str, LabProfile]:
         return {lab_profile.name: lab_profile for lab_profile in self._registry.values()}
 
     @property
@@ -94,7 +96,7 @@ class SiteLabs:
         return django_apps.get_model(self.panel_model)
 
     @property
-    def panel_names(self):
+    def panel_names(self) -> dict[str, str]:
         return {
             obj.name: obj.display_name
             for obj in self.panel_model_cls.objects.all().order_by("lab_profile_name")

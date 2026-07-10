@@ -9,3 +9,4 @@ MILLI_IU_LITER_DISPLAY = mark_safe("mIU/L")  # nosec B308
 MM3_DISPLAY = mark_safe("mm<sup>3</sup>")  # nosec B308
 TEN_X_3_PER_LITER_DISPLAY = mark_safe("10<sup>3</sup>/L")  # nosec B308
 TEN_X_9_PER_LITER_DISPLAY = mark_safe("10<sup>9</sup>/L")  # nosec B308
+TEN_X_12_PER_LITER_DISPLAY = mark_safe("10<sup>12</sup>/L")  # nosec B308

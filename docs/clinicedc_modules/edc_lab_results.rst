@@ -187,7 +187,7 @@ Models
     EDC's internal test identifier. A ``subject_identifier`` field is resolved from
     the ``name_id`` on the PDF via ``RegisteredSubject``.
 
-``InvestigationMapping``
+``UtestidMap``
     Persists the mapping between a laboratory's investigation name (as printed on the PDF)
     and the EDC ``utest_id``. Scoped by ``laboratory`` so the same investigation name can
     map differently at different labs. An ``in_reportable`` boolean records whether the
@@ -264,7 +264,7 @@ Management Commands
     Parses PDF files, resolves investigation mappings, and saves results to the
     database. The ``--laboratory`` flag is required. It selects the parser from
     ``EDC_LAB_RESULTS_PARSERS`` and scopes the investigation mappings in
-    ``InvestigationMapping``.
+    ``UtestidMap``.
 
     **Basic usage (interactive):**
 
@@ -282,7 +282,7 @@ Management Commands
           Best guess: chol
           Enter utest_id for 'CHOLESTEROL' [chol] or 'u' for unknown:
 
-    Accepted mappings are saved to ``InvestigationMapping`` and reused on subsequent runs.
+    Accepted mappings are saved to ``UtestidMap`` and reused on subsequent runs.
     The command also checks ``edc_reportable.NormalData`` and warns about mapped
     ``utest_id`` values that have no normal range data.
 
@@ -325,7 +325,7 @@ Management Commands
     When ``--mappings`` is provided, the command validates the file against
     persisted mappings and fails on any conflicts (same investigation mapped to
     a different ``utest_id``). If all checks pass, new mappings are persisted
-    to ``InvestigationMapping`` and the import runs without interactive prompts.
+    to ``UtestidMap`` and the import runs without interactive prompts.
 
     **Processing pending uploads:**
 

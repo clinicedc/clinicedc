@@ -7,8 +7,8 @@ from django.apps import apps as django_apps
 
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
 
-from .checkdigit_mixins import LuhnMixin
 from .exceptions import IdentifierError
+from .utils import calculate_luhn_check_digit, is_valid_subject_identifier
 
 if TYPE_CHECKING:
     from django.contrib.sites.models import Site
@@ -25,7 +25,6 @@ class ResearchIdentifier:
     identifier_type: str | None = None  # e.g. 'subject', 'infant', 'plot', a.k.a subject_type
     template: str | None = None
     padding: int = 5
-    checkdigit = LuhnMixin()
 
     def __init__(
         self,
@@ -36,9 +35,11 @@ class ResearchIdentifier:
         site: Site | None = None,
         requesting_model: str | None = None,
         identifier: str | None = None,
+        non_numeric_identifier: bool | None = None,
     ) -> None:
-        self._identifier = None
+        self._identifier: str = ""
         self._sequence_number = None
+        self.non_numeric_identifier: bool | None = non_numeric_identifier
         self.requesting_model = requesting_model
         if not self.requesting_model:
             raise IdentifierError("Invalid requesting_model. Got None")
@@ -78,8 +79,9 @@ class ResearchIdentifier:
         if not self._identifier:
             self.pre_identifier()
             self._identifier = self.template.format(**self.template_opts)
-            check_digit = self.checkdigit.calculate_checkdigit(
-                "".join(self._identifier.split("-"))
+            check_digit = self.calculate_check_digit(
+                self._identifier,
+                non_numeric=self.non_numeric_identifier,
             )
             self._identifier = f"{self._identifier}-{check_digit}"
             self.identifier_model = self.identifier_model_cls.objects.create(
@@ -154,3 +156,11 @@ class ResearchIdentifier:
             else:
                 self._sequence_number = 1
         return self._sequence_number
+
+    @classmethod
+    def calculate_check_digit(cls, identifier: str, non_numeric: bool | None = None):
+        return calculate_luhn_check_digit(identifier, non_numeric=non_numeric)
+
+    @classmethod
+    def is_valid_identifier(cls, *args, **kwargs):
+        return is_valid_subject_identifier(*args, **kwargs)

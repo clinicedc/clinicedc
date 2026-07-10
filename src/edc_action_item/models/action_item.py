@@ -45,7 +45,7 @@ INVALID_ACTION_ITEM_STATUS = (
     "Got `{status}`. Perhaps catch this in the form"
 )
 
-INVALID_SUBJECT_IDENTIFIER = (
+INVALID_SUBJECT_IDENTIFER_IDENTIFIER = (
     "Invalid subject identifier. Attempt to create {class_name} failed. "
     "Subject does not exist in '{subject_identifier_model}'. "
     "Got '{subject_identifier}'."
@@ -187,7 +187,7 @@ class ActionItem(
                 )
             except ObjectDoesNotExist as e:
                 raise SubjectDoesNotExist(
-                    INVALID_SUBJECT_IDENTIFIER.format(
+                    INVALID_SUBJECT_IDENTIFER_IDENTIFIER.format(
                         class_name=self.__class__.__name__,
                         subject_identifier_model=self.subject_identifier_model,
                         subject_identifier=self.subject_identifier,
