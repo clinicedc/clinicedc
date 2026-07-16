@@ -20,6 +20,7 @@ from .fbc_model_mixins import (
     NeutrophilModelMixin,
     PlateletsModelMixin,
     RbcModelMixin,
+    RdwModelMixin,
     WbcModelMixin,
 )
 from .fbg_model_mixin import FbgModelMixin

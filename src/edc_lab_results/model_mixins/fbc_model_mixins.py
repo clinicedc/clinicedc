@@ -21,6 +21,7 @@ from edc_lab_panel.constants import (
     NEUTROPHIL_DIFF,
     PLATELETS,
     RBC,
+    RDW,
     WBC,
 )
 from edc_reportable.units import CELLS_PER_MILLIMETER_CUBED_DISPLAY
@@ -168,6 +169,19 @@ class RbcModelMixin(
             (TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),
             (CELLS_PER_MILLIMETER_CUBED, CELLS_PER_MILLIMETER_CUBED),
         ),
+        validators=[MinValueValidator(1.0), MaxValueValidator(999999.0)],
+    ),
+    models.Model,
+):
+    class Meta:
+        abstract = True
+
+
+class RdwModelMixin(
+    reportable_result_model_mixin_factory(
+        utest_id=RDW,
+        verbose_name="Red cell distribution width",
+        units_choices=((PERCENT, PERCENT),),
         validators=[MinValueValidator(1.0), MaxValueValidator(999999.0)],
     ),
     models.Model,

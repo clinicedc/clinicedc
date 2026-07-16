@@ -242,7 +242,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--email",
-        required=True,
+        # required=True,
+        default=None,
         help="Gmail address to process (must exist in the accounts file)",
     )
     parser.add_argument(
@@ -272,28 +273,34 @@ def main() -> None:
         )
         sys.exit(1)
     accounts_file = Path(accounts_file)
-
     accounts = load_accounts(accounts_file)
-    account = next((a for a in accounts if a["email"] == args.email), None)
-    if not account:
-        print(
-            f"Error: '{args.email}' not found in {accounts_file}.",
-            file=sys.stderr,
-        )
-        sys.exit(1)
 
-    try:
-        saved = download_pdf_attachments(
-            account["email"],
-            account["password"],
-            args.output_dir,
-            imap_host=args.imap_host,
-        )
-    except imaplib.IMAP4.error as e:
-        print(f"IMAP error: {e}", file=sys.stderr)
-        sys.exit(1)
+    if args.email:
+        accounts = [next((a for a in accounts if a["email"] == args.email), None)]
+        if not [accounts]:
+            print(
+                f"Error: '{args.email}' not found in {accounts_file}.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
-    print(f"All done. {saved} PDF(s) saved to {args.output_dir}")
+    total = 0
+    for account in accounts:
+        print(f"{account['email']} ...")
+        try:
+            saved = download_pdf_attachments(
+                account["email"],
+                account["password"],
+                args.output_dir,
+                imap_host=args.imap_host,
+            )
+        except imaplib.IMAP4.error as e:
+            print(f"IMAP error: {e}", file=sys.stderr)
+            sys.exit(1)
+        total += saved
+        print(f"  {account['email']} done. {saved} PDF(s) saved to {args.output_dir}")
+
+    print(f"All done. {total} PDF(s) saved to {args.output_dir}")
 
 
 if __name__ == "__main__":

@@ -174,7 +174,7 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     result_value = models.DecimalField(
         verbose_name="Result",
-        max_digits=12,
+        max_digits=20,
         decimal_places=4,
         null=True,
         blank=True,
@@ -182,7 +182,7 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     converted_result_value = models.DecimalField(
         verbose_name="Converted result",
-        max_digits=12,
+        max_digits=20,
         decimal_places=4,
         null=True,
         blank=True,
@@ -221,19 +221,6 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     def __str__(self):
         return f"{self.result_no}: {self.utestid} {self.result_value} {self.units}"
 
-    # @property
-    # def requisition(self):
-    #     """Resolve the linked SubjectRequisition from
-    #     requisition_identifier, or None if unlinked or not found.
-    #     """
-    #     try:
-    #         obj = get_requisition_model().objects.get(
-    #             requisition_identifier=self.requisition_identifier
-    #         )
-    #     except ObjectDoesNotExist:
-    #         obj = None
-    #     return obj
-
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Result"
         verbose_name_plural = "Results"
@@ -243,8 +230,10 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
                     "order_no",
                     "result_no",
                     "sample_no",
+                    "result_status",
                     "source_utestid",
-                    "report_datetime",
+                    "utestid",
+                    "result_datetime",
                     "name_id",
                 ],
                 name="unique_lab_result",
