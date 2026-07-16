@@ -1,6 +1,8 @@
 from edc_lab import RequisitionPanel
 
 from .constants import (
+    BASOPHILS,
+    BASOPHILS_DIFF,
     BLOOD_GLUCOSE,
     BLOOD_GLUCOSE_POC,
     CD4,
@@ -8,6 +10,8 @@ from .constants import (
     CHEMISTRY_LIPIDS,
     CHEMISTRY_RFT,
     CHOL,
+    EOSINOPHILS,
+    EOSINOPHILS_DIFF,
     FBC,
     HBA1C,
     HBA1C_POC,
@@ -16,10 +20,17 @@ from .constants import (
     LDL,
     LFT,
     LIPIDS,
+    LYMPHOCYTE,
+    LYMPHOCYTE_DIFF,
+    MONOCYTES,
+    MONOCYTES_DIFF,
+    NEUTROPHIL,
+    NEUTROPHIL_DIFF,
     RFT,
     SPUTUM,
     TRIG,
     VL,
+    WBC_DIFF,
 )
 from .processing_profiles import (
     blood_glucose_processing,
@@ -33,6 +44,7 @@ from .processing_profiles import (
     rft_processing,
     sputum_processing,
     vl_processing,
+    wbc_diff_processing,
 )
 
 hba1c_panel = RequisitionPanel(
@@ -66,6 +78,7 @@ fbc_panel = RequisitionPanel(
         "mcv",
         "mch",
         "mchc",
+        "rdw",
     ),
 )
 
@@ -139,4 +152,23 @@ sputum_panel = RequisitionPanel(
     abbreviation="SPM",
     processing_profile=sputum_processing,
     utest_ids=(),
+)
+
+wbc_differential = RequisitionPanel(
+    name=WBC_DIFF,
+    verbose_name="Full Blood Count: Differentials",
+    processing_profile=wbc_diff_processing,
+    abbreviation="WBC_DIFF",
+    utest_ids=(
+        NEUTROPHIL,
+        NEUTROPHIL_DIFF,
+        LYMPHOCYTE,
+        LYMPHOCYTE_DIFF,
+        EOSINOPHILS,
+        EOSINOPHILS_DIFF,
+        BASOPHILS,
+        BASOPHILS_DIFF,
+        MONOCYTES,
+        MONOCYTES_DIFF,
+    ),
 )

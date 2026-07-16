@@ -46,3 +46,38 @@ def convert_to_human_readable(identifier: str) -> str:
     if not identifier:
         return ""
     return "-".join(re.findall(r".{1,4}", identifier))
+
+
+def calculate_luhn_check_digit(identifier: str, non_numeric: bool | None = None) -> str:
+    if non_numeric:
+        alpha_characters = "".join(re.findall(r"[a-zA-Z]+", identifier))
+        all_digits = [str(ord(d)) for d in alpha_characters]
+        msg = (
+            "Check-digit cannot be calculated. Expected an alpha-numeric identifier. "
+            f"Got {identifier}."
+        )
+    else:
+        all_digits = re.findall(r"\d+", identifier)
+        msg = (
+            "Check-digit cannot be calculated. Expected a numeric identifier. "
+            f"Got {identifier}."
+        )
+    if not all_digits:
+        raise ValueError(msg)
+    as_numeric = int("".join(all_digits)) * 10
+    digits = [int(d) for d in str(as_numeric)]
+    odd_digits = digits[-1::-2]
+    even_digits = digits[-2::-2]
+    checksum = 0
+    checksum += sum(odd_digits)
+    for d in even_digits:
+        checksum += sum([int(n) for n in str(d * 2)])
+    raw_check_digit = checksum % 10
+    final_check_digit = raw_check_digit if raw_check_digit == 0 else 10 - raw_check_digit
+    return str(final_check_digit)
+
+
+def is_valid_subject_identifier(identifier, non_numeric: bool | None = None):
+    return identifier[-1] == calculate_luhn_check_digit(
+        identifier[:-1], non_numeric=non_numeric
+    )

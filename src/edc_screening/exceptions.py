@@ -1,4 +1,4 @@
-INVALID_SCREENING_IDENTIFIER = "INVALID_SCREENING_IDENTIFIER"
+INVALID_SCREENING_IDENTIFER_IDENTIFIER = "INVALID_SCREENING_IDENTIFER_IDENTIFIER"
 
 
 class ScreeningEligibilityError(Exception):
@@ -27,5 +27,5 @@ class RequiredFieldValueMissing(Exception):  # noqa: N818
 
 class InvalidScreeningIdentifierFormat(Exception):  # noqa: N818
     def __init__(self, *args, **kwargs):
-        self.code = INVALID_SCREENING_IDENTIFIER
+        self.code = INVALID_SCREENING_IDENTIFER_IDENTIFIER
         super().__init__(*args, **kwargs)
