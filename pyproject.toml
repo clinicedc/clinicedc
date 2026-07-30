@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "4.3.0"
+version = "4.3.1"
 description = "A clinical trials data management framework built on Django"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -82,7 +82,7 @@ Repository = "https://github.com/clinicedc/clinicedc.git"
 Changelog = "https://github.com/clinicedc/clinicedc/blob/main/CHANGES"
 
 [build-system]
-requires = ["uv_build>=0.10.0,<0.12.0"]
+requires = ["uv_build>=0.10.0,<0.13.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
