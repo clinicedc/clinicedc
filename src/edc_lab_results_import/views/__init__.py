@@ -1,3 +1,1 @@
-from .home_view import HomeView
-
-__all__ = ["HomeView"]
+from .result_search_view import ResultSearchView

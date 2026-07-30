@@ -1,0 +1,181 @@
+{% extends edc_base_template %}
+{% load static %}
+
+{% block extrastyle %}{{ block.super }}
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+{% endblock %}
+
+{% block document_ready %}
+  <script>
+    $(document).ready(function () {
+      var table = $('#result_table').DataTable({order: [[11, 'desc']], pageLength: 25});
+
+      $('#visit_code_filter').on('keyup change', function () {
+        table.column(3).search(this.value).draw();
+      });
+
+      $('#visit_code_sequence_filter').on('keyup change', function () {
+        var v = this.value;
+        table
+          .column(4)
+          .search(v ? '^' + $.fn.dataTable.util.escapeRegex(v) + '$' : '', true, false)
+          .draw();
+      });
+
+      $('#utestid_filter').on('keyup change', function () {
+        table.column(6).search(this.value).draw();
+      });
+
+      // Result datetime range filter (column 11 carries a data-order epoch-seconds value)
+      $.fn.dataTable.ext.search.push(function (settings, searchData, index, rowData, counter) {
+        var from = $('#result_datetime_from').val();
+        var to = $('#result_datetime_to').val();
+        if (!from && !to) {
+          return true;
+        }
+        var cell = table.cell(index, 11).node();
+        var epoch = parseInt($(cell).data('order'), 10);
+        if (isNaN(epoch)) {
+          return true;
+        }
+        var fromEpoch = from ? new Date(from).getTime() / 1000 : null;
+        var toEpoch = to ? new Date(to).getTime() / 1000 + 86400 : null;
+        if (fromEpoch !== null && epoch < fromEpoch) {
+          return false;
+        }
+        if (toEpoch !== null && epoch >= toEpoch) {
+          return false;
+        }
+        return true;
+      });
+
+      $('#result_datetime_from, #result_datetime_to').on('change', function () {
+        table.draw();
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block main %}
+{{ block.super }}
+<div class="container-fluid">
+
+  <h4>Search imported results</h4>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">Search criteria</div>
+    <div class="panel-body">
+      <form method="get">
+        <div class="row">
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label for="subject_identifier">Subject identifier</label>
+              <div class="input-group">
+                <input type="text" id="subject_identifier" name="subject_identifier"
+                       class="form-control" value="{{ subject_identifier }}"
+                       placeholder="e.g. 105-0001-1">
+                <span class="input-group-btn">
+                  <button type="submit" class="btn btn-primary">Search</button>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      {% if subject_identifier %}
+        <hr>
+        <small class="text-muted">(filters as you type)</small>
+        <div class="row">
+          <div class="col-sm-2">
+            <div class="form-group">
+              <label for="visit_code_filter">Visit code</label>
+              <input type="text" id="visit_code_filter" class="form-control">
+            </div>
+          </div>
+          <div class="col-sm-1">
+            <div class="form-group">
+              <label for="visit_code_sequence_filter">Seq</label>
+              <input type="number" id="visit_code_sequence_filter" class="form-control">
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="form-group">
+              <label for="utestid_filter">UTESTID</label>
+              <input type="text" id="utestid_filter" class="form-control">
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="form-group">
+              <label for="result_datetime_from">Result date from</label>
+              <input type="date" id="result_datetime_from" class="form-control">
+            </div>
+          </div>
+          <div class="col-sm-2">
+            <div class="form-group">
+              <label for="result_datetime_to">Result date to</label>
+              <input type="date" id="result_datetime_to" class="form-control">
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if subject_identifier %}
+    <div class="table-responsive">
+      <table id="result_table" class="table table-condensed table-hover">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Screening ID</th>
+            <th>Order date</th>
+            <th>Visit</th>
+            <th>Seq</th>
+            <th>Requisition</th>
+            <th>UTESTID</th>
+            <th>Result</th>
+            <th>Units</th>
+            <th>Flag</th>
+            <th>Result status</th>
+            <th>Result date</th>
+            <th>Order no</th>
+            <th>Sample no</th>
+            <th>Result no</th>
+            <th>Source UTESTID</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for result in results %}
+            <tr>
+              <td>{{ result.subject_identifier }}</td>
+              <td>{{ result.screening_identifier }}</td>
+              <td data-order="{{ result.order_datetime|date:'U' }}">{{ result.order_datetime|date:"Y-m-d" }}</td>
+              <td>{{ result.visit_code }}</td>
+              <td>{{ result.visit_code_sequence }}</td>
+              <td>{{ result.requisition|default_if_none:"" }}</td>
+              <td>{{ result.utestid }}</td>
+              <td>{{ result.result_value|default_if_none:"" }}</td>
+              <td>{{ result.units }}</td>
+              <td>{{ result.flag }}</td>
+              <td>{{ result.result_status }}</td>
+              <td data-order="{{ result.result_datetime|date:'U' }}">{{ result.result_datetime|date:"Y-m-d" }}</td>
+              <td>{{ result.order_no }}</td>
+              <td>{{ result.sample_no }}</td>
+              <td>{{ result.result_no }}</td>
+              <td>{{ result.source_utestid }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-muted">Enter a subject identifier to search results.</p>
+  {% endif %}
+
+</div>
+{% endblock main %}

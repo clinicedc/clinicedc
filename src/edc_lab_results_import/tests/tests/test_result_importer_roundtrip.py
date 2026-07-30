@@ -33,7 +33,7 @@ DECIMAL_COLS = [
     "reference_range_lower",
     "reference_range_upper",
 ]
-BOOL_COLS = ["subject_not_found", "requisition_ambiguous"]
+BOOL_COLS = []
 DATETIME_COLS = [
     "order_datetime",
     "report_datetime",
@@ -170,9 +170,7 @@ class TestResultImporterDataframeRoundTrip(TestCase):
         self.assertEqual(full["reference_range_lower"], 12.0)
         self.assertEqual(full["reference_range_upper"], 16.0)
         self.assertEqual(full["flag"], "H")
-        self.assertEqual(
-            full["order_datetime"], pd.Timestamp(2026, 1, 5, tzinfo=UTC)
-        )
+        self.assertEqual(full["order_datetime"], pd.Timestamp(2026, 1, 5, tzinfo=UTC))
 
         empty = df_out[df_out["result_no"] == "RES002"].iloc[0]
         self.assertTrue(pd.isna(empty["age"]))

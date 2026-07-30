@@ -49,7 +49,7 @@ class Rule:
     def __str__(self) -> str:
         return f"{self.group}.{self.name}"
 
-    def run(self, related_visit: RelatedVisitModel = None) -> dict[str, str] | None:
+    def run(self, related_visit: RelatedVisitModel) -> dict[str, str] | None:
         """Returns a dictionary of {target_model: entry_status, ...} updated
         by running the rule for each target model given a visit.
 

@@ -4,7 +4,7 @@ import logging
 from contextlib import suppress
 from typing import TYPE_CHECKING
 
-from clinicedc_constants import CLOSED, NEW, OPEN
+from clinicedc_constants import CANCELLED, CLOSED, NEW, OPEN
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
@@ -275,6 +275,7 @@ class Action:
             self._action_item = (
                 self.action_item_model_cls()
                 .objects.using(self.using)
+                .exclude(status=CANCELLED)
                 .get(
                     subject_identifier=self.subject_identifier,
                     action_type=get_action_type(self.__class__),

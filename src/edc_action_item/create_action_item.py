@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.core.exceptions import ObjectDoesNotExist
+from clinicedc_constants import CANCELLED
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
-from .exceptions import SingletonActionItemError
+from .exceptions import ActionItemError, SingletonActionItemError
 from .get_action_type import get_action_type
 
 if TYPE_CHECKING:
@@ -29,6 +30,7 @@ def create_action_item(
             action_item = (
                 action_cls.action_item_model_cls()
                 .objects.using(using)
+                .exclude(status=CANCELLED)
                 .get(
                     action_type=get_action_type(action_cls),
                     subject_identifier=subject_identifier,
@@ -36,6 +38,12 @@ def create_action_item(
             )
         except ObjectDoesNotExist:
             pass
+        except MultipleObjectsReturned as e:
+            raise SingletonActionItemError(
+                "Multiple action items returned. "
+                f"Action {action_cls.name} can only be "
+                f"created once per subject. Got {subject_identifier}."
+            ) from e
         else:
             raise SingletonActionItemError(
                 f"Action {action_cls.name} can only be "

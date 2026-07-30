@@ -88,6 +88,8 @@ class ResultImporter:
         stdout=None,
         dry_run: bool | None = None,
         extra_panels: list[RequisitionPanel] | None = None,
+        duplicates_json_path: Path | None = None,
+        limit_file_count: int | None = None,
     ) -> None:
         self._df_utestid = pd.DataFrame()
         self._df_requisitions = pd.DataFrame()
@@ -100,8 +102,10 @@ class ResultImporter:
         self.dry_run: bool | None = dry_run
         self.stdout = stdout or sys.stdout
         self.extra_panels: list[RequisitionPanel] = extra_panels or []
+        self.duplicates_json_path = duplicates_json_path
         self.style = color_style()
         self.tz = tz or ZoneInfo(settings.TIME_ZONE)
+        self.limit_file_count = limit_file_count
         self.known_utestids = set(
             NormalData.objects.values_list("label", flat=True).distinct()
         )
@@ -111,52 +115,57 @@ class ResultImporter:
         self.path = Path(path).expanduser()
         if not path.is_dir():
             raise ResultImporterError(f"Not a directory: {path}")
+        self.parser_func = get_parser(self.laboratory)
 
     def run(self, to_model: bool | None = None, df_to_path: Path | None = None):
-        # build dataframe from PDF file data
-        self.parse_pdfs_to_dataframe()
+        pdf_count = len(list(self.path.glob("*.pdf")))
+        if pdf_count == 0:
+            raise ResultImporterError(f"No PDF files found in {self.path}")
+        self.parse_all_to_dataframe()
+        self.df[
+            self.df["result_datetime"] >= self.df_screening["screening_datetime"].min()
+        ].copy().reset_index(drop=True)
+        self.apply_mappings_after_parse()
+        self.update_dtypes_after_parse()
+
         if df_to_path:
             self.write_df_to_parquet(df_to_path, "raw_")
+
         self.stdout.write(f"parse_pdfs_to_dataframe: {len(self.df)}\n")
+
         self.resolve()
         self.stdout.write(f"resolve: {len(self.df)}\n")
-        self.apply_unit_mapping()
+        self.apply_unit_mapping_after_resolve()
         self.stdout.write(f"apply_unit_mapping: {len(self.df)}\n")
+
         if df_to_path:
             self.write_df_to_parquet(df_to_path)
         # update Result model
         if to_model:
-            self.dataframe_to_model(self.df, dry_run=self.dry_run)
+            self.dataframe_to_model(dry_run=self.dry_run)
 
-    def write_df_to_parquet(self, df_to_path, name_suffix: str | None = None):
-        name_suffix = "" if name_suffix is None else name_suffix
-        if not df_to_path.exists():
-            raise ValueError("Path does not exist. Got {df_to_path}.")
-        fname = (
-            f"results_importer_{name_suffix}"
-            f"{datetime.now(tz=ZoneInfo('UTC')).strftime('%Y%m%d%H%M')}.parquet"
-        )
-        self.df.to_parquet(df_to_path / fname, index=False)
-        self.stdout.write(self.style.SUCCESS(f"Dataframe written to {fname}\n"))
-
-    def parse_pdfs_to_dataframe(self):
+    def parse_all_to_dataframe(self) -> None:
         """Parse PDF files into a dataframe."""
-        pdf_count = len(list(self.path.glob("*.pdf")))
-        if pdf_count == 0:
-            raise ResultImporterError(f"No PDF files found in {self.path}")
-
-        parser_func = get_parser(self.laboratory)
-        df: pd.DataFrame = parse_folder(
+        self.df: pd.DataFrame = parse_folder(
             self.path,
-            parser_func,
+            self.parser_func,
             tz=self.tz,
             is_valid_identifier_func=self.is_valid_identifier_func,
+            duplicates_json_path=self.duplicates_json_path,
         )
-        df["utestid"] = df["source_utestid"].map(self.utestid_mappings)
-        df["units"] = df["source_units"].map(self.unit_mappings).fillna(df["source_units"])
-        df["order_datetime"] = pd.to_datetime(df["order_datetime"], utc=True).dt.normalize()
-        df["specimen_collected_datetime"] = pd.to_datetime(
-            df["specimen_collected_datetime"], utc=True
+
+    def apply_mappings_after_parse(self) -> None:
+        self.df["utestid"] = self.df["source_utestid"].map(self.utestid_mappings)
+        self.df["units"] = (
+            self.df["source_units"].map(self.unit_mappings).fillna(self.df["source_units"])
+        )
+
+    def update_dtypes_after_parse(self) -> None:
+        self.df["order_datetime"] = pd.to_datetime(
+            self.df["order_datetime"], utc=True
+        ).dt.normalize()
+        self.df["specimen_collected_datetime"] = pd.to_datetime(
+            self.df["specimen_collected_datetime"], utc=True
         ).dt.normalize()
         for col in [
             "subject_identifier",
@@ -172,31 +181,37 @@ class ResultImporter:
             "result_no",
             "name_id",
         ]:
-            df[col] = df[col].astype("string").str.strip().replace("", pd.NA)
-        self.df = df
+            self.df[col] = self.df[col].astype("string").str.strip().replace("", pd.NA)
 
     def resolve(self):
         expected_len = len(self.df)
         self.df = self.df.merge(self.df_utestid, on="utestid", how="left").reset_index(
             drop=True
         )
-        self._assert_row_count(expected_len, "merge with df_utestid")
-        self.resolve_requisitions()
-        self._assert_row_count(expected_len, "resolve_requisitions")
-        self.resolve_related_visits()
-        self._assert_row_count(expected_len, "resolve_related_visits")
-        self.resolve_sites()
-        self._assert_row_count(expected_len, "resolve_sites")
-        self.apply_unit_mapping()
+        self._assert_row_count_during_resolve(expected_len, "merge with df_utestid")
 
-    def _assert_row_count(self, expected_len: int, step: str) -> None:
+        self.resolve_requisitions()
+        self._assert_row_count_during_resolve(expected_len, "resolve_requisitions")
+
+        self.resolve_related_visits()
+        self._assert_row_count_during_resolve(expected_len, "resolve_related_visits")
+
+        self.resolve_sites()
+        self._assert_row_count_during_resolve(expected_len, "resolve_sites")
+
+        self.resolve_screening_to_subject()
+        self._assert_row_count_during_resolve(
+            expected_len, "resolve_screening_to_subject_identifier"
+        )
+
+    def _assert_row_count_during_resolve(self, expected_len: int, step: str) -> None:
         if len(self.df) != expected_len:
             raise ResultImporterError(
                 f"{step} introduced duplicate rows via a fan-out merge. "
                 f"Expected {expected_len} rows, got {len(self.df)}."
             )
 
-    def apply_unit_mapping(self):
+    def apply_unit_mapping_after_resolve(self):
         UNIT_MAPPINGS: dict[str, str] = {  # noqa: N806
             "U/L": "IU/L",
             "K/uL": "10^9/L",
@@ -210,36 +225,44 @@ class ResultImporter:
         }
         self.df["units"] = self.df["units"].replace(UNIT_MAPPINGS)
 
+    def write_df_to_parquet(self, df_to_path, name_suffix: str | None = None):
+        name_suffix = "" if name_suffix is None else name_suffix
+        if not df_to_path.exists():
+            raise ValueError(f"Path does not exist. Got {df_to_path}.")
+        fname = (
+            f"results_importer_{name_suffix}"
+            f"{datetime.now(tz=ZoneInfo('UTC')).strftime('%Y%m%d%H%M')}.parquet"
+        )
+        self.df.to_parquet(df_to_path / fname, index=False)
+        self.stdout.write(self.style.SUCCESS(f"Dataframe written to {fname}\n"))
+
     def dataframe_to_model(
         self,
-        df: pd.DataFrame,
-        *,
         dry_run: bool | None = None,
         batch_size: int | None = None,
     ) -> None:
         batch_size = batch_size or 500
-        if self.dry_run is not None:
+        if dry_run is not None:
             self.dry_run = dry_run
         if self.dry_run:
             self.stdout.write(
-                self.style.WARNING(f"Dry run: {len(df)} results parsed, not saved.\n")
+                self.style.WARNING(f"Dry run: {len(self.df)} results parsed, not saved.\n")
             )
         self.stdout.write("Writing dataframe to Result model ...\n")
-        save_summary = self.save_to_model(df, batch_size=batch_size)
-        file_count = 0 if df.empty else df["source_file"].nunique()
+        save_summary = self.save_to_model(batch_size=batch_size)
+        file_count = 0 if self.df.empty else self.df["source_file"].nunique()
         save_summary.write_summary(file_count)
         sys.stdout.flush()
 
-    def model_to_dataframe(self) -> pd.DataFrame:
-        df = read_frame(self.result_model_cls.objects.all(), verbose=False)
+    @classmethod
+    def model_to_dataframe(cls) -> pd.DataFrame:
+        df = read_frame(cls.result_model_cls().objects.all(), verbose=False)
         for col in [
             "subject_visit",
             "requisition",
             "subject_identifier",
             "screening_identifier",
             "requisition_identifier",
-            "requisition_match_category",
-            "requisition_match_comment",
             "visit_code",
             "panel_name",
             "laboratory",
@@ -277,8 +300,6 @@ class ResultImporter:
             "reference_range_upper",
         ]:
             df[col] = pd.to_numeric(df[col], errors="coerce").astype("float64")
-        for col in ["subject_not_found", "requisition_ambiguous"]:
-            df[col] = df[col].astype("bool")
         for col in [
             "order_datetime",
             "report_datetime",
@@ -287,13 +308,12 @@ class ResultImporter:
             "specimen_received_datetime",
             "reported_datetime",
             "verified_datetime",
-            "transcribed_datetime",
         ]:
             df[col] = pd.to_datetime(df[col], utc=True)
         return df
 
-    @property
-    def result_model_cls(self):
+    @classmethod
+    def result_model_cls(cls):
         return django_apps.get_model("edc_lab_results_import.result")
 
     @property
@@ -338,6 +358,7 @@ class ResultImporter:
                     "subject_visit",
                     "subject_visit__visit_code",
                     "subject_visit__visit_code_sequence",
+                    "subject_visit__report_datetime",
                     "requisition_identifier",
                     "report_datetime",
                     "drawn_datetime",
@@ -353,9 +374,13 @@ class ResultImporter:
                     "subject_visit_id": "subject_visit",
                     "subject_visit__visit_code": "visit_code",
                     "subject_visit__visit_code_sequence": "visit_code_sequence",
+                    "subject_visit__report_datetime": "visit_datetime",
                     "panel__name": "panel_name",
                 }
             )
+            df["visit_datetime"] = pd.to_datetime(
+                df["visit_datetime"], utc=True
+            ).dt.normalize()
             df["requisition_datetime"] = pd.to_datetime(
                 df["requisition_datetime"], utc=True
             ).dt.normalize()
@@ -368,6 +393,8 @@ class ResultImporter:
             )
             df["requisition"] = df["requisition"].astype("string").fillna(pd.NA)
             df["subject_visit"] = df["subject_visit"].astype("string").fillna(pd.NA)
+            df["visit_code"] = df["visit_code"].astype("string").fillna(pd.NA)
+            df["panel_name"] = df["panel_name"].astype("string").fillna(pd.NA)
 
             df = df.merge(self.df_utestid, on="panel_name", how="left")
             self._df_requisitions = (
@@ -426,9 +453,11 @@ class ResultImporter:
         if self._df_screening.empty:
             screening_model_cls = django_apps.get_model(settings.SUBJECT_SCREENING_MODEL)
             df = read_frame(
-                screening_model_cls.objects.values("screening_identifier", "site").all(),
+                screening_model_cls.objects.values(
+                    "screening_identifier", "report_datetime", "site"
+                ).all(),
                 verbose=False,
-            )
+            ).rename(columns={"report_datetime": "screening_datetime"})
             df["screening_identifier"] = (
                 df["screening_identifier"].astype("string").fillna(pd.NA)
             )
@@ -440,7 +469,9 @@ class ResultImporter:
     def df_registered_subject(self) -> pd.DataFrame:
         if self._df_registered_subject.empty:
             df = read_frame(
-                RegisteredSubject.objects.values("subject_identifier", "site").all(),
+                RegisteredSubject.objects.values(
+                    "subject_identifier", "screening_identifier", "site"
+                ).all(),
                 verbose=False,
             )
             df["subject_identifier"] = df["subject_identifier"].astype("string").fillna(pd.NA)
@@ -513,20 +544,37 @@ class ResultImporter:
             overwrite=False,
         )
         self.df = df_result.reset_index()
+        self.df = self.df.drop(
+            columns=[c for c in self.df.columns if c.endswith("_right")]
+        ).sort_index()
 
     def resolve_sites(self):
         self.df = self.df.merge(
-            self.df_screening, on="screening_identifier", how="left"
+            self.df_screening[["screening_identifier", "site"]],
+            on="screening_identifier",
+            how="left",
         ).reset_index(drop=True)
         self.df = self.df.merge(
-            self.df_registered_subject, on="subject_identifier", how="left"
+            self.df_registered_subject[["subject_identifier", "site"]],
+            on="subject_identifier",
+            how="left",
         ).reset_index(drop=True)
         self.df["site"] = pd.NA
         self.df.loc[self.df["site_x"].isna(), "site"] = self.df["site_y"]
         self.df.loc[self.df["site_y"].isna(), "site"] = self.df["site_x"]
         self.df = self.df.drop(columns=["site_x", "site_y"])
 
-    def save_to_model(self, df: pd.DataFrame, *, batch_size: int | None = None) -> SaveSummary:
+    def resolve_screening_to_subject(self):
+        mapping = (
+            self.df_registered_subject[["subject_identifier", "screening_identifier"]]
+            .copy()
+            .set_index("screening_identifier")["subject_identifier"]
+        )
+        self.df["subject_identifier"] = self.df["subject_identifier"].fillna(
+            self.df["screening_identifier"].map(mapping)
+        )
+
+    def save_to_model(self, batch_size: int | None = None) -> SaveSummary:
         """Bulk-create ``Result`` rows from *df*."""
         batch_size = batch_size or 500
         skipped = 0
@@ -534,7 +582,7 @@ class ResultImporter:
 
         existing_keys = {
             UniqueValues(*row_tuple)
-            for row_tuple in self.result_model_cls.objects.values_list(
+            for row_tuple in self.result_model_cls().objects.values_list(
                 "order_no",
                 "result_no",
                 "sample_no",
@@ -545,7 +593,7 @@ class ResultImporter:
                 "name_id",
             )
         }
-        for _, row in tqdm(df.iterrows(), total=len(df)):
+        for _, row in tqdm(self.df.iterrows(), total=len(self.df)):
             name_id = to_str(row.get("name_id", ""))
             unique_values = UniqueValues(
                 to_str(row.get("order_no", "")),
@@ -564,7 +612,7 @@ class ResultImporter:
             existing_keys.add(unique_values)
             if batch_size == 1:
                 try:
-                    self.result_model_cls.objects.get(**asdict(unique_values))
+                    self.result_model_cls().objects.get(**asdict(unique_values))
                 except ObjectDoesNotExist:
                     pass
                 else:
@@ -573,14 +621,18 @@ class ResultImporter:
                     continue
             imported_results_batch.append(self.prepare_imported_result(unique_values, row))
             if len(imported_results_batch) >= batch_size:
-                self.result_model_cls.objects.bulk_create(imported_results_batch)
+                if not self.dry_run:
+                    self.result_model_cls().objects.bulk_create(imported_results_batch)
                 imported_results_batch.clear()
 
         if not self.dry_run and imported_results_batch:
-            self.result_model_cls.objects.bulk_create(imported_results_batch)
+            self.result_model_cls().objects.bulk_create(imported_results_batch)
 
         return SaveSummary(
-            created=len(df) - skipped, skipped=skipped, stdout=self.stdout, style=self.style
+            created=len(self.df) - skipped,
+            skipped=skipped,
+            stdout=self.stdout,
+            style=self.style,
         )
 
     def prepare_imported_result(
@@ -588,7 +640,8 @@ class ResultImporter:
         unique_values: UniqueValues,
         row: pd.Series,
     ) -> Result:
-        return self.result_model_cls(
+        model_cls = self.result_model_cls()
+        return model_cls(
             laboratory=self.laboratory,
             order_no=unique_values.order_no,
             result_no=unique_values.result_no,
@@ -598,31 +651,36 @@ class ResultImporter:
             utestid=unique_values.utestid,
             result_datetime=unique_values.result_datetime,
             name_id=unique_values.name_id,
-            subject_identifier=to_str(row.get("subject_identifier", "")),
-            screening_identifier=to_str(row.get("screening_identifier", "")),
-            subject_visit_id=to_pk(row.get("subject_visit")),
-            requisition_id=to_pk(row.get("requisition")),
-            source_file=to_str(row.get("source_file", "")),
-            report_type=to_str(row.get("report_type", "")),
             age=to_int(row.get("age")),
-            sex=to_str(row.get("sex", "")),
-            ordered_by=to_str(row.get("ordered_by", "")),
             clinic_ward=to_str(row.get("clinic_ward", "")),
+            flag=to_str(row.get("flag", "")),
             order_datetime=to_datetime(row.get("order_datetime")),
+            ordered_by=to_str(row.get("ordered_by", "")),
+            priority=to_str(row.get("priority", "")),
+            reference_range_lower=to_decimal(row.get("reference_range_lower")),
+            reference_range_upper=to_decimal(row.get("reference_range_upper")),
             report_datetime=to_datetime(row.get("report_datetime")),
+            report_type=to_str(row.get("report_type", "")),
+            reported_by=to_str(row.get("reported_by", "")),
+            requisition_datetime=to_datetime(row.get("requisition_datetime")),
+            requisition_id=to_pk(row.get("requisition")),
+            requisition_identifier=to_str(row.get("requisition_identifier", "")),
+            result_value=to_decimal(row.get("result")),
+            sample_condition=to_str(row.get("sample_condition", "")),
+            sample_type=to_str(row.get("sample_type", "")),
+            screening_identifier=to_str(row.get("screening_identifier", "")),
+            sex=to_str(row.get("sex", "")),
+            source_file=to_str(row.get("source_file", "")),
             specimen_collected_by=to_str(row.get("specimen_collected_by", "")),
             specimen_collected_datetime=to_datetime(row.get("specimen_collected_datetime")),
             specimen_received_by=to_str(row.get("specimen_received_by", "")),
             specimen_received_datetime=to_datetime(row.get("specimen_received_datetime")),
-            sample_type=to_str(row.get("sample_type", "")),
-            sample_condition=to_str(row.get("sample_condition", "")),
-            priority=to_str(row.get("priority", "")),
-            reported_by=to_str(row.get("reported_by", "")),
+            subject_identifier=to_str(row.get("subject_identifier", "")),
+            subject_visit_id=to_pk(row.get("subject_visit")),
+            units=to_str(row.get("units", "")),
             verified_by=to_str(row.get("verified_by", "")),
             verified_datetime=to_datetime(row.get("verified_datetime")),
-            result_value=to_decimal(row.get("result")),
-            units=to_str(row.get("units", "")),
-            flag=to_str(row.get("flag", "")),
-            reference_range_lower=to_decimal(row.get("reference_range_lower")),
-            reference_range_upper=to_decimal(row.get("reference_range_upper")),
+            visit_code=to_str(row.get("visit_code", "")),
+            visit_code_sequence=to_int(row.get("visit_code_sequence", "")),
+            visit_datetime=to_datetime(row.get("visit_datetime")),
         )
