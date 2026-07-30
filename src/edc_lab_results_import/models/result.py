@@ -5,8 +5,6 @@ from django.db.models import CASCADE
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 
-from ..choices import REQUISITION_MATCH_CATEGORY_CHOICES
-
 
 class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     screening_identifier = models.CharField(
@@ -14,14 +12,6 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         blank=True,
         default="",
         help_text="Screening identifier resolved from name_id.",
-    )
-
-    subject_not_found = models.BooleanField(
-        default=False,
-        help_text=(
-            "True if name_id could not be resolved to a "
-            "subject_identifier or screening_identifier."
-        ),
     )
 
     visit_code = models.CharField(
@@ -43,6 +33,8 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         on_delete=CASCADE,
     )
 
+    visit_datetime = models.DateTimeField(null=True, blank=True)
+
     requisition = models.ForeignKey(
         settings.SUBJECT_REQUISITION_MODEL,
         null=True,
@@ -56,43 +48,7 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         db_index=True,
     )
 
-    requisition_ambiguous = models.BooleanField(
-        default=False,
-        help_text=(
-            "True if multiple SubjectRequisitions matched on the same day. "
-            "Requires manual review."
-        ),
-    )
-
-    requisition_match_category = models.CharField(
-        max_length=25,
-        blank=True,
-        default="",
-        db_index=True,
-        choices=REQUISITION_MATCH_CATEGORY_CHOICES,
-        help_text=(
-            "Outcome/reason of automatic requisition matching, captured at match "
-            "time. Empty until the result has been through matching."
-        ),
-    )
-
-    requisition_match_comment = models.TextField(
-        blank=True,
-        default="",
-        help_text=(
-            "Human-readable reason for the match category (e.g. which panels/visits "
-            "were in contention). Auto-populated at flag time; editable during review."
-        ),
-    )
-
-    requisition_candidates = models.JSONField(
-        default=list,
-        blank=True,
-        help_text=(
-            "Contending requisition_identifiers captured at flag time, so review can "
-            "present the exact choices without recomputing. Empty unless ambiguous."
-        ),
-    )
+    requisition_datetime = models.DateTimeField(null=True, blank=True)
 
     laboratory = models.CharField(
         verbose_name="Laboratory",

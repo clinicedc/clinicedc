@@ -26,7 +26,7 @@ def get_parser(laboratory: str) -> Callable:
         module = import_module(module_path)
     except ModuleNotFoundError as e:
         raise ResultImporterError(f"Cannot import parser module '{module_path}': {e}") from e
-    func = getattr(module, func_name, None)
+    func: Callable | None = getattr(module, func_name, None)
     if func is None:
         raise ResultImporterError(
             f"Parser module '{module_path}' has no attribute '{func_name}'."

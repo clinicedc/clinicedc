@@ -10,12 +10,12 @@ __all__ = ["read_frame_edc"]
 
 
 def read_frame_edc(
-        model_or_queryset: QuerySet | str,
-        *,
-        drop_sys_columns: bool | None = None,
-        drop_action_item_columns: bool | None = None,
-        convert_visit_code_to_float: bool | None = None,
-        read_frame_verbose: bool | None = None,
+    model_or_queryset: QuerySet | str,
+    *,
+    drop_sys_columns: bool | None = None,
+    drop_action_item_columns: bool | None = None,
+    convert_visit_code_to_float: bool | None = None,
+    read_frame_verbose: bool | None = None,
 ):
     if not isinstance(model_or_queryset, QuerySet):
         qs: QuerySet = django_apps.get_model(model_or_queryset).objects.all()

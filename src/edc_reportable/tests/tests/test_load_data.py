@@ -31,8 +31,8 @@ class TestLoadData(TestCase):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
         )
-        self.assertEqual(NormalData.objects.all().count(), 98)
-        self.assertEqual(GradingData.objects.all().count(), 192)
+        self.assertEqual(NormalData.objects.all().count(), 100)
+        self.assertEqual(GradingData.objects.all().count(), 194)
 
     def test_loaded_grades(self):
         load_reference_ranges(
@@ -62,13 +62,13 @@ class TestLoadData(TestCase):
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
         )
-        self.assertEqual(NormalData.objects.all().count(), 98)
-        self.assertEqual(GradingData.objects.all().count(), 192)
+        self.assertEqual(NormalData.objects.all().count(), 100)
+        self.assertEqual(GradingData.objects.all().count(), 194)
         load_reference_ranges(
             "my_reportables", grading_data=grading_data, normal_data=normal_data
         )
-        self.assertEqual(NormalData.objects.all().count(), 98)
-        self.assertEqual(GradingData.objects.all().count(), 192)
+        self.assertEqual(NormalData.objects.all().count(), 100)
+        self.assertEqual(GradingData.objects.all().count(), 194)
 
     def test_description(self):
         load_reference_ranges(

@@ -115,7 +115,7 @@ class SiteConsents:
                 site_id=site_id,
                 raise_if_not_consented=False,
             ):
-                consents.append(consent_obj)
+                consents.append(consent_obj)  # noqa: PERF401
         return consents
 
     def get_consent_or_raise(

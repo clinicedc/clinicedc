@@ -1,21 +1,13 @@
 """Import lab results from a folder of PDF files.
 
-The parser is resolved from the EDC_LAB_RESULTS_PARSERS setting,
-keyed by laboratory name.
+The parser is resolved from the EDC_LAB_RESULTS_PARSERS setting, and the
+utestid/unit mappings are resolved from the EDC_LAB_RESULTS_MAPPING_FILES
+setting, both keyed by laboratory name.
 
 Usage::
-    manage.py import_labs /path/to/pdf_folder --laboratory "MNH"
-    manage.py import_labs /path/to/pdf_folder \
+    manage.py import_results /path/to/pdf_folder --laboratory "MNH"
+    manage.py import_results /path/to/pdf_folder \
         --laboratory "MNH" --dry-run
-
-The --mappings JSON file format::
-
-    {
-        "Haemoglobin": "hgb",
-        "White Cell Count": "wbc",
-        "Platelet Count": "platelets",
-        "Glucose (Fasting)": ""
-    }
 
 """
 
@@ -25,14 +17,14 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 
-from edc_lab_results_import.exceptions import ResultImporterError
+from edc_identifier.utils import is_valid_subject_identifier
 from edc_lab_results_import.result_importer import ResultImporter
 
 
 class Command(BaseCommand):
     """Import lab results from a folder of PDF files.
 
-    See also script `download_gmail_pdfs` if fetching PDFs
+    See also module `download-gmail-pdfs` if fetching PDFs
     from Gmail.
     """
 
@@ -50,7 +42,7 @@ class Command(BaseCommand):
             "--laboratory",
             dest="laboratory",
             default=None,
-            help="Laboratory name (e.g. 'MNH'). Required except for --show-pending.",
+            help="Laboratory name (e.g. 'MNH'). Required.",
         )
         parser.add_argument(
             "--dry-run",
@@ -58,6 +50,14 @@ class Command(BaseCommand):
             dest="dry_run",
             default=False,
             help="Parse and report without saving to the database.",
+        )
+
+        parser.add_argument(
+            "--duplicates-json-path",
+            action="store_true",
+            dest="duplicates_json_path",
+            default=None,
+            help="Path and filename for existing duplicates JSON mapping.",
         )
 
     def handle(self, *args, **options) -> None:  # noqa: ARG002
@@ -68,18 +68,23 @@ class Command(BaseCommand):
     def import_results(self, options: dict) -> None:
         path = options.get("folder", "")
         if not path:
-            raise CommandError("A folder path is required unless --pending is used.")
+            raise CommandError("A folder path is required.")
         path = Path(path).expanduser()
+        duplicates_json_path = options.get("duplicates_json_path")
+        if duplicates_json_path:
+            if not Path(duplicates_json_path).expanduser().exists():
+                raise CommandError(
+                    "Duplicate mapping does not exists. Got {duplicates_json_path}."
+                )
+            duplicates_json_path = Path(duplicates_json_path).expanduser()
         laboratory: str = options.get("laboratory", "")
         dry_run = options.get("dry_run")
-        importer = ResultImporter(laboratory, path, stdout=self.stdout, dry_run=dry_run)
-        self.stdout.write(f"Parsing PDFs from {path} ...")
-        try:
-            df = importer.parse_pdfs_to_dataframe()
-        except ResultImporterError as e:
-            raise CommandError(str(e)) from e
-
-        if df.empty:
-            self.stdout.write(self.style.WARNING("No results extracted."))
-        else:
-            importer.dataframe_to_model(df)
+        importer = ResultImporter(
+            laboratory,
+            path,
+            stdout=self.stdout,
+            dry_run=dry_run,
+            duplicates_json_path=duplicates_json_path,
+            is_valid_identifier_func=is_valid_subject_identifier,
+        )
+        importer.run(to_model=True, df_to_path=path)

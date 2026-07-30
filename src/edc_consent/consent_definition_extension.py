@@ -60,7 +60,7 @@ class ConsentDefinitionExtension:
     start: datetime = field(default=ResearchProtocolConfig().study_open_datetime, compare=True)
     version: str = field(default="1", compare=False)
     extends: ConsentDefinition = field(default=None, compare=False)
-    timepoints: list[int] | None = field(default_factory=list, compare=False)
+    timepoints: list[int] = field(default_factory=list, compare=False)
     site_ids: list[int] = field(default_factory=list, compare=False)
     country: str | None = field(default=None, compare=False)
 
@@ -76,10 +76,11 @@ class ConsentDefinitionExtension:
 
     def update_visit_collection(
         self,
-        visits: VisitCollection = None,
-        subject_identifier: str = None,
-        site_id: str = None,
-        original_visit_collection: VisitCollection = None,
+        visits: VisitCollection,
+        subject_identifier: str,
+        site_id: int | None,
+        *,
+        original_visit_collection: VisitCollection,
     ) -> VisitCollection:
         """Returns the visit collection with or without the
         timepoints of this extension.

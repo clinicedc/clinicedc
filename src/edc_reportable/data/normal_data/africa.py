@@ -221,6 +221,14 @@ normal_data = {
             **adult_age_options,
         ),
     ],
+    "rdw": [
+        Formula(
+            "11.6<=x<=14.8",
+            units=PERCENT,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        ),
+    ],
     "sodium": [
         Formula(
             "136<=x<=145",

@@ -147,6 +147,15 @@ dummies = {
             **adult_age_options,
         ),
     ],
+    "rdw": [
+        Formula(
+            "x<0",
+            grade=0,
+            units=PERCENT,
+            gender=[MALE, FEMALE],
+            **adult_age_options,
+        )
+    ],
 }
 
 

@@ -1,18 +1,23 @@
+import numpy as np
 import pandas as pd
 from clinicedc_utils import convert_visit_code_to_float
 from django.apps import apps as django_apps
+from django.conf import settings
 from django_pandas.io import read_frame
 
 from edc_appointment.models import AppointmentType
+from edc_visit_tracking.constants import MISSED_VISIT
+from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
 from ..utils import convert_dates_from_model
 
 
 def get_subject_visit(
-        model: str,
-        subject_identifiers: list[str] | None = None,
-        normalize: bool | None = None,
-        localize: bool | None = None,
+    model: str | None = None,
+    subject_identifiers: list[str] | None = None,
+    normalize: bool | None = None,
+    localize: bool | None = None,
+    baseline_visit_code: float | None = None,
 ) -> pd.DataFrame:
     """Read subject visit django model.
 
@@ -25,6 +30,8 @@ def get_subject_visit(
     """
     normalize = True if normalize is None else normalize
     localize = True if localize is None else localize
+    baseline_visit_code = 1000.0 if baseline_visit_code is None else baseline_visit_code
+    model = settings.SUBJECT_VISIT_MODEL if model is None else model
     model_cls = django_apps.get_model(model)
 
     values = [
@@ -96,7 +103,8 @@ def get_subject_visit(
 
     df_baseline_visit = df.copy()
     df_baseline_visit = df_baseline_visit[
-        (df_baseline_visit["visit_code"] == 1000.0)]  # noqa: PLR2004
+        (df_baseline_visit["visit_code"] == baseline_visit_code)
+    ]
     df_baseline_visit = df_baseline_visit.rename(
         columns={"visit_datetime": "baseline_datetime"}
     )
@@ -116,17 +124,39 @@ def get_subject_visit(
             "visit_datetime": "endline_visit_datetime",
         }
     )
-    df_last["endline_visit_code_str"] = (
-        df_last["endline_visit_code"].astype("int64").apply(str)
+    # df_last["endline_visit_code_str"] = (
+    #     df_last["endline_visit_code"].astype("int64").apply(str)
+    # )
+    df_last = df_last.assign(
+        endline_visit_code_str=df_last["endline_visit_code"]
+        .astype(str)
+        .str.split(".", n=1)
+        .str[0],
+        endline_visit_code_sequence=pd.to_numeric(
+            df_last["endline_visit_code"].astype(str).str.split(".", n=1).str[1],
+            errors="coerce",
+        ).astype("Int64"),
     )
+
     df_last = df_last.reset_index()
     df = df.merge(df_last, on="subject_identifier", how="left")
 
-    df["followup_days"] = (df.visit_datetime - df.baseline_datetime).dt.days
-    df["visit_count"] = df.groupby(by=["subject_identifier"])["subject_identifier"].transform(
-        "count"
+    df_missed = read_frame(
+        get_subject_visit_missed_model_cls(), verbose=False, coerce_float=True
     )
-    df.convert_dtypes()
-    for column in df.select_dtypes(include="string").columns:
+
+    df["followup_days"] = (df.visit_datetime - df.baseline_datetime).dt.days
+    df = df.sort_values(by=["subject_identifier", "visit_code"])
+    df["visit_count_cumulative"] = (
+        (df["reason"] != MISSED_VISIT).groupby(df["subject_identifier"]).cumsum()
+    )
+    df["visit_count_total"] = (
+        (df["reason"] != MISSED_VISIT).groupby(df["subject_identifier"]).transform("sum")
+    )
+
+    df["visit_attended"] = np.where(df["reason"] != MISSED_VISIT, 1, 0)
+
+    df = df.convert_dtypes()
+    for column in ["subject_visit_id", "appointment_id"]:
         df[column] = df[column].astype(pd.StringDtype(na_value=pd.NA))
     return df.sort_values(by=["subject_identifier", "visit_code"]).reset_index(drop=True)
