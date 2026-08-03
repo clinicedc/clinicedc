@@ -141,10 +141,6 @@ def get_subject_visit(
     df_last = df_last.reset_index()
     df = df.merge(df_last, on="subject_identifier", how="left")
 
-    df_missed = read_frame(
-        get_subject_visit_missed_model_cls(), verbose=False, coerce_float=True
-    )
-
     df["followup_days"] = (df.visit_datetime - df.baseline_datetime).dt.days
     df = df.sort_values(by=["subject_identifier", "visit_code"])
     df["visit_count_cumulative"] = (
