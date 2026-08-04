@@ -58,6 +58,10 @@ def get_crf(
         raise ValueError("This is not a CRF. Requires col subject_visit_id.")
 
     df = df.reset_index(drop=True)
+    # preserve the original (UUID) value for the final output, and cast the
+    # merge key to str so it matches get_subject_visit()'s subject_visit_id dtype
+    df["subject_visit_id_original"] = df["subject_visit_id"]
+    df["subject_visit_id"] = df["subject_visit_id"].astype(str)
     df_subject_visit = get_subject_visit(
         subject_visit_model, subject_identifiers=subject_identifiers
     )
@@ -69,8 +73,6 @@ def get_crf(
         .reset_index(drop=True)
     )
 
-    df["subject_visit_id_original"] = df["subject_visit_id"]
-    df["subject_visit_id"] = df["subject_visit_id"].astype(str)
     for field in model_cls._meta.get_fields():
         if isinstance(field, models.ManyToManyField):
             df_m2m = (
