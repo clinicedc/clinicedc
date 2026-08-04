@@ -258,7 +258,13 @@ normal_data = {
         Formula(
             "0.15<=x<=0.35",
             units=MILLIMOLES_PER_LITER,
-            gender=[MALE, FEMALE],
+            gender=[FEMALE],
+            **adult_age_options,
+        ),
+        Formula(
+            "0.19<=x<=0.46",
+            units=MILLIMOLES_PER_LITER,
+            gender=[MALE],
             **adult_age_options,
         ),
         Formula(
