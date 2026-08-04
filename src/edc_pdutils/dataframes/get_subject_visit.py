@@ -6,6 +6,7 @@ from django.conf import settings
 from django_pandas.io import read_frame
 
 from edc_appointment.models import AppointmentType
+from edc_appointment.utils import get_appointment_model_cls
 from edc_visit_tracking.constants import MISSED_VISIT
 from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
@@ -71,6 +72,14 @@ def get_subject_visit(
             "appointment__appt_timing": "appt_timing",
             "appointment__appt_type": "appt_type",
         }
+    )
+    # ``appt_datetime`` is an Appointment field, reached via the
+    # ``appointment__appt_datetime`` relation lookup above, so the
+    # convert_dates_from_model() call against SubjectVisit's own fields
+    # never matched it. Localize/normalize it here against Appointment's
+    # field so it's consistent with appt_datetime elsewhere (e.g. get_appointment_df).
+    df = convert_dates_from_model(
+        df, get_appointment_model_cls(), normalize=normalize, localize=localize
     )
     df = df[
         [

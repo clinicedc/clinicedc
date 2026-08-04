@@ -26,6 +26,8 @@ def convert_dates_from_model(
             source_df[date_cols] = source_df[date_cols].apply(lambda x: x.dt.normalize())
         if localize:
             source_df[date_cols] = source_df[date_cols].apply(
-                lambda x: (x.dt.tz_localize(None) if x.dtype == "datetime64[ns, UTC]" else x)
+                lambda x: (
+                    x.dt.tz_localize(None) if isinstance(x.dtype, pd.DatetimeTZDtype) else x
+                )
             )
     return source_df

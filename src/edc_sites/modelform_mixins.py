@@ -48,9 +48,10 @@ class SiteModelFormMixin:
     def validate_with_current_site(self) -> None:
         current_site = getattr(self, "current_site", None)
         if current_site and self.site and current_site.id != self.site.id:
+            fld = "site" if "site" in self.cleaned_data else "__all__"
             raise forms.ValidationError(
                 {
-                    "site": (
+                    fld: (
                         "Invalid. Please check you are logged into the correct site "
                         "before continuing"
                     )
