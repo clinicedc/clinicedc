@@ -426,7 +426,6 @@ class TestReturn(TestCase):
                 item_count=1,
             )
 
-    @tag("27")
     def test_allocation_held_until_disposition(self):
         """Allocation is NOT ended at dispatch or receipt — only at disposition.
 

@@ -36,9 +36,7 @@ class TestArchiveExporter(TestCase):
         Site.objects.get_current()
         # dob is a populated DateField (datetime.date object); leaving other
         # nullable fields unset also exercises the all-null column path
-        RegisteredSubject.objects.create(
-            subject_identifier="12345", dob=date(1990, 6, 15)
-        )
+        RegisteredSubject.objects.create(subject_identifier="12345", dob=date(1990, 6, 15))
         self.models = ["auth.user", "edc_registration.registeredsubject"]
 
     def test_request_archive(self):
@@ -58,6 +56,7 @@ class TestArchiveExporter(TestCase):
         self.assertIsNotNone(filename)
         self.assertTrue(filename.exists(), msg=f"file '{filename}' does not exist")
 
+    @tag("37")
     def test_request_archive_stata(self):
         """A STATA export must not raise on object columns to_stata can't write.
 

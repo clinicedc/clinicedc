@@ -6,19 +6,17 @@ from django.conf import settings
 from django_pandas.io import read_frame
 
 from edc_appointment.models import AppointmentType
-from edc_appointment.utils import get_appointment_model_cls
 from edc_visit_tracking.constants import MISSED_VISIT
-from edc_visit_tracking.utils import get_subject_visit_missed_model_cls
 
-from ..utils import convert_dates_from_model
+from ..utils.convert_dates_from_model import normalize_date_columns
 
 
 def get_subject_visit(
     model: str | None = None,
     subject_identifiers: list[str] | None = None,
-    normalize: bool | None = None,
-    localize: bool | None = None,
     baseline_visit_code: float | None = None,
+    keep_as_uuid: bool | None = None,
+    normalize: bool | None = None,
 ) -> pd.DataFrame:
     """Read subject visit django model.
 
@@ -29,8 +27,6 @@ def get_subject_visit(
 
     Adds baseline and endline visit datetime and endline_visit_code
     """
-    normalize = True if normalize is None else normalize
-    localize = True if localize is None else localize
     baseline_visit_code = 1000.0 if baseline_visit_code is None else baseline_visit_code
     model = settings.SUBJECT_VISIT_MODEL if model is None else model
     model_cls = django_apps.get_model(model)
@@ -60,7 +56,8 @@ def get_subject_visit(
     else:
         qs_subject_visit = model_cls.objects.values(*values).all()
     df = read_frame(qs_subject_visit, verbose=False)
-    df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
+    if normalize:
+        df = normalize_date_columns(df, columns=[*df.select_dtypes(include="datetimetz")])
     df = df.rename(
         columns={
             "id": "subject_visit_id",
@@ -72,14 +69,6 @@ def get_subject_visit(
             "appointment__appt_timing": "appt_timing",
             "appointment__appt_type": "appt_type",
         }
-    )
-    # ``appt_datetime`` is an Appointment field, reached via the
-    # ``appointment__appt_datetime`` relation lookup above, so the
-    # convert_dates_from_model() call against SubjectVisit's own fields
-    # never matched it. Localize/normalize it here against Appointment's
-    # field so it's consistent with appt_datetime elsewhere (e.g. get_appointment_df).
-    df = convert_dates_from_model(
-        df, get_appointment_model_cls(), normalize=normalize, localize=localize
     )
     df = df[
         [
@@ -106,7 +95,7 @@ def get_subject_visit(
     mapping = {obj.id: obj.name for obj in AppointmentType.objects.all().order_by("id")}
     df["appt_type"] = df["appt_type"].map(mapping)
 
-    df["visit_datetime"] = df["visit_datetime"].apply(pd.to_datetime)
+    df["visit_datetime"] = df["visit_datetime"].apply(pd.to_datetime, utc=True)
 
     df = convert_visit_code_to_float(df)
 
@@ -162,6 +151,7 @@ def get_subject_visit(
     df["visit_attended"] = np.where(df["reason"] != MISSED_VISIT, 1, 0)
 
     df = df.convert_dtypes()
-    for column in ["subject_visit_id", "appointment_id"]:
-        df[column] = df[column].astype(pd.StringDtype(na_value=pd.NA))
+    if not keep_as_uuid:
+        for column in ["subject_visit_id", "appointment_id"]:
+            df[column] = df[column].astype(pd.StringDtype(na_value=pd.NA))
     return df.sort_values(by=["subject_identifier", "visit_code"]).reset_index(drop=True)

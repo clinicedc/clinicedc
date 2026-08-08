@@ -29,7 +29,7 @@ class UpdateMetadataOnScheduleChange:
                 style.WARNING("This is a dry run. No records will be updated. \n")
             )
             sys.stdout.write(
-                "These models need to updated with the new "
+                "These models need to be updated with the new "
                 f"value for field '{self.fieldname}'.\n"
                 f"Old value='{self.old_value}', New value='{self.new_value}'.\n"
             )

@@ -24,7 +24,6 @@ def get_crf(
     drop_columns: list[str] | None = None,
     subject_identifiers: list[str] | None = None,
     normalize: bool | None = None,
-    localize: bool | None = None,
     read_verbose: bool | None = None,
     drop_sys_columns: bool | None = None,
     drop_action_item_columns: bool | None = None,
@@ -37,8 +36,6 @@ def get_crf(
     Rename columns site to site_id, subject_visit to subject_visit_id
     """
 
-    normalize = True if normalize is None else normalize
-    localize = True if localize is None else localize
     read_verbose = True if read_verbose is None else read_verbose
     model_cls = django_apps.get_model(model)
     if subject_identifiers:
@@ -124,6 +121,6 @@ def get_crf(
 
     # convert values to ...
     df = convert_numbers_to_nullable_dtype(df)
-    df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
+    df = convert_dates_from_model(df, model_cls, normalize=normalize)
     df = convert_timedelta_from_model(df, model_cls)
     return df.replace("", pd.NA).fillna(pd.NA).reset_index(drop=True)

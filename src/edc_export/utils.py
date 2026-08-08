@@ -132,7 +132,6 @@ def record_cli_export_audit(
     *,
     decrypt: bool,
     export_format: str | int,
-    site_ids: list[int] | None = None,
     countries: list[str] | None = None,
     trial_prefix: str | None = None,
     include_historical: bool = False,
@@ -144,10 +143,6 @@ def record_cli_export_audit(
     CLI exports have no `request` object, so the management command calls
     this helper to leave an equivalent audit trail: who ran the export,
     what models, with what filters, decrypted or not, where it landed.
-
-    The `site` FK is left null; `SiteModelMixin.get_site_on_create` will
-    assign from `settings.SITE_ID` at save-time, matching how other
-    CLI-created rows behave.
 
     Returns the (data_request, data_request_history) instances (primarily
     for tests).
@@ -164,8 +159,6 @@ def record_cli_export_audit(
     ]
     if trial_prefix:
         description_lines.append(f"trial_prefix={trial_prefix}")
-    if site_ids:
-        description_lines.append(f"site_ids={','.join(str(s) for s in site_ids)}")
     if countries:
         description_lines.append(f"countries={','.join(countries)}")
     if export_path is not None:
@@ -233,6 +226,7 @@ def get_default_models_for_export(trial_prefix: str) -> list[str]:
         "edc_metadata.requisitionmetadata",
         "edc_registration.registeredsubject",
         "edc_visit_schedule.subjectschedulehistory",
+        "edc_lab_results_import.result",
     ]
 
     # prepare a list of model names in label lower format

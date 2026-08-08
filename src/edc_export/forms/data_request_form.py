@@ -21,8 +21,8 @@ class DataRequestForm(FormValidatorMixin, forms.ModelForm):
             for model in requested:
                 try:
                     django_apps.get_model(model)
-                except (LookupError, ValueError):
-                    raise forms.ValidationError(f"Invalid model. Got '{model}'")
+                except (LookupError, ValueError) as err:
+                    raise forms.ValidationError(f"Invalid model. Got '{model}'") from err
         return cleaned_data
 
     class Meta:

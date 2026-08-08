@@ -69,17 +69,17 @@ class ModelToDataframe:
     }
 
     def __init__(
-            self,
-            model: str | None = None,
-            queryset: QuerySet | None = None,
-            query_filter: dict | None = None,
-            decrypt: bool | None = None,
-            drop_sys_columns: bool | None = None,
-            drop_action_item_columns: bool | None = None,
-            read_frame_verbose: bool | None = None,
-            remove_timezone: bool | None = None,
-            sites: list[int] | None = None,
-            convert_visit_code_to_float: bool | None = None,
+        self,
+        model: str | None = None,
+        queryset: QuerySet | None = None,
+        query_filter: dict | None = None,
+        decrypt: bool | None = None,
+        drop_sys_columns: bool | None = None,
+        drop_action_item_columns: bool | None = None,
+        read_frame_verbose: bool | None = None,
+        remove_timezone: bool | None = None,
+        sites: list[int] | None = None,
+        convert_visit_code_to_float: bool | None = None,
     ):
         self._columns = None
         self._has_encrypted_fields = None
@@ -120,7 +120,7 @@ class ModelToDataframe:
 
         # by default exports for all sites
         if self.sites and (
-                "site" in self.model_field_names or "site_id" in self.model_field_names
+            "site" in self.model_field_names or "site_id" in self.model_field_names
         ):
             self.query_filter.update({"site__in": self.sites})
 
@@ -164,13 +164,18 @@ class ModelToDataframe:
             df = df.rename(columns=self.columns)
 
             # remove timezone if asked. Note: tz-aware columns
-            # (datetime64[ns, UTC]) are selected with "datetimetz", not
+            # (datetime64[us, UTC]) are selected with "datetimetz", not
             # "datetime" (which only matches tz-naive datetime64). With
-            # USE_TZ=True Django datetimes are tz-aware, so selecting on
-            # "datetime" alone stripped nothing.
+            # USE_TZ=True Django datetimes are tz-aware.
             if self.remove_timezone:
                 for column in df.select_dtypes(include="datetimetz").columns:
-                    df[column] = df[column].dt.tz_localize(None)
+                    try:
+                        df[column] = df[column].dt.tz_localize(None)
+                    except AttributeError as e:
+                        raise AttributeError(
+                            "Failed to localize date columns. "
+                            f"{self.model}.{column} dtype {df[column]}. Got {e}"
+                        ) from e
 
             # convert bool to int64
             for column in df.select_dtypes(include=["bool"]).columns:
@@ -202,16 +207,16 @@ class ModelToDataframe:
             self.validate_row_count(model_row_count, df, step_name="final")
 
             if (
-                    self.convert_visit_code_to_float
-                    and "visit_code" in df.columns
-                    and "visit_code_sequence" in df.columns
+                self.convert_visit_code_to_float
+                and "visit_code" in df.columns
+                and "visit_code_sequence" in df.columns
             ):
                 df = func_convert_visit_code_to_float(df)
             self._dataframe = df
         return self._dataframe
 
     def validate_row_count(
-            self, model_row_count: int, df: pd.DataFrame, step_name: str
+        self, model_row_count: int, df: pd.DataFrame, step_name: str
     ) -> bool:
         if model_row_count != len(df):
             model = (self.queryset or self.model_cls)._meta.label_lower
@@ -271,9 +276,9 @@ class ModelToDataframe:
         ]
         new_columns = {k: v for k, v in columns.items() if k not in system_columns}
         if (
-                system_columns
-                and len(new_columns.keys()) != len(columns.keys())
-                and not self.drop_sys_columns
+            system_columns
+            and len(new_columns.keys()) != len(columns.keys())
+            and not self.drop_sys_columns
         ):
             new_columns.update({k: k for k in system_columns})
         return new_columns
@@ -284,8 +289,8 @@ class ModelToDataframe:
         ]
         new_columns = {k: v for k, v in columns.items() if k not in ACTION_ITEM_COLUMNS}
         if action_item_columns and (
-                len(new_columns.keys()) != len(columns.keys())
-                and not self.drop_action_item_columns
+            len(new_columns.keys()) != len(columns.keys())
+            and not self.drop_action_item_columns
         ):
             new_columns.update({k: k for k in ACTION_ITEM_COLUMNS})
         return new_columns
@@ -307,7 +312,7 @@ class ModelToDataframe:
                     with contextlib.suppress(FieldError):
                         columns = self.add_columns_for_subject_visit(field_name, columns)
                 if field_name.endswith("_requisition") or field_name.endswith(
-                        "requisition_id"
+                    "requisition_id"
                 ):
                     columns = self.add_columns_for_subject_requisitions(columns)
             columns = self.add_columns_for_site(columns)
@@ -361,10 +366,9 @@ class ModelToDataframe:
             list_model_related_columns = []
             for fld_cls in self.model_cls._meta.get_fields():
                 if (
-                        hasattr(fld_cls, "related_model")
-                        and fld_cls.related_model
-                        and issubclass(fld_cls.related_model, (ListModelMixin,
-                                                               ListUuidModelMixin))
+                    hasattr(fld_cls, "related_model")
+                    and fld_cls.related_model
+                    and issubclass(fld_cls.related_model, (ListModelMixin, ListUuidModelMixin))
                 ):
                     list_model_related_columns.append(fld_cls.attname)  # noqa: PERF401
             self._list_model_related_columns = list(set(list_model_related_columns))
@@ -378,9 +382,9 @@ class ModelToDataframe:
             site_columns = []
             for fld_cls in self.model_cls._meta.get_fields():
                 if (
-                        hasattr(fld_cls, "related_model")
-                        and fld_cls.related_model
-                        and issubclass(fld_cls.related_model, (get_site_model_cls(),))
+                    hasattr(fld_cls, "related_model")
+                    and fld_cls.related_model
+                    and issubclass(fld_cls.related_model, (get_site_model_cls(),))
                 ):
                     site_columns.append(fld_cls.attname)  # noqa: PERF401
             self._site_columns = list(set(site_columns))
@@ -394,9 +398,9 @@ class ModelToDataframe:
             list_model_related_columns = []
             for fld_cls in self.model_cls._meta.get_fields():
                 if (
-                        hasattr(fld_cls, "related_model")
-                        and fld_cls.related_model
-                        and fld_cls.related_model in related_model
+                    hasattr(fld_cls, "related_model")
+                    and fld_cls.related_model
+                    and fld_cls.related_model in related_model
                 ):
                     list_model_related_columns.append(fld_cls.attname)  # noqa: PERF401
             self._list_model_related_columns = list(set(list_model_related_columns))
@@ -421,19 +425,26 @@ class ModelToDataframe:
 
     @staticmethod
     def add_columns_for_subject_visit(
-            column_name: str, columns: dict[str, str]
+        column_name: str, columns: dict[str, str]
     ) -> dict[str, str]:
         if "subject_identifier" not in [v for v in columns.values()]:
             columns.update(
                 {f"{column_name}__appointment__subject_identifier": "subject_identifier"}
             )
-        columns.update({f"{column_name}__appointment__appt_datetime": "appointment_datetime"})
-        columns.update({f"{column_name}__appointment__visit_code": "visit_code"})
-        columns.update(
-            {f"{column_name}__appointment__visit_code_sequence": "visit_code_sequence"}
-        )
-        columns.update({f"{column_name}__report_datetime": "visit_datetime"})
-        columns.update({f"{column_name}__reason": "visit_reason"})
+        if "appointment_datetime" not in [v for v in columns.values()]:
+            columns.update(
+                {f"{column_name}__appointment__appt_datetime": "appointment_datetime"}
+            )
+        if "visit_code" not in [v for v in columns.values()]:
+            columns.update({f"{column_name}__appointment__visit_code": "visit_code"})
+        if "visit_code_sequence" not in [v for v in columns.values()]:
+            columns.update(
+                {f"{column_name}__appointment__visit_code_sequence": "visit_code_sequence"}
+            )
+        if "visit_datetime" not in [v for v in columns.values()]:
+            columns.update({f"{column_name}__report_datetime": "visit_datetime"})
+        if "visit_reason" not in [v for v in columns.values()]:
+            columns.update({f"{column_name}__reason": "visit_reason"})
         return columns
 
     @staticmethod
