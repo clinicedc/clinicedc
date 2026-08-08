@@ -10,12 +10,9 @@ def get_eos(
     model: str,
     subject_identifiers: list[str] | None = None,
     normalize: bool | None = None,
-    localize: bool | None = None,
     fields: list[str] | None = None,
     all_fields: bool | None = None,
 ) -> pd.DataFrame:
-    normalize = True if normalize is None else normalize
-    localize = True if localize is None else localize
     model_cls = django_apps.get_model(model)
 
     if all_fields:

@@ -14,11 +14,8 @@ def get_subject_consent(
     subject_identifiers: list[str] | None = None,
     extra_columns: list[str] | None = None,
     normalize: bool | None = None,
-    localize: bool | None = None,
 ) -> pd.DataFrame:
     extra_columns = extra_columns or []
-    normalize = True if normalize is None else normalize
-    localize = True if localize is None else localize
     model_cls = model_cls or django_apps.get_model(model)
     value_cols = [
         "subject_identifier",

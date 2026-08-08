@@ -14,9 +14,9 @@ from ..utils.convert_dates_from_model import normalize_date_columns
 def get_subject_visit(
     model: str | None = None,
     subject_identifiers: list[str] | None = None,
-    normalize: bool | None = None,
     baseline_visit_code: float | None = None,
     keep_as_uuid: bool | None = None,
+    normalize: bool | None = None,
 ) -> pd.DataFrame:
     """Read subject visit django model.
 
@@ -27,7 +27,6 @@ def get_subject_visit(
 
     Adds baseline and endline visit datetime and endline_visit_code
     """
-    normalize = True if normalize is None else normalize
     baseline_visit_code = 1000.0 if baseline_visit_code is None else baseline_visit_code
     model = settings.SUBJECT_VISIT_MODEL if model is None else model
     model_cls = django_apps.get_model(model)
@@ -57,7 +56,8 @@ def get_subject_visit(
     else:
         qs_subject_visit = model_cls.objects.values(*values).all()
     df = read_frame(qs_subject_visit, verbose=False)
-    df = normalize_date_columns(df, columns=[*df.select_dtypes(include="datetimetz")])
+    if normalize:
+        df = normalize_date_columns(df, columns=[*df.select_dtypes(include="datetimetz")])
     df = df.rename(
         columns={
             "id": "subject_visit_id",

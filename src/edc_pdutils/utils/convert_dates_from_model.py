@@ -11,18 +11,6 @@ def normalize_date_columns(source_df: pd.DataFrame, columns: list[str] | None = 
     return source_df
 
 
-def localize_date_columns(source_df: pd.DataFrame):
-    columns = source_df.select_dtypes(include="datetimetz").columns
-    source_df[columns] = source_df[columns].apply(
-        lambda x: (
-            x.dt.tz_convert("UTC").dt.tz_localize(None)
-            if isinstance(x.dtype, pd.DatetimeTZDtype)
-            else x
-        )
-    )
-    return source_df
-
-
 def get_model_fields_by_type(model_cls, fieldtype: str):
     cols = []
     for field_cls in model_cls._meta.get_fields():

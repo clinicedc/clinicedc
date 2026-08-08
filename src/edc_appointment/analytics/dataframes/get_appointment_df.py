@@ -14,7 +14,6 @@ def get_appointment_df(
     site_id: int | None = None,
     filter_opts: dict | None = None,
 ) -> pd.DataFrame:
-    normalize = True if normalize is None else normalize
     appointment_model_cls = get_appointment_model_cls()
     appointment_type_model_cls = django_apps.get_model("edc_appointment.appointmenttype")
     opts = filter_opts or {}
