@@ -77,7 +77,6 @@ class TestRecordCliExportAudit(TestCase):
             models_to_file=_fake_models_to_file(),
             decrypt=True,
             export_format=118,
-            site_ids=[10, 20],
             countries=["uganda"],
             trial_prefix="effect",
             include_historical=True,
@@ -88,7 +87,6 @@ class TestRecordCliExportAudit(TestCase):
         self.assertIn("decrypt=True", desc)
         self.assertIn("include_historical=True", desc)
         self.assertIn("trial_prefix=effect", desc)
-        self.assertIn("site_ids=10,20", desc)
         self.assertIn("countries=uganda", desc)
         self.assertIn("export_path=/exports", desc)
         self.assertIn("export_format=118", desc)

@@ -224,9 +224,7 @@ class ModelsToFile:
         #    is not matched here.
         for column in dataframe.select_dtypes(include="object").columns:
             non_null = dataframe[column].dropna()
-            if not non_null.empty and non_null.map(
-                lambda v: isinstance(v, date)
-            ).all():
+            if not non_null.empty and non_null.map(lambda v: isinstance(v, date)).all():
                 dataframe[column] = pd.to_datetime(dataframe[column])
         # 3. all-null object/string columns -> ""
         for column in dataframe.columns:

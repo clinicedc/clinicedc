@@ -69,9 +69,7 @@ def _validate_export_path_or_raise(path: Path, decrypt: bool) -> list[str]:
             try:
                 group_info = grp.getgrgid(st.st_gid)
                 owner_name = pwd.getpwuid(st.st_uid).pw_name
-                primary_members = {
-                    p.pw_name for p in pwd.getpwall() if p.pw_gid == st.st_gid
-                }
+                primary_members = {p.pw_name for p in pwd.getpwall() if p.pw_gid == st.st_gid}
                 all_members = set(group_info.gr_mem) | primary_members
                 if not all_members <= {owner_name}:
                     warnings.append(
@@ -298,7 +296,6 @@ class Command(BaseCommand):
                 models_to_file=models_to_file,
                 decrypt=bool(self.decrypt),
                 export_format=export_format,
-                site_ids=site_ids,
                 countries=self.countries,
                 trial_prefix=self.options.get("trial_prefix") or None,
                 include_historical=bool(self.options.get("include_historical")),
@@ -308,9 +305,7 @@ class Command(BaseCommand):
         except Exception as e:
             # audit failure must never break a completed export; surface it.
             sys.stderr.write(
-                style.WARNING(
-                    f"WARNING: failed to record export audit log: {e!r}\n"
-                )
+                style.WARNING(f"WARNING: failed to record export audit log: {e!r}\n")
             )
 
         sys.stdout.write(
