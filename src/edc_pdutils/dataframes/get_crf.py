@@ -124,6 +124,6 @@ def get_crf(
 
     # convert values to ...
     df = convert_numbers_to_nullable_dtype(df)
-    df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
+    df = convert_dates_from_model(df, model_cls, normalize=normalize)
     df = convert_timedelta_from_model(df, model_cls)
     return df.replace("", pd.NA).fillna(pd.NA).reset_index(drop=True)

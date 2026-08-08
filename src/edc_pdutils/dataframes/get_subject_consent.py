@@ -43,9 +43,9 @@ def get_subject_consent(
     df = df.rename(columns={"site": "site_id"})
     df["gender"] = pd.Categorical(df["gender"], categories=[FEMALE, MALE], ordered=True)
     for col in ["dob", "consent_datetime", "report_datetime", "created"]:
-        df[col] = df[col].apply(pd.to_datetime, errors="coerce")
+        df[col] = df[col].apply(pd.to_datetime, errors="coerce", utc=True)
 
-    df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
+    df = convert_dates_from_model(df, model_cls, normalize=normalize)
     if not df["consent_datetime"].empty:
         df["age_in_years"] = df["consent_datetime"].dt.year - df["dob"].dt.year
         df["age_in_years"] = df["age_in_years"].astype("int64")

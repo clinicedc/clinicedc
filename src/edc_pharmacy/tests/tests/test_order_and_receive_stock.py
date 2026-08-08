@@ -661,6 +661,7 @@ class TestOrderReceive(TestCase):
             # process
             process_repack_request(repack_request.pk, username="aroy")
 
+    @tag("27")
     @time_machine.travel(datetime(2025, 6, 15, 8, 00, tzinfo=utc_tz))
     @override_settings(
         SITE_ID=10,

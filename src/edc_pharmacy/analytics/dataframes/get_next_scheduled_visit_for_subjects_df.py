@@ -25,7 +25,6 @@ def get_next_scheduled_visit_for_subjects_df(
     filter_opts = filter_opts or {}
     df_appt = get_appointment_df(
         normalize=True,
-        localize=True,
         values=[
             "id",
             "subject_identifier",
@@ -45,21 +44,15 @@ def get_next_scheduled_visit_for_subjects_df(
     else:
         if stock_request:
             if stock_request.start_datetime:
-                df_appt = df_appt[
-                    df_appt.next_appt_datetime.dt.normalize()
-                    >= stock_request.start_datetime.replace(
-                        hour=0, minute=0, second=0, microsecond=0
-                    )
-                ]
-                df_appt = df_appt.reset_index(drop=True)
+                mask = df_appt.next_appt_datetime >= pd.Timestamp(
+                    stock_request.start_datetime
+                ).replace(hour=0, minute=0, second=0, microsecond=0)
+                df_appt = df_appt[mask].reset_index(drop=True)
             if stock_request.cutoff_datetime:
-                df_appt = df_appt[
-                    df_appt.next_appt_datetime.dt.normalize()
-                    <= stock_request.cutoff_datetime.replace(
-                        hour=0, minute=0, second=0, microsecond=0
-                    )
-                ]
-                df_appt = df_appt.reset_index(drop=True)
+                mask = df_appt.next_appt_datetime <= pd.Timestamp(
+                    stock_request.cutoff_datetime
+                ).replace(hour=0, minute=0, second=0, microsecond=0)
+                df_appt = df_appt[mask].reset_index(drop=True)
         # get the first appointment due
         df = (
             df_appt[(df_appt.appt_status == NEW_APPT) & (df_appt.visit_code_sequence == 0)]

@@ -32,7 +32,7 @@ def get_eos(
 
     df = read_frame(qs, verbose=True)
 
-    df = convert_dates_from_model(df, model_cls, normalize=normalize, localize=localize)
+    df = convert_dates_from_model(df, model_cls, normalize=normalize)
 
     df["site_id"] = df["site"].map({obj.domain: obj.id for obj in Site.objects.all()})
     return (

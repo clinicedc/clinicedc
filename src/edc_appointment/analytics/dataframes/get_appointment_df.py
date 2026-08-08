@@ -2,7 +2,7 @@ import pandas as pd
 from django.apps import apps as django_apps
 from django_pandas.io import read_frame
 
-from edc_pdutils.utils import convert_dates_from_model
+from edc_pdutils.utils.convert_dates_from_model import normalize_date_columns
 
 from ...constants import NEW_APPT
 from ...utils import get_appointment_model_cls
@@ -10,13 +10,11 @@ from ...utils import get_appointment_model_cls
 
 def get_appointment_df(
     normalize: bool | None = None,
-    localize: bool | None = None,
     values: list[str] | None = None,
     site_id: int | None = None,
     filter_opts: dict | None = None,
 ) -> pd.DataFrame:
     normalize = True if normalize is None else normalize
-    localize = True if localize is None else localize
     appointment_model_cls = get_appointment_model_cls()
     appointment_type_model_cls = django_apps.get_model("edc_appointment.appointmenttype")
     opts = filter_opts or {}
@@ -28,9 +26,6 @@ def get_appointment_df(
         )
     else:
         df_appt = read_frame(appointment_model_cls.objects.filter(**opts), verbose=False)
-    df_appt = convert_dates_from_model(
-        df_appt, appointment_model_cls, normalize=normalize, localize=localize
-    )
     df_appt = df_appt.rename(
         columns={
             "id": "appointment_id",
@@ -93,4 +88,10 @@ def get_appointment_df(
     df_appt = df_appt.drop(columns=["appt_type"])
     df_appt = df_appt.rename(columns={"name": "appt_type"})
 
+    if "timepoint_closed_datetime" in df_appt.columns:
+        df_appt["timepoint_closed_datetime"] = df_appt["timepoint_closed_datetime"].astype(
+            pd.DatetimeTZDtype(tz="UTC")
+        )
+    if normalize:
+        df_appt = normalize_date_columns(source_df=df_appt)
     return df_appt
