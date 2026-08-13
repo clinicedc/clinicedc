@@ -18,7 +18,7 @@ from parse_trial_labs import parse_folder
 from tqdm import tqdm
 
 from edc_appointment.constants import ONTIME_APPT
-from edc_lab.constants import FINGER_PRICK
+from edc_lab.dataframes import get_requisition_df
 from edc_lab.site_labs import site_labs
 from edc_lab_panel.constants import (
     BASOPHILS,
@@ -350,52 +350,7 @@ class ResultImporter:
     @property
     def df_requisitions(self) -> pd.DataFrame:
         if self._df_requisitions.empty:
-            requisition_model_cls = django_apps.get_model(settings.SUBJECT_REQUISITION_MODEL)
-            df = read_frame(
-                requisition_model_cls.objects.values(
-                    "id",
-                    "subject_identifier",
-                    "subject_visit",
-                    "subject_visit__visit_code",
-                    "subject_visit__visit_code_sequence",
-                    "subject_visit__report_datetime",
-                    "requisition_identifier",
-                    "report_datetime",
-                    "drawn_datetime",
-                    "panel__name",
-                )
-                .filter(drawn_datetime__isnull=False)
-                .exclude(item_type=FINGER_PRICK),
-                verbose=False,
-            ).rename(
-                columns={
-                    "id": "requisition",
-                    "report_datetime": "requisition_datetime",
-                    "subject_visit_id": "subject_visit",
-                    "subject_visit__visit_code": "visit_code",
-                    "subject_visit__visit_code_sequence": "visit_code_sequence",
-                    "subject_visit__report_datetime": "visit_datetime",
-                    "panel__name": "panel_name",
-                }
-            )
-            df["visit_datetime"] = pd.to_datetime(
-                df["visit_datetime"], utc=True
-            ).dt.normalize()
-            df["requisition_datetime"] = pd.to_datetime(
-                df["requisition_datetime"], utc=True
-            ).dt.normalize()
-            df["drawn_datetime"] = pd.to_datetime(
-                df["drawn_datetime"], utc=True
-            ).dt.normalize()
-            df["subject_identifier"] = df["subject_identifier"].astype("string").fillna(pd.NA)
-            df["requisition_identifier"] = (
-                df["requisition_identifier"].astype("string").fillna(pd.NA)
-            )
-            df["requisition"] = df["requisition"].astype("string").fillna(pd.NA)
-            df["subject_visit"] = df["subject_visit"].astype("string").fillna(pd.NA)
-            df["visit_code"] = df["visit_code"].astype("string").fillna(pd.NA)
-            df["panel_name"] = df["panel_name"].astype("string").fillna(pd.NA)
-
+            df = get_requisition_df()
             df = df.merge(self.df_utestid, on="panel_name", how="left")
             self._df_requisitions = (
                 df.sort_values("visit_code_sequence")
@@ -405,6 +360,7 @@ class ResultImporter:
                 )
                 .reset_index(drop=True)
             )
+
         return self._df_requisitions
 
     @property
