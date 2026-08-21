@@ -42,14 +42,14 @@ class CreatesMetadataModelMixin(RelatedVisitProtocol, models.Model):
         metadata = self.metadata_cls(related_visit=self, update_keyed=True)
         metadata.prepare(fresh_create=fresh_create)
 
-    def run_metadata_rules(self, allow_create: bool | None = None) -> None:
+    def run_metadata_rules(self, allow_create: bool | None = None):
         """Runs all the metadata rules.
 
         Initially called by post_save signal.
 
         Also called by post_save signal after metadata is updated.
         """
-        return self.metadata_rule_evaluator_cls(
+        self.metadata_rule_evaluator_cls(
             related_visit=self, allow_create=allow_create
         ).evaluate_rules()
 

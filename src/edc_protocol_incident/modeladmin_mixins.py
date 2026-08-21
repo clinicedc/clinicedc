@@ -121,7 +121,9 @@ class ProtocolIncidentModelAdminMixin:
             color = "darkorange"
         if color:
             return format_html(
-                f'<span style="color:{color};">{obj.report_status.title()}</span>'
+                '<span style="color:{};">{}</span>',
+                color,
+                obj.report_status.title(),
             )
         return obj.report_status.title()
 

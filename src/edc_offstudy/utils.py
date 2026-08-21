@@ -50,7 +50,7 @@ def raise_if_offstudy(
     else:
         msg_part = f"Source model `{source_obj._meta.verbose_name}`." if source_obj else ""
         raise OffstudyError(
-            "Subject off study by given date/time. "
+            "Subject was taken off study by the given report date/time. "
             f"Got report_datetime=`{formatted_datetime(report_datetime)}` "
             f"while the offstudy date is `{formatted_datetime(obj.offstudy_datetime)}` "
             f"Subject {subject_identifier}. {msg_part} "
