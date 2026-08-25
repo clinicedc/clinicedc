@@ -206,6 +206,8 @@ class ResearchProtocolConfig:
             EDC_PROTOCOL_STUDY_CLOSE_GRACE_PERIOD = (3, "months")
 
         The default is no grace period.
+
+        See also: delete_appointments_after_study_close_grace_period()
         """
 
         if grace_period := getattr(settings, "EDC_PROTOCOL_STUDY_CLOSE_GRACE_PERIOD", ()):
