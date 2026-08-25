@@ -211,12 +211,20 @@ class AppointmentManager(models.Manager):
         visit_schedule_name=None,
         schedule_name=None,
         is_offstudy=None,
-    ) -> int:
+        bypass_offschedule_check: bool | None = None,
+    ) -> tuple[int, int, int]:
         """Deletes appointments for a given subject_identifier with
         appt_datetime greater than `dt`.
 
-        If a visit form exists for any appointment, a ProtectedError will
-        be raised.
+        If a visit form exists for any appointment, a ProtectedError
+        will be raised.
+
+        OffSchedule form is expected to exist unless
+        bypass_offschedule_check is True.
+
+        bypass_offschedule_check: if True bypasses the OffSchedule
+            check in the pre-save signal. Only use this if you know
+            what you are doing.
         """
         # validate "op"
         valid_ops = ["gt", "gte"]
@@ -245,14 +253,19 @@ class AppointmentManager(models.Manager):
         # delete future appointments until the first with a
         # visit report
         deleted = 0
+        protected = 0
+        error = 0
         appointments = self.filter(**options).order_by("timepoint", "visit_code_sequence")
         for appointment in appointments.reverse():
+            appointment.bypass_offschedule_check = bypass_offschedule_check
             try:
                 with transaction.atomic():
                     appointment.delete()
                     deleted += 1
             except ProtectedError:
+                protected += 1
                 break
             except AppointmentDeleteError:
+                error += 1
                 pass
-        return deleted
+        return deleted, protected, error

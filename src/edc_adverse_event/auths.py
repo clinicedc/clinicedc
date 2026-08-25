@@ -6,6 +6,7 @@ from edc_auth.constants import (
     CLINICIAN_SUPER_ROLE,
     NURSE_ROLE,
     TMG_ROLE,
+    TMG_SUPER_ROLE,
 )
 from edc_auth.site_auths import site_auths
 from edc_auth.utils import remove_default_model_permissions_from_edc_permissions
@@ -77,6 +78,7 @@ def update_site_auths():
     # add roles
     site_auths.add_role(AE, name=AE_ROLE)
     site_auths.add_role(AE_REVIEW, TMG, name=TMG_ROLE)
+    site_auths.add_role(AE, TMG, name=TMG_SUPER_ROLE)
 
     site_auths.update_role(AE, name=CLINICIAN_ROLE)
     site_auths.update_role(AE, name=NURSE_ROLE)

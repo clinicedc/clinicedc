@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
@@ -24,6 +25,7 @@ class ResearchProtocolConfig:
         e.g. Mashi, Tshepo, Ambition, BCPP, META, INTE, etc
     * EDC_PROTOCOL_STUDY_CLOSE_DATETIME
     * EDC_PROTOCOL_STUDY_OPEN_DATETIME
+    * EDC_PROTOCOL_STUDY_CLOSE_GRACE_PERIOD (months after close to accept data)
     * EDC_PROTOCOL_TITLE: Long name
     * EMAIL_CONTACTS
     """
@@ -193,3 +195,20 @@ class ResearchProtocolConfig:
                 }
             )
         return study_close_datetime
+
+    @property
+    def study_close_grace_period_datetime(self) -> datetime:
+        """Returns a datetime on or after the study close datetime
+        based on the number of months and calendar unit read from
+        settings.EDC_PROTOCOL_STUDY_CLOSE_GRACE_PERIOD.
+
+        For example in settings.py:
+            EDC_PROTOCOL_STUDY_CLOSE_GRACE_PERIOD = (3, "months")
+
+        The default is no grace period.
+        """
+
+        if grace_period := getattr(settings, "EDC_PROTOCOL_STUDY_CLOSE_GRACE_PERIOD", ()):
+            months, attrname = grace_period
+            return self.study_close_datetime + relativedelta(**{attrname: months})
+        return self.study_close_datetime
