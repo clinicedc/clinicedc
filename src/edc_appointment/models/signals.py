@@ -114,7 +114,9 @@ def update_appt_status_on_related_visit_post_delete(sender, instance, using, **k
     dispatch_uid="appointments_on_pre_delete",
 )
 def appointments_on_pre_delete(sender, instance, using, **kwargs):
-    if instance.visit_code_sequence == 0:
+    if instance.visit_code_sequence == 0 and not getattr(
+        instance, "bypass_offschedule_check", False
+    ):
         schedule = site_visit_schedules.get_visit_schedule(
             instance.visit_schedule_name
         ).schedules.get(instance.schedule_name)

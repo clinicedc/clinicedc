@@ -1,3 +1,6 @@
+import contextlib
+from decimal import Decimal, InvalidOperation
+
 from django.conf import settings
 from django.db import models
 from django.db.models import CASCADE
@@ -176,6 +179,19 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
 
     def __str__(self):
         return f"{self.result_no}: {self.utestid} {self.result_value} {self.units}"
+
+    @property
+    def visit_code_as_decimal(self) -> Decimal | None:
+        """Return visit code and sequence as a single decimal.
+
+        Returns None if either value is missing, as is the case for
+        results not resolved to a requisition or related visit.
+        """
+        value = None
+        if self.visit_code:
+            with contextlib.suppress(InvalidOperation):
+                value = Decimal(f"{self.visit_code}.{self.visit_code_sequence or 0}")
+        return value
 
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Result"

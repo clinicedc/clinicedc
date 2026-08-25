@@ -2,9 +2,13 @@ from clinicedc_constants import LTFU, NO, YES
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.urls import reverse
+from django.utils.html import format_html
 
+from edc_dashboard.url_names import url_names
 from edc_form_validators import FormValidator
+from edc_prn.utils import get_prn_admin_site_name, get_prn_app_label
 from edc_utils.text import convert_php_dateformat
 from edc_visit_tracking.constants import MISSED_VISIT
 from edc_visit_tracking.utils import get_related_visit_model_cls
@@ -16,8 +20,8 @@ class LossToFollowupFormValidator(FormValidator):
         self.required_if(YES, field="phone", field_required="phone_attempts")
         self.required_if(YES, field="home_visit", field_required="home_visit_detail")
         if (
-                self.cleaned_data.get("phone_attempts") == 0
-                and self.cleaned_data.get("home_visit") == NO
+            self.cleaned_data.get("phone_attempts") == 0
+            and self.cleaned_data.get("home_visit") == NO
         ):
             raise forms.ValidationError(
                 "No contact attempted. An attempt must be made to contact "
@@ -58,9 +62,13 @@ class RequiresLtfuFormValidatorMixin:
         return django_apps.get_model(self.ltfu_model)
 
     def validate_ltfu(self):
+        if not self.ltfu_model or not self.ltfu_date_field:
+            raise ImproperlyConfigured(
+                f"Attributes ltfu_model and ltfu_date_field are required. see {self}."
+            )
         if self.ltfu_model and (self.cleaned_data.get("subject_identifier") or self.instance):
             subject_identifier = (
-                    self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
+                self.cleaned_data.get("subject_identifier") or self.instance.subject_identifier
             )
 
             try:
@@ -69,9 +77,9 @@ class RequiresLtfuFormValidatorMixin:
                 )
             except ObjectDoesNotExist as e:
                 if (
-                        self.cleaned_data.get(self.offschedule_reason_field)
-                        and self.cleaned_data.get(self.offschedule_reason_field).name
-                        == self.ltfu_reason
+                    self.cleaned_data.get(self.offschedule_reason_field)
+                    and self.cleaned_data.get(self.offschedule_reason_field).name
+                    == self.ltfu_reason
                 ):
                     msg = (
                         "Patient is lost to followup, please complete "
@@ -81,7 +89,7 @@ class RequiresLtfuFormValidatorMixin:
                     raise forms.ValidationError({self.offschedule_reason_field: msg}) from e
             else:
                 if self.cleaned_data.get(self.ltfu_date_field) and (
-                        ltfu.last_seen_datetime != self.cleaned_data.get(self.ltfu_date_field)
+                    ltfu.last_seen_datetime != self.cleaned_data.get(self.ltfu_date_field)
                 ):
                     expected = ltfu.last_seen_datetime.strftime(
                         convert_php_dateformat(settings.SHORT_DATE_FORMAT)
@@ -89,12 +97,20 @@ class RequiresLtfuFormValidatorMixin:
                     got = self.cleaned_data.get(self.ltfu_date_field).strftime(
                         convert_php_dateformat(settings.SHORT_DATE_FORMAT)
                     )
-                    raise forms.ValidationError(
-                        {
-                            self.ltfu_date_field: (
-                                "Date does not match "
-                                f"`{self.ltfu_model_cls._meta.verbose_name}` "
-                                f"form. Expected {expected}. Got {got}."
-                            )
-                        }
+                    url = reverse(
+                        f"{get_prn_admin_site_name()}:"
+                        f"{self.ltfu_model.replace('.', '_')}_change",
+                        args=(ltfu.id,),
                     )
+                    url = (
+                        f"{url}?next={url_names.get('subject_dashboard_url')},"
+                        f"subject_identifier&subject_identifier={subject_identifier}"
+                    )
+                    msg = format_html(
+                        'Date does not match `<A href="{}">{}</A>` form. Expected {}. Got {}.',
+                        url,
+                        self.ltfu_model_cls._meta.verbose_name,
+                        expected,
+                        got,
+                    )
+                    raise forms.ValidationError({self.ltfu_date_field: msg})

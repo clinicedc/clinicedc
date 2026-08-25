@@ -15,6 +15,7 @@ def get_requisition_df(
     extra_panels: list[RequisitionPanel] | None = None,
     exclude_item_types: list[str] | None = None,
     keep_as_uuid: bool | None = None,
+    normalize_datetime: bool | None = None,
 ) -> pd.DataFrame:
     records: list[tuple[str, str]] = []
     extra_panels: list = extra_panels or []
@@ -47,11 +48,15 @@ def get_requisition_df(
             "panel__name": "panel_name",
         }
     )
-    df["visit_datetime"] = pd.to_datetime(df["visit_datetime"], utc=True).dt.normalize()
-    df["requisition_datetime"] = pd.to_datetime(
-        df["requisition_datetime"], utc=True
-    ).dt.normalize()
-    df["drawn_datetime"] = pd.to_datetime(df["drawn_datetime"], utc=True).dt.normalize()
+
+    df["visit_datetime"] = pd.to_datetime(df["visit_datetime"], utc=True)
+    df["requisition_datetime"] = pd.to_datetime(df["requisition_datetime"], utc=True)
+    df["drawn_datetime"] = pd.to_datetime(df["drawn_datetime"], utc=True)
+    if normalize_datetime:
+        df["visit_datetime"] = df["visit_datetime"].dt.normalize()
+        df["requisition_datetime"] = df["requisition_datetime"].dt.normalize()
+        df["drawn_datetime"] = df["drawn_datetime"].dt.normalize()
+
     df["subject_identifier"] = df["subject_identifier"].astype("string").fillna(pd.NA)
     df["requisition_identifier"] = df["requisition_identifier"].astype("string").fillna(pd.NA)
     if not keep_as_uuid:

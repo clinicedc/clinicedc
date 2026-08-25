@@ -8,6 +8,8 @@ from django.contrib.auth import get_permission_codename
 from django.core.exceptions import FieldError, ObjectDoesNotExist
 from django.db.models import QuerySet
 
+from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
+
 from ..models import SiteProfile
 from ..site import sites
 from .list_filters import SiteListFilter
@@ -33,7 +35,7 @@ class SiteModelAdminMixin:
     def user_may_view_other_sites(self, request) -> bool:
         return sites.user_may_view_other_sites(request)
 
-    def get_view_only_site_ids_for_user(self, request) -> list[int]:
+    def _get_view_only_site_ids_for_user(self, request) -> list[int]:
         """Returns a list of sites, not including the current, that
         the user has permissions for.
 
@@ -45,6 +47,13 @@ class SiteModelAdminMixin:
                 s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id
             ]
         return sites.get_view_only_site_ids_for_user(request=request)
+
+    def get_view_only_site_ids_for_user(self, request) -> list[int]:
+        if request.user.userprofile.roles.filter(name=DATA_MANAGER_ROLE).exists():
+            return [
+                s.id for s in request.user.userprofile.sites.all() if s.id != request.site.id
+            ]
+        return self._get_view_only_site_ids_for_user(request)
 
     def has_viewallsites_permission(self, request, obj=None) -> bool:  # noqa: ARG002
         """Checks if the user has the EDC custom codename

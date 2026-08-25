@@ -4,6 +4,7 @@ import calendar
 import sys
 import warnings
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
@@ -34,6 +35,8 @@ from edc_metadata.utils import (
     get_requisition_metadata_model_cls,
     has_keyed_metadata,
 )
+from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_registration import get_registered_subject_model_cls
 from edc_utils.date import to_local, to_utc
 from edc_utils.text import convert_php_dateformat
 from edc_visit_schedule.exceptions import (
@@ -84,6 +87,18 @@ class AppointmentDateWindowPeriodGapError(Exception):
 
 class AppointmentAlreadyStarted(Exception):  # noqa: N818
     pass
+
+
+@dataclass
+class DeleteAttemptStats:
+    deleted: int = 0
+    protected: int = 0
+    error: int = 0
+
+    def __add__(self, other: tuple[int, int, int]):
+        return DeleteAttemptStats(
+            self.deleted + other[0], self.protected + other[1], self.error + other[2]
+        )
 
 
 def get_appointment_model_name() -> str:
@@ -930,3 +945,35 @@ def allow_extended_window_period(
         <= to_utc(proposed_appt_datetime)
         <= appointment.timepoint_datetime + appointment.visit.rupper_extended
     )
+
+
+def delete_appointments_after_study_closure_grace_period(
+    visit_schedule_name: str | None = None,
+    schedule_name: str | None = None,
+    bypass_offschedule_check: bool | None = None,
+    verbose: bool | None = None,
+) -> str:
+    """Delete future new appointments with appointment dates on or
+    after the grace period.
+
+    For example:
+        delete_appointments_on_changed_study_close_datetime(
+            bypass_offschedule_check=True, verbose=True
+        )
+    See also ResearchProtocolConfig.
+    """
+    cutoff_datetime = ResearchProtocolConfig().study_close_grace_period_datetime
+    if verbose:
+        sys.stdout.write(
+            f"Using grace period date of {cutoff_datetime.strftime('%Y-%m-%d %H:%M')}\n"
+        )
+    return_stats = DeleteAttemptStats()
+    for obj in get_registered_subject_model_cls().objects.all():
+        return_stats += get_appointment_model_cls().objects.delete_for_subject_after_date(
+            subject_identifier=obj.subject_identifier,
+            cutoff_datetime=cutoff_datetime,
+            visit_schedule_name=visit_schedule_name or "visit_schedule",
+            schedule_name=schedule_name or "schedule",
+            bypass_offschedule_check=bypass_offschedule_check,
+        )
+    return repr(return_stats)

@@ -7,11 +7,11 @@ from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.contrib.auth import get_permission_codename
-from django.contrib.messages import ERROR
+from django.contrib.messages import ERROR, WARNING
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import gettext as _
 
-from edc_auth.constants import TMG_ROLE
+from edc_auth.constants import TMG_ROLE, TMG_SUPER_ROLE
 from edc_model_admin.utils import add_to_messages_once
 from edc_utils.text import convert_php_dateformat
 
@@ -81,8 +81,28 @@ def has_valid_tmg_perms(request: WSGIRequest, add_message: bool | None = None):
     perms to any non-TMG AE models.
 
     add_message: if True, adds a message to message context.
+
+    TMG_SUPER_ROLE: completely bypasses the restriction!
+        Bypass and allow AE add/change perms together with TMG
+        add/edit perms. Only recommended for use after trial closure
+        or if only one person is completing the reports.
     """
     non_tmg_ae_models = ["aeinitial", "aefollowup", "deathreport"]
+    tmg_super = request.user.userprofile.roles.filter(name=TMG_SUPER_ROLE).exists()
+    if tmg_super:
+        add_to_messages_once(
+            request,
+            WARNING,
+            (
+                _(
+                    "Warning. You have expanded permissions to edit "
+                    "both AE and TMG forms under the same account. "
+                    "`TMG Super` role allocated to %(user)s."
+                )
+                % {"user": request.user.username}
+            ),
+        )
+
     # check role
     try:
         has_valid_perms = request.user.userprofile.roles.get(name=TMG_ROLE)
@@ -98,7 +118,7 @@ def has_valid_tmg_perms(request: WSGIRequest, add_message: bool | None = None):
                 ),
             )
     # check AE model perms
-    if has_valid_tmg_perms:
+    if has_valid_tmg_perms and not tmg_super:
         codenames = {}
         for model_name in non_tmg_ae_models:
             model_cls = get_ae_model(model_name)
