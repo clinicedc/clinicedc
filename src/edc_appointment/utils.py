@@ -26,6 +26,7 @@ from django.db import transaction
 from django.db.models import Count, ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from tqdm import tqdm
 
 from edc_dashboard.url_names import url_names
 from edc_form_validators import INVALID_ERROR
@@ -947,7 +948,7 @@ def allow_extended_window_period(
     )
 
 
-def delete_appointments_after_study_closure_grace_period(
+def delete_appointments_after_study_close_grace_period(
     visit_schedule_name: str | None = None,
     schedule_name: str | None = None,
     bypass_offschedule_check: bool | None = None,
@@ -968,7 +969,8 @@ def delete_appointments_after_study_closure_grace_period(
             f"Using grace period date of {cutoff_datetime.strftime('%Y-%m-%d %H:%M')}\n"
         )
     return_stats = DeleteAttemptStats()
-    for obj in get_registered_subject_model_cls().objects.all():
+    qs = get_registered_subject_model_cls().objects.all()
+    for obj in tqdm(qs, total=qs.count()):
         return_stats += get_appointment_model_cls().objects.delete_for_subject_after_date(
             subject_identifier=obj.subject_identifier,
             cutoff_datetime=cutoff_datetime,
