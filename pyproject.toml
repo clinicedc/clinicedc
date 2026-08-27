@@ -254,7 +254,7 @@ ignore_directives = ["toctree"]
 [dependency-groups]
 
 dev = [
-    "clinicedc-tests>=1.2.2",
+    "clinicedc-tests>=1.3.0",
     "django-webtest>=1.9.14",
 ]
 
