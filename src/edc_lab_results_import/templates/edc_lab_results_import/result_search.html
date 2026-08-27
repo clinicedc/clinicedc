@@ -184,7 +184,16 @@
               <td>{{ result.sample_no }}</td>
               <td>{{ result.result_no }}</td>
               <td>{{ result.source_utestid }}</td>
-              <td>{{ result.source_file }}</td>
+              <td>
+                {% if result.source_document_id %}
+                  <a href="{% url 'edc_lab_results_import:source_document_url' pk=result.source_document_id %}"
+                     target="_blank" rel="noopener" title="Open the original PDF">
+                    {{ result.source_file|default:result.source_document.filename }}
+                  </a>
+                {% else %}
+                  {{ result.source_file }}
+                {% endif %}
+              </td>
             </tr>
           {% endfor %}
         </tbody>

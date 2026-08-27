@@ -6,6 +6,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
+from uuid import UUID
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -32,6 +33,7 @@ from edc_registration.models import RegisteredSubject
 from edc_reportable.models import NormalData
 
 from ..exceptions import ResultImporterError
+from ..source_documents import archive_source_document
 from .get_mappings import get_mappings
 from .get_parser import get_parser
 from .save_summary import SaveSummary
@@ -116,6 +118,7 @@ class ResultImporter:
         if not path.is_dir():
             raise ResultImporterError(f"Not a directory: {path}")
         self.parser_func = get_parser(self.laboratory)
+        self.source_document_pks: dict[str, UUID] = {}
 
     def run(self, to_model: bool | None = None, df_to_path: Path | None = None):
         pdf_count = len(list(self.path.glob("*.pdf")))
@@ -161,12 +164,10 @@ class ResultImporter:
         )
 
     def update_dtypes_after_parse(self) -> None:
-        self.df["order_datetime"] = pd.to_datetime(
-            self.df["order_datetime"], utc=True
-        ).dt.normalize()
+        self.df["order_datetime"] = pd.to_datetime(self.df["order_datetime"], utc=True)
         self.df["specimen_collected_datetime"] = pd.to_datetime(
             self.df["specimen_collected_datetime"], utc=True
-        ).dt.normalize()
+        )
         for col in [
             "subject_identifier",
             "screening_identifier",
@@ -249,6 +250,8 @@ class ResultImporter:
                 self.style.WARNING(f"Dry run: {len(self.df)} results parsed, not saved.\n")
             )
         self.stdout.write("Writing dataframe to Result model ...\n")
+        if not self.dry_run:
+            self.archive_source_documents()
         save_summary = self.save_to_model(batch_size=batch_size)
         file_count = 0 if self.df.empty else self.df["source_file"].nunique()
         save_summary.write_summary(file_count)
@@ -398,9 +401,7 @@ class ResultImporter:
             ):
                 raise ValueError
 
-            df["visit_datetime"] = pd.to_datetime(
-                df["visit_datetime"], utc=True
-            ).dt.normalize()
+            df["visit_datetime"] = pd.to_datetime(df["visit_datetime"], utc=True)
             self._df_related_visit = df.copy().reset_index(drop=True)
         return self._df_related_visit
 
@@ -530,6 +531,43 @@ class ResultImporter:
             self.df["screening_identifier"].map(mapping)
         )
 
+    def archive_source_documents(self) -> None:
+        """Archive each parsed PDF and map source_file to its pk.
+
+        `prepare_imported_result` reads the map to set the FK. Keyed on
+        the sha256 `parse_folder` computed while scanning for duplicate
+        files, so no PDF is read twice and re-importing a folder reuses
+        what is already archived instead of copying it again.
+        """
+        self.source_document_pks = {}
+        if self.df.empty:
+            return
+        digests: dict[str, str] = (
+            self.df.loc[:, ["source_file", "source_file_sha256"]]
+            .dropna(subset=["source_file"])
+            .drop_duplicates(subset=["source_file"])
+            .set_index("source_file")["source_file_sha256"]
+            .to_dict()
+        )
+        created = existing = missing = 0
+        for filename in tqdm(sorted(digests), desc="Archiving PDFs", unit="file"):
+            path = self.path / filename
+            if not path.is_file():
+                missing += 1
+                self.stdout.write(
+                    self.style.WARNING(f"  Not archived, file not found. Got {path}.\n")
+                )
+                continue
+            obj, was_created = archive_source_document(
+                path, self.laboratory, sha256=to_str(digests[filename]) or None
+            )
+            self.source_document_pks[filename] = obj.pk
+            created, existing = created + was_created, existing + (not was_created)
+        self.stdout.write(
+            f"archive_source_documents: {created} archived, "
+            f"{existing} already archived, {missing} missing\n"
+        )
+
     def save_to_model(self, batch_size: int | None = None) -> SaveSummary:
         """Bulk-create ``Result`` rows from *df*."""
         batch_size = batch_size or 500
@@ -597,6 +635,7 @@ class ResultImporter:
         row: pd.Series,
     ) -> Result:
         model_cls = self.result_model_cls()
+        source_file = to_str(row.get("source_file", ""))
         return model_cls(
             laboratory=self.laboratory,
             order_no=unique_values.order_no,
@@ -626,7 +665,8 @@ class ResultImporter:
             sample_type=to_str(row.get("sample_type", "")),
             screening_identifier=to_str(row.get("screening_identifier", "")),
             sex=to_str(row.get("sex", "")),
-            source_file=to_str(row.get("source_file", "")),
+            source_file=source_file,
+            source_document_id=self.source_document_pks.get(source_file),
             specimen_collected_by=to_str(row.get("specimen_collected_by", "")),
             specimen_collected_datetime=to_datetime(row.get("specimen_collected_datetime")),
             specimen_received_by=to_str(row.get("specimen_received_by", "")),

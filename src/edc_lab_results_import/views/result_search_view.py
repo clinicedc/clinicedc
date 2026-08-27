@@ -47,7 +47,7 @@ class ResultSearchView(
             opts.update(screening_identifier__icontains=screening_identifier)
         results = (
             Result.objects.filter(**opts)
-            .select_related("requisition", "subject_visit")
+            .select_related("requisition", "subject_visit", "source_document")
             .order_by("-result_datetime")
             if opts
             else Result.objects.none()

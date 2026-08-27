@@ -813,7 +813,7 @@ requires-dist = [
     { name = "mempass", specifier = ">=0.1.2" },
     { name = "mysqlclient", specifier = ">=2.2.7" },
     { name = "openpyxl", specifier = ">=3.1.5" },
-    { name = "parse-trial-labs", specifier = ">=0.4.0" },
+    { name = "parse-trial-labs", specifier = ">=0.6.0" },
     { name = "psycopg2", specifier = ">=2.9.10" },
     { name = "pyarrow", specifier = ">=25.0.0" },
     { name = "pycups", specifier = ">=2.0.4" },
@@ -3025,16 +3025,16 @@ wheels = [
 
 [[package]]
 name = "parse-trial-labs"
-version = "0.5.0"
+version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pandas" },
     { name = "pdfplumber" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/97/02/c56cf329597fbdeab02652578a05d2f761b5642b93ae7b8d075beff5caab/parse_trial_labs-0.5.0.tar.gz", hash = "sha256:0678fcc5f01df66abfbe37cee05f7a07e68bd65acf849f35dc8f8c23aadba84b", size = 21010, upload-time = "2026-07-30T21:48:47.283Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/eb/70/42667e1a9435430f77974730fb14f1a09db63defe2a51a76a3fa6535922d/parse_trial_labs-0.6.0.tar.gz", hash = "sha256:d5faae53623dfcdf9310a74d38d1f3b9eaccd31112bdfb1506948895ce7a20ad", size = 22043, upload-time = "2026-08-27T04:16:36.828Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8d/9b/376d5f8b5b98064a17795015578907b480812726584bc3e928850668284a/parse_trial_labs-0.5.0-py3-none-any.whl", hash = "sha256:33feed3d8d6bf1ee6ef83e4f6f75d29338c71c8d93b15fb480afc179955a2fba", size = 22814, upload-time = "2026-07-30T21:48:46.367Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/b2/c7216514d2efa7f83d1fcd496c55aa0442bbe36ba330071494e09e257d27/parse_trial_labs-0.6.0-py3-none-any.whl", hash = "sha256:0964c954b799601209c55948e7f1d0d7c1f64456db53ca65f9d5a4acec947355", size = 24549, upload-time = "2026-08-27T04:16:35.821Z" },
 ]
 
 [[package]]
