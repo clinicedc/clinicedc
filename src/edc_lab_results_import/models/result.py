@@ -8,6 +8,8 @@ from django.db.models import CASCADE
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_model.models import BaseUuidModel
 
+from .source_document import SourceDocument
+
 
 class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
     screening_identifier = models.CharField(
@@ -61,6 +63,12 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         help_text="Laboratory identifier (e.g. MNH) from --laboratory flag.",
     )
 
+    source_document = models.ForeignKey(
+        SourceDocument,
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+    )
     source_file = models.CharField(max_length=200, blank=True, default="")
 
     report_datetime = models.DateTimeField(null=True, blank=True)

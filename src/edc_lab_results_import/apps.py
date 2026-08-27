@@ -1,7 +1,7 @@
 from django.apps import AppConfig as DjangoAppConfig
 from django.core.checks.registry import register
 
-from .system_checks import upload_dir_check
+from .system_checks import private_path_check, upload_dir_check
 
 
 class AppConfig(DjangoAppConfig):
@@ -12,3 +12,4 @@ class AppConfig(DjangoAppConfig):
 
     def ready(self) -> None:
         register(upload_dir_check)
+        register(private_path_check)

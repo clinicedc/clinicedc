@@ -1,1 +1,2 @@
 from .result_search_view import ResultSearchView
+from .source_document_view import SourceDocumentView

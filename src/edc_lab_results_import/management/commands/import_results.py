@@ -74,7 +74,7 @@ class Command(BaseCommand):
         if duplicates_json_path:
             if not Path(duplicates_json_path).expanduser().exists():
                 raise CommandError(
-                    "Duplicate mapping does not exists. Got {duplicates_json_path}."
+                    f"Duplicate mapping does not exist. Got {duplicates_json_path}."
                 )
             duplicates_json_path = Path(duplicates_json_path).expanduser()
         laboratory: str = options.get("laboratory", "")

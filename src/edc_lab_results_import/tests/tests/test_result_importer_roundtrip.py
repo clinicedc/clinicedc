@@ -8,7 +8,7 @@ import pandas as pd
 from django.core.management import color_style
 from django.test import TestCase, tag
 
-from edc_lab_results_import.models import Result
+from edc_lab_results_import.models import Result, SourceDocument
 from edc_lab_results_import.result_importer.result_importer import ResultImporter, UniqueValues
 from edc_lab_results_import.result_importer.utils import to_datetime, to_str
 
@@ -53,6 +53,7 @@ def make_importer() -> ResultImporter:
     importer.laboratory = "MNH"
     importer.dry_run = False
     importer.stdout = StringIO()
+    importer.source_document_pks = {}
     importer.style = color_style()
     return importer
 
@@ -177,3 +178,25 @@ class TestResultImporterDataframeRoundTrip(TestCase):
         self.assertTrue(pd.isna(empty["result_value"]))
         self.assertTrue(pd.isna(empty["reference_range_lower"]))
         self.assertTrue(pd.isna(empty["flag"]))
+
+    def test_source_document_id_set_from_map(self):
+        """`archive_source_documents` fills `source_document_pks`; this
+        asserts `prepare_imported_result` actually reads it.
+
+        Without this the FK silently stays null, every test still
+        passes, and the result-search page has no PDF to link to.
+        """
+        source_document = SourceDocument.objects.create(
+            sha256="a" * 64, filename="report_001.pdf", laboratory="MNH"
+        )
+        self.importer.source_document_pks = {"report_001.pdf": source_document.pk}
+
+        self.write_rows(self.build_source_df())
+
+        linked = Result.objects.get(result_no="RES001")
+        self.assertEqual(linked.source_document_id, source_document.pk)
+
+        # report_002.pdf is absent from the map, as it would be for a
+        # source file missing from the folder at import time
+        unmapped = Result.objects.get(result_no="RES002")
+        self.assertIsNone(unmapped.source_document_id)
