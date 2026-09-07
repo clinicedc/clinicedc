@@ -9,7 +9,6 @@ class ProteinuriaModelMixin(
         utest_id="proteinuria",
         verbose_name="Proteinuria",
         units_choices=((PLUS, PLUS),),
-        decimal_places=1,
     ),
     models.Model,
 ):
