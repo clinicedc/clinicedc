@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.checks import Error
 from django.core.checks import Warning as CheckWarning
 
-from edc_lab_results_import.utils import private_path_attr
+from .utils import get_private_path, private_path_attr
 
 
 def upload_dir_check(app_configs: object, **kwargs: object) -> list:
@@ -63,7 +63,8 @@ def upload_dir_check(app_configs: object, **kwargs: object) -> list:
 
 def private_path_check(app_configs: object, **kwargs: object) -> list:
     errors: list = []
-    private_path: str = getattr(settings, private_path_attr, "")
+    private_path: Path = get_private_path()
+
     if not private_path:
         errors.append(
             Error(

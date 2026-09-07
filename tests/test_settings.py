@@ -23,6 +23,7 @@ project_settings = DefaultTestSettings(
         "edc_consent.E001",
         # "edc_sites.E002",
     ],
+    AUTO_CREATE_KEYS=True,
     DJANGO_REVISION_IGNORE_WORKING_DIR=True,
     EDC_AUTH_CODENAMES_WARN_ONLY=True,
     EDC_AUTH_SKIP_SITE_AUTHS=True,

@@ -12,7 +12,19 @@
 {% block document_ready %}
   <script>
     $(document).ready(function () {
-      var table = $('#result_table').DataTable({order: [[10, 'desc']], pageLength: 25});
+      // Column 16 holds the group key, "requisition|source_file", and column 17
+      // the pk of the row's result. Both are hidden and never searched, they
+      // only carry the keys used to decide which add/change button, if any,
+      // may be offered, and which comparison rows to show with it.
+      var groupColumn = 16;
+      var resultColumn = 17;
+      var table = $('#result_table').DataTable({
+        order: [[10, 'desc']],
+        pageLength: 25,
+        columnDefs: [
+          {targets: [groupColumn, resultColumn], visible: false, searchable: false}
+        ]
+      });
 
       // Column 3 holds visit_code_as_decimal ("code.seq"). The filter accepts
       // either half: "1000" matches every sequence, "1000.1" matches one.
@@ -69,6 +81,70 @@
       $('#result_datetime_from, #result_datetime_to').on('change', function () {
         table.draw();
       });
+
+      // A result CRF holds one panel for one timepoint, so a button may only
+      // be offered where the rows left visible by the filters resolve to a
+      // single result file and requisition. Where they do not, but do resolve
+      // to a single subject, fall back to that subject's dashboard.
+      function updateResultButtons() {
+        var groups = table.column(groupColumn, {search: 'applied'}).data().unique();
+        var subjects = table.column(0, {search: 'applied'}).data().unique();
+        var crfShown = false;
+        $('.result-crf-button, .result-dashboard-button').hide();
+        $('.result-comparison').hide();
+        if (groups.length === 1) {
+          $('.result-crf-button').each(function () {
+            if ($(this).attr('data-group') === groups[0]) {
+              $(this).show();
+              crfShown = true;
+            }
+          });
+          updateComparison(groups[0]);
+        }
+        if (!crfShown && subjects.length === 1) {
+          $('.result-dashboard-button').each(function () {
+            if ($(this).attr('data-subject') === subjects[0]) {
+              $(this).show();
+            }
+          });
+        }
+        $('#result_button_hint').toggle(!crfShown);
+      }
+
+      // The comparison mirrors the table: a row is shown only while its
+      // result row is visible, so narrowing by utestid or by date narrows
+      // the comparison with it.
+      function updateComparison(groupKey) {
+        var visible = {};
+        table.column(resultColumn, {search: 'applied'}).data().each(function (value) {
+          visible[value] = true;
+        });
+        $('.result-comparison').each(function () {
+          if ($(this).attr('data-group') !== groupKey) {
+            return;
+          }
+          var differences = 0;
+          var shown = 0;
+          $(this).find('.result-comparison-row').each(function () {
+            if (visible[$(this).attr('data-result')]) {
+              $(this).show();
+              shown += 1;
+              if ($(this).hasClass('result-comparison-differs')) {
+                differences += 1;
+              }
+            } else {
+              $(this).hide();
+            }
+          });
+          $(this).find('.result-comparison-differences').text(differences);
+          if (shown) {
+            $(this).show();
+          }
+        });
+      }
+
+      table.on('draw', updateResultButtons);
+      updateResultButtons();
     });
   </script>
 {% endblock %}
@@ -82,7 +158,9 @@
   <div class="panel panel-default">
     <div class="panel-heading">Search criteria</div>
     <div class="panel-body">
-      <form method="get">
+      {# submits to the url without kwargs, otherwise a search returned to from #}
+      {# a CRF would keep the identifiers of the search it was opened from #}
+      <form method="get" action="{% url 'edc_lab_results_import:result_search_url' %}">
         <div class="row">
           <div class="col-sm-4">
             <div class="form-group">
@@ -95,10 +173,18 @@
           <div class="col-sm-4">
             <div class="form-group">
               <label for="screening_identifier">Screening identifier</label>
+              <input type="text" id="screening_identifier" name="screening_identifier"
+                     class="form-control" value="{{ screening_identifier }}"
+                     placeholder="e.g. AAAABBBB">
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <div class="form-group">
+              <label for="requisition_identifier">Requisition identifier</label>
               <div class="input-group">
-                <input type="text" id="screening_identifier" name="screening_identifier"
-                       class="form-control" value="{{ screening_identifier }}"
-                       placeholder="e.g. AAAABBBB">
+                <input type="text" id="requisition_identifier" name="requisition_identifier"
+                       class="form-control" value="{{ requisition_identifier }}"
+                       placeholder="e.g. 99HZ2GX">
                 <span class="input-group-btn">
                   <button type="submit" class="btn btn-primary">Search</button>
                 </span>
@@ -106,7 +192,8 @@
             </div>
           </div>
         </div>
-        <small class="text-muted">Enter either identifier, or both to narrow further.</small>
+        <small class="text-muted">Enter any one identifier, or more to narrow
+          further.</small>
       </form>
 
       {% if searched %}
@@ -144,6 +231,65 @@
   </div>
 
   {% if searched %}
+    <div id="result_button_container" class="well well-sm">
+      {% for btn in crf_buttons %}
+        <a id="{{ btn.btn_id }}" role="button" data-group="{{ btn.group_key }}"
+           class="btn btn-sm btn-{{ btn.color|default:'default' }} result-crf-button"
+           style="display:none"
+           {% if not btn.disabled %}href="{{ btn.url }}" title="{{ btn.title }}"{% endif %}
+           aria-hidden="true" {{ btn.disabled }}>{% if btn.fa_icon %}<span
+           class="{{ btn.fa_icon }}"></span> {% endif %}{{ btn.label }}
+          {{ btn.metadata_model_obj.verbose_name }}</a>
+      {% endfor %}
+      {% for btn in dashboard_buttons %}
+        <a role="button" data-subject="{{ btn.subject_identifier }}"
+           class="btn btn-sm btn-default result-dashboard-button" style="display:none"
+           href="{{ btn.url }}" title="Go to the subject's dashboard"><span
+           class="fas fa-share"></span> Subject dashboard</a>
+      {% endfor %}
+      <span id="result_button_hint" class="text-muted">Narrow the search to a single
+        result file and requisition to open the result CRF.</span>
+    </div>
+
+    {% for comparison in comparisons %}
+      <div class="result-comparison panel panel-default" data-group="{{ comparison.group_key }}"
+           style="display:none">
+        <div class="panel-heading">
+          {{ comparison.verbose_name }} compared with the imported results
+          <span class="badge"><span class="result-comparison-differences">0</span>
+            difference(s)</span>
+        </div>
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th>UTESTID</th>
+              <th>Imported value</th>
+              <th>Units</th>
+              <th>Abnormal</th>
+              <th>CRF value</th>
+              <th>Units</th>
+              <th>Abnormal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in comparison.rows %}
+              <tr class="result-comparison-row{% if row.differs %} warning result-comparison-differs{% endif %}"
+                  data-result="{{ row.result.id }}" style="display:none">
+                <td>{{ row.utest_id }}</td>
+                <td class="{% if row.value_differs %}danger{% elif row.value_not_compared %}text-muted{% endif %}"
+                    {% if row.value_not_compared %}title="Units differ, values not compared"{% endif %}>{{ row.result.result_value|default_if_none:"" }}</td>
+                <td class="{% if row.units_differs %}danger{% endif %}">{{ row.units }}</td>
+                <td class="{% if row.abnormal_differs %}danger{% elif row.abnormal_not_compared %}text-muted{% endif %}"
+                    {% if row.abnormal_not_compared %}title="Flag not recognized, not compared"{% endif %}>{{ row.abnormal }}{% if row.result.flag %} ({{ row.result.flag }}){% endif %}</td>
+                <td class="{% if row.value_differs %}danger{% endif %}">{{ row.crf_value|default_if_none:"" }}</td>
+                <td class="{% if row.units_differs %}danger{% endif %}">{{ row.crf_units }}</td>
+                <td class="{% if row.abnormal_differs %}danger{% endif %}">{{ row.crf_abnormal }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
     <div class="table-responsive">
       <table id="result_table" class="table table-condensed table-hover">
         <thead>
@@ -164,6 +310,8 @@
             <th>Result no</th>
             <th>Source UTESTID</th>
             <th>File</th>
+            <th>Group</th>
+            <th>Result</th>
           </tr>
         </thead>
         <tbody>
@@ -194,6 +342,8 @@
                   {{ result.source_file }}
                 {% endif %}
               </td>
+              <td>{{ result.group_key }}</td>
+              <td>{{ result.id }}</td>
             </tr>
           {% endfor %}
         </tbody>
