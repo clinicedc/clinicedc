@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 
 import pandas as pd
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.db import OperationalError
 from django.utils import timezone
 from tabulate import tabulate
@@ -160,6 +161,7 @@ class ModelsToFile:
                 elif self.export_format in [STATA_14, STATA_15]:
                     path = self.export_folder / self.sub_folder / f"{fname}.dta"
                     dataframe = self.make_stata_safe(dataframe)
+                    dataframe = dataframe.rename(columns=self.rename_columns_for_stata)
                     dataframe.to_stata(
                         path,
                         data_label=str(path),
@@ -169,7 +171,7 @@ class ModelsToFile:
                     )
                 else:
                     raise ModelsToFileNothingExportedError(
-                        "Invalid file format. Expected CSV or STATA"
+                        f"Invalid file format. Expected CSV or STATA ({STATA_14},{STATA_15})"
                     )
                 filename = path.name
             return filename
@@ -249,3 +251,7 @@ class ModelsToFile:
     @property
     def data_dictionary_model_cls(self) -> type[DataDictionary]:
         return django_apps.get_model("edc_data_manager.datadictionary")
+
+    @property
+    def rename_columns_for_stata(self) -> dict[str, str]:
+        return getattr(settings, "EDC_EXPORT_RENAME_COLUMNS_FOR_STATA", {})

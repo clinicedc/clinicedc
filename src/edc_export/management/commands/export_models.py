@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import grp
+import json
 import os
 import pwd
 import sys
 from pathlib import Path
 
+from django.conf import settings
 from django.core.management import CommandError, color_style
 from django.core.management.base import BaseCommand
 
-from edc_export.constants import CSV, STATA_14
+from edc_export.constants import CSV, STATA_14, STATA_15
 from edc_export.models_to_file import ModelsToFile
 from edc_export.utils import (
     get_default_models_for_export,
@@ -308,8 +310,16 @@ class Command(BaseCommand):
                 style.WARNING(f"WARNING: failed to record export audit log: {e!r}\n")
             )
 
+        if (export_format in [STATA_14, STATA_15]) and (
+            dct := getattr(settings, "EDC_EXPORT_RENAME_COLUMNS_FOR_STATA", {})
+        ):
+            sys.stdout.write(
+                style.NOTICE("\nThese columns were renamed/shortened for STATA on export:\n")
+            )
+            sys.stdout.write(json.dumps(dct, indent=4, sort_keys=True).replace(":", " ->"))
+
         sys.stdout.write(
-            style.SUCCESS(f"\nDone.\nExported to {models_to_file.archive_filename}\n")
+            style.SUCCESS(f"\nDone.\nExported to {models_to_file.archive_filename or ''}\n")
         )
 
     @property
