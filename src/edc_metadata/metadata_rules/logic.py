@@ -29,7 +29,7 @@ class Logic:
 
     def __init__(
         self,
-        predicate: P | PF | Callable,
+        predicate: P | PF | Callable | str,
         consequence: str,
         alternative: str,
         comment: str | None = None,

@@ -231,6 +231,43 @@ When using single inheritance, set Meta class `abstract` on the base class:
             app_label = 'edc_example'
             related_visit_model = "edc_visit_tracking.subjectvisit"
 
+Disabling metadata rules
+------------------------
+
+You can disable a rule by a datetime. The datetime will be compared to the related visit model report datetime (visit datetime). For example, this rule will only run after 1 September 2026:
+
+.. code-block:: python
+
+    class ExampleRuleGroup(CrfRuleGroup):
+
+        crfs_male = CrfRule(
+            predicate=P('gender', 'eq', 'MALE'),
+            consequence=REQUIRED,
+            alternative=NOT_REQUIRED,
+            target_models=['crfone', 'crftwo'],
+            activate_after_datetime=datetime(
+                2026, 9, 1, 0, 0, 0, tzinfo=ZoneInfo(settings.TIME_ZONE)),
+        )
+
+        class Meta:
+            abstract = True
+
+The possible attributes are all timezone aware datetimes. They are:
+
+* activate_after_datetime
+* activate_until_datetime
+* disable_after_datetime
+* disable_until_datetime
+
+How does a disabled rule behave? activate vs disable
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+Remember, metadata_rules manipulate Metadata model instances: CrfMetadata and RequisitionMetadata model instances.
+
+If a rule uses ``activate_after_datetime`` (or ``activate_until_datetime``) the ``alternative`` value from the Rule will be used to update the entry status of the Metadata model instance while the rule is disabled. For example, if the ``activate_after_datetime`` is set and the date is still in the future, the ``crfs_male`` rule will always return ``NOT_REQUIRED``.
+
+If a rule uses ``disable_after_datetime`` (or ``disable_until_datetime``) the metadata rule is disabled and does nothing. The entry status of the Metadata model instance is left unchanged from the original ``Crf`` or ``Requisition`` defined in the visit schedule.
+
+The rule will check that ``activate`` datetimes are sensible relative to each other. It will also check that ``disable`` datetimes are sensible relative to each other. If in the off chance you chose to use them all together, you need to do a sanity check on your own.
 
 More on Rules
 -------------
