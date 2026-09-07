@@ -27,7 +27,7 @@ class PotassiumModelMixin(
         utest_id="potassium",
         verbose_name="Potassium",
         units_choices=((MILLIMOLES_PER_LITER, MILLIMOLES_PER_LITER_DISPLAY),),
-        decimal_places=1,
+        decimal_places=2,
     ),
     models.Model,
 ):
@@ -40,7 +40,7 @@ class SodiumModelMixin(
         utest_id="sodium",
         verbose_name="Sodium (Na)",
         units_choices=((MILLIMOLES_PER_LITER, MILLIMOLES_PER_LITER_DISPLAY),),
-        decimal_places=0,
+        decimal_places=2,
     ),
     models.Model,
 ):

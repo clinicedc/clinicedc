@@ -34,7 +34,6 @@ class HaemoglobinModelMixin(
         utest_id=HAEMOGLOBIN,
         verbose_name="Haemoglobin",
         units_choices=((GRAMS_PER_DECILITER, GRAMS_PER_DECILITER),),
-        decimal_places=1,
     ),
     models.Model,
 ):
@@ -47,7 +46,7 @@ class HctModelMixin(
         utest_id=HCT,
         verbose_name="Hematocrit",
         units_choices=((PERCENT, PERCENT),),
-        validators=[MinValueValidator(1.0), MaxValueValidator(999.0)],
+        validators=[MinValueValidator(1.00), MaxValueValidator(999.00)],
     ),
     models.Model,
 ):
@@ -152,8 +151,8 @@ class PlateletsModelMixin(
             (TEN_X_9_PER_LITER, TEN_X_9_PER_LITER),
             (CELLS_PER_MILLIMETER_CUBED, CELLS_PER_MILLIMETER_CUBED_DISPLAY),
         ),
-        decimal_places=0,
-        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+        decimal_places=2,
+        validators=[MinValueValidator(1.00), MaxValueValidator(9999.00)],
     ),
     models.Model,
 ):

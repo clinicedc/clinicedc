@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from decimal import Decimal
+
 from clinicedc_constants import EQ
 from clinicedc_constants.choices import GRADING_SCALE_WITH_NOT_GRADED, YES_NO
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from edc_lab.choices import RESULT_QUANTIFIER
@@ -17,15 +19,19 @@ def get_field_attrs_for_utestid(
     decimal_places: int | None = None,
     max_digits: int | None = None,
     validators: list | None = None,
-    quantifier: list | None = None,
-    help_text: list | None = None,
-) -> dict:
+    help_text: str | None = None,
+) -> dict[str, models.Field]:
     """Returns a dictionary of field classes for the model"""
+    max_digits = max_digits if max_digits is not None else 8
     value_options = dict(
         verbose_name=verbose_name or utest_id.upper(),
         decimal_places=decimal_places if decimal_places is not None else 2,
-        max_digits=max_digits if max_digits is not None else 8,
-        validators=validators or [MinValueValidator(0.00)],
+        max_digits=max_digits,
+        validators=validators
+        or [
+            MinValueValidator(0.00),
+            MaxValueValidator(Decimal(f"{'9' * (max_digits - 2)}.00")),
+        ],
         null=True,
         blank=True,
     )
@@ -56,7 +62,9 @@ def get_field_attrs_for_utestid(
     }
 
 
-def get_field_attrs_for_reportable(utest_id: str) -> dict:
+def get_field_attrs_for_reportable(
+    utest_id: str,
+) -> dict[str, models.Field]:
     """Returns a dictionary of field classes for the model"""
     return {
         f"{utest_id}_abnormal": models.CharField(
