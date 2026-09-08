@@ -31,7 +31,6 @@ class SiteModelAdminMixin:
     limit_related_to_current_country: list[str] = None
     limit_related_to_current_site: list[str] = None
     site_list_display_insert_pos: int = 1
-    keep_site_list_filter_override: bool = False
 
     def user_may_view_other_sites(self, request) -> bool:
         return sites.user_may_view_other_sites(request)

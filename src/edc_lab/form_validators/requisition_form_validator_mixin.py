@@ -68,7 +68,9 @@ class RequisitionFormValidatorMixin:
             and self.cleaned_data.get("drawn_datetime")
             > self.cleaned_data.get("result_not_expected_datetime")
         ):
-            raise forms.ValidationError("May not be before date/time specimen drawn")
+            raise forms.ValidationError(
+                {"result_not_expected_datetime": "May not be before date/time specimen drawn"}
+            )
 
     @property
     def aliqout_model_cls(self) -> Aliquot:
