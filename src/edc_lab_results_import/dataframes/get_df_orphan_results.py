@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from clinicedc_constants import NO
 from django.apps import apps as django_apps
 from django.conf import settings
 from django_pandas.io import read_frame
@@ -16,6 +17,7 @@ from ..constants import (
     VISIT_NOT_FOUND,
 )
 from ..models import Result
+from .staleness import stamp_pulled_datetime
 
 __all__ = ["get_df_orphan_results"]
 
@@ -56,6 +58,9 @@ ORPHAN_FRAME_COLUMNS = (
     "requisition_identifier",
     "drawn_datetime",
     "requisition_datetime",
+    "result_expected",
+    "result_not_expected_reason",
+    "result_expected_conflict",
     # why the importer missed it
     "specimen_collected_datetime",
     "order_datetime",
@@ -116,20 +121,24 @@ def get_df_orphan_results() -> pd.DataFrame:
     """
     df = get_df_orphans()
     if df.empty:
-        return pd.DataFrame(columns=list(ORPHAN_FRAME_COLUMNS))
+        return stamp_pulled_datetime(pd.DataFrame(columns=list(ORPHAN_FRAME_COLUMNS)))
     df = df.merge(get_df_related_visits(), on=list(VISIT_KEY), how="left")
     df = df.merge(
         get_df_requisitions(), on=["subject_visit_id", "panel_name"], how="left"
     ).merge(get_df_requisition_metadata(), on=list(METADATA_KEY), how="left")
     df["bucket"] = get_bucket(df)
+    # the requisition says the lab will never report, yet here is a
+    # result from the lab. Someone has to look at these
+    df["result_expected_conflict"] = (df["result_expected"] == NO).fillna(False)
     df["days_from_visit"] = (
         df["specimen_collected_datetime"] - df["visit_datetime"]
     ).dt.days.astype("Int64")
-    return (
+    df = (
         df.reindex(columns=list(ORPHAN_FRAME_COLUMNS))
         .sort_values(["bucket", "subject_identifier", "visit_code", "panel_name"])
         .reset_index(drop=True)
     )
+    return stamp_pulled_datetime(df)
 
 
 def get_bucket(df: pd.DataFrame) -> pd.Series:
@@ -217,6 +226,8 @@ def get_df_requisitions() -> pd.DataFrame:
             "requisition_identifier",
             "drawn_datetime",
             "requisition_datetime",
+            "result_expected",
+            "result_not_expected_reason",
         ).all(),
         verbose=False,
     ).rename(
@@ -230,6 +241,8 @@ def get_df_requisitions() -> pd.DataFrame:
         return df
     for col in ["requisition_id", "subject_visit_id", "panel_name"]:
         df[col] = df[col].astype("string").str.strip().replace("", pd.NA)
+    for col in ["result_expected", "result_not_expected_reason"]:
+        df[col] = df[col].astype("string")
     return df.reset_index(drop=True)
 
 

@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import pandas as pd
+from clinicedc_constants import NO
+from django.apps import apps as django_apps
+from django.conf import settings
 from django_pandas.io import read_frame
 
 from edc_lab_results.dataframes import get_df_result_crfs
 
 from ..comparison_rules import add_comparison_columns
 from ..models import Result
+from .staleness import stamp_pulled_datetime
 
 __all__ = ["get_df_result_comparison"]
 
@@ -57,6 +61,10 @@ COMPARISON_FRAME_COLUMNS = (
     "join_key",
     "n_imported_for_key",
     "panel_imported",
+    # the requisition's own account of whether a result was coming
+    "result_expected",
+    "result_not_expected_reason",
+    "result_expected_conflict",
     # comparison
     "comparable_value",
     "value_status",
@@ -101,17 +109,57 @@ def get_df_result_comparison() -> pd.DataFrame:
     """
     df_crf = get_df_result_crfs()
     if df_crf.empty:
-        return pd.DataFrame(columns=list(COMPARISON_FRAME_COLUMNS))
+        return stamp_pulled_datetime(pd.DataFrame(columns=list(COMPARISON_FRAME_COLUMNS)))
     df_imported = get_df_imported()
     df = merge_imported(df_crf, df_imported)
     df["panel_imported"] = get_panel_imported(df, df_imported)
     df["has_import"] = df["n_imported_for_key"] > 0
     df = add_comparison_columns(df)
-    return (
+    df = df.merge(get_df_result_expected(), on=["subject_visit_id", "panel_name"], how="left")
+    # the requisition says the lab will never report, yet results were
+    # imported against it. Someone has to look at these
+    df["result_expected_conflict"] = (
+        (df["result_expected"] == NO) & (df["n_imported_for_key"] > 0)
+    ).fillna(False)
+    df = (
         df.reindex(columns=list(COMPARISON_FRAME_COLUMNS))
         .sort_values(["subject_identifier", "visit_code", "panel_name", "utestid"])
         .reset_index(drop=True)
     )
+    return stamp_pulled_datetime(df)
+
+
+def get_df_result_expected() -> pd.DataFrame:
+    """Return each requisition's account of whether a result is coming.
+
+    Keyed by related visit and panel, which
+    `RequisitionModelMixin.Meta` constrains to be unique together, so
+    this reaches a CRF whose own requisition field is empty. A CRF value
+    with no imported result and `result_expected` of NO is an explained
+    absence, not a gap.
+    """
+    model_cls = django_apps.get_model(settings.SUBJECT_REQUISITION_MODEL)
+    visit_attr = model_cls.related_visit_model_attr()
+    df = read_frame(
+        model_cls.objects.values(
+            visit_attr, "panel__name", "result_expected", "result_not_expected_reason"
+        ).all(),
+        verbose=False,
+    ).rename(columns={visit_attr: "subject_visit_id", "panel__name": "panel_name"})
+    if df.empty:
+        return pd.DataFrame(
+            columns=[
+                "subject_visit_id",
+                "panel_name",
+                "result_expected",
+                "result_not_expected_reason",
+            ]
+        )
+    for col in ["subject_visit_id", "panel_name"]:
+        df[col] = df[col].astype("string").str.strip().replace("", pd.NA)
+    for col in ["result_expected", "result_not_expected_reason"]:
+        df[col] = df[col].astype("string")
+    return df.reset_index(drop=True)
 
 
 def get_df_imported() -> pd.DataFrame:
