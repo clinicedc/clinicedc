@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
-from clinicedc_constants import NO, YES
+import numpy as np
+import pandas as pd
 
-from edc_lab_results.utils import get_utest_ids
+from edc_lab_results.utils import get_decimal_places, get_utest_ids
 
-from ..constants import ABNORMAL_FLAGS, DIFFERS, MATCH, NOT_COMPARED
+from ..comparison_rules import add_comparison_columns
+from ..constants import DIFFERS, NOT_COMPARED
 
 if TYPE_CHECKING:
     from ..models import Result
@@ -21,13 +23,19 @@ class ResultComparisonRow:
     """Compares one imported `Result` row with the matching fields on
     the result CRF.
 
+    The comparison itself is not made here. `ResultComparison` runs the
+    rows through `add_comparison_columns`, the same rule
+    `get_df_result_comparison` uses trial-wide, and this reads the
+    result off `data`. Nothing is written, this is for information only.
+
     Value, units and the abnormal flag are compared separately, so a
     row that agrees on the value but not on the units still reads as a
-    difference. Nothing is written, this is for information only.
+    difference.
     """
 
     result: Result
     model_obj: Any
+    data: pd.Series
 
     @property
     def utest_id(self) -> str:
@@ -35,6 +43,10 @@ class ResultComparisonRow:
 
     @property
     def crf_value(self) -> Decimal | None:
+        """Return the value as the CRF stores it, for display.
+
+        `comparable_value` is the float the comparison was made on.
+        """
         return getattr(self.model_obj, f"{self.utest_id}_value", None)
 
     @property
@@ -51,51 +63,31 @@ class ResultComparisonRow:
 
     @property
     def abnormal(self) -> str:
-        """Return the abnormal flag implied by the lab's `flag`.
-
-        A blank flag means the lab did not call the value abnormal.
-        A flag that is neither blank nor recognized is not interpreted.
-        """
-        flag = (self.result.flag or "").strip().lower()
-        if not flag:
-            return NO
-        return YES if flag in ABNORMAL_FLAGS else ""
+        """Return the abnormal flag implied by the lab's `flag`."""
+        return self._as_str("abnormal")
 
     @property
-    def comparable_value(self) -> Decimal | None:
+    def comparable_value(self) -> float | None:
         """Return the imported value in the units used by the CRF.
 
         Returns None where the two cannot be expressed in the same
         units, in which case the value is not compared. The units
         difference is reported on its own.
         """
-        if self.units and self.units == self.crf_units:
-            return self.result.result_value
-        converted_units = self.result.converted_units or ""
-        if converted_units and converted_units == self.crf_units:
-            return self.result.converted_result_value
-        return None
+        value = self.data["comparable_value"]
+        return None if pd.isna(value) else float(value)
 
     @property
     def value_status(self) -> str:
-        if self.crf_value is None and self.result.result_value is None:
-            return MATCH
-        if self.crf_value is None or self.result.result_value is None:
-            return DIFFERS
-        value = self.comparable_value
-        if value is None:
-            return NOT_COMPARED
-        return MATCH if self.quantize(value) == self.quantize(self.crf_value) else DIFFERS
+        return self._as_str("value_status")
 
     @property
     def units_status(self) -> str:
-        return MATCH if self.units == self.crf_units else DIFFERS
+        return self._as_str("units_status")
 
     @property
     def abnormal_status(self) -> str:
-        if not self.abnormal:
-            return NOT_COMPARED
-        return MATCH if self.abnormal == self.crf_abnormal else DIFFERS
+        return self._as_str("abnormal_status")
 
     @property
     def differs(self) -> bool:
@@ -121,21 +113,9 @@ class ResultComparisonRow:
     def abnormal_not_compared(self) -> bool:
         return self.abnormal_status == NOT_COMPARED
 
-    def quantize(self, value: Decimal) -> Decimal:
-        """Return the value at the precision stored by the CRF.
-
-        The imported value carries more decimal places than most CRF
-        fields, so 13.4000 and 13.4 must not read as a difference.
-        """
-        try:
-            decimal_places = self.model_obj._meta.get_field(
-                f"{self.utest_id}_value"
-            ).decimal_places
-        except AttributeError:
-            return value
-        if decimal_places is None:
-            return value
-        return value.quantize(Decimal(1).scaleb(-decimal_places), rounding=ROUND_HALF_UP)
+    def _as_str(self, column: str) -> str:
+        value = self.data[column]
+        return "" if pd.isna(value) else str(value)
 
 
 @dataclass
@@ -145,7 +125,9 @@ class ResultComparison:
 
     Only utest ids on the CRF are compared. Imported results with no
     field on the CRF are left out, as are CRF fields with no imported
-    result. See `ResultSearchView.get_group_key` for the result set.
+    result. See `ResultSearchView.get_group_key` for the result set,
+    and `get_df_result_comparison` for the trial-wide view, which does
+    include the CRF fields with no imported result.
     """
 
     model_obj: Any
@@ -155,12 +137,44 @@ class ResultComparison:
 
     def __post_init__(self) -> None:
         utest_ids = get_utest_ids(self.model_obj._meta.model)
+        results = [result for result in self.results if result.utestid in utest_ids]
+        if not results:
+            self.rows = []
+            return
+        df = add_comparison_columns(self.get_dataframe(results))
         self.rows = [
-            ResultComparisonRow(result=result, model_obj=self.model_obj)
-            for result in self.results
-            if result.utestid in utest_ids
+            ResultComparisonRow(result=result, model_obj=self.model_obj, data=df.iloc[index])
+            for index, result in enumerate(results)
         ]
+
+    def get_dataframe(self, results: list[Result]) -> pd.DataFrame:
+        """Return one row per result in the columns the rule reads."""
+        decimal_places = get_decimal_places(self.model_obj._meta.model)
+        return pd.DataFrame(
+            [
+                dict(
+                    has_import=True,
+                    crf_value=as_float(
+                        getattr(self.model_obj, f"{result.utestid}_value", None)
+                    ),
+                    crf_units=getattr(self.model_obj, f"{result.utestid}_units", None) or "",
+                    crf_abnormal=getattr(self.model_obj, f"{result.utestid}_abnormal", None)
+                    or "",
+                    decimal_places=decimal_places.get(result.utestid),
+                    result_value=as_float(result.result_value),
+                    units=result.units or "",
+                    converted_result_value=as_float(result.converted_result_value),
+                    converted_units=result.converted_units or "",
+                    flag=result.flag or "",
+                )
+                for result in results
+            ]
+        )
 
     @property
     def verbose_name(self) -> str:
         return self.model_obj._meta.verbose_name
+
+
+def as_float(value: Decimal | None) -> float:
+    return np.nan if value is None else float(value)
