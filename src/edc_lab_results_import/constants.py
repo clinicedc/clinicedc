@@ -17,4 +17,5 @@ ABNORMAL_FLAGS = ("h", "hh", "l", "ll")
 VISIT_NOT_FOUND = "visit_not_found"
 RESOLVER_MISS = "resolver_miss"
 REQUISITION_NOT_KEYED = "requisition_not_keyed"
+PANEL_UNKNOWN = "panel_unknown"
 PANEL_NOT_EXPECTED = "panel_not_expected"

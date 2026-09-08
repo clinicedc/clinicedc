@@ -20,7 +20,6 @@ from tqdm import tqdm
 
 from edc_appointment.constants import ONTIME_APPT
 from edc_lab.dataframes import get_requisition_df
-from edc_lab.site_labs import site_labs
 from edc_lab_panel.constants import (
     BASOPHILS,
     BASOPHILS_DIFF,
@@ -34,6 +33,7 @@ from edc_reportable.models import NormalData
 
 from ..exceptions import ResultImporterError
 from ..source_documents import archive_source_document
+from ..utils import get_panel_name_by_utestid
 from .get_mappings import get_mappings
 from .get_parser import get_parser
 from .save_summary import SaveSummary
@@ -330,18 +330,10 @@ class ResultImporter:
             self.df.loc[self.df["utestid"] == "eos%", "utestid"] = EOSINOPHILS_DIFF
             self.df.loc[self.df["utestid"] == "baso#", "utestid"] = BASOPHILS
             self.df.loc[self.df["utestid"] == "baso%", "utestid"] = BASOPHILS_DIFF
-            for lab_profile in site_labs.lab_profiles.values():
-                for panel in lab_profile.panels.values():
-                    for utestid in panel.flatten_utestids():
-                        records.append((utestid, panel.name))  # noqa: PERF401
-            for panel in self.extra_panels:
-                for utestid in panel.flatten_utestids():
-                    records.append((utestid, panel.name))  # noqa: PERF401
+            records = list(get_panel_name_by_utestid(self.extra_panels).items())
             self._df_utestid = pd.DataFrame(
                 records, columns=["utestid", "panel_name"]
             ).drop_duplicates()
-            if not self._df_utestid.utestid.is_unique:
-                raise ValueError("Utestid column must be unique.")
             self._df_utestid["utestid"] = (
                 self._df_utestid["utestid"].astype("string").fillna(pd.NA)
             )
@@ -661,11 +653,20 @@ class ResultImporter:
             requisition_id=to_pk(row.get("requisition")),
             requisition_identifier=to_str(row.get("requisition_identifier", "")),
             result_value=to_decimal(row.get("result")),
+            panel_name=to_str(row.get("panel_name", "")),
+            # nothing computes the converted value yet, see
+            # `apply_unit_mapping_after_resolve`, which only rewrites
+            # `units` in place. Written here so the round trip is whole
+            # once something does
+            converted_result_value=to_decimal(row.get("converted_result_value")),
+            converted_units=to_str(row.get("converted_units", "")),
+            reported_datetime=to_datetime(row.get("reported_datetime")),
             sample_condition=to_str(row.get("sample_condition", "")),
             sample_type=to_str(row.get("sample_type", "")),
             screening_identifier=to_str(row.get("screening_identifier", "")),
             sex=to_str(row.get("sex", "")),
             source_file=source_file,
+            source_units=to_str(row.get("source_units", "")),
             source_document_id=self.source_document_pks.get(source_file),
             specimen_collected_by=to_str(row.get("specimen_collected_by", "")),
             specimen_collected_datetime=to_datetime(row.get("specimen_collected_datetime")),
