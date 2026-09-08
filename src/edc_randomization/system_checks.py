@@ -1,6 +1,7 @@
 import os
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 
 from django.conf import settings
 from django.core.checks import Error, Warning  # noqa: A004
@@ -40,21 +41,37 @@ def blinded_trial_settings_check(app_configs, **kwargs) -> list:
     return errors
 
 
+skip_verify_argv = (
+    "tox",
+    "test",
+    "runtests.py",
+    "showmigrations",
+    "makemigrations",
+    "migrate",
+    "shell",
+)
+
+
+def running_management_command_or_tests() -> bool:
+    """Return True if this process is a test run or one of the
+    management commands that must not verify the list.
+
+    Compares on the basename of each argv item. `sys.argv[0]` is the
+    script exactly as it was typed, so an invocation such as
+    `./runtests.py` or one giving an absolute path would otherwise not
+    match and verification would run where it should be skipped.
+    """
+    argv = {Path(arg).name for arg in sys.argv}
+    return any(name in argv for name in skip_verify_argv)
+
+
 def randomizationlist_check(app_configs, **kwargs) -> list:
     sys.stdout.write(style.SQL_KEYWORD("randomizationlist_check ... \r"))
     errors = []
     error = error_configs.get("randomization_list_check")
 
     for randomizer in site_randomizers.registry.values():
-        if kwargs.get("force_verify") or (
-            "tox" not in sys.argv
-            and "test" not in sys.argv
-            and "runtests.py" not in sys.argv
-            and "showmigrations" not in sys.argv
-            and "makemigrations" not in sys.argv
-            and "migrate" not in sys.argv
-            and "shell" not in sys.argv
-        ):
+        if kwargs.get("force_verify") or not running_management_command_or_tests():
             error_msgs = randomizer.verify_list()
             for error_msg in error_msgs:
                 errors.append(error.cls(error_msg, hint=None, obj=None, id=error.id))  # noqa: PERF401
