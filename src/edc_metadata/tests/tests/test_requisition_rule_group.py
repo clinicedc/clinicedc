@@ -10,6 +10,7 @@ from clinicedc_tests.models import CrfFour, SubjectRequisition
 from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule import (
     get_visit_schedule,
 )
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from faker import Faker
@@ -108,6 +109,94 @@ class RequisitionRuleGroup3(RequisitionRuleGroup):
         requisition_model = "subjectrequisition"
 
 
+class RequisitionRuleGroup4(RequisitionRuleGroup):
+    """A rule group where source model is a requisition
+    and each rule has a datetime restriction.
+
+    If male, panel_one and panel_two are required.
+    If female, vl_panel and rft_panel are required.
+    """
+
+    male1 = RequisitionRule(
+        predicate=P("gender", "eq", MALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
+        source_panel=hba1c_panel,
+        target_panels=[fbc_panel, lft_panel],
+        activate_until_datetime=datetime(
+            2019, 9, 1, 1, 00, tzinfo=ZoneInfo(settings.TIME_ZONE)
+        ),
+    )
+
+    male2 = RequisitionRule(
+        predicate=P("gender", "eq", MALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
+        source_panel=hba1c_panel,
+        target_panels=[lipids_panel, insulin_panel],
+        activate_after_datetime=datetime(
+            2019, 9, 1, 1, 00, tzinfo=ZoneInfo(settings.TIME_ZONE)
+        ),
+    )
+
+    female = RequisitionRule(
+        predicate=P("gender", "eq", FEMALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
+        source_panel=cd4_panel,
+        target_panels=[vl_panel, rft_panel],
+        activate_until_datetime=datetime(
+            2026, 7, 31, 0, 0, 0, tzinfo=ZoneInfo(settings.TIME_ZONE)
+        ),
+    )
+
+    class Meta:
+        app_label = "clinicedc_tests"
+        source_model = "subjectrequisition"
+        requisition_model = "subjectrequisition"
+
+
+class RequisitionRuleGroup5(RequisitionRuleGroup):
+    """A rule group where each rule sets both activate datetimes, so
+    the boundary is the range between them.
+
+    The visit datetime must fall inside the range for the rule to run.
+    """
+
+    male_in_range = RequisitionRule(
+        predicate=P("gender", "eq", MALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
+        source_panel=hba1c_panel,
+        target_panels=[fbc_panel, lft_panel],
+        activate_after_datetime=datetime(
+            2019, 8, 1, 0, 0, tzinfo=ZoneInfo(settings.TIME_ZONE)
+        ),
+        activate_until_datetime=datetime(
+            2019, 9, 1, 0, 0, tzinfo=ZoneInfo(settings.TIME_ZONE)
+        ),
+    )
+
+    male_out_of_range = RequisitionRule(
+        predicate=P("gender", "eq", MALE),
+        consequence=REQUIRED,
+        alternative=NOT_REQUIRED,
+        source_panel=hba1c_panel,
+        target_panels=[lipids_panel, insulin_panel],
+        activate_after_datetime=datetime(
+            2019, 9, 1, 0, 0, tzinfo=ZoneInfo(settings.TIME_ZONE)
+        ),
+        activate_until_datetime=datetime(
+            2019, 10, 1, 0, 0, tzinfo=ZoneInfo(settings.TIME_ZONE)
+        ),
+    )
+
+    class Meta:
+        app_label = "clinicedc_tests"
+        source_model = "subjectrequisition"
+        requisition_model = "subjectrequisition"
+
+
 class BaseRequisitionRuleGroup(RequisitionRuleGroup):
     male = RequisitionRule(
         predicate=P("gender", "eq", MALE),
@@ -136,12 +225,9 @@ class MyRequisitionRuleGroup(BaseRequisitionRuleGroup):
         requisition_model = "subjectrequisition"
 
 
-utc_tz = ZoneInfo("UTC")
-
-
 @tag("metadata")
 @override_settings(SITE_ID=10)
-@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
+@time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo(settings.TIME_ZONE)))
 class TestRequisitionRuleGroup(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -240,6 +326,7 @@ class TestRequisitionRuleGroup(TestCase):
                 f"raised for {BadRequisitionRuleGroup}"
             )
 
+    @tag("metadata2")
     def test_rule_male_with_source_model_as_requisition(self):
         subject_visit = self.helper.enroll_to_baseline(
             visit_schedule_name=self.visit_schedule.name, schedule_name="schedule", gender=MALE
@@ -566,3 +653,67 @@ class TestRequisitionRuleGroup(TestCase):
             panel_name=cd4_panel.name,
         )
         self.assertEqual(metadata_obj.entry_status, KEYED)
+
+    @tag("metadata2")
+    def test_metadata_for_rule_with_activate_datetimes_male(self):
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name="schedule",
+            gender=MALE,
+        )
+        site_metadata_rules.registry = {}
+        site_metadata_rules.register(RequisitionRuleGroup4)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit, panel=Panel.objects.get(name=hba1c_panel.name)
+        )
+        for panel, entry_status in [
+            (fbc_panel, REQUIRED),
+            (lft_panel, REQUIRED),
+            (lipids_panel, NOT_REQUIRED),
+            (insulin_panel, NOT_REQUIRED),
+        ]:
+            with self.subTest(panel=panel):
+                obj = RequisitionMetadata.objects.get(
+                    model="clinicedc_tests.subjectrequisition",
+                    subject_identifier=subject_visit.subject_identifier,
+                    visit_code=subject_visit.visit_code,
+                    panel_name=panel.name,
+                )
+                self.assertEqual(
+                    obj.entry_status, entry_status, msg=f"{panel.name}, {entry_status}"
+                )
+
+    @tag("metadata2")
+    def test_metadata_for_rule_with_both_activate_datetimes_male(self):
+        """Assert a rule that sets both activate datetimes only runs
+        where the visit datetime falls inside the range.
+
+        The visit datetime is 2019-08-11. `male_in_range` brackets it,
+        `male_out_of_range` starts after it, so only the first runs.
+        """
+        subject_visit = self.helper.enroll_to_baseline(
+            visit_schedule_name=self.visit_schedule.name,
+            schedule_name="schedule",
+            gender=MALE,
+        )
+        site_metadata_rules.registry = {}
+        site_metadata_rules.register(RequisitionRuleGroup5)
+        SubjectRequisition.objects.create(
+            subject_visit=subject_visit, panel=Panel.objects.get(name=hba1c_panel.name)
+        )
+        for panel, entry_status in [
+            (fbc_panel, REQUIRED),
+            (lft_panel, REQUIRED),
+            (lipids_panel, NOT_REQUIRED),
+            (insulin_panel, NOT_REQUIRED),
+        ]:
+            with self.subTest(panel=panel):
+                obj = RequisitionMetadata.objects.get(
+                    model="clinicedc_tests.subjectrequisition",
+                    subject_identifier=subject_visit.subject_identifier,
+                    visit_code=subject_visit.visit_code,
+                    panel_name=panel.name,
+                )
+                self.assertEqual(
+                    obj.entry_status, entry_status, msg=f"{panel.name}, {entry_status}"
+                )

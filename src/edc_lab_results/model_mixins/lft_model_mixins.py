@@ -22,8 +22,8 @@ class AlbuminModelMixin(
             (GRAMS_PER_DECILITER, GRAMS_PER_DECILITER),
             (GRAMS_PER_LITER, GRAMS_PER_LITER),
         ),
-        decimal_places=1,
-        validators=[MinValueValidator(1.0), MaxValueValidator(9999.9)],
+        decimal_places=2,
+        validators=[MinValueValidator(0.0), MaxValueValidator(9999.9)],
     ),
     models.Model,
 ):
@@ -36,7 +36,7 @@ class AlpModelMixin(
         utest_id="alp",
         units_choices=((IU_LITER, IU_LITER_DISPLAY),),
         decimal_places=2,
-        validators=[MinValueValidator(1.00), MaxValueValidator(9999.99)],
+        validators=[MinValueValidator(0.00), MaxValueValidator(9999.99)],
     ),
     models.Model,
 ):
@@ -49,7 +49,7 @@ class AltModelMixin(
         utest_id="alt",
         units_choices=((IU_LITER, IU_LITER_DISPLAY),),
         decimal_places=2,
-        validators=[MinValueValidator(1.00), MaxValueValidator(9999.99)],
+        validators=[MinValueValidator(0.00), MaxValueValidator(9999.99)],
     ),
     models.Model,
 ):
@@ -61,8 +61,8 @@ class AstModelMixin(
     reportable_result_model_mixin_factory(
         utest_id="ast",
         units_choices=((IU_LITER, IU_LITER_DISPLAY),),
-        decimal_places=0,
-        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+        decimal_places=2,
+        validators=[MinValueValidator(0.0), MaxValueValidator(9999.9)],
     ),
     models.Model,
 ):
@@ -75,8 +75,8 @@ class AmylaseModelMixin(
         utest_id="amylase",
         verbose_name="Serum Amylase",
         units_choices=((IU_LITER, IU_LITER_DISPLAY),),
-        decimal_places=1,
-        validators=[MinValueValidator(1.0), MaxValueValidator(9999.9)],
+        decimal_places=2,
+        validators=[MinValueValidator(0.0), MaxValueValidator(9999.9)],
     ),
     models.Model,
 ):
@@ -119,8 +119,8 @@ class GgtModelMixin(
     reportable_result_model_mixin_factory(
         utest_id="ggt",
         units_choices=((IU_LITER, IU_LITER_DISPLAY),),
-        decimal_places=0,
-        validators=[MinValueValidator(1), MaxValueValidator(9999)],
+        decimal_places=2,
+        validators=[MinValueValidator(0.0), MaxValueValidator(9999.9)],
     ),
     models.Model,
 ):

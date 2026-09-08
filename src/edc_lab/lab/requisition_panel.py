@@ -88,7 +88,7 @@ class RequisitionPanel:
     @property
     def requisition_model_cls(self) -> type[models.Model]:
         """Returns the requisition model class associated with this
-        panel (set by it's lab profile).
+        panel (set by its lab profile).
         """
         try:
             requisition_model_cls = django_apps.get_model(self.requisition_model)

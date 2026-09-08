@@ -149,7 +149,6 @@ class TestPersistantSingleton(TestCaseMixin, TestCase):
             ).exists()
         )
 
-    @tag("metadata3")
     def test_1005_required(self):
         site_metadata_rules.registry = {}
         site_metadata_rules.register(self.rule_group)

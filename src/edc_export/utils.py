@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import keyring
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
@@ -184,8 +185,17 @@ def record_cli_export_audit(
 
 
 def get_export_user() -> User | AbstractBaseUser:
+    """Returns the User model instance.
+
+    Given a username from user input, attempt KeyChain access then
+    fallback to user input.
+
+    Success updates the keychain, failure sets keychain to ""
+    """
+    system = f"clinicedc.{settings.APP_NAME}"
     username = input("Username:")
-    passwd = getpass.getpass("Password for " + username + ":")
+    if not (passwd := keyring.get_password(system, username)):
+        passwd = getpass.getpass("Password for " + username + ":")
     try:
         user = get_user_model().objects.get(
             username=username, is_superuser=False, is_active=True
@@ -193,7 +203,9 @@ def get_export_user() -> User | AbstractBaseUser:
     except ObjectDoesNotExist as e:
         raise CommandError("Invalid username or password.") from e
     if not user.check_password(passwd):
+        keyring.set_password(system, username, "")
         raise CommandError("Invalid username or password.")
+    keyring.set_password(system, username, passwd)
     return user
 
 
