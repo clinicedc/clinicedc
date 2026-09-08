@@ -132,13 +132,17 @@ class Rule:
         ) or (self.disable_until_datetime is not None and dt < self.disable_until_datetime)
 
     def within_a_run_only_datetime_boundary(self, related_visit) -> bool:
-        """Return True if the run is date bound and falls within the
-        date boundary.
+        """Return True if the visit datetime falls within every
+        `activate` boundary that is set.
+
+        Only called where at least one `activate` datetime is set. Where
+        both are set the boundary is the range between them, so the
+        visit datetime must satisfy both, not either.
         """
         dt = related_visit.report_datetime
-        return (
-            self.activate_after_datetime is not None and dt > self.activate_after_datetime
-        ) or (self.activate_until_datetime is not None and dt < self.activate_until_datetime)
+        after = self.activate_after_datetime
+        until = self.activate_until_datetime
+        return (after is None or dt > after) and (until is None or dt < until)
 
     def validate_run_and_disable_datetimes(self):
         if self.activate_after_datetime and timezone.is_naive(self.activate_after_datetime):
