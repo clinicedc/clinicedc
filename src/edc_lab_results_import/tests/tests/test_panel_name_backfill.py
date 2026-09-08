@@ -102,6 +102,26 @@ class TestPanelNameBackfill(TestCase):
         result.refresh_from_db()
         self.assertEqual("", result.panel_name)
 
+    def test_batches_smaller_than_the_work_set_every_row(self):
+        """Paging by offset would step over rows, since each write
+        removes its row from the `panel_name=""` filter.
+        """
+        for utestid in ["haemoglobin", "hct", "rbc", "wbc", "platelets"]:
+            self.create_result(utestid)
+        summary = self.backfill(batch_size=2)
+        self.assertEqual(5, summary.candidates)
+        self.assertEqual(5, summary.updated)
+        self.assertEqual(0, Result.objects.filter(panel_name="").count())
+
+    def test_an_unmapped_row_does_not_stall_the_cursor(self):
+        """It keeps its empty panel and so stays in the filter."""
+        self.create_result("not_a_real_utestid")
+        for utestid in ["haemoglobin", "hct"]:
+            self.create_result(utestid)
+        summary = self.backfill(batch_size=1)
+        self.assertEqual(2, summary.updated)
+        self.assertEqual(1, summary.unmapped)
+
     def test_a_dry_run_writes_nothing(self):
         result = self.create_result("haemoglobin")
         summary = self.backfill(dry_run=True)

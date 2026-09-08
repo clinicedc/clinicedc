@@ -25,6 +25,8 @@ from .models import Result
 from .utils import get_panel_name_by_utestid
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from django.core.management.color import Style
 
 __all__ = ["BackfillSummary", "PanelNameBackfill"]
@@ -82,24 +84,41 @@ class PanelNameBackfill:
         mapping = get_panel_name_by_utestid(
             self.extra_panels if self.extra_panels is not None else [wbc_differential]
         )
-        qs = Result.objects.filter(panel_name="").order_by("id")
         summary = BackfillSummary(
-            candidates=qs.count(),
+            candidates=Result.objects.filter(panel_name="").count(),
             dry_run=self.dry_run,
             stdout=self.stdout,
             style=self.style,
         )
         self.stdout.write(f"  Found {summary.candidates} result(s) with no panel.\n")
-        for batch in self.get_batches(qs):
+        for batch in self.get_batches():
             self.update_batch(batch, mapping, summary)
         summary.write()
         return summary
 
-    def get_batches(self, qs) -> list[list[Result]]:
-        return [
-            list(qs[pos : pos + self.batch_size])
-            for pos in range(0, qs.count(), self.batch_size)
-        ]
+    def get_batches(self) -> Iterator[list[Result]]:
+        """Yield one batch at a time, paged by primary key.
+
+        Not by offset: the rows being written leave the `panel_name=""`
+        filter as they go, so later rows shift into offsets already
+        passed and would be stepped over. A cursor is also the only way
+        to hold one batch in memory rather than all of them, which
+        matters at a few hundred thousand rows.
+
+        A result whose utest id is in no panel keeps its empty panel and
+        so stays in the filter. The cursor steps past it regardless,
+        where restarting from the first batch would loop on it forever.
+        """
+        last_id = None
+        while True:
+            qs = Result.objects.filter(panel_name="").order_by("id")
+            if last_id is not None:
+                qs = qs.filter(id__gt=last_id)
+            batch = list(qs[: self.batch_size])
+            if not batch:
+                return
+            yield batch
+            last_id = batch[-1].id
 
     def update_batch(self, batch: list[Result], mapping: dict[str, str], summary) -> None:
         if self.dry_run:
