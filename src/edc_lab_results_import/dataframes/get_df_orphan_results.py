@@ -67,6 +67,15 @@ ORPHAN_FRAME_COLUMNS = (
     "order_datetime",
     "visit_datetime",
     "days_from_visit",
+    # the timepoint this result would be assigned to, and the
+    # requisition waiting there. Proposed, never written
+    "candidate_rule",
+    "candidate_subject_visit_id",
+    "candidate_visit_code",
+    "candidate_requisition_id",
+    "candidate_requisition_identifier",
+    "baseline_visit_datetime",
+    "days_before_baseline",
     # the imported result
     "result_id",
     "result_value",
@@ -126,6 +135,9 @@ def get_df_orphan_results() -> pd.DataFrame:
     tabulate `panel_name.isna()` against `subject_visit_id.isna()` for
     the overlap rather than reading the buckets as disjoint causes.
 
+    `candidate_rule` proposes a timepoint for a result that found none.
+    See `add_baseline_candidate`. It is a proposal, nothing is written.
+
     `days_from_visit` is signed and diagnostic only, nothing is matched
     on it. A specimen drawn before its visit is the screening draw
     captured at baseline, which the importer's exact date join cannot
@@ -145,12 +157,107 @@ def get_df_orphan_results() -> pd.DataFrame:
     df["days_from_visit"] = (
         df["specimen_collected_datetime"] - df["visit_datetime"]
     ).dt.days.astype("Int64")
+    df = add_baseline_candidate(df)
     df = (
         df.reindex(columns=list(ORPHAN_FRAME_COLUMNS))
         .sort_values(["bucket", "subject_identifier", "visit_code", "panel_name"])
         .reset_index(drop=True)
     )
     return stamp_pulled_datetime(df)
+
+
+ON_OR_BEFORE_BASELINE = "on_or_before_baseline"
+
+
+def add_baseline_candidate(df: pd.DataFrame) -> pd.DataFrame:
+    """Propose the baseline timepoint for a result drawn before the
+    subject had any visit.
+
+    A specimen collected on or before a subject's first visit cannot
+    belong to a later timepoint, so baseline is the only candidate.
+    That is a fact about the timeline, not a guess about dates, which
+    is why nothing here needs a tolerance.
+
+    Baseline is the earliest related visit by report datetime rather
+    than a hardcoded visit code, so a subject on any schedule is
+    covered. Only rows that found no timepoint of their own are
+    proposed for, and only where the subject is known: with no subject
+    there is no baseline to compare against.
+
+    `candidate_requisition_id` is the requisition already waiting at
+    that timepoint for this panel, where one exists. Nothing is
+    written. See `link_orphan_results` for the shape a writer takes.
+    """
+    df_baseline = get_df_baseline_visits()
+    if df_baseline.empty:
+        return df.assign(
+            candidate_rule=pd.NA,
+            candidate_subject_visit_id=pd.NA,
+            candidate_visit_code=pd.NA,
+            baseline_visit_datetime=pd.NaT,
+            days_before_baseline=pd.NA,
+            candidate_requisition_id=pd.NA,
+            candidate_requisition_identifier=pd.NA,
+        )
+    df = df.merge(df_baseline, on="subject_identifier", how="left")
+    proposed = (
+        df["subject_visit_id"].isna()
+        & df["subject_identifier"].notna()
+        & df["specimen_collected_datetime"].notna()
+        & (df["specimen_collected_datetime"] <= df["baseline_visit_datetime"])
+    ).fillna(False)
+    df["days_before_baseline"] = (
+        (df["baseline_visit_datetime"] - df["specimen_collected_datetime"])
+        .dt.days.astype("Int64")
+        .where(proposed)
+    )
+    df["candidate_rule"] = pd.Series(
+        np.where(proposed, ON_OR_BEFORE_BASELINE, pd.NA), index=df.index, dtype="string"
+    )
+    df["candidate_subject_visit_id"] = df["baseline_subject_visit_id"].where(proposed)
+    df["candidate_visit_code"] = df["baseline_visit_code"].where(proposed)
+    return add_candidate_requisition(df)
+
+
+def get_df_baseline_visits() -> pd.DataFrame:
+    """Return each subject's earliest related visit."""
+    df = get_df_related_visits()
+    if df.empty:
+        return df
+    return (
+        df.sort_values("visit_datetime")
+        .drop_duplicates(subset=["subject_identifier"], keep="first")
+        .loc[:, ["subject_identifier", "subject_visit_id", "visit_code", "visit_datetime"]]
+        .rename(
+            columns={
+                "subject_visit_id": "baseline_subject_visit_id",
+                "visit_code": "baseline_visit_code",
+                "visit_datetime": "baseline_visit_datetime",
+            }
+        )
+        .reset_index(drop=True)
+    )
+
+
+def add_candidate_requisition(df: pd.DataFrame) -> pd.DataFrame:
+    """Return `df` with the requisition waiting at the candidate
+    timepoint, where one exists.
+    """
+    df_requisitions = get_df_requisitions()
+    if df_requisitions.empty:
+        return df.assign(
+            candidate_requisition_id=pd.NA, candidate_requisition_identifier=pd.NA
+        )
+    candidates = df_requisitions.loc[
+        :, ["subject_visit_id", "panel_name", "requisition_id", "requisition_identifier"]
+    ].rename(
+        columns={
+            "subject_visit_id": "candidate_subject_visit_id",
+            "requisition_id": "candidate_requisition_id",
+            "requisition_identifier": "candidate_requisition_identifier",
+        }
+    )
+    return df.merge(candidates, on=["candidate_subject_visit_id", "panel_name"], how="left")
 
 
 def get_bucket(df: pd.DataFrame) -> pd.Series:
@@ -195,7 +302,7 @@ def get_df_orphans() -> pd.DataFrame:
     ).rename(columns={"id": "result_id"})
     if df.empty:
         return df
-    return normalize_keys(df).reset_index(drop=True)
+    return normalize_keys(coerce_datetimes(df)).reset_index(drop=True)
 
 
 def get_df_related_visits() -> pd.DataFrame:
@@ -220,7 +327,7 @@ def get_df_related_visits() -> pd.DataFrame:
     if df.empty:
         return df
     df["subject_visit_id"] = df["subject_visit_id"].astype("string")
-    return normalize_keys(df).reset_index(drop=True)
+    return normalize_keys(coerce_datetimes(df)).reset_index(drop=True)
 
 
 def get_df_requisitions() -> pd.DataFrame:
@@ -276,6 +383,25 @@ def get_df_requisition_metadata() -> pd.DataFrame:
     df["entry_status"] = df["entry_status"].astype("string")
     df["panel_name"] = df["panel_name"].astype("string").str.strip().replace("", pd.NA)
     return normalize_keys(df).reset_index(drop=True)
+
+
+def coerce_datetimes(df: pd.DataFrame) -> pd.DataFrame:
+    """Return `df` with its datetime columns as datetimes.
+
+    A column that is null for every row comes back from `read_frame` as
+    object dtype, which cannot be subtracted from a datetime. That is
+    not hypothetical: a result with no `specimen_collected_datetime` is
+    exactly the kind of row this report exists to surface.
+    """
+    for col in [
+        "result_datetime",
+        "specimen_collected_datetime",
+        "order_datetime",
+        "visit_datetime",
+    ]:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], utc=True, errors="coerce")
+    return df
 
 
 def normalize_keys(df: pd.DataFrame) -> pd.DataFrame:
