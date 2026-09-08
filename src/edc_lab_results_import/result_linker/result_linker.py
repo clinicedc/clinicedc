@@ -61,12 +61,12 @@ class ResultLinker:
     """Writes the requisition already found by `get_df_orphan_results`
     back onto the orphaned results.
 
-    Saves one result at a time rather than `bulk_update`, which skips
-    `save()`, the audit fields and every signal. Note that `Result`
-    declares no `HistoricalRecords`, so there is no historical model to
-    write to and the only trace of a link is `modified`. Give `Result` a
-    history if that is not enough. Batched in transactions so a failure
-    part way through does not leave half a batch written.
+    Saves one result at a time so `simple_history` records every change
+    and the link stays reversible from the audit trail. `bulk_update`
+    would be faster and would skip `save()`, the historical record, the
+    audit fields and every signal, which is the wrong trade for imported
+    lab data. Batched in transactions so a failure part way through does
+    not leave half a batch written.
 
     Reads the report itself rather than taking an exported one. A
     requisition edited since a worklist was exported, `result_expected`
@@ -140,8 +140,8 @@ class ResultLinker:
         obj.subject_visit_id = row.subject_visit_id
         # `AuditModelMixin.save` extends update_fields with the audit
         # fields, so `modified` moves and `results_changed_since` sees
-        # this run. With no historical model on `Result`, that is the
-        # only trace the link leaves
+        # this run. `simple_history` writes its record on post_save,
+        # which `update_fields` does not narrow
         obj.save(update_fields=list(LINKED_FIELDS))
         return True
 

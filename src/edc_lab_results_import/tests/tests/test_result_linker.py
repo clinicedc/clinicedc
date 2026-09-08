@@ -99,16 +99,25 @@ class TestResultLinker(TestCase):
         result.refresh_from_db()
         self.assertEqual(self.subject_visit.id, result.subject_visit_id)
 
-    def test_result_carries_no_historical_model(self):
-        """Pins a fact the linker depends on being told about.
-
-        `BaseUuidModel` does not add `HistoricalRecords`, models opt in,
-        and `Result` does not. So linking leaves no audit trail beyond
-        `modified`. If `Result` is ever given a history, revisit
-        `ResultLinker`, which saves one row at a time for a trail that
-        does not yet exist.
+    def test_the_link_is_recorded_in_the_history(self):
+        """The whole reason for saving one at a time rather than
+        `bulk_update`, which would write no historical record.
         """
-        self.assertFalse(hasattr(Result, "history"))
+        requisition = self.create_requisition()
+        result = self.create_orphan()
+        before = result.history.count()
+        self.link()
+        self.assertEqual(before + 1, result.history.count())
+        historical = result.history.first()
+        self.assertEqual(requisition.id, historical.requisition_id)
+        self.assertEqual(self.subject_visit.id, historical.subject_visit_id)
+
+    def test_the_history_keeps_the_state_before_the_link(self):
+        """The link is reversible from the audit trail."""
+        self.create_requisition()
+        result = self.create_orphan()
+        self.link()
+        self.assertIsNone(result.history.earliest("history_date").requisition_id)
 
     def test_the_link_moves_modified_so_staleness_can_see_it(self):
         self.create_requisition()
