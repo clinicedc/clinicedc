@@ -7,6 +7,8 @@ from .fieldsets import (
     requisition_fieldset,
     requisition_identifier_fields,
     requisition_identifier_fieldset,
+    requisition_result_expected_fields,
+    requisition_result_expected_fieldset,
     requisition_status_fields,
     requisition_status_fieldset,
     requisition_vendor_fieldset,

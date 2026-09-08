@@ -34,6 +34,18 @@ ALIQUOT_CONDITIONS = (
     ("70", _("Technical problem at lab, unable to test")),
 )
 
+RESULT_NOT_EXPECTED_REASONS = (
+    ("20", _("Inadequate volume for testing")),
+    ("30", _("Clotted or haemolised")),
+    ("40", _("Wrong tube type, unable to test")),
+    ("50", _("Sample degradation has occured. Unsuitable for testing")),
+    ("60", _("Expired tube")),
+    ("70", _("Technical problem at lab, unable to test")),
+    (OTHER, _("Other reason, please specifiy below ...")),
+    (NOT_APPLICABLE, _("Not applicable")),
+)
+
+
 FILL_ORDER = ((FILL_ACROSS, _("Across")), (FILL_DOWN, _("Down")))
 
 MODIFY_ACTIONS = (

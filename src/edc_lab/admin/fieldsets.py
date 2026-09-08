@@ -26,6 +26,13 @@ requisition_status_fields: tuple[str, ...] = (
     "shipped_datetime",
 )
 
+requisition_result_expected_fields: tuple[str, ...] = (
+    "result_expected",
+    "result_not_expected_reason",
+    "result_not_expected_reason_other",
+    "result_not_expected_datetime",
+)
+
 requisition_verify_fields: tuple[str, ...] = (
     "clinic_verified",
     "clinic_verified_datetime",
@@ -52,6 +59,11 @@ requisition_vendor_fields: tuple[str, ...] = (
     "result_datetime",
     "specimen_number",
     "specimen_received_datetime",
+)
+
+requisition_result_expected_fieldset: tuple[str, dict[str, tuple[str, ...]]] = (
+    "Results",
+    {"fields": requisition_result_expected_fields},
 )
 
 requisition_identifier_fieldset: tuple[str, dict[str, tuple[str, ...]]] = (

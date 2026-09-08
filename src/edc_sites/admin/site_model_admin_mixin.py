@@ -31,6 +31,7 @@ class SiteModelAdminMixin:
     limit_related_to_current_country: list[str] = None
     limit_related_to_current_site: list[str] = None
     site_list_display_insert_pos: int = 1
+    keep_site_list_filter_override: bool = False
 
     def user_may_view_other_sites(self, request) -> bool:
         return sites.user_may_view_other_sites(request)
@@ -84,16 +85,20 @@ class SiteModelAdminMixin:
         to mulitple sites.
         """
         list_filter = super().get_list_filter(request)
-        list_filter = [x for x in list_filter if x not in ("site", SiteListFilter)]
-        if self.user_may_view_other_sites(request) or self.has_viewallsites_permission(
-            request
-        ):
-            try:
-                index = list_filter.index("created")
-            except ValueError:
-                index = len(list_filter)
-            list_filter.insert(index, SiteListFilter)
+        if not self.keep_site_list_filter(request):
+            list_filter = [x for x in list_filter if x not in ("site", SiteListFilter)]
+            if self.user_may_view_other_sites(request) or self.has_viewallsites_permission(
+                request
+            ):
+                try:
+                    index = list_filter.index("created")
+                except ValueError:
+                    index = len(list_filter)
+                list_filter.insert(index, SiteListFilter)
         return tuple(list_filter)
+
+    def keep_site_list_filter(self, request) -> bool:
+        return request.user.userprofile.roles.filter(name=DATA_MANAGER_ROLE).exists()
 
     def get_list_display(self, request) -> tuple[str]:
         """Insert `site` after the first column"""

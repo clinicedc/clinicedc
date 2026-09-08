@@ -53,6 +53,23 @@ class RequisitionFormValidatorMixin:
         self.required_if(YES, field="is_drawn", field_required="item_count")
         self.required_if(YES, field="is_drawn", field_required="estimated_volume")
 
+        self.not_applicable_if(NO, field="is_drawn", field_applicable="result_expected")
+        self.applicable_if(
+            NO, field="result_expected", field_applicable="result_not_expected_reason"
+        )
+        self.validate_other_specify(field="result_not_expected_reason")
+
+        self.required_if(
+            NO, field="result_expected", field_required="result_not_expected_datetime"
+        )
+        if (
+            self.cleaned_data.get("drawn_datetime")
+            and self.cleaned_data.get("result_not_expected_datetime")
+            and self.cleaned_data.get("drawn_datetime")
+            > self.cleaned_data.get("result_not_expected_datetime")
+        ):
+            raise forms.ValidationError("May not be before date/time specimen drawn")
+
     @property
     def aliqout_model_cls(self) -> Aliquot:
         return django_apps.get_model(self.aliquot_model)
