@@ -11,6 +11,8 @@ from edc_metadata.constants import MISSED, REQUIRED
 from edc_metadata.models import RequisitionMetadata
 
 from ..constants import (
+    MAX_DAYS_BEFORE_BASELINE,
+    ON_OR_BEFORE_BASELINE,
     PANEL_NOT_EXPECTED,
     PANEL_UNKNOWN,
     REQUISITION_NOT_KEYED,
@@ -86,7 +88,7 @@ ORPHAN_FRAME_COLUMNS = (
 )
 
 
-def get_df_orphan_results() -> pd.DataFrame:
+def get_df_orphan_results(max_days_before_baseline: int | None = None) -> pd.DataFrame:
     """Return a trial-wide dataframe of imported results that carry no
     requisition, bucketed by what has to happen to each.
 
@@ -157,7 +159,7 @@ def get_df_orphan_results() -> pd.DataFrame:
     df["days_from_visit"] = (
         df["specimen_collected_datetime"] - df["visit_datetime"]
     ).dt.days.astype("Int64")
-    df = add_baseline_candidate(df)
+    df = add_baseline_candidate(df, max_days_before_baseline)
     df = (
         df.reindex(columns=list(ORPHAN_FRAME_COLUMNS))
         .sort_values(["bucket", "subject_identifier", "visit_code", "panel_name"])
@@ -166,17 +168,19 @@ def get_df_orphan_results() -> pd.DataFrame:
     return stamp_pulled_datetime(df)
 
 
-ON_OR_BEFORE_BASELINE = "on_or_before_baseline"
-
-
-def add_baseline_candidate(df: pd.DataFrame) -> pd.DataFrame:
+def add_baseline_candidate(
+    df: pd.DataFrame, max_days_before_baseline: int | None = None
+) -> pd.DataFrame:
     """Propose the baseline timepoint for a result drawn before the
     subject had any visit.
 
     A specimen collected on or before a subject's first visit cannot
     belong to a later timepoint, so baseline is the only candidate.
     That is a fact about the timeline, not a guess about dates, which
-    is why nothing here needs a tolerance.
+    is why nothing here needs a tolerance. It is bounded all the same:
+    "on or before" alone would claim a specimen drawn a year earlier,
+    so `max_days_before_baseline` caps how far back, defaulting to
+    `MAX_DAYS_BEFORE_BASELINE`.
 
     Baseline is the earliest related visit by report datetime rather
     than a hardcoded visit code, so a subject on any schedule is
@@ -188,6 +192,11 @@ def add_baseline_candidate(df: pd.DataFrame) -> pd.DataFrame:
     that timepoint for this panel, where one exists. Nothing is
     written. See `link_orphan_results` for the shape a writer takes.
     """
+    max_days = (
+        MAX_DAYS_BEFORE_BASELINE
+        if max_days_before_baseline is None
+        else max_days_before_baseline
+    )
     df_baseline = get_df_baseline_visits()
     if df_baseline.empty:
         return df.assign(
@@ -205,6 +214,10 @@ def add_baseline_candidate(df: pd.DataFrame) -> pd.DataFrame:
         & df["subject_identifier"].notna()
         & df["specimen_collected_datetime"].notna()
         & (df["specimen_collected_datetime"] <= df["baseline_visit_datetime"])
+        & (
+            df["baseline_visit_datetime"] - df["specimen_collected_datetime"]
+            <= pd.Timedelta(days=max_days)
+        )
     ).fillna(False)
     df["days_before_baseline"] = (
         (df["baseline_visit_datetime"] - df["specimen_collected_datetime"])

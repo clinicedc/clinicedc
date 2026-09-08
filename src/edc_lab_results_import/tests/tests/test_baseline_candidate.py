@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from edc_consent import site_consents
 from edc_lab.models import Panel
-from edc_lab_results_import.constants import VISIT_NOT_FOUND
+from edc_lab_results_import.constants import MAX_DAYS_BEFORE_BASELINE, VISIT_NOT_FOUND
 from edc_lab_results_import.dataframes import get_df_orphan_results
 from edc_lab_results_import.dataframes.get_df_orphan_results import ON_OR_BEFORE_BASELINE
 from edc_lab_results_import.models import Result
@@ -94,6 +94,27 @@ class TestBaselineCandidate(TestCase):
         row = self.get_row(get_df_orphan_results())
         self.assertEqual(ON_OR_BEFORE_BASELINE, row["candidate_rule"])
         self.assertEqual(0, row["days_before_baseline"])
+
+    def test_a_specimen_at_the_bound_is_proposed(self):
+        self.create_orphan(self.baseline_datetime - timedelta(days=MAX_DAYS_BEFORE_BASELINE))
+        row = self.get_row(get_df_orphan_results())
+        self.assertEqual(ON_OR_BEFORE_BASELINE, row["candidate_rule"])
+
+    def test_a_specimen_beyond_the_bound_is_not_proposed(self):
+        """`on or before` alone would claim a specimen drawn a year
+        earlier.
+        """
+        self.create_orphan(
+            self.baseline_datetime - timedelta(days=MAX_DAYS_BEFORE_BASELINE + 1)
+        )
+        row = self.get_row(get_df_orphan_results())
+        self.assertTrue(pd.isna(row["candidate_rule"]))
+
+    def test_the_bound_is_configurable(self):
+        self.create_orphan(self.baseline_datetime - timedelta(days=60))
+        self.assertTrue(pd.isna(self.get_row(get_df_orphan_results())["candidate_rule"]))
+        row = self.get_row(get_df_orphan_results(max_days_before_baseline=90))
+        self.assertEqual(ON_OR_BEFORE_BASELINE, row["candidate_rule"])
 
     def test_a_specimen_drawn_after_baseline_is_not_proposed(self):
         """It could belong to any later timepoint, so baseline is not

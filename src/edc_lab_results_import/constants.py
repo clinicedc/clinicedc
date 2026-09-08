@@ -19,3 +19,11 @@ RESOLVER_MISS = "resolver_miss"
 REQUISITION_NOT_KEYED = "requisition_not_keyed"
 PANEL_UNKNOWN = "panel_unknown"
 PANEL_NOT_EXPECTED = "panel_not_expected"
+
+# a specimen collected on or before a subject's first visit cannot
+# belong to a later timepoint, so baseline is the only candidate. This
+# bounds how far before, since "on or before" alone would also claim a
+# specimen drawn a year earlier. See `add_baseline_candidate` and
+# `ResultImporter.match_baseline_visits`.
+MAX_DAYS_BEFORE_BASELINE = 30
+ON_OR_BEFORE_BASELINE = "on_or_before_baseline"
