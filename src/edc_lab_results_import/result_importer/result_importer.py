@@ -31,6 +31,7 @@ from edc_lab_panel.constants import (
 from edc_registration.models import RegisteredSubject
 from edc_reportable.models import NormalData
 
+from ..constants import MAX_DAYS_BEFORE_BASELINE
 from ..exceptions import ResultImporterError
 from ..source_documents import archive_source_document
 from ..utils import get_panel_name_by_utestid
@@ -92,6 +93,7 @@ class ResultImporter:
         extra_panels: list[RequisitionPanel] | None = None,
         duplicates_json_path: Path | None = None,
         limit_file_count: int | None = None,
+        max_days_before_baseline: int | None = None,
     ) -> None:
         self._df_utestid = pd.DataFrame()
         self._df_requisitions = pd.DataFrame()
@@ -108,6 +110,11 @@ class ResultImporter:
         self.style = color_style()
         self.tz = tz or ZoneInfo(settings.TIME_ZONE)
         self.limit_file_count = limit_file_count
+        self.max_days_before_baseline: int = (
+            MAX_DAYS_BEFORE_BASELINE
+            if max_days_before_baseline is None
+            else max_days_before_baseline
+        )
         self.known_utestids = set(
             NormalData.objects.values_list("label", flat=True).distinct()
         )
@@ -477,6 +484,8 @@ class ResultImporter:
             matched = merged[merged["_merge"] == "both"].drop(columns="_merge")
             results.append(matched)
             remaining = merged.loc[merged["_merge"] == "left_only", remaining.columns]
+        matched, remaining = self.match_baseline_visits(remaining, df_related_visits)
+        results.append(matched)
         results.append(remaining)
         results.append(already_matched)
         df_result = pd.concat(results)
@@ -496,6 +505,49 @@ class ResultImporter:
         self.df = self.df.drop(
             columns=[c for c in self.df.columns if c.endswith("_right")]
         ).sort_index()
+
+    def match_baseline_visits(
+        self, remaining: pd.DataFrame, df_related_visits: pd.DataFrame
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Assign the baseline visit to a specimen drawn before the
+        subject had one.
+
+        The passes above match the specimen datetime against the visit
+        report datetime by exact equality. A specimen drawn at
+        screening, before enrolment, and reported at baseline can never
+        satisfy that: the two datetimes are days apart by definition.
+
+        Such a specimen cannot belong to a later timepoint either, so
+        baseline is the only candidate. Bounded by
+        `max_days_before_baseline`, since "before baseline" alone would
+        also claim a specimen drawn a year earlier.
+
+        Baseline is the earliest related visit by report datetime
+        rather than a hardcoded visit code, so a subject on any
+        schedule is covered.
+        """
+        df_baseline = df_related_visits.sort_values("visit_datetime").drop_duplicates(
+            subset=["subject_identifier"], keep="first"
+        )
+        merged = remaining.merge(
+            df_baseline,
+            on="subject_identifier",
+            how="left",
+            indicator=True,
+            suffixes=("", "_right"),
+        )
+        within = (
+            (merged["_merge"] == "both")
+            & merged["specimen_collected_datetime"].notna()
+            & merged["visit_datetime_right"].notna()
+            & (merged["specimen_collected_datetime"] <= merged["visit_datetime_right"])
+            & (
+                merged["visit_datetime_right"] - merged["specimen_collected_datetime"]
+                <= pd.Timedelta(days=self.max_days_before_baseline)
+            )
+        ).fillna(False)
+        matched = merged[within].drop(columns="_merge")
+        return matched, merged.loc[~within, remaining.columns]
 
     def resolve_sites(self):
         self.df = self.df.merge(
