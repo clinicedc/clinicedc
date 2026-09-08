@@ -18,6 +18,7 @@ from pathlib import Path
 from django.core.management.base import BaseCommand, CommandError
 
 from edc_identifier.utils import is_valid_subject_identifier
+from edc_lab_panel.panels import wbc_differential
 from edc_lab_results_import.result_importer import ResultImporter
 
 
@@ -86,5 +87,11 @@ class Command(BaseCommand):
             dry_run=dry_run,
             duplicates_json_path=duplicates_json_path,
             is_valid_identifier_func=is_valid_subject_identifier,
+            # the differential analytes are reported under their own
+            # panel, which no lab profile registers because they are
+            # drawn under FBC. Without it every differential utest id
+            # resolves to no panel and the result can never be matched
+            # to a requisition
+            extra_panels=[wbc_differential],
         )
         importer.run(to_model=True, df_to_path=path)

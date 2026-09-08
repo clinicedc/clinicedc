@@ -12,6 +12,7 @@ from edc_metadata.models import RequisitionMetadata
 
 from ..constants import (
     PANEL_NOT_EXPECTED,
+    PANEL_UNKNOWN,
     REQUISITION_NOT_KEYED,
     RESOLVER_MISS,
     VISIT_NOT_FOUND,
@@ -104,15 +105,26 @@ def get_df_orphan_results() -> pd.DataFrame:
         No requisition here, and `RequisitionMetadata` says the panel
         was expected. This is the worklist.
 
+    `panel_unknown`
+        The result carries no panel at all, because its utest id is in
+        no registered panel. `resolve_requisitions` joins on utest id
+        against requisitions keyed through `df_utestid`, so such a
+        result cannot match a requisition by any date. The utest id to
+        panel mapping is the fix, see `get_mappings`, not the data.
+
     `panel_not_expected`
-        No requisition here and the panel was not expected at this
-        timepoint, or there is no metadata for it at all. Suspect the
-        utest id to panel mapping rather than the data. See
-        `get_mappings`.
+        The result has a panel, but no requisition here and no metadata
+        saying one was due at this timepoint. An ad hoc draw, or a panel
+        the schedule does not call for here.
 
     `visit_not_found`
         The result names a timepoint that no related visit matches, or
         names none at all. Nothing further can be said about it here.
+
+    The buckets are ordered, and a result can be in more than one
+    state: every row with no panel may also have no timepoint. Cross
+    tabulate `panel_name.isna()` against `subject_visit_id.isna()` for
+    the overlap rather than reading the buckets as disjoint causes.
 
     `days_from_visit` is signed and diagnostic only, nothing is matched
     on it. A specimen drawn before its visit is the screening draw
@@ -147,10 +159,11 @@ def get_bucket(df: pd.DataFrame) -> pd.Series:
         np.select(
             [
                 df["subject_visit_id"].isna().to_numpy(dtype=bool),
+                df["panel_name"].isna().to_numpy(dtype=bool),
                 df["requisition_id"].notna().to_numpy(dtype=bool),
                 df["entry_status"].isin(NOT_KEYED_STATUSES).to_numpy(dtype=bool),
             ],
-            [VISIT_NOT_FOUND, RESOLVER_MISS, REQUISITION_NOT_KEYED],
+            [VISIT_NOT_FOUND, PANEL_UNKNOWN, RESOLVER_MISS, REQUISITION_NOT_KEYED],
             default=PANEL_NOT_EXPECTED,
         ),
         index=df.index,
