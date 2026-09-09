@@ -20,6 +20,7 @@ from ..constants import (
     VISIT_NOT_FOUND,
 )
 from ..models import Result
+from ..utils import get_requisition_panel_name_map
 from .staleness import stamp_pulled_datetime
 
 __all__ = ["get_df_orphan_results"]
@@ -36,7 +37,7 @@ METADATA_KEY = (
     "schedule_name",
     "visit_code",
     "visit_code_sequence",
-    "panel_name",
+    "requisition_panel_name",
 )
 
 # entry_status values meaning the requisition was expected here and has
@@ -55,6 +56,7 @@ ORPHAN_FRAME_COLUMNS = (
     "visit_code",
     "visit_code_sequence",
     "panel_name",
+    "requisition_panel_name",
     "utestid",
     # the requisition to link to, where one exists
     "requisition_id",
@@ -150,7 +152,9 @@ def get_df_orphan_results(max_days_before_baseline: int | None = None) -> pd.Dat
         return stamp_pulled_datetime(pd.DataFrame(columns=list(ORPHAN_FRAME_COLUMNS)))
     df = df.merge(get_df_related_visits(), on=list(VISIT_KEY), how="left")
     df = df.merge(
-        get_df_requisitions(), on=["subject_visit_id", "panel_name"], how="left"
+        get_df_requisitions(),
+        on=["subject_visit_id", "requisition_panel_name"],
+        how="left",
     ).merge(get_df_requisition_metadata(), on=list(METADATA_KEY), how="left")
     df["bucket"] = get_bucket(df)
     # the requisition says the lab will never report, yet here is a
@@ -262,7 +266,13 @@ def add_candidate_requisition(df: pd.DataFrame) -> pd.DataFrame:
             candidate_requisition_id=pd.NA, candidate_requisition_identifier=pd.NA
         )
     candidates = df_requisitions.loc[
-        :, ["subject_visit_id", "panel_name", "requisition_id", "requisition_identifier"]
+        :,
+        [
+            "subject_visit_id",
+            "requisition_panel_name",
+            "requisition_id",
+            "requisition_identifier",
+        ],
     ].rename(
         columns={
             "subject_visit_id": "candidate_subject_visit_id",
@@ -270,7 +280,9 @@ def add_candidate_requisition(df: pd.DataFrame) -> pd.DataFrame:
             "requisition_identifier": "candidate_requisition_identifier",
         }
     )
-    return df.merge(candidates, on=["candidate_subject_visit_id", "panel_name"], how="left")
+    return df.merge(
+        candidates, on=["candidate_subject_visit_id", "requisition_panel_name"], how="left"
+    )
 
 
 def get_bucket(df: pd.DataFrame) -> pd.Series:
@@ -315,7 +327,11 @@ def get_df_orphans() -> pd.DataFrame:
     ).rename(columns={"id": "result_id"})
     if df.empty:
         return df
-    return normalize_keys(coerce_datetimes(df)).reset_index(drop=True)
+    df = normalize_keys(coerce_datetimes(df))
+    # the panel a result was drawn under, which is not always the panel
+    # it is reported under. See `get_requisition_panel_name_map`
+    df["requisition_panel_name"] = df["panel_name"].replace(get_requisition_panel_name_map())
+    return df.reset_index(drop=True)
 
 
 def get_df_related_visits() -> pd.DataFrame:
@@ -367,12 +383,12 @@ def get_df_requisitions() -> pd.DataFrame:
         columns={
             "id": "requisition_id",
             visit_attr: "subject_visit_id",
-            "panel__name": "panel_name",
+            "panel__name": "requisition_panel_name",
         }
     )
     if df.empty:
         return df
-    for col in ["requisition_id", "subject_visit_id", "panel_name"]:
+    for col in ["requisition_id", "subject_visit_id", "requisition_panel_name"]:
         df[col] = df[col].astype("string").str.strip().replace("", pd.NA)
     for col in ["result_expected", "result_not_expected_reason"]:
         df[col] = df[col].astype("string")
@@ -388,13 +404,16 @@ def get_df_requisition_metadata() -> pd.DataFrame:
     disagree.
     """
     df = read_frame(
-        RequisitionMetadata.objects.values(*METADATA_KEY, "entry_status").all(),
+        RequisitionMetadata.objects.values(
+            *[col.replace("requisition_panel_name", "panel_name") for col in METADATA_KEY],
+            "entry_status",
+        ).all(),
         verbose=False,
     )
     if df.empty:
         return df
+    df = df.rename(columns={"panel_name": "requisition_panel_name"})
     df["entry_status"] = df["entry_status"].astype("string")
-    df["panel_name"] = df["panel_name"].astype("string").str.strip().replace("", pd.NA)
     return normalize_keys(df).reset_index(drop=True)
 
 
@@ -426,8 +445,9 @@ def normalize_keys(df: pd.DataFrame) -> pd.DataFrame:
     for col in ["subject_identifier", "visit_code", "visit_schedule_name", "schedule_name"]:
         if col in df.columns:
             df[col] = df[col].astype("string").str.strip().replace("", pd.NA)
-    if "panel_name" in df.columns:
-        df["panel_name"] = df["panel_name"].astype("string").str.strip().replace("", pd.NA)
+    for col in ["panel_name", "requisition_panel_name"]:
+        if col in df.columns:
+            df[col] = df[col].astype("string").str.strip().replace("", pd.NA)
     df["visit_code_sequence"] = (
         pd.to_numeric(df["visit_code_sequence"], errors="coerce").fillna(0).astype("Int64")
     )

@@ -34,7 +34,7 @@ from edc_reportable.models import NormalData
 from ..constants import MAX_DAYS_BEFORE_BASELINE
 from ..exceptions import ResultImporterError
 from ..source_documents import archive_source_document
-from ..utils import get_panel_name_by_utestid
+from ..utils import get_panel_name_by_utestid, get_requisition_panel_name_map
 from .get_mappings import get_mappings
 from .get_parser import get_parser
 from .save_summary import SaveSummary
@@ -353,7 +353,14 @@ class ResultImporter:
     def df_requisitions(self) -> pd.DataFrame:
         if self._df_requisitions.empty:
             df = get_requisition_df()
-            df = df.merge(self.df_utestid, on="panel_name", how="left")
+            # a utest id reported under one panel may be drawn under
+            # another, and requisitions exist only for the panel it was
+            # drawn under. See `get_requisition_panel_name_map`
+            df_utestid = self.df_utestid.copy()
+            df_utestid["panel_name"] = df_utestid["panel_name"].replace(
+                get_requisition_panel_name_map()
+            )
+            df = df.merge(df_utestid, on="panel_name", how="left")
             self._df_requisitions = (
                 df.sort_values("visit_code_sequence")
                 .drop_duplicates(

@@ -10,6 +10,7 @@ from edc_lab_results.dataframes import get_df_result_crfs
 
 from ..comparison_rules import add_comparison_columns
 from ..models import Result
+from ..utils import get_requisition_panel_name_map
 from .staleness import stamp_pulled_datetime
 
 __all__ = ["get_df_result_comparison"]
@@ -204,6 +205,11 @@ def get_df_imported() -> pd.DataFrame:
         df[col] = pd.to_numeric(df[col], errors="coerce").astype("float64")
     for col in ["units", "converted_units", "flag", "source_file", "requisition_identifier"]:
         df[col] = df[col].astype("string").fillna("")
+    # the CRF grid is keyed by the panel the specimen was drawn under,
+    # so the imported side has to agree. A differential result reports
+    # `wbc_diff` but is collected on the FBC requisition. See
+    # `get_requisition_panel_name_map`
+    df["panel_name"] = df["panel_name"].replace(get_requisition_panel_name_map())
     return df.reset_index(drop=True)
 
 
