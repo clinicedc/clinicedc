@@ -61,6 +61,7 @@ hba1c_poc_panel = RequisitionPanel(
     abbreviation="HBA1C_POC",
     processing_profile=poc_processing,
     utest_ids=(("hba1c", "HbA1c"),),
+    is_poc=True,
 )
 
 
@@ -96,6 +97,7 @@ blood_glucose_poc_panel = RequisitionPanel(
     abbreviation="BGL-POC",
     processing_profile=poc_processing,
     utest_ids=(("glucose", "Glucose"),),
+    is_poc=True,
 )
 
 cd4_panel = RequisitionPanel(

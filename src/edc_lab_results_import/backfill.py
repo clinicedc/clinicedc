@@ -22,7 +22,7 @@ from django.db import transaction
 from edc_lab_panel.panels import wbc_differential
 
 from .models import Result
-from .utils import get_panel_name_by_utestid
+from .utils import get_ambiguous_utestids, get_panel_name_by_utestid
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -81,9 +81,11 @@ class PanelNameBackfill:
     style: Style = field(default_factory=color_style)
 
     def run(self) -> BackfillSummary:
-        mapping = get_panel_name_by_utestid(
+        extra_panels = (
             self.extra_panels if self.extra_panels is not None else [wbc_differential]
         )
+        mapping = get_panel_name_by_utestid(extra_panels)
+        self.write_ambiguous(get_ambiguous_utestids(extra_panels))
         summary = BackfillSummary(
             candidates=Result.objects.filter(panel_name="").count(),
             dry_run=self.dry_run,
@@ -95,6 +97,24 @@ class PanelNameBackfill:
             self.update_batch(batch, mapping, summary)
         summary.write()
         return summary
+
+    def write_ambiguous(self, ambiguous: dict[str, list[str]]) -> None:
+        """Say which utest ids are on more than one panel.
+
+        Nothing in an imported result says which panel it came from, so
+        these keep an empty `panel_name` and show as `panel_unknown`.
+        Naming them is the only way anyone finds out.
+        """
+        if not ambiguous:
+            return
+        self.stdout.write(
+            self.style.WARNING(
+                f"  {len(ambiguous)} utest id(s) are declared by more than one panel "
+                "and will be left empty:\n"
+            )
+        )
+        for utest_id, names in sorted(ambiguous.items()):
+            self.stdout.write(f"   {utest_id}: {', '.join(names)}\n")
 
     def get_batches(self) -> Iterator[list[Result]]:
         """Yield one batch at a time, paged by primary key.

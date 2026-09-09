@@ -13,7 +13,3 @@ class MappingsNotFoundError(Exception):
 
 class ResultImporterError(Exception):
     pass
-
-
-class EdcLabResultsUtestidError(Exception):
-    pass
