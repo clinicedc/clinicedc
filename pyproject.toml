@@ -222,6 +222,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+# a notebook prints to show its output, that is the point of it
+"**/notebooks/*.ipynb" = ["T201"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 12
