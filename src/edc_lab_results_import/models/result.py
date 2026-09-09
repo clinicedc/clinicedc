@@ -3,10 +3,10 @@ from decimal import Decimal, InvalidOperation
 
 from django.conf import settings
 from django.db import models
-from django.db.models import CASCADE
+from django.db.models import CASCADE, Manager
 
 from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
-from edc_model.models import BaseUuidModel
+from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from .source_document import SourceDocument
 
@@ -184,6 +184,10 @@ class Result(NonUniqueSubjectIdentifierFieldMixin, BaseUuidModel):
         blank=True,
         help_text="Set when this result has been transcribed onto a CRF.",
     )
+
+    objects = Manager()
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.result_no}: {self.utestid} {self.result_value} {self.units}"

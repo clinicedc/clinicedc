@@ -20,7 +20,6 @@ from tqdm import tqdm
 
 from edc_appointment.constants import ONTIME_APPT
 from edc_lab.dataframes import get_requisition_df
-from edc_lab.site_labs import site_labs
 from edc_lab_panel.constants import (
     BASOPHILS,
     BASOPHILS_DIFF,
@@ -32,8 +31,10 @@ from edc_lab_panel.constants import (
 from edc_registration.models import RegisteredSubject
 from edc_reportable.models import NormalData
 
+from ..constants import MAX_DAYS_BEFORE_BASELINE
 from ..exceptions import ResultImporterError
 from ..source_documents import archive_source_document
+from ..utils import get_panel_name_by_utestid, get_requisition_panel_name_map
 from .get_mappings import get_mappings
 from .get_parser import get_parser
 from .save_summary import SaveSummary
@@ -92,6 +93,7 @@ class ResultImporter:
         extra_panels: list[RequisitionPanel] | None = None,
         duplicates_json_path: Path | None = None,
         limit_file_count: int | None = None,
+        max_days_before_baseline: int | None = None,
     ) -> None:
         self._df_utestid = pd.DataFrame()
         self._df_requisitions = pd.DataFrame()
@@ -108,6 +110,11 @@ class ResultImporter:
         self.style = color_style()
         self.tz = tz or ZoneInfo(settings.TIME_ZONE)
         self.limit_file_count = limit_file_count
+        self.max_days_before_baseline: int = (
+            MAX_DAYS_BEFORE_BASELINE
+            if max_days_before_baseline is None
+            else max_days_before_baseline
+        )
         self.known_utestids = set(
             NormalData.objects.values_list("label", flat=True).distinct()
         )
@@ -330,18 +337,10 @@ class ResultImporter:
             self.df.loc[self.df["utestid"] == "eos%", "utestid"] = EOSINOPHILS_DIFF
             self.df.loc[self.df["utestid"] == "baso#", "utestid"] = BASOPHILS
             self.df.loc[self.df["utestid"] == "baso%", "utestid"] = BASOPHILS_DIFF
-            for lab_profile in site_labs.lab_profiles.values():
-                for panel in lab_profile.panels.values():
-                    for utestid in panel.flatten_utestids():
-                        records.append((utestid, panel.name))  # noqa: PERF401
-            for panel in self.extra_panels:
-                for utestid in panel.flatten_utestids():
-                    records.append((utestid, panel.name))  # noqa: PERF401
+            records = list(get_panel_name_by_utestid(self.extra_panels).items())
             self._df_utestid = pd.DataFrame(
                 records, columns=["utestid", "panel_name"]
             ).drop_duplicates()
-            if not self._df_utestid.utestid.is_unique:
-                raise ValueError("Utestid column must be unique.")
             self._df_utestid["utestid"] = (
                 self._df_utestid["utestid"].astype("string").fillna(pd.NA)
             )
@@ -354,7 +353,14 @@ class ResultImporter:
     def df_requisitions(self) -> pd.DataFrame:
         if self._df_requisitions.empty:
             df = get_requisition_df()
-            df = df.merge(self.df_utestid, on="panel_name", how="left")
+            # a utest id reported under one panel may be drawn under
+            # another, and requisitions exist only for the panel it was
+            # drawn under. See `get_requisition_panel_name_map`
+            df_utestid = self.df_utestid.copy()
+            df_utestid["panel_name"] = df_utestid["panel_name"].replace(
+                get_requisition_panel_name_map()
+            )
+            df = df.merge(df_utestid, on="panel_name", how="left")
             self._df_requisitions = (
                 df.sort_values("visit_code_sequence")
                 .drop_duplicates(
@@ -485,6 +491,8 @@ class ResultImporter:
             matched = merged[merged["_merge"] == "both"].drop(columns="_merge")
             results.append(matched)
             remaining = merged.loc[merged["_merge"] == "left_only", remaining.columns]
+        matched, remaining = self.match_baseline_visits(remaining, df_related_visits)
+        results.append(matched)
         results.append(remaining)
         results.append(already_matched)
         df_result = pd.concat(results)
@@ -504,6 +512,49 @@ class ResultImporter:
         self.df = self.df.drop(
             columns=[c for c in self.df.columns if c.endswith("_right")]
         ).sort_index()
+
+    def match_baseline_visits(
+        self, remaining: pd.DataFrame, df_related_visits: pd.DataFrame
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Assign the baseline visit to a specimen drawn before the
+        subject had one.
+
+        The passes above match the specimen datetime against the visit
+        report datetime by exact equality. A specimen drawn at
+        screening, before enrolment, and reported at baseline can never
+        satisfy that: the two datetimes are days apart by definition.
+
+        Such a specimen cannot belong to a later timepoint either, so
+        baseline is the only candidate. Bounded by
+        `max_days_before_baseline`, since "before baseline" alone would
+        also claim a specimen drawn a year earlier.
+
+        Baseline is the earliest related visit by report datetime
+        rather than a hardcoded visit code, so a subject on any
+        schedule is covered.
+        """
+        df_baseline = df_related_visits.sort_values("visit_datetime").drop_duplicates(
+            subset=["subject_identifier"], keep="first"
+        )
+        merged = remaining.merge(
+            df_baseline,
+            on="subject_identifier",
+            how="left",
+            indicator=True,
+            suffixes=("", "_right"),
+        )
+        within = (
+            (merged["_merge"] == "both")
+            & merged["specimen_collected_datetime"].notna()
+            & merged["visit_datetime_right"].notna()
+            & (merged["specimen_collected_datetime"] <= merged["visit_datetime_right"])
+            & (
+                merged["visit_datetime_right"] - merged["specimen_collected_datetime"]
+                <= pd.Timedelta(days=self.max_days_before_baseline)
+            )
+        ).fillna(False)
+        matched = merged[within].drop(columns="_merge")
+        return matched, merged.loc[~within, remaining.columns]
 
     def resolve_sites(self):
         self.df = self.df.merge(
@@ -661,11 +712,20 @@ class ResultImporter:
             requisition_id=to_pk(row.get("requisition")),
             requisition_identifier=to_str(row.get("requisition_identifier", "")),
             result_value=to_decimal(row.get("result")),
+            panel_name=to_str(row.get("panel_name", "")),
+            # nothing computes the converted value yet, see
+            # `apply_unit_mapping_after_resolve`, which only rewrites
+            # `units` in place. Written here so the round trip is whole
+            # once something does
+            converted_result_value=to_decimal(row.get("converted_result_value")),
+            converted_units=to_str(row.get("converted_units", "")),
+            reported_datetime=to_datetime(row.get("reported_datetime")),
             sample_condition=to_str(row.get("sample_condition", "")),
             sample_type=to_str(row.get("sample_type", "")),
             screening_identifier=to_str(row.get("screening_identifier", "")),
             sex=to_str(row.get("sex", "")),
             source_file=source_file,
+            source_units=to_str(row.get("source_units", "")),
             source_document_id=self.source_document_pks.get(source_file),
             specimen_collected_by=to_str(row.get("specimen_collected_by", "")),
             specimen_collected_datetime=to_datetime(row.get("specimen_collected_datetime")),

@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "4.7.0"
+version = "4.8.0"
 description = "A clinical trials data management framework built on Django"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -222,6 +222,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+# a notebook prints to show its output, that is the point of it
+"**/notebooks/*.ipynb" = ["T201"]
 
 [tool.ruff.lint.mccabe]
 max-complexity = 12

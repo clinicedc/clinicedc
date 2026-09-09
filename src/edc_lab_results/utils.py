@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 
 __all__ = [
     "ResultModelPanelError",
+    "get_decimal_places",
     "get_result_model_cls",
     "get_result_models_by_panel_name",
     "get_utest_ids",
@@ -85,6 +86,22 @@ def get_utest_ids(model_cls: type[models.Model]) -> tuple[str, ...]:
     )
 
 
+@cache
+def get_decimal_places(model_cls: type[models.Model]) -> dict[str, int | None]:
+    """Return {utest id: decimal_places} for the value field of each
+    result on this result CRF.
+
+    The value is None where the value field is not a `DecimalField`,
+    in which case the value has no stored precision to round to.
+    """
+    return {
+        utest_id: getattr(
+            model_cls._meta.get_field(f"{utest_id}_value"), "decimal_places", None
+        )
+        for utest_id in get_utest_ids(model_cls)
+    }
+
+
 def clear_result_model_cache(setting: str | None = None, **kwargs) -> None:
     """Clear the cached registry.
 
@@ -94,3 +111,4 @@ def clear_result_model_cache(setting: str | None = None, **kwargs) -> None:
     if setting is None or setting == "INSTALLED_APPS":
         _registry.cache_clear()
         get_utest_ids.cache_clear()
+        get_decimal_places.cache_clear()

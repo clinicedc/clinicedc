@@ -1,5 +1,5 @@
-from clinicedc_constants import NOT_APPLICABLE
-from clinicedc_constants.choices import YES_NO
+from clinicedc_constants import NOT_APPLICABLE, YES
+from clinicedc_constants.choices import YES_NO, YES_NO_NA
 from django.conf import settings
 from django.db import models
 from django.db.models import UniqueConstraint
@@ -20,7 +20,7 @@ from edc_visit_tracking.model_mixins import (
     VisitTrackingRequisitionModelMixin,
 )
 
-from ...choices import ITEM_TYPE, REASON_NOT_DRAWN
+from ...choices import ITEM_TYPE, REASON_NOT_DRAWN, RESULT_NOT_EXPECTED_REASONS
 from ...managers import RequisitionManager
 from ..panel_model_mixin import PanelModelMixin
 from .requisition_identifier_mixin import RequisitionIdentifierMixin
@@ -110,6 +110,30 @@ class RequisitionModelMixin(
             "If applicable, estimated volume of sample for this test/order. "
             'This is the total volume if number of "tubes" above is greater than 1'
         ),
+    )
+
+    result_expected = models.CharField(
+        verbose_name="Is a result expected",
+        max_length=25,
+        choices=YES_NO_NA,
+        default=YES,
+        help_text="",
+    )
+
+    result_not_expected_reason = models.CharField(
+        verbose_name="If not expected, please select a reason",
+        max_length=25,
+        choices=RESULT_NOT_EXPECTED_REASONS,
+        default=NOT_APPLICABLE,
+        help_text="",
+    )
+
+    result_not_expected_reason_other = OtherCharField(
+        verbose_name="If other reason the result is not expected, please explain ..."
+    )
+
+    result_not_expected_datetime = models.DateTimeField(
+        verbose_name="Date site decided result no longer expected", null=True, blank=True
     )
 
     comments = models.TextField(max_length=25, blank=True, default="")

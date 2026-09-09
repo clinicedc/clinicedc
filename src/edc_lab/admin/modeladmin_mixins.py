@@ -66,6 +66,7 @@ class RequisitionAdminMixin:
             "site",
             "is_drawn",
             "panel",
+            "result_expected",
         )
         list_filter = tuple(f for f in list_filter if f not in custom_fields)
         return custom_fields + list_filter
@@ -77,6 +78,7 @@ class RequisitionAdminMixin:
             "subject_identifier",
             "visit_code",
             "panel",
+            "result_expected",
             "requisition_datetime",
             "hostname_created",
         )
