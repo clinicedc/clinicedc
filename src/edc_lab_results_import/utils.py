@@ -8,6 +8,7 @@ from .exceptions import EdcLabResultsPrivatePathError, EdcLabResultsUtestidError
 
 destination_subfolder_name = "source_documents"
 private_path_attr = "EDC_LAB_RESULTS_IMPORT_PRIVATE_PATH"
+requisition_panel_map_attr = "EDC_LAB_RESULTS_REQUISITION_PANEL_MAP"
 
 
 class PrivateStorage(FileSystemStorage):
@@ -73,3 +74,24 @@ def get_panel_name_by_utestid(
                 )
             mapping.update({utest_id: panel.name})
     return mapping
+
+
+def get_requisition_panel_name_map() -> dict[str, str]:
+    """Return {analyte panel name: requisition panel name}.
+
+    The panel a result is reported under is not always the panel it was
+    drawn under. The white cell differentials are their own analyte
+    panel but are collected on the FBC requisition, so no
+    `wbc_diff` requisition exists and looking one up by the analyte
+    panel can only fail.
+
+    Deployment specific, so it is read from settings rather than
+    hardcoded::
+
+        EDC_LAB_RESULTS_REQUISITION_PANEL_MAP = {"wbc_diff": "fbc"}
+
+    An unlisted panel maps to itself. `Result.panel_name` keeps the
+    analyte panel either way, which is the truthful description of what
+    was measured.
+    """
+    return dict(getattr(settings, requisition_panel_map_attr, None) or {})
