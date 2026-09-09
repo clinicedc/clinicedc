@@ -8,7 +8,11 @@ from django.contrib.messages import ERROR
 from edc_sites import site_sites
 
 from .. import site_consents
-from ..exceptions import ConsentDefinitionDoesNotExist, NotConsentedError
+from ..exceptions import (
+    ConsentDefinitionDoesNotExist,
+    ConsentDefinitionNotConfiguredForUpdate,
+    NotConsentedError,
+)
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -60,7 +64,11 @@ class ConsentViewMixin:
                     report_datetime=self.report_datetime,
                     site_id=self.request.site.id,
                 )
-            except (NotConsentedError, ConsentDefinitionDoesNotExist) as e:
+            except (
+                NotConsentedError,
+                ConsentDefinitionDoesNotExist,
+                ConsentDefinitionNotConfiguredForUpdate,
+            ) as e:
                 messages.add_message(
                     self.request, message=f"{self.subject_identifier} {e}"[:250], level=ERROR
                 )
