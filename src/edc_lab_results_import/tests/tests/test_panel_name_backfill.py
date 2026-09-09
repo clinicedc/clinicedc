@@ -12,10 +12,21 @@ from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 
 from edc_consent import site_consents
-from edc_lab_panel.panels import wbc_differential
+from edc_lab.lab import RequisitionPanel
+from edc_lab_panel.panels import (
+    blood_glucose_panel,
+    blood_glucose_poc_panel,
+    fbc_panel,
+    hba1c_panel,
+    hba1c_poc_panel,
+    wbc_differential,
+)
 from edc_lab_results_import.backfill import PanelNameBackfill
 from edc_lab_results_import.models import Result
-from edc_lab_results_import.utils import get_panel_name_by_utestid
+from edc_lab_results_import.utils import (
+    get_ambiguous_utestids,
+    get_panel_name_by_utestid,
+)
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
@@ -122,6 +133,14 @@ class TestPanelNameBackfill(TestCase):
         self.assertEqual(2, summary.updated)
         self.assertEqual(1, summary.unmapped)
 
+    def test_a_poc_utestid_still_maps_to_its_venous_panel(self):
+        result = self.create_result("hba1c")
+        summary = self.backfill(extra_panels=[hba1c_panel, hba1c_poc_panel])
+        self.assertEqual(1, summary.updated)
+        self.assertEqual(0, summary.unmapped)
+        result.refresh_from_db()
+        self.assertEqual(hba1c_panel.name, result.panel_name)
+
     def test_a_dry_run_writes_nothing(self):
         result = self.create_result("haemoglobin")
         summary = self.backfill(dry_run=True)
@@ -146,17 +165,51 @@ class TestPanelNameBackfill(TestCase):
 @tag("lab_results_import")
 class TestPanelNameByUtestid(TestCase):
     def test_maps_a_registered_utestid_to_its_panel(self):
-        self.assertEqual("fbc", get_panel_name_by_utestid().get("haemoglobin"))
+        """`fbc_panel` is passed explicitly rather than relied on being
+        in `site_labs`, which other tests mutate.
+        """
+        self.assertEqual("fbc", get_panel_name_by_utestid([fbc_panel]).get("haemoglobin"))
 
     def test_the_differential_analytes_need_the_extra_panel(self):
-        """No lab profile registers `wbc_differential`, so without it
-        every differential utest id resolves to no panel and the result
-        can never be matched to a requisition.
+        """The differentials are drawn under FBC, so a deployment that
+        does not register their panel resolves every differential utest
+        id to no panel and can never match a requisition.
         """
-        self.assertIsNone(get_panel_name_by_utestid().get("mono_abs"))
         mapping = get_panel_name_by_utestid([wbc_differential])
         for utest_id in wbc_differential.flatten_utestids():
             self.assertEqual(wbc_differential.name, mapping.get(utest_id), utest_id)
+
+    def test_a_poc_panel_is_not_a_source_of_imported_results(self):
+        """A POC result is measured at the clinic and never travels
+        through a laboratory, so `hba1c` in a lab report can only be the
+        venous panel however many panels declare that utest id.
+        """
+        for venous, poc, utest_id in [
+            (hba1c_panel, hba1c_poc_panel, "hba1c"),
+            (blood_glucose_panel, blood_glucose_poc_panel, "glucose"),
+        ]:
+            with self.subTest(utest_id=utest_id):
+                self.assertEqual(
+                    venous.name, get_panel_name_by_utestid([venous, poc]).get(utest_id)
+                )
+                self.assertNotIn(utest_id, get_ambiguous_utestids([venous, poc]))
+
+    def test_an_ambiguous_utestid_is_left_out_of_the_mapping(self):
+        """Left out rather than raised on or assigned to one of them.
+
+        Nothing collides in practice now that POC panels are excluded,
+        so the collision is constructed here.
+        """
+        clash = RequisitionPanel(
+            name="not_a_real_panel",
+            processing_profile=fbc_panel.processing_profile,
+            utest_ids=("haemoglobin",),
+        )
+        self.assertEqual(
+            ["fbc", "not_a_real_panel"],
+            get_ambiguous_utestids([fbc_panel, clash]).get("haemoglobin"),
+        )
+        self.assertIsNone(get_panel_name_by_utestid([fbc_panel, clash]).get("haemoglobin"))
 
     def test_passing_an_already_registered_panel_is_harmless(self):
         """`import_results` passes the differential panel whether or not

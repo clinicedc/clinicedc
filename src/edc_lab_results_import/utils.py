@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils.functional import cached_property
 
-from .exceptions import EdcLabResultsPrivatePathError, EdcLabResultsUtestidError
+from .exceptions import EdcLabResultsPrivatePathError
 
 destination_subfolder_name = "source_documents"
 private_path_attr = "EDC_LAB_RESULTS_IMPORT_PRIVATE_PATH"
@@ -38,6 +38,53 @@ def get_private_path() -> Path:
     return location
 
 
+def get_panels_by_utestid(extra_panels: list | None = None) -> dict[str, list[str]]:
+    """Return {utest id: [panel name, ...]} across every registered panel.
+
+    Point of care panels are left out. A POC result is measured at the
+    clinic and never travels through a laboratory, so it can never be
+    the source of an imported result. Including them would make `hba1c`
+    and `glucose` look ambiguous, since each is declared by both a
+    venous panel and its POC counterpart, when for an imported result
+    only the venous one is possible.
+    """
+    # imported here, `utils` is imported before the lab profiles load
+    from edc_lab.site_labs import site_labs  # noqa: PLC0415
+
+    panels = [
+        panel
+        for lab_profile in site_labs.lab_profiles.values()
+        for panel in lab_profile.panels.values()
+    ]
+    panels.extend(extra_panels or [])
+    panels = [panel for panel in panels if not panel.is_poc]
+    mapping: dict[str, list[str]] = {}
+    for panel in panels:
+        for utest_id in panel.flatten_utestids():
+            names = mapping.setdefault(utest_id, [])
+            if panel.name not in names:
+                names.append(panel.name)
+    return mapping
+
+
+def get_ambiguous_utestids(extra_panels: list | None = None) -> dict[str, list[str]]:
+    """Return {utest id: [panel name, ...]} for utest ids on more than
+    one panel.
+
+    Nothing in an imported result says which of them it came from, so
+    these cannot be resolved from the data. Reported rather than
+    guessed at.
+
+    Point of care panels are already excluded, so `hba1c` and `glucose`
+    do not appear here despite each being declared by two panels.
+    """
+    return {
+        utest_id: sorted(names)
+        for utest_id, names in get_panels_by_utestid(extra_panels).items()
+        if len(names) > 1
+    }
+
+
 def get_panel_name_by_utestid(
     extra_panels: list | None = None,
 ) -> dict[str, str]:
@@ -52,28 +99,19 @@ def get_panel_name_by_utestid(
     results are nonetheless reported against, `wbc_differential` being
     the one in practice.
 
-    Raises where one utest id maps to two panels, which would make the
-    panel of a result ambiguous.
+    Point of care panels are excluded, see `get_panels_by_utestid`. A
+    utest id still declared by more than one panel after that is left
+    out rather than assigned to one of them or raised on. It then behaves exactly like a
+    utest id in no panel at all: the result keeps an empty
+    `panel_name`, `backfill_panel_name` counts it, and
+    `get_df_orphan_results` shows it as `panel_unknown`. Visible, and
+    for a person to decide. See `get_ambiguous_utestids`.
     """
-    # imported here, `utils` is imported before the lab profiles load
-    from edc_lab.site_labs import site_labs  # noqa: PLC0415
-
-    mapping: dict[str, str] = {}
-    panels = [
-        panel
-        for lab_profile in site_labs.lab_profiles.values()
-        for panel in lab_profile.panels.values()
-    ]
-    panels.extend(extra_panels or [])
-    for panel in panels:
-        for utest_id in panel.flatten_utestids():
-            if mapping.get(utest_id, panel.name) != panel.name:
-                raise EdcLabResultsUtestidError(
-                    "More than one panel declares this utest id. "
-                    f"Got '{utest_id}' on '{mapping[utest_id]}' and '{panel.name}'."
-                )
-            mapping.update({utest_id: panel.name})
-    return mapping
+    return {
+        utest_id: names[0]
+        for utest_id, names in get_panels_by_utestid(extra_panels).items()
+        if len(names) == 1
+    }
 
 
 def get_requisition_panel_name_map() -> dict[str, str]:
