@@ -8,7 +8,7 @@ from .exceptions import EdcLabResultsPrivatePathError, EdcLabResultsUtestidError
 
 destination_subfolder_name = "source_documents"
 private_path_attr = "EDC_LAB_RESULTS_IMPORT_PRIVATE_PATH"
-requisition_panel_map_attr = "EDC_LAB_RESULTS_REQUISITION_PANEL_MAP"
+requisition_panel_map_attr = "EDC_LAB_RESULTS_IMPORT_REQUISITION_PANEL_MAP"
 
 
 class PrivateStorage(FileSystemStorage):
@@ -88,7 +88,7 @@ def get_requisition_panel_name_map() -> dict[str, str]:
     Deployment specific, so it is read from settings rather than
     hardcoded::
 
-        EDC_LAB_RESULTS_REQUISITION_PANEL_MAP = {"wbc_diff": "fbc"}
+        EDC_LAB_RESULTS_IMPORT_REQUISITION_PANEL_MAP = {"wbc_diff": "fbc"}
 
     An unlisted panel maps to itself. `Result.panel_name` keeps the
     analyte panel either way, which is the truthful description of what

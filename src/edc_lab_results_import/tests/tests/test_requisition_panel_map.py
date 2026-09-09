@@ -83,7 +83,7 @@ class TestRequisitionPanelMap(TestCase):
     def test_the_map_is_empty_by_default(self):
         self.assertEqual({}, get_requisition_panel_name_map())
 
-    @override_settings(EDC_LAB_RESULTS_REQUISITION_PANEL_MAP=PANEL_MAP)
+    @override_settings(EDC_LAB_RESULTS_IMPORT_REQUISITION_PANEL_MAP=PANEL_MAP)
     def test_the_map_is_read_from_settings(self):
         self.assertEqual(PANEL_MAP, get_requisition_panel_name_map())
 
@@ -97,7 +97,7 @@ class TestRequisitionPanelMap(TestCase):
         self.assertEqual(PANEL_NOT_EXPECTED, row["bucket"])
         self.assertTrue(pd.isna(row["requisition_id"]))
 
-    @override_settings(EDC_LAB_RESULTS_REQUISITION_PANEL_MAP=PANEL_MAP)
+    @override_settings(EDC_LAB_RESULTS_IMPORT_REQUISITION_PANEL_MAP=PANEL_MAP)
     def test_with_the_map_a_differential_finds_the_fbc_requisition(self):
         requisition = self.create_fbc_requisition()
         self.create_differential_result()
@@ -105,7 +105,7 @@ class TestRequisitionPanelMap(TestCase):
         self.assertEqual(RESOLVER_MISS, row["bucket"])
         self.assertEqual(str(requisition.id), row["requisition_id"])
 
-    @override_settings(EDC_LAB_RESULTS_REQUISITION_PANEL_MAP=PANEL_MAP)
+    @override_settings(EDC_LAB_RESULTS_IMPORT_REQUISITION_PANEL_MAP=PANEL_MAP)
     def test_the_analyte_panel_is_kept(self):
         """`Result.panel_name` stays the truthful description of what
         was measured. Only the lookup uses the requisition panel.
@@ -118,7 +118,7 @@ class TestRequisitionPanelMap(TestCase):
         result.refresh_from_db()
         self.assertEqual(wbc_differential.name, result.panel_name)
 
-    @override_settings(EDC_LAB_RESULTS_REQUISITION_PANEL_MAP=PANEL_MAP)
+    @override_settings(EDC_LAB_RESULTS_IMPORT_REQUISITION_PANEL_MAP=PANEL_MAP)
     def test_an_unlisted_panel_maps_to_itself(self):
         self.create_fbc_requisition()
         result = self.create_differential_result()
@@ -127,7 +127,7 @@ class TestRequisitionPanelMap(TestCase):
         self.assertEqual("fbc", row["panel_name"])
         self.assertEqual("fbc", row["requisition_panel_name"])
 
-    @override_settings(EDC_LAB_RESULTS_REQUISITION_PANEL_MAP=PANEL_MAP)
+    @override_settings(EDC_LAB_RESULTS_IMPORT_REQUISITION_PANEL_MAP=PANEL_MAP)
     def test_the_linker_can_then_link_a_differential(self):
         """The payoff: these become linkable without anyone keying
         anything.
