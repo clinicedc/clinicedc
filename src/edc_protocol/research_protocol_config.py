@@ -156,7 +156,9 @@ class ResearchProtocolConfig:
 
     @property
     def study_open_datetime(self) -> datetime:
-        """Returns a normalized datetime in the local timezone."""
+        """Returns a datetime in the local timezone with the time
+        normalized down without adjusting for any offset.
+        """
         try:
             study_open_datetime = settings.EDC_PROTOCOL_STUDY_OPEN_DATETIME
         except AttributeError as e:
@@ -176,14 +178,16 @@ class ResearchProtocolConfig:
                 }
             )
 
-        # keep the exact calendar year, month, and day, ignore offset
+        # keep the exact calendar year, month, and day -- do not calculate the offset
         return datetime.combine(
             study_open_datetime.date(), time.min, tzinfo=ZoneInfo(get_multisite_timezone())
         )
 
     @property
     def study_close_datetime(self) -> datetime:
-        """Returns a normalized datetime in the local timezone."""
+        """Returns a datetime in the local timezone with the time
+        normalized up without adjusting for any offset.
+        """
         try:
             study_close_datetime = settings.EDC_PROTOCOL_STUDY_CLOSE_DATETIME
         except AttributeError as e:
@@ -202,9 +206,7 @@ class ResearchProtocolConfig:
                     "settings_attr": "EDC_PROTOCOL_STUDY_CLOSE_DATETIME",
                 }
             )
-        # keep the exact calendar year, month, and day, ignore offset.
-        # the study is open for the whole of the closing day, so anchor
-        # to the end of it rather than the start.
+        # keep the exact calendar year, month, and day -- do not calculate the offset
         return datetime.combine(
             study_close_datetime.date(), time.max, tzinfo=ZoneInfo(get_multisite_timezone())
         )
