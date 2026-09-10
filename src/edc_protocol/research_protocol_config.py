@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
@@ -176,10 +176,9 @@ class ResearchProtocolConfig:
                 }
             )
 
-        return (
-            study_open_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
-            .replace(tzinfo=None)
-            .replace(tzinfo=ZoneInfo(get_multisite_timezone()))
+        # keep the exact calendar year, month, and day, ignore offset
+        return datetime.combine(
+            study_open_datetime.date(), time.min, tzinfo=ZoneInfo(get_multisite_timezone())
         )
 
     @property
@@ -203,10 +202,11 @@ class ResearchProtocolConfig:
                     "settings_attr": "EDC_PROTOCOL_STUDY_CLOSE_DATETIME",
                 }
             )
-        return (
-            study_close_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
-            .replace(tzinfo=None)
-            .replace(tzinfo=ZoneInfo(get_multisite_timezone()))
+        # keep the exact calendar year, month, and day, ignore offset.
+        # the study is open for the whole of the closing day, so anchor
+        # to the end of it rather than the start.
+        return datetime.combine(
+            study_close_datetime.date(), time.max, tzinfo=ZoneInfo(get_multisite_timezone())
         )
 
     @property
