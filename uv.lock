@@ -861,7 +861,7 @@ source = { editable = "../clinicedc-constants" }
 
 [[package]]
 name = "clinicedc-tests"
-version = "1.3.1"
+version = "1.4.0"
 source = { editable = "../clinicedc-tests" }
 dependencies = [
     { name = "coverage" },
