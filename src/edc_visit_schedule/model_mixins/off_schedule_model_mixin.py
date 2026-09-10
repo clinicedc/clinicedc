@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.utils import timezone
+from multisite.utils import get_multisite_timezone
 
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
@@ -46,7 +47,7 @@ class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     def __str__(self):
         formatted_datetime = self.report_datetime.astimezone(
-            ZoneInfo(settings.TIME_ZONE)
+            ZoneInfo(get_multisite_timezone())
         ).strftime(convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
         return f"{self.subject_identifier} {formatted_datetime}"
 
@@ -57,15 +58,15 @@ class OffScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
         if not self.offschedule_datetime_field_attr:
             raise ImproperlyConfigured(
                 f"Model attr 'offschedule_datetime_field_attr' "
-                f"cannot be None. See model {self.__class__.__name__}"
+                f"cannot be None. See model {self._meta.object_name}."
             )
         if self.offschedule_datetime_field_attr != "offschedule_datetime":
             self.offschedule_datetime = getattr(self, self.offschedule_datetime_field_attr)
         try:
             self.offschedule_datetime.date()
         except AttributeError as e:
-            raise ImproperlyConfigured(
-                f"Field class must be DateTimeField. See {self.__class__}."
+            raise ImproperlyConfigured(  # noinspection PyTypeChecker
+                f"Field class must be DateTimeField. See model {self._meta.object_name}."
                 f"{self.offschedule_datetime_field_attr}."
             ) from e
 

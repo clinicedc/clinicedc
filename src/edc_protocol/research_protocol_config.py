@@ -1,11 +1,13 @@
 from dataclasses import dataclass, field
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from multisite.utils import get_multisite_timezone
 
 from .address import Address
 
@@ -154,6 +156,7 @@ class ResearchProtocolConfig:
 
     @property
     def study_open_datetime(self) -> datetime:
+        """Returns a normalized datetime in the local timezone."""
         try:
             study_open_datetime = settings.EDC_PROTOCOL_STUDY_OPEN_DATETIME
         except AttributeError as e:
@@ -172,10 +175,16 @@ class ResearchProtocolConfig:
                     "settings_attr": "EDC_PROTOCOL_STUDY_OPEN_DATETIME",
                 }
             )
-        return study_open_datetime
+
+        return (
+            study_open_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
+            .replace(tzinfo=None)
+            .replace(tzinfo=ZoneInfo(get_multisite_timezone()))
+        )
 
     @property
     def study_close_datetime(self) -> datetime:
+        """Returns a normalized datetime in the local timezone."""
         try:
             study_close_datetime = settings.EDC_PROTOCOL_STUDY_CLOSE_DATETIME
         except AttributeError as e:
@@ -194,7 +203,11 @@ class ResearchProtocolConfig:
                     "settings_attr": "EDC_PROTOCOL_STUDY_CLOSE_DATETIME",
                 }
             )
-        return study_close_datetime
+        return (
+            study_close_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
+            .replace(tzinfo=None)
+            .replace(tzinfo=ZoneInfo(get_multisite_timezone()))
+        )
 
     @property
     def study_close_grace_period_datetime(self) -> datetime:

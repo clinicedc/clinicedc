@@ -2,7 +2,7 @@ from zoneinfo import ZoneInfo
 
 from arrow.arrow import Arrow
 from django.apps import apps as django_apps
-from django.conf import settings
+from multisite.utils import get_multisite_timezone
 
 from edc_label import Label
 from edc_protocol.research_protocol_config import ResearchProtocolConfig
@@ -34,7 +34,7 @@ class RequisitionLabel(Label):
 
     @property
     def label_context(self):
-        tz = ZoneInfo(settings.TIME_ZONE)
+        tz = ZoneInfo(get_multisite_timezone())
         local = Arrow.fromdatetime(
             self.requisition.drawn_datetime or self.requisition.created
         ).to(tz)

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+from multisite.utils import get_multisite_timezone
 
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
 from edc_model.validators import datetime_not_future
@@ -61,7 +62,7 @@ class OffstudyModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
     )
 
     def __str__(self):
-        dte_str = self.report_datetime.astimezone(ZoneInfo(settings.TIME_ZONE)).strftime(
+        dte_str = self.report_datetime.astimezone(ZoneInfo(get_multisite_timezone())).strftime(
             convert_php_dateformat(settings.SHORT_DATETIME_FORMAT)
         )
         return f"{self.subject_identifier} {dte_str}"

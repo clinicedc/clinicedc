@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from multisite.utils import get_multisite_timezone
 
 from edc_identifier.managers import SubjectIdentifierManager
 from edc_identifier.model_mixins import UniqueSubjectIdentifierFieldMixin
@@ -63,7 +64,7 @@ class OnScheduleModelMixin(UniqueSubjectIdentifierFieldMixin, models.Model):
 
     def __str__(self):
         formatted_datetime = self.report_datetime.astimezone(
-            ZoneInfo(settings.TIME_ZONE)
+            ZoneInfo(get_multisite_timezone())
         ).strftime(convert_php_dateformat(settings.SHORT_DATETIME_FORMAT))
         return f"{self.subject_identifier} {formatted_datetime}"
 

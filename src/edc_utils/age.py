@@ -5,8 +5,8 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
 from django.utils import timezone
+from multisite.utils import get_multisite_timezone
 
 from edc_utils.text import formatted_datetime
 
@@ -44,10 +44,10 @@ def age(born: date | datetime, reference_dt: date | datetime) -> relativedelta:
     if reference_dt is None:
         raise AgeValueError("Reference cannot be None")
     if not hasattr(born, "date"):
-        born = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo(settings.TIME_ZONE))
+        born = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo(get_multisite_timezone()))
     if not hasattr(reference_dt, "date"):
         reference_dt = datetime(
-            *[*reference_dt.timetuple()][0:6], tzinfo=ZoneInfo(settings.TIME_ZONE)
+            *[*reference_dt.timetuple()][0:6], tzinfo=ZoneInfo(get_multisite_timezone())
         )
     rdelta = relativedelta(reference_dt, born)
     if born > reference_dt:
@@ -65,7 +65,7 @@ def formatted_age(
 ) -> str:
     age_as_str = "?"
     if born:
-        tz = tz or settings.TIME_ZONE
+        tz = tz or get_multisite_timezone()
         born = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo(tz))
         reference_dt = reference_dt or timezone.now()
         age_delta = age(born, reference_dt or timezone.now())

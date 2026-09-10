@@ -10,6 +10,7 @@ from arrow import Arrow
 from dateutil.relativedelta import relativedelta, weekday
 from django.conf import settings
 from django.utils import timezone
+from multisite.utils import get_multisite_timezone
 
 from edc_utils.text import convert_php_dateformat
 
@@ -34,8 +35,9 @@ class Facility:
 
     def __init__(
         self,
-        name: str | None = None,
-        days: list[weekday] | None = None,
+        *,
+        name: str,
+        days: list[weekday],
         slots: list[int] | None = None,
         best_effort_available_datetime: datetime | None = None,
     ):
@@ -91,11 +93,11 @@ class Facility:
         """
         # min_arw = self.to_arrow_utc(suggested_arr.datetime - reverse_delta)
         min_arr = Arrow.fromdate(
-            suggested_arr.datetime - reverse_delta, tzinfo=ZoneInfo(settings.TIME_ZONE)
+            suggested_arr.datetime - reverse_delta, tzinfo=ZoneInfo(get_multisite_timezone())
         )
         # max_arw = self.to_arrow_utc(suggested_arw.datetime + forward_delta)
         max_arr = Arrow.fromdate(
-            suggested_arr.datetime + forward_delta, tzinfo=ZoneInfo(settings.TIME_ZONE)
+            suggested_arr.datetime + forward_delta, tzinfo=ZoneInfo(get_multisite_timezone())
         )
         span = [arw[0] for arw in Arrow.span_range("day", min_arr.datetime, max_arr.datetime)]
         span_lt = [arw for arw in span if arw.date() < suggested_arr.date()]
@@ -138,7 +140,7 @@ class Facility:
         forward_delta = forward_delta or relativedelta(months=1)
         reverse_delta = reverse_delta or relativedelta(months=0)
         taken_arr = [
-            arrow.Arrow.fromdatetime(dt, tzinfo=ZoneInfo(settings.TIME_ZONE))
+            arrow.Arrow.fromdatetime(dt, tzinfo=ZoneInfo(get_multisite_timezone()))
             for dt in taken_datetimes or []
         ]
         if suggested_datetime:

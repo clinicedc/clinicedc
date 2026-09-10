@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
 from multisite.exceptions import MultisiteSiteDoesNotExist
+from multisite.utils import get_multisite_timezone
 
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import get_site_model_cls
@@ -35,7 +36,7 @@ class Holidays:
     def __repr__(self):
         return (
             f"{self.__class__.__name__}(country={self.country}, "
-            f"time_zone={settings.TIME_ZONE})"
+            f"time_zone={get_multisite_timezone()})"
         )
 
     def __len__(self):
