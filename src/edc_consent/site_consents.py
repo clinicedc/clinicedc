@@ -329,10 +329,11 @@ class SiteConsents:
             date_string = formatted_date(to_local(report_datetime))
             if not cdefs:
                 using_msg = "Using " + " and ".join(errror_messages)
+                cdefs_str = [cdef.display_name for cdef in consent_definitions]
                 raise ConsentDefinitionDoesNotExist(
                     "Date does not fall within the validity period of any "
                     f"consent definition. Got {date_string}. {using_msg}. "
-                    f"Possible consent definitions are: {consent_definitions}. "
+                    f"Possible consent definitions are: {', '.join(cdefs_str)}. "
                 )
             errror_messages.append(f"report_datetime={date_string}")
         return cdefs, errror_messages

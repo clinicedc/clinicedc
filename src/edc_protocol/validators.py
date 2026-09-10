@@ -1,8 +1,8 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
+from multisite.utils import get_multisite_timezone
 
 from edc_utils.text import formatted_datetime
 
@@ -12,7 +12,7 @@ from .research_protocol_config import ResearchProtocolConfig
 def date_not_before_study_start(value):
     if value:
         protocol_config = ResearchProtocolConfig()
-        dte = datetime(*[*value.timetuple()][0:6], tzinfo=ZoneInfo(settings.TIME_ZONE))
+        dte = datetime(*[*value.timetuple()][0:6], tzinfo=ZoneInfo(get_multisite_timezone()))
         if dte < protocol_config.study_open_datetime:
             opened = formatted_datetime(protocol_config.study_open_datetime)
             raise ValidationError(

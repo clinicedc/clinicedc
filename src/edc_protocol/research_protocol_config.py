@@ -1,11 +1,13 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, time
+from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from multisite.utils import get_multisite_timezone
 
 from .address import Address
 
@@ -154,6 +156,9 @@ class ResearchProtocolConfig:
 
     @property
     def study_open_datetime(self) -> datetime:
+        """Returns a datetime in the local timezone with the time
+        normalized down without adjusting for any offset.
+        """
         try:
             study_open_datetime = settings.EDC_PROTOCOL_STUDY_OPEN_DATETIME
         except AttributeError as e:
@@ -172,10 +177,17 @@ class ResearchProtocolConfig:
                     "settings_attr": "EDC_PROTOCOL_STUDY_OPEN_DATETIME",
                 }
             )
-        return study_open_datetime
+
+        # keep the exact calendar year, month, and day -- do not calculate the offset
+        return datetime.combine(
+            study_open_datetime.date(), time.min, tzinfo=ZoneInfo(get_multisite_timezone())
+        )
 
     @property
     def study_close_datetime(self) -> datetime:
+        """Returns a datetime in the local timezone with the time
+        normalized up without adjusting for any offset.
+        """
         try:
             study_close_datetime = settings.EDC_PROTOCOL_STUDY_CLOSE_DATETIME
         except AttributeError as e:
@@ -194,7 +206,10 @@ class ResearchProtocolConfig:
                     "settings_attr": "EDC_PROTOCOL_STUDY_CLOSE_DATETIME",
                 }
             )
-        return study_close_datetime
+        # keep the exact calendar year, month, and day -- do not calculate the offset
+        return datetime.combine(
+            study_close_datetime.date(), time.max, tzinfo=ZoneInfo(get_multisite_timezone())
+        )
 
     @property
     def study_close_grace_period_datetime(self) -> datetime:

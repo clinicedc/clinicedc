@@ -86,10 +86,27 @@ class TestUtils(TestCase):
         self.assertEqual(get_dob(age_in_years=10, now=reference_dt), born)
         self.assertEqual(get_dob(age_in_years=10, now=reference_dt.date()), born)
 
-    def test_age_without_tz(self):
-        born = datetime(1990, 5, 1).astimezone(ZoneInfo("UTC"))
+    def test_age_naive_reference_raises(self):
+        """Assert a naive datetime is rejected rather than guessed at.
+
+        Previously raised TypeError from inside relativedelta.
+        """
+        born = datetime(1990, 5, 1, tzinfo=ZoneInfo("UTC"))
         reference_dt = datetime(2000, 5, 1)  # noqa: DTZ001
-        self.assertRaises(TypeError, age, born, reference_dt)
+        with self.assertRaises(AgeValueError) as cm:
+            age(born, reference_dt)
+        self.assertIn("Reference date must be an aware datetime", str(cm.exception))
+
+    def test_age_naive_born_raises(self):
+        born = datetime(1990, 5, 1)  # noqa: DTZ001
+        reference_dt = datetime(2000, 5, 1, tzinfo=ZoneInfo("UTC"))
+        with self.assertRaises(AgeValueError) as cm:
+            age(born, reference_dt)
+        self.assertIn("DOB must be an aware datetime", str(cm.exception))
+
+    def test_age_dates_are_not_naive_datetimes(self):
+        """Assert a `date` is still accepted, anchored to local midnight."""
+        self.assertEqual(age(date(1990, 5, 1), date(2000, 5, 1)).years, 10)
 
     def test_age_born_date(self):
         born = date(1990, 5, 1)

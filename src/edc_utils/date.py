@@ -4,6 +4,7 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 from django.utils import timezone
+from multisite.utils import get_multisite_timezone
 
 
 class EdcDatetimeError(Exception):
@@ -25,7 +26,9 @@ def to_utc(dte: datetime) -> datetime | None:
 
 def to_local(dte: datetime) -> datetime | None:
     """Returns local datetime from any aware datetime."""
-    return timezone.localtime(dte) if dte else None
+    return (
+        timezone.localtime(dte, timezone=ZoneInfo(get_multisite_timezone())) if dte else None
+    )
 
 
 def floor_secs(dte) -> datetime:

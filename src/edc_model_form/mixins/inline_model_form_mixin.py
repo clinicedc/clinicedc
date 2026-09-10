@@ -4,8 +4,8 @@ from zoneinfo import ZoneInfo
 
 from django import forms
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.db.models import DateField, DateTimeField
+from multisite.utils import get_multisite_timezone
 
 
 class InlineModelFormMixinError(Exception):
@@ -55,9 +55,9 @@ class InlineModelFormMixin:
                         f"{field_label}: Invalid date or date format. Got {dte_as_str}"
                     ) from e
                 else:
-                    if dte.astimezone(ZoneInfo(settings.TIME_ZONE)) > self.cleaned_data.get(
-                        "report_datetime"
-                    ):
+                    if dte.astimezone(
+                        ZoneInfo(get_multisite_timezone())
+                    ) > self.cleaned_data.get("report_datetime"):
                         raise forms.ValidationError(
                             f"{field_label}: Date cannot be after report date/time. "
                             f"Got `{dte_as_str}`."

@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 from collections import namedtuple
-from datetime import datetime
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
+from multisite.utils import get_multisite_timezone
 
 from edc_utils.date import to_local
+
+Window = namedtuple("Window", ["lower", "upper"])
 
 
 class WindowPeriod:
@@ -31,22 +32,21 @@ class WindowPeriod:
         if self.timepoint == base_timepoint:
             self.no_floor = True
 
-    def get_window(self, dt=None) -> tuple[datetime, datetime]:
+    def get_window(self, dt=None) -> Window:
         """Returns a tuple of the lower and upper datetimes in local time."""
 
         dt_floor = (
             to_local(dt)
             if self.no_floor
-            else dt.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(
-                ZoneInfo(settings.TIME_ZONE)
+            else dt.astimezone(ZoneInfo(get_multisite_timezone())).replace(
+                hour=0, minute=0, second=0, microsecond=0
             )
         )
         dt_ceil = (
             to_local(dt)
             if self.no_ceil
-            else dt.replace(hour=23, minute=59, second=59, microsecond=999999).astimezone(
-                ZoneInfo(settings.TIME_ZONE)
+            else dt.astimezone(ZoneInfo(get_multisite_timezone())).replace(
+                hour=23, minute=59, second=59, microsecond=999999
             )
         )
-        window = namedtuple("Window", ["lower", "upper"])
-        return window(dt_floor - self.rlower, dt_ceil + self.rupper)
+        return Window(dt_floor - self.rlower, dt_ceil + self.rupper)

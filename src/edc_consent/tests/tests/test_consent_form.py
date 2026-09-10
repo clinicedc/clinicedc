@@ -45,9 +45,6 @@ class TestConsentForm(TestCase):
         add_or_update_django_sites()
 
     def setUp(self):
-        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
-        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
-
         site_consents.registry = {}
         site_consents.register(consent1_v1)
         site_consents.register(consent1_v2, updated_by=consent1_v3)
@@ -59,19 +56,38 @@ class TestConsentForm(TestCase):
             get_visit_schedule([consent1_v1, consent1_v2, consent1_v3])
         )
 
-        self.dob = self.study_open_datetime - relativedelta(years=25)
+    @property
+    def dob(self):
+        return self.study_open_datetime - relativedelta(years=25)
+
+    @property
+    def study_open_datetime(self):
+        return ResearchProtocolConfig().study_open_datetime
+
+    @property
+    def study_close_datetime(self):
+        return ResearchProtocolConfig().study_close_datetime
 
     @staticmethod
     def get_mock_screening(subject_consent=None, **kwargs):
         mock_subject_screening = Mock()
         mock_subject_screening.eligible = YES
-        mock_subject_screening.eligibility_datetime = (
-            subject_consent.consent_datetime - relativedelta(minutes=1)
-        )
-        mock_subject_screening.age_in_years = 25
-        mock_subject_screening.report_datetime = (
-            subject_consent.consent_datetime - relativedelta(minutes=1)
-        )
+        # screening precedes consent. `study_open_datetime` is normalized
+        # to midnight, so a minute earlier is the previous calendar day.
+        report_datetime = subject_consent.consent_datetime - relativedelta(minutes=1)
+        mock_subject_screening.eligibility_datetime = report_datetime
+        mock_subject_screening.report_datetime = report_datetime
+        # derive rather than hardcode, so the fixture agrees with what
+        # SubjectConsentFormValidator.screening_age_in_years computes
+        # wherever the screening falls relative to the subject's birthday.
+        # `dob` is a DateField, and the form gives the validator a `date`,
+        # but an unsaved instance can still hold the `datetime` it was
+        # built with. `age()` anchors a `date` to midnight and leaves a
+        # `datetime` alone, which shifts the result by a day, so normalize.
+        dob = subject_consent.dob
+        if isinstance(dob, datetime):
+            dob = dob.date()
+        mock_subject_screening.age_in_years = age(dob, report_datetime.date()).years
         mock_subject_screening.gender = subject_consent.gender
         for k, v in kwargs.items():
             setattr(mock_subject_screening, k, v)
@@ -349,14 +365,7 @@ class TestConsentForm(TestCase):
             guardian_name="",
         )
 
-        mock_subject_screening = Mock()
-        mock_subject_screening.eligibility_datetime = (
-            subject_consent.consent_datetime - relativedelta(minutes=1)
-        )
-        mock_subject_screening.age_in_years = 25
-        mock_subject_screening.report_datetime = (
-            subject_consent.consent_datetime - relativedelta(minutes=1)
-        )
+        mock_subject_screening = self.get_mock_screening(subject_consent)
         with patch.object(
             SubjectConsentFormValidator, "subject_screening", new=mock_subject_screening
         ):

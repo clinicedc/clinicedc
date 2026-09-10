@@ -1,8 +1,10 @@
+import contextlib
 from zoneinfo import ZoneInfo
 
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
+from multisite.utils import get_multisite_timezone
 
 from edc_crf.crf_form_validator import CrfFormValidator
 from edc_utils.text import convert_php_dateformat
@@ -24,10 +26,8 @@ class StudyDayFormValidatorMixin:
         Note: study-day is 1-based.
         """
         if study_day is not None and compare_date is not None:
-            try:
+            with contextlib.suppress(AttributeError):
                 compare_date = compare_date.date()
-            except AttributeError:
-                pass
             if not subject_identifier or self.subject_identifier:
                 raise ValueError(f"Subject identifier cannot be None. See {self!r}")
             registered_subject_model_cls = django_apps.get_model(
@@ -38,9 +38,9 @@ class StudyDayFormValidatorMixin:
             ).randomization_datetime
             days_on_study = (compare_date - randomization_datetime.date()).days
             if study_day - 1 != days_on_study:
-                randomization_datetime.astimezone(ZoneInfo(settings.TIME_ZONE))
+                randomization_datetime.astimezone(ZoneInfo(get_multisite_timezone()))
                 formatted_date = randomization_datetime.astimezone(
-                    ZoneInfo(settings.TIME_ZONE)
+                    ZoneInfo(get_multisite_timezone())
                 ).strftime(convert_php_dateformat(settings.DATETIME_FORMAT))
                 message = {
                     study_day_field: (
