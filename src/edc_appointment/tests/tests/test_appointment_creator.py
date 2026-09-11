@@ -12,6 +12,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.creators import AppointmentCreator
 from edc_appointment.models import Appointment
@@ -19,7 +20,7 @@ from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_facility.facility import Facility
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
@@ -33,14 +34,14 @@ utc_tz = ZoneInfo("UTC")
 @override_settings(
     EDC_PROTOCOL_STUDY_OPEN_DATETIME=datetime(2019, 6, 11, 8, 00, tzinfo=utc_tz),
     EDC_PROTOCOL_STUDY_CLOSE_DATETIME=datetime(2032, 6, 11, 8, 00, tzinfo=utc_tz),
-    SITE_ID=10,
+    SITE_ID=SiteID(10),
 )
 class AppointmentCreatorTestCase(TestCase):
     helper_cls = Helper
 
     def setUp(self):
-        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
-        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.study_open_datetime = trial_dates.study_open_datetime
+        self.study_close_datetime = trial_dates.study_close_datetime
         self.consent_v1 = ConsentDefinition(
             "clinicedc_tests.subjectconsentv1",
             version="1",

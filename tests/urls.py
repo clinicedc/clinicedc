@@ -36,11 +36,11 @@ urlpatterns = [
     *paths_for_urlpatterns("clinicedc_tests"),
     # *SubjectListboardView.urls(
     #     label="subject_listboard",
-    #     identifier_pattern=ResearchProtocolConfig().subject_identifier_pattern,
+    #     identifier_pattern=trial_settings.subject_identifier_pattern,
     # ),
     # *SubjectDashboardView.urls(
     #     label="subject_dashboard",
-    #     identifier_pattern=ResearchProtocolConfig().subject_identifier_pattern,
+    #     identifier_pattern=trial_settings.subject_identifier_pattern,
     # ),
     path("i18n/", include("django.conf.urls.i18n")),
     re_path(".", RedirectView.as_view(url="/"), name="home_url"),

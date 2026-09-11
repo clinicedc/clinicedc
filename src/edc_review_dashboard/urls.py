@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 
 from edc_data_manager.views import HomeView
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from .views import SubjectReviewListboardView
 
@@ -11,7 +11,7 @@ app_name = "edc_review_dashboard"
 urlpatterns = SubjectReviewListboardView.urls(
     namespace=app_name,
     url_names_key="subject_review_listboard_url",
-    identifier_pattern=ResearchProtocolConfig().subject_identifier_pattern,
+    identifier_pattern=trial_settings.subject_identifier_pattern,
 )
 
 urlpatterns += [

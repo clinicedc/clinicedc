@@ -12,6 +12,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 )
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -28,7 +29,7 @@ test_datetime = dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz)
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(test_datetime)
 class TestInsertUnscheduled(TestCase):
     helper_cls = Helper

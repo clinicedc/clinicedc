@@ -25,6 +25,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.test import RequestFactory, TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -73,7 +74,7 @@ User = get_user_model()
 
 @tag("stock_take_report")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestStockTakeReport(TestCase):
     username = "aroy"
     site_id = 10
@@ -268,9 +269,7 @@ class TestStockTakeReport(TestCase):
         now = timezone.now()
         Allocation.objects.bulk_create(
             [
-                self._new_allocation(
-                    self.stock_a, "OLD-SUBJECT", allocated=now, ended=now
-                ),
+                self._new_allocation(self.stock_a, "OLD-SUBJECT", allocated=now, ended=now),
                 self._new_allocation(
                     self.stock_a, "NEW-SUBJECT", allocated=now + relativedelta(days=1)
                 ),

@@ -7,6 +7,7 @@ from clinicedc_tests.models import CrfFive, CrfFour, SubjectVisit
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_metadata.constants import KEYED, REQUIRED
@@ -23,7 +24,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestMetadataRefresher(TestMetadataMixin, TestCase):
     def check(self, expected, subject_visit=None):

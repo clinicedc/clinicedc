@@ -1,7 +1,7 @@
 import re
 import secrets
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from .exceptions import SubjectIdentifierError
 
@@ -15,7 +15,7 @@ def is_subject_identifier_or_raise(subject_identifier, reference_obj=None, raise
       `raise_on_none` is `True`.
     """
     valid_subject_identifier = subject_identifier and re.match(
-        ResearchProtocolConfig().subject_identifier_pattern, subject_identifier or ""
+        trial_settings.subject_identifier_pattern, subject_identifier or ""
     )
     if not valid_subject_identifier or (not subject_identifier and raise_on_none):
         reference_msg = ""
@@ -24,7 +24,7 @@ def is_subject_identifier_or_raise(subject_identifier, reference_obj=None, raise
         raise SubjectIdentifierError(
             f"Invalid format for subject identifier. {reference_msg}"
             f"Got `{subject_identifier or ''}`. "
-            f"Expected pattern `{ResearchProtocolConfig().subject_identifier_pattern}`"
+            f"Expected pattern `{trial_settings.subject_identifier_pattern}`"
         )
     return subject_identifier
 

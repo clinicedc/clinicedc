@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from django.test import TestCase, override_settings, tag
 from faker import Faker
+from multisite import SiteID
 
 from edc_identifier.exceptions import IdentifierError, SubjectIdentifierError
 from edc_identifier.models import IdentifierModel
@@ -18,7 +19,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("identifier")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestSubjectIdentifier(TestCase):
     def test_create(self):
         """Asserts raises exception if cannot find cap."""

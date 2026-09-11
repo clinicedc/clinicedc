@@ -9,7 +9,7 @@ from django.contrib.sites.models import Site
 from django.utils import timezone
 
 from edc_consent import site_consents
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 from edc_view_utils import ModelButton
 
 if TYPE_CHECKING:
@@ -67,7 +67,7 @@ class SubjectConsentListboardButton(ModelButton):
     def reverse_kwargs(self) -> dict[str, str | UUID]:
         kwargs = dict(screening_identifier=self.screening_obj.screening_identifier)
         if re.match(
-            ResearchProtocolConfig().subject_identifier_pattern,
+            trial_settings.subject_identifier_pattern,
             self.screening_obj.subject_identifier,
         ):
             kwargs.update(subject_identifier=self.screening_obj.subject_identifier)

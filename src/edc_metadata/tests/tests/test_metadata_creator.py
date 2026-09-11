@@ -6,6 +6,7 @@ import time_machine
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.constants import IN_PROGRESS_APPT, MISSED_APPT
 from edc_appointment.creators import create_unscheduled_appointment
@@ -22,7 +23,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestCreatesMetadata(TestMetadataMixin, TestCase):
     def test_metadata_updater_repr(self):

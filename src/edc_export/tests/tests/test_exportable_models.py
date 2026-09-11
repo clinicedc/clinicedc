@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, User
 from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_auth.auth_updater import AuthUpdater
@@ -24,7 +25,7 @@ from edc_sites.utils import add_or_update_django_sites
 @override_settings(
     EDC_EXPORT_EXPORT_FOLDER=mkdtemp(),
     EDC_EXPORT_UPLOAD_FOLDER=mkdtemp(),
-    SITE_ID=10,
+    SITE_ID=SiteID(10),
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
     EDC_AUTH_SKIP_SITE_AUTHS=False,
 )

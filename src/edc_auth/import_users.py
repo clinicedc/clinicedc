@@ -12,7 +12,7 @@ from django.core.mail import EmailMessage
 from django.utils import timezone
 from mempass import PasswordGenerator
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from .constants import ACCOUNT_MANAGER_ROLE, STAFF_ROLE
 from .export_users import export_users
@@ -196,7 +196,7 @@ class UserImporter:
         self.role_names = "\n  - ".join(
             [g.display_name for g in self.user.userprofile.roles.all()]
         )
-        self.project_name = ResearchProtocolConfig().protocol_name
+        self.project_name = trial_settings.protocol_name
         if send_email_to_user:
             try:
                 self.email_message.send(fail_silently=False)

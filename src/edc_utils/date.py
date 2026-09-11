@@ -24,11 +24,10 @@ def to_utc(dte: datetime) -> datetime | None:
     return timezone.localtime(dte, timezone=ZoneInfo("UTC")) if dte else None
 
 
-def to_local(dte: datetime) -> datetime | None:
+def to_local(dte: datetime, site_id: int | None = None) -> datetime | None:
     """Returns local datetime from any aware datetime."""
-    return (
-        timezone.localtime(dte, timezone=ZoneInfo(get_multisite_timezone())) if dte else None
-    )
+    tzinfo = ZoneInfo(get_multisite_timezone(site_id))
+    return timezone.localtime(dte, timezone=tzinfo) if dte else None
 
 
 def floor_secs(dte) -> datetime:

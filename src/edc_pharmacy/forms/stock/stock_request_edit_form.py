@@ -96,7 +96,7 @@ class StockRequestEditForm(forms.ModelForm):
             container
             and containers_per_subject
             and containers_per_subject > container.max_items_per_subject
-        ):  # noqa: E501
+        ):
             self.add_error(
                 "containers_per_subject",
                 f"May not exceed {container.max_items_per_subject} for this container.",

@@ -4,7 +4,10 @@ from django.db import models
 from django.utils import timezone
 
 from edc_model import models as edc_models
-from edc_protocol.validators import date_not_before_study_start
+from edc_protocol.validators import (
+    date_not_before_study_start,
+    datetime_not_before_study_start,
+)
 
 from .choices import LTFU_CHOICES
 
@@ -13,7 +16,7 @@ class LtfuModelMixin(models.Model):
     report_datetime = models.DateTimeField(
         verbose_name="Report Date and Time",
         default=timezone.now,
-        validators=[date_not_before_study_start],
+        validators=[datetime_not_before_study_start],
     )
 
     last_seen_datetime = models.DateField(
@@ -27,12 +30,14 @@ class LtfuModelMixin(models.Model):
 
     last_missed_visit_datetime = models.DateField(
         verbose_name="Date of last missed visit report submitted",
+        validators=[date_not_before_study_start],
         null=True,
         blank=False,
     )
 
     ltfu_date = models.DateField(
         verbose_name="Date participant considered lost to follow up",
+        validators=[date_not_before_study_start],
         default=timezone.now,
         null=True,
         blank=False,

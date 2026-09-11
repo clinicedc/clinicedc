@@ -9,7 +9,7 @@ from edc_auth.auth_updater import AuthUpdater
 from edc_auth.constants import CLINIC, CLINICIAN_ROLE
 from edc_auth.import_users import UserImporter, UserImporterError, import_users
 from edc_auth.password_setter import PasswordSetter
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from ..utils import EdcAuthTestCase, create_user_csv_file, create_users
 
@@ -34,7 +34,7 @@ class TestUser(EdcAuthTestCase):
         self.assertEqual(len(mail.outbox), User.objects.all().count())
         self.assertEqual(
             mail.outbox[0].subject,
-            f"{ResearchProtocolConfig().project_name} "
+            f"{trial_settings.project_name} "
             "EDC: Your example.com user account is ready.",
         )
 
@@ -44,7 +44,7 @@ class TestUser(EdcAuthTestCase):
         self.assertEqual(len(mail.outbox), user_count * 2)
         self.assertEqual(
             mail.outbox[0].subject,
-            f"{ResearchProtocolConfig().project_name} "
+            f"{trial_settings.project_name} "
             "EDC: Your example.com user account is ready.",
         )
 

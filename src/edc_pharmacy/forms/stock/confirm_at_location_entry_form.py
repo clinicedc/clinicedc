@@ -132,4 +132,4 @@ class ConfirmAtLocationEntryForm(forms.Form):
         return cleaned
 
 
-__all__ = ["ConfirmAtLocationEntryForm", "SCAN_GRID_PAGE_SIZE"]
+__all__ = ["SCAN_GRID_PAGE_SIZE", "ConfirmAtLocationEntryForm"]

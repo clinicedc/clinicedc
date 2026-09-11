@@ -18,7 +18,7 @@ from reportlab.platypus import (
 
 from edc_pdf_reports import NumberedCanvas as BaseNumberedCanvas
 from edc_pdf_reports import Report
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from ..choices import STOCK_TRANSACTION_ABBR, STOCK_TRANSACTION_CHOICES
 from ..constants import RESOLVED, TXN_BIN_MOVED, UNRESOLVED
@@ -48,7 +48,7 @@ class StockTakeDiscrepancyReport(Report):
     """PDF report of stock take discrepancies, grouped by location."""
 
     def __init__(self, site_id=None, txn_abbr=None, resolved=None, **kwargs):
-        self.protocol_name = ResearchProtocolConfig().protocol_title
+        self.protocol_name = trial_settings.protocol_title
         try:
             self.site_id = int(site_id) if site_id else None
         except (TypeError, ValueError):

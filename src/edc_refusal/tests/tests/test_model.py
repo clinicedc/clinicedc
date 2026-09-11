@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_refusal.forms import SubjectRefusalForm
@@ -20,7 +21,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 @tag("refusal")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestForms(TestCase):
     def setUp(self):
         site_consents.registry = {}

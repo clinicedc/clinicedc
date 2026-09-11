@@ -14,6 +14,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from faker import Faker
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -226,7 +227,7 @@ class MyRequisitionRuleGroup(BaseRequisitionRuleGroup):
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo(settings.TIME_ZONE)))
 class TestRequisitionRuleGroup(TestCase):
     @classmethod

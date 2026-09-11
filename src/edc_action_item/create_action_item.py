@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from clinicedc_constants import CANCELLED
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
-from .exceptions import ActionItemError, SingletonActionItemError
+from .exceptions import SingletonActionItemError
 from .get_action_type import get_action_type
 
 if TYPE_CHECKING:

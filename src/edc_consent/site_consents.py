@@ -3,11 +3,12 @@ from __future__ import annotations
 import sys
 from copy import deepcopy
 from datetime import datetime
+from importlib import import_module
 from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 from django.core.management.color import color_style
-from django.utils.module_loading import import_module, module_has_submodule
+from django.utils.module_loading import module_has_submodule
 
 from edc_sites.site import sites as site_sites
 from edc_utils import ceil_secs, floor_secs, formatted_date, to_local
@@ -92,16 +93,16 @@ class SiteConsents:
                 cdef
                 and cdef.validate_duration_overlap_by_model
                 and registered_cdef.proxy_model == cdef.proxy_model
-            ):
-                if (
+                and (
                     registered_cdef.start <= cdef.start <= registered_cdef.end
                     or registered_cdef.start <= cdef.end <= registered_cdef.end
-                ):
-                    raise ConsentDefinitionError(
-                        f"Consent period overlaps with an already registered consent "
-                        f"definition. See already registered consent {registered_cdef.name}. "
-                        f"Got {cdef.name}."
-                    )
+                )
+            ):
+                raise ConsentDefinitionError(
+                    f"Consent period overlaps with an already registered consent "
+                    f"definition. See already registered consent {registered_cdef.name}. "
+                    f"Got {cdef.name}."
+                )
 
     def get_consents(self, subject_identifier: str, site_id: int | None) -> list:
         consents = []
@@ -123,7 +124,7 @@ class SiteConsents:
         subject_identifier: str,
         report_datetime: datetime,
         site_id: int | None = None,
-        consent_definition: ConsentDefinition = None,
+        consent_definition: ConsentDefinition | None = None,
         raise_if_not_consented: bool | None = None,
     ) -> ConsentLikeModel:
         """Returns a subject consent using this consent_definition's
@@ -136,7 +137,8 @@ class SiteConsents:
         Finally, if the subject consent does not exist raises a
         `NotConsentedError`.
         """
-        from edc_sites.site import sites as site_sites  # avoid circular import
+        # avoid circular import
+        # from edc_sites.site import sites as site_sites
 
         raise_if_not_consented = (
             True if raise_if_not_consented is None else raise_if_not_consented
@@ -249,7 +251,7 @@ class SiteConsents:
             model, cdefs, error_messages
         )
         cdefs, error_messages = self._filter_cdefs_by_report_datetime_or_raise(
-            report_datetime, cdefs, error_messages
+            report_datetime, cdefs, error_messages, site_id=getattr(site, "site_id", None)
         )
         cdefs, error_messages = self._filter_cdefs_by_version_or_raise(
             version, cdefs, error_messages
@@ -268,11 +270,11 @@ class SiteConsents:
     def _filter_cdefs_by_model_or_raise(
         model: str | None,
         consent_definitions: list[ConsentDefinition],
-        errror_messages: list[str] | None = None,
+        error_messages: list[str] | None = None,
         attrname: str | None = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
         attrname = attrname or "model"
-        errror_messages = errror_messages or []
+        error_messages = error_messages or []
         cdefs = consent_definitions
         if model:
             cdefs = [
@@ -285,16 +287,16 @@ class SiteConsents:
                 raise ConsentDefinitionDoesNotExist(
                     f"There are no consent definitions using this model. Got {model}."
                 )
-            errror_messages.append(f"model={model}")
-        return cdefs, errror_messages
+            error_messages.append(f"model={model}")
+        return cdefs, error_messages
 
     @staticmethod
     def _filter_cdefs_by_screening_model_or_raise(
         model: str | None,
         consent_definitions: list[ConsentDefinition],
-        errror_messages: list[str] | None = None,
+        error_messages: list[str] | None = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
-        errror_messages = errror_messages or []
+        error_messages = error_messages or []
         cdefs = consent_definitions
         if model:
             cdefs = []
@@ -309,16 +311,17 @@ class SiteConsents:
                 raise ConsentDefinitionDoesNotExist(
                     f"There are no consent definitions using this screening model.Got {model}."
                 )
-            errror_messages.append(f"model={model}")
-        return cdefs, errror_messages
+            error_messages.append(f"model={model}")
+        return cdefs, error_messages
 
     @staticmethod
     def _filter_cdefs_by_report_datetime_or_raise(
         report_datetime: datetime | None,
         consent_definitions: list[ConsentDefinition],
-        errror_messages: list[str] | None = None,
+        error_messages: list[str] | None = None,
+        site_id: int | None = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
-        errror_messages = errror_messages or []
+        error_messages = error_messages or []
         cdefs = deepcopy(consent_definitions)
         if report_datetime:
             cdefs = [
@@ -326,45 +329,47 @@ class SiteConsents:
                 for cdef in cdefs
                 if floor_secs(cdef.start) <= report_datetime <= ceil_secs(cdef.end)
             ]
-            date_string = formatted_date(to_local(report_datetime))
             if not cdefs:
-                using_msg = "Using " + " and ".join(errror_messages)
-                cdefs_str = [cdef.display_name for cdef in consent_definitions]
-                raise ConsentDefinitionDoesNotExist(
-                    "Date does not fall within the validity period of any "
-                    f"consent definition. Got {date_string}. {using_msg}. "
-                    f"Possible consent definitions are: {', '.join(cdefs_str)}. "
+                date_string = formatted_date(to_local(report_datetime, site_id=site_id))
+                using_msg = (
+                    f" Using {' and '.join(error_messages)}. " if error_messages else ""
                 )
-            errror_messages.append(f"report_datetime={date_string}")
-        return cdefs, errror_messages
+                cdefs_str = [cdef.get_display_name(site_id) for cdef in consent_definitions]
+                error_messages.append(f"report_datetime={date_string}")
+                raise ConsentDefinitionDoesNotExist(
+                    "Date does not fall within the period of consent. "
+                    f"Got {date_string}.{using_msg} "
+                    f"Possible consents are: {', '.join(cdefs_str)}. "
+                )
+        return cdefs, error_messages
 
     def _filter_cdefs_by_version_or_raise(
         self,
         version: str | None,
         consent_definitions: list[ConsentDefinition],
-        errror_messages: list[str] | None = None,
+        error_messages: list[str] | None = None,
     ) -> tuple[list[ConsentDefinition], list[str]]:
-        errror_messages = errror_messages or []
+        error_messages = error_messages or []
         cdefs = consent_definitions
         if version:
             cdefs = [cdef for cdef in cdefs if cdef.version == version]
             if not cdefs:
-                using_msg = "Using " + " and ".join(errror_messages)
-                errror_messages.append(f"version={version}")
+                using_msg = "Using " + " and ".join(error_messages)
+                error_messages.append(f"version={version}")
                 raise ConsentDefinitionDoesNotExist(
                     f"There are no consent definitions for this version. "
                     f"Got {version}. {using_msg}. "
                     f"Consent definitions are: {self.get_registry_display()}."
                 )
-        return cdefs, errror_messages
+        return cdefs, error_messages
 
     def filter_cdefs_by_site_or_raise(
         self,
         site: SingleSite | None,
         consent_definitions: list[ConsentDefinition],
-        errror_messages: list[str] | None = None,
+        error_messages: list[str] | None = None,
     ) -> list[ConsentDefinition]:
-        errror_messages = errror_messages or []
+        error_messages = error_messages or []
         cdefs = consent_definitions
         if site:
             cdefs_copy = [cdef for cdef in consent_definitions]
@@ -373,7 +378,7 @@ class SiteConsents:
                 if site.site_id in [s.site_id for s in cdef.sites]:
                     cdefs.append(cdef)
             if not cdefs:
-                using_msg = "Using " + " and ".join(errror_messages)
+                using_msg = "Using " + " and ".join(error_messages)
                 raise ConsentDefinitionDoesNotExist(
                     f"There are no consent definitions for this site. "
                     f"Got {site}. {using_msg}."

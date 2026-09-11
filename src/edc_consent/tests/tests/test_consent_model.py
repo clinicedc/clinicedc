@@ -22,6 +22,7 @@ from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 from faker import Faker
 from model_bakery import baker
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition_extension import ConsentDefinitionExtension
@@ -29,7 +30,7 @@ from edc_consent.exceptions import ConsentDefinitionDoesNotExist, NotConsentedEr
 from edc_consent.field_mixins import IdentityFieldsMixinError
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -43,7 +44,16 @@ fake = Faker()
 
 @tag("consent")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10)
+@override_settings(
+    EDC_AUTH_SKIP_SITE_AUTHS=True,
+    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+    SITE_ID=SiteID(10),
+    MULTISITE_TIME_ZONES={
+        1: "America/New_York",
+        10: "Africa/Dar_es_Salaam",
+        30: "Africa/Gaborone",
+    },
+)
 class TestConsentModel(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -54,8 +64,8 @@ class TestConsentModel(TestCase):
         add_or_update_django_sites()
 
     def setUp(self):
-        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
-        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.study_open_datetime = trial_dates.study_open_datetime
+        self.study_close_datetime = trial_dates.study_close_datetime
         site_consents.registry = {}
         site_consents.register(consent1_v1)
         site_consents.register(consent1_v2, updated_by=consent1_v3)
@@ -489,6 +499,7 @@ class TestConsentModel(TestCase):
             self.fail("NotConsentedError unexpectedly raised")
         traveller.stop()
 
+    @tag("qq")
     def test_save_crf_with_consent_end_shortened_to_before_existing_subject_visit_raises(  # noqa: PLR0915
         self,
     ):
@@ -538,7 +549,7 @@ class TestConsentModel(TestCase):
         subject_visit_1.save()
 
         # cut short v3 validity period, and introduce new v4 consent definition,
-        cdef_v3.end = datetime_within_consent_v3 + relativedelta(days=1)
+        cdef_v3._end = datetime_within_consent_v3 + relativedelta(days=1)
         cdef_v3.updated_by = "4.0"
         site_consents.registry[cdef_v3.name] = cdef_v3
 

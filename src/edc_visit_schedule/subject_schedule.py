@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 from datetime import datetime
 from typing import TYPE_CHECKING
 
@@ -194,22 +195,26 @@ class SubjectSchedule:
             site_id=self.registered_or_raise().site.id,
             skip_baseline=True,
         )
-        creator.create_appointments(
-            self.onschedule_obj.onschedule_datetime,
-            skip_get_current_site=skip_get_current_site,
-        )
 
-        try:
+        offschedule_obj = None
+        with contextlib.suppress(ObjectDoesNotExist):
             offschedule_obj = self.offschedule_model_cls.objects.get(
                 subject_identifier=self.subject_identifier
             )
-        except ObjectDoesNotExist:
-            pass
-        else:
+        offschedule_datetime = (
+            offschedule_obj.offschedule_datetime if offschedule_obj else None
+        )
+        creator.create_appointments(
+            self.onschedule_obj.onschedule_datetime,
+            skip_get_current_site=skip_get_current_site,
+            offschedule_datetime=offschedule_datetime,
+        )
+
+        if offschedule_obj:
             # clear future appointments
             self.appointment_model_cls.objects.delete_for_subject_after_date(
                 subject_identifier=self.subject_identifier,
-                cutoff_datetime=offschedule_obj.offschedule_datetime,
+                cutoff_datetime=offschedule_datetime,
                 visit_schedule_name=self.visit_schedule_name,
                 schedule_name=self.schedule_name,
             )

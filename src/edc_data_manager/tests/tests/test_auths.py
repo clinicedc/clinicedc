@@ -1,6 +1,7 @@
 from importlib import import_module
 
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.site_auths import site_auths
@@ -8,7 +9,7 @@ from edc_auth.site_auths import site_auths
 
 @tag("data_manager")
 @override_settings(
-    EDC_AUTH_SKIP_SITE_AUTHS=False, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=20
+    EDC_AUTH_SKIP_SITE_AUTHS=False, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=SiteID(20)
 )
 class TestAuths(TestCase):
     def test_load(self):

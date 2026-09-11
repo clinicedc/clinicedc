@@ -6,6 +6,7 @@ from clinicedc_tests.helper import Helper
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_action_item.site_action_items import AlreadyRegistered, site_action_items
 from edc_auth.site_auths import site_auths
@@ -22,7 +23,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 @tag("unblinding")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class UnblindingTestCase(TestCase):
     helper_cls = Helper
 

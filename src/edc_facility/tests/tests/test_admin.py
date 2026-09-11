@@ -5,6 +5,7 @@ from django.test import override_settings, tag
 from django.urls import reverse
 from django.utils import timezone
 from django_webtest import WebTest
+from multisite import SiteID
 
 from edc_auth.auth_updater.group_updater import GroupUpdater, PermissionsCodenameError
 from edc_facility.auths import codenames
@@ -15,7 +16,7 @@ from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("facility")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestAdmin(WebTest):
     @classmethod
     def setUpTestData(cls):

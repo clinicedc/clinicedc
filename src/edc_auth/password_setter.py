@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from mempass import PasswordGenerator
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 
 class PasswordSetterError(Exception):
@@ -19,7 +19,7 @@ class PasswordSetter:
         "Your new password is:\n\n$password\n\n"
         "Your password was reset by $administrator.\n\n"
         "Thanks.\n\n"
-        f"{ResearchProtocolConfig().project_name}\n\n"
+        f"{trial_settings.project_name}\n\n"
     )
 
     def __init__(
@@ -85,7 +85,7 @@ class PasswordSetter:
             )
             email = EmailMessage(
                 subject=(
-                    f"{ResearchProtocolConfig().project_name}: "
+                    f"{trial_settings.project_name}: "
                     "Your clinicedc.org password has been reset."
                 ),
                 body=body,

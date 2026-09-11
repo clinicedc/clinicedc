@@ -6,7 +6,7 @@ from django_audit_fields.admin import audit_fields
 
 from edc_auth.constants import PII, PII_VIEW
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 
 class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
@@ -69,7 +69,7 @@ class RegisteredSubjectModelAdminMixin(ModelAdminSubjectDashboardMixin, admin.Mo
         has_perms_for_pii = request.user.groups.filter(name=PII).exists()
         MASK = "*****"  # noqa: N806
 
-        pattern = ResearchProtocolConfig().subject_identifier_pattern
+        pattern = trial_settings.subject_identifier_pattern
         query = request.GET.get("q", "").strip()
         search_active = re.match(pattern, query)
 

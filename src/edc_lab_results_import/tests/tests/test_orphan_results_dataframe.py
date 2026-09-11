@@ -11,6 +11,7 @@ from clinicedc_tests.models import SubjectRequisition
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_lab.models import Panel
@@ -28,7 +29,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 @tag("lab_results_import")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestOrphanResultsDataframe(TestCase):
     def setUp(self):
         site_consents.registry = {}

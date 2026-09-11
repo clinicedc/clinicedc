@@ -14,6 +14,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_action_item import (
 )
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
@@ -29,7 +30,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestLongitudinal(TestCaseMixin, TestCase):
 
     def setUp(self):

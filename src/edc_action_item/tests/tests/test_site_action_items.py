@@ -5,6 +5,7 @@ import time_machine
 from clinicedc_tests.action_items import FormZeroAction
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionType
@@ -21,7 +22,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestSiteActionItems(TestCaseMixin, TestCase):
     def setUp(self):
         self.subject_identifier = self.fake_enroll()

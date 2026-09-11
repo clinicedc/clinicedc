@@ -12,14 +12,14 @@ from django.utils.safestring import mark_safe
 
 from edc_auth.constants import PII
 from edc_identifier import SubjectIdentifierError, is_subject_identifier_or_raise
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from ..actions import flag_as_verified_against_paper, unflag_as_verified_against_paper
 
 
 class ConsentModelAdminMixin:
-    name_fields: tuple[str] = ("first_name", "last_name")
-    name_display_fields: tuple[str] = ("first_name", "last_name")
+    name_fields: tuple[str, ...] = ("first_name", "last_name")
+    name_display_fields: tuple[str, ...] = ("first_name", "last_name")
     actions = (flag_as_verified_against_paper, unflag_as_verified_against_paper)
     change_list_note = format_html(
         "If <strong>sensitive data</strong> is available and the user has permissions "
@@ -101,7 +101,7 @@ class ConsentModelAdminMixin:
         has_perms_for_pii = request.user.groups.filter(name=PII).exists()
         MASK = "*****"  # noqa: N806
 
-        pattern = ResearchProtocolConfig().subject_identifier_pattern
+        pattern = trial_settings.subject_identifier_pattern
         query = request.GET.get("q", "").strip()
         search_active = re.match(pattern, query)
 
@@ -210,7 +210,7 @@ class ConsentModelAdminMixin:
         return next_options
 
     @admin.display(description="Open queries")
-    def queries(self, obj=None) -> str:
+    def queries(self, obj=None) -> str | None:
         new_url = reverse(
             "edc_data_manager_admin:edc_data_manager_dataquery_add",
         )

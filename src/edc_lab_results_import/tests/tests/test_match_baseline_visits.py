@@ -10,6 +10,7 @@ from clinicedc_tests.helper import Helper
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.management import color_style
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_lab_results_import.constants import MAX_DAYS_BEFORE_BASELINE
@@ -34,7 +35,7 @@ def make_importer(max_days_before_baseline: int | None = None) -> ResultImporter
 
 
 @tag("lab_results_import")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestMatchBaselineVisits(TestCase):
     """The two passes before this one match the specimen datetime
     against the visit report datetime by exact equality. A specimen

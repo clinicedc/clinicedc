@@ -1,7 +1,7 @@
 from reportlab.graphics.barcode.widgets import BarcodeStandard39
 from reportlab.graphics.shapes import Drawing, String
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from ..models import Stock
 from ..utils import format_qty
@@ -23,7 +23,7 @@ def draw_bulk_stock_label_code39(
     br.x = width - 100
     br.y = height - 40
     label.add(br)
-    label.add(String(15, height - 20, ResearchProtocolConfig().protocol_name, fontSize=10))
+    label.add(String(15, height - 20, trial_settings.protocol_name, fontSize=10))
     qty = format_qty(obj.container_unit_qty, obj.container)
 
     label.add(String(15, height - 40, f"{qty} tabs", fontSize=10))

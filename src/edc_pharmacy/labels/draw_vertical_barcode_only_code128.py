@@ -6,7 +6,7 @@ from reportlab.graphics.barcode.widgets import BarcodeCode128
 from reportlab.graphics.shapes import Drawing, Group, String
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from ..utils import format_qty
 from .draw_label_watermark import draw_label_watermark
@@ -33,7 +33,7 @@ def draw_vertical_barcode_only_code128(
     group.rotate(90)
     label.add(group)
 
-    protocol_name = String(0, 0, str(ResearchProtocolConfig().protocol_name))
+    protocol_name = String(0, 0, str(trial_settings.protocol_name))
     qty_text = f"{format_qty(obj.container_unit_qty, obj.container)} tabs"
 
     text_group = Group()

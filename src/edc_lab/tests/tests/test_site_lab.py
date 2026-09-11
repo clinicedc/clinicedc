@@ -9,6 +9,7 @@ from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -29,7 +30,7 @@ from edc_visit_tracking.models import SubjectVisit
 
 
 @tag("lab")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestSiteLab2(TestCase):
     @classmethod
     def setUpTestData(cls):

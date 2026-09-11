@@ -10,6 +10,7 @@ from clinicedc_tests.utils import get_request_object_for_tests, get_user_for_tes
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings
 from django.views.generic.base import ContextMixin
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_appointment.view_mixins import AppointmentViewMixin
@@ -34,7 +35,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestViewMixins(TestCase):
     def setUp(self):
         self.user = get_user_for_tests()

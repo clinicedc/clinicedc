@@ -1,4 +1,5 @@
 from django.core.exceptions import PermissionDenied
+
 from edc_auth.constants import CLINICIAN_ROLE, CLINICIAN_SUPER_ROLE
 
 from ..auth_objects import PHARMACIST_ROLE, PHARMACY_SUPER_ROLE, SITE_PHARMACIST_ROLE

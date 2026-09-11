@@ -8,6 +8,7 @@ from clinicedc_tests.action_items import FormZeroAction, register_actions
 from clinicedc_tests.models import FormZero
 from django.core import mail
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_action_item.action_item_notification import (
     NOTIFY_ON_CHANGED_REFERENCE_OBJ,
@@ -24,7 +25,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestActionNotification(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()

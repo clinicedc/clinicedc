@@ -5,6 +5,7 @@ import time_machine
 from clinicedc_tests.models import TestModel
 from django.test import TestCase, override_settings
 from django.test.client import RequestFactory
+from multisite import SiteID
 
 from edc_model_admin.mixins import (
     ModelAdminNextUrlRedirectError,
@@ -12,7 +13,7 @@ from edc_model_admin.mixins import (
 )
 
 
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestModelAdmin(TestCase):
     def setUp(self):

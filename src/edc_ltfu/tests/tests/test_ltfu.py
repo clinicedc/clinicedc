@@ -10,6 +10,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_action_item.models import ActionItem
 from edc_action_item.site_action_items import site_action_items
@@ -30,7 +31,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("ltfu")
-@override_settings(SITE_ID=10, EDC_SITES_REGISTER_DEFAULT=True)
+@override_settings(SITE_ID=SiteID(10), EDC_SITES_REGISTER_DEFAULT=True)
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestLtfu(TestCase):
     @classmethod

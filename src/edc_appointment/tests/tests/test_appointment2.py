@@ -13,13 +13,14 @@ from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.constants import INCOMPLETE_APPT, SCHEDULED_APPT, UNSCHEDULED_APPT
 from edc_appointment.exceptions import AppointmentDatetimeError
 from edc_appointment.utils import get_appointment_model_cls, get_appt_reason_choices
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model_cls
@@ -28,7 +29,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10, EDC_SITES_REGISTER_DEFAULT=True)
+@override_settings(SITE_ID=SiteID(10), EDC_SITES_REGISTER_DEFAULT=True)
 @time_machine.travel(datetime(2025, 6, 10, 8, 00, tzinfo=utc_tz))
 class TestAppointment(TestCase):
     helper_cls = Helper
@@ -46,14 +47,14 @@ class TestAppointment(TestCase):
         site_visit_schedules.register(self.visit_schedule1)
         site_visit_schedules.register(self.visit_schedule2)
         self.helper = self.helper_cls(
-            now=ResearchProtocolConfig().study_open_datetime,
+            now=trial_dates.study_open_datetime,
         )
 
     def test_appointments_dates_mo(self):
         """Test appointment datetimes are chronological."""
         for day in [MO, TU, WE, TH, FR, SA, SU]:
             helper = self.helper_cls(
-                now=ResearchProtocolConfig().study_open_datetime,
+                now=trial_dates.study_open_datetime,
             )
             subject_consent = helper.consent_and_put_on_schedule(
                 visit_schedule_name=self.visit_schedule1.name,
@@ -82,7 +83,7 @@ class TestAppointment(TestCase):
     def test_attempt_to_change(self):
         for _ in [MO, TU, WE, TH, FR, SA, SU]:
             helper = self.helper_cls(
-                now=ResearchProtocolConfig().study_open_datetime,
+                now=trial_dates.study_open_datetime,
             )
             subject_consent = helper.consent_and_put_on_schedule(
                 visit_schedule_name=self.visit_schedule1.name,

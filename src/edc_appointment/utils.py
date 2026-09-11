@@ -36,7 +36,7 @@ from edc_metadata.utils import (
     get_requisition_metadata_model_cls,
     has_keyed_metadata,
 )
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 from edc_registration import get_registered_subject_model_cls
 from edc_utils.date import to_local, to_utc
 from edc_utils.text import convert_php_dateformat
@@ -963,7 +963,7 @@ def delete_appointments_after_study_close_grace_period(
         )
     See also ResearchProtocolConfig.
     """
-    cutoff_datetime = ResearchProtocolConfig().study_close_grace_period_datetime
+    cutoff_datetime = trial_settings.study_close_grace_period_datetime
     if verbose:
         sys.stdout.write(
             f"Using grace period date of {cutoff_datetime.strftime('%Y-%m-%d %H:%M')}\n"

@@ -6,6 +6,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from faker import Faker
+from multisite import SiteID
 
 from edc_identifier.models import IdentifierModel
 from edc_identifier.short_identifier import (
@@ -21,7 +22,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("identifier")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestShortIdentifier(TestCase):
     def setUp(self):
         edc_device_app_config = django_apps.get_app_config("edc_device")

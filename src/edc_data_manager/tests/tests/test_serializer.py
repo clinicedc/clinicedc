@@ -8,6 +8,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule imp
 from django.contrib.auth import get_user_model
 from django.core import serializers
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_data_manager.models import CrfDataDictionary, QueryRule, QueryVisitSchedule
 from edc_data_manager.models.requisition_panel import RequisitionPanel
@@ -20,7 +21,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 @tag("data_manager")
-@override_settings(SITE_ID=20)
+@override_settings(SITE_ID=SiteID(20))
 class TestSerializer(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_superuser(

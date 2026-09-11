@@ -2,6 +2,7 @@ from clinicedc_tests.sites import all_sites
 from django.test import override_settings, tag
 from django.test.testcases import TestCase
 from django.urls.base import reverse
+from multisite import SiteID
 
 from edc_facility.import_holidays import import_holidays
 from edc_prn.prn import Prn
@@ -11,7 +12,7 @@ from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("prn")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestPrn(TestCase):
     @classmethod
     def setUpTestData(cls):

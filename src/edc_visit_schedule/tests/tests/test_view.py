@@ -10,6 +10,7 @@ from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings, tag
 from django.views.generic.base import ContextMixin
+from multisite import SiteID
 
 from edc_consent.site_consents import site_consents
 from edc_sites.site import sites as site_sites
@@ -43,7 +44,7 @@ class MyViewCurrent(VisitScheduleViewMixin, ContextMixin):
 
 @tag("visit_schedule")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestViewMixin(SiteTestCaseMixin, TestCase):
     def setUp(self):
         site_sites._registry = {}

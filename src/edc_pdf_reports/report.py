@@ -12,7 +12,7 @@ from reportlab.lib.styles import ParagraphStyle, StyleSheet1, getSampleStyleShee
 from reportlab.lib.units import cm
 from reportlab.platypus import SimpleDocTemplate
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 from edc_utils.date import to_local
 
 from .numbered_canvas import NumberedCanvas
@@ -57,7 +57,7 @@ class Report:
         self.numbered_canvas = numbered_canvas or self.default_numbered_canvas
 
         if not header_line:
-            header_line = ResearchProtocolConfig().institution
+            header_line = trial_settings.institution
         self.header_line = header_line
 
     def build(self, response):

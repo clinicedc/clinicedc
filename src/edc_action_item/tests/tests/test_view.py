@@ -5,6 +5,7 @@ import time_machine
 from clinicedc_tests.utils import get_user_for_tests
 from django.test import RequestFactory, TestCase, override_settings, tag
 from django.views.generic.base import ContextMixin, View
+from multisite import SiteID
 
 from edc_action_item.models import ActionItem, ActionType
 from edc_action_item.view_mixins import ActionItemViewMixin
@@ -22,7 +23,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestAction(TestCaseMixin, TestCase):
     def setUp(self):
         self.subject_identifier = self.fake_enroll()

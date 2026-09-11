@@ -1,7 +1,7 @@
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from ..site_labs import site_labs
 from .base_label import BaseLabel
@@ -56,7 +56,7 @@ class AliquotLabel(BaseLabel):
             "children_count": 1 if self.model_obj.is_primary else self.children_count,
             "primary": "<P>" if self.model_obj.is_primary else "",
             "barcode_value": self.model_obj.aliquot_identifier,
-            "protocol": ResearchProtocolConfig().protocol,
+            "protocol": trial_settings.protocol,
             "site": str(self.requisition.site.id),
             "site_name": str(self.requisition.site.name),
             "site_title": str(self.requisition.site.siteprofile.title),

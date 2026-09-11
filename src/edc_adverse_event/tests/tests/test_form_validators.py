@@ -5,6 +5,7 @@ from clinicedc_tests.sites import all_sites
 from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_adverse_event.form_validator_mixins import (
     RequiresDeathReportFormValidatorMixin,
@@ -18,7 +19,7 @@ from .mixins import DeathReportTestMixin
 
 
 @tag("adverse_event")
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestFormValidators(DeathReportTestMixin, TestCase):
 
     @classmethod

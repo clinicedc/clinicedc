@@ -7,7 +7,6 @@ from edc_model.models import BaseUuidModel, HistoricalRecords
 
 from ...exceptions import StockTransferError
 from .stock import Stock
-from .stock_transaction import StockTransaction
 from .stock_transfer import StockTransfer
 
 

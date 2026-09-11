@@ -9,6 +9,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
     get_visit_schedule2,
 )
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.appointment_status_updater import AppointmentStatusUpdater
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT, NEW_APPT
@@ -24,7 +25,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointmentStatus(TestCase):
     helper_cls = Helper

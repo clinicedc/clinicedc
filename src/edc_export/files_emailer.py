@@ -10,7 +10,7 @@ from django.core.mail.message import EmailMessage
 from django.utils import timezone
 
 from edc_notification.utils import get_email_contacts
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
@@ -92,7 +92,7 @@ class FilesEmailer:
             "Thanks",
         ]
         return EmailMessage(
-            subject=f"{ResearchProtocolConfig().protocol_name.title()} trial data request",
+            subject=f"{trial_settings.protocol_name.title()} trial data request",
             body="\n\n".join(body),
             from_email=get_email_contacts("data_request"),
             to=[self.user.email],

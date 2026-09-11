@@ -14,6 +14,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_model_to_dataframe import (
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -24,7 +25,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 @tag("model_to_dataframe")
 @override_settings(
-    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp(), SITE_ID=10
+    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp(), SITE_ID=SiteID(10)
 )
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestExport(TestCase):

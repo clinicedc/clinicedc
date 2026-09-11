@@ -11,6 +11,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_timepoint.visit_schedule imp
 )
 from django.apps import apps as django_apps
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.constants import COMPLETE_APPT
 from edc_appointment.models import Appointment
@@ -28,7 +29,7 @@ from edc_visit_tracking.models import SubjectVisit
 
 @tag("timepoint")
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(SITE_ID=10, EDC_TIMEPOINT_ENABLE_CHECKS=True)
+@override_settings(SITE_ID=SiteID(10), EDC_TIMEPOINT_ENABLE_CHECKS=True)
 class TimepointTests(TestCase):
     @classmethod
     def setUpClass(cls):

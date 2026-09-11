@@ -10,6 +10,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_crf.visit_schedule import vi
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
@@ -23,7 +24,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("crf")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class CrfTestCase(TestCase):
     helper_cls = Helper

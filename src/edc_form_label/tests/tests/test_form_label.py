@@ -14,6 +14,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
+from multisite import SiteID
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
@@ -32,7 +33,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("form_label")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestFormLabel(TestCase):
     @classmethod

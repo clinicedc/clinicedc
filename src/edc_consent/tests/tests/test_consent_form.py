@@ -20,10 +20,11 @@ from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 from faker import Faker
 from model_bakery import baker
+from multisite import SiteID
 
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_utils.age import age
@@ -34,7 +35,11 @@ fake = Faker()
 
 @tag("consent")
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10)
+@override_settings(
+    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+    SITE_ID=SiteID(10),
+    MULTISITE_TIME_ZONES={1: "America/New_York", 10: "Africa/Dar_es_Salaam"},
+)
 class TestConsentForm(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -62,11 +67,11 @@ class TestConsentForm(TestCase):
 
     @property
     def study_open_datetime(self):
-        return ResearchProtocolConfig().study_open_datetime
+        return trial_dates.study_open_datetime
 
     @property
     def study_close_datetime(self):
-        return ResearchProtocolConfig().study_close_datetime
+        return trial_dates.study_close_datetime
 
     @staticmethod
     def get_mock_screening(subject_consent=None, **kwargs):

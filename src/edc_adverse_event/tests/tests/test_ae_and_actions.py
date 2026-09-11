@@ -27,6 +27,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
 from model_bakery import baker
+from multisite import SiteID
 
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models.action_item import ActionItem
@@ -42,7 +43,7 @@ from edc_visit_schedule.utils import OnScheduleError
 
 
 @tag("adverse_event")
-@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=30)
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=SiteID(30))
 class TestAeAndActions(TestCase):
     helper_cls = Helper
 

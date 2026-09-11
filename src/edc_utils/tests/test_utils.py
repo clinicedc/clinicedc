@@ -2,7 +2,8 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_utils import (
     AgeValueError,
@@ -13,6 +14,7 @@ from edc_utils import (
     get_datetime_from_env,
     get_dob,
     get_safe_random_string,
+    to_local,
     truncate_string,
 )
 
@@ -258,3 +260,18 @@ class TestUtils(TestCase):
             truncate_string(string=orig_string, max_length=1),
             "…",
         )
+
+    @tag("to_local")
+    @override_settings(
+        SITE_ID=SiteID(10),
+        MULTISITE_TIME_ZONES={10: "Africa/Dar_es_Salaam", 20: "Africa/Gaborone"},
+        TIME_ZONE="Africa/Dar_es_Salaam",
+    )
+    def test_to_local(self):
+        dar = "Africa/Dar_es_Salaam"
+        gabs = "Africa/Gaborone"
+        utc = "UTC"
+        # get datetime value from DB
+        dt = datetime.now(tz=ZoneInfo(utc))
+        self.assertEqual(str(to_local(dt).tzinfo), dar)
+        self.assertEqual(str(to_local(dt, site_id=20).tzinfo), gabs)

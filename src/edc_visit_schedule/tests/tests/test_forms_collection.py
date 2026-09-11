@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.test.utils import override_settings, tag
+from multisite import SiteID
 
 from edc_visit_schedule.visit import Crf, FormsCollection, FormsCollectionError
 
@@ -28,28 +29,28 @@ class TestFormsCollection(TestCase):
         crfs.append(Crf(show_order=0, model="x.x"))
         self.assertRaises(FormsCollectionError, FormsCollection, *crfs)
 
-    @override_settings(SITE_ID=40)
+    @override_settings(SITE_ID=SiteID(40))
     def test_forms_collection_excludes_by_site_id(self):
         crfs = [Crf(show_order=i, model=f"x.{i}") for i in range(0, 5)]
         crfs.extend([Crf(show_order=i, model=f"x.{i}", site_ids=[10]) for i in range(6, 11)])
         forms = FormsCollection(*crfs)
         self.assertEqual(len(forms.forms), 5)
 
-    @override_settings(SITE_ID=40)
+    @override_settings(SITE_ID=SiteID(40))
     def test_forms_collection_excludes_by_site_id2(self):
         crfs = [Crf(show_order=i, model=f"x.{i}") for i in range(0, 5)]
         crfs.extend([Crf(show_order=i, model=f"x.{i}", site_ids=[40]) for i in range(6, 11)])
         forms = FormsCollection(*crfs)
         self.assertEqual(len(forms.forms), 10)
 
-    @override_settings(SITE_ID=40)
+    @override_settings(SITE_ID=SiteID(40))
     def test_forms_collection_excludes_by_site_id3(self):
         crfs = [Crf(show_order=i, model=f"x.{i}") for i in range(0, 5)]
         crfs.extend([Crf(show_order=i, model=f"x.{i}") for i in range(6, 11)])
         forms = FormsCollection(*crfs)
         self.assertEqual(len(forms.forms), 10)
 
-    @override_settings(SITE_ID=40)
+    @override_settings(SITE_ID=SiteID(40))
     def test_forms_collection_list_like_behaviour(self):
         forms = FormsCollection()
         for i in range(0, 5):

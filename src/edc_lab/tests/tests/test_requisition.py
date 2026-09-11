@@ -3,6 +3,7 @@ import re
 from clinicedc_tests.labs import lab_profile
 from clinicedc_tests.sites import all_sites
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_facility.import_holidays import import_holidays
 from edc_lab.identifiers import RequisitionIdentifier
@@ -12,7 +13,7 @@ from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("lab")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestRequisitionModel(TestCase):
     @classmethod
     def setUpTestData(cls):
