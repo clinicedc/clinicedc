@@ -14,6 +14,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import ValidationError
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,
@@ -53,7 +54,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointmentFormValidator(TestCase):
     helper_cls = Helper

@@ -33,12 +33,12 @@ dependencies = [
     "argon2-cffi>=25.1.0",
     "arrow>=1.4.0",
     "beautifulsoup4>=4.15.0",
-    "boto3>=1.43.82",
+    "boto3>=1.43.91",
     "celery>=5.6.3",
     "clinicedc-utils>=1.0.6",
     "clinicedc-constants>=1.6.0",
     "cryptography>=50.0.1",
-    "django-admin-rangefilter>=0.14.3",
+    "django-admin-rangefilter>=0.15.0",
     "django-audit-fields>=2.0.6",
     "django-crypto-fields>=1.2.0",
     "django-db-views>=0.1.14",
@@ -46,7 +46,7 @@ dependencies = [
     "django-environ>=0.14.0",
     "django-import-export>=4.4.1",
     "django-logentry-admin>=1.1.0",
-    "django-multisite2>=3.0.0",
+    "django-multisite2>=3.1.0",
     "django-pandas>=0.6.7",
     "django-pylabels>=1.0.1",
     "django-redis>=7.0.0",
@@ -69,7 +69,7 @@ dependencies = [
     "python-memcached>=1.62",
     "reportlab>=5.0.1",
     "sqlalchemy>=2.0.52",
-    "sqlglot>=30.17.0",
+    "sqlglot>=30.18.0",
     "tqdm>=4.70.0",
     "twilio>=9.11.0",
     "tabulate>=0.10.0",
@@ -257,7 +257,7 @@ ignore_directives = ["toctree"]
 [dependency-groups]
 
 dev = [
-    "clinicedc-tests>=1.4.0",
+    "clinicedc-tests>=1.4.2",
     "django-webtest>=1.9.14",
 ]
 

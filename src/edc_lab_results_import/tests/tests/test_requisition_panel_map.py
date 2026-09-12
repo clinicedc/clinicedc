@@ -11,6 +11,7 @@ from clinicedc_tests.models import SubjectRequisition
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_lab.models import Panel
@@ -26,7 +27,7 @@ PANEL_MAP = {wbc_differential.name: "fbc"}
 
 
 @tag("lab_results_import")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestRequisitionPanelMap(TestCase):
     """The panel a result is reported under is not always the panel it
     was drawn under.

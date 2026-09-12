@@ -9,7 +9,7 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from edc_pdf_reports import Report
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from ..models import Stock
 from ..utils import get_related_or_none
@@ -18,7 +18,7 @@ from ..utils import get_related_or_none
 class StockReport(Report):
     def __init__(self, queryset: QuerySet[Stock] = None, **kwargs):
         self.queryset = queryset.order_by("from_stock__code", "code")
-        self.protocol_name = ResearchProtocolConfig().protocol_title
+        self.protocol_name = trial_settings.protocol_title
         super().__init__(**kwargs)
 
     def draw_header(self, canvas, doc):  # noqa: ARG002

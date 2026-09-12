@@ -11,13 +11,14 @@ from clinicedc_tests.visit_schedules.visit_schedule_consent.visit_schedule impor
 )
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
 from edc_consent.consent_definition_extension import ConsentDefinitionExtension
 from edc_consent.tests.consent_test_utils import consent_factory
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -25,7 +26,12 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 @tag("consent")
 @time_machine.travel(datetime(2025, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10)
+@override_settings(
+    EDC_AUTH_SKIP_SITE_AUTHS=True,
+    EDC_AUTH_SKIP_AUTH_UPDATER=False,
+    SITE_ID=SiteID(10),
+    MULTISITE_TIME_ZONES={1: "America/New_York", 10: "Africa/Dar_es_Salaam"},
+)
 class TestConsentExtension(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -36,8 +42,8 @@ class TestConsentExtension(TestCase):
         add_or_update_django_sites()
 
     def setUp(self):
-        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
-        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.study_open_datetime = trial_dates.study_open_datetime
+        self.study_close_datetime = trial_dates.study_close_datetime
         site_consents.registry = {}
         self.consent_v1 = consent_factory(
             proxy_model="clinicedc_tests.subjectconsentv1",

@@ -7,6 +7,7 @@ from django import forms
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent.modelform_mixins import RequiresConsentModelFormMixin
@@ -23,7 +24,7 @@ from edc_visit_tracking.models import SubjectVisit
 
 
 @tag("prn")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestPrn(TestCase):
     helper_cls = Helper
 

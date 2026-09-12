@@ -10,9 +10,10 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent.site_consents import site_consents
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.exceptions import SubjectScheduleError
@@ -25,15 +26,15 @@ from edc_visit_schedule.visit_schedule import VisitSchedule
 
 @tag("visit_schedule1")
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestSubjectSchedule(SiteTestCaseMixin, TestCase):
     def setUp(self):
         site_sites._registry = {}
         site_sites.loaded = False
         site_sites.register(*all_sites)
         add_or_update_django_sites()
-        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
-        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.study_open_datetime = trial_dates.study_open_datetime
+        self.study_close_datetime = trial_dates.study_close_datetime
 
         site_consents.registry = {}
         site_consents.register(consent1_v1)  # 0-50 days

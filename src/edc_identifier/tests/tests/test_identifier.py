@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_identifier.checkdigit_mixins import LuhnMixin, LuhnOrdMixin
 from edc_identifier.identifier import Identifier
@@ -12,7 +13,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("identifier")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestIdentifier(TestCase):
     def test_valid_checkdigit(self):
         mixin = LuhnMixin()

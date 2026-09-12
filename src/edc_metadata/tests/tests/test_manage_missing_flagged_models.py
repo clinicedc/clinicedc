@@ -1,5 +1,6 @@
 from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_metadata.models import (
     CrfMetadataMissing,
@@ -9,7 +10,7 @@ from edc_metadata.models import (
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestManageMissingModels(TestCase):
     def setUp(self):
         self.reason = DataMissingReason.objects.create(

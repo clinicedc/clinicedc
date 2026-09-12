@@ -10,7 +10,7 @@ from edc_identifier.model_mixins import NonUniqueSubjectIdentifierFieldMixin
 from edc_metadata.model_mixins.updates import UpdatesRequisitionMetadataModelMixin
 from edc_model.models import HistoricalRecords, InitialsField, OtherCharField
 from edc_model.validators import datetime_not_future
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 from edc_protocol.validators import datetime_not_before_study_start
 from edc_search.model_mixins import SearchSlugModelMixin
 from edc_sites.model_mixins import SiteModelMixin
@@ -149,7 +149,7 @@ class RequisitionModelMixin(
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.protocol_number = ResearchProtocolConfig().protocol_number
+            self.protocol_number = trial_settings.protocol_number
         self.subject_identifier = self.related_visit.subject_identifier
         self.specimen_type = self.panel_object.aliquot_type.alpha_code
         self.report_datetime = self.requisition_datetime

@@ -17,7 +17,7 @@ from django.core.management import CommandError
 from django.utils import timezone
 from django.utils.html import format_html
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 from edc_sites.site import sites as site_sites
 
 from .constants import EXPORT, EXPORT_PII
@@ -42,7 +42,7 @@ def get_base_dir() -> Path:
 
     This is the short protocol name in lower case
     """
-    base_dir: str = ResearchProtocolConfig().protocol_lower_name
+    base_dir: str = trial_settings.protocol_lower_name
     if len(base_dir) > 25:
         raise ExporterExportFolder(
             f"Invalid basedir, too long. Using `protocol_lower_name`. Got `{base_dir}`."

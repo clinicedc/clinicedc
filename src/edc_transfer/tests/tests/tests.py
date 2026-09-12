@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 from clinicedc_constants import OTHER
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_metadata.tests.tests.metadata_test_mixin import TestMetadataMixin
 from edc_transfer.form_validators import SubjectTransferFormValidator
@@ -13,7 +14,7 @@ test_datetime = datetime(2019, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC"))
 
 
 @tag("transfer")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestTransfer(TestMetadataMixin, TestCase):
     def test_form_ok(self):
         data = dict(subject_identifier=self.appointment.subject_identifier)

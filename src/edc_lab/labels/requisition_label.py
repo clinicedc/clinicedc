@@ -5,7 +5,7 @@ from django.apps import apps as django_apps
 from multisite.utils import get_multisite_timezone
 
 from edc_label import Label
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 
 class RequisitionLabel(Label):
@@ -51,7 +51,7 @@ class RequisitionLabel(Label):
             "item_count": self.requisition.item_count or 1,
             "primary": "<P>",
             "barcode_value": self.requisition.requisition_identifier,
-            "protocol": ResearchProtocolConfig().protocol,
+            "protocol": trial_settings.protocol,
             "site": str(self.requisition.site.id),
             "site_name": str(self.requisition.site.name),
             "site_title": str(self.requisition.site.siteprofile.title),

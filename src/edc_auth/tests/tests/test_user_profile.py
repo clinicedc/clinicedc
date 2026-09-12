@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 from django.test.client import RequestFactory
+from multisite import SiteID
 
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.backends import ModelBackendWithSite
@@ -33,7 +34,7 @@ class TestUserProfile(EdcAuthTestCase):
             backend.authenticate(request, username="erik", password="password")  # nosec B106
         )
 
-    @override_settings(SITE_ID=10)
+    @override_settings(SITE_ID=SiteID(10))
     def test_backend_one_site(self):
         """User of site 10 can log in to site 10."""
         # Site.objects.all().delete()
@@ -50,7 +51,7 @@ class TestUserProfile(EdcAuthTestCase):
             backend.authenticate(request, username="erik", password="password")  # nosec B106
         )
 
-    @override_settings(SITE_ID=20)
+    @override_settings(SITE_ID=SiteID(20))
     def test_backend_one_site2(self):
         """User of site 10 cannot log in to site 20."""
         ten = Site.objects.get(id=10)

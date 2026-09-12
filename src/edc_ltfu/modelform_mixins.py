@@ -8,7 +8,7 @@ from django.utils.html import format_html
 
 from edc_dashboard.url_names import url_names
 from edc_form_validators import FormValidator
-from edc_prn.utils import get_prn_admin_site_name, get_prn_app_label
+from edc_prn.utils import get_prn_admin_site_name
 from edc_utils.text import convert_php_dateformat
 from edc_visit_tracking.constants import MISSED_VISIT
 from edc_visit_tracking.utils import get_related_visit_model_cls

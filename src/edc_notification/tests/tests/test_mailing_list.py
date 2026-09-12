@@ -5,6 +5,7 @@ from clinicedc_tests.sites import all_sites
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings, tag
+from multisite import SiteID
 
 from edc_facility.import_holidays import import_holidays
 from edc_notification.mailing_list_manager import (
@@ -26,7 +27,7 @@ class G3EventNotification(GradedEventNotification):
 
 
 @tag("notification")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestMailingList(TestCase):
     @classmethod
     def setUpTestData(cls):

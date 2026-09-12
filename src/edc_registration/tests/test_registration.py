@@ -20,7 +20,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 @tag("registration")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestRegistration(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):

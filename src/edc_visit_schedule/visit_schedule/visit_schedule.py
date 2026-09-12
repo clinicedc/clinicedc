@@ -6,10 +6,11 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 
-from edc_locator.utils import get_locator_model, LocatorModelError
+from edc_locator.utils import LocatorModelError, get_locator_model
 from edc_offstudy.utils import get_offstudy_model
 from edc_visit_tracking.constants import MISSED_VISIT, SCHEDULED, UNSCHEDULED
 from edc_visit_tracking.utils import get_related_visit_model
+
 from .schedules_collection import SchedulesCollection
 
 if TYPE_CHECKING:
@@ -44,17 +45,17 @@ class VisitSchedule:
     delete_metadata_on_reasons: tuple[str, ...] = ()
 
     def __init__(
-            self,
-            name=None,
-            verbose_name=None,
-            previous_visit_schedule=None,
-            death_report_model=None,
-            offstudy_model=None,
-            locator_model=None,
-            visit_model=None,
-            visit_model_reason_field=None,
-            create_metadata_on_reasons=None,
-            delete_metadata_on_reasons=None,
+        self,
+        name=None,
+        verbose_name=None,
+        previous_visit_schedule=None,
+        death_report_model=None,
+        offstudy_model=None,
+        locator_model=None,
+        visit_model=None,
+        visit_model_reason_field=None,
+        create_metadata_on_reasons=None,
+        delete_metadata_on_reasons=None,
     ):
         self._all_post_consent_models = None
         self.name = name
@@ -74,10 +75,10 @@ class VisitSchedule:
         self.visit_model = visit_model or get_related_visit_model()
         self.visit_model_reason_field = visit_model_reason_field or "reason"
         self.create_metadata_on_reasons = (
-                create_metadata_on_reasons or self.create_metadata_on_reasons
+            create_metadata_on_reasons or self.create_metadata_on_reasons
         )
         self.delete_metadata_on_reasons = (
-                delete_metadata_on_reasons or self.delete_metadata_on_reasons
+            delete_metadata_on_reasons or self.delete_metadata_on_reasons
         )
 
         if not re.match(self.name_regex, name):
@@ -140,11 +141,11 @@ class VisitSchedule:
             models.update({self.death_report_model: None})
             models.update({self.locator_model: None})
             schedules = [schedule] if schedule else self.schedules.values()
-            for schedule in schedules:
-                for consent_definition in schedule.consent_definitions:
-                    models.update({schedule.onschedule_model: consent_definition.model})
-                    models.update({schedule.offschedule_model: consent_definition.model})
-                    for visit in schedule.visits.values():
+            for sched in schedules:
+                for consent_definition in sched.consent_definitions:
+                    models.update({sched.onschedule_model: consent_definition.model})
+                    models.update({sched.offschedule_model: consent_definition.model})
+                    for visit in sched.visits.values():
                         for crf in visit.all_crfs:
                             models.update({crf.model: consent_definition.model})
                         for crf in visit.all_requisitions:

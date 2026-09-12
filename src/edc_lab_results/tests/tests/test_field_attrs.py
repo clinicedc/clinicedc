@@ -1,13 +1,14 @@
 from clinicedc_constants import MILLIMOLES_PER_LITER
 from django.db.models import NOT_PROVIDED
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_lab_results.model_mixin_factories import get_field_attrs_for_utestid
 from edc_reportable.units import MILLIMOLES_PER_LITER_DISPLAY
 
 
 @tag("lab_results")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestFieldAttrs(TestCase):
     def test_decimal_places_not_specified_defaults_to_2(self):
         field_classes = get_field_attrs_for_utestid(

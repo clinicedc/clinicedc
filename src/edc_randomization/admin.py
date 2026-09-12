@@ -10,7 +10,7 @@ from django_audit_fields.admin import audit_fields, audit_fieldset_tuple
 
 from edc_label import Label
 from edc_model_admin.mixins import TemplatesModelAdminMixin
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from .admin_site import edc_randomization_admin
 from .auth_objects import RANDO_UNBLINDED
@@ -29,8 +29,8 @@ def print_pharmacy_labels(modeladmin, request, queryset):
     )
     for obj in queryset:
         context = dict(
-            protocol=ResearchProtocolConfig().protocol,
-            protocol_title=ResearchProtocolConfig().protocol_title,
+            protocol=trial_settings.protocol,
+            protocol_title=trial_settings.protocol_title,
             site=obj.site_name.upper(),
             subject_identifier=obj.subject_identifier,
             barcode_value=obj.sid,

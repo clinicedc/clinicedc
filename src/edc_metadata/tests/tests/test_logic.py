@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 import time_machine
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_metadata.constants import NOT_REQUIRED, REQUIRED
 from edc_metadata.metadata_rules import Logic, RuleLogicError
@@ -11,7 +12,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class MetadataRulesTests(TestCase):
     def test_logic(self):

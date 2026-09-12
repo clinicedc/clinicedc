@@ -10,6 +10,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -38,7 +39,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 @tag("pharmacy")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestRefill(TestCase):
     @classmethod
     def setUpTestData(cls):

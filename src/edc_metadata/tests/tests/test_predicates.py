@@ -11,6 +11,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_metadata.visit_schedule impo
 )
 from django.test import TestCase, override_settings, tag
 from faker import Faker
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -26,7 +27,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestPredicates(TestCase):
     @classmethod

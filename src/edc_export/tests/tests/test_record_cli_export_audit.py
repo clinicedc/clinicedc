@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from clinicedc_tests.sites import all_sites
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_export.utils import record_cli_export_audit
 from edc_sites.site import sites as site_sites
@@ -30,7 +31,7 @@ def _fake_models_to_file(**overrides) -> SimpleNamespace:
     EDC_EXPORT_EXPORT_FOLDER=mkdtemp(),
     EDC_AUTH_SKIP_AUTH_UPDATER=True,
     EDC_AUTH_SKIP_SITE_AUTHS=True,
-    SITE_ID=10,
+    SITE_ID=SiteID(10),
 )
 class TestRecordCliExportAudit(TestCase):
     @classmethod

@@ -12,6 +12,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 from django.test import override_settings, tag
 from django.urls import reverse
 from django_webtest import WebTest
+from multisite import SiteID
 
 from edc_appointment.admin import AppointmentAdmin
 from edc_appointment.auth_objects import codenames
@@ -24,7 +25,7 @@ from edc_consent.site_consents import site_consents
 from edc_data_manager.auth_objects import DATA_MANAGER_ROLE
 from edc_export.constants import EXPORT
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -37,7 +38,7 @@ def get_url_name():
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestAdmin(WebTest):
     helper_cls = Helper
     extra_environ = {"HTTP_ACCEPT_LANGUAGE": "en"}
@@ -62,7 +63,7 @@ class TestAdmin(WebTest):
         site_visit_schedules._registry = {}
         site_visit_schedules.register(self.visit_schedule1)
         self.helper = self.helper_cls(
-            now=ResearchProtocolConfig().study_open_datetime,
+            now=trial_dates.study_open_datetime,
         )
 
     def get_app_form(self, url_name=None, response=None):

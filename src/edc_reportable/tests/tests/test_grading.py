@@ -11,6 +11,7 @@ from clinicedc_constants import (
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_reportable.adult_age_options import adult_age_options
 from edc_reportable.constants import HIGH_VALUE
@@ -25,7 +26,7 @@ from edc_reportable.utils import (
 
 
 @tag("reportable")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestGrading(TestCase):
     def setUp(self):
         self.reference_range_collection = ReferenceRangeCollection.objects.create(

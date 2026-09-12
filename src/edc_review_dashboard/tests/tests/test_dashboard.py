@@ -16,6 +16,7 @@ from django.contrib.auth.models import Permission
 from django.test import override_settings, tag
 from django.urls.base import reverse
 from django_webtest import WebTest
+from multisite import SiteID
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.models import Appointment
@@ -30,7 +31,7 @@ User = get_user_model()
 
 
 @tag("review_dashboard")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestDashboard(WebTest):
     user: User = None

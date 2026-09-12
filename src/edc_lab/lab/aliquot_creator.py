@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from ..identifiers import AliquotIdentifier
 
@@ -40,7 +40,7 @@ class AliquotCreator:
         self.parent_identifier = parent_identifier
         self.identifier_prefix = (
             identifier_prefix
-            or f"{ResearchProtocolConfig().protocol_number}{self.requisition_identifier}"
+            or f"{trial_settings.protocol_number}{self.requisition_identifier}"
         )
         if is_primary:
             self.parent_segment = None

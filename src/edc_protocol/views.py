@@ -5,7 +5,7 @@ from django.views.generic.base import TemplateView
 from edc_dashboard.view_mixins import EdcViewMixin
 from edc_navbar import NavbarViewMixin
 
-from .research_protocol_config import ResearchProtocolConfig
+from .trial_settings import trial_settings
 
 
 class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
@@ -14,15 +14,14 @@ class HomeView(EdcViewMixin, NavbarViewMixin, TemplateView):
     navbar_selected_item = "protocol"
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
-        protocol_config = ResearchProtocolConfig()
         kwargs.update(
             {
-                "protocol": protocol_config.protocol,
-                "protocol_number": protocol_config.protocol_number,
-                "protocol_name": protocol_config.protocol_name,
-                "protocol_title": protocol_config.protocol_title,
-                "study_open_datetime": protocol_config.study_open_datetime,
-                "study_close_datetime": protocol_config.study_close_datetime,
+                "protocol": trial_settings.protocol,
+                "protocol_number": trial_settings.protocol_number,
+                "protocol_name": trial_settings.protocol_name,
+                "protocol_title": trial_settings.protocol_title,
+                "study_open_datetime": trial_settings.study_open_datetime,
+                "study_close_datetime": trial_settings.study_close_datetime,
             }
         )
         return super().get_context_data(**kwargs)

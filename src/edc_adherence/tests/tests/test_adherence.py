@@ -7,6 +7,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_adherence import visit_sched
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_adherence import list_data
 from edc_adherence.models import NonAdherenceReasons
@@ -25,7 +26,7 @@ from ..forms import MedicationAdherenceForm
 
 
 @tag("adherence")
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestAdherence(TestCase):
     helper_cls = Helper
 

@@ -36,12 +36,13 @@ class AppointmentsCreator:
 
     def __init__(
         self,
-        subject_identifier: str | None = None,
-        visit_schedule: VisitSchedule | None = None,
-        schedule: Schedule | None = None,
-        report_datetime: datetime | None = None,
-        appointment_model: str | None = None,
-        site_id: int | None = None,
+        *,
+        subject_identifier: str,
+        visit_schedule: VisitSchedule,
+        schedule: Schedule,
+        report_datetime: datetime,
+        appointment_model: str,
+        site_id: int,
         skip_baseline: bool | None = None,
     ):
         self.subject_identifier: str = subject_identifier
@@ -58,10 +59,11 @@ class AppointmentsCreator:
 
     def create_appointments(
         self,
-        base_appt_datetime=None,
-        taken_datetimes=None,
+        base_appt_datetime: datetime | None = None,
+        taken_datetimes: list[datetime] | None = None,
         skip_get_current_site: bool | None = None,
         consent_definition: ConsentDefinition | None = None,
+        offschedule_datetime: datetime | None = None,
     ) -> QuerySet[Appointment]:
         """Creates appointments when called by post_save signal.
 
@@ -72,13 +74,17 @@ class AppointmentsCreator:
         base_appt_datetime = (base_appt_datetime or self.report_datetime).astimezone(
             ZoneInfo("UTC")
         )
-
-        timepoint_dates = self.schedule.visits_for_subject(
+        visit_collection = self.schedule.visits_for_subject(
             subject_identifier=self.subject_identifier,
             report_datetime=base_appt_datetime,
             site_id=self.site_id,
             consent_definition=consent_definition,
-        ).timepoint_dates(dt=base_appt_datetime)
+        )
+        timepoint_dates = visit_collection.timepoint_dates(dt=base_appt_datetime)
+        if offschedule_datetime:
+            timepoint_dates = {
+                k: v for k, v in timepoint_dates.items() if v <= offschedule_datetime
+            }
 
         for visit, timepoint_datetime in timepoint_dates.items():
             try:

@@ -13,7 +13,7 @@ from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("facility")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestSystemChecks(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -31,7 +31,7 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
 
     @override_settings(
         HOLIDAY_FILE=None,
-        SITE_ID=10,
+        SITE_ID=SiteID(10),
     )
     def test_file(self):
         app_configs = django_apps.get_app_configs()
@@ -40,7 +40,7 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
 
     @override_settings(
         HOLIDAY_FILE=settings.BASE_DIR / "tests" / "blah.csv",
-        SITE_ID=10,
+        SITE_ID=SiteID(10),
     )
     def test_bad_path(self):
         app_configs = django_apps.get_app_configs()
@@ -49,7 +49,7 @@ class TestSystemChecks(SiteTestCaseMixin, TestCase):
 
     @override_settings(
         HOLIDAY_FILE=settings.BASE_DIR / "tests" / "holidays_extra_mozambique.csv",
-        SITE_ID=60,
+        SITE_ID=SiteID(60),
     )
     def test_unknown_country(self):
         import_holidays()

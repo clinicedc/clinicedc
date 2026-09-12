@@ -9,6 +9,7 @@ from clinicedc_utils import EgfrCalculatorError
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_egfr.egfr import Egfr, EgfrError
@@ -27,7 +28,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 @tag("egfr")
-@override_settings(EDC_SITES_REGISTER_DEFAULT=True, EDC_SITES_CREATE_DEFAULT=True, SITE_ID=10)
+@override_settings(EDC_SITES_REGISTER_DEFAULT=True, EDC_SITES_CREATE_DEFAULT=True, SITE_ID=SiteID(10))
 class TestEgfr(TestCase):
     @classmethod
     def setUpTestData(cls):

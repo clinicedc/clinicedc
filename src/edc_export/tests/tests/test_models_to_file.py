@@ -9,6 +9,7 @@ from clinicedc_tests.utils import get_user_for_tests
 from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.test.utils import override_settings, tag
+from multisite import SiteID
 
 from edc_export.constants import CSV, STATA_14
 from edc_export.models_to_file import ModelsToFile, ModelsToFileNothingExportedError
@@ -20,7 +21,7 @@ from edc_sites.utils import add_or_update_django_sites
 
 @tag("export")
 @override_settings(
-    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp(), SITE_ID=10
+    EDC_EXPORT_EXPORT_FOLDER=mkdtemp(), EDC_EXPORT_UPLOAD_FOLDER=mkdtemp(), SITE_ID=SiteID(10)
 )
 class TestArchiveExporter(TestCase):
     @classmethod

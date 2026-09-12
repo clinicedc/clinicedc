@@ -20,6 +20,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.exceptions import AppointmentWindowError
 from edc_appointment.models import Appointment, InfoSources
@@ -63,7 +64,7 @@ def update_health_facility_model():
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10, EDC_SITES_REGISTER_DEFAULT=False)
+@override_settings(SITE_ID=SiteID(10), EDC_SITES_REGISTER_DEFAULT=False)
 class TestNextAppointmentCrf(TestCase):
     @classmethod
     def setUpTestData(cls):

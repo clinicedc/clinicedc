@@ -4,6 +4,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
+from multisite import SiteID
 
 from edc_metadata.models import ReviewFilter
 from edc_metadata.views.review_filter_views import (
@@ -13,7 +14,7 @@ from edc_metadata.views.review_filter_views import (
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestReviewFilter(TestCase):
     def setUp(self):
         self.user = User.objects.create(username="erik")

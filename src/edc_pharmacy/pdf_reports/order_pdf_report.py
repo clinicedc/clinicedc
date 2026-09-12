@@ -29,7 +29,7 @@ from reportlab.platypus import (
 
 from edc_pdf_reports import NumberedCanvas as BaseNumberedCanvas
 from edc_pdf_reports import Report
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 from edc_utils.date import to_local
 
 from ..models import Location, Order
@@ -42,7 +42,7 @@ class NumberedCanvas(BaseNumberedCanvas):
 class OrderReport(Report):
     def __init__(self, order: Order = None, **kwargs):
         self.order = order
-        self.protocol_name = ResearchProtocolConfig().protocol_title
+        self.protocol_name = trial_settings.protocol_title
         super().__init__(**kwargs)
 
     def draw_header(self, canvas, doc):  # noqa: ARG002

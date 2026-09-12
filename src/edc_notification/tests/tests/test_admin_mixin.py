@@ -4,6 +4,7 @@ from clinicedc_tests.sites import all_sites
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
+from multisite import SiteID
 
 from edc_facility.import_holidays import import_holidays
 from edc_model_admin.mixins import ModelAdminFormInstructionsMixin
@@ -28,7 +29,7 @@ class G3EventNotification(GradedEventNotification):
 
 
 @tag("notification")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestAdminMixin(TestCase):
     @classmethod
     def setUpTestData(cls):

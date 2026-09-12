@@ -22,6 +22,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.constants import MISSED_APPT, ONTIME_APPT, SCHEDULED_APPT
 from edc_appointment.exceptions import AppointmentBaselineError
@@ -45,7 +46,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("visit_tracking")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestVisit(TestCase):
     helper_cls = Helper
 

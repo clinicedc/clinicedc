@@ -13,6 +13,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 from tqdm import tqdm
 
 from edc_appointment.constants import (
@@ -42,7 +43,7 @@ utc = ZoneInfo("UTC")
 
 @tag("appointment")
 @time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
     helper_cls = Helper
 
@@ -55,7 +56,7 @@ class TestAppointmentWindowPeriod(SiteTestCaseMixin, TestCase):
         site_visit_schedules.register(get_visit_schedule3())
         self.helper = self.helper_cls(
             now=timezone.now()
-            - relativedelta(years=2),  # ResearchProtocolConfig().study_open_datetime,
+            - relativedelta(years=2),  # trial_dates.study_open_datetime,
         )
 
     @staticmethod

@@ -11,6 +11,7 @@ from django.contrib import admin
 from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 from django_audit_fields.admin import ModelAdminAuditFieldsMixin, audit_fields
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -38,7 +39,7 @@ class CrfThreeModelAdmin(CrfModelAdminMixin, ModelAdminAuditFieldsMixin, admin.M
 
 @tag("visit_tracking")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestModelAdmin(TestCase):
     helper_cls = Helper
 

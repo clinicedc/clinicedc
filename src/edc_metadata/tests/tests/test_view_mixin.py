@@ -14,6 +14,7 @@ from django.http.request import HttpRequest
 from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 from django.views.generic.base import ContextMixin, View
+from multisite import SiteID
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -59,7 +60,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestViewMixin(TestCase):
     @classmethod

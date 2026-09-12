@@ -13,6 +13,7 @@ from django.contrib.auth import get_permission_codename
 from django.contrib.auth.models import Permission, User
 from django.shortcuts import get_object_or_404
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -32,7 +33,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("view_utils")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestDataclasses(TestCase):
     def setUp(self):
         self.user = get_user_for_tests(view_only=True)

@@ -19,6 +19,7 @@ from django.db import transaction
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.constants import (
     IN_PROGRESS_APPT,
@@ -31,7 +32,7 @@ from edc_appointment.managers import AppointmentDeleteError
 from edc_appointment.utils import get_appointment_model_cls
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -47,7 +48,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10, EDC_SITES_REGISTER_DEFAULT=True)
+@override_settings(SITE_ID=SiteID(10), EDC_SITES_REGISTER_DEFAULT=True)
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestAppointment(TestCase):
     helper_cls = Helper
@@ -70,7 +71,7 @@ class TestAppointment(TestCase):
         site_visit_schedules.register(self.visit_schedule1)
         site_visit_schedules.register(self.visit_schedule2)
         self.helper = self.helper_cls(
-            now=ResearchProtocolConfig().study_open_datetime,
+            now=trial_dates.study_open_datetime,
         )
         subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name,

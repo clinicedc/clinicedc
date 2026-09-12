@@ -7,6 +7,7 @@ from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta, we
 from django.test import TestCase
 from django.test.utils import override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_facility.facility import Facility
 from edc_facility.import_holidays import import_holidays
@@ -81,7 +82,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
                 facility.available_arr(dt, schedule_on_holidays=True).datetime.weekday(),
             )
 
-    @override_settings(SITE_ID=20)
+    @override_settings(SITE_ID=SiteID(20))
     def test_available_arr(self):
         """Asserts finds available_arr on first clinic day after holiday."""
         facility = Facility(name="clinic", days=[WE], slots=[100])
@@ -89,7 +90,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
         available_arr = facility.available_arr(suggested_date)
         self.assertEqual(available_arr.datetime.weekday(), WE.weekday)
 
-    @override_settings(SITE_ID=20)
+    @override_settings(SITE_ID=SiteID(20))
     def test_available_arr_with_holiday(self):
         """Asserts finds available_arr on first clinic day after holiday."""
         suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
@@ -100,7 +101,7 @@ class TestFacility(SiteTestCaseMixin, TestCase):
         available_arr = facility.available_arr(suggested_date)
         self.assertEqual(expected_date, available_arr.datetime)
 
-    @override_settings(SITE_ID=20, HOLIDAY_FILE=None)
+    @override_settings(SITE_ID=SiteID(20), HOLIDAY_FILE=None)
     def test_read_holidays_from_db(self):
         """Asserts finds available_arr on first clinic day after holiday."""
         suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))

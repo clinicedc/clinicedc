@@ -11,7 +11,7 @@ from django.utils import timezone
 from twilio.base.exceptions import TwilioException, TwilioRestException
 from twilio.rest import Client
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 from edc_sites.site import SiteNotRegistered, sites
 
 from ..site_notifications import site_notifications
@@ -190,7 +190,7 @@ class Notification:
         test_message = test_message or self.test_message
         template_options = dict(
             name=self.name,
-            protocol_name=ResearchProtocolConfig().protocol_name,
+            protocol_name=trial_settings.protocol_name,
             display_name=self.get_display_name(
                 instance=instance, test_message=test_message, **kwargs
             ),

@@ -3,7 +3,7 @@ import re
 from clinicedc_constants import UUID_PATTERN, YES
 from django.db import models
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 from edc_utils import get_uuid
 
 from ...identifiers import RequisitionIdentifier
@@ -41,7 +41,7 @@ class RequisitionIdentifierMixin(models.Model):
         """
         protocol_number = self.protocol_number
         if not self.protocol_number:
-            protocol_number = ResearchProtocolConfig().protocol_number
+            protocol_number = trial_settings.protocol_number
         return protocol_number
 
     def get_requisition_identifier(self):

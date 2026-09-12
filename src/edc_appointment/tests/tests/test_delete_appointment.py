@@ -11,6 +11,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 from django.db.models import ProtectedError
 from django.db.models.signals import post_save
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.constants import INCOMPLETE_APPT
 from edc_appointment.creators import UnscheduledAppointmentCreator
@@ -19,7 +20,7 @@ from edc_appointment.models import Appointment, appointments_on_post_delete
 from edc_appointment.utils import delete_appointment_in_sequence
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_tracking.constants import SCHEDULED
 from edc_visit_tracking.models import SubjectVisit
@@ -28,7 +29,7 @@ utc = ZoneInfo("UTC")
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc))
 class TestDeleteAppointment(TestCase):
     helper_cls = Helper
@@ -54,7 +55,7 @@ class TestDeleteAppointment(TestCase):
         site_visit_schedules.register(self.visit_schedule1)
         site_visit_schedules.register(self.visit_schedule2)
         self.helper = self.helper_cls(
-            now=ResearchProtocolConfig().study_open_datetime,
+            now=trial_dates.study_open_datetime,
         )
         subject_consent = self.helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name, schedule_name="schedule1"

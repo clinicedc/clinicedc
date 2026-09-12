@@ -27,6 +27,7 @@ from django.test import override_settings, tag
 from django.urls.base import reverse
 from django.utils import timezone
 from django_webtest import WebTest
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -41,7 +42,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("model_admin")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class ModelAdminSiteTest(WebTest):
     lab_helper = SiteLabsTestHelper()
@@ -81,7 +82,7 @@ class ModelAdminSiteTest(WebTest):
         form["password"] = "pass"  # noqa: S105
         return form.submit()
 
-    @tag("1")
+    @tag("webtest1")
     def test_redirect_next(self):
         """Assert redirects to "dashboard_url" as given in the
         query_string "next=".

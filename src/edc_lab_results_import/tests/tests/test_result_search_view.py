@@ -20,6 +20,7 @@ from django.template.loader import get_template
 from django.test import RequestFactory, TestCase, override_settings, tag
 from django.urls import reverse
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_lab.models import Panel
@@ -34,7 +35,7 @@ User = get_user_model()
 
 
 @tag("lab_results_import")
-@override_settings(SITE_ID=10, ROOT_URLCONF="edc_lab_results_import.tests.urls")
+@override_settings(SITE_ID=SiteID(10), ROOT_URLCONF="edc_lab_results_import.tests.urls")
 class TestResultSearchViewButtons(TestCase):
     def setUp(self):
         # importing the app's urls registers `result_search_url` with

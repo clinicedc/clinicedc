@@ -1,4 +1,5 @@
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_metadata.models import (
     CrfMetadataMissing,
@@ -9,7 +10,7 @@ from edc_metadata.views import ManageMissingFlaggedReportView
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestReviewUnavailable(TestCase):
     def setUp(self):
         self.reason = DataMissingReason.objects.create(

@@ -24,7 +24,7 @@ from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("lab")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestManifest(SiteTestCaseMixin, TestCase):
     def test_manifest(self):
         consignee = Consignee.objects.create(name="consignee")
@@ -49,7 +49,7 @@ class TestManifest(SiteTestCaseMixin, TestCase):
 
 
 @tag("lab")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestManifestReport(SiteTestCaseMixin, TestCase):
     def setUp(self):
         add_or_update_django_sites(single_sites=self.default_sites, verbose=False)

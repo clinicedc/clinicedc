@@ -3,6 +3,7 @@ from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_reportable.age_evaluator import AgeEvaluator
 from edc_reportable.evaluator import (
@@ -17,7 +18,7 @@ from edc_utils import age
 
 
 @tag("reportable")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestEvaluators(TestCase):
     def test_evaluator_zero(self):
         """Test the basic evaluator."""

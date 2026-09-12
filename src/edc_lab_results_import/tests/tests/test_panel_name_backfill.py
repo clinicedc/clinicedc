@@ -10,6 +10,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.management import call_command
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_lab.lab import RequisitionPanel
@@ -31,7 +32,7 @@ from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 
 
 @tag("lab_results_import")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestPanelNameBackfill(TestCase):
     """`prepare_imported_result` resolved `panel_name` into the
     dataframe and did not persist it, so every result imported before

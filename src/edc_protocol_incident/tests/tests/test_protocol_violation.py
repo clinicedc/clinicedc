@@ -13,6 +13,7 @@ from django.contrib.sites.models import Site
 from django.test import override_settings, tag
 from django.test.testcases import TestCase
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_action_item.site_action_items import site_action_items
 from edc_consent import site_consents
@@ -36,7 +37,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("protocol_incident")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestProtocolViolation(TestCase):
     @classmethod
     def setUpTestData(cls):

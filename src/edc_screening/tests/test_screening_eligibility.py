@@ -1,6 +1,7 @@
 from clinicedc_constants import NO, TBD, YES
 from clinicedc_tests.models import SubjectScreening
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_screening.exceptions import (
     ScreeningEligibilityAttributeError,
@@ -15,7 +16,7 @@ from edc_screening.screening_eligibility import (
 
 
 @tag("screening")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestScreening(TestCase):
     def test_fc(self):
         fc = FC()

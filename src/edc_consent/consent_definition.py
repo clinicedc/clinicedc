@@ -5,11 +5,13 @@ from reprlib import recursive_repr
 from typing import TYPE_CHECKING
 
 from clinicedc_constants import FEMALE, MALE
+from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from multisite.utils import get_multisite_timezone
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_screening.utils import get_subject_screening_model
 from edc_sites import site_sites
 from edc_utils import ceil_secs, floor_secs, formatted_datetime
@@ -42,6 +44,8 @@ class ConsentDefinition:
         *,
         start: datetime | None = None,
         end: datetime | None = None,
+        start_rdelta: relativedelta | None = None,
+        end_rdelta: relativedelta | None = None,
         version: str | None = None,
         updates: ConsentDefinition | None = None,
         extends: ConsentDefinition | None = None,
@@ -58,14 +62,21 @@ class ConsentDefinition:
     ) -> None:
 
         self._model: str | None = None
+        if start and not start.tzinfo:
+            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {start}.")
+        self._start = start
+        self.start_rdelta = start_rdelta or relativedelta()
+        self.end_rdelta = end_rdelta or relativedelta()
+
+        if end and not end.tzinfo:
+            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {end}.")
+        self._end = end
 
         # set updated_by when the cdef is registered, see site_consents
         self.updated_by: ConsentDefinition | None = None
         self.extended_by: ConsentDefinitionExtension | None = None
 
         self.proxy_model = proxy_model
-        self.start = start or ResearchProtocolConfig().study_open_datetime
-        self.end: datetime = end or ResearchProtocolConfig().study_close_datetime
         self.version = version or "1"
         self.updates = updates
         self.extends = extends
@@ -93,11 +104,7 @@ class ConsentDefinition:
             self.screening_model = [get_subject_screening_model()]
         if MALE not in self.gender and FEMALE not in self.gender:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
-        if not self.start.tzinfo:
-            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
-        if not self.end.tzinfo:
-            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.end}.")
-        self.check_date_within_study_period()
+        # self.check_date_within_study_period()
 
     def _cmp_values(self) -> tuple[datetime, str]:
         """Returns the values used by the comparison methods."""
@@ -156,6 +163,28 @@ class ConsentDefinition:
         return NotImplemented
 
     __hash__ = None
+
+    @property
+    def start(self):
+        if not self._start:
+            if self.start_rdelta:
+                self._start = trial_dates.study_open_datetime + self.start_rdelta
+            else:
+                self._start = trial_dates.study_open_datetime
+        return self._start
+
+    @property
+    def end(self) -> datetime:
+        """Returns the close datetime.
+
+        If end_delta, apply as relative to open date.
+        """
+        if not self._end:
+            if self.end_rdelta:
+                self._end = trial_dates.study_open_datetime + self.end_rdelta
+            else:
+                self._end = trial_dates.study_close_datetime
+        return self._end
 
     def model_create(self, **kwargs) -> ConsentLikeModel:
         """Creates a consent model instance and inserts version."""
@@ -237,13 +266,17 @@ class ConsentDefinition:
     def model_cls(self) -> type[ConsentLikeModel]:
         return django_apps.get_model(self.model)
 
-    @property
-    def display_name(self) -> str:
+    def get_display_name(self, site_id: int | None = None):
+        tzname = get_multisite_timezone(site_id)
         return (
             f"{self.model_cls._meta.verbose_name} v{self.version} valid "
             f"from {formatted_datetime(to_local(self.start))} to "
-            f"{formatted_datetime(to_local(self.end))} ({settings.TIME_ZONE})"
+            f"{formatted_datetime(to_local(self.end))} ({tzname})"
         )
+
+    @property
+    def display_name(self) -> str:
+        return self.get_display_name()
 
     @property
     def verbose_name(self) -> str:
@@ -263,18 +296,17 @@ class ConsentDefinition:
         """Raises if the date is not within the opening and closing
         dates of the protocol.
         """
-        protocol = ResearchProtocolConfig()
-        study_open_datetime = protocol.study_open_datetime
-        study_close_datetime = protocol.study_close_datetime
+        study_open_datetime = trial_dates.study_open_datetime
+        study_close_datetime = trial_dates.study_close_datetime
         for attr in ["start", "end"]:
             if not (
                 floor_secs(study_open_datetime)
                 <= getattr(self, attr)
                 <= ceil_secs(study_close_datetime)
             ):
-                open_date_string = formatted_datetime(to_local(study_open_datetime))
-                close_date_string = formatted_datetime(to_local(study_close_datetime))
-                attr_date_string = formatted_datetime(to_local(getattr(self, attr)))
+                open_date_string = formatted_datetime(study_open_datetime)
+                close_date_string = formatted_datetime(study_close_datetime)
+                attr_date_string = formatted_datetime(getattr(self, attr))
                 raise ConsentDefinitionError(
                     f"Invalid {attr} date. "
                     f"Must be within the opening and closing dates of the protocol. "

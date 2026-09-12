@@ -1,12 +1,13 @@
 from clinicedc_constants import NO, YES
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_locator.forms import SubjectLocatorFormValidator
 
 
 @tag("locator")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestFormValidator(TestCase):
     def test_may_not_call(self):
         cleaned_data = {

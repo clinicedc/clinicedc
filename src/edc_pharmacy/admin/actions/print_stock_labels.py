@@ -5,7 +5,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from edc_label import Label
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 
 @admin.action(permissions=["view"], description="Print medication stock labels")
@@ -19,8 +19,8 @@ def print_stock_labels(modeladmin, request, queryset):
         for _ in range(1, obj.qty):
             stock_identifier = uuid4().hex
             context = dict(
-                protocol=ResearchProtocolConfig().protocol,
-                protocol_title=ResearchProtocolConfig().protocol_title,
+                protocol=trial_settings.protocol,
+                protocol_title=trial_settings.protocol_title,
                 stock_identifier=stock_identifier,
                 barcode_value=stock_identifier,
                 medication_name=obj.product.formulation.medication.display_name,

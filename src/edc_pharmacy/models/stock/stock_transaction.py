@@ -4,7 +4,6 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import models
-from django.db.models import UniqueConstraint
 from django.utils import timezone
 
 from edc_model.models import BaseUuidModel, HistoricalRecords

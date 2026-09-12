@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from zoneinfo import ZoneInfo
 
 from django.utils import timezone
@@ -19,16 +19,15 @@ def get_utcnow_as_date() -> date:
     return timezone.localtime(None, timezone=ZoneInfo("UTC")).date()
 
 
-def to_utc(dte: datetime) -> datetime | None:
+def to_utc(dte: datetime) -> datetime:
     """Returns UTC datetime from any aware datetime."""
-    return timezone.localtime(dte, timezone=ZoneInfo("UTC")) if dte else None
+    return timezone.localtime(dte, timezone=ZoneInfo("UTC"))
 
 
-def to_local(dte: datetime) -> datetime | None:
+def to_local(dte: datetime, site_id: int | None = None) -> datetime:
     """Returns local datetime from any aware datetime."""
-    return (
-        timezone.localtime(dte, timezone=ZoneInfo(get_multisite_timezone())) if dte else None
-    )
+    tzinfo = ZoneInfo(get_multisite_timezone(site_id))
+    return timezone.localtime(dte, timezone=tzinfo)
 
 
 def floor_secs(dte) -> datetime:

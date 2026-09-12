@@ -1,4 +1,5 @@
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_lab.identifiers import AliquotIdentifier
 from edc_lab.lab import AliquotCreator, AliquotType, PrimaryAliquot
@@ -13,7 +14,7 @@ class MyAliquotCreator(AliquotCreator):
 
 
 @tag("lab")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestPrimaryAliquot(TestCase):
     def test_create_new_primary_aliquot(self):
         aliquot_type = AliquotType(name="aliquot_a", numeric_code="22", alpha_code="WW")

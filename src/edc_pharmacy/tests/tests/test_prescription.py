@@ -8,6 +8,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -38,7 +39,7 @@ class MyRandomizer(Randomizer):
 
 
 @tag("pharmacy")
-@override_settings(EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=False, SITE_ID=10)
+@override_settings(EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=False, SITE_ID=SiteID(10))
 class TestPrescription(TestCase):
     @classmethod
     def setUpTestData(cls):

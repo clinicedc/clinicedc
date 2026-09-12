@@ -6,6 +6,7 @@ from clinicedc_tests.sites import all_sites
 from django import forms
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_adverse_event.form_validators import HospitalizationFormValidator as Base
 from edc_facility.import_holidays import import_holidays
@@ -21,7 +22,7 @@ class HospitalizationFormValidator(FormValidatorTestMixin, Base):
 
 
 @tag("adverse_event")
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
     form_validator_cls = HospitalizationFormValidator
 

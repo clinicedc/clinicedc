@@ -17,6 +17,7 @@ from django.contrib.sites.models import Site
 from django.db.models import Sum
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 from sequences import get_next_value
 
 from edc_consent import site_consents
@@ -63,7 +64,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("pharmacy")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestOrderReceive(TestCase):
     helper_cls = Helper
     username = "aroy"
@@ -664,7 +665,7 @@ class TestOrderReceive(TestCase):
     @tag("27")
     @time_machine.travel(datetime(2025, 6, 15, 8, 00, tzinfo=utc_tz))
     @override_settings(
-        SITE_ID=10,
+        SITE_ID=SiteID(10),
         EDC_RANDOMIZATION_REGISTER_DEFAULT_RANDOMIZER=True,
     )
     @patch("edc_model_admin.templatetags.edc_admin_modify.get_cancel_url", return_value="/")
