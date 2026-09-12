@@ -21,6 +21,7 @@ from edc_consent.site_consents import site_consents
 from edc_facility.facility import Facility
 from edc_facility.import_holidays import import_holidays
 from edc_protocol.trial_dates import trial_dates
+from edc_utils import to_local, to_utc
 from edc_visit_schedule.schedule import Schedule
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
 from edc_visit_schedule.visit import Visit
@@ -124,14 +125,14 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     def test_init(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        subject_consent = self.put_on_schedule(timezone.now())
+        subject_consent = self.put_on_schedule(to_local(timezone.now()))
         self.assertTrue(
             AppointmentCreator(
                 subject_identifier=subject_consent.subject_identifier,
                 visit_schedule_name=self.visit_schedule.name,
                 schedule_name=self.schedule.name,
                 visit=self.visit1000,
-                timepoint_datetime=timezone.now(),
+                timepoint_datetime=to_local(timezone.now()),
             )
         )
         traveller.stop()
@@ -139,13 +140,13 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     def test_str(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        subject_consent = self.put_on_schedule(timezone.now())
+        subject_consent = self.put_on_schedule(to_local(timezone.now()))
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
-            timepoint_datetime=timezone.now(),
+            timepoint_datetime=to_local(timezone.now()),
         )
         self.assertEqual(str(creator), subject_consent.subject_identifier)
         traveller.stop()
@@ -153,13 +154,13 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
     def test_repr(self):
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        subject_consent = self.put_on_schedule(timezone.now())
+        subject_consent = self.put_on_schedule(to_local(timezone.now()))
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
             schedule_name=self.schedule.name,
             visit=self.visit1000,
-            timepoint_datetime=timezone.now(),
+            timepoint_datetime=to_local(timezone.now()),
         )
         self.assertTrue(creator)
         traveller.stop()
@@ -168,7 +169,7 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
         """test create appointment, avoids new years holidays"""
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        appt_datetime = timezone.now()
+        appt_datetime = to_local(timezone.now())
         subject_consent = self.put_on_schedule(appt_datetime)
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
@@ -188,12 +189,13 @@ class TestAppointmentCreator(AppointmentCreatorTestCase):
             .appt_datetime,
             appt_datetime,
         )
+        traveller.stop()
 
     def test_create_appt_moves_forward(self):
         """Assert appt datetime moves forward to avoid holidays"""
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        appt_datetime = timezone.now()
+        appt_datetime = to_local(timezone.now())
         subject_consent = self.put_on_schedule(appt_datetime)
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
@@ -239,10 +241,10 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             gender=[MALE, FEMALE],
         )
         site_consents.register(consent_definition)
-        subject_consent = self.put_on_schedule(timezone.now(), consent_definition)
+        subject_consent = self.put_on_schedule(to_local(timezone.now()), consent_definition)
 
-        appt_datetime = timezone.now()
-        expected_appt_datetime = timezone.now() + relativedelta(days=1)
+        appt_datetime = to_local(timezone.now())
+        expected_appt_datetime = to_local(timezone.now()) + relativedelta(days=1)
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
@@ -258,10 +260,10 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             Appointment.objects.all()
             .order_by("timepoint", "visit_code_sequence")[0]
             .appt_datetime.date(),
-            expected_appt_datetime.date(),
+            to_utc(expected_appt_datetime).date(),
         )
 
-        appt_datetime = timezone.now() + relativedelta(days=2)
+        appt_datetime = to_local(timezone.now()) + relativedelta(days=2)
         creator = AppointmentCreator(
             subject_identifier=subject_consent.subject_identifier,
             visit_schedule_name=self.visit_schedule.name,
@@ -277,7 +279,7 @@ class TestAppointmentCreator2(AppointmentCreatorTestCase):
             Appointment.objects.all()
             .order_by("timepoint", "visit_code_sequence")[0]
             .appt_datetime.date(),
-            appt_datetime.date(),
+            to_utc(appt_datetime).date(),
         )
         traveller.stop()
 
@@ -323,7 +325,7 @@ class TestAppointmentCreatorScheduleOnHolidays(AppointmentCreatorTestCase):
         """AppointmentCreator forwards schedule_on_holidays=True to Facility.available_arr."""
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        subject_consent = self.put_on_schedule(timezone.now())
+        subject_consent = self.put_on_schedule(to_local(timezone.now()))
         visit = self._build_visit(schedule_on_holidays=True)
         with mock.patch.object(
             Facility, "available_arr", autospec=True, wraps=Facility.available_arr
@@ -333,8 +335,8 @@ class TestAppointmentCreatorScheduleOnHolidays(AppointmentCreatorTestCase):
                 visit_schedule_name=self.visit_schedule.name,
                 schedule_name=self.schedule.name,
                 visit=visit,
-                timepoint_datetime=timezone.now(),
-            ).appointment
+                timepoint_datetime=to_local(timezone.now()),
+            ).get_appointment()
         flags_seen = [c.kwargs.get("schedule_on_holidays") for c in spy.call_args_list]
         self.assertIn(
             True,
@@ -348,7 +350,7 @@ class TestAppointmentCreatorScheduleOnHolidays(AppointmentCreatorTestCase):
         """AppointmentCreator forwards schedule_on_holidays=False to Facility.available_arr."""
         traveller = time_machine.travel(self.study_open_datetime)
         traveller.start()
-        subject_consent = self.put_on_schedule(timezone.now())
+        subject_consent = self.put_on_schedule(to_local(timezone.now()))
         visit = self._build_visit(schedule_on_holidays=False)
         with mock.patch.object(
             Facility, "available_arr", autospec=True, wraps=Facility.available_arr
@@ -358,8 +360,8 @@ class TestAppointmentCreatorScheduleOnHolidays(AppointmentCreatorTestCase):
                 visit_schedule_name=self.visit_schedule.name,
                 schedule_name=self.schedule.name,
                 visit=visit,
-                timepoint_datetime=timezone.now(),
-            ).appointment
+                timepoint_datetime=to_local(timezone.now()),
+            ).get_appointment()
         flags_seen = [c.kwargs.get("schedule_on_holidays") for c in spy.call_args_list]
         self.assertTrue(spy.called)
         self.assertNotIn(
