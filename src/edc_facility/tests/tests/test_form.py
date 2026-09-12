@@ -4,6 +4,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_facility.form_validators import HealthFacilityFormValidator
 from edc_facility.forms import HealthFacilityForm
@@ -14,7 +15,7 @@ from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("facility")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestForm(TestCase):
     @classmethod
     def setUpTestData(cls):

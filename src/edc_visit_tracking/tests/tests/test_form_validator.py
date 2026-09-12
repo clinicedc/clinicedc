@@ -15,6 +15,7 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -32,7 +33,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("visit_tracking")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestSubjectVisitFormValidator(TestCase):
     helper_cls = Helper
 

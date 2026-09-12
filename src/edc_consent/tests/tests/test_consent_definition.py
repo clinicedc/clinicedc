@@ -7,7 +7,7 @@ from django.test import TestCase, override_settings, tag
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.exceptions import SiteConsentError
 from edc_consent.site_consents import site_consents
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 
 
 @tag("consent")
@@ -21,8 +21,8 @@ from edc_protocol.research_protocol_config import ResearchProtocolConfig
 )
 class TestConsentModel(TestCase):
     def setUp(self):
-        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
-        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.study_open_datetime = trial_dates.study_open_datetime
+        self.study_close_datetime = trial_dates.study_close_datetime
         site_consents.registry = {}
 
     def default_options(self, **kwargs):

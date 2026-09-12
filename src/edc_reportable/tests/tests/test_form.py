@@ -23,6 +23,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_crf.crf_form_validator import CrfFormValidator
@@ -41,7 +42,7 @@ class SpecimenResultFormValidator(ReportablesFormValidatorMixin, CrfFormValidato
 
 
 @tag("reportable")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestSpecimenResultForm(TestCase):
     @classmethod

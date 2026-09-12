@@ -11,6 +11,7 @@ from dateutil._common import weekday
 from dateutil.relativedelta import FR, MO, SA, SU, TH, TU, WE, relativedelta
 from django.conf import settings
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
@@ -22,7 +23,7 @@ tz = ZoneInfo(settings.TIME_ZONE)
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=tz))
 class TestApptDatetimes(TestCase):
     helper_cls = Helper

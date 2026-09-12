@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 import time_machine
 from clinicedc_tests.models import CrfFive, CrfFour, CrfThree
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_lab_panel.panels import fbc_panel, lft_panel, vl_panel
 from edc_metadata.constants import REQUIRED
@@ -16,7 +17,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestMetadataGetter(TestMetadataMixin, TestCase):
     def test_objects_not_none_from_appointment(self):

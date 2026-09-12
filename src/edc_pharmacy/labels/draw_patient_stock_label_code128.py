@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from reportlab.graphics.barcode.widgets import BarcodeCode128
 from reportlab.graphics.shapes import Drawing, String
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from ..utils import format_qty
 from .draw_label_watermark import draw_label_watermark
@@ -38,7 +38,7 @@ def draw_patient_stock_label_code128(
         f"{formulation.medication} {int(formulation.strength)}"
         f"{formulation.get_units_display()} "
     )
-    label.add(String(15, height - 72, ResearchProtocolConfig().protocol_name, fontSize=10))
+    label.add(String(15, height - 72, trial_settings.protocol_name, fontSize=10))
     label.add(String(15, height - 84, f"{product}", fontSize=10))
     label.add(String(15, height - 96, f"{qty} tabs", fontSize=10))
     return label

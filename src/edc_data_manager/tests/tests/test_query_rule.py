@@ -23,6 +23,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_dashboard.visit_schedule imp
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -42,7 +43,7 @@ from edc_lab.constants import TUBE
 from edc_lab.models.panel import Panel
 from edc_lab.site_labs import site_labs
 from edc_metadata.metadata_inspector import MetaDataInspector
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.constants import HOURS
@@ -54,7 +55,7 @@ User = get_user_model()
 
 
 @tag("data_manager")
-@override_settings(SITE_ID=20)
+@override_settings(SITE_ID=SiteID(20))
 class TestQueryRules(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -78,7 +79,7 @@ class TestQueryRules(TestCase):
         self.schedule1 = self.visit_schedule1.schedules.get("schedule")
         site_visit_schedules.register(self.visit_schedule1)
         helper = Helper(
-            now=ResearchProtocolConfig().study_open_datetime,
+            now=trial_dates.study_open_datetime,
         )
         subject_consent = helper.consent_and_put_on_schedule(
             visit_schedule_name=self.visit_schedule1.name,

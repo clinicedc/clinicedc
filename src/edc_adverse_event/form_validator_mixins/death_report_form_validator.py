@@ -7,6 +7,7 @@ from clinicedc_constants import CLOSED, OTHER
 from django import forms
 from django.apps import apps as django_apps
 from django.conf import settings
+from multisite.utils import get_multisite_timezone
 
 from edc_form_validators.base_form_validator import INVALID_ERROR
 from edc_utils.text import convert_php_dateformat
@@ -83,7 +84,7 @@ class DeathReportFormValidatorMixin:
             days_on_study = (self.death_report_date - randomization_datetime.date()).days
             if study_day - 1 != days_on_study:
                 formatted_date = randomization_datetime.astimezone(
-                    ZoneInfo(settings.TIME_ZONE)
+                    ZoneInfo(get_multisite_timezone())
                 ).strftime(convert_php_dateformat(settings.DATETIME_FORMAT))
                 message = {
                     self.study_day_field: (

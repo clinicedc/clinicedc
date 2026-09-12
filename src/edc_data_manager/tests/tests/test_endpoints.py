@@ -14,6 +14,7 @@ from django.test import override_settings, tag
 from django.urls.base import reverse
 from django_webtest import WebTest
 from model_bakery import baker
+from multisite import SiteID
 
 from edc_action_item.models.action_item import ActionItem
 from edc_auth.auth_updater import AuthUpdater
@@ -35,7 +36,7 @@ User = get_user_model()
 
 @tag("data_manager")
 @override_settings(
-    EDC_AUTH_SKIP_SITE_AUTHS=False, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=20
+    EDC_AUTH_SKIP_SITE_AUTHS=False, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=SiteID(20)
 )
 class AdminSiteTest(WebTest):
     @classmethod

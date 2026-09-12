@@ -1,17 +1,20 @@
 from __future__ import annotations
 
-from dataclasses import KW_ONLY, dataclass, field
 from datetime import datetime
+from reprlib import recursive_repr
 from typing import TYPE_CHECKING
 
 from clinicedc_constants import FEMALE, MALE
+from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from multisite.utils import get_multisite_timezone
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_screening.utils import get_subject_screening_model
 from edc_sites import site_sites
-from edc_utils import ceil_secs, floor_secs, formatted_date, formatted_datetime
+from edc_utils import ceil_secs, floor_secs, formatted_datetime
 from edc_utils.date import to_local
 
 from .exceptions import (
@@ -30,61 +33,158 @@ if TYPE_CHECKING:
     class SubjectScreening(ScreeningModelMixin, EligibilityModelMixin, BaseUuidModel): ...
 
 
-@dataclass(order=True)
 class ConsentDefinition:
     """A class that represents the general attributes
     of a consent.
     """
 
-    proxy_model: str = field(compare=False)
-    _ = KW_ONLY
-    start: datetime = field(
-        default=ResearchProtocolConfig().study_open_datetime,
-        compare=True,
-    )
-    end: datetime = field(
-        default=ResearchProtocolConfig().study_close_datetime,
-        compare=False,
-    )
-    version: str = field(default="1", compare=False)
-    updates: ConsentDefinition = field(default=None, compare=False)
-    extends: ConsentDefinition = field(default=None, compare=False)
-    screening_model: list[str] = field(default_factory=list, compare=False)
-    age_min: int = field(default=18, compare=False)
-    age_max: int = field(default=110, compare=False)
-    age_is_adult: int = field(default=18, compare=False)
-    gender: list[str] | None = field(default_factory=list, compare=False)
-    site_ids: list[int] = field(default_factory=list, compare=False)
-    country: str | None = field(default=None, compare=False)
-    validate_duration_overlap_by_model: bool | None = field(default=True, compare=False)
-    subject_type: str = field(default="subject", compare=False)
-    timepoints: list[int] | None = field(default_factory=list, compare=False)
+    def __init__(
+        self,
+        proxy_model: str,
+        *,
+        start: datetime | None = None,
+        end: datetime | None = None,
+        start_rdelta: relativedelta | None = None,
+        end_rdelta: relativedelta | None = None,
+        version: str | None = None,
+        updates: ConsentDefinition | None = None,
+        extends: ConsentDefinition | None = None,
+        screening_model: list[str] | None = None,
+        age_min: int | None = None,
+        age_max: int | None = None,
+        age_is_adult: int | None = None,
+        gender: list[str] | None = None,
+        site_ids: list[int] | None = None,
+        country: str | None = None,
+        validate_duration_overlap_by_model: bool | None = None,
+        subject_type: str | None = None,
+        timepoints: list[int] | None = None,
+    ) -> None:
 
-    name: str = field(init=False, compare=False)
-    # set updated_by when the cdef is registered, see site_consents
-    updated_by: ConsentDefinition = field(default=None, compare=False, init=False)
-    extended_by: ConsentDefinitionExtension = field(
-        default=None,
-        compare=False,
-        init=False,
-    )
-    _model: str = field(init=False, compare=False)
-    sort_index: str = field(init=False)
+        self._model: str | None = None
+        if start and not start.tzinfo:
+            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {start}.")
+        self._start = start
+        self.start_rdelta = start_rdelta or relativedelta()
+        self.end_rdelta = end_rdelta or relativedelta()
 
-    def __post_init__(self):
-        self.model = self.proxy_model
+        if end and not end.tzinfo:
+            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {end}.")
+        self._end = end
+
+        # set updated_by when the cdef is registered, see site_consents
+        self.updated_by: ConsentDefinition | None = None
+        self.extended_by: ConsentDefinitionExtension | None = None
+
+        self.proxy_model = proxy_model
+        self.version = version or "1"
+        self.updates = updates
+        self.extends = extends
+        self.screening_model = screening_model or []
+
+        self.age_min = 18 if age_min is None else age_min
+        self.age_max = 110 if age_max is None else age_max
+        self.age_is_adult = 18 if age_is_adult is None else age_is_adult
+        self.gender = gender or [MALE, FEMALE]
+
+        self.site_ids = site_ids or []
+        self.country = country
+        self.validate_duration_overlap_by_model = (
+            True
+            if validate_duration_overlap_by_model is None
+            else validate_duration_overlap_by_model
+        )
+        self.subject_type = subject_type or "subject"
+        self.timepoints = timepoints or []
+
         self.name = f"{self.proxy_model}-{self.version}"
-        self.sort_index = self.name
-        self.gender = [MALE, FEMALE] if not self.gender else self.gender
+        self.model = self.proxy_model
+
         if not self.screening_model:
             self.screening_model = [get_subject_screening_model()]
         if MALE not in self.gender and FEMALE not in self.gender:
             raise ConsentDefinitionError(f"Invalid gender. Got {self.gender}.")
-        if not self.start.tzinfo:
-            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
-        if not self.end.tzinfo:
-            raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.end}.")
-        self.check_date_within_study_period()
+        # self.check_date_within_study_period()
+
+    def _cmp_values(self) -> tuple[datetime, str]:
+        """Returns the values used by the comparison methods."""
+        return self.start, self.name
+
+    @recursive_repr()
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__qualname__}("
+            f"proxy_model={self.proxy_model!r}, "
+            f"start={self.start!r}, "
+            f"end={self.end!r}, "
+            f"version={self.version!r}, "
+            f"updates={self.updates!r}, "
+            f"extends={self.extends!r}, "
+            f"screening_model={self.screening_model!r}, "
+            f"age_min={self.age_min!r}, "
+            f"age_max={self.age_max!r}, "
+            f"age_is_adult={self.age_is_adult!r}, "
+            f"gender={self.gender!r}, "
+            f"site_ids={self.site_ids!r}, "
+            f"country={self.country!r}, "
+            f"validate_duration_overlap_by_model="
+            f"{self.validate_duration_overlap_by_model!r}, "
+            f"subject_type={self.subject_type!r}, "
+            f"timepoints={self.timepoints!r}, "
+            f"name={self.name!r}, "
+            f"updated_by={self.updated_by!r}, "
+            f"extended_by={self.extended_by!r}, "
+            f"_model={self._model!r}, "
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return self._cmp_values() == other._cmp_values()
+        return NotImplemented
+
+    def __lt__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return self._cmp_values() < other._cmp_values()
+        return NotImplemented
+
+    def __le__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return self._cmp_values() <= other._cmp_values()
+        return NotImplemented
+
+    def __gt__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return self._cmp_values() > other._cmp_values()
+        return NotImplemented
+
+    def __ge__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return self._cmp_values() >= other._cmp_values()
+        return NotImplemented
+
+    __hash__ = None
+
+    @property
+    def start(self):
+        if not self._start:
+            if self.start_rdelta:
+                self._start = trial_dates.study_open_datetime + self.start_rdelta
+            else:
+                self._start = trial_dates.study_open_datetime
+        return self._start
+
+    @property
+    def end(self) -> datetime:
+        """Returns the close datetime.
+
+        If end_delta, apply as relative to open date.
+        """
+        if not self._end:
+            if self.end_rdelta:
+                self._end = trial_dates.study_open_datetime + self.end_rdelta
+            else:
+                self._end = trial_dates.study_close_datetime
+        return self._end
 
     def model_create(self, **kwargs) -> ConsentLikeModel:
         """Creates a consent model instance and inserts version."""
@@ -166,13 +266,17 @@ class ConsentDefinition:
     def model_cls(self) -> type[ConsentLikeModel]:
         return django_apps.get_model(self.model)
 
-    @property
-    def display_name(self) -> str:
+    def get_display_name(self, site_id: int | None = None):
+        tzname = get_multisite_timezone(site_id)
         return (
             f"{self.model_cls._meta.verbose_name} v{self.version} valid "
-            f"from {formatted_date(to_local(self.start))} to "
-            f"{formatted_date(to_local(self.end))}"
+            f"from {formatted_datetime(to_local(self.start))} to "
+            f"{formatted_datetime(to_local(self.end))} ({tzname})"
         )
+
+    @property
+    def display_name(self) -> str:
+        return self.get_display_name()
 
     @property
     def verbose_name(self) -> str:
@@ -182,7 +286,7 @@ class ConsentDefinition:
         if report_datetime and not (
             floor_secs(self.start) <= report_datetime <= ceil_secs(self.end)
         ):
-            date_string = formatted_date(report_datetime)
+            date_string = formatted_datetime(report_datetime)
             raise ConsentDefinitionValidityPeriodError(
                 "Date does not fall within the validity period."
                 f"See {self.name}. Got {date_string}. "
@@ -192,18 +296,17 @@ class ConsentDefinition:
         """Raises if the date is not within the opening and closing
         dates of the protocol.
         """
-        protocol = ResearchProtocolConfig()
-        study_open_datetime = protocol.study_open_datetime
-        study_close_datetime = protocol.study_close_datetime
+        study_open_datetime = trial_dates.study_open_datetime
+        study_close_datetime = trial_dates.study_close_datetime
         for attr in ["start", "end"]:
             if not (
                 floor_secs(study_open_datetime)
                 <= getattr(self, attr)
                 <= ceil_secs(study_close_datetime)
             ):
-                open_date_string = formatted_datetime(to_local(study_open_datetime))
-                close_date_string = formatted_datetime(to_local(study_close_datetime))
-                attr_date_string = formatted_datetime(to_local(getattr(self, attr)))
+                open_date_string = formatted_datetime(study_open_datetime)
+                close_date_string = formatted_datetime(study_close_datetime)
+                attr_date_string = formatted_datetime(getattr(self, attr))
                 raise ConsentDefinitionError(
                     f"Invalid {attr} date. "
                     f"Must be within the opening and closing dates of the protocol. "

@@ -11,11 +11,12 @@ from django.http.request import HttpRequest
 from django.test import TestCase, override_settings, tag
 from faker import Faker
 from model_bakery import baker
+from multisite import SiteID
 
 from edc_consent.actions import unverify_consent, verify_consent
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 
@@ -32,7 +33,8 @@ fake = Faker()
     + relativedelta(years=1),
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
-    SITE_ID=10,
+    SITE_ID=SiteID(10),
+    MULTISITE_TIME_ZONES={1: "America/New_York", 10: "Africa/Dar_es_Salaam"},
 )
 class TestActions(TestCase):
     @classmethod
@@ -46,8 +48,8 @@ class TestActions(TestCase):
     def setUp(self):
         super().setUp()
         site_consents.registry = {}
-        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
-        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.study_open_datetime = trial_dates.study_open_datetime
+        self.study_close_datetime = trial_dates.study_close_datetime
         cdef = consent_definition_factory(
             start=self.study_open_datetime, end=self.study_close_datetime
         )

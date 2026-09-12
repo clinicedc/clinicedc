@@ -22,6 +22,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_lab_results.visit_schedule i
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_action_item.site_action_items import site_action_items
 from edc_consent import site_consents
@@ -34,7 +35,7 @@ from ..forms import BloodResultsFbcForm, BloodResultsHba1cForm
 
 
 @tag("lab_results")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestBloodResultForm(TestCase):
     def setUp(self):
         helper = Helper()
@@ -164,7 +165,7 @@ class TestBloodResultForm(TestCase):
 
 
 @tag("lab_results")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestBloodResultFormForPoc(TestCase):
     def setUp(self):
         helper = Helper()

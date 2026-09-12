@@ -15,6 +15,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.constants import IN_PROGRESS_APPT, INCOMPLETE_APPT
 from edc_consent import site_consents
@@ -73,7 +74,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestPersistantSingleton(TestCaseMixin, TestCase):
     @classmethod

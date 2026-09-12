@@ -1,33 +1,24 @@
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from datetime import date, datetime
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 
-from edc_utils.text import formatted_datetime
+from edc_utils.text import formatted_date, formatted_datetime
 
-from .research_protocol_config import ResearchProtocolConfig
-
-
-def date_not_before_study_start(value):
-    if value:
-        protocol_config = ResearchProtocolConfig()
-        dte = datetime(*[*value.timetuple()][0:6], tzinfo=ZoneInfo(settings.TIME_ZONE))
-        if dte < protocol_config.study_open_datetime:
-            opened = formatted_datetime(protocol_config.study_open_datetime)
-            raise ValidationError(
-                f"Invalid date. Study opened on {opened}. Got {formatted_datetime(dte)}. "
-                f"See edc_protocol.AppConfig."
-            )
+from .trial_dates import trial_dates
 
 
-def datetime_not_before_study_start(value_datetime):
-    if value_datetime:
-        protocol_config = ResearchProtocolConfig()
-        dte = value_datetime
-        if dte < protocol_config.study_open_datetime:
-            opened = formatted_datetime(protocol_config.study_open_datetime)
-            raise ValidationError(
-                f"Invalid date/time. Study opened on {opened}. Got {formatted_datetime(dte)}."
-                f"See edc_protocol.AppConfig."
-            )
+def date_not_before_study_start(value: date | None) -> None:
+    if value and value < trial_dates.study_open_datetime.date():
+        opened = formatted_date(trial_dates.study_open_datetime)
+        raise ValidationError(
+            f"Invalid date. Study opened on {opened}. Got {formatted_date(value)}. "
+        )
+
+
+def datetime_not_before_study_start(value_datetime: datetime | None) -> None:
+    if value_datetime and value_datetime < trial_dates.study_open_datetime:
+        opened = formatted_datetime(trial_dates.study_open_datetime)
+        raise ValidationError(
+            f"Invalid date/time. Study opened on {opened}. "
+            f"Got {formatted_datetime(value_datetime)}."
+        )

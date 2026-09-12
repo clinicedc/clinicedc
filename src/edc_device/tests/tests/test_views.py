@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings, tag
 from django.urls import reverse
+from multisite import SiteID
 
 from edc_device.constants import CLIENT
 from edc_device.views import HomeView
@@ -13,7 +14,7 @@ from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("device")
-@override_settings(DEBUG=False, LIVE_SYSTEM=True, SITE_ID=10)
+@override_settings(DEBUG=False, LIVE_SYSTEM=True, SITE_ID=SiteID(10))
 class TestHomeView(TestCase):
     @classmethod
     def setUpTestData(cls):

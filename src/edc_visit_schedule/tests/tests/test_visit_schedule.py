@@ -6,11 +6,12 @@ from clinicedc_constants import FEMALE, MALE
 from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.sites import all_sites
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.utils import check_visit_schedule_models
@@ -19,7 +20,7 @@ from edc_visit_schedule.visit_schedule import VisitSchedule, VisitScheduleNameEr
 
 @tag("visit_schedule")
 @time_machine.travel(datetime(2025, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestVisitSchedule(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -31,8 +32,8 @@ class TestVisitSchedule(SiteTestCaseMixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
-        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.study_open_datetime = trial_dates.study_open_datetime
+        self.study_close_datetime = trial_dates.study_close_datetime
         self.consent_v1 = ConsentDefinition(
             "clinicedc_tests.subjectconsentv1",
             version="1",

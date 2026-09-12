@@ -14,7 +14,6 @@ from edc_appointment.models import Appointment
 from edc_metadata.metadata import Destroyer, Metadata
 from edc_metadata.metadata_rules import MetadataRuleEvaluator
 from edc_visit_schedule.schedule import Schedule, VisitCollection
-from edc_visit_schedule.typing_stubs import VisitScheduleFieldsProtocol
 from edc_visit_schedule.visit import Visit
 from edc_visit_schedule.visit_schedule import VisitSchedule
 

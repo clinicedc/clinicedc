@@ -2,7 +2,8 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 import time_machine
-from django.test import TestCase, tag
+from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_utils import (
     AgeValueError,
@@ -13,6 +14,7 @@ from edc_utils import (
     get_datetime_from_env,
     get_dob,
     get_safe_random_string,
+    to_local,
     truncate_string,
 )
 
@@ -86,10 +88,27 @@ class TestUtils(TestCase):
         self.assertEqual(get_dob(age_in_years=10, now=reference_dt), born)
         self.assertEqual(get_dob(age_in_years=10, now=reference_dt.date()), born)
 
-    def test_age_without_tz(self):
-        born = datetime(1990, 5, 1).astimezone(ZoneInfo("UTC"))
+    def test_age_naive_reference_raises(self):
+        """Assert a naive datetime is rejected rather than guessed at.
+
+        Previously raised TypeError from inside relativedelta.
+        """
+        born = datetime(1990, 5, 1, tzinfo=ZoneInfo("UTC"))
         reference_dt = datetime(2000, 5, 1)  # noqa: DTZ001
-        self.assertRaises(TypeError, age, born, reference_dt)
+        with self.assertRaises(AgeValueError) as cm:
+            age(born, reference_dt)
+        self.assertIn("Reference date must be an aware datetime", str(cm.exception))
+
+    def test_age_naive_born_raises(self):
+        born = datetime(1990, 5, 1)  # noqa: DTZ001
+        reference_dt = datetime(2000, 5, 1, tzinfo=ZoneInfo("UTC"))
+        with self.assertRaises(AgeValueError) as cm:
+            age(born, reference_dt)
+        self.assertIn("DOB must be an aware datetime", str(cm.exception))
+
+    def test_age_dates_are_not_naive_datetimes(self):
+        """Assert a `date` is still accepted, anchored to local midnight."""
+        self.assertEqual(age(date(1990, 5, 1), date(2000, 5, 1)).years, 10)
 
     def test_age_born_date(self):
         born = date(1990, 5, 1)
@@ -241,3 +260,18 @@ class TestUtils(TestCase):
             truncate_string(string=orig_string, max_length=1),
             "…",
         )
+
+    @tag("to_local")
+    @override_settings(
+        SITE_ID=SiteID(10),
+        MULTISITE_TIME_ZONES={10: "Africa/Dar_es_Salaam", 20: "Africa/Gaborone"},
+        TIME_ZONE="Africa/Dar_es_Salaam",
+    )
+    def test_to_local(self):
+        dar = "Africa/Dar_es_Salaam"
+        gabs = "Africa/Gaborone"
+        utc = "UTC"
+        # get datetime value from DB
+        dt = datetime.now(tz=ZoneInfo(utc))
+        self.assertEqual(str(to_local(dt).tzinfo), dar)
+        self.assertEqual(str(to_local(dt, site_id=20).tzinfo), gabs)

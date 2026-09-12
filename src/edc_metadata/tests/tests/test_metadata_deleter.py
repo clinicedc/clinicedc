@@ -5,6 +5,7 @@ import time_machine
 from clinicedc_tests.models import CrfThree, SubjectRequisition
 from django.db.models import ProtectedError
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.constants import INCOMPLETE_APPT, MISSED_APPT
 from edc_appointment.models import Appointment
@@ -22,7 +23,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 class TestDeletesMetadata(TestMetadataMixin, TestCase):
     def test_metadata_ok(self):

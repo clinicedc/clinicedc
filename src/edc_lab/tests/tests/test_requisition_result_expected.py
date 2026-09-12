@@ -11,6 +11,7 @@ from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_consent import site_consents
 from edc_form_validators import FormValidator
@@ -31,7 +32,7 @@ class MyRequisitionFormValidator(RequisitionFormValidatorMixin, FormValidator):
 
 
 @tag("lab")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestRequisitionResultExpected(TestCase):
     """A drawn specimen may still never yield a result. See
     `RESULT_NOT_EXPECTED_REASONS`.

@@ -10,6 +10,7 @@ from django.test import TestCase, override_settings, tag
 from django.test.client import RequestFactory
 from django.utils import timezone
 from django.views.generic.base import ContextMixin, View
+from multisite import SiteID
 
 from edc_auth.auth_updater import AuthUpdater
 from edc_auth.constants import CLINIC
@@ -23,7 +24,9 @@ from ..models import SubjectVisit
 
 
 @tag("listboard")
-@override_settings(EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=10)
+@override_settings(
+    EDC_AUTH_SKIP_SITE_AUTHS=True, EDC_AUTH_SKIP_AUTH_UPDATER=False, SITE_ID=SiteID(10)
+)
 class TestViewMixins(TestCase):
     user: User = None
 

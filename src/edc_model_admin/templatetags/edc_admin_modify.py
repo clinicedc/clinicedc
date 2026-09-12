@@ -14,7 +14,7 @@ from django.urls.exceptions import NoReverseMatch
 from django_revision.revision import site_revision
 
 from edc_model_admin.utils import get_next_url
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 if TYPE_CHECKING:
     from django.contrib.sites.models import Site
@@ -136,10 +136,10 @@ def logout_row(context):
 @register.inclusion_tag("edc_model_admin/edc_revision_line.html", takes_context=True)
 def revision_row(context):
     return dict(
-        copyright=context.get("copyright") or ResearchProtocolConfig().copyright,
-        institution=context.get("institution") or ResearchProtocolConfig().institution,
+        copyright=context.get("copyright") or trial_settings.copyright,
+        institution=context.get("institution") or trial_settings.institution,
         revision=context.get("revision") or site_revision.tag,
-        disclaimer=context.get("disclaimer") or ResearchProtocolConfig().disclaimer,
+        disclaimer=context.get("disclaimer") or trial_settings.disclaimer,
     )
 
 

@@ -8,6 +8,7 @@ from clinicedc_tests.models import (
 )
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_identifier.models import IdentifierModel
 from edc_screening.age_evaluator import AgeEvaluator
@@ -23,7 +24,7 @@ from edc_screening.utils import (
 
 
 @tag("screening")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestScreening(TestCase):
     @override_settings(SUBJECT_SCREENING_MODEL="clinicedc_tests.subjectscreening")
     def test_model_funcs(self):

@@ -1,10 +1,11 @@
 from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.utils import NaturalKeyTestHelper
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 
 @tag("lab")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestNaturalKey(SiteTestCaseMixin, TestCase):
     nk_test_helper = NaturalKeyTestHelper()
 

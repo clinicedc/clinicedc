@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING
 
 from clinicedc_constants import CANCELLED, CLOSED, NEW, OPEN
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.core.management.color import color_style
 from django.db import models
 from django.utils.formats import localize
+from multisite.utils import get_multisite_timezone
 
 from edc_action_item.stubs import ActionItemStub
 from edc_model.constants import DEFAULT_BASE_FIELDS
@@ -415,7 +415,7 @@ class Action:
                             f"{self.reference_obj._meta.verbose_name.title()} "
                             f"{self.reference_obj} was changed on "
                             f"{localize(self.reference_obj.modified)} "
-                            f"({settings.TIME_ZONE})"
+                            f"({get_multisite_timezone()})"
                         )
                     }
                 )

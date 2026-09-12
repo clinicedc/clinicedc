@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from django.apps import apps as django_apps
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 from .exceptions import IdentifierError
 from .utils import calculate_luhn_check_digit, is_valid_subject_identifier
@@ -49,7 +49,7 @@ class ResearchIdentifier:
         self.template = template or self.template
         app_config = django_apps.get_app_config("edc_device")
         self.device_id = device_id or app_config.device_id
-        self.protocol_number = protocol_number or ResearchProtocolConfig().protocol_number
+        self.protocol_number = protocol_number or trial_settings.protocol_number
         self.site = site or django_apps.get_model("sites.site").objects.get_current()
         if identifier:
             # load an existing identifier

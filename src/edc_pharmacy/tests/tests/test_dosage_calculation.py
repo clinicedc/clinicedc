@@ -1,5 +1,6 @@
 from clinicedc_tests.sites import all_sites
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_facility.import_holidays import import_holidays
 from edc_pharmacy.dosage_calculator import DosageCalculator
@@ -18,7 +19,7 @@ from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("pharmacy")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestDoseCalculator(TestCase):
     @classmethod
     def setUpTestData(cls):

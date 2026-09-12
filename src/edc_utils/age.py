@@ -5,8 +5,8 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 from dateutil.relativedelta import relativedelta
-from django.conf import settings
 from django.utils import timezone
+from multisite.utils import get_multisite_timezone
 
 from edc_utils.text import formatted_datetime
 
@@ -34,28 +34,52 @@ def get_dob(age_in_years: int, now: date | datetime | None = None) -> date:
     return now - relativedelta(years=age_in_years)
 
 
-def age(born: date | datetime, reference_dt: date | datetime) -> relativedelta:
-    """Returns a relative delta.
+def _as_aware_datetime(value: date | datetime, tz: ZoneInfo, label: str) -> datetime:
+    """Returns `value` as an aware datetime, a `date` becoming midnight.
 
-    Convert dates to datetimes in local timezone.
+    A `date` carries no time to be ambiguous about, so it is anchored to
+    local midnight. A naive `datetime` is a caller bug: assuming a
+    timezone for it would silently shift the result by the offset.
+
+    Note `datetime` subclasses `date`, so test for the narrower type.
     """
-    if born is None or reference_dt is None:
+    if not isinstance(value, datetime):
+        return datetime(value.year, value.month, value.day, tzinfo=tz)
+    if timezone.is_naive(value):
+        raise AgeValueError(f"{label} must be an aware datetime. Got {value!r}.")
+    return value
+
+
+def age(born: date | datetime, reference_dt: date | datetime) -> relativedelta:
+    """Returns the age at `reference_dt` as a relativedelta.
+
+    A `date` is taken as local midnight on that day, so age advances at
+    the start of the birthday. A `datetime` keeps its time, which is
+    what allows a neonatal age to be reported in hours.
+
+    That distinction is deliberate but easy to trip over: a subject born
+    at 14:23 has not yet turned 25 at midnight on their 25th birthday.
+    Pass both arguments as the same type unless you intend it. `dob` is
+    a DateField, so a value loaded from the db is a `date`, but an
+    unsaved instance may still hold the `datetime` it was built with.
+
+    A naive datetime raises AgeValueError.
+    """
+    if born is None:
         raise AgeValueError("DOB cannot be None")
     if reference_dt is None:
-        raise AgeValueError("Reference cannot be None")
-    if not hasattr(born, "date"):
-        born = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo(settings.TIME_ZONE))
-    if not hasattr(reference_dt, "date"):
-        reference_dt = datetime(
-            *[*reference_dt.timetuple()][0:6], tzinfo=ZoneInfo(settings.TIME_ZONE)
-        )
-    rdelta = relativedelta(reference_dt, born)
+        raise AgeValueError("Reference date cannot be None")
+
+    tz = ZoneInfo(get_multisite_timezone())
+    born = _as_aware_datetime(born, tz, "DOB")
+    reference_dt = _as_aware_datetime(reference_dt, tz, "Reference date")
+
     if born > reference_dt:
         raise AgeValueError(
             f"Reference date {formatted_datetime(reference_dt)} precedes DOB "
-            f"{formatted_datetime(born)}. Got {rdelta}"
+            f"{formatted_datetime(born)}."
         )
-    return rdelta
+    return relativedelta(reference_dt, born)
 
 
 def formatted_age(
@@ -65,7 +89,7 @@ def formatted_age(
 ) -> str:
     age_as_str = "?"
     if born:
-        tz = tz or settings.TIME_ZONE
+        tz = tz or get_multisite_timezone()
         born = datetime(*[*born.timetuple()][0:6], tzinfo=ZoneInfo(tz))
         reference_dt = reference_dt or timezone.now()
         age_delta = age(born, reference_dt or timezone.now())

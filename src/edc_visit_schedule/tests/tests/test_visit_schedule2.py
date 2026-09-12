@@ -6,6 +6,7 @@ from clinicedc_tests.consents import consent_v1
 from clinicedc_tests.mixins import SiteTestCaseMixin
 from clinicedc_tests.sites import all_sites
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
@@ -18,7 +19,7 @@ from edc_visit_schedule.visit_schedule import AlreadyRegisteredSchedule, VisitSc
 
 @tag("visit_schedule")
 @time_machine.travel(datetime(2025, 4, 1, 8, 00, tzinfo=ZoneInfo("UTC")))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestVisitSchedule2(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):

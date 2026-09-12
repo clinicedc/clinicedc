@@ -17,6 +17,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_action_item.get_action_type import get_action_type
 from edc_action_item.models import ActionItem, ActionType
@@ -30,7 +31,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestAction(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()
@@ -418,7 +419,7 @@ class TestAction(TestCaseMixin, TestCase):
         except ObjectDoesNotExist:
             self.fail("action item unexpectedly does not exist")
 
-    @override_settings(SITE_ID=30)
+    @override_settings(SITE_ID=SiteID(30))
     def test_create_action_force_site_id(self):
         another_site = Site.objects.get(id=90)
         # site_id = 2  # use a site other than the current
@@ -455,7 +456,8 @@ class TestAction(TestCaseMixin, TestCase):
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised.")
 
-    @override_settings(SITE_ID=30)
+    @tag("323")
+    @override_settings(SITE_ID=SiteID(default=30))
     def test_create_action_force_site_id2(self):
         another_site = Site.objects.get(id=90)
         subject_identifier = self.enroll(site_id=another_site.id)

@@ -11,6 +11,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_consent.visit_schedule impor
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 from model_bakery import baker
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent.consent_definition import ConsentDefinition
@@ -23,7 +24,7 @@ from edc_consent.exceptions import (
 )
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_registration.models import RegisteredSubject
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
@@ -42,7 +43,8 @@ from ..consent_test_utils import consent_definition_factory
     + relativedelta(years=1),
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
-    SITE_ID=10,
+    SITE_ID=SiteID(10),
+    MULTISITE_TIME_ZONES={1: "America/New_York", 10: "Africa/Dar_es_Salaam"},
 )
 class TestConsent(TestCase):
     helper_cls = Helper
@@ -57,8 +59,8 @@ class TestConsent(TestCase):
 
     def setUp(self):
         site_consents.registry = {}
-        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
-        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.study_open_datetime = trial_dates.study_open_datetime
+        self.study_close_datetime = trial_dates.study_close_datetime
         self.subject_identifier = "12345"
 
     def test_raises_error_if_no_consent(self):
@@ -400,17 +402,17 @@ class TestConsent(TestCase):
         except ConsentDefinitionError:
             self.fail("ConsentPeriodOverlapError unexpectedly raised")
 
+    @tag("qq")
     def test_consent_before_open(self):
         """Asserts cannot register a consent with a start date
         before the study open date.
         """
-        self.assertRaises(
-            ConsentDefinitionError,
-            consent_definition_factory,
+        cdef = consent_definition_factory(
             start=self.study_open_datetime - relativedelta(days=1),
             end=self.study_close_datetime + relativedelta(days=1),
             version="1.0",
         )
+        self.assertRaises(ConsentDefinitionError, cdef.check_date_within_study_period)
 
     def test_consent_definition_naive_datetime_start(self):
         """Asserts cannot register a consent with a start date

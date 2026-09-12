@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from dataclasses import KW_ONLY, dataclass, field
 from datetime import datetime
+from reprlib import recursive_repr
 from typing import TYPE_CHECKING
 
 from clinicedc_constants import YES
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist
+from multisite.utils import get_multisite_timezone
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites import site_sites
-from edc_utils import formatted_date
+from edc_utils import formatted_date, formatted_datetime
 from edc_utils.date import to_local
 from edc_visit_schedule.schedule import VisitCollection
 
@@ -29,11 +30,10 @@ if TYPE_CHECKING:
     class ConsentExtensionLikeModel(
         SiteModelMixin, UniqueSubjectIdentifierModelMixin, BaseUuidModel
     ):
-        agrees_to_extension: str = field(default=YES, compare=False)
+        agrees_to_extension: str = YES
         _meta: ...
 
 
-@dataclass(order=True)
 class ConsentDefinitionExtension:
     """A definition to truncate the number of visits/timepoints in a
     visit collection for a consented subject, if necessary.
@@ -55,24 +55,76 @@ class ConsentDefinitionExtension:
     visit collection if necessary.
     """
 
-    model: str = field(compare=False)
-    _ = KW_ONLY
-    start: datetime = field(default=ResearchProtocolConfig().study_open_datetime, compare=True)
-    version: str = field(default="1", compare=False)
-    extends: ConsentDefinition = field(default=None, compare=False)
-    timepoints: list[int] = field(default_factory=list, compare=False)
-    site_ids: list[int] = field(default_factory=list, compare=False)
-    country: str | None = field(default=None, compare=False)
+    def __init__(
+        self,
+        model: str,
+        *,
+        start: datetime | None = None,
+        version: str | None = None,
+        extends: ConsentDefinition | None = None,
+        timepoints: list[int] | None = None,
+        site_ids: list[int] | None = None,
+        country: str | None = None,
+    ) -> None:
 
-    name: str = field(init=False, compare=False)
-    sort_index: str = field(init=False)
+        self.model = model
+        self.start: datetime = start or trial_dates.study_open_datetime
 
-    def __post_init__(self):
+        self.version = version or "1"
+        self.extends = extends
+        self.timepoints = timepoints or []
+        self.site_ids = site_ids or []
+        self.country = country
+
         self.name = f"{self.model}-{self.version}"
-        self.sort_index = self.name
         if not self.start.tzinfo:
             raise ConsentDefinitionError(f"Naive datetime not allowed. Got {self.start}.")
         self.extends.check_date_within_study_period()
+
+    def _cmp_values(self) -> tuple[datetime, str]:
+        """Returns the values used by the comparison methods."""
+        return self.start, self.name
+
+    @recursive_repr()
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__qualname__}("
+            f"model={self.model!r}, "
+            f"start={self.start!r}, "
+            f"version={self.version!r}, "
+            f"extends={self.extends!r}, "
+            f"timepoints={self.timepoints!r}, "
+            f"site_ids={self.site_ids!r}, "
+            f"country={self.country!r}, "
+            f"name={self.name!r}, "
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return self._cmp_values() == other._cmp_values()
+        return NotImplemented
+
+    def __lt__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return self._cmp_values() < other._cmp_values()
+        return NotImplemented
+
+    def __le__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return self._cmp_values() <= other._cmp_values()
+        return NotImplemented
+
+    def __gt__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return self._cmp_values() > other._cmp_values()
+        return NotImplemented
+
+    def __ge__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return self._cmp_values() >= other._cmp_values()
+        return NotImplemented
+
+    __hash__ = None
 
     def update_visit_collection(
         self,
@@ -137,13 +189,17 @@ class ConsentDefinitionExtension:
         """Returns the parent consent model instance for the subject."""
         return self.extends.get_consent_for(**kwargs)
 
-    @property
-    def display_name(self) -> str:
+    def get_display_name(self, site_id: int | None = None):
+        tzname = get_multisite_timezone(site_id)
         return (
             f"{self.model_cls._meta.verbose_name} v{self.version} valid "
-            f"from {formatted_date(to_local(self.start))} to "
-            f"{formatted_date(to_local(self.extends.end))}"
+            f"from {formatted_datetime(to_local(self.start))} to "
+            f"{formatted_datetime(to_local(self.extends.end))} ({tzname})"
         )
+
+    @property
+    def display_name(self) -> str:
+        return self.get_display_name()
 
     @property
     def verbose_name(self) -> str:

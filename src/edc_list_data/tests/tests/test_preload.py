@@ -10,6 +10,7 @@ from clinicedc_tests.models import (
 )
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_adherence.models import NonAdherenceReasons
 from edc_list_data import LoadListDataError, site_list_data
@@ -19,7 +20,7 @@ from edc_list_data.site_list_data import AlreadyLoaded, SiteListDataError
 
 
 @tag("list_data")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestPreload(TestCase):
     @override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False)
     def test_autodiscover_default(self):

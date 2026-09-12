@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 from django import forms
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_adverse_event.form_validators import DeathReportFormValidator as Base
 from edc_facility.import_holidays import import_holidays
@@ -19,7 +20,7 @@ class DeathReportFormValidator(FormValidatorTestMixin, Base):
 
 
 @tag("adverse_event")
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):

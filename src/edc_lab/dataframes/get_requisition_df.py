@@ -4,7 +4,6 @@ from django.apps import apps as django_apps
 from django.conf import settings
 from django_pandas.io import read_frame
 
-from ..constants import FINGER_PRICK
 from ..lab import RequisitionPanel
 from ..site_labs import site_labs
 

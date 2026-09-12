@@ -11,6 +11,7 @@ from clinicedc_tests.sites import all_sites
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent import site_consents
@@ -44,7 +45,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("lab")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestSpecimen2(TestCase):
     @classmethod

@@ -1,11 +1,12 @@
 from django.test import TestCase, override_settings, tag
 from django.urls import reverse
+from multisite import SiteID
 
 from edc_dashboard.url_names import url_names
 
 
 @tag("lab_dashboard")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestUrls(TestCase):
     def test_requisition_listboard_url(self):
         url = reverse("edc_lab_dashboard:requisition_listboard_url")

@@ -233,14 +233,14 @@ class TestSites(SiteTestCaseMixin, TestCase):
         self.assertEqual(site_sites.get(site1.site_id).domain, "site1.uat.clinicedc.org")
         self.assertEqual(site_sites.get(site2.site_id).domain, "site2.uat.clinicedc.org")
 
-    @override_settings(EDC_SITES_REGISTER_DEFAULT=True, SITE_ID=1)
+    @override_settings(EDC_SITES_REGISTER_DEFAULT=True, SITE_ID=SiteID(1))
     def test_register_default_site_domain(self):
         site_sites.initialize(initialize_site_model=True)
         add_or_update_django_sites()
         site = Site.objects.get(id=1)
         self.assertEqual(Alias.objects.get(site=site).domain, "localhost")
 
-    @override_settings(EDC_SITES_REGISTER_DEFAULT=True, SITE_ID=1)
+    @override_settings(EDC_SITES_REGISTER_DEFAULT=True, SITE_ID=SiteID(1))
     def test_register_default_site_domain2(self):
         site_sites.initialize(initialize_site_model=True)
         self.assertEqual([s.site_id for s in site_sites.all(aslist=True)], [1])
@@ -250,7 +250,7 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site = Site.objects.get(id=1)
         self.assertEqual(Alias.objects.get(site=site).domain, "localhost")
 
-    @override_settings(EDC_SITES_REGISTER_DEFAULT=False, SITE_ID=10)
+    @override_settings(EDC_SITES_REGISTER_DEFAULT=False, SITE_ID=SiteID(10))
     def test_alias_model(self):
         site_sites.initialize(initialize_site_model=True)
         site_sites.register(*self.default_sites)
@@ -262,7 +262,9 @@ class TestSites(SiteTestCaseMixin, TestCase):
         site = Site.objects.get(id=10)
         self.assertEqual(Alias.objects.get(site=site).domain, "mochudi.bw.clinicedc.org")
 
-    @override_settings(EDC_SITES_REGISTER_DEFAULT=False, EDC_SITES_UAT_DOMAIN=True, SITE_ID=10)
+    @override_settings(
+        EDC_SITES_REGISTER_DEFAULT=False, EDC_SITES_UAT_DOMAIN=True, SITE_ID=SiteID(10)
+    )
     def test_alias_model_for_uat(self):
         site_sites.initialize(initialize_site_model=True)
         site_sites.register(*self.default_sites)

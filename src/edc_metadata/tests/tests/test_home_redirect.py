@@ -6,10 +6,11 @@ Previously this url redirected to the CrfMetadata changelist via a
 
 from django.test import TestCase, override_settings, tag
 from django.urls import reverse
+from multisite import SiteID
 
 
 @tag("metadata")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestHomeView(TestCase):
     def test_home_url_resolves(self):
         self.assertEqual(reverse("edc_metadata:home_url"), "/edc_metadata/")

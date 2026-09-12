@@ -15,6 +15,7 @@ from clinicedc_tests.models import (
 from clinicedc_tests.visit_schedules.visit_schedule import get_visit_schedule
 from django.db import OperationalError, connection
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_auth.get_app_codenames import get_app_codenames
@@ -29,7 +30,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("qareports")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(dt.datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestQA(TestCase):
     def setUp(self):

@@ -10,6 +10,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_appointment import (
 from dateutil.relativedelta import relativedelta
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_appointment.utils import (
@@ -25,7 +26,7 @@ utc = ZoneInfo("UTC")
 
 @tag("appointment")
 @time_machine.travel(dt.datetime(2025, 7, 11, 8, 00, tzinfo=utc))
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestAppointmentWindowPeriod2(SiteTestCaseMixin, TestCase):
     helper_cls = Helper
 

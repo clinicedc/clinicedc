@@ -7,6 +7,7 @@ from clinicedc_tests.sites import all_sites
 from django import forms
 from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_adverse_event.form_validators import (
     AeFollowupFormValidator,
@@ -21,7 +22,7 @@ from edc_sites.utils import add_or_update_django_sites
 
 
 @tag("adverse_event")
-@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=30)
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=SiteID(30))
 class TestFormValidators(SiteTestCaseMixin, TestCase):
     @classmethod
     def setUpTestData(cls):

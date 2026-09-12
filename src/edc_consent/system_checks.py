@@ -10,6 +10,7 @@ def check_consents(app_configs, **kwargs) -> list[CheckMessage]:
     errors.extend(check_consents_cdef_registered())
     errors.extend(check_consents_models())
     if not errors:
+        errors.extend(check_consents_cdef_date_within_study_period())
         errors.extend(check_consents_versions())
         errors.extend(check_consents_durations())
     return errors
@@ -48,6 +49,18 @@ def check_consents_models() -> list[CheckMessage]:
                         id="edc_consent.E003",
                     )
                 )
+    return errors
+
+
+def check_consents_cdef_date_within_study_period() -> list[CheckMessage]:
+    errors = []
+    for cdef in site_consents.registry.values():
+        try:
+            cdef.check_date_within_study_period()
+        except ConsentDefinitionError as e:
+            errors.append(
+                Error(f"ConsentDefinitionError. {e}. See {cdef}", id="edc_consent.E004")
+            )
     return errors
 
 

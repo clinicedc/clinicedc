@@ -6,7 +6,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.template.response import TemplateResponse
 from django.urls import NoReverseMatch, reverse
 
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 
 admin.site.enable_nav_sidebar = False
 
@@ -75,7 +75,7 @@ class EdcAdminSite(DjangoAdminSite):
             site_title=self.get_edc_site_title(request),
             site_header=self.get_edc_site_header(request),
             global_site=get_current_site(request),
-            protocol_name=ResearchProtocolConfig().protocol_name,
+            protocol_name=trial_settings.protocol_name,
             live_system=settings.LIVE_SYSTEM,
             DEBUG=settings.DEBUG,
             app_url=self.app_url,
@@ -86,8 +86,8 @@ class EdcAdminSite(DjangoAdminSite):
     def get_edc_site_title(self, request) -> str:
         verbose_name = django_apps.get_app_config(self.app_label).verbose_name
         return verbose_name.replace(
-            ResearchProtocolConfig().project_name,
-            f"{ResearchProtocolConfig().project_name} @ "
+            trial_settings.project_name,
+            f"{trial_settings.project_name} @ "
             f"{get_current_site(request).name.title()} ",
         )
 

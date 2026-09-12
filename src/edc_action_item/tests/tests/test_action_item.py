@@ -18,6 +18,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_action_item import (
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.deletion import ProtectedError
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_action_item.action import Action
 from edc_action_item.create_or_update_action_type import create_or_update_action_type
@@ -36,7 +37,7 @@ utc_tz = ZoneInfo("UTC")
 
 @tag("action_item")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestActionItem(TestCaseMixin, TestCase):
     def setUp(self):
         helper = Helper()

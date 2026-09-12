@@ -16,6 +16,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_action_item.site_action_items import AlreadyRegistered, site_action_items
 from edc_appointment.constants import INCOMPLETE_APPT
@@ -38,7 +39,7 @@ from ..models import NonCrfOne
 
 
 @tag("offstudy")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestOffstudy(TestCase):
     @classmethod

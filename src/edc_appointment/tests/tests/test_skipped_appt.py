@@ -25,6 +25,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.constants import (
     COMPLETE_APPT,
@@ -50,7 +51,7 @@ utc = ZoneInfo("UTC")
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc))
 class TestSkippedAppt(TestCase):
     helper_cls = Helper

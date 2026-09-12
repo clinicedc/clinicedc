@@ -10,6 +10,7 @@ from clinicedc_tests.models import (
 )
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_lab.models import Panel
 from edc_lab_panel.panels import fbc_panel, lft_panel
@@ -25,7 +26,7 @@ from .metadata_test_mixin import TestMetadataMixin
 utc_tz = ZoneInfo("UTC")
 
 
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2019, 8, 11, 8, 00, tzinfo=utc_tz))
 @tag("metadata")
 class TestMetadataUpdater(TestMetadataMixin, TestCase):

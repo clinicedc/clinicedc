@@ -12,6 +12,7 @@ from clinicedc_tests.visit_schedules.visit_schedule_form_runners.visit_schedule 
 )
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
@@ -26,7 +27,7 @@ from edc_visit_tracking.models import SubjectVisit
 
 
 @tag("form_runners")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 class TestRunners(TestCase):
     @classmethod

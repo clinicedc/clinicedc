@@ -10,6 +10,7 @@ from django.core.management.color import color_style
 from django.test import TestCase
 from django.test.utils import override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_facility.import_holidays import import_holidays
 from edc_notification.constants import CREATE, UPDATE
@@ -37,7 +38,7 @@ style = color_style()
 
 
 @tag("notification")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestNotification(TestCase):
     @classmethod
     def setUpTestData(cls):

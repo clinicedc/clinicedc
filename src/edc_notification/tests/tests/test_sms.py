@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.testcases import TestCase
 from django.test.utils import override_settings, tag
+from multisite import SiteID
 
 from edc_facility.import_holidays import import_holidays
 from edc_notification.decorators import register
@@ -32,7 +33,7 @@ class TwillioTestClientMessages:
 
 
 @tag("notification")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestTwilio(TestCase):
     @classmethod
     def setUpTestData(cls):

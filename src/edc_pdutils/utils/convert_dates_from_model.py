@@ -1,7 +1,5 @@
 import pandas as pd
 
-from ..constants import date_datatypes
-
 
 def normalize_date_columns(source_df: pd.DataFrame, columns: list[str] | None = None):
     columns = columns or source_df.select_dtypes(include="datetimetz").columns

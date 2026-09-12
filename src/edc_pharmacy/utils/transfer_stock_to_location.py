@@ -11,7 +11,6 @@ from django.utils import timezone
 from ..constants import CENTRAL_LOCATION, TXN_TRANSFER_DISPATCHED
 from ..exceptions import InvalidTransitionError, StockTransferError
 from ..transaction_log import apply_transaction
-from ..utils import is_dispensed
 
 if TYPE_CHECKING:
     from ..models import Stock, StockTransfer, StockTransferItem
@@ -42,11 +41,11 @@ def transfer_stock_to_location(
             # rather than registered_subject.site, which can diverge in multi-site DBs.
             if stock_transfer.to_location.name == CENTRAL_LOCATION:
                 opts.update(
-                    allocation__registered_subject__site=stock_transfer.from_location.site,  # noqa:E501
+                    allocation__registered_subject__site=stock_transfer.from_location.site,
                 )
             else:
                 opts.update(
-                    allocation__registered_subject__site=stock_transfer.to_location.site,  # noqa:E501
+                    allocation__registered_subject__site=stock_transfer.to_location.site,
                 )
             try:
                 stock_obj = stock_model_cls.objects.select_for_update(of=("self",)).get(**opts)

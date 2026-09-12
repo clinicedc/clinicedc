@@ -11,7 +11,7 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 from edc_pdf_reports import NumberedCanvas as BaseNumberedCanvas
 from edc_pdf_reports import Report
 from edc_pdf_reports.flowables import CheckboxFlowable, TextFieldFlowable
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_settings import trial_settings
 from edc_utils.date import to_local
 
 from ..models import StockTransfer
@@ -24,7 +24,7 @@ class NumberedCanvas(BaseNumberedCanvas):
 class ManifestReport(Report):
     def __init__(self, stock_transfer: StockTransfer = None, **kwargs):
         self.stock_transfer = stock_transfer
-        self.protocol_name = ResearchProtocolConfig().protocol_title
+        self.protocol_name = trial_settings.protocol_title
         super().__init__(**kwargs)
 
     def draw_header(self, canvas, doc):  # noqa: ARG002

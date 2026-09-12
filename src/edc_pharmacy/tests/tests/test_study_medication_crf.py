@@ -14,6 +14,7 @@ from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.test import TestCase, override_settings, tag
+from multisite import SiteID
 
 from edc_action_item.site_action_items import site_action_items
 from edc_appointment.constants import INCOMPLETE_APPT
@@ -34,7 +35,7 @@ from edc_pharmacy.models import (
     RxRefill,
     Units,
 )
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.site_visit_schedules import site_visit_schedules
@@ -44,7 +45,7 @@ utc_tz = ZoneInfo("UTC")
 
 
 @tag("pharmacy")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
 class TestMedicationCrf(TestCase):
     helper_cls = Helper
@@ -415,8 +416,8 @@ class TestMedicationCrf(TestCase):
                 )
 
     def test_study_medication_form_baseline(self):
-        self.study_open_datetime = ResearchProtocolConfig().study_open_datetime
-        self.study_close_datetime = ResearchProtocolConfig().study_close_datetime
+        self.study_open_datetime = trial_dates.study_open_datetime
+        self.study_close_datetime = trial_dates.study_close_datetime
         appointment = Appointment.objects.all().order_by("timepoint", "visit_code_sequence")[0]
         next_appointment = get_next_appointment(appointment, include_interim=True)
         subject_visit = SubjectVisit.objects.create(

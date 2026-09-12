@@ -27,6 +27,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_consent.site_consents import site_consents
@@ -45,7 +46,7 @@ from edc_visit_tracking.constants import SCHEDULED
 @tag("visit_schedule")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=ZoneInfo("UTC")))
 @override_settings(
-    SITE_ID=30,
+    SITE_ID=SiteID(30),
     EDC_AUTH_SKIP_SITE_AUTHS=True,
     EDC_AUTH_SKIP_AUTH_UPDATER=False,
 )

@@ -8,6 +8,7 @@ from clinicedc_tests.models import FormOne, FormTwo
 from django.apps import apps as django_apps
 from django.db.models.signals import post_save
 from django.test import TestCase, override_settings
+from multisite import SiteID
 
 from edc_action_item.data_fixers import (
     fix_null_action_item_fk,
@@ -22,7 +23,7 @@ utc_tz = ZoneInfo("UTC")
 
 @skip("fix_null_related_action_items")
 @time_machine.travel(datetime(2025, 6, 11, 8, 00, tzinfo=utc_tz))
-@override_settings(SITE_ID=30)
+@override_settings(SITE_ID=SiteID(30))
 class TestUtils(TestCaseMixin, TestCase):
     def setUp(self):
         register_actions()

@@ -88,8 +88,8 @@ class RequiresDeathReportFormValidatorMixin(BaseRequiresDeathReportFormValidator
         """Validates death report exists of termination_reason
         is "DEAD.
 
-        Death "date" is the naive date of the settings.TIME_ZONE
-        datetime.
+        Death "date" is the naive date of the datetime in the local
+        timezone.
 
         Note: uses __date field lookup. If using mysql don't forget
         to load timezone info.

@@ -1,4 +1,4 @@
-from .research_protocol_config import ResearchProtocolConfig
+from .trial_settings import trial_settings
 
 
 class ResearchProtocolConfigMiddleware:
@@ -10,12 +10,11 @@ class ResearchProtocolConfigMiddleware:
 
     def process_template_response(self, request, response):  # noqa: ARG002
         if getattr(response, "context_data", None):
-            protocol_config = ResearchProtocolConfig()
             response.context_data.update(
-                copyright=protocol_config.copyright,
-                disclaimer=protocol_config.disclaimer,
-                institution=protocol_config.institution,
-                license=protocol_config.license,
-                project_name=protocol_config.project_name,
+                copyright=trial_settings.copyright,
+                disclaimer=trial_settings.disclaimer,
+                institution=trial_settings.institution,
+                license=trial_settings.license,
+                project_name=trial_settings.project_name,
             )
         return response

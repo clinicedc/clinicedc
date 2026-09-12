@@ -3,6 +3,7 @@ from clinicedc_tests.sites import all_sites
 from django.core import mail
 from django.test import TestCase, override_settings, tag
 from model_bakery import baker
+from multisite import SiteID
 
 from edc_adverse_event.notifications import (
     AeInitialG3EventNotification,
@@ -24,7 +25,7 @@ from .mixins import DeathReportTestMixin
 
 
 @tag("adverse_event")
-@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=30)
+@override_settings(EDC_LIST_DATA_ENABLE_AUTODISCOVER=False, SITE_ID=SiteID(30))
 class TestNotifications(DeathReportTestMixin, TestCase):
     @classmethod
     def setUpTestData(cls):

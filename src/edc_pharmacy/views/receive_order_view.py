@@ -30,7 +30,7 @@ from edc_protocol.view_mixins import EdcProtocolViewMixin
 
 from ..auth_objects import PHARMACIST_ROLE
 from ..forms.stock import ReceiveHeaderForm
-from ..models import COMPLETED, Order, OrderItem, Receive, ReceiveItem, Stock
+from ..models import Order, OrderItem, Receive, ReceiveItem, Stock
 from .auths_view_mixin import PharmacistRequiredMixin
 
 

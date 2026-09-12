@@ -4,8 +4,9 @@ from django.apps import AppConfig as DjangoAppConfig
 from django.core.checks import register
 from django.core.management.color import color_style
 
-from .research_protocol_config import ResearchProtocolConfig
 from .system_checks import middleware_check
+from .trial_dates import TrialDates
+from .trial_settings import trial_settings
 
 style = color_style()
 
@@ -19,11 +20,10 @@ class AppConfig(DjangoAppConfig):
     def ready(self):
         register(middleware_check)
         sys.stdout.write(f"Loading {self.verbose_name} ...\n")
-        protocol = ResearchProtocolConfig()
-        sys.stdout.write(f" * {protocol.protocol}: {protocol.protocol_name}.\n")
-        open_date = protocol.study_open_datetime.strftime("%Y-%m-%d %Z")
+        sys.stdout.write(f" * {trial_settings.protocol}: {trial_settings.protocol_name}.\n")
+        open_date = TrialDates().study_open_datetime.strftime("%Y-%m-%d")
         sys.stdout.write(f" * Study opening date: {open_date}\n")
-        close_date = protocol.study_close_datetime.strftime("%Y-%m-%d %Z")
+        close_date = TrialDates().study_close_datetime.strftime("%Y-%m-%d")
         sys.stdout.write(f" * Expected study closing date: {close_date}\n")
         sys.stdout.write(f" Done loading {self.verbose_name}.\n")
         sys.stdout.flush()

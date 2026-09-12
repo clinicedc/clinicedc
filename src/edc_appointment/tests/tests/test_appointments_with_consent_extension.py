@@ -13,6 +13,7 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings, tag
 from django.utils import timezone
+from multisite import SiteID
 
 from edc_appointment.models import Appointment
 from edc_appointment.utils import refresh_appointments
@@ -20,7 +21,7 @@ from edc_consent.consent_definition import ConsentDefinition
 from edc_consent.consent_definition_extension import ConsentDefinitionExtension
 from edc_consent.site_consents import site_consents
 from edc_facility.import_holidays import import_holidays
-from edc_protocol.research_protocol_config import ResearchProtocolConfig
+from edc_protocol.trial_dates import trial_dates
 from edc_sites.site import sites as site_sites
 from edc_sites.utils import add_or_update_django_sites
 from edc_visit_schedule.post_migrate_signals import populate_visit_schedule
@@ -33,7 +34,7 @@ tz = ZoneInfo("Africa/Dar_es_Salaam")
 
 
 @tag("appointment")
-@override_settings(SITE_ID=10)
+@override_settings(SITE_ID=SiteID(10))
 class TestNextAppointmentCrf(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -50,8 +51,8 @@ class TestNextAppointmentCrf(TestCase):
         consent_v1 = ConsentDefinition(
             "clinicedc_tests.subjectconsentv1",
             version="1",
-            start=ResearchProtocolConfig().study_open_datetime,
-            end=ResearchProtocolConfig().study_close_datetime,
+            start=trial_dates.study_open_datetime,
+            end=trial_dates.study_close_datetime,
             age_min=18,
             age_is_adult=18,
             age_max=64,
