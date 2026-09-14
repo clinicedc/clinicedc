@@ -456,7 +456,6 @@ class TestAction(TestCaseMixin, TestCase):
         except ObjectDoesNotExist:
             self.fail("ObjectDoesNotExist unexpectedly raised.")
 
-    @tag("323")
     @override_settings(SITE_ID=SiteID(default=30))
     def test_create_action_force_site_id2(self):
         another_site = Site.objects.get(id=90)
