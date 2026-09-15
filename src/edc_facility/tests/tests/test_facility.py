@@ -90,7 +90,6 @@ class TestFacility(SiteTestCaseMixin, TestCase):
         available_arr = facility.available_arr(suggested_date)
         self.assertEqual(available_arr.datetime.weekday(), WE.weekday)
 
-    @tag("323")
     @override_settings(SITE_ID=SiteID(20))
     def test_available_arr_with_holiday(self):
         """Asserts finds available_arr on first clinic day after holiday."""
@@ -102,7 +101,6 @@ class TestFacility(SiteTestCaseMixin, TestCase):
         available_arr = facility.available_arr(suggested_date)
         self.assertEqual(expected_date, available_arr.datetime)
 
-    @tag("323")
     @override_settings(SITE_ID=SiteID(20), HOLIDAY_FILE=None)
     def test_read_holidays_from_db(self):
         """Asserts finds available_arr on first clinic day after holiday."""
