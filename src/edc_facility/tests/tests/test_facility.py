@@ -93,8 +93,8 @@ class TestFacility(SiteTestCaseMixin, TestCase):
     @override_settings(SITE_ID=SiteID(20))
     def test_available_arr_with_holiday(self):
         """Asserts finds available_arr on first clinic day after holiday."""
-        suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
-        expected_date = datetime(2017, 1, 8, tzinfo=ZoneInfo("UTC"))
+        suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("Africa/Gaborone"))
+        expected_date = datetime(2017, 1, 8, tzinfo=ZoneInfo("Africa/Gaborone"))
         facility = Facility(
             name="clinic", days=[weekday(suggested_date.weekday())], slots=[100]
         )
@@ -104,8 +104,8 @@ class TestFacility(SiteTestCaseMixin, TestCase):
     @override_settings(SITE_ID=SiteID(20), HOLIDAY_FILE=None)
     def test_read_holidays_from_db(self):
         """Asserts finds available_arr on first clinic day after holiday."""
-        suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("UTC"))
-        expected_date = datetime(2017, 1, 8, tzinfo=ZoneInfo("UTC"))
+        suggested_date = datetime(2017, 1, 1, tzinfo=ZoneInfo("Africa/Gaborone"))
+        expected_date = datetime(2017, 1, 8, tzinfo=ZoneInfo("Africa/Gaborone"))
         Holiday.objects.create(local_date=suggested_date)
         facility = Facility(
             name="clinic", days=[weekday(suggested_date.weekday())], slots=[100]

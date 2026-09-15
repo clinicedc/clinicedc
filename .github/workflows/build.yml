@@ -44,7 +44,7 @@ jobs:
           sudo apt-get -y update
           sudo apt-get install libcups2-dev wamerican
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v6
@@ -78,6 +78,6 @@ jobs:
           DJANGO: ${{ matrix.django-version }}
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           name: Python ${{ matrix.python-version }}
