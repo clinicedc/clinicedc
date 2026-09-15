@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import getpass
 import re
 from collections.abc import Iterable
@@ -16,6 +17,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import CommandError
 from django.utils import timezone
 from django.utils.html import format_html
+from keyring.errors import KeyringError
 
 from edc_protocol.trial_settings import trial_settings
 from edc_sites.site import sites as site_sites
@@ -184,17 +186,53 @@ def record_cli_export_audit(
     return data_request, data_request_history
 
 
+def keyring_enabled() -> bool:
+    """Returns True if the keyring password cache may be used.
+
+    Set EDC_EXPORT_USE_KEYRING=False on hosts with no usable keyring
+    backend, e.g. a headless server, to skip the keyring entirely.
+    """
+    return getattr(settings, "EDC_EXPORT_USE_KEYRING", True)
+
+
+def get_cached_password(system: str, username: str) -> str | None:
+    """Returns the cached password, or None if there is no cache.
+
+    The keyring is a convenience, not a requirement. A host with no
+    usable backend raises instead of returning None, so treat any
+    keyring error as a cache miss and let the caller prompt.
+    """
+    if not keyring_enabled():
+        return None
+    try:
+        return keyring.get_password(system, username)
+    except KeyringError:
+        return None
+
+
+def cache_password(system: str, username: str, passwd: str) -> None:
+    """Updates the cached password, if there is a usable cache.
+
+    See `get_cached_password`.
+    """
+    if not keyring_enabled():
+        return
+    with contextlib.suppress(KeyringError):
+        keyring.set_password(system, username, passwd)
+
+
 def get_export_user() -> User | AbstractBaseUser:
     """Returns the User model instance.
 
-    Given a username from user input, attempt KeyChain access then
+    Given a username from user input, attempt keyring access then
     fallback to user input.
 
-    Success updates the keychain, failure sets keychain to ""
+    Success updates the keyring, failure sets the keyring to "". Hosts
+    with no usable keyring backend prompt for the password every time.
     """
     system = f"clinicedc.{settings.APP_NAME}"
     username = input("Username:")
-    if not (passwd := keyring.get_password(system, username)):
+    if not (passwd := get_cached_password(system, username)):
         passwd = getpass.getpass("Password for " + username + ":")
     try:
         user = get_user_model().objects.get(
@@ -203,9 +241,9 @@ def get_export_user() -> User | AbstractBaseUser:
     except ObjectDoesNotExist as e:
         raise CommandError("Invalid username or password.") from e
     if not user.check_password(passwd):
-        keyring.set_password(system, username, "")
+        cache_password(system, username, "")
         raise CommandError("Invalid username or password.")
-    keyring.set_password(system, username, passwd)
+    cache_password(system, username, passwd)
     return user
 
 
