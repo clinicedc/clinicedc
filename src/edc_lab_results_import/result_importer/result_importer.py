@@ -19,6 +19,7 @@ from parse_trial_labs import parse_folder
 from tqdm import tqdm
 
 from edc_appointment.constants import ONTIME_APPT
+from edc_lab.constants import FINGER_PRICK
 from edc_lab.dataframes import get_requisition_df
 from edc_lab_panel.constants import (
     BASOPHILS,
@@ -205,6 +206,11 @@ class ResultImporter:
         self.df["specimen_collected_datetime"] = pd.to_datetime(
             self.df["specimen_collected_datetime"], utc=True
         )
+        # join keys only, the datetimes above are what `Result` stores
+        self.df["order_date"] = self.to_local_date(self.df["order_datetime"])
+        self.df["specimen_collected_date"] = self.to_local_date(
+            self.df["specimen_collected_datetime"]
+        )
         for col in [
             "subject_identifier",
             "screening_identifier",
@@ -221,12 +227,39 @@ class ResultImporter:
         ]:
             self.df[col] = self.df[col].astype("string").str.strip().replace("", pd.NA)
 
+    def to_local_date(self, series: pd.Series) -> pd.Series:
+        """Return the date of each datetime, in `self.tz`, as a naive
+        midnight datetime.
+
+        Requisitions and visits are matched to a result by day. The
+        lab reports when a specimen was collected, the EDC records
+        when it was drawn and when the visit was reported, and the
+        two never agree to the second. Taken in the local time zone
+        so a specimen collected after midnight local is not placed on
+        the previous day by UTC.
+        """
+        return (
+            pd.to_datetime(series, utc=True)
+            .dt.tz_convert(self.tz)
+            .dt.tz_localize(None)
+            .dt.normalize()
+            .astype("datetime64[ns]")
+        )
+
     def resolve(self):
         expected_len = len(self.df)
         self.df = self.df.merge(self.df_utestid, on="utestid", how="left").reset_index(
             drop=True
         )
         self._assert_row_count_during_resolve(expected_len, "merge with df_utestid")
+
+        # before the requisition and visit passes, which match on
+        # `subject_identifier`. A specimen drawn at screening is
+        # reported with only a `screening_identifier`.
+        self.resolve_screening_to_subject()
+        self._assert_row_count_during_resolve(
+            expected_len, "resolve_screening_to_subject_identifier"
+        )
 
         self.resolve_requisitions()
         self._assert_row_count_during_resolve(expected_len, "resolve_requisitions")
@@ -236,11 +269,6 @@ class ResultImporter:
 
         self.resolve_sites()
         self._assert_row_count_during_resolve(expected_len, "resolve_sites")
-
-        self.resolve_screening_to_subject()
-        self._assert_row_count_during_resolve(
-            expected_len, "resolve_screening_to_subject_identifier"
-        )
 
     def _assert_row_count_during_resolve(self, expected_len: int, step: str) -> None:
         if len(self.df) != expected_len:
@@ -385,11 +413,18 @@ class ResultImporter:
             # `get_requisition_df` returns a row per requisition and utest
             # id, mapped across every panel. Remap from one row per
             # requisition with `df_utestid`, which leaves out POC panels.
+            # Its `visit_code` is a float, `Result.visit_code` and
+            # `df_related_visits` want the visit code string.
             df = (
-                get_requisition_df()
-                .drop(columns="utestid", errors="ignore")
+                get_requisition_df(exclude_item_types=[FINGER_PRICK])
+                .drop(columns=["utestid", "visit_code"], errors="ignore")
+                .rename(columns={"visit_code_str": "visit_code"})
                 .drop_duplicates(subset="requisition")
             )
+            df["visit_code"] = df["visit_code"].astype("string")
+            # join keys only, see `to_local_date`
+            df["drawn_date"] = self.to_local_date(df["drawn_datetime"])
+            df["requisition_date"] = self.to_local_date(df["requisition_datetime"])
             # a utest id reported under one panel may be drawn under
             # another, and requisitions exist only for the panel it was
             # drawn under. See `get_requisition_panel_name_map`
@@ -401,7 +436,7 @@ class ResultImporter:
             self._df_requisitions = (
                 df.sort_values("visit_code_sequence")
                 .drop_duplicates(
-                    subset=["subject_identifier", "visit_code", "drawn_datetime", "utestid"],
+                    subset=["subject_identifier", "visit_code", "drawn_date", "utestid"],
                     keep="first",
                 )
                 .reset_index(drop=True)
@@ -445,6 +480,8 @@ class ResultImporter:
                 raise ValueError
 
             df["visit_datetime"] = pd.to_datetime(df["visit_datetime"], utc=True)
+            # join key only, see `to_local_date`
+            df["visit_date"] = self.to_local_date(df["visit_datetime"])
             self._df_related_visit = df.copy().reset_index(drop=True)
         return self._df_related_visit
 
@@ -484,10 +521,10 @@ class ResultImporter:
         results = []
         suffixes = ("", "_right")
         key_sets = [
-            ["subject_identifier", "specimen_collected_datetime", "utestid"],
-            ["subject_identifier", "order_datetime", "utestid"],
+            ["subject_identifier", "specimen_collected_date", "utestid"],
+            ["subject_identifier", "order_date", "utestid"],
         ]
-        for datecol in ["drawn_datetime", "requisition_datetime"]:
+        for datecol in ["drawn_date", "requisition_date"]:
             for keys in key_sets:
                 merged = remaining.merge(
                     self.df_requisitions,
@@ -513,14 +550,14 @@ class ResultImporter:
         df_related_visits = self.df_related_visits
         suffixes = ("", "_right")
         key_sets = [
-            ["subject_identifier", "specimen_collected_datetime"],
-            ["subject_identifier", "order_datetime"],
+            ["subject_identifier", "specimen_collected_date"],
+            ["subject_identifier", "order_date"],
         ]
         for keys in key_sets:
             merged = remaining.merge(
                 df_related_visits,
                 left_on=keys,
-                right_on=["subject_identifier", "visit_datetime"],
+                right_on=["subject_identifier", "visit_date"],
                 how="left",
                 indicator=True,
                 suffixes=suffixes,
@@ -556,10 +593,14 @@ class ResultImporter:
         """Assign the baseline visit to a specimen drawn before the
         subject had one.
 
-        The passes above match the specimen datetime against the visit
-        report datetime by exact equality. A specimen drawn at
-        screening, before enrolment, and reported at baseline can never
-        satisfy that: the two datetimes are days apart by definition.
+        The passes above match the specimen date against the visit
+        report date. A specimen drawn at screening, before enrolment,
+        and reported at baseline can never satisfy that: the two dates
+        are days apart by definition.
+
+        Compared by date, see `to_local_date`, so a specimen collected
+        on the baseline day but after the visit was reported still
+        matches.
 
         Such a specimen cannot belong to a later timepoint either, so
         baseline is the only candidate. Bounded by
@@ -580,15 +621,14 @@ class ResultImporter:
             indicator=True,
             suffixes=("", "_right"),
         )
+        specimen_date = self.to_local_date(merged["specimen_collected_datetime"])
+        visit_date = self.to_local_date(merged["visit_datetime_right"])
         within = (
             (merged["_merge"] == "both")
-            & merged["specimen_collected_datetime"].notna()
-            & merged["visit_datetime_right"].notna()
-            & (merged["specimen_collected_datetime"] <= merged["visit_datetime_right"])
-            & (
-                merged["visit_datetime_right"] - merged["specimen_collected_datetime"]
-                <= pd.Timedelta(days=self.max_days_before_baseline)
-            )
+            & specimen_date.notna()
+            & visit_date.notna()
+            & (specimen_date <= visit_date)
+            & (visit_date - specimen_date <= pd.Timedelta(days=self.max_days_before_baseline))
         ).fillna(False)
         matched = merged[within].drop(columns="_merge")
         return matched, merged.loc[~within, remaining.columns]
@@ -604,9 +644,10 @@ class ResultImporter:
             on="subject_identifier",
             how="left",
         ).reset_index(drop=True)
-        self.df["site"] = pd.NA
-        self.df.loc[self.df["site_x"].isna(), "site"] = self.df["site_y"]
-        self.df.loc[self.df["site_y"].isna(), "site"] = self.df["site_x"]
+        # prefer the registered subject's site. A row with both
+        # identifiers, now that `resolve_screening_to_subject` runs
+        # first, would otherwise be left with neither
+        self.df["site"] = self.df["site_y"].fillna(self.df["site_x"])
         self.df = self.df.drop(columns=["site_x", "site_y"])
 
     def resolve_screening_to_subject(self):

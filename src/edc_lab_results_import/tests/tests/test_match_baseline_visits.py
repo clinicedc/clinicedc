@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import timedelta
 from io import StringIO
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 from clinicedc_constants import FEMALE
@@ -26,6 +27,7 @@ def make_importer(max_days_before_baseline: int | None = None) -> ResultImporter
     importer = ResultImporter.__new__(ResultImporter)
     importer.stdout = StringIO()
     importer.style = color_style()
+    importer.tz = ZoneInfo("UTC")
     importer.max_days_before_baseline = (
         MAX_DAYS_BEFORE_BASELINE
         if max_days_before_baseline is None
@@ -37,10 +39,10 @@ def make_importer(max_days_before_baseline: int | None = None) -> ResultImporter
 @tag("lab_results_import")
 @override_settings(SITE_ID=SiteID(10))
 class TestMatchBaselineVisits(TestCase):
-    """The two passes before this one match the specimen datetime
-    against the visit report datetime by exact equality. A specimen
-    drawn at screening and reported at baseline can never satisfy that,
-    since the two datetimes are days apart by definition.
+    """The two passes before this one match the specimen date against
+    the visit report date. A specimen drawn at screening and reported
+    at baseline can never satisfy that, since the two dates are days
+    apart by definition.
     """
 
     def setUp(self):
@@ -105,6 +107,15 @@ class TestMatchBaselineVisits(TestCase):
     def test_matches_a_specimen_drawn_at_baseline(self):
         matched, _ = self.match(self.baseline_datetime)
         self.assertEqual(1, len(matched))
+
+    def test_matches_a_specimen_drawn_later_on_the_baseline_day(self):
+        """Compared by date. The specimen may be collected after the
+        visit was reported.
+        """
+        self.baseline_datetime = self.baseline_datetime.normalize() + timedelta(hours=8)
+        matched, remaining = self.match(self.baseline_datetime + timedelta(hours=3))
+        self.assertEqual(1, len(matched))
+        self.assertEqual(0, len(remaining))
 
     def test_matches_at_the_bound(self):
         matched, _ = self.match(
