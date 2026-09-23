@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "4.10.2"
+version = "4.11.0"
 description = "A clinical trials data management framework built on Django"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -122,7 +122,6 @@ module-name = [
     "edc_lab_dashboard",
     "edc_lab_panel",
     "edc_lab_results",
-    "edc_lab_results_import",
     "edc_label",
     "edc_list_data",
     "edc_listboard",

@@ -698,7 +698,7 @@ wheels = [
 
 [[package]]
 name = "clinicedc"
-version = "4.10.2"
+version = "4.11.0"
 source = { editable = "." }
 dependencies = [
     { name = "argon2-cffi" },
@@ -1555,11 +1555,11 @@ wheels = [
 
 [[package]]
 name = "filelock"
-version = "4.0.1"
+version = "4.0.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6f/38/88cd6eda96c40594a1e3da7d8b40f04bc40ace5a6aef9ac5cb407540f173/filelock-4.0.1.tar.gz", hash = "sha256:fdefc3f3e87716d855ae2b732c1cfd521dd99799ef2b4d00e8c0d4dcdc7cc94b", size = 238888, upload-time = "2026-09-19T01:08:15.958Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/15/c0/dae217a1af7595d36c90e4c4c81cd2e801dd2fe3c1bda2255b7e9386a130/filelock-4.0.2.tar.gz", hash = "sha256:0b7b3b63255dc289a48076c8b77eb63c973fb913185c6dc4651b16820cc1097d", size = 243554, upload-time = "2026-09-23T22:36:56.243Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/29/33/af0635ab07fe83b1788a1dbe370ff3e226062495a998335cb18a1cac81aa/filelock-4.0.1-py3-none-any.whl", hash = "sha256:481a321a27bef441e23c53371c6abc8d7d16e26b97090074ba44f7538a3fd55a", size = 106219, upload-time = "2026-09-19T01:08:14.49Z" },
+    { url = "https://files.pythonhosted.org/packages/06/72/25da2cfd66ce639039966f97c07e5f9fa3f0a10c558c031cff80c27a8f9c/filelock-4.0.2-py3-none-any.whl", hash = "sha256:ac613ea13d8a99f9e9c05cd3d0991bbcbaed81e4b53790350ddf4077996e5d70", size = 108249, upload-time = "2026-09-23T22:36:54.421Z" },
 ]
 
 [[package]]
