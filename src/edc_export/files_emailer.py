@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.mail.message import EmailMessage
 from django.utils import timezone
 
-from edc_notification.utils import get_email_contacts
+from edc_notification.utils import get_email_contact
 from edc_protocol.trial_settings import trial_settings
 
 if TYPE_CHECKING:
@@ -94,7 +94,7 @@ class FilesEmailer:
         return EmailMessage(
             subject=f"{trial_settings.protocol_name.title()} trial data request",
             body="\n\n".join(body),
-            from_email=get_email_contacts("data_request"),
+            from_email=get_email_contact("data_request"),
             to=[self.user.email],
         )
 

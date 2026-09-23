@@ -1,20 +1,21 @@
 import contextlib
 import sys
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.checks import Warning as DjangoWarning
 from django.db.models import Q
 from django.db.utils import OperationalError, ProgrammingError
 
+from .utils import get_email_enabled
+
 
 def edc_notification_check(app_configs, **kwargs):
     errors = []
-    if not getattr(settings, "EMAIL_ENABLED", False):
+    if not get_email_enabled():
         errors.append(
             DjangoWarning(
                 "Notifications by email are disabled.",
-                hint="To enable set settings.EMAIL_ENABLED = True",
+                hint="To enable set settings.EDC_MAIL_ENABLED = True",
                 id="edc_notification.W002",
             )
         )

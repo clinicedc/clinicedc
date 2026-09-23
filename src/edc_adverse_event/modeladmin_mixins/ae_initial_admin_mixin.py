@@ -9,7 +9,7 @@ from django_audit_fields.admin import audit_fieldset_tuple
 from edc_action_item.fieldsets import action_fieldset_tuple
 from edc_action_item.modeladmin_mixins import ActionItemModelAdminMixin
 from edc_model_admin.dashboard import ModelAdminSubjectDashboardMixin
-from edc_notification.utils import get_email_contacts
+from edc_notification.utils import get_email_contact
 from edc_pdf_reports.admin import PdfButtonModelAdminMixin, print_selected_to_pdf_action
 
 from ..forms import AeInitialForm
@@ -84,7 +84,7 @@ class AeInitialModelAdminMixin(
 
     actions = (print_to_pdf_action,)
 
-    email_contact = get_email_contacts("ae_reports")
+    email_contact = get_email_contact("ae_reports")
     additional_instructions = format_html(  # nosec B308, B703
         "Complete the initial AE report and forward to the TMG. "
         'Email to <a href="mailto:{}">{}</a>',

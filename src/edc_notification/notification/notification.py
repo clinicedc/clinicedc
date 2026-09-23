@@ -15,7 +15,7 @@ from edc_protocol.trial_settings import trial_settings
 from edc_sites.site import SiteNotRegistered, sites
 
 from ..site_notifications import site_notifications
-from ..utils import get_email_contacts, get_email_enabled
+from ..utils import get_default_email_to, get_email_contact, get_email_enabled
 
 if TYPE_CHECKING:
     from ..stubs import NotificationModelStub
@@ -37,7 +37,7 @@ class Notification:
 
     sms_client = Client
 
-    email_from: str = get_email_contacts("data_manager")
+    email_from: str = get_email_contact("data_manager")
     email_to: tuple[str, ...] | None = None  # usually a mailing list address
     email_message_cls = EmailMessage
 
@@ -96,7 +96,8 @@ class Notification:
 
     @property
     def default_email_to(self) -> tuple[str, ...]:
-        return (f"{self.name}.{settings.APP_NAME}@mg.clinicedc.org",)
+        """Usually to a mailing list"""
+        return get_default_email_to(self.name)
 
     def notify(
         self,

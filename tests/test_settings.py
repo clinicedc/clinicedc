@@ -42,8 +42,8 @@ project_settings = DefaultTestSettings(
     EDC_LTFU_MODEL_NAME="edc_ltfu.ltfu",
     LIST_MODEL_APP_LABEL="clinicedc_tests",
     ADVERSE_EVENT_APP_LABEL="clinicedc_tests",
-    EMAIL_ENABLED=True,
-    EMAIL_CONTACTS={
+    EDC_MAIL_ENABLED=True,
+    EDC_MAIL_CONTACTS={
         "ae_reports": "joe@sample.com",
         "data_manager": "joe@sample.com",
         "tmg": "joe@sample.com",
