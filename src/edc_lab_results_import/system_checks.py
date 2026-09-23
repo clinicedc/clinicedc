@@ -4,87 +4,78 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.checks import Error
-from django.core.checks import Warning as CheckWarning
 
-from .utils import get_private_path, private_path_attr
+from .utils import storage_dir_attr, upload_dir_attr
+
+
+def _dir_errors(attr: str, hint: str, not_set_id: str, not_found_id: str) -> list:
+    """Return errors for a folder setting that is not set or does
+    not exist.
+
+    Reads settings directly rather than calling the getters in
+    `utils`, which raise instead of reporting.
+    """
+    location = getattr(settings, attr, None)
+    if not location:
+        return [Error(f"{attr} is not set.", hint=hint, id=not_set_id)]
+    base = Path(location).expanduser()
+    if not base.is_dir():
+        return [
+            Error(
+                f"{attr} does not exist or is not a folder: {base}",
+                hint=f"Run: mkdir -p {base}",
+                id=not_found_id,
+            )
+        ]
+    return []
+
+
+def storage_dir_check(app_configs: object, **kwargs: object) -> list:
+    return _dir_errors(
+        storage_dir_attr,
+        hint=(
+            f"Set {storage_dir_attr} to the folder where original result PDFs "
+            "are archived after import."
+        ),
+        not_set_id="edc_lab_results_import.E004",
+        not_found_id="edc_lab_results_import.E005",
+    )
 
 
 def upload_dir_check(app_configs: object, **kwargs: object) -> list:
-    errors: list = []
+    return _dir_errors(
+        upload_dir_attr,
+        hint=(
+            f"Set {upload_dir_attr} to the folder where result PDFs are uploaded for import."
+        ),
+        not_set_id="edc_lab_results_import.E006",
+        not_found_id="edc_lab_results_import.E007",
+    )
 
-    upload_dir = getattr(settings, "EDC_LAB_RESULTS_UPLOAD_DIR", None)
-    if not upload_dir:
-        errors.append(
-            CheckWarning(
-                "EDC_LAB_RESULTS_UPLOAD_DIR is not set.",
+
+def upload_and_storage_dirs_check(app_configs: object, **kwargs: object) -> list:
+    """Return an error if the upload folder is the storage folder or
+    is inside it.
+
+    Archived copies are content-addressed and managed by
+    `SourceDocument`. Uploaded PDFs must not be mixed in with them.
+    """
+    storage_dir = getattr(settings, storage_dir_attr, None)
+    upload_dir = getattr(settings, upload_dir_attr, None)
+    if not storage_dir or not upload_dir:
+        return []
+    storage_dir = Path(storage_dir).expanduser().resolve()
+    upload_dir = Path(upload_dir).expanduser().resolve()
+    if upload_dir == storage_dir or upload_dir.is_relative_to(storage_dir):
+        return [
+            Error(
+                f"{upload_dir_attr} may not be the same as or inside "
+                f"{storage_dir_attr}. Got {upload_dir}.",
                 hint=(
-                    "Set EDC_LAB_RESULTS_UPLOAD_DIR in your "
-                    "settings to enable lab result uploads."
+                    "Use a separate folder for uploads. The storage folder is "
+                    "managed by the application."
                 ),
-                id="edc_lab_results_import.W001",
+                id="edc_lab_results_import.E008",
             )
-        )
-        return errors
-
-    base = Path(upload_dir).expanduser()
-    if not base.is_dir():
-        errors.append(
-            Error(
-                f"EDC_LAB_RESULTS_UPLOAD_DIR does not exist: {base}",
-                hint="Create this directory or update the setting.",
-                id="edc_lab_results.E001",
-            )
-        )
-        return errors
-
-    pending = base / "pending"
-    processed = base / "processed"
-
-    if not pending.is_dir():
-        errors.append(
-            Error(
-                f"Upload 'pending' directory does not exist: {pending}",
-                hint=f"Run: mkdir -p {pending}",
-                id="edc_lab_results_import.E002",
-            )
-        )
-
-    if not processed.is_dir():
-        errors.append(
-            Error(
-                f"Upload 'processed' directory does not exist: {processed}",
-                hint=f"Run: mkdir -p {processed}",
-                id="edc_lab_results_import.E003",
-            )
-        )
-
-    return errors
-
-
-def private_path_check(app_configs: object, **kwargs: object) -> list:
-    errors: list = []
-    private_path: Path = get_private_path()
-
-    if not private_path:
-        errors.append(
-            Error(
-                f"{private_path_attr} is not set.",
-                hint=(
-                    f"Set {private_path_attr} to the folder where original "
-                    "result PDFs are archived."
-                ),
-                id="edc_lab_results_import.E004",
-            )
-        )
-        return errors
-
-    base = Path(private_path).expanduser()
-    if not base.is_dir():
-        errors.append(
-            Error(
-                f"{private_path_attr} does not exist: {base}",
-                hint=f"Run: mkdir -p {base}",
-                id="edc_lab_results_import.E005",
-            )
-        )
-    return errors
+        ]
+    return []

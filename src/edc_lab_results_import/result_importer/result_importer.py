@@ -34,7 +34,11 @@ from edc_reportable.models import NormalData
 from ..constants import MAX_DAYS_BEFORE_BASELINE
 from ..exceptions import ResultImporterError
 from ..source_documents import archive_source_document
-from ..utils import get_panel_name_by_utestid, get_requisition_panel_name_map
+from ..utils import (
+    get_panel_name_by_utestid,
+    get_requisition_panel_name_map,
+    get_upload_dir,
+)
 from .get_mappings import get_mappings
 from .get_parser import get_parser
 from .save_summary import SaveSummary
@@ -65,11 +69,16 @@ class ResultImporter:
     Parse results from a folder of PDFs and import data into
     the Result model.
 
+    PDFs are read from the upload folder, settings
+    `EDC_LAB_RESULTS_IMPORT_UPLOAD_DIR`, unless `path` is given. Each
+    parsed PDF is copied into the storage folder, settings
+    `EDC_LAB_RESULTS_IMPORT_STORAGE_DIR`, as a `SourceDocument`. The
+    PDFs in the upload folder are left in place.
+
     For example:
         # instantiate
         importer = ResultImporter(
             "MNH",
-            Path("~/upload/gmail").expanduser(),
             is_valid_identifier_func=is_valid_subject_identifier,
             extra_panels=[wbc_differential],
         )
@@ -84,7 +93,7 @@ class ResultImporter:
     def __init__(
         self,
         laboratory: str,
-        path: Path,
+        path: Path | None = None,
         *,
         tz: ZoneInfo | None = None,
         is_valid_identifier_func: Callable | None = None,
@@ -121,9 +130,9 @@ class ResultImporter:
         mappings: dict[str, dict[str, str]] = get_mappings(self.laboratory)
         self.utestid_mappings = mappings["UTESTIDS"]
         self.unit_mappings = mappings["UNITS"]
-        self.path = Path(path).expanduser()
-        if not path.is_dir():
-            raise ResultImporterError(f"Not a directory: {path}")
+        self.path = get_upload_dir() if path is None else Path(path).expanduser()
+        if not self.path.is_dir():
+            raise ResultImporterError(f"Not a directory: {self.path}")
         self.parser_func = get_parser(self.laboratory)
         self.source_document_pks: dict[str, UUID] = {}
 
