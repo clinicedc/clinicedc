@@ -21,6 +21,7 @@ def make_importer(df_utestid: pd.DataFrame) -> ResultImporter:
     importer = ResultImporter.__new__(ResultImporter)
     importer._df_requisitions = pd.DataFrame()
     importer._df_utestid = df_utestid
+    importer.tz = ZoneInfo("UTC")
     return importer
 
 
@@ -28,7 +29,7 @@ def make_df_utestid(records: list[tuple[str, str]]) -> pd.DataFrame:
     return pd.DataFrame(records, columns=["utestid", "panel_name"]).astype("string")
 
 
-def make_requisition_df() -> pd.DataFrame:
+def make_requisition_df(**kwargs) -> pd.DataFrame:
     """Shaped like `get_requisition_df`, a row per requisition and
     utest id, with its own `utestid` column.
     """
@@ -43,7 +44,9 @@ def make_requisition_df() -> pd.DataFrame:
             "requisition": [r[0] for r in rows],
             "subject_identifier": ["101-00000001-1"] * len(rows),
             "visit_code": [1000.0] * len(rows),
+            "visit_code_str": ["1000"] * len(rows),
             "visit_code_sequence": [0] * len(rows),
+            "requisition_datetime": [DRAWN] * len(rows),
             "drawn_datetime": [DRAWN] * len(rows),
             "panel_name": [r[1] for r in rows],
             "utestid": [r[2] for r in rows],
