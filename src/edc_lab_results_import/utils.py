@@ -4,38 +4,60 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils.functional import cached_property
 
-from .exceptions import EdcLabResultsPrivatePathError
+from .exceptions import EdcLabResultsStorageDirError, EdcLabResultsUploadDirError
 
 destination_subfolder_name = "source_documents"
-private_path_attr = "EDC_LAB_RESULTS_IMPORT_PRIVATE_PATH"
+storage_dir_attr = "EDC_LAB_RESULTS_IMPORT_STORAGE_DIR"
+upload_dir_attr = "EDC_LAB_RESULTS_IMPORT_UPLOAD_DIR"
 requisition_panel_map_attr = "EDC_LAB_RESULTS_IMPORT_REQUISITION_PANEL_MAP"
 
 
 class PrivateStorage(FileSystemStorage):
+    """Storage for archived source documents, rooted at the storage
+    folder. See `get_storage_dir`.
+
+    Referenced by name in migrations, do not rename.
+    """
+
     @cached_property
     def base_location(self) -> Path:
-        return get_private_path()
+        return get_storage_dir()
 
     def _clear_cached_properties(self, setting: str, **kwargs) -> None:
         super()._clear_cached_properties(setting, **kwargs)
-        if setting == private_path_attr:
+        if setting == storage_dir_attr:
             self.__dict__.pop("base_location", None)
             self.__dict__.pop("location", None)
 
 
-def get_private_path() -> Path:
-    location: str | Path = getattr(settings, private_path_attr, "")
+def _get_dir(attr: str, error_cls: type[Exception]) -> Path:
+    location: str | Path = getattr(settings, attr, "")
     if not location:
-        raise EdcLabResultsPrivatePathError(
-            f"Private path not set. See settings.{private_path_attr}."
-        )
+        raise error_cls(f"Folder not set. See settings.{attr}.")
     location: Path = Path(location).expanduser()
     if not location.is_dir():
-        raise EdcLabResultsPrivatePathError(
-            f"Private path does not exist or is not a folder. Got {location}. "
-            f"See settings.{private_path_attr}."
+        raise error_cls(
+            f"Folder does not exist or is not a folder. Got {location}. See settings.{attr}."
         )
     return location
+
+
+def get_storage_dir() -> Path:
+    """Return the folder where source documents are archived.
+
+    Managed by `SourceDocument.pdf`. Nothing else writes here and
+    PDFs are never dropped here by hand. See `get_upload_dir`.
+    """
+    return _get_dir(storage_dir_attr, EdcLabResultsStorageDirError)
+
+
+def get_upload_dir() -> Path:
+    """Return the folder where result PDFs are uploaded for import.
+
+    `ResultImporter` parses the PDFs here and copies each one into
+    the storage folder. See `get_storage_dir`.
+    """
+    return _get_dir(upload_dir_attr, EdcLabResultsUploadDirError)
 
 
 def get_panels_by_utestid(extra_panels: list | None = None) -> dict[str, list[str]]:

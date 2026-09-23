@@ -6,9 +6,9 @@ model, resolves each result to the subject, timepoint and requisition it
 belongs to, and reports what could not be resolved or does not agree
 with the CRF it was transcribed onto.
 
-Nothing here writes to a CRF. The result CRF stays the record; these
-tools say where the two disagree.
+See also download-gmail-pdfs_. If you are using it, run `download-gmail-pdfs` before running `import_results`.
 
+Your `import_results` configuration will need a parser for your specific PDF format. See also parse-trial-labs_.
 
 Settings
 --------
@@ -21,13 +21,33 @@ Settings
     # utest id and unit mapping files per laboratory
     EDC_LAB_RESULTS_MAPPING_FILES = {"MNH": "..."}
 
+    # where result PDFs are uploaded for import
+    EDC_LAB_RESULTS_IMPORT_UPLOAD_DIR = "~/edc/lab_results/upload"
+
     # where source PDFs are archived after import
-    EDC_LAB_RESULTS_IMPORT_PRIVATE_PATH = "~/edc/source_documents"
+    EDC_LAB_RESULTS_IMPORT_STORAGE_DIR = "~/edc/lab_results/storage"
 
     # which requisition panel an analyte panel is drawn under
     EDC_LAB_RESULTS_IMPORT_REQUISITION_PANEL_MAP = {"wbc_diff": "fbc"}
 
-The last one needs explaining. The panel a result is *reported* under is
+The upload and storage folders are kept apart:
+
+* **Upload folder** (``EDC_LAB_RESULTS_IMPORT_UPLOAD_DIR``). Put result
+  PDFs here, by hand or with a tool like download-gmail-pdfs_.
+  ``import_results`` reads the PDFs from this folder and leaves them in
+  place.
+* **Storage folder** (``EDC_LAB_RESULTS_IMPORT_STORAGE_DIR``). The
+  archive of original PDFs behind ``SourceDocument``. On import, each
+  PDF is copied here, stored by its sha256, and served from here
+  to users with permission. The application manages this folder. Do
+  not put files here by hand.
+
+Both folders must exist, and the upload folder may not be the storage
+folder or inside it. System checks ``E004`` to ``E008`` report
+otherwise. The storage folder holds PII and should sit outside of
+``MEDIA_ROOT``.
+
+The panel map needs explaining. The panel a result is *reported* under is
 not always the panel it was *drawn* under. The white cell differentials
 are their own analyte panel, but no visit schedule requires a
 ``wbc_diff`` requisition because they are collected on the FBC
@@ -42,8 +62,11 @@ A first import
 
 .. code-block:: bash
 
-    manage.py import_results <folder> --laboratory MNH --dry-run
-    manage.py import_results <folder> --laboratory MNH
+    manage.py import_results --laboratory MNH --dry-run
+    manage.py import_results --laboratory MNH
+
+Both read from the upload folder. Pass a folder as the first argument
+to read from somewhere else.
 
 Then check what did not resolve:
 
@@ -202,3 +225,7 @@ that agrees on the value but not the units still reads as a difference.
 Differences are taken at the precision the CRF stores, so a value
 differing only in decimal places the CRF does not hold reads as exactly
 0.0 and sorts to the bottom.
+
+
+.. _download-gmail-pdfs: https://pypi.python.org/pypi/download-gmail-pdfs
+.. _parse-trial-labs: https://github.com/erikvw/parse-trial-labs

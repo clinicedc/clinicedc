@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "4.9.1"
+version = "4.10.0"
 description = "A clinical trials data management framework built on Django"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -17,6 +17,7 @@ classifiers = [
     "Framework :: Django",
     "Framework :: Django :: 5.2",
     "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
@@ -29,7 +30,7 @@ license = "GPL-3.0-or-later"
 license-files = ["LICEN[CS]E*"]
 requires-python = '>=3.12,<3.15'
 dependencies = [
-    "Django>=5.2,<6.1",
+    "Django>=5.2,<6.2",
     "argon2-cffi>=25.1.0",
     "arrow>=1.4.0",
     "beautifulsoup4>=4.15.0",
