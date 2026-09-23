@@ -141,9 +141,7 @@ class ResultImporter:
         if pdf_count == 0:
             raise ResultImporterError(f"No PDF files found in {self.path}")
         self.parse_all_to_dataframe()
-        self.df[
-            self.df["result_datetime"] >= self.df_screening["screening_datetime"].min()
-        ].copy().reset_index(drop=True)
+        self.drop_results_before_screening()
         self.apply_mappings_after_parse()
         self.update_dtypes_after_parse()
 
@@ -171,6 +169,29 @@ class ResultImporter:
             tz=self.tz,
             is_valid_identifier_func=self.is_valid_identifier_func,
             duplicates_json_path=self.duplicates_json_path,
+        )
+
+    def drop_results_before_screening(self) -> None:
+        """Drop results dated before the first screening.
+
+        A result without a `result_datetime`, for example an unverified
+        report, cannot be placed and is kept. Nothing is dropped if no
+        subject has been screened.
+        """
+        if self.df.empty or self.df_screening.empty:
+            return
+        first_screening_datetime = pd.to_datetime(
+            self.df_screening["screening_datetime"], utc=True
+        ).min()
+        if pd.isna(first_screening_datetime):
+            return
+        before_screening = (
+            pd.to_datetime(self.df["result_datetime"], utc=True) < first_screening_datetime
+        )
+        self.df = self.df.loc[~before_screening].reset_index(drop=True)
+        self.stdout.write(
+            f"drop_results_before_screening: {before_screening.sum()} dropped, "
+            f"before {first_screening_datetime}\n"
         )
 
     def apply_mappings_after_parse(self) -> None:
