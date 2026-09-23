@@ -382,7 +382,14 @@ class ResultImporter:
     @property
     def df_requisitions(self) -> pd.DataFrame:
         if self._df_requisitions.empty:
-            df = get_requisition_df()
+            # `get_requisition_df` returns a row per requisition and utest
+            # id, mapped across every panel. Remap from one row per
+            # requisition with `df_utestid`, which leaves out POC panels.
+            df = (
+                get_requisition_df()
+                .drop(columns="utestid", errors="ignore")
+                .drop_duplicates(subset="requisition")
+            )
             # a utest id reported under one panel may be drawn under
             # another, and requisitions exist only for the panel it was
             # drawn under. See `get_requisition_panel_name_map`
