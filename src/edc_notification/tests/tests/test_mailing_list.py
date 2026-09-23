@@ -65,8 +65,7 @@ class TestMailingList(TestCase):
     @override_settings(MAILGUN_API_KEY=None, MAILGUN_API_URL=None)
     def test_api(self):
         mail = MailingListManager(address="test@sample.org", name="test", display_name="Test")
-        mail.enabled = True
-        mail.enabled = True
+        mail.email_enabled = True
 
         self.assertRaises(EmailNotEnabledError, getattr, mail, "api_url")
         self.assertRaises(EmailNotEnabledError, getattr, mail, "api_key")
