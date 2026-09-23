@@ -52,6 +52,8 @@ class ResultAdmin(ModelAdminSubjectDashboardMixin, admin.ModelAdmin):
     )
     ordering = ("-report_datetime",)
 
+    readonly_fields = ("subject_visit", "requisition", "source_document")
+
     @admin.display(description="UTESTID", ordering="utestid")
     def link_to_reportable(self, obj):
         if obj.utestid:

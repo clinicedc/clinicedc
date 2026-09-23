@@ -34,7 +34,11 @@ from edc_reportable.models import NormalData
 from ..constants import MAX_DAYS_BEFORE_BASELINE
 from ..exceptions import ResultImporterError
 from ..source_documents import archive_source_document
-from ..utils import get_panel_name_by_utestid, get_requisition_panel_name_map
+from ..utils import (
+    get_panel_name_by_utestid,
+    get_requisition_panel_name_map,
+    get_upload_dir,
+)
 from .get_mappings import get_mappings
 from .get_parser import get_parser
 from .save_summary import SaveSummary
@@ -65,11 +69,16 @@ class ResultImporter:
     Parse results from a folder of PDFs and import data into
     the Result model.
 
+    PDFs are read from the upload folder, settings
+    `EDC_LAB_RESULTS_IMPORT_UPLOAD_DIR`, unless `path` is given. Each
+    parsed PDF is copied into the storage folder, settings
+    `EDC_LAB_RESULTS_IMPORT_STORAGE_DIR`, as a `SourceDocument`. The
+    PDFs in the upload folder are left in place.
+
     For example:
         # instantiate
         importer = ResultImporter(
             "MNH",
-            Path("~/upload/gmail").expanduser(),
             is_valid_identifier_func=is_valid_subject_identifier,
             extra_panels=[wbc_differential],
         )
@@ -84,7 +93,7 @@ class ResultImporter:
     def __init__(
         self,
         laboratory: str,
-        path: Path,
+        path: Path | None = None,
         *,
         tz: ZoneInfo | None = None,
         is_valid_identifier_func: Callable | None = None,
@@ -121,9 +130,9 @@ class ResultImporter:
         mappings: dict[str, dict[str, str]] = get_mappings(self.laboratory)
         self.utestid_mappings = mappings["UTESTIDS"]
         self.unit_mappings = mappings["UNITS"]
-        self.path = Path(path).expanduser()
-        if not path.is_dir():
-            raise ResultImporterError(f"Not a directory: {path}")
+        self.path = get_upload_dir() if path is None else Path(path).expanduser()
+        if not self.path.is_dir():
+            raise ResultImporterError(f"Not a directory: {self.path}")
         self.parser_func = get_parser(self.laboratory)
         self.source_document_pks: dict[str, UUID] = {}
 
@@ -132,9 +141,7 @@ class ResultImporter:
         if pdf_count == 0:
             raise ResultImporterError(f"No PDF files found in {self.path}")
         self.parse_all_to_dataframe()
-        self.df[
-            self.df["result_datetime"] >= self.df_screening["screening_datetime"].min()
-        ].copy().reset_index(drop=True)
+        self.drop_results_before_screening()
         self.apply_mappings_after_parse()
         self.update_dtypes_after_parse()
 
@@ -162,6 +169,29 @@ class ResultImporter:
             tz=self.tz,
             is_valid_identifier_func=self.is_valid_identifier_func,
             duplicates_json_path=self.duplicates_json_path,
+        )
+
+    def drop_results_before_screening(self) -> None:
+        """Drop results dated before the first screening.
+
+        A result without a `result_datetime`, for example an unverified
+        report, cannot be placed and is kept. Nothing is dropped if no
+        subject has been screened.
+        """
+        if self.df.empty or self.df_screening.empty:
+            return
+        first_screening_datetime = pd.to_datetime(
+            self.df_screening["screening_datetime"], utc=True
+        ).min()
+        if pd.isna(first_screening_datetime):
+            return
+        before_screening = (
+            pd.to_datetime(self.df["result_datetime"], utc=True) < first_screening_datetime
+        )
+        self.df = self.df.loc[~before_screening].reset_index(drop=True)
+        self.stdout.write(
+            f"drop_results_before_screening: {before_screening.sum()} dropped, "
+            f"before {first_screening_datetime}\n"
         )
 
     def apply_mappings_after_parse(self) -> None:

@@ -1,7 +1,11 @@
 from pathlib import Path
 
 
-class EdcLabResultsPrivatePathError(Exception):
+class EdcLabResultsStorageDirError(Exception):
+    pass
+
+
+class EdcLabResultsUploadDirError(Exception):
     pass
 
 

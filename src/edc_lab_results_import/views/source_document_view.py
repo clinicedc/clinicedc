@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.base import View
 
 from ..models import SourceDocument
+from ..utils import storage_dir_attr
 
 
 class SourceDocumentView(PermissionRequiredMixin, View):
@@ -33,7 +34,7 @@ class SourceDocumentView(PermissionRequiredMixin, View):
         except FileNotFoundError as e:
             raise Http404(
                 f"Source document file not found. Got {obj.pdf.name}. "
-                "See settings.EDC_LAB_RESULTS_IMPORT_PRIVATE_PATH."
+                f"See settings.{storage_dir_attr}."
             ) from e
         return FileResponse(
             fileobj,
