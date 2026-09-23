@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 
 from edc_action_item.action_with_notification import ActionWithNotification
 from edc_action_item.site_action_items import site_action_items
-from edc_notification.utils import get_email_contacts
+from edc_notification.utils import get_email_contact
 from edc_visit_schedule.utils import (
     OnScheduleError,
     get_offschedule_models,
@@ -43,8 +43,8 @@ class AeFollowupAction(ActionWithNotification):
     instructions = format_html(  # nosec B703, B308
         "Upon submission the TMG group will be notified "
         'by email at <a href="mailto:{}">{}</a>',
-        mark_safe(get_email_contacts("tmg") or "#"),  # nosec B703, B308
-        mark_safe(get_email_contacts("tmg") or "unknown"),  # nosec B703, B308
+        mark_safe(get_email_contact("tmg") or "#"),  # nosec B703, B308
+        mark_safe(get_email_contact("tmg") or "unknown"),  # nosec B703, B308
     )
     priority = HIGH_PRIORITY
 

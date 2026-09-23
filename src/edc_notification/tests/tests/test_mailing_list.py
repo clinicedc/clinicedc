@@ -79,7 +79,7 @@ class TestMailingList(TestCase):
             display_name=self.notification_cls.display_name,
             name=self.notification_cls.name,
         )
-        manager.enabled = True
+        manager.email_enabled = True
         manager.subscribe(self.user, True)
         self.assertIn(
             "mock://localhost/somemailinglist@example.com/members",
@@ -103,7 +103,7 @@ class TestMailingList(TestCase):
             display_name=self.notification_cls.display_name,
             name=self.notification_cls.name,
         )
-        manager.enabled = True
+        manager.email_enabled = True
         manager.unsubscribe(self.user, True)
         self.assertIn(
             "mock://localhost/somemailinglist@example.com/members/erikvw@example.com",
@@ -120,7 +120,7 @@ class TestMailingList(TestCase):
             display_name=self.notification_cls.display_name,
             name=self.notification_cls.name,
         )
-        manager.enabled = True
+        manager.email_enabled = True
         manager.create(True)
         self.assertIn("mock://localhost", str(requests.post.call_args_list))
         self.assertIn("auth=('api', '123456')", str(requests.post.call_args_list))
@@ -139,7 +139,7 @@ class TestMailingList(TestCase):
             display_name=self.notification_cls.display_name,
             name=self.notification_cls.name,
         )
-        manager.enabled = True
+        manager.email_enabled = True
         manager.delete_member(self.user)
         self.assertIn(
             "mock://localhost/somemailinglist@example.com/members/erikvw@example.com",
@@ -155,7 +155,7 @@ class TestMailingList(TestCase):
             display_name=self.notification_cls.display_name,
             name=self.notification_cls.name,
         )
-        manager.enabled = True
+        manager.email_enabled = True
         manager.delete()
         self.assertIn(
             "mock://localhost/somemailinglist@example.com",
@@ -166,7 +166,7 @@ class TestMailingList(TestCase):
     @override_settings(
         MAILGUN_API_KEY="123456",
         MAILGUN_API_URL="mock://localhost",
-        EMAIL_ENABLED=True,
+        EDC_MAIL_ENABLED=True,
         EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend",
     )
     @patch("requests.post")
