@@ -63,7 +63,7 @@ class TestHospitalizationFormValidation(FormValidatorTestCaseMixin, TestCase):
                     report_datetime = timezone.now()
                     death_datetime = report_datetime + relativedelta(days=days_after)
                     cleaned_data = {
-                        "report_datetime": timezone.now(),
+                        "report_datetime": report_datetime,
                         death_report_date_field: (
                             death_datetime
                             if death_report_date_field == "death_datetime"

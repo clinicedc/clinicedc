@@ -29,6 +29,7 @@ class AeFollowupFieldsModelMixin(models.Model):
         default=NOT_APPLICABLE,
     )
 
+    # TODO: this should be an encrypted field!!
     relevant_history = models.TextField(
         verbose_name="Description summary of Adverse Event outcome",
         max_length=1000,
@@ -45,6 +46,14 @@ class AeFollowupFieldsModelMixin(models.Model):
         default=YES,
         help_text="If NO, this will be considered the final report",
     )
+
+    # auditor_comment = models.TextField(
+    #     verbose_name="Auditor comment",
+    #     max_length=1000,
+    #     blank=False,
+    #     null=False,
+    #     help_text="For auditor or other investigator auditing this record ONLY",
+    # )
 
     class Meta:
         abstract = True

@@ -11,7 +11,7 @@ from multisite.utils import get_multisite_timezone
 
 from edc_protocol.trial_dates import trial_dates
 from edc_sites import site_sites
-from edc_utils import formatted_date, formatted_datetime
+from edc_utils import formatted_datetime
 from edc_utils.date import to_local
 from edc_visit_schedule.schedule import VisitCollection
 

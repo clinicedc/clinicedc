@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 from clinicedc_constants import FEMALE, MALE
 from dateutil.relativedelta import relativedelta
 from django.apps import apps as django_apps
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from multisite.utils import get_multisite_timezone
 
