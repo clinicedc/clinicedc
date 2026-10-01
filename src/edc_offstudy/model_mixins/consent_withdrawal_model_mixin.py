@@ -2,7 +2,7 @@ from clinicedc_constants import NOT_APPLICABLE, NULL_STRING
 from clinicedc_constants.choices import YES_NO_NA
 from django.db import models
 
-from edc_dx_review.utils import get_list_model_app
+from edc_list_data.utils import get_list_model_app
 from edc_model.validators import date_not_future
 
 

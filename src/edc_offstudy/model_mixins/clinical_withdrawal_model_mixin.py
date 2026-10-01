@@ -1,7 +1,7 @@
 from clinicedc_constants import NULL_STRING
 from django.db import models
 
-from edc_dx_review.utils import get_list_model_app
+from edc_list_data.utils import get_list_model_app
 from edc_model.validators import date_not_future
 
 
