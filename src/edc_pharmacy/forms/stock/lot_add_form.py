@@ -6,9 +6,8 @@ so they aren't shown to the user.
 
 from __future__ import annotations
 
-from datetime import date
-
 from django import forms
+from django.utils import timezone
 
 from ...models import Lot
 
@@ -37,7 +36,7 @@ class LotAddForm(forms.ModelForm):
 
     def clean_expiration_date(self):
         d = self.cleaned_data.get("expiration_date")
-        if d and d <= date.today():
+        if d and d <= timezone.now().date():
             raise forms.ValidationError("Expiration date must be in the future.")
         return d
 

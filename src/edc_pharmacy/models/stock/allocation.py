@@ -159,7 +159,7 @@ class Allocation(BaseUuidModel):
     class Meta(BaseUuidModel.Meta):
         verbose_name = "Allocation"
         verbose_name_plural = "Allocations"
-        constraints = [
+        constraints = (
             # At most one *active* (un-ended) Allocation per Stock.
             # Sticky-pointer policy (see DESIGN_transaction_log.md §5.6):
             # ended Allocation rows remain — many per stock — but only one
@@ -171,4 +171,4 @@ class Allocation(BaseUuidModel):
                 condition=models.Q(ended_datetime__isnull=True),
                 name="one_active_allocation_per_stock",
             ),
-        ]
+        )

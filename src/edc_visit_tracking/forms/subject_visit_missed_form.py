@@ -9,6 +9,8 @@ from ..models import SubjectVisitMissed
 
 
 class SubjectVisitMissedFormValidator(CrfFormValidator):
+    contact_attempts = 3
+
     def clean(self):
         self.required_if(
             YES, field="contact_attempted", field_required="contact_attempts_count"
@@ -23,7 +25,7 @@ class SubjectVisitMissedFormValidator(CrfFormValidator):
                 )
             if (
                 self.cleaned_data.get("contact_attempts_count")
-                and self.cleaned_data.get("contact_attempts_count") < 3
+                and self.cleaned_data.get("contact_attempts_count") < self.contact_attempts
                 and not self.cleaned_data.get("contact_attempts_explained")
             ):
                 self.raise_validation_error(
@@ -32,7 +34,7 @@ class SubjectVisitMissedFormValidator(CrfFormValidator):
 
             if (
                 self.cleaned_data.get("contact_attempts_count")
-                and self.cleaned_data.get("contact_attempts_count") >= 3
+                and self.cleaned_data.get("contact_attempts_count") >= self.contact_attempts
                 and self.cleaned_data.get("contact_attempts_explained")
             ):
                 self.raise_validation_error(
