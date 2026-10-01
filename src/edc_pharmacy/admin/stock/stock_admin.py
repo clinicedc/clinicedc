@@ -264,7 +264,7 @@ class StockAdmin(ModelAdminMixin, SimpleHistoryAdmin):
         )
 
     @admin.display(description="Stage")
-    def lifecycle_stage(self, obj):
+    def lifecycle_stage(self, obj):  # noqa: C901, PLR0911, PLR0912
         b = self._stage_badge
         # Terminal / removal states
         if getattr(obj, "voided", False):

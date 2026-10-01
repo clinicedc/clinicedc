@@ -1,6 +1,6 @@
 [project]
 name = "clinicedc"
-version = "4.11.0"
+version = "4.12.0"
 description = "A clinical trials data management framework built on Django"
 readme = { file = "README.rst", content-type = "text/x-rst" }
 keywords = ["django", "clinicedc", "edc", "clinical trials", "research", "data management", "esource"]
@@ -37,7 +37,7 @@ dependencies = [
     "boto3>=1.43.91",
     "celery>=5.6.3",
     "clinicedc-utils>=1.0.6",
-    "clinicedc-constants>=1.6.0",
+    "clinicedc-constants>=1.7.0",
     "cryptography>=50.0.1",
     "django-admin-rangefilter>=0.15.0",
     "django-audit-fields>=2.0.6",

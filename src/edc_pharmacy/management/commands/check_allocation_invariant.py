@@ -118,7 +118,8 @@ class Command(BaseCommand):
             return 0
         self.stdout.write(
             self.style.ERROR(
-                f"  FAIL — {count} stock(s) cache an Allocation belonging to a different Stock."
+                f"  FAIL — {count} stock(s) cache an "
+                "Allocation belonging to a different Stock."
             )
         )
         if not quiet:

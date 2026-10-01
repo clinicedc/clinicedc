@@ -61,9 +61,9 @@ class OrderReport(Report):
 
     @property
     def queryset(self):
-        return self.order.orderitem_set.select_related(
-            "product", "container"
-        ).order_by("order_item_identifier")
+        return self.order.orderitem_set.select_related("product", "container").order_by(
+            "order_item_identifier"
+        )
 
     @staticmethod
     def _ship_to_location() -> Location | None:
@@ -199,9 +199,10 @@ class OrderReport(Report):
         addr_lines = [s.address_one, s.address_two]
         for line in addr_lines:
             if line and line != "-":
-                lines.append(line)
+                lines.append(line)  # noqa: PERF401
         city_state_zip = ", ".join(
-            x for x in [s.city, getattr(s, "state", ""), getattr(s, "postal_code", "")]
+            x
+            for x in [s.city, getattr(s, "state", ""), getattr(s, "postal_code", "")]
             if x and x != "-"
         )
         if city_state_zip:
@@ -250,9 +251,7 @@ class OrderReport(Report):
         for oi in self.queryset:
             unit = oi.container.name if oi.container else "—"
             assignment = (
-                str(oi.product.assignment)
-                if oi.product and oi.product.assignment
-                else "—"
+                str(oi.product.assignment) if oi.product and oi.product.assignment else "—"
             )
             rows.append(
                 [

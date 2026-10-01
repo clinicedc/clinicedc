@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
@@ -63,8 +64,6 @@ class ReceiveStockListView(
         return context
 
     def _get_order(self):
-        from django.shortcuts import get_object_or_404
-
         return get_object_or_404(Order, pk=self.kwargs["order"])
 
     @staticmethod

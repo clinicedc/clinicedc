@@ -39,12 +39,15 @@ class DateValidator(BaseFormValidator):
             reference_field or "report_datetime"
         )
         field_value = field_value or self._get_as_date(field)
-        if field_value and reference_value:
-            if not self._compare_date_to_reference_value(op, field_value, reference_value):
-                if field:
-                    self.raise_validation_error({field: msg}, INVALID_ERROR)
-                else:
-                    self.raise_validation_error(msg, INVALID_ERROR)
+        if (
+            field_value
+            and reference_value
+            and not self._compare_date_to_reference_value(op, field_value, reference_value)
+        ):
+            if field:
+                self.raise_validation_error({field: msg}, INVALID_ERROR)
+            else:
+                self.raise_validation_error(msg, INVALID_ERROR)
 
     @staticmethod
     def _compare_date_to_reference_value(

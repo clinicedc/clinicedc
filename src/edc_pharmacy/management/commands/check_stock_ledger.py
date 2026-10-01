@@ -57,7 +57,7 @@ from ...constants import (
 from ...models import Stock, StockTransaction
 
 
-def _replay(txns) -> dict:
+def _replay(txns) -> dict:  # noqa: C901, PLR0912, PLR0915
     """Derive expected Stock state by replaying an ordered transaction list.
 
     Returns a dict whose keys match Stock field names (plus ``has_allocation``
@@ -284,7 +284,7 @@ class Command(BaseCommand):
             help="Also print stocks that passed (verbose).",
         )
 
-    def handle(self, *args, **options):  # noqa: ARG002
+    def handle(self, *args, **options):  # noqa: ARG002, PLR0912
         stock_code: str | None = options["stock_code"]
         show_ok: bool = options["show_ok"]
 

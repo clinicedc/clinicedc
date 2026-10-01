@@ -159,15 +159,15 @@ Optional modules
 ----------------
 
 =========================== ============================= ==================================
-edc-csf_                    |edc-csf|                     |pypi-edc-csf|
+edc-lab-results-import_     |edc-lab-results-import|      |pypi-edc-lab-results-import|
+edc-retinopathy_            |edc-retinopathy|             |pypi-edc-retinopathy|
 edc-he_                     |edc-he|                      |pypi-edc-he|
 edc-microbiology_           |edc-microbiology|            |pypi-edc-microbiology|
 edc-microscopy_             |edc-microscopy|              |pypi-edc-microscopy|
 edc-mnsi_                   |edc-mnsi|                    |pypi-edc-mnsi|
 edc-phq9_                   |edc-phq9|                    |pypi-edc-phq9|
 edc-qol_                    |edc-qol|                     |pypi-edc-qol|
-edc-icecap-a_               |edc-icecap-a|                |pypi-edc-icecap-a|
-edc-retinopathy_            |edc-retinopathy|             |pypi-edc-retinopathy|
+edc-csf_                    |edc-csf|                     |pypi-edc-csf|
 =========================== ============================= ==================================
 
 Testing modules
@@ -235,7 +235,7 @@ Lint and format
 
 .. _edc-csf: https://github.com/clinicedc/edc-csf
 .. _edc-he: https://github.com/clinicedc/edc-he
-.. _edc-icecap-a: https://github.com/clinicedc/edc-icecap-a
+.. _edc-lab-results-import: https://github.com/clinicedc/edc-lab-results-import
 .. _edc-retinopathy: https://github.com/clinicedc/edc-retinopathy
 .. _edc-mnsi: https://github.com/clinicedc/edc-mnsi
 .. _edc-microbiology: https://github.com/clinicedc/edc-microbiology
@@ -249,8 +249,8 @@ Lint and format
   :target: https://github.com/clinicedc/edc-csf/actions/workflows/build.yml
 .. |edc-he| image:: https://github.com/clinicedc/edc-he/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-he/actions/workflows/build.yml
-.. |edc-icecap-a| image:: https://github.com/clinicedc/edc-icecap-a/actions/workflows/build.yml/badge.svg
-  :target: https://github.com/clinicedc/edc-icecap-a/actions/workflows/build.yml
+.. |edc-lab-results-import| image:: https://github.com/clinicedc/edc-lab-results-import/actions/workflows/build.yml/badge.svg
+  :target: https://github.com/clinicedc/edc-lab-results-import/actions/workflows/build.yml
 .. |edc-retinopathy| image:: https://github.com/clinicedc/edc-retinopathy/actions/workflows/build.yml/badge.svg
   :target: https://github.com/clinicedc/edc-retinopathy/actions/workflows/build.yml
 .. |edc-mnsi| image:: https://github.com/clinicedc/edc-mnsi/actions/workflows/build.yml/badge.svg
@@ -274,8 +274,8 @@ Lint and format
     :target: https://pypi.python.org/pypi/edc-csf
 .. |pypi-edc-he| image:: https://img.shields.io/pypi/v/edc-he.svg
     :target: https://pypi.python.org/pypi/edc-he
-.. |pypi-edc-icecap-a| image:: https://img.shields.io/pypi/v/edc-icecap-a.svg
-    :target: https://pypi.python.org/pypi/edc-icecap-a
+.. |pypi-edc-lab-results-import| image:: https://img.shields.io/pypi/v/edc-lab-results-import.svg
+    :target: https://pypi.python.org/pypi/edc-lab-results-import
 .. |pypi-edc-retinopathy| image:: https://img.shields.io/pypi/v/edc-retinopathy.svg
     :target: https://pypi.python.org/pypi/edc-retinopathy
 .. |pypi-edc-mnsi| image:: https://img.shields.io/pypi/v/edc-mnsi.svg

@@ -55,15 +55,16 @@ class RepackEditForm(forms.Form):
             self.fields["stock_code"].widget.attrs["readonly"] = "readonly"
             self.fields["container"].initial = instance.container
             self.fields["container_unit_qty"].initial = instance.container_unit_qty
-            self.fields["override_container_unit_qty"].initial = (
-                instance.override_container_unit_qty
-            )
+            self.fields[
+                "override_container_unit_qty"
+            ].initial = instance.override_container_unit_qty
             self.fields["item_qty_repack"].initial = instance.item_qty_repack
             if (instance.item_qty_processed or 0) > 0:
                 self.fields["stock_code"].widget.attrs["readonly"] = "readonly"
                 self.fields["item_qty_repack"].widget.attrs["readonly"] = "readonly"
                 self.fields["container"].widget.attrs["style"] = (
-                    self.fields["container"].widget.attrs.get("style", "") + " pointer-events:none;"
+                    self.fields["container"].widget.attrs.get("style", "")
+                    + " pointer-events:none;"
                 ).strip()
 
     def clean_stock_code(self):
@@ -85,7 +86,9 @@ class RepackEditForm(forms.Form):
             stock = self.instance.from_stock
         else:
             try:
-                stock = Stock.objects.get(code=code, confirmed=True, repack_request__isnull=True)
+                stock = Stock.objects.get(
+                    code=code, confirmed=True, repack_request__isnull=True
+                )
             except Stock.DoesNotExist:
                 return cleaned_data
 
@@ -103,19 +106,31 @@ class RepackEditForm(forms.Form):
             effective_qty = container_unit_qty or container.unit_qty_default
             cleaned_data["container_unit_qty"] = effective_qty
 
-            if not override and container_unit_qty and container_unit_qty != container.unit_qty_default:
+            if (
+                not override
+                and container_unit_qty
+                and container_unit_qty != container.unit_qty_default
+            ):
                 self.add_error(
                     "container_unit_qty",
                     f"Expected default of {container.unit_qty_default}. "
                     "Tick 'Override' to use a different value.",
                 )
-            if container_unit_qty and container.unit_qty_max and container_unit_qty > container.unit_qty_max:
-                self.add_error("container_unit_qty", "Cannot exceed container maximum unit quantity.")
+            if (
+                container_unit_qty
+                and container.unit_qty_max
+                and container_unit_qty > container.unit_qty_max
+            ):
+                self.add_error(
+                    "container_unit_qty", "Cannot exceed container maximum unit quantity."
+                )
             if container_unit_qty and container_unit_qty > stock.container_unit_qty:
                 self.add_error("container", "Cannot pack into a larger container.")
 
         if container and item_qty_repack and not (self.instance and self.instance.pk):
-            effective_qty = cleaned_data.get("container_unit_qty") or container.unit_qty_default
+            effective_qty = (
+                cleaned_data.get("container_unit_qty") or container.unit_qty_default
+            )
             if effective_qty and item_qty_repack * effective_qty > stock.unit_qty:
                 self.add_error(
                     "item_qty_repack",

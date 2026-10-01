@@ -27,6 +27,7 @@ from edc_pharmacy.forms.stock import (
     SCAN_GRID_PAGE_SIZE,
     ConfirmAtLocationEntryForm,
 )
+from edc_pharmacy.models import StockTransfer
 
 
 def _make_form(**overrides):
@@ -48,8 +49,8 @@ def _make_form(**overrides):
 
     form = ConfirmAtLocationEntryForm(data)
     form.fields["location"].to_python = lambda v: location if v else None
-    form.fields["location"].validate = lambda v: None
-    form.fields["location"].run_validators = lambda v: None
+    form.fields["location"].validate = lambda v: None  # noqa: ARG005
+    form.fields["location"].run_validators = lambda v: None  # noqa: ARG005
     return form, location
 
 
@@ -61,7 +62,6 @@ def _mock_transfer(*, unconfirmed: int) -> MagicMock:
 
 
 class ConfirmAtLocationEntryFormTests(SimpleTestCase):
-
     @patch("edc_pharmacy.forms.stock.confirm_at_location_entry_form.StockTransfer.objects.get")
     def test_valid_well_under_unconfirmed(self, mock_get):
         mock_get.return_value = _mock_transfer(unconfirmed=8)
@@ -125,8 +125,6 @@ class ConfirmAtLocationEntryFormTests(SimpleTestCase):
 
     @patch("edc_pharmacy.forms.stock.confirm_at_location_entry_form.StockTransfer.objects.get")
     def test_rejects_unknown_identifier(self, mock_get):
-        from edc_pharmacy.models import StockTransfer
-
         mock_get.side_effect = StockTransfer.DoesNotExist
         form, _ = _make_form(stock_transfer_identifier="DOES_NOT_EXIST")
         self.assertFalse(form.is_valid())

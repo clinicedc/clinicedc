@@ -116,7 +116,7 @@ class StockItemTransferredListFilter(SimpleListFilter):
         if self.value():
             if self.value() == YES:
                 qs = queryset.filter(
-                    allocation__stock__in_transit=True,  # StockRequestItem → Allocation → Stock
+                    allocation__stock__in_transit=True,  # StockRequestItem→Allocation→Stock
                 )
             elif self.value() == NO:
                 qs = queryset.filter(
@@ -483,7 +483,7 @@ class StageListFilter(SimpleListFilter):
             ("voided", "Voided"),
         )
 
-    def queryset(self, request, queryset):  # noqa: ARG002
+    def queryset(self, request, queryset):  # noqa: ARG002, C901, PLR0911, PLR0912
         v = self.value()
         if not v:
             return None

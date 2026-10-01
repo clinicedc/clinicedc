@@ -43,13 +43,15 @@ class ManifestReport(Report):
 
     @property
     def queryset(self):
-        return self.stock_transfer.stocktransferitem_set.select_related(
-            "stock__allocation__registered_subject",
-            "stock__product__formulation",
-        ).prefetch_related(
-            "stock__allocations",
-        ).order_by(
-            "stock__allocation__registered_subject__subject_identifier"
+        return (
+            self.stock_transfer.stocktransferitem_set.select_related(
+                "stock__allocation__registered_subject",
+                "stock__product__formulation",
+            )
+            .prefetch_related(
+                "stock__allocations",
+            )
+            .order_by("stock__allocation__registered_subject__subject_identifier")
         )
 
     def get_report_story(self, document_template: SimpleDocTemplate = None, **kwargs):  # noqa: ARG002

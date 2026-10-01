@@ -1,6 +1,5 @@
-from clinicedc_constants import DEAD, OTHER
+from clinicedc_constants import CONSENT_WITHDRAWAL, DEAD, OTHER
 
-from edc_consent.constants import CONSENT_WITHDRAWAL
 from edc_visit_tracking.constants import COMPLETED_PROTOCOL_VISIT, LOST_VISIT
 
 OFFSTUDY_REASONS = (

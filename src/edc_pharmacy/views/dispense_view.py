@@ -92,12 +92,14 @@ class DispenseView(EdcViewMixin, NavbarViewMixin, EdcProtocolViewMixin, Template
         formulation = Formulation.objects.get(pk=formulation_id)
         subject_identifier = request.POST.get("subject_identifier")
         container_count = request.POST.get("container_count")
-        stock_codes = request.POST.getlist("codes") if request.POST.get("codes") else None
+        stock_codes: list[str] = (
+            request.POST.getlist("codes") if request.POST.get("codes") else []
+        )
         rx = self.get_rx(subject_identifier, location, formulation)
 
         if location and formulation and rx and container_count:
             if stock_codes:
-                dispensed, already_dispensed, invalid = dispense(
+                dispensed, _, _ = dispense(
                     stock_codes,
                     location,
                     rx,

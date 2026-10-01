@@ -17,6 +17,14 @@ if TYPE_CHECKING:
     from ..models import Stock, StockRequest
 
 
+def allocation_matches_or_raise(subject_identifier, stock_obj, allocation) -> None:
+    if stock_obj.product.assignment != allocation.assignment:
+        raise AllocationError(
+            "Assignment mismatch. Stock must match subject assignment. "
+            f"See {subject_identifier} and {stock_obj}."
+        )
+
+
 def allocate_stock(
     stock_request: StockRequest,
     allocation_data: dict[str, str],
@@ -82,12 +90,7 @@ def allocate_stock(
                         user_created=user_created,
                         created=created or timezone.now(),
                     )
-                    if stock_obj.product.assignment != allocation.assignment:
-                        raise AllocationError(
-                            "Assignment mismatch. Stock must match subject "
-                            "assignment. "
-                            f"See {subject_identifier} and {stock_obj}."
-                        )
+                    allocation_matches_or_raise(subject_identifier, stock_obj, allocation)
                     apply_transaction(
                         stock_obj,
                         TXN_ALLOCATED,

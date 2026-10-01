@@ -67,7 +67,7 @@ def _current_state(stock: Stock) -> CurrentState:
     )
 
 
-def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:  # noqa: C901
+def _apply_delta(stock: Stock, delta: StateDelta, **kwargs) -> dict:  # noqa: C901, PLR0912, PLR0915
 
     update_fields: list[str] = []
     created_objects: dict = {}

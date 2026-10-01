@@ -70,14 +70,22 @@ class StockTakeDiscrepancyReport(Report):
         story = []
 
         # Title row
-        title_data = [[
-            Paragraph(_("Stock Take Discrepancy Report").upper(), ParagraphStyle(
-                "title", fontSize=11, alignment=TA_LEFT, fontName="Helvetica-Bold"
-            )),
-            Paragraph(self.protocol_name.upper(), ParagraphStyle(
-                "title_r", fontSize=11, alignment=TA_RIGHT, fontName="Helvetica-Bold"
-            )),
-        ]]
+        title_data = [
+            [
+                Paragraph(
+                    _("Stock Take Discrepancy Report").upper(),
+                    ParagraphStyle(
+                        "title", fontSize=11, alignment=TA_LEFT, fontName="Helvetica-Bold"
+                    ),
+                ),
+                Paragraph(
+                    self.protocol_name.upper(),
+                    ParagraphStyle(
+                        "title_r", fontSize=11, alignment=TA_RIGHT, fontName="Helvetica-Bold"
+                    ),
+                ),
+            ]
+        ]
         story.append(Table(title_data))
         story.append(Spacer(0.1 * cm, 0.4 * cm))
 
@@ -118,18 +126,20 @@ class StockTakeDiscrepancyReport(Report):
         ncols = 3
         nrows = -(-len(entries) // ncols)
         columns = [entries[c * nrows : (c + 1) * nrows] for c in range(ncols)]
-        grid = [
-            [col[r] if r < len(col) else "" for col in columns] for r in range(nrows)
-        ]
+        grid = [[col[r] if r < len(col) else "" for col in columns] for r in range(nrows)]
         data = [[Paragraph(cell, _CELL_STYLE) for cell in grid_row] for grid_row in grid]
         table = Table(data, colWidths=[9 * cm, 9 * cm, 9 * cm])
-        table.setStyle(TableStyle([
-            ("FONTSIZE", (0, 0), (-1, -1), 7),
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-            ("LEFTPADDING", (0, 0), (-1, -1), 0),
-            ("TOPPADDING", (0, 0), (-1, -1), 1),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
-        ]))
+        table.setStyle(
+            TableStyle(
+                [
+                    ("FONTSIZE", (0, 0), (-1, -1), 7),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                    ("TOPPADDING", (0, 0), (-1, -1), 1),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
+                ]
+            )
+        )
         return [
             Paragraph(_("TXN — last transaction codes").upper(), _LOC_STYLE),
             Spacer(0.1 * cm, 0.15 * cm),
@@ -161,19 +171,19 @@ class StockTakeDiscrepancyReport(Report):
                 .order_by("status", "code")
             )
             location_name = b.location.display_name or b.location.name
-            bin_label = (
-                f"{b.name} ({b.bin_identifier})" if b.name else b.bin_identifier
-            )
+            bin_label = f"{b.name} ({b.bin_identifier})" if b.name else b.bin_identifier
             if location_name not in rows_by_location:
                 rows_by_location[location_name] = (b.location, [])
-            rows_by_location[location_name][1].extend([
-                {
-                    "bin": bin_label,
-                    "item": item,
-                    "stock_take_datetime": last.stock_take_datetime,
-                }
-                for item in items
-            ])
+            rows_by_location[location_name][1].extend(
+                [
+                    {
+                        "bin": bin_label,
+                        "item": item,
+                        "stock_take_datetime": last.stock_take_datetime,
+                    }
+                    for item in items
+                ]
+            )
         if self.txn_abbr or self.resolved:
             rows_by_location = self._filter_rows(rows_by_location)
         return rows_by_location
@@ -225,20 +235,29 @@ class StockTakeDiscrepancyReport(Report):
 
     def _location_table(self, rows: list[dict]) -> Table:
         col_widths = [
-            2.0 * cm, 3.5 * cm, 2.8 * cm, 3.6 * cm, 2.2 * cm,
-            2.0 * cm, 2.4 * cm, 4.0 * cm, 1.4 * cm,
+            2.0 * cm,
+            3.5 * cm,
+            2.8 * cm,
+            3.6 * cm,
+            2.2 * cm,
+            2.0 * cm,
+            2.4 * cm,
+            4.0 * cm,
+            1.4 * cm,
         ]
-        data = [[
-            Paragraph(_("BIN"), _HEADER_STYLE),
-            Paragraph(_("CODE"), _HEADER_STYLE),
-            Paragraph(_("SUBJECT"), _HEADER_STYLE),
-            Paragraph(_("PRODUCT"), _HEADER_STYLE),
-            Paragraph(_("ISSUE"), _HEADER_STYLE),
-            Paragraph(_("STOCK TAKE DATE"), _HEADER_STYLE),
-            Paragraph(_("ACTION"), _HEADER_STYLE),
-            Paragraph(_("AUDIT NOTE"), _HEADER_STYLE),
-            Paragraph(_("TXN"), _HEADER_STYLE),
-        ]]
+        data = [
+            [
+                Paragraph(_("BIN"), _HEADER_STYLE),
+                Paragraph(_("CODE"), _HEADER_STYLE),
+                Paragraph(_("SUBJECT"), _HEADER_STYLE),
+                Paragraph(_("PRODUCT"), _HEADER_STYLE),
+                Paragraph(_("ISSUE"), _HEADER_STYLE),
+                Paragraph(_("STOCK TAKE DATE"), _HEADER_STYLE),
+                Paragraph(_("ACTION"), _HEADER_STYLE),
+                Paragraph(_("AUDIT NOTE"), _HEADER_STYLE),
+                Paragraph(_("TXN"), _HEADER_STYLE),
+            ]
+        ]
 
         stock_ids = [row["item"].stock_id for row in rows]
         txn_abbr_by_stock = self._last_txn_abbr_by_stock(rows)
@@ -268,37 +287,50 @@ class StockTakeDiscrepancyReport(Report):
             txn_abbr = txn_abbr_by_stock.get(item.stock_id, "")
             action, audit_note = self._action_and_note(item)
 
-            data.append([
-                Paragraph(row["bin"], _CELL_CENTER),
-                code_cell,
-                Paragraph(subject_identifier, _CELL_STYLE),
-                Paragraph(product_name, _CELL_STYLE),
-                Paragraph(issue, _CELL_CENTER),
-                Paragraph(take_date, _CELL_CENTER),
-                Paragraph(action, _CELL_CENTER),
-                Paragraph(audit_note, _CELL_STYLE),
-                Paragraph(txn_abbr, _CELL_CENTER),
-            ])
+            data.append(
+                [
+                    Paragraph(row["bin"], _CELL_CENTER),
+                    code_cell,
+                    Paragraph(subject_identifier, _CELL_STYLE),
+                    Paragraph(product_name, _CELL_STYLE),
+                    Paragraph(issue, _CELL_CENTER),
+                    Paragraph(take_date, _CELL_CENTER),
+                    Paragraph(action, _CELL_CENTER),
+                    Paragraph(audit_note, _CELL_STYLE),
+                    Paragraph(txn_abbr, _CELL_CENTER),
+                ]
+            )
 
         table = Table(data, colWidths=col_widths, repeatRows=1)
-        table.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("FONTSIZE", (0, 1), (-1, -1), 7),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.Color(0.95, 0.95, 0.95)]),
-        ]))
+        table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("FONTSIZE", (0, 1), (-1, -1), 7),
+                    (
+                        "ROWBACKGROUNDS",
+                        (0, 1),
+                        (-1, -1),
+                        [colors.white, colors.Color(0.95, 0.95, 0.95)],
+                    ),
+                ]
+            )
+        )
         return table
 
     def _bin_summary_table(self, location) -> Table:
         col_widths = [5 * cm, 5 * cm, 4 * cm]
-        data = [[
-            Paragraph(_("BIN"), _HEADER_STYLE),
-            Paragraph(_("LAST STOCK TAKE"), _HEADER_STYLE),
-            Paragraph(_("PERFORMED BY"), _HEADER_STYLE),
-        ]]
+        data = [
+            [
+                Paragraph(_("BIN"), _HEADER_STYLE),
+                Paragraph(_("LAST STOCK TAKE"), _HEADER_STYLE),
+                Paragraph(_("PERFORMED BY"), _HEADER_STYLE),
+            ]
+        ]
         bins = (
             StorageBin.objects.filter(in_use=True, location=location)
             .select_related("location")
@@ -318,20 +350,31 @@ class StockTakeDiscrepancyReport(Report):
             else:
                 take_date = "—"
                 performed_by = "—"
-            data.append([
-                Paragraph(bin_label, _CELL_STYLE),
-                Paragraph(take_date, _CELL_CENTER),
-                Paragraph(performed_by, _CELL_CENTER),
-            ])
+            data.append(
+                [
+                    Paragraph(bin_label, _CELL_STYLE),
+                    Paragraph(take_date, _CELL_CENTER),
+                    Paragraph(performed_by, _CELL_CENTER),
+                ]
+            )
 
         table = Table(data, colWidths=col_widths, repeatRows=1)
-        table.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
-            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
-            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-            ("FONTSIZE", (0, 1), (-1, -1), 7),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.Color(0.95, 0.95, 0.95)]),
-        ]))
+        table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.white),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("FONTSIZE", (0, 1), (-1, -1), 7),
+                    (
+                        "ROWBACKGROUNDS",
+                        (0, 1),
+                        (-1, -1),
+                        [colors.white, colors.Color(0.95, 0.95, 0.95)],
+                    ),
+                ]
+            )
+        )
         return table
